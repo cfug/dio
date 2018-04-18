@@ -1,0 +1,25 @@
+<component name="libraryTable">
+  <library name="Dart SDK">
+    <CLASSES>
+      <root url="file:///usr/local/opt/dart/libexec/lib/async" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/collection" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/convert" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/core" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/developer" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/html" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/indexed_db" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/io" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/isolate" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/js" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/js_util" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/math" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/mirrors" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/svg" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/typed_data" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/web_audio" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/web_gl" />
+      <root url="file:///usr/local/opt/dart/libexec/lib/web_sql" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>

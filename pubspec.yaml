@@ -1,0 +1,21 @@
+name: dio
+description: A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, File downloading etc. and Dio is very easy to use.
+version: 0.0.4
+homepage: https://github.com/flutterchina/dio
+author: wendux <824783146@qq.com>
+
+environment:
+  sdk: '>=1.20.1 <2.0.0'
+
+#dependencies:
+#path: ^1.4.1
+
+dev_dependencies:
+  test: "^0.12.0"
+  coverage: "^0.9.3"
+  dart_codecov_generator:
+    git:
+      url: "https://github.com/wendux/dart.git"
+
+documentation:
+
