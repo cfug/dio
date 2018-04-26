@@ -1,6 +1,6 @@
 name: dio
 description: A powerful Http client for Dart, which supports Interceptors, FormData, Request Cancellation, File Downloading, Timeout etc.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/flutterchina/dio
 author: wendux <824783146@qq.com>
 
@@ -16,9 +16,9 @@ dev_dependencies:
   dart_codecov_generator:
     git:
       url: "https://github.com/wendux/dart-codecov.git"
-  dartdoc:
-    git:
-      url: "https://github.com/wendux/dartdoc"
+#  dartdoc:
+#    git:
+#      url: "https://github.com/wendux/dartdoc"
 
 documentation:
 
