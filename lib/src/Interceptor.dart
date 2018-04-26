@@ -46,6 +46,7 @@ class _InterceptorBase {
    * will enter a queue.
    *
    * [callback] the function  will return a `Future<Response>`
+   * @nodoc
    */
   Future enqueue(Future<Response> callback()) {
     if (_lock != null) {

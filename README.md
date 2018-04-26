@@ -1,17 +1,17 @@
 # dio 
 
 [![build statud](https://img.shields.io/travis/flutterchina/dio/master.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
-[![Pub](https://img.shields.io/pub/v/box2d.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
+[![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
 [![coverage](https://img.shields.io/codecov/c/github/flutterchina/dio/master.svg?style=flat-square)](https://codecov.io/github/flutterchina/dio?branch=master)
 [![support](https://img.shields.io/badge/platform-flutter%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
 
-A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, File downloading, timeout etc. 
+A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc. 
 
 ### Add dependency
 
 ```yaml
 dependencies:
-  dio: ^0.0.4
+  dio: ^0.0.5
 ```
 
 ## Super simple to use
@@ -46,6 +46,8 @@ print(response.data);
 - [Set proxy and HttpClient config](#set-proxy-and-httpclient-config)
 
 - [Cancellation](#cancellation)
+
+- [Cookie Manager](#cookie manager)
 
 - [Features and bugs](#features-and-bugs)
 
@@ -488,6 +490,28 @@ token.cancel("cancelled");
 ```
 
 There is a complete example [here](https://github.com/wendux/dio/tree/master/example/cancelRequest.dart).
+
+## Cookie Manager
+
+You can manage the request/response cookies using `cookieJar` .
+
+> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
+
+You can create a `DefaultCookieJar` or `PersistCookieJar` to manage cookies automaticlly, the example codes as follows:
+
+```dart
+var dio = new Dio();
+dio.cookieJar=new PersistCookieJar("./cookies");
+```
+
+`PersistCookieJar` is a cookie manager which implements the standard cookie policy declared in RFC. `PersistCookieJar` persists the cookies in files, so if the application exit, the cookies always exist unless call `delete` explicitly.
+
+
+More details about [cookie_jar](https://github.com/flutterchina/)  see : https://github.com/flutterchina/cookie_jar .
+
+## Copyright & License
+
+This open source project authorized by https://flutterchina.club , and the license is MIT.
 
 ## Features and bugs
 

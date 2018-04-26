@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 
 main() async {
   var dio = new Dio();
-  dio.options.connectTimeout = 2000;
+  //dio.options.connectTimeout = 2000;
   // More about HttpClient proxy topic please refer to Dart SDK doc.
   dio.onHttpClientCreate = (HttpClient client) {
     client.findProxy = (uri) {
@@ -11,7 +11,12 @@ main() async {
       return "PROXY localhost:8888";
     };
   };
-
-  Response<String> response = await dio.get("https://flutterchina.club");
-  print(response.data);
+  var dir=new Directory("./cookies");
+  await dir.create();
+  Response<String> response;
+  //response= await dio.get("https://github.com/wendux/fly");
+  response = await dio.get("https://www.baidu.com");
+  //print(response.data);
+  response = await dio.get("https://www.baidu.com");
+  //print(response.data);
 }

@@ -35,6 +35,7 @@ class CancelToken {
   /// [completer] is used to cancel the request before it's not completed.
   ///
   /// Note: you shouldn't invoke this method by yourself. It's just used inner [Dio].
+  /// @nodoc
   void addCompleter(Completer completer){
     if (cancelError != null) {
       _trigger(completer);
@@ -48,6 +49,7 @@ class CancelToken {
   /// Remove a [completer] from the token.
   ///
   /// Note: you shouldn't invoke this method by yourself. It's just used inner [Dio].
+  /// @nodoc
   void removeCompleter(Completer completer){
     completers.remove(completer);
   }

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/src/CancelToken.dart';
+import 'package:cookie_jar/src/CookieJar.dart';
+import 'package:cookie_jar/src/DefaultCookieJar.dart';
 import 'package:dio/src/FormData.dart';
 import 'package:dio/src/DioError.dart';
 import 'package:dio/src/Interceptor.dart';
@@ -37,6 +39,8 @@ class Dio {
 
   /// Default Request config. More see [Options] .
   Options options;
+
+  CookieJar cookieJar=new DefaultCookieJar();
 
   /// [Dio] will create new HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
@@ -211,7 +215,6 @@ class Dio {
         new Duration(
             milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
-          print("");
           return new Future<Response>
               .error(new DioError(
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
@@ -365,6 +368,8 @@ class Dio {
       HttpClientRequest request = await _listenCancelForAsyncTask(
           cancelToken, requestFuture);
 
+      request.cookies.addAll(cookieJar.loadForRequest(uri));
+
       try {
         if (!isGet) {
           // Transform the request data, set headers inner.
@@ -380,7 +385,8 @@ class Dio {
 
       response = await _listenCancelForAsyncTask(
           cancelToken, request.close());
-      //
+      cookieJar.saveFromResponse(uri, response.cookies);
+
       var retData = await _listenCancelForAsyncTask(cancelToken,
           transFormer.transformResponse(options, response));
 
