@@ -47,7 +47,7 @@ print(response.data);
 
 - [Cancellation](#cancellation)
 
-- [Cookie Manager](#cookie manager)
+- [Cookie Manager](#cookie_manager)
 
 - [Features and bugs](#features-and-bugs)
 
