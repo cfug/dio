@@ -11,7 +11,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^0.0.5
+  dio: ^0.0.6
 ```
 
 ## Super simple to use
@@ -47,7 +47,7 @@ print(response.data);
 
 - [Cancellation](#cancellation)
 
-- [Cookie Manager](#cookie_manager)
+- [Cookie Manager](#cookie-manager)
 
 - [Features and bugs](#features-and-bugs)
 
