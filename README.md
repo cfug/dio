@@ -19,7 +19,7 @@ dependencies:
 ```dart
 import 'package:dio/dio.dart';
 Dio dio = new Dio();
-Response<String> response=await dio.get("https://www.google.com/");
+Response response=await dio.get("https://www.google.com/");
 print(response.data);
 ```
 

@@ -192,7 +192,7 @@ class Dio {
     // Receive data with stream.
     options.responseType = ResponseType.STREAM;
 
-    Response<HttpClientResponse> response =
+    Response response =
     await _request(urlPath, data: data,
         options: options, cancelToken: cancelToken, httpClient: httpClient);
 
@@ -440,7 +440,7 @@ class Dio {
   }
 
   Future _listenCancelForAsyncTask(CancelToken cancelToken, Future future) {
-    Completer<HttpClientRequest> completer = new Completer();
+    Completer completer = new Completer();
     if (cancelToken != null && cancelToken.cancelError == null) {
       cancelToken.addCompleter(completer);
       return Future.any([completer.future, future]).then((result) {

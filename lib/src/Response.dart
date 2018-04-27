@@ -4,11 +4,11 @@ import 'package:dio/src/Options.dart';
 /**
  * Response describes the http Response info.
  */
-class Response<T> {
+class Response {
   Response({this.data, this.headers, this.request, this.statusCode = 0});
 
   /// Response body. may have been transformed, please refer to [ResponseType].
-  T data;
+  var data;
 
   /// Response headers.
   HttpHeaders headers;

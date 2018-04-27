@@ -13,7 +13,7 @@ main() async {
   };
   var dir=new Directory("./cookies");
   await dir.create();
-  Response<String> response;
+  Response response;
   //response= await dio.get("https://github.com/wendux/fly");
   response = await dio.get("https://www.baidu.com");
   //print(response.data);

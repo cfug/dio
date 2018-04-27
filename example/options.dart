@@ -17,12 +17,12 @@ main() async {
       responseType: ResponseType.PLAIN
   ));
 
-  Response<String> response;
+  Response response;
 
   response = await dio.get("/test");
   print(response.data);
 
-  Response<Map> responseMap = await dio.get("/test",
+  Response  responseMap = await dio.get("/test",
     // Transform response data to Json Map
     options: new Options(responseType: ResponseType.JSON),
   );
