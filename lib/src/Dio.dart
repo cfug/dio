@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/src/CancelToken.dart';
-import 'package:cookie_jar/src/CookieJar.dart';
-import 'package:cookie_jar/src/DefaultCookieJar.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/src/FormData.dart';
 import 'package:dio/src/DioError.dart';
 import 'package:dio/src/Interceptor.dart';
@@ -40,7 +39,9 @@ class Dio {
   /// Default Request config. More see [Options] .
   Options options;
 
-  CookieJar cookieJar=new DefaultCookieJar();
+  /// Cookie manager for http requests。Learn more details about
+  /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
+  CookieJar cookieJar=new CookieJar();
 
   /// [Dio] will create new HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
