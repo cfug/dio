@@ -8,7 +8,7 @@ environment:
   sdk: '>=1.20.1 <2.0.0'
 
 dependencies:
-  cookie_jar: ^0.0.2
+  cookie_jar: ^0.0.3
 
 dev_dependencies:
   test: "^0.12.0"
@@ -16,9 +16,6 @@ dev_dependencies:
   dart_codecov_generator:
     git:
       url: "https://github.com/wendux/dart-codecov.git"
-#  dartdoc:
-#    git:
-#      url: "https://github.com/wendux/dartdoc"
 
 documentation:
 

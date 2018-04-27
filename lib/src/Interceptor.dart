@@ -48,7 +48,7 @@ class _InterceptorBase {
    * [callback] the function  will return a `Future<Response>`
    * @nodoc
    */
-  Future enqueue(Future<Response> callback()) {
+  Future<Response> enqueue(Future<Response> callback()) {
     if (_lock != null) {
       // we use a future as a queue
       return _lock.then((d) => callback());

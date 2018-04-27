@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/src/CancelToken.dart';
-import 'package:cookie_jar/src/CookieJar.dart';
-import 'package:cookie_jar/src/DefaultCookieJar.dart';
 import 'package:dio/src/FormData.dart';
 import 'package:dio/src/DioError.dart';
 import 'package:dio/src/Interceptor.dart';
@@ -40,7 +39,9 @@ class Dio {
   /// Default Request config. More see [Options] .
   Options options;
 
-  CookieJar cookieJar=new DefaultCookieJar();
+  /// Cookie manager for http requests。Learn more details about
+  /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
+  CookieJar cookieJar = new CookieJar();
 
   /// [Dio] will create new HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
@@ -111,9 +112,9 @@ class Dio {
   /// Assure the final future state is succeed!
   Future<Response> resolve(response) {
     if (response is! Future) {
-      response = new Future.value(response);
+       response=new Future<Response>.value(_assureResponse(response));
     }
-    return response.then((data) {
+    return response.then<Response>((data) {
       return _assureResponse(data);
     }, onError: (err) {
       // transform "error" to "success"
@@ -124,9 +125,9 @@ class Dio {
   /// Assure the final future state is failed!
   Future<Response> reject(err) {
     if (err is! Future) {
-      err = new Future.error(err);
+      err = new Future<Response>.error(err);
     }
-    return err.then((v) {
+    return err.then<Response>((v) {
       // transform "success" to "error"
       throw _assureDioError(v);
     }, onError: (e) {
@@ -295,31 +296,31 @@ class Dio {
       InterceptorCallback preSend = interceptor.request.onSend;
       if (preSend != null) {
         _checkCancelled(cancelToken);
-        var ret = preSend(options);
+        var  ret = preSend(options);
         // Assure the return value type of request interceptor is `Future`.
         if (ret is! Future) {
-          ret = new Future.value(ret);
+          ret = new Future<dynamic>.value(ret);
         }
-        return ret.then((_options) {
-          options.method = options.method.toUpperCase();
-          // If the Future value type is Options, continue the network request.
-          if (_options is Options) {
+        Future<Response> future;
+        if(ret is Future<dynamic>){
+          future= ret.then<Response>((_options){
+             if (_options is Error) {
+               throw _assureDioError(_options);
+             }
+             return _assureResponse(_options);
+           });
+        } else if(ret is Future<Options>){
+          future=ret.then<Response>((Options _options){
             return _makeRequest(_options, cancelToken, httpClient);
-          } else {
-            // Otherwise, use the Future value as the request result.
-            // If the return type is Error, we should throw it
-            if (_options is Error) {
-              throw _assureDioError(_options);
-            }
-            return _assureResponse(_options);
-          }
-        }).catchError((err) => throw _assureDioError(err));
+          });
+        }
+        return  future.catchError((err) => throw _assureDioError(err));
       } else {
         // If user don't provide the request interceptor, make request directly.
         return _makeRequest(options, cancelToken, httpClient);
       }
     });
-    return _listenCancelForAsyncTask(cancelToken, future).then((d) {
+    return _listenCancelForAsyncTask<Response>(cancelToken, future).then((d) {
       if (cancelToken != null) {
         httpClient.close();
       }
@@ -401,17 +402,17 @@ class Dio {
         if ((response.statusCode >= HttpStatus.OK &&
             response.statusCode < HttpStatus.MULTIPLE_CHOICES) ||
             response.statusCode == HttpStatus.NOT_MODIFIED) {
-          return _listenCancelForAsyncTask(cancelToken, _onSuccess(ret));
+          return _listenCancelForAsyncTask<Response>(cancelToken, _onSuccess(ret));
         } else {
           var err = new DioError(
             response: ret,
             message: 'Http status error [${response.statusCode}]',
             type: DioErrorType.RESPONSE,
           );
-          return _listenCancelForAsyncTask(cancelToken, _onError(err));
+          return _listenCancelForAsyncTask<Response>(cancelToken, _onError(err));
         }
       });
-      return _listenCancelForAsyncTask(cancelToken, future);
+      return _listenCancelForAsyncTask<Response>(cancelToken, future);
     } catch (e) {
       DioError err = _assureDioError(e);
       if (CancelToken.isCancel(err)) {
@@ -422,11 +423,11 @@ class Dio {
         Future<Response> future = _checkIfNeedEnqueue(interceptor.response, () {
           _checkCancelled(cancelToken);
           // Listen in error interceptor.
-          return _listenCancelForAsyncTask(
+          return _listenCancelForAsyncTask<Response>(
               cancelToken, _onError(err));
         });
         // Listen if in the queue.
-        return _listenCancelForAsyncTask(cancelToken, future);
+        return _listenCancelForAsyncTask<Response>(cancelToken, future);
       }
     }
   }
@@ -438,11 +439,11 @@ class Dio {
     }
   }
 
-  Future _listenCancelForAsyncTask(CancelToken cancelToken, Future future) {
-    Completer<HttpClientRequest> completer = new Completer();
+  Future<T> _listenCancelForAsyncTask<T>(CancelToken cancelToken, Future<T>future) {
+    Completer completer = new Completer();
     if (cancelToken != null && cancelToken.cancelError == null) {
       cancelToken.addCompleter(completer);
-      return Future.any([completer.future, future]).then((result) {
+      return Future.any([completer.future, future]).then<T>((result) {
         cancelToken.removeCompleter(completer);
         return result;
       }).catchError((e) {
@@ -484,8 +485,8 @@ class Dio {
   }
 
 // Transform current Future status("success" and "error") if necessary
-  Future _transFutureStatusIfNecessary(Future future) {
-    return future.then((data) {
+  Future<Response> _transFutureStatusIfNecessary(Future future) {
+    return future.then<Response>((data) {
       // Strictly be a DioError instance, but we loos the restrictions
       //if (data is DioError)
       if (data is Error) {
@@ -503,33 +504,23 @@ class Dio {
   Future<Response> _onSuccess(response) {
     if (interceptor.response.onSuccess != null) {
       response = interceptor.response.onSuccess(response) ?? response;
-      if (response is! Future) {
-        // Assure response is a Future
-        response = new Future.value(response);
-      }
-      return _transFutureStatusIfNecessary(response);
     }
-
     if (response is! Future) {
       // Assure response is a Future
-      response = resolve(response);
+      response = new Future<Response>.value(response);
     }
-    return response;
+    return _transFutureStatusIfNecessary(response);
   }
 
   Future<Response> _onError(err) {
+
     if (interceptor.response.onError != null) {
       err = interceptor.response.onError(err) ?? err;
-      if (err is! Future) {
-        // Assure err is a Future
-        err = new Future.error(err);
-      }
-      return _transFutureStatusIfNecessary(err);
     }
     if (err is! Future) {
-      err = new Future.error(err);
+      err = new Future<Response>.error(err);
     }
-    return err;
+    return _transFutureStatusIfNecessary(err);
   }
 
   _mergeOptions(Options opt) {
@@ -553,7 +544,7 @@ class Dio {
     return options;
   }
 
-  _checkIfNeedEnqueue(interceptor, callback()) {
+ Future<Response> _checkIfNeedEnqueue(interceptor, callback()) {
     if (interceptor.locked) {
       return interceptor.enqueue(callback);
     } else {

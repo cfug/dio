@@ -17,7 +17,7 @@ enum ResponseType {
 /**
  * The Options class describes the http request information and configuration.
  */
-class Options<T> {
+class Options{
   Options({this.method,
     this.baseUrl,
     this.connectTimeout,
@@ -52,7 +52,7 @@ class Options<T> {
   int receiveTimeout;
 
   /// Request data, can be any type.
-  T data;
+  var data;
 
   /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.

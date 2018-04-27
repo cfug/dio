@@ -97,10 +97,10 @@ class DefaultTransformer extends TransFormer {
                 ));
           });
     }
-    var responseBody = await stream.transform(UTF8.decoder).join();
+    String responseBody = await stream.transform(UTF8.decoder).join();
     if (options.responseType == ResponseType.JSON &&
         response.headers.contentType.mimeType == ContentType.JSON.mimeType) {
-      responseBody = JSON.decode(responseBody);
+      return JSON.decode(responseBody);
     }
     return responseBody;
   }
