@@ -62,14 +62,14 @@ class Dio {
   TransFormer transFormer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
-  Future<Response> get(path, {data, Options options, CancelToken cancelToken}) {
+  Future get(path, {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("GET", options),
         cancelToken: cancelToken);
   }
 
   /// Handy method to make http POST request, which is a alias of  [Dio.request].
-  Future<Response> post(String path,
+  Future post(String path,
       {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("POST", options),
@@ -77,7 +77,7 @@ class Dio {
   }
 
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
-  Future<Response> put(String path,
+  Future put(String path,
       {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("PUT", options),
@@ -85,7 +85,7 @@ class Dio {
   }
 
   /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
-  Future<Response> head(String path,
+  Future head(String path,
       {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("HEAD", options),
@@ -93,7 +93,7 @@ class Dio {
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
-  Future<Response> delete(String path,
+  Future delete(String path,
       {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("DELETE", options),
@@ -101,7 +101,7 @@ class Dio {
   }
 
   /// Handy method to make http PATCH request, which is a alias of  [Dio.request].
-  Future<Response> patch(String path,
+  Future patch(String path,
       {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("PATCH", options),
@@ -109,7 +109,7 @@ class Dio {
   }
 
   /// Assure the final future state is succeed!
-  Future<Response> resolve(response) {
+  Future resolve(response) {
     if (response is! Future) {
       response = new Future.value(response);
     }
@@ -122,7 +122,7 @@ class Dio {
   }
 
   /// Assure the final future state is failed!
-  Future<Response> reject(err) {
+  Future reject(err) {
     if (err is! Future) {
       err = new Future.error(err);
     }
@@ -169,7 +169,7 @@ class Dio {
    * please refer to [OnDownloadProgress].
    *
    */
-  Future<Response> download(String urlPath,
+  Future download(String urlPath,
       savePath, {
         OnDownloadProgress onProgress,
         CancelToken cancelToken,
@@ -215,7 +215,7 @@ class Dio {
         new Duration(
             milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
-          return new Future<Response>
+          return new Future
               .error(new DioError(
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
               type: DioErrorType.RECEIVE_TIMEOUT
@@ -258,7 +258,7 @@ class Dio {
    * [data] The request data
    * [options] The request options.
    */
-  Future<Response> request(String path, {data,
+  Future request(String path, {data,
     CancelToken cancelToken,
     Options options,
   }) async {
@@ -285,9 +285,9 @@ class Dio {
     }
   }
 
-  Future<Response> _request(String path,
+  Future _request(String path,
       {data, CancelToken cancelToken, Options options, HttpClient httpClient}) async {
-    Future<Response> future = _checkIfNeedEnqueue(interceptor.request, () {
+    Future future = _checkIfNeedEnqueue(interceptor.request, () {
       _mergeOptions(options);
       options.data = data ?? options.data;
       options.path = path;
@@ -327,7 +327,7 @@ class Dio {
     });
   }
 
-  Future<Response> _makeRequest(Options options,
+  Future _makeRequest(Options options,
       CancelToken cancelToken, [HttpClient httpClient]) async {
     _checkCancelled(cancelToken);
     HttpClientResponse response;
@@ -396,7 +396,7 @@ class Dio {
           request: options,
           statusCode: response.statusCode);
 
-      Future<Response> future = _checkIfNeedEnqueue(interceptor.response, () {
+      Future future = _checkIfNeedEnqueue(interceptor.response, () {
         _checkCancelled(cancelToken);
         if ((response.statusCode >= HttpStatus.OK &&
             response.statusCode < HttpStatus.MULTIPLE_CHOICES) ||
@@ -419,7 +419,7 @@ class Dio {
         throw err;
       } else {
         // Response onError
-        Future<Response> future = _checkIfNeedEnqueue(interceptor.response, () {
+        Future future = _checkIfNeedEnqueue(interceptor.response, () {
           _checkCancelled(cancelToken);
           // Listen in error interceptor.
           return _listenCancelForAsyncTask(
@@ -500,7 +500,7 @@ class Dio {
     });
   }
 
-  Future<Response> _onSuccess(response) {
+  Future _onSuccess(response) {
     if (interceptor.response.onSuccess != null) {
       response = interceptor.response.onSuccess(response) ?? response;
       if (response is! Future) {
@@ -517,7 +517,7 @@ class Dio {
     return response;
   }
 
-  Future<Response> _onError(err) {
+  Future _onError(err) {
     if (interceptor.response.onError != null) {
       err = interceptor.response.onError(err) ?? err;
       if (err is! Future) {
