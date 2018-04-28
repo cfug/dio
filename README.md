@@ -495,9 +495,9 @@ There is a complete example [here](https://github.com/wendux/dio/tree/master/exa
 
 You can manage the request/response cookies using `cookieJar` .
 
-> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
+> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar).
 
-You can create a `DefaultCookieJar` or `PersistCookieJar` to manage cookies automaticlly, the example codes as follows:
+You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies,  you can use the `PersistCookieJar` class,  the example codes as follows:
 
 ```dart
 var dio = new Dio();
