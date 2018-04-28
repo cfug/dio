@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d719d712-f0ec-4ad6-bd6a-3a6b83a454a8" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/options.dart" afterPath="$PROJECT_DIR$/example/options.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/proxy.dart" afterPath="$PROJECT_DIR$/example/proxy.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/Dio.dart" afterPath="$PROJECT_DIR$/lib/src/Dio.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/Response.dart" afterPath="$PROJECT_DIR$/lib/src/Response.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pubspec.yaml" afterPath="$PROJECT_DIR$/pubspec.yaml" />
+    <list default="true" id="d719d712-f0ec-4ad6-bd6a-3a6b83a454a8" name="Default" comment="update to 0.8">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/dio.iml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -25,8 +25,8 @@
       <file leaf-file-name="Dio.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="111">
-              <caret line="354" column="17" lean-forward="false" selection-start-line="354" selection-start-column="17" selection-end-line="354" selection-end-column="17" />
+            <state relative-caret-position="199">
+              <caret line="358" column="70" lean-forward="true" selection-start-line="358" selection-start-column="70" selection-end-line="358" selection-end-column="70" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -34,31 +34,30 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CancelToken.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/src/CancelToken.dart">
+      <file leaf-file-name="dio_test.dart" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/dio_test.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="51" column="6" lean-forward="false" selection-start-line="51" selection-start-column="6" selection-end-line="51" selection-end-column="6" />
-              <folding />
+            <state relative-caret-position="247">
+              <caret line="32" column="5" lean-forward="true" selection-start-line="32" selection-start-column="5" selection-end-line="32" selection-end-column="5" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+                <marker date="1524879101406" expanded="true" signature="863:9656" ph="{...}" />
+                <marker date="1524879101406" expanded="true" signature="1125:1186" ph="{...}" />
+                <marker date="1524879101406" expanded="true" signature="2822:3030" ph="//..." />
+                <marker date="1524879101406" expanded="true" signature="3075:3129" ph="{...}" />
+                <marker date="1524879101406" expanded="true" signature="4161:4285" ph="//..." />
+                <marker date="1524879101406" expanded="true" signature="4470:4572" ph="{...}" />
+                <marker date="1524879101406" expanded="true" signature="9423:9462" ph="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pubspec.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="17" column="1" lean-forward="false" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DioError.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/src/DioError.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="124">
-              <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
+            <state relative-caret-position="345">
+              <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -89,6 +88,16 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="795">
               <caret line="54" column="6" lean-forward="false" selection-start-line="54" selection-start-column="6" selection-end-line="54" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="5" lean-forward="false" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -229,17 +238,17 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/lib/src/FormData.dart" />
         <option value="$PROJECT_DIR$/lib/dio.dart" />
-        <option value="$PROJECT_DIR$/test/dio_test.dart" />
         <option value="$PROJECT_DIR$/lib/src/Options.dart" />
         <option value="$PROJECT_DIR$/lib/src/Interceptor.dart" />
         <option value="$PROJECT_DIR$/lib/src/TransFormer.dart" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/lib/src/Dio.dart" />
         <option value="$PROJECT_DIR$/lib/src/Response.dart" />
         <option value="$PROJECT_DIR$/example/proxy.dart" />
         <option value="$PROJECT_DIR$/example/options.dart" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
+        <option value="$PROJECT_DIR$/test/dio_test.dart" />
+        <option value="$PROJECT_DIR$/lib/src/Dio.dart" />
       </list>
     </option>
   </component>
@@ -250,8 +259,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="209" />
-    <option name="y" value="-1039" />
+    <option name="x" value="482" />
+    <option name="y" value="-1057" />
     <option name="width" value="1724" />
     <option name="height" value="877" />
   </component>
@@ -293,6 +302,11 @@
               <item name="dio" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dio" type="b2602c69:ProjectViewProjectNode" />
+              <item name="dio" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dio" type="b2602c69:ProjectViewProjectNode" />
@@ -341,7 +355,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Dart Test.tests in dio_test.dart">
+  <component name="RunManager" selected="Dart Test.lan in dio_test.dart">
     <configuration name="Interceptor lock in dio_test.dart" type="DartTestRunConfigurationType" factoryName="Dart Test" temporary="true" nameIsGenerated="true">
       <option name="filePath" value="$PROJECT_DIR$/test/dio_test.dart" />
       <option name="scope" value="GROUP_OR_TEST_BY_NAME" />
@@ -351,9 +365,10 @@
       <option name="filePath" value="$PROJECT_DIR$/example/formdata.dart" />
       <option name="workingDirectory" value="$PROJECT_DIR$" />
     </configuration>
-    <configuration name="interceptorLock.dart" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" temporary="true" nameIsGenerated="true">
-      <option name="filePath" value="$PROJECT_DIR$/example/interceptorLock.dart" />
-      <option name="workingDirectory" value="$PROJECT_DIR$" />
+    <configuration name="lan in dio_test.dart" type="DartTestRunConfigurationType" factoryName="Dart Test" temporary="true" nameIsGenerated="true">
+      <option name="filePath" value="$PROJECT_DIR$/test/dio_test.dart" />
+      <option name="scope" value="GROUP_OR_TEST_BY_NAME" />
+      <option name="testName" value="lan" />
     </configuration>
     <configuration name="proxy.dart" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" temporary="true" nameIsGenerated="true">
       <option name="filePath" value="$PROJECT_DIR$/example/proxy.dart" />
@@ -364,19 +379,19 @@
       <option name="testName" value="dio_test.dart" />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Dart Command Line App.interceptorLock.dart" />
-      <item index="1" class="java.lang.String" itemvalue="Dart Test.Interceptor lock in dio_test.dart" />
-      <item index="2" class="java.lang.String" itemvalue="Dart Command Line App.proxy.dart" />
-      <item index="3" class="java.lang.String" itemvalue="Dart Command Line App.formdata.dart" />
-      <item index="4" class="java.lang.String" itemvalue="Dart Test.tests in dio_test.dart" />
+      <item index="0" class="java.lang.String" itemvalue="Dart Test.Interceptor lock in dio_test.dart" />
+      <item index="1" class="java.lang.String" itemvalue="Dart Command Line App.proxy.dart" />
+      <item index="2" class="java.lang.String" itemvalue="Dart Command Line App.formdata.dart" />
+      <item index="3" class="java.lang.String" itemvalue="Dart Test.tests in dio_test.dart" />
+      <item index="4" class="java.lang.String" itemvalue="Dart Test.lan in dio_test.dart" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Dart Test.tests in dio_test.dart" />
-        <item index="1" class="java.lang.String" itemvalue="Dart Command Line App.formdata.dart" />
-        <item index="2" class="java.lang.String" itemvalue="Dart Command Line App.proxy.dart" />
-        <item index="3" class="java.lang.String" itemvalue="Dart Test.Interceptor lock in dio_test.dart" />
-        <item index="4" class="java.lang.String" itemvalue="Dart Command Line App.interceptorLock.dart" />
+        <item index="0" class="java.lang.String" itemvalue="Dart Test.lan in dio_test.dart" />
+        <item index="1" class="java.lang.String" itemvalue="Dart Test.tests in dio_test.dart" />
+        <item index="2" class="java.lang.String" itemvalue="Dart Command Line App.formdata.dart" />
+        <item index="3" class="java.lang.String" itemvalue="Dart Command Line App.proxy.dart" />
+        <item index="4" class="java.lang.String" itemvalue="Dart Test.Interceptor lock in dio_test.dart" />
       </list>
     </recent_temporary>
   </component>
@@ -578,12 +593,19 @@
       <option name="project" value="LOCAL" />
       <updated>1524831556205</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="update to 0.8">
+      <created>1524832756743</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1524832756743</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="test_in_dio_test_dart - 2018.04.24 at 16h 03m 48s.xml">
-      <configuration name="test in dio_test.dart" configurationId="DartTestRunConfigurationType" />
+    <history-entry file="lan_in_dio_test_dart - 2018.04.28 at 09h 27m 48s.xml">
+      <configuration name="lan in dio_test.dart" configurationId="DartTestRunConfigurationType" />
     </history-entry>
     <history-entry file="test_in_dio_test_dart - 2018.04.24 at 16h 04m 25s.xml">
       <configuration name="test in dio_test.dart" configurationId="DartTestRunConfigurationType" />
@@ -614,7 +636,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="297460000" />
+    <option name="totallyTimeSpent" value="298591000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -626,7 +648,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="209" y="-1039" width="1724" height="877" extended-state="0" />
+    <frame x="482" y="-1057" width="1724" height="877" extended-state="0" />
     <layout>
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939634" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17122473" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -701,7 +723,8 @@
     <MESSAGE value=".." />
     <MESSAGE value="update cookie_jar" />
     <MESSAGE value="update to 0.7" />
-    <option name="LAST_COMMIT_MESSAGE" value="update to 0.7" />
+    <MESSAGE value="update to 0.8" />
+    <option name="LAST_COMMIT_MESSAGE" value="update to 0.8" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -852,28 +875,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="5" lean-forward="false" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/dio.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
           <caret line="3" column="3" lean-forward="false" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/dio_test.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="22" column="47" lean-forward="true" selection-start-line="22" selection-start-column="47" selection-end-line="22" selection-end-column="47" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1021,16 +1027,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="111">
-          <caret line="354" column="17" lean-forward="false" selection-start-line="354" selection-start-column="17" selection-end-line="354" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/src/CancelToken.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
@@ -1097,10 +1093,45 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test/dio_test.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="32" column="5" lean-forward="true" selection-start-line="32" selection-start-column="5" selection-end-line="32" selection-end-column="5" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <marker date="1524879101406" expanded="true" signature="863:9656" ph="{...}" />
+            <marker date="1524879101406" expanded="true" signature="1125:1186" ph="{...}" />
+            <marker date="1524879101406" expanded="true" signature="2822:3030" ph="//..." />
+            <marker date="1524879101406" expanded="true" signature="3075:3129" ph="{...}" />
+            <marker date="1524879101406" expanded="true" signature="4161:4285" ph="//..." />
+            <marker date="1524879101406" expanded="true" signature="4470:4572" ph="{...}" />
+            <marker date="1524879101406" expanded="true" signature="9423:9462" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="358" column="70" lean-forward="true" selection-start-line="358" selection-start-column="70" selection-end-line="358" selection-end-column="70" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="1" lean-forward="false" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
+        <state relative-caret-position="345">
+          <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="5" lean-forward="false" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
           <folding />
         </state>
       </provider>
