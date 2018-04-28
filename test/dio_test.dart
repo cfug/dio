@@ -28,7 +28,9 @@ void main() {
   const BASE_URL = "http://www.dtworkroom.com/doris/1/2.0.0/";
   group('lan', () {
     test("lan", () {
-
+     var list=[""];
+     assert(list is List<String>);
+     assert(list is List<int>);
     });
   });
   group('restful', () {
@@ -51,7 +53,6 @@ void main() {
       expect(response.data["errCode"], 0);
       response = await dio.delete("/test");
       expect(response.data["errCode"], 0);
-
       response = await dio.patch("/test", data: {"xx": "你好"});
       expect(response.data["errCode"], 0);
       expect(response.headers != null, true);
@@ -172,6 +173,7 @@ void main() {
           case "/test?tag=1":
             {
               Response response = await dio.get("/token");
+              print(response);
               options.headers["token"] = response.data["data"]["token"];
               return options;
             }
@@ -181,36 +183,36 @@ void main() {
       };
     });
 
-    test('Test', () async {
+    test('TestRI', () async {
       Response
-      response = await dio.get("/fakepath1");
-      expect(response.data, "fake data");
-      response = await dio.get("/fakepath2");
-      expect(response.data["errCode"], 0);
-
-      try {
-        response = await dio.get("/fakepath3");
-      } on DioError catch (e) {
-        expect(e.message, "test error");
-        expect(e.response, null);
-      }
-      try {
-        response = await dio.get("/fakepath4");
-      } on DioError catch (e) {
-        expect(e.message, "test error");
-        expect(e.response, null);
-      }
-      response = await dio.get("/test");
-      expect(response.data["errCode"], 0);
-
+//      response = await dio.get("/fakepath1");
+//      expect(response.data, "fake data");
+//      response = await dio.get("/fakepath2");
+//      expect(response.data["errCode"], 0);
+//
+//      try {
+//        response = await dio.get("/fakepath3");
+//      } on DioError catch (e) {
+//        expect(e.message, "test error");
+//        expect(e.response, null);
+//      }
+//      try {
+//        response = await dio.get("/fakepath4");
+//      } on DioError catch (e) {
+//        expect(e.message, "test error");
+//        expect(e.response, null);
+//      }
+//      response = await dio.get("/test");
+//      expect(response.data["errCode"], 0);
+//
       response = await dio.get("/test?tag=1");
       expect(response.data["errCode"], 0);
 
-      try {
-        await dio.get("https://wendux.github.io/xsddddd");
-      } on DioError catch (e) {
-        expect(e.response.statusCode, 404);
-      }
+//      try {
+//        await dio.get("https://wendux.github.io/xsddddd");
+//      } on DioError catch (e) {
+//        expect(e.response.statusCode, 404);
+//      }
     });
   });
 

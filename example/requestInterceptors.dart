@@ -26,30 +26,30 @@ main() async {
         return options; //continue
     }
   };
-//  Response
-//  response = await dio.get("/fakepath1");
-//  assert(response.data == "fake data");
-//  response = await dio.get("/fakepath2");
-//  assert(response.data["errCode"] == 0);
-//
-//  try {
-//    response = await dio.get("/fakepath3");
-//  } on DioError catch (e) {
-//    assert(e.message == "test error");
-//    assert(e.response == null);
-//  }
-//  try {
-//    response = await dio.get("/fakepath4");
-//  } on DioError catch (e) {
-//    assert(e.message == "test error");
-//    assert(e.response == null);
-//  }
-//  response = await dio.get("/test");
-//  assert(response.data["errCode"] == 0);
-//
-//  response = await dio.get("/test?tag=1");
-//  assert(response.data["errCode"] == 0);
-//
+  Response
+  response = await dio.get("/fakepath1");
+  assert(response.data == "fake data");
+  response = await dio.get("/fakepath2");
+  assert(response.data["errCode"] == 0);
+
+  try {
+    response = await dio.get("/fakepath3");
+  } on DioError catch (e) {
+    assert(e.message == "test error");
+    assert(e.response == null);
+  }
+  try {
+    response = await dio.get("/fakepath4");
+  } on DioError catch (e) {
+    assert(e.message == "test error");
+    assert(e.response == null);
+  }
+  response = await dio.get("/test");
+  assert(response.data["errCode"] == 0);
+
+  response = await dio.get("/test?tag=1");
+  assert(response.data["errCode"] == 0);
+
   try {
     await dio.get("https://wendux.github.io/xsddddd");
   } on DioError catch (e) {

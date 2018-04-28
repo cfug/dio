@@ -8,8 +8,8 @@ import 'package:dio/src/UploadFileInfo.dart';
  * A class to create readable "multipart/form-data" streams.
  * It can be used to submit forms and file uploads to http server.
  */
-class FormData extends MapMixin<String, dynamic> {
-  var _map = new Map<String, dynamic>();
+class FormData extends MapMixin{
+  var _map = new Map();
   static const String _BOUNDARY_PRE_TAG = "----dioBoundary&Happycoding-";
 
   /// The boundary of FormData, it consists of a constant prefix and a random
@@ -60,7 +60,7 @@ class FormData extends MapMixin<String, dynamic> {
   /// Generate the payload for request body.
   List<int> bytes() {
     List<int> bytes = new List();
-    var fileMap = new Map<String, UploadFileInfo>();
+    var fileMap = new Map<dynamic, UploadFileInfo>();
     StringBuffer data = new StringBuffer();
     _map.forEach((key, value) {
       if (value is UploadFileInfo) {
