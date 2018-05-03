@@ -1,3 +1,5 @@
+Language: [English](https://github.com/flutterchina/dio) | [中文简体](https://github.com/flutterchina/dio/blob/master/README-ZH.md)
+
 # dio 
 
 [![build statud](https://img.shields.io/travis/flutterchina/dio/master.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
@@ -11,7 +13,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^0.0.7
+  dio: ^0.0.8
 ```
 
 ## Super simple to use
@@ -106,13 +108,13 @@ FormData formData = new FormData.from({
 response = await dio.post("/info", data: formData)
 ```
 
-…you can find all examples code  [here](https://github.com/wendux/dio/tree/master/example).
+…you can find all examples code  [here](https://github.com/flutterchina/dio/tree/master/example).
 
 ## Dio APIs
 
 ### Creating an instance and set default configs.
 
-You can create  instance of Dio with a optional `Options` object:
+You can create an Dio  instance by default options  or  with a optional `Options` object:
 
 ```dart
 Dio dio = new Dio; // with default Options
@@ -185,7 +187,7 @@ These are the available config options for making requests.  Requests will defau
   int receiveTimeout;
 
   /// Request data, can be any type.
-  T data;
+  var data;
 
   /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
@@ -214,7 +216,7 @@ These are the available config options for making requests.  Requests will defau
 }
 ```
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/options.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/options.dart).
 
 ## Response Schema
 
@@ -356,7 +358,7 @@ dio.interceptor.request.onSend = (Options options) {
   };
 ```
 
-For complete codes click [here](https://github.com/wendux/dio/tree/master/example/interceptorLock.dart).
+For complete codes click [here](https://github.com/flutterchina/dio/blob/master/example/interceptorLock.dart).
 
 ## Handling Errors
 
@@ -436,7 +438,7 @@ dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")))    
 ```
 
-There is a  example [here](https://github.com/wendux/dio/tree/master/example/options.dart).
+There is a  example [here](https://github.com/flutterchina/dio/blob/master/example/options.dart).
 
 ## Sending FormData
 
@@ -453,17 +455,25 @@ response = await dio.post("/info", data: formData)
 
 > Note: Just the post method suppots FormData.
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/formdata.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
 
 ## Transformer
 
-`TransFormer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `TransFormer`. If you want to custom the transformation of request/response data, you can provide a `TransFormer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
+`TransFormer` allows changes to the request/response data before it is sent/received to/from the server. Dio has already implemented a `DefaultTransformer`, and as the default `TransFormer`. If you want to custom the transformation of request/response data, you can provide a `TransFormer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
+
+> The request transformer  `TransFormer.transformRequest`   is only applicable for request methods 'PUT', 'POST', and 'PATCH'。but response transformer  `TransFormer.transformResponse` is applicable for all request methods.
+
+### Request flow
+
+Although the request/response data can be preprocessed in the interceptor, the main duty of the `TransFormer`  is to encode/decode the request / response data.  The reason for separating the `TransFormer`   alone is to decouple the  encoding/decoding operation  and other preprocessing interceptor logic, and  in order not to modify the original request data (if you modify the request data (options.data) in the interceptor, the original request data will be overwritten, but at some time you may need the original request data). The Dio request flow is:
+
+*request interceptor* >> *TransFormer.transformRequest* >> *make request*  >> *TransFormer.transformResponse*  >> *response interceptor*  >> *the final result*。
 
 There is example for [customing transformer](https://github.com/wendux/dio/blob/master/example/transformer.dart).
 
 ## Set proxy and HttpClient config
 
-Dio use HttpClient to send http request, so you can config the `dio.httpClient` to support `porxy`, for example:
+Dio use HttpClient to send http request, so you can config the `httpClient` to support `proxy`, for example:
 
 ```dart
   dio.onHttpClientCreate = (HttpClient client) {
@@ -478,18 +488,25 @@ There is a complete example [here](https://github.com/wendux/dio/tree/master/exa
 
 ## Cancellation
 
-You can cancel a request using a *cancel token*.   One token can be shared with multiple requests.  when a token's  `cancel` method invoked, all requests with this token will be cancelled.
+You can cancel a request using a *cancel token*.  
 
 ```dart
 CancelToken token = new CancelToken();
-dio.get(url1, cancelToken: token);
-dio.get(url2, cancelToken: token);
-
+dio.get(url, cancelToken: token)
+    .catchError((DioError err){
+        if (CancelToken.isCancel(err)) {
+            print('Request canceled! '+ err.message)
+        }else{
+            // handle error.
+        }
+    })
 // cancel the requests with "cancelled" message.
 token.cancel("cancelled");
 ```
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/cancelRequest.dart).
+> Note: you can cancel several requests with the same cancel token.
+
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/cancelRequest.dart).
 
 ## Cookie Manager
 
@@ -517,4 +534,4 @@ This open source project authorized by https://flutterchina.club , and the licen
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/wendux/dio/issues
+[tracker]: https://github.com/flutterchina/dio
