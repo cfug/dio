@@ -13,5 +13,5 @@ class UploadFileInfo {
   String fileName;
 
   /// The content-type of the upload file.
-  ContentType contentType = ContentType.BINARY;
+  ContentType contentType = ContentType.TEXT;
 }

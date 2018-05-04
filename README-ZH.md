@@ -13,7 +13,7 @@
 
 ```yaml
 dependencies:
-  dio: ^0.0.8
+  dio: ^0.0.9
 ```
 
 ## 一个极简的示例
@@ -39,7 +39,7 @@ print(response.data);
 
 - [错误处理](#错误处理)
 
-- [使用application/x-www-form-urlencoded编码](#使用application/x-www-form-urlencoded编码)
+- [使用application/x-www-form-urlencoded编码](#使用applicationx-www-form-urlencoded编码)
 
 - [FormData](#formdata)
 
