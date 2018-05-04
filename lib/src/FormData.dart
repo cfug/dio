@@ -8,8 +8,8 @@ import 'package:dio/src/UploadFileInfo.dart';
  * A class to create readable "multipart/form-data" streams.
  * It can be used to submit forms and file uploads to http server.
  */
-class FormData extends MapMixin{
-  var _map = new Map();
+class FormData extends MapMixin<String, dynamic> {
+  var _map = new Map<String, dynamic>();
   static const String _BOUNDARY_PRE_TAG = "----dioBoundary&Happycoding-";
 
   /// The boundary of FormData, it consists of a constant prefix and a random
@@ -18,16 +18,21 @@ class FormData extends MapMixin{
   String boundary;
 
   FormData() {
-    // Assure the boundary unpredictable and unique
-    Random random = new Random();
-    boundary = _BOUNDARY_PRE_TAG + random.nextInt(4294967296).toString();
+    _init();
   }
 
   /**
    * Create FormData instance with a Map.
    */
   FormData.from(Map other){
+    _init();
     addAll(other);
+  }
+
+  _init(){
+    // Assure the boundary unpredictable and unique
+    Random random = new Random();
+    boundary = _BOUNDARY_PRE_TAG + random.nextInt(4294967296).toString();
   }
 
   @override
@@ -57,10 +62,14 @@ class FormData extends MapMixin{
     _map[key] = value;
   }
 
+  void _writeln(StringBuffer sb){
+    sb.write("\r\n");
+  }
+
   /// Generate the payload for request body.
   List<int> bytes() {
     List<int> bytes = new List();
-    var fileMap = new Map<dynamic, UploadFileInfo>();
+    var fileMap = new Map<String, UploadFileInfo>();
     StringBuffer data = new StringBuffer();
     _map.forEach((key, value) {
       if (value is UploadFileInfo) {
@@ -68,30 +77,40 @@ class FormData extends MapMixin{
         fileMap[key] = value;
         return;
       }
-      data.writeln(boundary);
-      data.writeln('Content-Disposition: form-data; name="${key}"');
-      data.writeln();
-      data.writeln(value);
+      data.write(boundary);
+      _writeln(data);
+      data.write('Content-Disposition: form-data; name="${key}"');
+      _writeln(data);
+      _writeln(data);
+      data.write(value);
+      _writeln(data);
     });
     // Transform string to bytes.
     bytes.addAll(UTF8.encode(data.toString()));
     // Handle the files.
     fileMap.forEach((key, UploadFileInfo fileInfo) {
       data = new StringBuffer();
-      data.writeln(boundary);
-      data.writeln(
+      data.write(boundary);
+      _writeln(data);
+      data.write(
           'Content-Disposition: form-data; name="$key"; filename="${fileInfo
               .fileName}"');
-      data.writeln("Content-Type: " +
+      _writeln(data);
+      data.write("Content-Type: " +
           (fileInfo.contentType ?? ContentType.TEXT).mimeType);
-      data.writeln();
+      _writeln(data);
+      _writeln(data);
       bytes.addAll(UTF8.encode(data.toString()));
       bytes.addAll(fileInfo.file.readAsBytesSync());
     });
     if (_map.length > 0 || fileMap.length > 0) {
       data.clear();
-      data.writeln();
-      data.write(boundary);
+      if(fileMap.length>0) {
+        _writeln(data);
+      }
+      data.write(boundary+"--");
+      _writeln(data);
+      //_writeln(data);
       bytes.addAll(UTF8.encode(data.toString()));
     }
     return bytes;
