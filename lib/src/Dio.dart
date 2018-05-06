@@ -63,7 +63,7 @@ class Dio {
   TransFormer transFormer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
-  Future<Response<T>> get<T>(path, {data, Options options, CancelToken cancelToken}) {
+  Future<Response<T>> get<T>(String path, {data, Options options, CancelToken cancelToken}) {
     return request<T>(path, data: data,
         options: _checkOptions("GET", options),
         cancelToken: cancelToken);
