@@ -63,7 +63,7 @@ class Dio {
   TransFormer transFormer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
-  Future get(path, {data, Options options, CancelToken cancelToken}) {
+  Future get(String path, {data, Options options, CancelToken cancelToken}) {
     return request(path, data: data,
         options: _checkOptions("GET", options),
         cancelToken: cancelToken);
@@ -347,28 +347,25 @@ class Dio {
             TransFormer.urlEncodeMap(options.data);
       }
       Uri uri = Uri.parse(url);
-
-      Future<HttpClientRequest> requestFuture;
-
+      Future requestFuture;
       // Handle timeout
       if (options.connectTimeout > 0) {
         requestFuture = httpClient.openUrl(options.method, uri)
-            .timeout(
-            new Duration(milliseconds: options.connectTimeout),
-            onTimeout: () {
-              return new Future<HttpClientRequest>.error(new DioError(
-                message: "Connecting timeout[${options.connectTimeout}ms]",
-                type: DioErrorType.CONNECT_TIMEOUT,
-              ));
-            });
+            .timeout(new Duration(milliseconds: options.connectTimeout));
       } else {
         requestFuture = httpClient.openUrl(options.method, uri);
       }
+      HttpClientRequest request;
 
-      // Open the url.
-      HttpClientRequest request = await _listenCancelForAsyncTask(
-          cancelToken, requestFuture);
-
+      try {
+        request = await _listenCancelForAsyncTask(
+            cancelToken, requestFuture);
+      } on TimeoutException  catch (e) {
+        throw new DioError(
+          message: "Connecting timeout[${options.connectTimeout}ms]",
+          type: DioErrorType.CONNECT_TIMEOUT,
+        );
+      }
       request.cookies.addAll(cookieJar.loadForRequest(uri));
 
       try {
@@ -414,6 +411,9 @@ class Dio {
       });
       return _listenCancelForAsyncTask(cancelToken, future);
     } catch (e) {
+//      if(e is TimeoutException){
+//
+//      }
       DioError err = _assureDioError(e);
       if (CancelToken.isCancel(err)) {
         httpClient.close(force: true);

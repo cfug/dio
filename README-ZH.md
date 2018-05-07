@@ -13,7 +13,7 @@
 
 ```yaml
 dependencies:
-  dio: ^0.0.9
+  dio: ^0.0.10
 ```
 
 ## 一个极简的示例
