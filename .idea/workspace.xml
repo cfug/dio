@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d719d712-f0ec-4ad6-bd6a-3a6b83a454a8" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CHANGELOG.md" afterPath="$PROJECT_DIR$/CHANGELOG.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README-ZH.md" afterPath="$PROJECT_DIR$/README-ZH.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/dio.dart" afterPath="$PROJECT_DIR$/example/dio.dart" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/Dio.dart" afterPath="$PROJECT_DIR$/lib/src/Dio.dart" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pubspec.yaml" afterPath="$PROJECT_DIR$/pubspec.yaml" />
     </list>
@@ -26,25 +21,10 @@
       <file leaf-file-name="Dio.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="65">
-              <caret line="350" column="23" lean-forward="false" selection-start-line="350" selection-start-column="23" selection-end-line="350" selection-end-column="23" />
+            <state relative-caret-position="-365">
+              <caret line="416" column="7" lean-forward="true" selection-start-line="416" selection-start-column="7" selection-end-line="416" selection-end-column="7" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
-                <marker date="1525569882823" expanded="true" signature="10634:14136" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="13540:13587" ph="//..." />
-                <marker date="1525569882823" expanded="true" signature="14251:14365" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="14442:14879" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="14948:15796" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="15923:16277" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="15963:16057" ph="//..." />
-                <marker date="1525569882823" expanded="true" signature="16309:16754" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="16779:17131" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="17162:17651" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="17694:17812" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="17861:17984" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="18018:18311" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="18350:18462" ph="{...}" />
-                <marker date="1525569882823" expanded="true" signature="18527:18598" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -70,21 +50,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dio.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/example/dio.dart">
+      <file leaf-file-name="http.dart" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/_http/http.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="8" column="34" lean-forward="false" selection-start-line="8" selection-start-column="34" selection-end-line="8" selection-end-column="34" />
+            <state relative-caret-position="202">
+              <caret line="783" column="15" lean-forward="false" selection-start-line="783" selection-start-column="15" selection-end-line="783" selection-end-column="15" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TransFormer.dart" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TransFormer.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/src/TransFormer.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="98" column="5" lean-forward="false" selection-start-line="98" selection-start-column="5" selection-end-line="98" selection-end-column="5" />
+            <state relative-caret-position="429">
+              <caret line="103" column="5" lean-forward="true" selection-start-line="103" selection-start-column="5" selection-end-line="103" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -112,7 +92,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README-ZH.md" pinned="false" current-in-tab="true">
+      <file leaf-file-name="README-ZH.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README-ZH.md">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="225">
@@ -125,8 +105,8 @@
       <file leaf-file-name="pubspec.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pubspec.yaml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+            <state relative-caret-position="30">
+              <caret line="2" column="15" lean-forward="false" selection-start-line="2" selection-start-column="15" selection-end-line="2" selection-end-column="15" />
               <folding />
             </state>
           </provider>
@@ -251,12 +231,12 @@
         <option value="$PROJECT_DIR$/lib/dio.dart" />
         <option value="$PROJECT_DIR$/example/formdata.dart" />
         <option value="$PROJECT_DIR$/example/dio.dart" />
-        <option value="$PROJECT_DIR$/lib/src/Dio.dart" />
-        <option value="$PROJECT_DIR$/pubspec.yaml" />
-        <option value="$PROJECT_DIR$/pubspec.yaml" />
         <option value="$PROJECT_DIR$/CHANGELOG.md" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/README-ZH.md" />
+        <option value="$PROJECT_DIR$/lib/src/Dio.dart" />
+        <option value="$PROJECT_DIR$/pubspec.yaml" />
+        <option value="$PROJECT_DIR$/pubspec.yaml" />
       </list>
     </option>
   </component>
@@ -267,8 +247,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="582" />
-    <option name="y" value="-1001" />
+    <option name="x" value="279" />
+    <option name="y" value="-1011" />
     <option name="width" value="1398" />
     <option name="height" value="877" />
   </component>
@@ -626,7 +606,14 @@
       <option name="project" value="LOCAL" />
       <updated>1525328499895</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="update to 0.0.10">
+      <created>1525659501393</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1525659501393</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -662,7 +649,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="316183000" />
+    <option name="totallyTimeSpent" value="316943000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -674,7 +661,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="582" y="-1001" width="1398" height="877" extended-state="0" />
+    <frame x="279" y="-1011" width="1398" height="877" extended-state="0" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32884398" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3478261" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -682,7 +669,7 @@
       <window_info id="Dart Analysis" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40291807" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2002635" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32884398" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3715415" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16864295" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939634" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21976401" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -752,7 +739,8 @@
     <MESSAGE value="update to 0.8" />
     <MESSAGE value="update doc" />
     <MESSAGE value="add doc in chinese." />
-    <option name="LAST_COMMIT_MESSAGE" value="add doc in chinese." />
+    <MESSAGE value="update to 0.0.10" />
+    <option name="LAST_COMMIT_MESSAGE" value="update to 0.0.10" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1027,14 +1015,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/_http/http.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8954">
-          <caret line="795" column="63" lean-forward="false" selection-start-line="795" selection-start-column="63" selection-end-line="795" selection-end-column="63" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/src/FormData.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="335">
@@ -1091,39 +1071,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/src/TransFormer.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="98" column="5" lean-forward="false" selection-start-line="98" selection-start-column="5" selection-end-line="98" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="65">
-          <caret line="350" column="23" lean-forward="false" selection-start-line="350" selection-start-column="23" selection-end-line="350" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <marker date="1525569882823" expanded="true" signature="10634:14136" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="13540:13587" ph="//..." />
-            <marker date="1525569882823" expanded="true" signature="14251:14365" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="14442:14879" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="14948:15796" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="15923:16277" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="15963:16057" ph="//..." />
-            <marker date="1525569882823" expanded="true" signature="16309:16754" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="16779:17131" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="17162:17651" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="17694:17812" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="17861:17984" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="18018:18311" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="18350:18462" ph="{...}" />
-            <marker date="1525569882823" expanded="true" signature="18527:18598" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/cancelRequest.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -1150,14 +1097,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -1170,6 +1109,40 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="15" column="14" lean-forward="false" selection-start-line="15" selection-start-column="14" selection-end-line="15" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-365">
+          <caret line="416" column="7" lean-forward="true" selection-start-line="416" selection-start-column="7" selection-end-line="416" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pubspec.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="15" lean-forward="false" selection-start-line="2" selection-start-column="15" selection-end-line="2" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/_http/http.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="202">
+          <caret line="783" column="15" lean-forward="false" selection-start-line="783" selection-start-column="15" selection-end-line="783" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/src/TransFormer.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="429">
+          <caret line="103" column="5" lean-forward="true" selection-start-line="103" selection-start-column="5" selection-end-line="103" selection-end-column="5" />
           <folding />
         </state>
       </provider>

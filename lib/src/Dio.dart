@@ -41,7 +41,7 @@ class Dio {
 
   /// Cookie manager for http requests。Learn more details about
   /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
-  CookieJar cookieJar=new CookieJar();
+  CookieJar cookieJar = new CookieJar();
 
   /// [Dio] will create new HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
@@ -360,7 +360,7 @@ class Dio {
       try {
         request = await _listenCancelForAsyncTask(
             cancelToken, requestFuture);
-      } on TimeoutException  catch (e) {
+      } on TimeoutException catch (e) {
         throw new DioError(
           message: "Connecting timeout[${options.connectTimeout}ms]",
           type: DioErrorType.CONNECT_TIMEOUT,
@@ -411,24 +411,19 @@ class Dio {
       });
       return _listenCancelForAsyncTask(cancelToken, future);
     } catch (e) {
-//      if(e is TimeoutException){
-//
-//      }
       DioError err = _assureDioError(e);
       if (CancelToken.isCancel(err)) {
         httpClient.close(force: true);
-        throw err;
-      } else {
-        // Response onError
-        Future future = _checkIfNeedEnqueue(interceptor.response, () {
-          _checkCancelled(cancelToken);
-          // Listen in error interceptor.
-          return _listenCancelForAsyncTask(
-              cancelToken, _onError(err));
-        });
-        // Listen if in the queue.
-        return _listenCancelForAsyncTask(cancelToken, future);
       }
+      // Response onError
+      Future future = _checkIfNeedEnqueue(interceptor.response, () {
+        _checkCancelled(cancelToken);
+        // Listen in error interceptor.
+        return _listenCancelForAsyncTask(
+            cancelToken, _onError(err));
+      });
+      // Listen if in the queue.
+      return _listenCancelForAsyncTask(cancelToken, future);
     }
   }
 
