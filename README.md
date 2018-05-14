@@ -13,7 +13,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^0.0.10
+  dio: ^x.x.x  // latest version
 ```
 
 ## Super simple to use

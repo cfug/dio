@@ -14,8 +14,9 @@ main() async {
 //      return "PROXY localhost:8888";
 //    };
 //  };
-  FormData formData = new FormData.from({
+  FormData formData = new FormData.from(<String,dynamic>{
     "name": "haha",
+    // If using in flutter, you can get right file path by path_provider package.
     "file": new UploadFileInfo(new File("./example/flutter.png"), "flutter.png")
   });
   try {

@@ -24,7 +24,7 @@ class FormData extends MapMixin<String, dynamic> {
   /**
    * Create FormData instance with a Map.
    */
-  FormData.from(Map other){
+  FormData.from(Map<String, dynamic>  other){
     _init();
     addAll(other);
   }
