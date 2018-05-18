@@ -531,13 +531,13 @@ class Dio {
   _mergeOptions(Options opt) {
     opt.method ??= options.method ?? "GET";
     opt.method = opt.method.toUpperCase();
-    opt.headers.addAll(options.headers);
+    opt.headers=(new Map.from(options.headers))..addAll(opt.headers);
     opt.baseUrl ??= options.baseUrl ?? "";
     opt.connectTimeout ??= options.connectTimeout ?? 0;
     opt.receiveTimeout ??= options.receiveTimeout ?? 0;
     opt.responseType ??= options.responseType ?? ResponseType.JSON;
     opt.data ??= options.data;
-    opt.extra.addAll(options.extra);
+    opt.extra=(new Map.from(options.extra))..addAll(opt.extra);
     opt.contentType ??= options.contentType ?? ContentType.JSON;
   }
 
