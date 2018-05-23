@@ -474,8 +474,9 @@ class Dio {
 
       // Set the headers, must before `request.write`
       _setHeaders(options, request);
-
       request.write(data);
+    }else{
+      _setHeaders(options, request);
     }
   }
 
@@ -528,7 +529,7 @@ class Dio {
     return err;
   }
 
-  _mergeOptions(Options opt) {
+  void _mergeOptions(Options opt) {
     opt.method ??= options.method ?? "GET";
     opt.method = opt.method.toUpperCase();
     opt.headers=(new Map.from(options.headers))..addAll(opt.headers);
