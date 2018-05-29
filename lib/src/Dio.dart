@@ -63,48 +63,55 @@ class Dio {
   TransFormer transFormer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
-  Future get(String path, {data, Options options, CancelToken cancelToken}) {
-    return request(path, data: data,
+  Future<Response> get(String path,
+      {data, Options options, CancelToken cancelToken}) {
+    return request(path,
+        data: data,
         options: _checkOptions("GET", options),
         cancelToken: cancelToken);
   }
 
   /// Handy method to make http POST request, which is a alias of  [Dio.request].
-  Future post(String path,
+  Future<Response> post(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path, data: data,
+    return request(path,
+        data: data,
         options: _checkOptions("POST", options),
         cancelToken: cancelToken);
   }
 
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
-  Future put(String path,
+  Future<Response> put(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path, data: data,
+    return request(path,
+        data: data,
         options: _checkOptions("PUT", options),
         cancelToken: cancelToken);
   }
 
   /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
-  Future head(String path,
+  Future<Response> head(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path, data: data,
+    return request(path,
+        data: data,
         options: _checkOptions("HEAD", options),
         cancelToken: cancelToken);
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
-  Future delete(String path,
+  Future<Response> delete(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path, data: data,
+    return request(path,
+        data: data,
         options: _checkOptions("DELETE", options),
         cancelToken: cancelToken);
   }
 
   /// Handy method to make http PATCH request, which is a alias of  [Dio.request].
-  Future patch(String path,
+  Future<Response> patch(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path, data: data,
+    return request(path,
+        data: data,
         options: _checkOptions("PATCH", options),
         cancelToken: cancelToken);
   }
@@ -170,14 +177,15 @@ class Dio {
    * please refer to [OnDownloadProgress].
    *
    */
-  Future download(String urlPath,
-      savePath, {
-        OnDownloadProgress onProgress,
-        CancelToken cancelToken,
-        data,
-        bool flush: false,
-        Options options,
-      }) async {
+  Future download(
+    String urlPath,
+    savePath, {
+    OnDownloadProgress onProgress,
+    CancelToken cancelToken,
+    data,
+    bool flush: false,
+    Options options,
+  }) async {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
     // response stream.
     if (options != null) {
@@ -192,9 +200,11 @@ class Dio {
     // Receive data with stream.
     options.responseType = ResponseType.STREAM;
 
-    Response response =
-    await _request(urlPath, data: data,
-        options: options, cancelToken: cancelToken, httpClient: httpClient);
+    Response response = await _request(urlPath,
+        data: data,
+        options: options,
+        cancelToken: cancelToken,
+        httpClient: httpClient);
 
     File file = new File(savePath);
 
@@ -213,35 +223,34 @@ class Dio {
     // Handle  timeout
     if (options.receiveTimeout > 0) {
       stream = response.data.timeout(
-        new Duration(
-            milliseconds: options.receiveTimeout),
+        new Duration(milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
-          return new Future
-              .error(new DioError(
+          return new Future.error(new DioError(
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
-              type: DioErrorType.RECEIVE_TIMEOUT
-          ));
+              type: DioErrorType.RECEIVE_TIMEOUT));
         },
       );
     }
 
-    stream.listen((data) {
-      // Check if cancelled.
-      if (cancelToken != null && cancelToken.cancelError != null) {
-        httpClient.close(force: true);
-        return;
-      }
-      // Write file.
-      raf.writeFromSync(data);
-      // Notify progress
-      received += data.length;
-      if (onProgress != null) {
-        onProgress(received, response.data.contentLength);
-      }
-    }, onDone: () {
-      raf.closeSync();
-      completer.complete();
-    },
+    stream.listen(
+      (data) {
+        // Check if cancelled.
+        if (cancelToken != null && cancelToken.cancelError != null) {
+          httpClient.close(force: true);
+          return;
+        }
+        // Write file.
+        raf.writeFromSync(data);
+        // Notify progress
+        received += data.length;
+        if (onProgress != null) {
+          onProgress(received, response.data.contentLength);
+        }
+      },
+      onDone: () {
+        raf.closeSync();
+        completer.complete();
+      },
       onError: (e) {
         raf.closeSync();
         file.deleteSync();
@@ -259,7 +268,9 @@ class Dio {
    * [data] The request data
    * [options] The request options.
    */
-  Future request(String path, {data,
+  Future request(
+    String path, {
+    data,
     CancelToken cancelToken,
     Options options,
   }) async {
@@ -275,8 +286,7 @@ class Dio {
         data: data,
         cancelToken: cancelToken,
         options: options,
-        httpClient: httpClient
-    );
+        httpClient: httpClient);
   }
 
   _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
@@ -287,7 +297,10 @@ class Dio {
   }
 
   Future _request(String path,
-      {data, CancelToken cancelToken, Options options, HttpClient httpClient}) async {
+      {data,
+      CancelToken cancelToken,
+      Options options,
+      HttpClient httpClient}) async {
     Future future = _checkIfNeedEnqueue(interceptor.request, () {
       _mergeOptions(options);
       options.data = data ?? options.data;
@@ -328,8 +341,8 @@ class Dio {
     });
   }
 
-  Future _makeRequest(Options options,
-      CancelToken cancelToken, [HttpClient httpClient]) async {
+  Future _makeRequest(Options options, CancelToken cancelToken,
+      [HttpClient httpClient]) async {
     _checkCancelled(cancelToken);
     HttpClientResponse response;
     try {
@@ -350,7 +363,8 @@ class Dio {
       Future requestFuture;
       // Handle timeout
       if (options.connectTimeout > 0) {
-        requestFuture = httpClient.openUrl(options.method, uri)
+        requestFuture = httpClient
+            .openUrl(options.method, uri)
             .timeout(new Duration(milliseconds: options.connectTimeout));
       } else {
         requestFuture = httpClient.openUrl(options.method, uri);
@@ -358,8 +372,7 @@ class Dio {
       HttpClientRequest request;
 
       try {
-        request = await _listenCancelForAsyncTask(
-            cancelToken, requestFuture);
+        request = await _listenCancelForAsyncTask(cancelToken, requestFuture);
       } on TimeoutException catch (e) {
         throw new DioError(
           message: "Connecting timeout[${options.connectTimeout}ms]",
@@ -381,12 +394,11 @@ class Dio {
         request.addError(e);
       }
 
-      response = await _listenCancelForAsyncTask(
-          cancelToken, request.close());
+      response = await _listenCancelForAsyncTask(cancelToken, request.close());
       cookieJar.saveFromResponse(uri, response.cookies);
 
-      var retData = await _listenCancelForAsyncTask(cancelToken,
-          transFormer.transformResponse(options, response));
+      var retData = await _listenCancelForAsyncTask(
+          cancelToken, transFormer.transformResponse(options, response));
 
       Response ret = new Response(
           data: retData,
@@ -397,7 +409,7 @@ class Dio {
       Future future = _checkIfNeedEnqueue(interceptor.response, () {
         _checkCancelled(cancelToken);
         if ((response.statusCode >= HttpStatus.OK &&
-            response.statusCode < HttpStatus.MULTIPLE_CHOICES) ||
+                response.statusCode < HttpStatus.MULTIPLE_CHOICES) ||
             response.statusCode == HttpStatus.NOT_MODIFIED) {
           return _listenCancelForAsyncTask(cancelToken, _onSuccess(ret));
         } else {
@@ -419,8 +431,7 @@ class Dio {
       Future future = _checkIfNeedEnqueue(interceptor.response, () {
         _checkCancelled(cancelToken);
         // Listen in error interceptor.
-        return _listenCancelForAsyncTask(
-            cancelToken, _onError(err));
+        return _listenCancelForAsyncTask(cancelToken, _onError(err));
       });
       // Listen if in the queue.
       return _listenCancelForAsyncTask(cancelToken, future);
@@ -475,7 +486,7 @@ class Dio {
       // Set the headers, must before `request.write`
       _setHeaders(options, request);
       request.write(data);
-    }else{
+    } else {
       _setHeaders(options, request);
     }
   }
@@ -532,13 +543,13 @@ class Dio {
   void _mergeOptions(Options opt) {
     opt.method ??= options.method ?? "GET";
     opt.method = opt.method.toUpperCase();
-    opt.headers=(new Map.from(options.headers))..addAll(opt.headers);
+    opt.headers = (new Map.from(options.headers))..addAll(opt.headers);
     opt.baseUrl ??= options.baseUrl ?? "";
     opt.connectTimeout ??= options.connectTimeout ?? 0;
     opt.receiveTimeout ??= options.receiveTimeout ?? 0;
     opt.responseType ??= options.responseType ?? ResponseType.JSON;
     opt.data ??= options.data;
-    opt.extra=(new Map.from(options.extra))..addAll(opt.extra);
+    opt.extra = (new Map.from(options.extra))..addAll(opt.extra);
     opt.contentType ??= options.contentType ?? ContentType.JSON;
   }
 
@@ -563,9 +574,7 @@ class Dio {
       return err;
     } else if (err is Error) {
       err = new DioError(
-          response: null,
-          message: err.toString(),
-          stackTrace: err.stackTrace);
+          response: null, message: err.toString(), stackTrace: err.stackTrace);
     } else {
       err = new DioError(message: err.toString());
     }
@@ -582,5 +591,4 @@ class Dio {
   void _setHeaders(Options options, HttpClientRequest request) {
     options.headers.forEach((k, v) => request.headers.set(k, v));
   }
-
 }
