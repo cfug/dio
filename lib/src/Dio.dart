@@ -20,6 +20,8 @@ typedef OnDownloadProgress(int received, int total);
 
 typedef OnHttpClientCreate(HttpClient client);
 
+typedef HttpClient CreateHttpClient();
+
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
 /// very easy to use.
@@ -36,6 +38,11 @@ class Dio {
   /// The Dio version.
   static const version = "0.0.4";
 
+  /// The method will invoke be create http Client
+  CreateHttpClient newHttpClient = () {
+    return new HttpClient();
+  };
+
   /// Default Request config. More see [Options] .
   Options options;
 
@@ -49,7 +56,6 @@ class Dio {
   OnHttpClientCreate onHttpClientCreate;
 
   bool _httpClientInited = false;
-  HttpClient _httpClient = new HttpClient();
 
   /// Each Dio instance has a interceptor by which you can intercept requests or responses before they are
   /// handled by `then` or `catchError`. the [interceptor] field
@@ -186,7 +192,7 @@ class Dio {
       options = _checkOptions("GET", options);
     }
 
-    HttpClient httpClient = new HttpClient();
+    HttpClient httpClient = newHttpClient();
     _configHttpClient(httpClient);
 
     // Receive data with stream.
@@ -263,9 +269,12 @@ class Dio {
     CancelToken cancelToken,
     Options options,
   }) async {
-    var httpClient = _httpClient;
+    var httpClient;
+    if (httpClient == null) {
+      httpClient = newHttpClient();
+    }
     if (cancelToken != null) {
-      httpClient = new HttpClient();
+      httpClient = newHttpClient();
       _configHttpClient(httpClient);
     } else if (!_httpClientInited) {
       _configHttpClient(httpClient, true);
