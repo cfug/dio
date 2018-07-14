@@ -66,10 +66,10 @@ abstract class TransFormer {
 class DefaultTransformer extends TransFormer {
 
   Future transformRequest(Options options) async {
-    var data = options.data;
+    var data = options.data??"";
     if (data is! String) {
       if (options.contentType.mimeType == ContentType.JSON.mimeType) {
-        return JSON.encode(options.data);
+        return json.encode(options.data);
       } else if (data is Map) {
         return TransFormer.urlEncodeMap(data);
       }
@@ -89,18 +89,18 @@ class DefaultTransformer extends TransFormer {
       stream = stream.timeout(
           new Duration(milliseconds: options.receiveTimeout),
           onTimeout: (EventSink sink) {
-            return new Future<Response>.error(
-                new DioError(
-                  message: "Receiving data timeout[${options
-                      .receiveTimeout}ms]",
-                  type: DioErrorType.RECEIVE_TIMEOUT,
-                ));
+            sink.addError( new DioError(
+              message: "Receiving data timeout[${options
+                  .receiveTimeout}ms]",
+              type: DioErrorType.RECEIVE_TIMEOUT,
+            ));
+            sink.close();
           });
     }
-    String responseBody = await stream.transform(UTF8.decoder).join();
+    String responseBody = await stream.transform(utf8.decoder).join();
     if (options.responseType == ResponseType.JSON &&
-        response.headers.contentType.mimeType == ContentType.JSON.mimeType) {
-      return JSON.decode(responseBody);
+        response.headers.contentType?.mimeType == ContentType.JSON.mimeType) {
+      return json.decode(responseBody);
     }
     return responseBody;
   }

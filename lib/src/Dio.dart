@@ -18,7 +18,7 @@ import 'package:dio/src/TransFormer.dart';
 /// such as response data is compressed with gzip.
 typedef OnDownloadProgress(int received, int total);
 
-typedef OnHttpClientCreate(HttpClient client);
+typedef dynamic OnHttpClientCreate(HttpClient client);
 
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
@@ -175,7 +175,7 @@ class Dio {
         OnDownloadProgress onProgress,
         CancelToken cancelToken,
         data,
-        bool flush: false,
+        @deprecated bool flush: false,
         Options options,
       }) async {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
@@ -216,11 +216,11 @@ class Dio {
         new Duration(
             milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
-          return new Future<Response>
-              .error(new DioError(
+          sink.addError(new DioError(
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
               type: DioErrorType.RECEIVE_TIMEOUT
           ));
+          sink.close();
         },
       );
     }
@@ -282,7 +282,8 @@ class Dio {
   _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
     if (onHttpClientCreate != null) {
-      onHttpClientCreate(httpClient);
+     //user can return a new HttpClient instance
+     httpClient= onHttpClientCreate(httpClient)??httpClient;
     }
   }
 
@@ -407,9 +408,7 @@ class Dio {
 
       Future<Response<T>> future = _checkIfNeedEnqueue<T>(interceptor.response, () {
         _checkCancelled(cancelToken);
-        if ((response.statusCode >= HttpStatus.OK &&
-            response.statusCode < HttpStatus.MULTIPLE_CHOICES) ||
-            response.statusCode == HttpStatus.NOT_MODIFIED) {
+        if (options.validateStatus(response.statusCode)) {
           return _listenCancelForAsyncTask<Response<T>>(
               cancelToken, _onSuccess<T>(ret));
         } else {
@@ -492,6 +491,8 @@ class Dio {
       _setHeaders(options, request);
 
       request.write(data);
+    }else{
+      _setHeaders(options, request);
     }
   }
 
@@ -533,17 +534,18 @@ class Dio {
     return _transFutureStatusIfNecessary<T>(err);
   }
 
-  _mergeOptions(Options opt) {
+  Options _mergeOptions(Options opt) {
     opt.method ??= options.method ?? "GET";
     opt.method = opt.method.toUpperCase();
-    opt.headers.addAll(options.headers);
+    opt.headers=(new Map.from(options.headers))..addAll(opt.headers);
     opt.baseUrl ??= options.baseUrl ?? "";
     opt.connectTimeout ??= options.connectTimeout ?? 0;
     opt.receiveTimeout ??= options.receiveTimeout ?? 0;
     opt.responseType ??= options.responseType ?? ResponseType.JSON;
     opt.data ??= options.data;
-    opt.extra.addAll(options.extra);
+    opt.extra=(new Map.from(options.extra))..addAll(opt.extra);
     opt.contentType ??= options.contentType ?? ContentType.JSON;
+    opt.validateStatus??=options.validateStatus;
   }
 
   Options _checkOptions(method, options) {

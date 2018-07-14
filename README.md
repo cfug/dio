@@ -507,7 +507,7 @@ dio.cookieJar=new PersistCookieJar("./cookies");
 `PersistCookieJar` is a cookie manager which implements the standard cookie policy declared in RFC. `PersistCookieJar` persists the cookies in files, so if the application exit, the cookies always exist unless call `delete` explicitly.
 
 
-More details about [cookie_jar](https://github.com/flutterchina/)  see : https://github.com/flutterchina/cookie_jar .
+More details about [cookie_jar](https://github.com/flutterchina/cookie_jar)  see : https://github.com/flutterchina/cookie_jar .
 
 ## Copyright & License
 

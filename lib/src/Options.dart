@@ -14,23 +14,60 @@ enum ResponseType {
   PLAIN
 }
 
+typedef bool ValidateStatus(int status);
+
 /**
  * The Options class describes the http request information and configuration.
  */
-class Options{
-  Options({this.method,
+class Options {
+  Options({
+    this.method,
     this.baseUrl,
     this.connectTimeout,
     this.receiveTimeout,
+    this.path,
     this.data,
     this.extra,
     this.headers,
     this.responseType,
-    this.contentType}) {
+    this.contentType,
+    this.validateStatus
+  }) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
     this.contentType;
     this.extra = extra ?? {};
+    this.validateStatus ??=
+        (int status) => status >= 200 && status < 300 || status == 304;
+  }
+
+  /// Create a new Option from current instance with merging attributes.
+  Options merge({
+    String method,
+    String baseUrl,
+    String path,
+    int connectTimeout,
+    int receiveTimeout,
+    var data,
+    Map<String, dynamic> extra,
+    Map<String, dynamic> headers,
+    ResponseType responseType,
+    ContentType contentType,
+    ValidateStatus validateStatus
+  }) {
+    return new Options(
+      method: method??this.method,
+      baseUrl: baseUrl??this.baseUrl,
+      path: path??this.path,
+      connectTimeout: connectTimeout??this.connectTimeout,
+      receiveTimeout: receiveTimeout??this.receiveTimeout,
+      data: data??this.data,
+      extra: extra??this.extra??{},
+      headers: headers??this.headers??{},
+      responseType: responseType??this.responseType,
+      contentType: contentType??this.contentType,
+      validateStatus: validateStatus??this.validateStatus
+    );
   }
 
   /// Http method.
@@ -76,6 +113,12 @@ class Options{
   /// If you want to receive the response data with String, use `PLAIN`.
   ResponseType responseType;
 
+  /// `validateStatus` defines whether the request is successful for a given
+  /// HTTP response status code. If `validateStatus` returns `true` ,
+  /// the request will be perceived as successful; otherwise, considered as failed.
+  ValidateStatus validateStatus;
+
   /// Custom field that you can retrieve it later in [Interceptor]、[TransFormer] and the [Response] object.
   Map<String, dynamic> extra;
+
 }
