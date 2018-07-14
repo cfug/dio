@@ -42,6 +42,14 @@ class _InterceptorBase {
   }
 
   /**
+   * Clean the interceptor queue.
+   */
+  void clear(){
+    _completer.completeError("cancelled");
+    _lock = _completer.future;
+  }
+
+  /**
    * If the interceptor is locked, the incoming request/response task
    * will enter a queue.
    *

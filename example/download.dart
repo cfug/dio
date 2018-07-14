@@ -15,13 +15,14 @@ main() async {
   // This is a image, about 4KB
   var url="https://flutter.io/images/flutter-mark-square-100.png";
   try {
-    await dio.download(url,
+    Response response=await dio.download(url,
       "./example/flutter.png",
       // Listen the download progress.
       onProgress: (received, total) {
         print((received / total * 100).toStringAsFixed(0) + "%");
       }
     );
+    print(response.statusCode);
   } catch (e) {
     print(e);
   }

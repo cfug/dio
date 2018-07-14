@@ -11,7 +11,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^0.0.6
+  dio: x.x.x  #latest version
 ```
 
 ## Super simple to use
@@ -100,13 +100,18 @@ Uploading multiple files to server by  FormData:
 FormData formData = new FormData.from({
    "name": "wendux",
    "age": 25,
-   "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt")
-   "file2": new UploadFileInfo(new File("./upload.txt"), "upload2.txt")
+   "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
+   "file2": new UploadFileInfo(new File("./upload.txt"), "upload2.txt"),
+   // Pass multiple files within an Array 
+   "files": [
+      new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+      new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
+    ]
 });
 response = await dio.post("/info", data: formData)
 ```
 
-…you can find all examples code  [here](https://github.com/wendux/dio/tree/master/example).
+…you can find all examples code  [here](https://github.com/flutterchina/dio/tree/master/example).
 
 ## Dio APIs
 
@@ -208,13 +213,18 @@ These are the available config options for making requests.  Requests will defau
   ///
   /// If you want to receive the response data with String, use `PLAIN`.
   ResponseType responseType;
+  
+  /// `validateStatus` defines whether the request is successful for a given
+  /// HTTP response status code. If `validateStatus` returns `true` ,
+  /// the request will be perceived as successful; otherwise, considered as failed.
+  ValidateStatus validateStatus;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[TransFormer] and the [Response] object.
   Map<String, dynamic> extra;
 }
 ```
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/options.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/options.dart).
 
 ## Response Schema
 
@@ -322,6 +332,8 @@ dio.interceptor.request.onSend = (Options options) async{
  }
 ```
 
+you can clean the waiting queue by calling `clear()`;
+
 ### aliases
 
 When the **request** interceptor is locked, the incoming request will pause, this is equivalent to we locked the current dio instance,  Therefore,  Dio provied the two aliases for the `lock/unlock` of **request** interceptors.
@@ -329,6 +341,8 @@ When the **request** interceptor is locked, the incoming request will pause, thi
 **dio.lock() ==  dio.interceptor.request.lock()**
 
 **dio.unlock() ==  dio.interceptor.request.unlock()**
+
+
 
 
 
@@ -356,7 +370,7 @@ dio.interceptor.request.onSend = (Options options) {
   };
 ```
 
-For complete codes click [here](https://github.com/wendux/dio/tree/master/example/interceptorLock.dart).
+For complete codes click [here](https://github.com/flutterchina/dio/tree/master/example/interceptorLock.dart).
 
 ## Handling Errors
 
@@ -436,7 +450,7 @@ dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")))    
 ```
 
-There is a  example [here](https://github.com/wendux/dio/tree/master/example/options.dart).
+There is a  example [here](https://github.com/flutterchina/dio/tree/master/example/options.dart).
 
 ## Sending FormData
 
@@ -453,13 +467,13 @@ response = await dio.post("/info", data: formData)
 
 > Note: Just the post method suppots FormData.
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/formdata.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/formdata.dart).
 
 ## Transformer
 
 `TransFormer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `TransFormer`. If you want to custom the transformation of request/response data, you can provide a `TransFormer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
 
-There is example for [customing transformer](https://github.com/wendux/dio/blob/master/example/transformer.dart).
+There is example for [customing transformer](https://github.com/flutterchina/dio/blob/master/example/transformer.dart).
 
 ## Set proxy and HttpClient config
 
@@ -467,14 +481,17 @@ Dio use HttpClient to send http request, so you can config the `dio.httpClient` 
 
 ```dart
   dio.onHttpClientCreate = (HttpClient client) {
+    // config the http client  
     client.findProxy = (uri) {
       //proxy all request to localhost:8888
       return "PROXY localhost:8888";
     };
+    // you can also create a new HttpClient to dio
+    // return new HttpClient();  
   };
 ```
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/proxy.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/proxy.dart).
 
 ## Cancellation
 
@@ -489,7 +506,7 @@ dio.get(url2, cancelToken: token);
 token.cancel("cancelled");
 ```
 
-There is a complete example [here](https://github.com/wendux/dio/tree/master/example/cancelRequest.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/cancelRequest.dart).
 
 ## Cookie Manager
 
@@ -517,4 +534,4 @@ This open source project authorized by https://flutterchina.club , and the licen
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/wendux/dio/issues
+[tracker]: https://github.com/flutterchina/dio/issues
