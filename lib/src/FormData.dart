@@ -24,7 +24,7 @@ class FormData extends MapMixin<String, dynamic> {
   /**
    * Create FormData instance with a Map.
    */
-  FormData.from(Map other){
+  FormData.from(Map<String, dynamic>  other){
     _init();
     addAll(other);
   }
@@ -69,39 +69,28 @@ class FormData extends MapMixin<String, dynamic> {
   /// Generate the payload for request body.
   List<int> bytes() {
     List<int> bytes = new List();
-    var fileMap = new Map<String, UploadFileInfo>();
+    var fileMap = new Map<String, dynamic>();
     StringBuffer data = new StringBuffer();
     _map.forEach((key, value) {
-      if (value is UploadFileInfo) {
+      if (value is UploadFileInfo||value is List) {
         // If file, add it to `fileMap`, we handle it later.
         fileMap[key] = value;
         return;
       }
-      data.write(boundary);
-      _writeln(data);
-      data.write('Content-Disposition: form-data; name="${key}"');
-      _writeln(data);
-      _writeln(data);
-      data.write(value);
-      _writeln(data);
+      _appendTextField(data, key, value, bytes);
     });
-    // Transform string to bytes.
-    bytes.addAll(UTF8.encode(data.toString()));
-    // Handle the files.
-    fileMap.forEach((key, UploadFileInfo fileInfo) {
-      data = new StringBuffer();
-      data.write(boundary);
-      _writeln(data);
-      data.write(
-          'Content-Disposition: form-data; name="$key"; filename="${fileInfo
-              .fileName}"');
-      _writeln(data);
-      data.write("Content-Type: " +
-          (fileInfo.contentType ?? ContentType.TEXT).mimeType);
-      _writeln(data);
-      _writeln(data);
-      bytes.addAll(UTF8.encode(data.toString()));
-      bytes.addAll(fileInfo.file.readAsBytesSync());
+    fileMap.forEach((key,  fileInfo) {
+      if(fileInfo is UploadFileInfo) {
+        _appendFileContent(data,key, fileInfo, bytes);
+      }else{
+        (fileInfo as List).forEach((e){
+          if(e is UploadFileInfo){
+            _appendFileContent(data, key, e, bytes);
+          }else{
+            _appendTextField(data, key, e, bytes);
+          }
+        });
+      }
     });
     if (_map.length > 0 || fileMap.length > 0) {
       data.clear();
@@ -116,4 +105,34 @@ class FormData extends MapMixin<String, dynamic> {
     return bytes;
   }
 
+  void _appendTextField(StringBuffer data, String key, value, bytes) {
+    data.clear();
+    data.write(boundary);
+    _writeln(data);
+    data.write('Content-Disposition: form-data; name="${key}"');
+    _writeln(data);
+    _writeln(data);
+    data.write(value);
+    _writeln(data);
+    // Transform string to bytes.
+    bytes.addAll(utf8.encode(data.toString()));
+    data.clear();
+  }
+
+  void _appendFileContent(StringBuffer data,String key, UploadFileInfo fileInfo, List<int> bytes) {
+    data.clear();
+    data.write(boundary);
+    _writeln(data);
+    data.write(
+        'Content-Disposition: form-data; name="$key"; filename="${fileInfo
+            .fileName}"');
+    _writeln(data);
+    data.write("Content-Type: " +
+        (fileInfo.contentType ?? ContentType.TEXT).mimeType);
+    _writeln(data);
+    _writeln(data);
+    bytes.addAll(UTF8.encode(data.toString()));
+    bytes.addAll(fileInfo.file.readAsBytesSync());
+    data.clear();
+  }
 }
