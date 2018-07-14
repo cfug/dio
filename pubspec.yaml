@@ -16,6 +16,5 @@ dev_dependencies:
   dart_codecov_generator:
     git:
       url: "https://github.com/wendux/dart-codecov.git"
-
 documentation:
 
