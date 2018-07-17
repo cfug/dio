@@ -31,7 +31,8 @@ class Options {
     this.headers,
     this.responseType,
     this.contentType,
-    this.validateStatus
+    this.validateStatus,
+    this.trustSelfSignedCerts
   }) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
@@ -39,6 +40,7 @@ class Options {
     this.extra = extra ?? {};
     this.validateStatus ??=
         (int status) => status >= 200 && status < 300 || status == 304;
+    this.trustSelfSignedCerts=false;
   }
 
   /// Create a new Option from current instance with merging attributes.
@@ -53,7 +55,8 @@ class Options {
     Map<String, dynamic> headers,
     ResponseType responseType,
     ContentType contentType,
-    ValidateStatus validateStatus
+    ValidateStatus validateStatus,
+    bool trustSelfSignedCerts
   }) {
     return new Options(
       method: method??this.method,
@@ -66,7 +69,8 @@ class Options {
       headers: headers??this.headers??{},
       responseType: responseType??this.responseType,
       contentType: contentType??this.contentType,
-      validateStatus: validateStatus??this.validateStatus
+      validateStatus: validateStatus??this.validateStatus,
+      trustSelfSignedCerts: trustSelfSignedCerts??this.trustSelfSignedCerts
     );
   }
 
@@ -121,4 +125,6 @@ class Options {
   /// Custom field that you can retrieve it later in [Interceptor]、[TransFormer] and the [Response] object.
   Map<String, dynamic> extra;
 
+  //support self-signed certificates
+  bool trustSelfSignedCerts;
 }
