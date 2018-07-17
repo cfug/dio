@@ -472,7 +472,7 @@ class Dio {
         // Handle the FormData
         if (data is FormData) {
           request.headers.set(HttpHeaders.CONTENT_TYPE,
-              'multipart/form-data; ${data.boundary.substring(2)}');
+              'multipart/form-data; boundary=${data.boundary.substring(2)}');
           List<int> content = data.bytes();
           //Must set the content-length
           request.contentLength = content.length;

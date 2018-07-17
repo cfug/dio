@@ -1,8 +1,8 @@
 # dio 
 
-[![build statud](https://img.shields.io/travis/flutterchina/dio/master.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
+[![build statud](https://img.shields.io/travis/flutterchina/dio/vm.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
-[![coverage](https://img.shields.io/codecov/c/github/flutterchina/dio/master.svg?style=flat-square)](https://codecov.io/github/flutterchina/dio?branch=master)
+[![coverage](https://img.shields.io/codecov/c/github/flutterchina/dio/vm.svg?style=flat-square)](https://codecov.io/github/flutterchina/dio?branch=vm)
 [![support](https://img.shields.io/badge/platform-flutter%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
 
 A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc. 
@@ -111,7 +111,7 @@ FormData formData = new FormData.from({
 response = await dio.post("/info", data: formData)
 ```
 
-…you can find all examples code  [here](https://github.com/flutterchina/dio/tree/master/example).
+…you can find all examples code  [here](https://github.com/flutterchina/dio/tree/flutter/example).
 
 ## Dio APIs
 
@@ -224,7 +224,7 @@ These are the available config options for making requests.  Requests will defau
 }
 ```
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/options.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
 
 ## Response Schema
 
@@ -370,7 +370,7 @@ dio.interceptor.request.onSend = (Options options) {
   };
 ```
 
-For complete codes click [here](https://github.com/flutterchina/dio/tree/master/example/interceptorLock.dart).
+For complete codes click [here](https://github.com/flutterchina/dio/tree/flutter/example/interceptorLock.dart).
 
 ## Handling Errors
 
@@ -450,7 +450,7 @@ dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")))    
 ```
 
-There is a  example [here](https://github.com/flutterchina/dio/tree/master/example/options.dart).
+There is a  example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
 
 ## Sending FormData
 
@@ -467,7 +467,7 @@ response = await dio.post("/info", data: formData)
 
 > Note: Just the post method suppots FormData.
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/formdata.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/formdata.dart).
 
 ## Transformer
 
@@ -491,7 +491,7 @@ Dio use HttpClient to send http request, so you can config the `dio.httpClient` 
   };
 ```
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/proxy.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/proxy.dart).
 
 ## Cancellation
 
@@ -506,7 +506,7 @@ dio.get(url2, cancelToken: token);
 token.cancel("cancelled");
 ```
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/master/example/cancelRequest.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/cancelRequest.dart).
 
 ## Cookie Manager
 
