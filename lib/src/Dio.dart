@@ -204,7 +204,7 @@ class Dio {
     var raf = file.openSync(mode: FileMode.WRITE);
 
     //Create a new Completer to notify the success/error state.
-    Completer completer = new Completer();
+    Completer completer = new Completer<Response>();
     Future future = completer.future;
     int received = 0;
 
@@ -240,7 +240,7 @@ class Dio {
       }
     }, onDone: () {
       raf.closeSync();
-      completer.complete();
+      completer.complete(response);
     },
       onError: (e) {
         raf.closeSync();

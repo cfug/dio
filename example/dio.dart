@@ -12,6 +12,13 @@ main() async {
     'common-header': 'xx'
   };
 
+  var u=new Uri(scheme: "https", host: "www.baidu.com", queryParameters: {
+    "xx":"xx",
+    "yy":"dd"
+  });
+
+  print(u);
+
   // Add request interceptor
   dio.interceptor.request.onSend = (Options options) async {
     // return ds.resolve(new Response(data:"xxx"));
