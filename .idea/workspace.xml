@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d719d712-f0ec-4ad6-bd6a-3a6b83a454a8" name="Default" comment="">
+    <list default="true" id="d719d712-f0ec-4ad6-bd6a-3a6b83a454a8" name="Default" comment="fix #31">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/README-ZH.md" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CHANGELOG.md" afterPath="$PROJECT_DIR$/CHANGELOG.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/dio.dart" afterPath="$PROJECT_DIR$/example/dio.dart" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/Dio.dart" afterPath="$PROJECT_DIR$/lib/src/Dio.dart" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pubspec.yaml" afterPath="$PROJECT_DIR$/pubspec.yaml" />
     </list>
@@ -23,8 +24,8 @@
       <file leaf-file-name="Dio.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-209">
-              <caret line="218" column="37" lean-forward="false" selection-start-line="218" selection-start-column="37" selection-end-line="218" selection-end-column="37" />
+            <state relative-caret-position="541">
+              <caret line="166" column="78" lean-forward="false" selection-start-line="166" selection-start-column="78" selection-end-line="166" selection-end-column="78" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -32,11 +33,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="README-ZH.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README-ZH.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="610">
+              <caret line="551" column="46" lean-forward="false" selection-start-line="551" selection-start-column="46" selection-end-line="551" selection-end-column="46" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="dio.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/dio.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="482">
-              <caret line="53" column="17" lean-forward="false" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
+            <state relative-caret-position="294">
+              <caret line="25" column="19" lean-forward="false" selection-start-line="25" selection-start-column="19" selection-end-line="25" selection-end-column="19" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
@@ -47,8 +58,18 @@
       <file leaf-file-name="CHANGELOG.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CHANGELOG.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+            <state relative-caret-position="45">
+              <caret line="3" column="37" lean-forward="false" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -84,16 +105,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="security_context.dart" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/io/security_context.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="26" column="34" lean-forward="false" selection-start-line="26" selection-start-column="34" selection-end-line="26" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="future.dart" pinned="false" current-in-tab="false">
         <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/async/future.dart">
           <provider selected="true" editor-type-id="text-editor">
@@ -116,16 +127,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="proxy.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/example/proxy.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="15" column="10" lean-forward="false" selection-start-line="15" selection-start-column="10" selection-end-line="15" selection-end-column="10" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -138,7 +139,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>cookies</find>
       <find>proxy</find>
       <find>xxxx</find>
       <find>_onSU</find>
@@ -168,6 +168,7 @@
       <find>boun</find>
       <find>onHttpClientCreate</find>
       <find>download</find>
+      <find>lock()</find>
     </findStrings>
     <replaceStrings>
       <replace>Response&lt;T&gt;</replace>
@@ -192,7 +193,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/lib/src/Response.dart" />
         <option value="$PROJECT_DIR$/example/timeout.dart" />
         <option value="$PROJECT_DIR$/example/interceptors.dart" />
         <option value="$PROJECT_DIR$/example/responseInterceptor.dart" />
@@ -237,10 +237,11 @@
         <option value="$PROJECT_DIR$/example/formdata.dart" />
         <option value="$PROJECT_DIR$/lib/src/Interceptor.dart" />
         <option value="$PROJECT_DIR$/issue_template.md" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/example/dio.dart" />
         <option value="$PROJECT_DIR$/lib/src/Dio.dart" />
+        <option value="$PROJECT_DIR$/README-CN.md" />
         <option value="$PROJECT_DIR$/CHANGELOG.md" />
+        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
       </list>
@@ -253,8 +254,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="658" />
-    <option name="y" value="-1014" />
+    <option name="x" value="545" />
+    <option name="y" value="-1054" />
     <option name="width" value="1394" />
     <option name="height" value="877" />
   </component>
@@ -632,7 +633,14 @@
       <option name="project" value="LOCAL" />
       <updated>1531794070130</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="fix #31">
+      <created>1531970778166</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1531970778166</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -668,7 +676,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="352541000" />
+    <option name="totallyTimeSpent" value="354182000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -680,7 +688,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="658" y="-1014" width="1394" height="877" extended-state="0" />
+    <frame x="545" y="-1054" width="1394" height="877" extended-state="0" />
     <layout>
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939634" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2285503" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -690,7 +698,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3662714" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4848485" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24926254" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16073781" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33465084" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4466403" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -793,12 +801,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/src/Dio.dart</url>
-          <line>330</line>
+          <line>338</line>
           <option name="timeStamp" value="288" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/src/Dio.dart</url>
-          <line>308</line>
+          <line>316</line>
           <option name="timeStamp" value="296" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -817,7 +825,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../cookie_jar/lib/src/SerializableCookie.dart" />
     <entry file="file://$PROJECT_DIR$/../cookie_jar/lib/src/DefaultCookieJar.dart" />
     <entry file="file://$PROJECT_DIR$/cookies/.index" />
     <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/io/file_system_entity.dart">
@@ -1060,14 +1067,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="419">
-          <caret line="501" column="34" lean-forward="false" selection-start-line="501" selection-start-column="34" selection-end-line="501" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/Cellar/dart/2.0.0-dev.49.0/libexec/lib/_http/http.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="236">
@@ -1150,30 +1149,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-209">
-          <caret line="218" column="37" lean-forward="false" selection-start-line="218" selection-start-column="37" selection-end-line="218" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/dio.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="482">
-          <caret line="53" column="17" lean-forward="false" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
+        <state relative-caret-position="294">
+          <caret line="25" column="19" lean-forward="false" selection-start-line="25" selection-start-column="19" selection-end-line="25" selection-end-column="19" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/lib/src/Dio.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="541">
+          <caret line="166" column="78" lean-forward="false" selection-start-line="166" selection-start-column="78" selection-end-line="166" selection-end-column="78" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README-ZH.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="610">
+          <caret line="551" column="46" lean-forward="false" selection-start-line="551" selection-start-column="46" selection-end-line="551" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/CHANGELOG.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        <state relative-caret-position="45">
+          <caret line="3" column="37" lean-forward="false" selection-start-line="3" selection-start-column="37" selection-end-line="3" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding />
         </state>
       </provider>

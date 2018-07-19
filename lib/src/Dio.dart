@@ -155,6 +155,14 @@ class Dio {
     interceptor.request.unlock();
   }
 
+
+  /**
+   * Clear the current Dio instance waiting queue.
+   */
+  clear() {
+    interceptor.request.clear();
+  }
+
   /**
    * Download the file and save it in local. The default http method is "GET",
    * you can custom it by [Options.method].

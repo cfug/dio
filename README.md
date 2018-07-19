@@ -1,4 +1,6 @@
-# dio 
+Language: [English](https://github.com/flutterchina/dio) | [中文简体](https://github.com/flutterchina/dio/blob/flutter/README-ZH.md)
+
+# dio
 
 [![build statud](https://img.shields.io/travis/flutterchina/dio/vm.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)

@@ -1,4 +1,8 @@
 
+## 0.1.5
+
+- add `clear` method for dio instance
+
 ## 0.1.4
 
 - fix `download` bugs
