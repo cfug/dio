@@ -111,7 +111,7 @@ FormData formData = new FormData.from({
 response = await dio.post("/info", data: formData)
 ```
 
-…你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/dio/example).
+…你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/flutter/example).
 
 ## Dio APIs
 
@@ -495,7 +495,7 @@ Dio 是使用 HttpClient发起的http请求，所以你可以通过配置 `httpC
   };
 ```
 
-完整的示例请查看[这里](https://github.com/wendux/dio/tree/master/example/proxy.dart).
+完整的示例请查看[这里](https://github.com/wendux/dio/tree/flutter/example/proxy.dart).
 
 ## 请求取消
 
