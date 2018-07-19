@@ -289,6 +289,7 @@ class Dio {
 
   _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
+    httpClient.badCertificateCallback = (X509Certificate cert, String host, int port)=> this.options.trustSelfSignedCerts??false;
     if (onHttpClientCreate != null) {
      //user can return a new HttpClient instance
      httpClient= onHttpClientCreate(httpClient)??httpClient;

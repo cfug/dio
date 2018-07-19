@@ -528,6 +528,23 @@ dio.cookieJar=new PersistCookieJar("./cookies");
 
 More details about [cookie_jar](https://github.com/flutterchina/cookie_jar)  see : https://github.com/flutterchina/cookie_jar .
 
+## HTTPS w/ Self-Signed Certificates
+```
+Options options = new Options(
+trustSelfSignedCerts: true,
+...
+);
+Dio dio = new Dio(options);
+
+// OR
+Dio dio = new Dio();
+dio.options.trustSelfSignedCerts = true;
+
+
+Response<String> response = await dio.get(url);
+print('response: ${response.data}');
+```
+
 ## Copyright & License
 
 This open source project authorized by https://flutterchina.club , and the license is MIT.
