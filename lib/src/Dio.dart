@@ -63,7 +63,8 @@ class Dio {
   TransFormer transFormer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
-  Future<Response<T>> get<T>(String path, {data, Options options, CancelToken cancelToken}) {
+  Future<Response<T>> get<T>(String path,
+      {data, Options options, CancelToken cancelToken}) {
     return request<T>(path, data: data,
         options: _checkOptions("GET", options),
         cancelToken: cancelToken);
@@ -290,14 +291,15 @@ class Dio {
   _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
     if (onHttpClientCreate != null) {
-     //user can return a new HttpClient instance
-     httpClient= onHttpClientCreate(httpClient)??httpClient;
+      //user can return a new HttpClient instance
+      httpClient = onHttpClientCreate(httpClient) ?? httpClient;
     }
   }
 
   Future<Response<T>> _request<T>(String path,
       {data, CancelToken cancelToken, Options options, HttpClient httpClient}) async {
-    Future<Response<T>> future = _checkIfNeedEnqueue<T>(interceptor.request, () {
+    Future<Response<T>> future = _checkIfNeedEnqueue<T>(
+        interceptor.request, () {
       _mergeOptions(options);
       options.data = data ?? options.data;
       options.path = path;
@@ -339,7 +341,8 @@ class Dio {
         return _makeRequest<T>(options, cancelToken, httpClient);
       }
     });
-    return _listenCancelForAsyncTask<Response<T>>(cancelToken, future).then((d) {
+    return _listenCancelForAsyncTask<Response<T>>(cancelToken, future).then((
+        d) {
       if (cancelToken != null) {
         httpClient.close();
       }
@@ -379,7 +382,7 @@ class Dio {
       try {
         request = await _listenCancelForAsyncTask(
             cancelToken, requestFuture);
-      } on TimeoutException  catch (e) {
+      } on TimeoutException catch (e) {
         throw new DioError(
           message: "Connecting timeout[${options.connectTimeout}ms]",
           type: DioErrorType.CONNECT_TIMEOUT,
@@ -414,7 +417,8 @@ class Dio {
           request: options,
           statusCode: response.statusCode);
 
-      Future<Response<T>> future = _checkIfNeedEnqueue<T>(interceptor.response, () {
+      Future<Response<T>> future = _checkIfNeedEnqueue<T>(
+          interceptor.response, () {
         _checkCancelled(cancelToken);
         if (options.validateStatus(response.statusCode)) {
           return _listenCancelForAsyncTask<Response<T>>(
@@ -437,7 +441,8 @@ class Dio {
         throw err;
       } else {
         // Response onError
-        Future<Response<T>> future = _checkIfNeedEnqueue<T>(interceptor.response, () {
+        Future<Response<T>> future = _checkIfNeedEnqueue<T>(
+            interceptor.response, () {
           _checkCancelled(cancelToken);
           // Listen in error interceptor.
           return _listenCancelForAsyncTask<Response<T>>(
@@ -499,7 +504,7 @@ class Dio {
       _setHeaders(options, request);
 
       request.write(data);
-    }else{
+    } else {
       _setHeaders(options, request);
     }
   }
@@ -545,15 +550,18 @@ class Dio {
   Options _mergeOptions(Options opt) {
     opt.method ??= options.method ?? "GET";
     opt.method = opt.method.toUpperCase();
-    opt.headers=(new Map.from(options.headers))..addAll(opt.headers);
+    opt.headers = (new Map.from(options.headers))
+      ..addAll(opt.headers);
     opt.baseUrl ??= options.baseUrl ?? "";
     opt.connectTimeout ??= options.connectTimeout ?? 0;
     opt.receiveTimeout ??= options.receiveTimeout ?? 0;
     opt.responseType ??= options.responseType ?? ResponseType.JSON;
     opt.data ??= options.data;
-    opt.extra=(new Map.from(options.extra))..addAll(opt.extra);
+    opt.extra = (new Map.from(options.extra))
+      ..addAll(opt.extra);
     opt.contentType ??= options.contentType ?? ContentType.JSON;
-    opt.validateStatus??=options.validateStatus;
+    opt.validateStatus ??= options.validateStatus ??
+            (int status) => status >= 200 && status < 300 || status == 304;
   }
 
   Options _checkOptions(method, options) {
@@ -587,14 +595,14 @@ class Dio {
   }
 
   Response<T> _assureResponse<T>(response) {
-    if(response is Response<T>){
+    if (response is Response<T>) {
       return response;
     }
-    else if (response is! Response ){
+    else if (response is! Response) {
       response = new Response<T>(data: response);
-    }else{
-      T data=response.data;
-      response= new Response<T>(data: data);
+    } else {
+      T data = response.data;
+      response = new Response<T>(data: data);
     }
     return response;
   }

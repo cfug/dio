@@ -37,8 +37,6 @@ class Options {
     this.headers = headers ?? {};
     this.contentType;
     this.extra = extra ?? {};
-    this.validateStatus ??=
-        (int status) => status >= 200 && status < 300 || status == 304;
   }
 
   /// Create a new Option from current instance with merging attributes.
@@ -48,7 +46,7 @@ class Options {
     String path,
     int connectTimeout,
     int receiveTimeout,
-    var data,
+    dynamic data,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
     ResponseType responseType,
@@ -89,7 +87,7 @@ class Options {
   int receiveTimeout;
 
   /// Request data, can be any type.
-  var data;
+  dynamic data;
 
   /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
