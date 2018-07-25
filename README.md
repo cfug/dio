@@ -276,7 +276,7 @@ Each Dio instance has a `RequestInterceptor` and a `ResponseInterceptor`, by whi
  };
  dio.interceptor.response.onError = (DioError e){
      // Do something with response error
-     return DioError;//continue
+     return  e;//continue
  }    
 ```
 

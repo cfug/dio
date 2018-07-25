@@ -357,7 +357,7 @@ class Dio {
     try {
       // Normalize the url.
       String url = options.path;
-      if (!url.startsWith("http")) {
+      if (!url.startsWith(new RegExp(r"https?:"))) {
         url = options.baseUrl + url;
         List<String> s = url.split(":/");
         url = s[0] + ':/' + s[1].replaceAll("//", "/");
@@ -368,8 +368,7 @@ class Dio {
         url += (url.contains("?") ? "&" : "?") +
             TransFormer.urlEncodeMap(options.data);
       }
-      Uri uri = Uri.parse(url);
-
+      Uri uri = Uri.parse(url).normalizePath();
       Future requestFuture;
       // Handle timeout
       if (options.connectTimeout > 0) {
