@@ -4,16 +4,16 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/src/Options.dart';
 
-/// [TransFormer] allows changes to the request/response data before
+/// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
 /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
 ///
 /// Dio has already implemented a [DefaultTransformer], and as the default
-/// [TransFormer]. If you want to custom the transformation of
-/// request/response data, you can provide a [TransFormer] by your self, and
+/// [Transformer]. If you want to custom the transformation of
+/// request/response data, you can provide a [Transformer] by your self, and
 /// replace the [DefaultTransformer] by setting the [dio.transformer].
 
-abstract class TransFormer {
+abstract class Transformer {
 
   /// `transformRequest` allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
