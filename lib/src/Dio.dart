@@ -7,8 +7,7 @@ import 'package:dio/src/DioError.dart';
 import 'package:dio/src/Interceptor.dart';
 import 'package:dio/src/Options.dart';
 import 'package:dio/src/Response.dart';
-import 'package:dio/src/TransFormer.dart';
-
+import 'package:dio/src/Transformer.dart';
 /// Callback to listen the file downloading progress.
 ///
 /// [received] is the length of the bytes have been received.
@@ -58,9 +57,9 @@ class Dio {
 
   var _interceptor = new Interceptor();
 
-  /// [TransFormer] allows changes to the request/response data before it is sent/received to/from the server
+  /// [transformer] allows changes to the request/response data before it is sent/received to/from the server
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
-  TransFormer transFormer = new DefaultTransformer();
+  Transformer transformer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
   Future<Response<T>> get<T>(String path,
@@ -172,9 +171,6 @@ class Dio {
    *
    * [savePath]: The path to save the downloading file later.
    *
-   * If the [flush] argument is set to `true` data written will be
-   * flushed to the file system before returning.
-   *
    * [onProgress]: The callback to listen downloading progress.
    * please refer to [OnDownloadProgress].
    *
@@ -184,7 +180,6 @@ class Dio {
         OnDownloadProgress onProgress,
         CancelToken cancelToken,
         data,
-        @deprecated bool flush: false,
         Options options,
       }) async {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
@@ -366,7 +361,7 @@ class Dio {
       bool isGet = options.method == "GET";
       if (isGet && options.data is Map) {
         url += (url.contains("?") ? "&" : "?") +
-            TransFormer.urlEncodeMap(options.data);
+            Transformer.urlEncodeMap(options.data);
       }
       Uri uri = Uri.parse(url).normalizePath();
       Future requestFuture;
@@ -381,7 +376,7 @@ class Dio {
       try {
         request = await _listenCancelForAsyncTask(
             cancelToken, requestFuture);
-      } on TimeoutException catch (e) {
+      } on TimeoutException {
         throw new DioError(
           message: "Connecting timeout[${options.connectTimeout}ms]",
           type: DioErrorType.CONNECT_TIMEOUT,
@@ -408,7 +403,7 @@ class Dio {
       cookieJar.saveFromResponse(uri, response.cookies);
 
       var retData = await _listenCancelForAsyncTask(cancelToken,
-          transFormer.transformResponse(options, response));
+          transformer.transformResponse(options, response));
 
       Response ret = new Response(
           data: retData,
@@ -497,7 +492,7 @@ class Dio {
           options.contentType.toString();
 
       // Call request transformer.
-      data = await transFormer.transformRequest(options);
+      data = await transformer.transformRequest(options);
 
       // Set the headers, must before `request.write`
       _setHeaders(options, request);

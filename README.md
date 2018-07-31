@@ -43,7 +43,7 @@ print(response.data);
 
 - [Sending FormData](#sending-formdata)
 
-- [Transformer](#transformer)
+- [Transformer](#Transformer)
 
 - [Set proxy and HttpClient config](#set-proxy-and-httpclient-config)
 
@@ -221,7 +221,7 @@ These are the available config options for making requests.  Requests will defau
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus validateStatus;
 
-  /// Custom field that you can retrieve it later in [Interceptor]、[TransFormer] and the [Response] object.
+  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic> extra;
 }
 ```
@@ -473,9 +473,9 @@ There is a complete example [here](https://github.com/flutterchina/dio/tree/flut
 
 ## Transformer
 
-`TransFormer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `TransFormer`. If you want to custom the transformation of request/response data, you can provide a `TransFormer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
+`Transformer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `Transformer`. If you want to custom the transformation of request/response data, you can provide a `Transformer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
 
-There is example for [customing transformer](https://github.com/flutterchina/dio/blob/master/example/transformer.dart).
+There is example for [customing Transformer](https://github.com/flutterchina/dio/blob/master/example/Transformer.dart).
 
 ## Set proxy and HttpClient config
 

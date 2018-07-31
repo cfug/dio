@@ -8,7 +8,7 @@ library dio;
 export 'src/Dio.dart';
 export 'src/FormData.dart';
 export 'src/DioError.dart';
-export 'src/TransFormer.dart';
+export 'src/Transformer.dart';
 export 'src/Interceptor.dart';
 export 'src/Options.dart';
 export 'src/Response.dart';

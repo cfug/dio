@@ -215,7 +215,7 @@ response=await request("/test", data: {"id":12,"name":"xx"}, new Options(method:
   ///  返回`true` , 请求结果就会按成功处理，否则会按失败处理.
   ValidateStatus validateStatus;
 
-  /// 用户自定义字段，可以在 [Interceptor]、[TransFormer] 和 [Response] 中取到.
+  /// 用户自定义字段，可以在 [Interceptor]、[Transformer] 和 [Response] 中取到.
   Map<String, dynamic> extra;
 }
 ```
@@ -468,9 +468,9 @@ response = await dio.post("/info", data: formData)
 
 ## 转换器
 
-转换器`TransFormer` 用于对请求数据和响应数据进行编解码处理。Dio实现了一个默认转换器`DefaultTransformer`作为默认的 `TransFormer`. 如果你想对请求/响应数据进行自定义编解码处理，可以提供自定义转换器，通过 `dio.transformer`设置。
+转换器`Transformer` 用于对请求数据和响应数据进行编解码处理。Dio实现了一个默认转换器`DefaultTransformer`作为默认的 `Transformer`. 如果你想对请求/响应数据进行自定义编解码处理，可以提供自定义转换器，通过 `dio.transformer`设置。
 
-> 请求转换器  `TransFormer.transformRequest(...)`   只会被用于 'PUT'、 'POST'、 'PATCH'方法，因为只有这些方法才可以携带请求体(request body)。但是响应转换器 `TransFormer.transformResponse()` 会被用于所有请求方法的返回数据。
+> 请求转换器  `Transformer.transformRequest(...)`   只会被用于 'PUT'、 'POST'、 'PATCH'方法，因为只有这些方法才可以携带请求体(request body)。但是响应转换器 `Transformer.transformResponse()` 会被用于所有请求方法的返回数据。
 
 ### 执行流
 
@@ -478,7 +478,7 @@ response = await dio.post("/info", data: formData)
 
 *请求拦截器* >> *请求转换器* >> *发起请求*  >> *响应转换器*  >> *响应拦截器*  >> *最终结果*。
 
-这是一个自定义转换器的[示例](https://github.com/wendux/dio/blob/flutter/example/transformer.dart).
+这是一个自定义转换器的[示例](https://github.com/wendux/dio/blob/flutter/example/Transformer.dart).
 
 ## 设置Http代理
 
