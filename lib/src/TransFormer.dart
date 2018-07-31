@@ -14,7 +14,6 @@ import 'package:dio/src/Options.dart';
 /// replace the [DefaultTransformer] by setting the [dio.transformer].
 
 abstract class TransFormer {
-
   /// `transformRequest` allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
   ///
@@ -54,6 +53,7 @@ abstract class TransFormer {
         urlData.write("$path=${Uri.encodeQueryComponent(sub.toString())}");
       }
     }
+
     urlEncode(data, "");
     return urlData.toString();
   }
@@ -64,11 +64,10 @@ abstract class TransFormer {
 /// replace the [DefaultTransformer] by setting the [dio.transformer].
 
 class DefaultTransformer extends TransFormer {
-
   Future transformRequest(Options options) async {
-    var data = options.data??"";
+    var data = options.data ?? "";
     if (data is! String) {
-      if (options.contentType.mimeType == ContentType.JSON.mimeType) {
+      if (options.contentType.mimeType == ContentType.json.mimeType) {
         return json.encode(options.data);
       } else if (data is Map) {
         return TransFormer.urlEncodeMap(data);
@@ -86,20 +85,19 @@ class DefaultTransformer extends TransFormer {
     // Handle timeout
     Stream<List<int>> stream = response;
     if (options.receiveTimeout > 0) {
-      stream = stream.timeout(
-          new Duration(milliseconds: options.receiveTimeout),
-          onTimeout: (EventSink sink) {
-            sink.addError( new DioError(
-              message: "Receiving data timeout[${options
-                  .receiveTimeout}ms]",
-              type: DioErrorType.RECEIVE_TIMEOUT,
-            ));
-            sink.close();
-          });
+      stream = stream
+          .timeout(new Duration(milliseconds: options.receiveTimeout),
+              onTimeout: (EventSink sink) {
+        sink.addError(new DioError(
+          message: "Receiving data timeout[${options.receiveTimeout}ms]",
+          type: DioErrorType.RECEIVE_TIMEOUT,
+        ));
+        sink.close();
+      });
     }
     String responseBody = await stream.transform(utf8.decoder).join();
     if (options.responseType == ResponseType.JSON &&
-        response.headers.contentType?.mimeType == ContentType.JSON.mimeType) {
+        response.headers.contentType?.mimeType == ContentType.json.mimeType) {
       return json.decode(responseBody);
     }
     return responseBody;
