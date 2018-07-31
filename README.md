@@ -290,7 +290,7 @@ dio.interceptor.response.onError=null;
 
 ### Resolve and reject the request
 
-In all  interceptors, you can interfere with thire execution flow.  If you want to resolve the request/response with some custom data， you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message,  you can return a `DioError` object or return `dio.reject(errMsg)` . 
+In all  interceptors, you can interfere with their execution flow.  If you want to resolve the request/response with some custom data， you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message,  you can return a `DioError` object or return `dio.reject(errMsg)` . 
 
 ```dart
  dio.interceptor.request.onSend = (Options options){
@@ -302,7 +302,7 @@ In all  interceptors, you can interfere with thire execution flow.  If you want 
 
 ### Supports Async tasks in Interceptors
 
-Interceptors not only support  synchronous tasks , but also supports asynchronous tasks, for example:
+Interceptors not only support synchronous tasks, but also supports asynchronous tasks, for example:
 
 ```dart
   dio.interceptor.request.onSend = (Options options) async{
@@ -316,7 +316,7 @@ Interceptors not only support  synchronous tasks , but also supports asynchronou
 
 ### Lock/unlock the interceptors
 
-you can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue  before they enter the interceptor, they will not be continued until the interceptor is unlocked.
+You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue before they enter the interceptor, they will not be continued until the interceptor is unlocked.
 
 ```dart
 tokenDio=new Dio(); //Create a new instance to request the token.
@@ -497,7 +497,7 @@ There is a complete example [here](https://github.com/flutterchina/dio/tree/flut
 
 ## Cancellation
 
-You can cancel a request using a *cancel token*.   One token can be shared with multiple requests.  when a token's  `cancel` method invoked, all requests with this token will be cancelled.
+You can cancel a request using a *cancel token*. One token can be shared with multiple requests. When a token's  `cancel` method invoked, all requests with this token will be cancelled.
 
 ```dart
 CancelToken token = new CancelToken();
@@ -516,7 +516,7 @@ You can manage the request/response cookies using `cookieJar` .
 
 > The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
 
-You can create a `CookieJar` or `PersistCookieJar` to manage cookies automaticlly, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies,  you can use the `PersistCookieJar` class,  the example codes as follows:
+You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies, you can use the `PersistCookieJar` class, the example codes as follows:
 
 ```dart
 var dio = new Dio();
