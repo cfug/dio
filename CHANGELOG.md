@@ -1,3 +1,8 @@
+## 0.1.8
+
+- change file name "TransFormer" to "Transformer"
+- change "dio.transFormer" to "dio.transformer"
+- change deprecated "UTF8" to "utf8"
 
 ## 0.1.5
 

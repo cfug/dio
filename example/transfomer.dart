@@ -31,8 +31,8 @@ class MyTransformer extends DefaultTransformer {
 
 main() async {
   var dio = new Dio();
-  // Use custom transformer
-  dio.transFormer = new MyTransformer();
+  // Use custom Transformer
+  dio.transformer = new MyTransformer();
 
 //  Response response = await dio.get("https://www.baidu.com");
 //  print(response.request.extra["cookies"]);

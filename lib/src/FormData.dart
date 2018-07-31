@@ -100,7 +100,7 @@ class FormData extends MapMixin<String, dynamic> {
       data.write(boundary+"--");
       _writeln(data);
       //_writeln(data);
-      bytes.addAll(UTF8.encode(data.toString()));
+      bytes.addAll(utf8.encode(data.toString()));
     }
     return bytes;
   }
@@ -131,7 +131,7 @@ class FormData extends MapMixin<String, dynamic> {
         (fileInfo.contentType ?? ContentType.TEXT).mimeType);
     _writeln(data);
     _writeln(data);
-    bytes.addAll(UTF8.encode(data.toString()));
+    bytes.addAll(utf8.encode(data.toString()));
     bytes.addAll(fileInfo.file.readAsBytesSync());
     bytes.addAll(utf8.encode('\r\n'));
     data.clear();

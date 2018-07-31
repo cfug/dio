@@ -116,7 +116,7 @@ class Options {
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus validateStatus;
 
-  /// Custom field that you can retrieve it later in [Interceptor]、[TransFormer] and the [Response] object.
+  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic> extra;
 
 }

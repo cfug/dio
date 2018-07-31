@@ -4,16 +4,16 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/src/Options.dart';
 
-/// [TransFormer] allows changes to the request/response data before
+/// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
 /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
 ///
 /// Dio has already implemented a [DefaultTransformer], and as the default
-/// [TransFormer]. If you want to custom the transformation of
-/// request/response data, you can provide a [TransFormer] by your self, and
-/// replace the [DefaultTransformer] by setting the [dio.transformer].
+/// [Transformer]. If you want to custom the transformation of
+/// request/response data, you can provide a [Transformer] by your self, and
+/// replace the [DefaultTransformer] by setting the [dio.Transformer].
 
-abstract class TransFormer {
+abstract class Transformer {
 
   /// `transformRequest` allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
@@ -59,19 +59,19 @@ abstract class TransFormer {
   }
 }
 
-/// The default [TransFormer] for [Dio]. If you want to custom the transformation of
-/// request/response data, you can provide a [TransFormer] by your self, and
-/// replace the [DefaultTransformer] by setting the [dio.transformer].
+/// The default [Transformer] for [Dio]. If you want to custom the transformation of
+/// request/response data, you can provide a [Transformer] by your self, and
+/// replace the [DefaultTransformer] by setting the [dio.Transformer].
 
-class DefaultTransformer extends TransFormer {
+class DefaultTransformer extends Transformer {
 
   Future transformRequest(Options options) async {
-    var data = options.data??"";
+    var data = options.data ?? "";
     if (data is! String) {
       if (options.contentType.mimeType == ContentType.JSON.mimeType) {
         return json.encode(options.data);
       } else if (data is Map) {
-        return TransFormer.urlEncodeMap(data);
+        return Transformer.urlEncodeMap(data);
       }
     }
     return data.toString();
@@ -89,7 +89,7 @@ class DefaultTransformer extends TransFormer {
       stream = stream.timeout(
           new Duration(milliseconds: options.receiveTimeout),
           onTimeout: (EventSink sink) {
-            sink.addError( new DioError(
+            sink.addError(new DioError(
               message: "Receiving data timeout[${options
                   .receiveTimeout}ms]",
               type: DioErrorType.RECEIVE_TIMEOUT,
@@ -98,8 +98,10 @@ class DefaultTransformer extends TransFormer {
           });
     }
     String responseBody = await stream.transform(utf8.decoder).join();
-    if (options.responseType == ResponseType.JSON &&
-        response.headers.contentType?.mimeType == ContentType.JSON.mimeType) {
+    if (responseBody != null
+        && responseBody.isNotEmpty
+        && options.responseType == ResponseType.JSON
+        && response.headers.contentType?.mimeType == ContentType.JSON.mimeType) {
       return json.decode(responseBody);
     }
     return responseBody;

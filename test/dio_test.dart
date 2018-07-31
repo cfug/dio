@@ -135,7 +135,7 @@ void main() {
   group('transfomer', () {
     test("test", () async {
       var dio = new Dio();
-      dio.transFormer = new MyTransformer();
+      dio.transformer = new MyTransformer();
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
       try {
@@ -149,7 +149,7 @@ void main() {
         "c": {"d": 8, "e": {"a": 5, "b": [66, 8]}}
       };
       var dest = "a=%E4%BD%A0%E5%A5%BD&b%5B%5D=5&b%5B%5D=6&c%5Bd%5D=8&c%5Be%5D%5Ba%5D=5&c%5Be%5D%5Bb%5D%5B%5D=66&c%5Be%5D%5Bb%5D%5B%5D=8";
-      expect(TransFormer.urlEncodeMap(data), dest);
+      expect(Transformer.urlEncodeMap(data), dest);
     });
   });
 
