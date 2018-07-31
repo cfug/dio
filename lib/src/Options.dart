@@ -20,19 +20,18 @@ typedef bool ValidateStatus(int status);
  * The Options class describes the http request information and configuration.
  */
 class Options {
-  Options({
-    this.method,
-    this.baseUrl,
-    this.connectTimeout,
-    this.receiveTimeout,
-    this.path,
-    this.data,
-    this.extra,
-    this.headers,
-    this.responseType,
-    this.contentType,
-    this.validateStatus
-  }) {
+  Options(
+      {this.method,
+      this.baseUrl,
+      this.connectTimeout,
+      this.receiveTimeout,
+      this.path,
+      this.data,
+      this.extra,
+      this.headers,
+      this.responseType,
+      this.contentType,
+      this.validateStatus}) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
     this.contentType;
@@ -40,32 +39,30 @@ class Options {
   }
 
   /// Create a new Option from current instance with merging attributes.
-  Options merge({
-    String method,
-    String baseUrl,
-    String path,
-    int connectTimeout,
-    int receiveTimeout,
-    dynamic data,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    ContentType contentType,
-    ValidateStatus validateStatus
-  }) {
+  Options merge(
+      {String method,
+      String baseUrl,
+      String path,
+      int connectTimeout,
+      int receiveTimeout,
+      dynamic data,
+      Map<String, dynamic> extra,
+      Map<String, dynamic> headers,
+      ResponseType responseType,
+      ContentType contentType,
+      ValidateStatus validateStatus}) {
     return new Options(
-      method: method??this.method,
-      baseUrl: baseUrl??this.baseUrl,
-      path: path??this.path,
-      connectTimeout: connectTimeout??this.connectTimeout,
-      receiveTimeout: receiveTimeout??this.receiveTimeout,
-      data: data??this.data,
-      extra: extra??this.extra??{},
-      headers: headers??this.headers??{},
-      responseType: responseType??this.responseType,
-      contentType: contentType??this.contentType,
-      validateStatus: validateStatus??this.validateStatus
-    );
+        method: method ?? this.method,
+        baseUrl: baseUrl ?? this.baseUrl,
+        path: path ?? this.path,
+        connectTimeout: connectTimeout ?? this.connectTimeout,
+        receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+        data: data ?? this.data,
+        extra: extra ?? this.extra ?? {},
+        headers: headers ?? this.headers ?? {},
+        responseType: responseType ?? this.responseType,
+        contentType: contentType ?? this.contentType,
+        validateStatus: validateStatus ?? this.validateStatus);
   }
 
   /// Http method.
@@ -93,7 +90,7 @@ class Options {
   /// it will be combined and then resolved with the baseUrl.
   String path = "";
 
-  /// The request Content-Type. The default value is [ContentType.JSON].
+  /// The request Content-Type. The default value is [ContentType.json].
   /// If you want to encode request body with "application/x-www-form-urlencoded",
   /// you can set `ContentType.parse("application/x-www-form-urlencoded")`, and [Dio]
   /// will automatically encode the request body.
@@ -118,5 +115,4 @@ class Options {
 
   /// Custom field that you can retrieve it later in [Interceptor]、[TransFormer] and the [Response] object.
   Map<String, dynamic> extra;
-
 }
