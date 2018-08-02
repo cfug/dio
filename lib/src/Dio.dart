@@ -506,8 +506,8 @@ class Dio {
                     handleData: (data, sink){
                       byteCount += data.length;
                       sink.add(data);
-                      if(options.onProgress != null){
-                        options.onProgress(byteCount, content.length);
+                      if(options.onUploadProgress != null){
+                        options.onUploadProgress(byteCount, content.length);
                       }
                     },
                     handleError: (error, stack, sink) {
@@ -595,6 +595,7 @@ class Dio {
     opt.contentType ??= options.contentType ?? ContentType.JSON;
     opt.validateStatus ??= options.validateStatus ??
             (int status) => status >= 200 && status < 300 || status == 304;
+    opt.onUploadProgress = opt.onUploadProgress;
   }
 
   Options _checkOptions(method, options) {

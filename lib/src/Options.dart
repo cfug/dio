@@ -33,7 +33,7 @@ class Options {
     this.responseType,
     this.contentType,
     this.validateStatus,
-    this.onProgress,
+    this.onUploadProgress,
   }) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
@@ -54,7 +54,7 @@ class Options {
     ResponseType responseType,
     ContentType contentType,
     ValidateStatus validateStatus,
-    OnUploadProgress onProgress
+    OnUploadProgress onUploadProgress
   }) {
     return new Options(
       method: method??this.method,
@@ -68,8 +68,7 @@ class Options {
       responseType: responseType??this.responseType,
       contentType: contentType??this.contentType,
       validateStatus: validateStatus??this.validateStatus,
-      onProgress: onProgress??this.onProgress
-
+      onUploadProgress: onUploadProgress??this.onUploadProgress
     );
   }
 
@@ -122,7 +121,7 @@ class Options {
   ValidateStatus validateStatus;
 
   /// `onProgress` defines upload progress callback
-  OnUploadProgress onProgress;
+  OnUploadProgress onUploadProgress;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic> extra;
