@@ -595,7 +595,7 @@ class Dio {
     opt.contentType ??= options.contentType ?? ContentType.JSON;
     opt.validateStatus ??= options.validateStatus ??
             (int status) => status >= 200 && status < 300 || status == 304;
-    opt.onUploadProgress = opt.onUploadProgress;
+    opt.onUploadProgress ??= options.onUploadProgress;
   }
 
   Options _checkOptions(method, options) {
