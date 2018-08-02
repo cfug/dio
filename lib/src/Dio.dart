@@ -506,12 +506,12 @@ class Dio {
                     handleData: (data, sink){
                       byteCount += data.length;
                       sink.add(data);
-//                      print('${DateTime.now()}: handle data: $byteCount / ${content.length}');
                       if(options.onProgress != null){
                         options.onProgress(byteCount, content.length);
                       }
                     },
                     handleError: (error, stack, sink) {
+                      throw new DioError(type: DioErrorType.UPLOAD, message: error.toString(), stackTrace: stack);
                     },
                     handleDone: (sink){
                       sink.close();

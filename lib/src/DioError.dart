@@ -17,7 +17,10 @@ enum DioErrorType {
   RESPONSE,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL
+  CANCEL,
+
+  /// When the upload progress handler error, dio will throw whit this type.
+  UPLOAD,
 }
 
 /**
