@@ -2,7 +2,7 @@ Language: [English](https://github.com/flutterchina/dio) | [中文简体](https:
 
 # dio
 
-[![build statud](https://img.shields.io/travis/flutterchina/dio/vm.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
+[![build status](https://img.shields.io/travis/flutterchina/dio/vm.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
 [![coverage](https://img.shields.io/codecov/c/github/flutterchina/dio/vm.svg?style=flat-square)](https://codecov.io/github/flutterchina/dio?branch=vm)
 [![support](https://img.shields.io/badge/platform-flutter%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
@@ -96,7 +96,7 @@ FormData formData = new FormData.from({
 response = await dio.post("/info", data: formData)
 ```
 
-Uploading multiple files to server by  FormData:
+Uploading multiple files to server by FormData:
 
 ```dart
 FormData formData = new FormData.from({
@@ -113,13 +113,13 @@ FormData formData = new FormData.from({
 response = await dio.post("/info", data: formData)
 ```
 
-…you can find all examples code  [here](https://github.com/flutterchina/dio/tree/flutter/example).
+…you can find all examples code [here](https://github.com/flutterchina/dio/tree/flutter/example).
 
 ## Dio APIs
 
 ### Creating an instance and set default configs.
 
-You can create  instance of Dio with a optional `Options` object:
+You can create instance of Dio with an optional `Options` object:
 
 ```dart
 Dio dio = new Dio; // with default Options
@@ -138,7 +138,7 @@ Options options= new Options(
 Dio dio = new Dio(options);
 ```
 
-The core API in Dio instance is :
+The core API in Dio instance is:
 
 **Future<Response> request(String path, {data, Options options,CancelToken cancelToken})**
 
@@ -170,7 +170,7 @@ For convenience aliases have been provided for all supported request methods.
 
 ## Request Options
 
-These are the available config options for making requests.  Requests will default to `GET` if `method` is not specified.
+These are the available config options for making requests. Requests will default to `GET` if `method` is not specified.
 
 ```dart
 {
@@ -247,7 +247,7 @@ The response for a request contains the following information.
 }
 ```
 
-When request  is succeed, you will receive the response as follows:
+When request is succeed, you will receive the response as follows:
 
 ```dart
 Response response=await dio.get("https://www.google.com");
@@ -290,7 +290,7 @@ dio.interceptor.response.onError=null;
 
 ### Resolve and reject the request
 
-In all  interceptors, you can interfere with thire execution flow.  If you want to resolve the request/response with some custom data， you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message,  you can return a `DioError` object or return `dio.reject(errMsg)` . 
+In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message, you can return a `DioError` object or return `dio.reject(errMsg)` . 
 
 ```dart
  dio.interceptor.request.onSend = (Options options){
@@ -302,7 +302,7 @@ In all  interceptors, you can interfere with thire execution flow.  If you want 
 
 ### Supports Async tasks in Interceptors
 
-Interceptors not only support  synchronous tasks , but also supports asynchronous tasks, for example:
+Interceptors not only support synchronous tasks, but also supports asynchronous tasks, for example:
 
 ```dart
   dio.interceptor.request.onSend = (Options options) async{
@@ -316,7 +316,7 @@ Interceptors not only support  synchronous tasks , but also supports asynchronou
 
 ### Lock/unlock the interceptors
 
-you can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue  before they enter the interceptor, they will not be continued until the interceptor is unlocked.
+You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue before they enter the interceptor, they will not be continued until the interceptor is unlocked.
 
 ```dart
 tokenDio=new Dio(); //Create a new instance to request the token.
@@ -334,11 +334,11 @@ dio.interceptor.request.onSend = (Options options) async{
  }
 ```
 
-you can clean the waiting queue by calling `clear()`;
+You can clean the waiting queue by calling `clear()`;
 
 ### aliases
 
-When the **request** interceptor is locked, the incoming request will pause, this is equivalent to we locked the current dio instance,  Therefore,  Dio provied the two aliases for the `lock/unlock` of **request** interceptors.
+When the **request** interceptor is locked, the incoming request will pause, this is equivalent to we locked the current dio instance, Therefore, Dio provied the two aliases for the `lock/unlock` of **request** interceptors.
 
 **dio.lock() ==  dio.interceptor.request.lock()**
 
@@ -350,7 +350,7 @@ When the **request** interceptor is locked, the incoming request will pause, thi
 
 ### Example
 
-Because of security reasons, we need all the requests to set up a csrfToken in the header, if csrfToken does not exist, we need to request a csrfToken first, and then perform the network request, because the request csrfToken progress is asynchronous, so we need to execute this async request in request interceptor. the code is as follows:
+Because of security reasons, we need all the requests to set up a csrfToken in the header, if csrfToken does not exist, we need to request a csrfToken first, and then perform the network request, because the request csrfToken progress is asynchronous, so we need to execute this async request in request interceptor. The code is as follows:
 
 ```dart
 dio.interceptor.request.onSend = (Options options) {
@@ -452,11 +452,11 @@ dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")))    
 ```
 
-There is a  example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
+There is an example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
 
 ## Sending FormData
 
-You can also send FormData with Dio, which will send data in the `multipart/form-data`, and it supports upload files.
+You can also send FormData with Dio, which will send data in the `multipart/form-data`, and it supports uploading files.
 
 ```dart
 FormData formData = new FormData.from({
@@ -473,13 +473,13 @@ There is a complete example [here](https://github.com/flutterchina/dio/tree/flut
 
 ## Transformer
 
-`Transformer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `Transformer`. If you want to custom the transformation of request/response data, you can provide a `Transformer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
+`Transformer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `Transformer`. If you want to customize the transformation of request/response data, you can provide a `Transformer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
 
-There is example for [customing Transformer](https://github.com/flutterchina/dio/blob/master/example/Transformer.dart).
+There is an example for [customizing Transformer](https://github.com/flutterchina/dio/blob/flutter/example/Transformer.dart).
 
 ## Set proxy and HttpClient config
 
-Dio use HttpClient to send http request, so you can config the `dio.httpClient` to support `porxy`, for example:
+Dio uses HttpClient to send http request, so you can config the `dio.httpClient` to support `proxy`, for example:
 
 ```dart
   dio.onHttpClientCreate = (HttpClient client) {
@@ -497,7 +497,7 @@ There is a complete example [here](https://github.com/flutterchina/dio/tree/flut
 
 ## Cancellation
 
-You can cancel a request using a *cancel token*.   One token can be shared with multiple requests.  when a token's  `cancel` method invoked, all requests with this token will be cancelled.
+You can cancel a request using a *cancel token*. One token can be shared with multiple requests. When a token's  `cancel` method invoked, all requests with this token will be cancelled.
 
 ```dart
 CancelToken token = new CancelToken();
@@ -516,7 +516,7 @@ You can manage the request/response cookies using `cookieJar` .
 
 > The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
 
-You can create a `CookieJar` or `PersistCookieJar` to manage cookies automaticlly, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies,  you can use the `PersistCookieJar` class,  the example codes as follows:
+You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies, you can use the `PersistCookieJar` class, the example codes as follows:
 
 ```dart
 var dio = new Dio();
