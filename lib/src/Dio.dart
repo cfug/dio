@@ -35,6 +35,9 @@ class Dio {
   /// The Dio version.
   static const version = "0.0.4";
 
+  /// upload progress buffer
+  static const BUFFER_SIZE = 10 * 1024;
+
   /// Default Request config. More see [Options] .
   Options options;
 
@@ -484,7 +487,43 @@ class Dio {
           //Must set the content-length
           request.contentLength = content.length;
           _setHeaders(options, request);
-          request.add(content);
+
+          if(content.length > BUFFER_SIZE){
+            var controller = new StreamController<List<int>>(sync: true);
+            for(int i = 0, len = content.length; i < len; i+= BUFFER_SIZE){
+              int  end = i + BUFFER_SIZE ;
+              if( ! (i + BUFFER_SIZE < len)){
+                end = len;
+              }
+              controller.add(content.sublist(i, end));
+            }
+
+            controller.close();
+
+            int byteCount = 0;
+            Stream<List<int>> stream2 = controller.stream.transform(
+                new StreamTransformer.fromHandlers(
+                    handleData: (data, sink){
+                      byteCount += data.length;
+                      sink.add(data);
+//                      print('${DateTime.now()}: handle data: $byteCount / ${content.length}');
+                      if(options.onProgress != null){
+                        options.onProgress(byteCount, content.length);
+                      }
+                    },
+                    handleError: (error, stack, sink) {
+                    },
+                    handleDone: (sink){
+                      sink.close();
+                    }
+                )
+            );
+
+            await request.addStream(stream2);
+          } else {
+            request.add(content);
+          }
+
           return;
         }
       }

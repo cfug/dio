@@ -15,6 +15,7 @@ enum ResponseType {
 }
 
 typedef bool ValidateStatus(int status);
+typedef void OnUploadProgress(int send, int total);
 
 /**
  * The Options class describes the http request information and configuration.
@@ -31,7 +32,8 @@ class Options {
     this.headers,
     this.responseType,
     this.contentType,
-    this.validateStatus
+    this.validateStatus,
+    this.onProgress,
   }) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
@@ -51,7 +53,8 @@ class Options {
     Map<String, dynamic> headers,
     ResponseType responseType,
     ContentType contentType,
-    ValidateStatus validateStatus
+    ValidateStatus validateStatus,
+    OnUploadProgress onProgress
   }) {
     return new Options(
       method: method??this.method,
@@ -64,7 +67,9 @@ class Options {
       headers: headers??this.headers??{},
       responseType: responseType??this.responseType,
       contentType: contentType??this.contentType,
-      validateStatus: validateStatus??this.validateStatus
+      validateStatus: validateStatus??this.validateStatus,
+      onProgress: onProgress??this.onProgress
+
     );
   }
 
@@ -115,6 +120,9 @@ class Options {
   /// HTTP response status code. If `validateStatus` returns `true` ,
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus validateStatus;
+
+  /// `onProgress` defines upload progress callback
+  OnUploadProgress onProgress;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic> extra;

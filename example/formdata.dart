@@ -17,6 +17,8 @@ main() async {
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
   });
-  Response response = await dio.post("/token", data: formData);
+  Response response = await dio.post("/token", data: formData, options: new Options(onProgress: (send, total){
+    print('upload, progress: $send / $total ');
+  }));
   print(response.data);
 }
