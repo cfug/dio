@@ -8,6 +8,7 @@ import 'package:dio/src/Interceptor.dart';
 import 'package:dio/src/Options.dart';
 import 'package:dio/src/Response.dart';
 import 'package:dio/src/Transformer.dart';
+
 /// Callback to listen the file downloading progress.
 ///
 /// [received] is the length of the bytes have been received.
@@ -488,11 +489,12 @@ class Dio {
           request.contentLength = content.length;
           _setHeaders(options, request);
 
-          if(content.length > BUFFER_SIZE){
+          if (content.length > BUFFER_SIZE) {
             var controller = new StreamController<List<int>>(sync: true);
-            for(int i = 0, len = content.length; i < len; i+= BUFFER_SIZE){
-              int  end = i + BUFFER_SIZE ;
-              if( ! (i + BUFFER_SIZE < len)){
+
+            for (int i = 0, len = content.length; i < len; i += BUFFER_SIZE) {
+              int end = i + BUFFER_SIZE;
+              if (!(i + BUFFER_SIZE < len)) {
                 end = len;
               }
               controller.add(content.sublist(i, end));
@@ -500,26 +502,30 @@ class Dio {
 
             controller.close();
 
+
             int byteCount = 0;
-            Stream<List<int>> stream2 = controller.stream.transform(
+            Stream<List<int>> stream = controller.stream.transform(
                 new StreamTransformer.fromHandlers(
-                    handleData: (data, sink){
+                    handleData: (data, sink) {
                       byteCount += data.length;
                       sink.add(data);
-                      if(options.onUploadProgress != null){
+                      if (options.onUploadProgress != null) {
                         options.onUploadProgress(byteCount, content.length);
                       }
                     },
                     handleError: (error, stack, sink) {
-                      throw new DioError(type: DioErrorType.UPLOAD, message: error.toString(), stackTrace: stack);
+                      print('handleError: $error');
+                      request.addError(new DioError(type: DioErrorType.UPLOAD, message: error.toString(), stackTrace: stack));
+                      sink.close();
                     },
-                    handleDone: (sink){
+                    handleDone: (sink) {
                       sink.close();
                     }
                 )
             );
 
-            await request.addStream(stream2);
+            await request.addStream(stream);
+
           } else {
             request.add(content);
           }
