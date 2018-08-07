@@ -406,6 +406,10 @@ class Dio {
           cancelToken, request.close());
       cookieJar.saveFromResponse(uri, response.cookies);
 
+      if(options.onUploadProgress != null){
+        options.onUploadProgress(request.contentLength, request.contentLength);
+      }
+
       var retData = await _listenCancelForAsyncTask(cancelToken,
           transformer.transformResponse(options, response));
 
@@ -515,7 +519,6 @@ class Dio {
                     },
                     handleError: (error, stack, sink) {
                       print('handleError: $error');
-                      request.addError(new DioError(type: DioErrorType.UPLOAD, message: error.toString(), stackTrace: stack));
                       sink.close();
                     },
                     handleDone: (sink) {
@@ -525,7 +528,6 @@ class Dio {
             );
 
             await request.addStream(stream);
-
           } else {
             request.add(content);
           }
