@@ -271,7 +271,7 @@ print(statusCode);
  };
  dio.interceptor.response.onError = (DioError e){
      // 当请求失败时做一些预处理
-     return DioError;//continue
+     return e;//continue
  }
 ```
 

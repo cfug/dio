@@ -267,12 +267,11 @@ class Dio {
     CancelToken cancelToken,
     Options options,
   }) async {
-    var httpClient = _httpClient;
+    var httpClient =_httpClient ;
     if (cancelToken != null) {
-      httpClient = new HttpClient();
-      _configHttpClient(httpClient);
+      httpClient=_configHttpClient(new HttpClient());
     } else if (!_httpClientInited) {
-      _configHttpClient(httpClient, true);
+      _httpClient=httpClient=_configHttpClient(_httpClient, true);
       _httpClientInited = true;
     }
     return _request<T>(path,
@@ -283,12 +282,13 @@ class Dio {
     );
   }
 
-  _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
+  HttpClient _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
     if (onHttpClientCreate != null) {
       //user can return a new HttpClient instance
       httpClient = onHttpClientCreate(httpClient) ?? httpClient;
     }
+    return httpClient;
   }
 
   Future<Response<T>> _request<T>(String path,

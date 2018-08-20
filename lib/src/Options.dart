@@ -60,8 +60,8 @@ class Options {
       connectTimeout: connectTimeout??this.connectTimeout,
       receiveTimeout: receiveTimeout??this.receiveTimeout,
       data: data??this.data,
-      extra: extra??this.extra??{},
-      headers: headers??this.headers??{},
+      extra: extra??new Map.from(this.extra??{}),
+      headers: headers??new Map.from(this.headers??{}),
       responseType: responseType??this.responseType,
       contentType: contentType??this.contentType,
       validateStatus: validateStatus??this.validateStatus
