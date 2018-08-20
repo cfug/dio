@@ -26,6 +26,35 @@ main() async {
       return options;
     }
   };
+
+  dio.interceptor.response.onError = (DioError error) {
+    // Assume 401 stands for token expired
+    if(error.response?.statusCode==401){
+      Options options=error.response.request;
+      // If the token has been updated, repeat directly.
+      if(csrfToken!=options.headers["csrfToken"]){
+        options.headers["csrfToken"]=csrfToken;
+        //repeat
+       return  dio.request(options.path,options: options);
+      }
+      // update token and repeat
+      // Lock to block the incoming request until the token updated
+      dio.interceptor.request.lock();
+      dio.interceptor.response.lock();
+      return tokenDio.get("/token").then((d) {
+        //update csrfToken
+        options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
+      }).whenComplete((){
+        dio.interceptor.request.unlock();
+        dio.interceptor.response.unlock();
+      }).then((e){
+       //repeat
+       return dio.request(options.path,options: options);
+      });
+    }
+    return error;
+  };
+
   _onResult(d){
     print("request ok!");
    }
