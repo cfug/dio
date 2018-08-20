@@ -287,7 +287,7 @@ class Dio {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
     if (onHttpClientCreate != null) {
       //user can return a new HttpClient instance
-      httpClient = onHttpClientCreate(httpClient) ?? httpClient;
+      _httpClient = onHttpClientCreate(httpClient) ?? httpClient;
     }
   }
 
