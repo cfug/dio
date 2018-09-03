@@ -506,8 +506,8 @@ class Dio {
 // Transform current Future status("success" and "error") if necessary
   Future<Response<T>> _transFutureStatusIfNecessary<T>(Future future) {
     return future.then<Response<T>>((data) {
-      // Strictly be a DioError instance, but we loos the restrictions
-      //if (data is DioError)
+      // Strictly be a DioError instance, but we relax the restrictions
+      // if (data is DioError)
       if (data is Error) {
         return reject<T>(data);
       }
@@ -568,7 +568,7 @@ class Dio {
 
   Future<Response<T>> _checkIfNeedEnqueue<T>(interceptor, callback()) {
     if (interceptor.locked) {
-      return interceptor.enqueue(callback);
+      return interceptor._enqueue(callback);
     } else {
       return callback();
     }
