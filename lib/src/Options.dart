@@ -31,11 +31,12 @@ class Options {
     this.headers,
     this.responseType,
     this.contentType,
-    this.validateStatus
+    this.validateStatus,
+    this.followRedirects:true
   }) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
-    this.contentType;
+
     this.extra = extra ?? {};
   }
 
@@ -51,7 +52,8 @@ class Options {
     Map<String, dynamic> headers,
     ResponseType responseType,
     ContentType contentType,
-    ValidateStatus validateStatus
+    ValidateStatus validateStatus,
+    bool followRedirects
   }) {
     return new Options(
       method: method??this.method,
@@ -64,7 +66,8 @@ class Options {
       headers: headers??new Map.from(this.headers??{}),
       responseType: responseType??this.responseType,
       contentType: contentType??this.contentType,
-      validateStatus: validateStatus??this.validateStatus
+      validateStatus: validateStatus??this.validateStatus,
+      followRedirects: followRedirects??this.followRedirects
     );
   }
 
@@ -118,5 +121,8 @@ class Options {
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic> extra;
+
+  /// see [HttpClientRequest.followRedirects]
+  bool followRedirects;
 
 }
