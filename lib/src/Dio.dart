@@ -191,7 +191,7 @@ class Dio {
     }
 
     HttpClient httpClient = new HttpClient();
-    _configHttpClient(httpClient);
+    httpClient=_configHttpClient(httpClient);
 
     // Receive data with stream.
     options.responseType = ResponseType.STREAM;
@@ -382,7 +382,7 @@ class Dio {
           type: DioErrorType.CONNECT_TIMEOUT,
         );
       }
-
+      request.followRedirects=options.followRedirects;
       request.cookies.addAll(cookieJar.loadForRequest(uri));
 
       try {
@@ -556,6 +556,7 @@ class Dio {
     opt.contentType ??= options.contentType ?? ContentType.JSON;
     opt.validateStatus ??= options.validateStatus ??
             (int status) => status >= 200 && status < 300 || status == 304;
+    opt.followRedirects??=options.followRedirects??true;
   }
 
   Options _checkOptions(method, options) {
