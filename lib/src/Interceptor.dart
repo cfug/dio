@@ -38,15 +38,18 @@ class _InterceptorBase {
   void unlock() {
     if (locked) {
       _completer.complete();
+      _lock=null;
     }
   }
 
   /**
    * Clean the interceptor queue.
    */
-  void clear(){
-    _completer.completeError("cancelled");
-    _lock = _completer.future;
+  void clear([String msg="cancelled"]){
+    if(locked) {
+      _completer.completeError(msg);
+      _lock = null;
+    }
   }
 
   /**
@@ -56,8 +59,8 @@ class _InterceptorBase {
    * [callback] the function  will return a `Future<Response>`
    * @nodoc
    */
-  Future<Response> enqueue(Future<Response> callback()) {
-    if (_lock != null) {
+  Future<Response> _enqueue(Future<Response> callback()) {
+    if (locked) {
       // we use a future as a queue
       return _lock.then((d) => callback());
     }
