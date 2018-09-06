@@ -97,7 +97,7 @@ class DefaultTransformer extends Transformer {
             sink.close();
           });
     }
-    String responseBody = await stream.transform(utf8.decoder).join();
+    String responseBody = await stream.transform(Utf8Decoder(allowMalformed: true)).join();
     if (responseBody != null
         && responseBody.isNotEmpty
         && options.responseType == ResponseType.JSON
