@@ -475,7 +475,7 @@ class Dio {
   _transformData(Options options, HttpClientRequest request) async {
     var data = options.data;
     if (data != null) {
-      if ("POST" == options.method) {
+      if ("POST" == options.method || "PUT" == options.method) {
         // Handle the FormData
         if (data is FormData) {
           request.headers.set(HttpHeaders.CONTENT_TYPE,
