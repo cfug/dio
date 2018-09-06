@@ -8,6 +8,7 @@ import 'package:dio/src/Interceptor.dart';
 import 'package:dio/src/Options.dart';
 import 'package:dio/src/Response.dart';
 import 'package:dio/src/Transformer.dart';
+
 /// Callback to listen the file downloading progress.
 ///
 /// [received] is the length of the bytes have been received.
@@ -191,7 +192,7 @@ class Dio {
     }
 
     HttpClient httpClient = new HttpClient();
-    httpClient=_configHttpClient(httpClient);
+    httpClient = _configHttpClient(httpClient);
 
     // Receive data with stream.
     options.responseType = ResponseType.STREAM;
@@ -267,11 +268,11 @@ class Dio {
     CancelToken cancelToken,
     Options options,
   }) async {
-    var httpClient =_httpClient ;
+    var httpClient = _httpClient;
     if (cancelToken != null) {
-      httpClient=_configHttpClient(new HttpClient());
+      httpClient = _configHttpClient(new HttpClient());
     } else if (!_httpClientInited) {
-      _httpClient=httpClient=_configHttpClient(_httpClient, true);
+      _httpClient = httpClient = _configHttpClient(_httpClient, true);
       _httpClientInited = true;
     }
     return _request<T>(path,
@@ -282,7 +283,8 @@ class Dio {
     );
   }
 
-  HttpClient _configHttpClient(HttpClient httpClient, [bool isDefault = false]) {
+  HttpClient _configHttpClient(HttpClient httpClient,
+      [bool isDefault = false]) {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
     if (onHttpClientCreate != null) {
       //user can return a new HttpClient instance
@@ -382,7 +384,7 @@ class Dio {
           type: DioErrorType.CONNECT_TIMEOUT,
         );
       }
-      request.followRedirects=options.followRedirects;
+      request.followRedirects = options.followRedirects;
       request.cookies.addAll(cookieJar.loadForRequest(uri));
 
       try {
@@ -475,7 +477,7 @@ class Dio {
   _transformData(Options options, HttpClientRequest request) async {
     var data = options.data;
     if (data != null) {
-      if ("POST" == options.method || "PUT" == options.method) {
+      if (["POST", "PUT", "PATCH"].contains(options.method)) {
         // Handle the FormData
         if (data is FormData) {
           request.headers.set(HttpHeaders.CONTENT_TYPE,
@@ -556,7 +558,7 @@ class Dio {
     opt.contentType ??= options.contentType ?? ContentType.JSON;
     opt.validateStatus ??= options.validateStatus ??
             (int status) => status >= 200 && status < 300 || status == 304;
-    opt.followRedirects??=options.followRedirects??true;
+    opt.followRedirects ??= options.followRedirects ?? true;
   }
 
   Options _checkOptions(method, options) {
