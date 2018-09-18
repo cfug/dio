@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:dio/src/UploadFileInfo.dart';
+import 'upload_file_info.dart';
 
 /**
  * A class to create readable "multipart/form-data" streams.

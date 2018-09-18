@@ -1,17 +1,18 @@
 import 'dart:async';
 
-import 'package:dio/src/DioError.dart';
-import 'package:dio/src/Options.dart';
-import 'package:dio/src/Response.dart';
+import 'dio_error.dart';
+import 'options.dart';
+import 'response.dart';
 
 typedef InterceptorCallback(Options options);
 typedef InterceptorErrorCallback(DioError e);
 typedef InterceptorsSuccessCallback(Response e);
 
+
 /**
  * Add lock/unlock API for interceptor.
  */
-class _InterceptorBase {
+abstract class _InterceptorBase {
   Future _lock;
   Completer _completer;
 
@@ -59,7 +60,7 @@ class _InterceptorBase {
    * [callback] the function  will return a `Future<Response>`
    * @nodoc
    */
-  Future<Response> _enqueue(Future<Response> callback()) {
+  Future<Response> enqueue(Future<Response> callback()) {
     if (locked) {
       // we use a future as a queue
       return _lock.then((d) => callback());
@@ -100,6 +101,7 @@ class ResponseInterceptor extends _InterceptorBase {
   /// you can return a [Response] object or return [dio.resolve].
   /// If you want to continue the request, return the [DioError] object.
   InterceptorErrorCallback onError;
+
 }
 
 /**

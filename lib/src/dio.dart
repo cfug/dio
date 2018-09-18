@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:io';
+import 'cancel_token.dart';
+import 'form_data.dart';
+import 'dio_error.dart';
+import 'interceptor.dart';
+import 'options.dart';
+import 'response.dart';
+import 'transformer.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/src/CancelToken.dart';
-import 'package:dio/src/FormData.dart';
-import 'package:dio/src/DioError.dart';
-import 'package:dio/src/Interceptor.dart';
-import 'package:dio/src/Options.dart';
-import 'package:dio/src/Response.dart';
-import 'package:dio/src/Transformer.dart';
+
 
 /// Callback to listen the file downloading progress.
 ///
@@ -201,6 +202,7 @@ class Dio {
     await _request(urlPath, data: data,
         options: options, cancelToken: cancelToken, httpClient: httpClient);
 
+
     File file = new File(savePath);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
@@ -245,6 +247,7 @@ class Dio {
       }
     }, onDone: () {
       raf.closeSync();
+      response.headers=response.data.headers;
       completer.complete(response);
     },
       onError: (e) {
@@ -494,12 +497,15 @@ class Dio {
           options.contentType.toString();
 
       // Call request transformer.
-      data = await transformer.transformRequest(options);
+      String _data = await transformer.transformRequest(options);
 
       // Set the headers, must before `request.write`
       _setHeaders(options, request);
 
-      request.write(data);
+      // Set Content-Length
+      request.headers.set(HttpHeaders.CONTENT_LENGTH, _data.length);
+
+      request.write(_data);
     } else {
       _setHeaders(options, request);
     }
@@ -571,7 +577,7 @@ class Dio {
 
   Future<Response<T>> _checkIfNeedEnqueue<T>(interceptor, callback()) {
     if (interceptor.locked) {
-      return interceptor._enqueue(callback);
+      return interceptor.enqueue(callback);
     } else {
       return callback();
     }

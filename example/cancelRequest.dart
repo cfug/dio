@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import 'package:dio/src/CancelToken.dart';
 
 main() async {
   var dio = new Dio();
