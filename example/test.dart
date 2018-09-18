@@ -10,10 +10,10 @@ main() async {
     print(error.response.statusCode);
   };
   try {
-    Response r = await dio.get("http://capi.takeeasy.hk/order/list/1");
+    Response r = await dio.get("https://www.instagram.com");
+    print(r.headers);
   }on DioError catch(e){
      print(e);
      print(e.response.statusCode);
   }
-
 }

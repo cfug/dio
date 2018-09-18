@@ -12,11 +12,15 @@ main() async {
     "age": 25,
     "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
     // In PHP the key must endwith "[]", ("files[]")
+    //"files[]": [
+    //   new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+    // ]
     "files": [
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
   });
-  Response response = await dio.post("/token", data: formData);
+  //Response response = await dio.post("/token", data: formData);
+  Response response = await dio.post("http://localhost/ds/test", data: formData);
   print(response.data);
 }

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:dio/src/Dio.dart';
+import 'dio.dart';
 
 /// ResponseType indicates which transformation should
 /// be automatically applied to the response data by Dio.

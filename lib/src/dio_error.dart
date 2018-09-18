@@ -1,4 +1,4 @@
-import 'package:dio/src/Response.dart';
+import 'response.dart';
 
 enum DioErrorType {
   /// Default error type, usually occurs before connecting the server.

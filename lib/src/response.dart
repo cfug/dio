@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:dio/src/Options.dart';
+import 'options.dart';
 
 /**
  * Response describes the http Response info.

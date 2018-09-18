@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:dio/src/CancelToken.dart';
 import 'package:test/test.dart';
 
 class MyTransformer extends DefaultTransformer {
   @override
-  Future transformRequest(Options options) async {
+  Future<String> transformRequest(Options options) async {
     if (options.data is List) {
       throw new DioError(message: "Can't send List to sever directly");
     } else {

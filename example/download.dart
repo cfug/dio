@@ -14,6 +14,7 @@ main() async {
 
   // This is a image, about 4KB
   var url="https://flutter.io/images/flutter-mark-square-100.png";
+  //var url="https://cdn.pixabay.com/photo/2018/09/03/23/56/sea-3652697_640.jpg?attachment";
   try {
     Response response=await dio.download(url,
       "./example/flutter.png",

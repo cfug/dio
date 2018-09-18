@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 class MyTransformer extends DefaultTransformer {
 
   @override
-  Future transformRequest(Options options) async {
+  Future<String> transformRequest(Options options) async {
     if (options.data is List) {
       throw new DioError(message: "Can't send List to sever directly");
     } else {

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:dio/dio.dart';
-import 'package:dio/src/Options.dart';
+import 'dio_error.dart';
+import 'options.dart';
 
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
@@ -19,7 +19,7 @@ abstract class Transformer {
   /// sent to the server, but **after** the [RequestInterceptor].
   ///
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'
-  Future transformRequest(Options options);
+  Future<String> transformRequest(Options options);
 
   /// `transformResponse` allows changes to the response data  before
   /// it is passed to [ResponseInterceptor].
@@ -65,7 +65,7 @@ abstract class Transformer {
 
 class DefaultTransformer extends Transformer {
 
-  Future transformRequest(Options options) async {
+  Future<String> transformRequest(Options options) async {
     var data = options.data ?? "";
     if (data is! String) {
       if (options.contentType.mimeType == ContentType.JSON.mimeType) {
