@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'cancel_token.dart';
 import 'form_data.dart';
@@ -247,7 +248,7 @@ class Dio {
       }
     }, onDone: () {
       raf.closeSync();
-      response.headers=response.data.headers;
+      response.headers = response.data.headers;
       completer.complete(response);
     },
       onError: (e) {
@@ -479,17 +480,18 @@ class Dio {
 
   _transformData(Options options, HttpClientRequest request) async {
     var data = options.data;
+    List<int> bytes;
     if (data != null) {
       if (["POST", "PUT", "PATCH"].contains(options.method)) {
         // Handle the FormData
         if (data is FormData) {
           request.headers.set(HttpHeaders.CONTENT_TYPE,
               'multipart/form-data; boundary=${data.boundary.substring(2)}');
-          List<int> content = data.bytes();
+          bytes = data.bytes();
           //Must set the content-length
-          request.contentLength = content.length;
+          request.contentLength = bytes.length;
           _setHeaders(options, request);
-          request.add(content);
+          request.add(bytes);
           return;
         }
       }
@@ -502,10 +504,13 @@ class Dio {
       // Set the headers, must before `request.write`
       _setHeaders(options, request);
 
-      // Set Content-Length
-      request.headers.set(HttpHeaders.CONTENT_LENGTH, _data.length);
+      // Convert to utf8
+      bytes = utf8.encode(_data);
 
-      request.write(_data);
+      // Set Content-Length
+      request.headers.set(HttpHeaders.CONTENT_LENGTH, bytes.length);
+
+      request.add(bytes);
     } else {
       _setHeaders(options, request);
     }
