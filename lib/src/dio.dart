@@ -358,7 +358,7 @@ class Dio {
     try {
       // Normalize the url.
       String url = options.path;
-      if (!url.startsWith(new RegExp(r"https?:"))) {
+      if (!url.startsWith(new RegExp(r"http?:"))) {
         url = options.baseUrl + url;
         List<String> s = url.split(":/");
         url = s[0] + ':/' + s[1].replaceAll("//", "/");
