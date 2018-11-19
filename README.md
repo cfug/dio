@@ -520,7 +520,7 @@ Another way is creating a `SecurityContext` when create the `HttpClient`:
   dio.onHttpClientCreate = (HttpClient client) {
     SecurityContext sc = new SecurityContext();
     //file is the path of certificate
-    sc.setTrustedCertificates("");
+    sc.setTrustedCertificates(file);
     HttpClient httpClient = new HttpClient(context: sc);
     return httpClient;
   };

@@ -511,7 +511,7 @@ Dio 是使用 HttpClient发起的http请求，所以你可以通过配置 `httpC
   dio.onHttpClientCreate = (HttpClient client) {
     SecurityContext sc = new SecurityContext();
     //file为证书路径
-    sc.setTrustedCertificates("");
+    sc.setTrustedCertificates(file);
     HttpClient httpClient = new HttpClient(context: sc);
     return httpClient;
   };

@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f2509c29-a358-4d8c-9173-84bee51b139d" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/formdata.dart" afterPath="$PROJECT_DIR$/example/formdata.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/dio.dart" afterPath="$PROJECT_DIR$/lib/src/dio.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/transformer.dart" afterPath="$PROJECT_DIR$/lib/src/transformer.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/upload_file_info.dart" afterPath="$PROJECT_DIR$/lib/src/upload_file_info.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pubspec.yaml" afterPath="$PROJECT_DIR$/pubspec.yaml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README-ZH.md" afterPath="$PROJECT_DIR$/README-ZH.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="$PROJECT_DIR$/../dartson/.tmp/" />
     <ignored path="$PROJECT_DIR$/../dartson/build/" />
@@ -25,18 +21,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="dio.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/src/dio.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3165">
-              <caret line="211" column="48" lean-forward="false" selection-start-line="211" selection-start-column="48" selection-end-line="211" selection-end-column="48" />
-              <folding>
-                <element signature="e#0#20#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="response.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/src/response.dart">
           <provider selected="true" editor-type-id="text-editor">
@@ -115,14 +99,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="formdata.dart" pinned="false" current-in-tab="true">
+      <file leaf-file-name="formdata.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/formdata.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="14" column="39" lean-forward="false" selection-start-line="14" selection-start-column="39" selection-end-line="14" selection-end-column="39" />
+            <state relative-caret-position="348">
+              <caret line="27" column="23" lean-forward="true" selection-start-line="27" selection-start-column="23" selection-end-line="27" selection-end-column="23" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-5192">
+              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -227,6 +221,7 @@
         <option value="$PROJECT_DIR$/lib/src/dio.dart" />
         <option value="$PROJECT_DIR$/lib/src/transformer.dart" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -386,7 +381,7 @@
       <workItem from="1537493341901" duration="1986000" />
       <workItem from="1539064346644" duration="1757000" />
       <workItem from="1539141504217" duration="2935000" />
-      <workItem from="1542595188465" duration="6896000" />
+      <workItem from="1542595188465" duration="7141000" />
     </task>
     <task id="LOCAL-00001" summary="Run group test on travis-ci.">
       <created>1524111872023</created>
@@ -710,7 +705,14 @@
       <option name="project" value="LOCAL" />
       <updated>1542609774270</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="replace deprecated constants">
+      <created>1542611225036</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1542611225036</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -746,7 +748,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="419342000" />
+    <option name="totallyTimeSpent" value="419587000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="94" y="-1027" width="1644" height="934" extended-state="0" />
@@ -812,7 +814,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Run group test on travis-ci." />
     <MESSAGE value="update doc" />
     <MESSAGE value="format code" />
     <MESSAGE value="supports cancellation" />
@@ -837,7 +838,8 @@
     <MESSAGE value="fix #72" />
     <MESSAGE value="1. Add example of SSL Pinning&#10;2. Uploading files supports List&lt;int&gt; #102" />
     <MESSAGE value="1. update cookie_jar version&#10;2. fix group test" />
-    <option name="LAST_COMMIT_MESSAGE" value="1. update cookie_jar version&#10;2. fix group test" />
+    <MESSAGE value="replace deprecated constants" />
+    <option name="LAST_COMMIT_MESSAGE" value="replace deprecated constants" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1138,14 +1140,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README-ZH.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="188">
@@ -1282,11 +1276,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/example/formdata.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="14" column="39" lean-forward="false" selection-start-line="14" selection-start-column="39" selection-end-line="14" selection-end-column="39" />
+        <state relative-caret-position="348">
+          <caret line="27" column="23" lean-forward="true" selection-start-line="27" selection-start-column="23" selection-end-line="27" selection-end-column="23" />
           <folding>
             <element signature="e#0#22#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5192">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
