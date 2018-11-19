@@ -12,8 +12,7 @@ main() async {
     "name": "wendux",
     "age": 25,
     "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
-    "file2": new UploadFileInfo.fromBytes(
-        utf8.encode("hello world"), "word.txt"),
+    "file2": new UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
     // In PHP the key must endwith "[]", ("files[]")
     //"files[]": [
     //   new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
