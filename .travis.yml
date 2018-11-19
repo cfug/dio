@@ -7,13 +7,5 @@ dart_task:
 - test: --platform vm
 
 script:
-- pub run dart_codecov_generator --report-on=lib/ --no-html   --verbose
+- pub run test_coverage
 - bash <(curl -s https://codecov.io/bash)
-
-
-## Install the latest dev release
-#- dev
-## Install a specific stable release - 1.15.0
-#- "1.15.0"
-## Install a specific dev release, using a partial download URL - 1.16.0-dev.3.0
-#- "dev/release/1.16.0-dev.3.0"
