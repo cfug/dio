@@ -4,14 +4,19 @@ import 'dart:io';
  *  Describes the info of file to upload.
  */
 class UploadFileInfo {
-  UploadFileInfo(this.file, this.fileName, {this.contentType});
+  UploadFileInfo(this.file, this.fileName, {this.contentType}):bytes=null;
+
+  UploadFileInfo.fromBytes(this.bytes, this.fileName):file=null;
 
   /// The file to upload.
-  File file;
+  final File file;
+
+  /// The file content
+  final List<int> bytes;
 
   /// The file name which the server will receive.
-  String fileName;
+  final String fileName;
 
   /// The content-type of the upload file.
-  ContentType contentType = ContentType.BINARY;
+  ContentType contentType = ContentType.binary;
 }
