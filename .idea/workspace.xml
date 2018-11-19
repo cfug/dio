@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f2509c29-a358-4d8c-9173-84bee51b139d" name="Default" comment="1. add">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" />
+    <list default="true" id="f2509c29-a358-4d8c-9173-84bee51b139d" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README-ZH.md" afterPath="$PROJECT_DIR$/README-ZH.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/formdata.dart" afterPath="$PROJECT_DIR$/example/formdata.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/test.dart" afterPath="$PROJECT_DIR$/example/test.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/form_data.dart" afterPath="$PROJECT_DIR$/lib/src/form_data.dart" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/src/upload_file_info.dart" afterPath="$PROJECT_DIR$/lib/src/upload_file_info.dart" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.travis.yml" afterPath="$PROJECT_DIR$/.travis.yml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/example/proxy.dart" afterPath="$PROJECT_DIR$/example/proxy.dart" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pubspec.yaml" afterPath="$PROJECT_DIR$/pubspec.yaml" />
     </list>
     <ignored path="$PROJECT_DIR$/../dartson/.tmp/" />
@@ -30,8 +25,8 @@
       <file leaf-file-name="proxy.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/proxy.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="10" column="34" lean-forward="false" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
+            <state relative-caret-position="270">
+              <caret line="19" column="52" lean-forward="false" selection-start-line="19" selection-start-column="52" selection-end-line="19" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -41,7 +36,7 @@
         <entry file="file://$PROJECT_DIR$/lib/src/transformer.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="451">
-              <caret line="51" column="9" lean-forward="true" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
+              <caret line="51" column="9" lean-forward="false" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -59,21 +54,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="responseInterceptor.dart" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/example/responseInterceptor.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="307">
-              <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="form_data.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/src/form_data.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="533">
-              <caret line="139" column="38" lean-forward="true" selection-start-line="139" selection-start-column="38" selection-end-line="139" selection-end-column="38" />
+              <caret line="139" column="38" lean-forward="false" selection-start-line="139" selection-start-column="38" selection-end-line="139" selection-end-column="38" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -111,11 +96,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name=".travis.yml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.travis.yml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="10" column="34" lean-forward="false" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="formdata.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/formdata.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="259">
-              <caret line="28" column="23" lean-forward="true" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
+              <caret line="28" column="23" lean-forward="false" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
               </folding>
@@ -220,6 +215,8 @@
         <option value="$PROJECT_DIR$/lib/src/upload_file_info.dart" />
         <option value="$PROJECT_DIR$/lib/src/form_data.dart" />
         <option value="$PROJECT_DIR$/example/formdata.dart" />
+        <option value="$PROJECT_DIR$/example/proxy.dart" />
+        <option value="$PROJECT_DIR$/.travis.yml" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
       </list>
     </option>
@@ -231,8 +228,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="104" />
-    <option name="y" value="-969" />
+    <option name="x" value="-8" />
+    <option name="y" value="-1027" />
     <option name="width" value="1644" />
     <option name="height" value="934" />
   </component>
@@ -380,7 +377,7 @@
       <workItem from="1537493341901" duration="1986000" />
       <workItem from="1539064346644" duration="1757000" />
       <workItem from="1539141504217" duration="2935000" />
-      <workItem from="1542595188465" duration="4428000" />
+      <workItem from="1542595188465" duration="5506000" />
     </task>
     <task id="LOCAL-00001" summary="Run group test on travis-ci.">
       <created>1524111872023</created>
@@ -690,7 +687,14 @@
       <option name="project" value="LOCAL" />
       <updated>1537500922501</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="1. Add example of SSL Pinning&#10;2. Uploading files supports List&lt;int&gt; #102">
+      <created>1542607765481</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1542607765482</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -726,10 +730,10 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="416874000" />
+    <option name="totallyTimeSpent" value="417952000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="104" y="-969" width="1644" height="934" extended-state="0" />
+    <frame x="-8" y="-1027" width="1644" height="934" extended-state="0" />
     <layout>
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32939634" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17041199" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -815,7 +819,8 @@
     <MESSAGE value="fix #63" />
     <MESSAGE value="fix #69 #68" />
     <MESSAGE value="fix #72" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix #72" />
+    <MESSAGE value="1. Add example of SSL Pinning&#10;2. Uploading files supports List&lt;int&gt; #102" />
+    <option name="LAST_COMMIT_MESSAGE" value="1. Add example of SSL Pinning&#10;2. Uploading files supports List&lt;int&gt; #102" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -946,13 +951,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="780">
           <caret line="54" column="14" lean-forward="false" selection-start-line="54" selection-start-column="14" selection-end-line="54" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.travis.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="10" selection-end-column="41" />
         </state>
       </provider>
     </entry>
@@ -1178,14 +1176,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/proxy.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="10" column="34" lean-forward="false" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/example/responseInterceptor.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="307">
@@ -1213,7 +1203,7 @@
     <entry file="file://$PROJECT_DIR$/lib/src/form_data.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="533">
-          <caret line="139" column="38" lean-forward="true" selection-start-line="139" selection-start-column="38" selection-end-line="139" selection-end-column="38" />
+          <caret line="139" column="38" lean-forward="false" selection-start-line="139" selection-start-column="38" selection-end-line="139" selection-end-column="38" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
@@ -1223,7 +1213,7 @@
     <entry file="file://$PROJECT_DIR$/lib/src/transformer.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="451">
-          <caret line="51" column="9" lean-forward="true" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
+          <caret line="51" column="9" lean-forward="false" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
@@ -1241,7 +1231,7 @@
     <entry file="file://$PROJECT_DIR$/example/formdata.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="259">
-          <caret line="28" column="23" lean-forward="true" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
+          <caret line="28" column="23" lean-forward="false" selection-start-line="28" selection-start-column="23" selection-end-line="28" selection-end-column="23" />
           <folding>
             <element signature="e#0#22#0" expanded="true" />
           </folding>
@@ -1252,6 +1242,22 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="188">
           <caret line="235" column="7" lean-forward="false" selection-start-line="235" selection-start-column="7" selection-end-line="235" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/proxy.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="19" column="52" lean-forward="false" selection-start-line="19" selection-start-column="52" selection-end-line="19" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.travis.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="34" lean-forward="false" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
           <folding />
         </state>
       </provider>
