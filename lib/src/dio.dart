@@ -259,7 +259,6 @@ class Dio {
       cancelOnError: true,
     );
     return _listenCancelForAsyncTask(cancelToken, future);
-//    return future;
   }
 
   /**

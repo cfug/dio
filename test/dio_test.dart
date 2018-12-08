@@ -113,12 +113,10 @@ void main() {
     test("test", () async {
       var dio = new Dio();
       CancelToken token = new CancelToken();
-      // In one minute, we cancel!
       new Timer(new Duration(milliseconds: 10), () {
         token.cancel("cancelled");
       });
 
-      // The follow three requests with the same token.
       var url = "https://accounts.google.com";
       await dio.get(url, cancelToken: token).catchError((e) {
         expect(CancelToken.isCancel(e), true);
@@ -132,12 +130,10 @@ void main() {
     test("test download", () async {
       var dio = new Dio();
       CancelToken token = new CancelToken();
-      // In one minute, we cancel!
       new Timer(new Duration(milliseconds: 1000), () {
         token.cancel("cancelled");
       });
 
-      // The follow three requests with the same token.
       final url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';
       final savePath = './example/HBuilder.9.0.2.macosx_64.dmg';
       await dio.download(url, savePath, cancelToken: token).catchError((e) {
