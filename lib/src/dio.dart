@@ -233,7 +233,6 @@ class Dio {
       );
     }
 
-    var streamFuture = Future.value(stream);
     stream.listen((data) {
       // Check if cancelled.
       if (cancelToken != null && cancelToken.cancelError != null) {
