@@ -554,7 +554,7 @@ class Dio {
     return _transFutureStatusIfNecessary<T>(err);
   }
 
-  Options _mergeOptions(Options opt) {
+  void _mergeOptions(Options opt) {
     opt.method ??= options.method ?? "GET";
     opt.method = opt.method.toUpperCase();
     opt.headers = (new Map.from(options.headers))
@@ -566,7 +566,7 @@ class Dio {
     opt.data ??= options.data;
     opt.extra = (new Map.from(options.extra))
       ..addAll(opt.extra);
-    opt.contentType ??= options.contentType ?? ContentType.JSON;
+    opt.contentType ??= options.contentType ?? ContentType.json;
     opt.validateStatus ??= options.validateStatus ??
             (int status) => status >= 200 && status < 300 || status == 304;
     opt.followRedirects ??= options.followRedirects ?? true;
@@ -610,7 +610,11 @@ class Dio {
       response = new Response<T>(data: response);
     } else {
       T data = response.data;
-      response = new Response<T>(data: data, headers: response.headers, request: response.request, statusCode: response.statusCode);
+      response = new Response<T>(data: data,
+          headers: response.headers,
+          request: response.request,
+          statusCode: response.statusCode,
+      );
     }
     return response;
   }
