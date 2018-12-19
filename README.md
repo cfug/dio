@@ -47,6 +47,8 @@ print(response.data);
 
 - [Set proxy and HttpClient config](#set-proxy-and-httpclient-config)
 
+- [Https certificate verification](#https-certificate-verification)
+
 - [Cancellation](#cancellation)
 
 - [Cookie Manager](#cookie-manager)
@@ -103,7 +105,8 @@ FormData formData = new FormData.from({
    "name": "wendux",
    "age": 25,
    "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
-   "file2": new UploadFileInfo(new File("./upload.txt"), "upload2.txt"),
+   // upload with bytes (List<int>) 
+   "file2": new UploadFileInfo.fromBytes(utf8.encode("hello world"),"word.txt"),
    // Pass multiple files within an Array 
    "files": [
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
@@ -494,6 +497,36 @@ Dio uses HttpClient to send http request, so you can config the `dio.httpClient`
 ```
 
 There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/proxy.dart).
+
+## Https certificate verification
+
+There are two ways  to verify the https certificate. Suppose the certificate format is PEM, the code like:
+
+```dart
+  String PEM="XXXXX"; // certificate content 
+  dio.onHttpClientCreate = (HttpClient client) {
+    client.badCertificateCallback=(X509Certificate cert, String host, int port){
+      if(cert.pem==PEM){ // Verify the certificate
+        return true; 
+      }
+      return false;
+    };
+  };
+```
+
+Another way is creating a `SecurityContext` when create the `HttpClient`:
+
+```dart
+  dio.onHttpClientCreate = (HttpClient client) {
+    SecurityContext sc = new SecurityContext();
+    //file is the path of certificate
+    sc.setTrustedCertificates(file);
+    HttpClient httpClient = new HttpClient(context: sc);
+    return httpClient;
+  };
+```
+
+In this way,  the format of certificate must be PEM or PKCS12.
 
 ## Cancellation
 

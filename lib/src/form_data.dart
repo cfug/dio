@@ -128,11 +128,15 @@ class FormData extends MapMixin<String, dynamic> {
             .fileName}"');
     _writeln(data);
     data.write("Content-Type: " +
-        (fileInfo.contentType ?? ContentType.TEXT).mimeType);
+        (fileInfo.contentType ?? ContentType.text).mimeType);
     _writeln(data);
     _writeln(data);
     bytes.addAll(utf8.encode(data.toString()));
-    bytes.addAll(fileInfo.file.readAsBytesSync());
+    if(fileInfo.bytes!=null){
+      bytes.addAll(fileInfo.bytes);
+    }else {
+      bytes.addAll(fileInfo.file.readAsBytesSync());
+    }
     bytes.addAll(utf8.encode('\r\n'));
     data.clear();
   }
