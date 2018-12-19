@@ -68,7 +68,7 @@ class DefaultTransformer extends Transformer {
   Future<String> transformRequest(Options options) async {
     var data = options.data ?? "";
     if (data is! String) {
-      if (options.contentType.mimeType == ContentType.JSON.mimeType) {
+      if (options.contentType.mimeType == ContentType.json.mimeType) {
         return json.encode(options.data);
       } else if (data is Map) {
         return Transformer.urlEncodeMap(data);
@@ -101,7 +101,7 @@ class DefaultTransformer extends Transformer {
     if (responseBody != null
         && responseBody.isNotEmpty
         && options.responseType == ResponseType.JSON
-        && response.headers.contentType?.mimeType == ContentType.JSON.mimeType) {
+        && response.headers.contentType?.mimeType == ContentType.json.mimeType) {
       return json.decode(responseBody);
     }
     return responseBody;

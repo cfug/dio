@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 
@@ -11,6 +12,7 @@ main() async {
     "name": "wendux",
     "age": 25,
     "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+    "file2": new UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
     // In PHP the key must endwith "[]", ("files[]")
     //"files[]": [
     //   new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
@@ -20,7 +22,9 @@ main() async {
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
   });
-  //Response response = await dio.post("/token", data: formData);
-  Response response = await dio.post("http://localhost/ds/test", data: formData);
+  Response response = await dio.post("/token", data: formData);
+  print(response.statusCode);
+  //Response response = await dio.post("http://localhost/ds/test", data: formData);
   print(response.data);
 }
+

@@ -209,7 +209,7 @@ class Dio {
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
     // file with a very big size(up 1G), it will be expensive in memory.
-    var raf = file.openSync(mode: FileMode.WRITE);
+    var raf = file.openSync(mode: FileMode.write);
 
     //Create a new Completer to notify the success/error state.
     Completer completer = new Completer<Response>();
@@ -258,7 +258,7 @@ class Dio {
       },
       cancelOnError: true,
     );
-    return future;
+    return _listenCancelForAsyncTask(cancelToken, future);
   }
 
   /**
@@ -485,7 +485,7 @@ class Dio {
       if (["POST", "PUT", "PATCH"].contains(options.method)) {
         // Handle the FormData
         if (data is FormData) {
-          request.headers.set(HttpHeaders.CONTENT_TYPE,
+          request.headers.set(HttpHeaders.contentTypeHeader,
               'multipart/form-data; boundary=${data.boundary.substring(2)}');
           bytes = data.bytes();
           //Must set the content-length
@@ -495,7 +495,7 @@ class Dio {
           return;
         }
       }
-      options.headers[HttpHeaders.CONTENT_TYPE] =
+      options.headers[HttpHeaders.contentTypeHeader] =
           options.contentType.toString();
 
       // Call request transformer.
@@ -508,7 +508,7 @@ class Dio {
       bytes = utf8.encode(_data);
 
       // Set Content-Length
-      request.headers.set(HttpHeaders.CONTENT_LENGTH, bytes.length);
+      request.headers.set(HttpHeaders.contentLengthHeader, bytes.length);
 
       request.add(bytes);
     } else {
@@ -610,7 +610,7 @@ class Dio {
       response = new Response<T>(data: response);
     } else {
       T data = response.data;
-      response = new Response<T>(data: data);
+      response = new Response<T>(data: data, headers: response.headers, request: response.request, statusCode: response.statusCode);
     }
     return response;
   }
