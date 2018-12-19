@@ -610,7 +610,7 @@ class Dio {
       response = new Response<T>(data: response);
     } else {
       T data = response.data;
-      response = new Response<T>(data: data);
+      response = new Response<T>(data: data, headers: response.headers, request: response.request, statusCode: response.statusCode);
     }
     return response;
   }
