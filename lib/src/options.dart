@@ -96,7 +96,7 @@ class Options {
   /// it will be combined and then resolved with the baseUrl.
   String path = "";
 
-  /// The request Content-Type. The default value is [ContentType.JSON].
+  /// The request Content-Type. The default value is [ContentType.json].
   /// If you want to encode request body with "application/x-www-form-urlencoded",
   /// you can set `ContentType.parse("application/x-www-form-urlencoded")`, and [Dio]
   /// will automatically encode the request body.
