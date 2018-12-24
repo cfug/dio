@@ -36,7 +36,8 @@ abstract class Transformer {
     void urlEncode(dynamic sub, String path) {
       if (sub is List) {
         for (int i = 0; i < sub.length; i++) {
-          urlEncode(sub[i], "$path%5B%5D");
+          int index=(sub[i] is Map||sub[i] is List) ? i : null;
+          urlEncode(sub[i], "$path%5B$index%5D");
         }
       } else if (sub is Map) {
         sub.forEach((k, v) {
