@@ -18,9 +18,16 @@ dependencies:
 
 ```dart
 import 'package:dio/dio.dart';
-Dio dio = new Dio();
-Response response=await dio.get("https://www.google.com/");
-print(response.data);
+void getHttp() async{
+      try {
+        Response response;
+        response = await Dio().get("http://www.baidu.com");
+        return print(response);
+      }catch(e){
+        return print(e);
+      }
+
+  }
 ```
 
 ## 内容列表
