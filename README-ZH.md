@@ -55,6 +55,7 @@ void getHttp() async{
 
 ```dart
 Response response;
+Dio dio=new Dio();
 response=await dio.get("/test?id=12&name=wendu")
 print(response.data.toString());
 // 请求参数也可以通过对象传递，上面的代码等同于：
