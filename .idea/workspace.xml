@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f2509c29-a358-4d8c-9173-84bee51b139d" name="Default" comment="fix #96">
+    <list default="true" id="f2509c29-a358-4d8c-9173-84bee51b139d" name="Default" comment="modify demo">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/cancelRequest.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/cancelRequest.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/../dartson/.tmp/" />
     <ignored path="$PROJECT_DIR$/../dartson/build/" />
@@ -32,28 +31,28 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="dart" value="25" />
-          <entry key="md" value="1" />
+          <entry key="md" value="3" />
           <entry key="yaml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Dart" value="25" />
-          <entry key="Markdown" value="1" />
+          <entry key="Markdown" value="3" />
           <entry key="YAML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dart" value="570" />
-          <entry key="txt" value="19" />
+          <entry key="txt" value="34" />
           <entry key="yaml" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Dart" value="570" />
-          <entry key="PLAIN_TEXT" value="19" />
+          <entry key="PLAIN_TEXT" value="34" />
           <entry key="YAML" value="8" />
         </counts>
       </usages-collector>
@@ -82,11 +81,31 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/cancelRequest.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="243">
               <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor />
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README-ZH.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor />
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -123,27 +142,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="315">
               <caret line="22" column="36" lean-forward="true" selection-start-line="22" selection-start-column="36" selection-end-line="22" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pubspec.yaml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="15" selection-start-line="2" selection-start-column="15" selection-end-line="2" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/src/transformer.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="32" column="16" selection-start-line="32" selection-start-column="16" selection-end-line="32" selection-end-column="28" />
-              <folding>
-                <element signature="e#0#20#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -398,7 +396,7 @@
       <workItem from="1545197984676" duration="17000" />
       <workItem from="1545198035256" duration="339000" />
       <workItem from="1545223787439" duration="5658000" />
-      <workItem from="1546507143200" duration="2597000" />
+      <workItem from="1546507143200" duration="3061000" />
     </task>
     <task id="LOCAL-00001" summary="Run group test on travis-ci.">
       <created>1524111872023</created>
@@ -736,7 +734,14 @@
       <option name="project" value="LOCAL" />
       <updated>1545645896364</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="modify demo">
+      <created>1546510321859</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1546510321859</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -772,24 +777,25 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="428690000" />
+    <option name="totallyTimeSpent" value="429154000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="52" y="35" width="1440" height="821" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1788269" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1788269" />
       <window_info id="Structure" order="1" weight="0.24964838" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.07378129" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3186969" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3186969" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.6417323" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32884398" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.49443206" weight="0.53268427" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.35465926" />
-      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49443206" weight="0.20254958" />
+      <window_info anchor="bottom" id="Version Control" order="8" visible="true" weight="0.14872521" />
+      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49443206" weight="0.44334278" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5055679" side_tool="true" weight="0.1660079" />
       <window_info anchor="bottom" id="Messages" order="11" weight="0.31849793" />
       <window_info anchor="bottom" id="Pub Serve" order="12" weight="0.2514029" />
@@ -839,7 +845,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update doc" />
     <MESSAGE value="format code" />
     <MESSAGE value="supports cancellation" />
     <MESSAGE value="add group test" />
@@ -864,7 +869,8 @@
     <MESSAGE value="merge pr" />
     <MESSAGE value="fix #112" />
     <MESSAGE value="fix #96" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix #96" />
+    <MESSAGE value="modify demo" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify demo" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -921,13 +927,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="8" selection-start-line="8" selection-end-line="10" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README-ZH.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="245" column="7" selection-start-line="245" selection-start-column="7" selection-end-line="245" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -1022,19 +1021,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1725">
           <caret line="119" column="1" selection-start-line="119" selection-start-column="1" selection-end-line="119" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="-874" />
-          <second_editor />
-        </state>
-      </provider>
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
@@ -1201,6 +1187,32 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="243">
           <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README-ZH.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="245" column="7" selection-start-line="245" selection-start-column="7" selection-end-line="245" selection-end-column="7" />
         </state>
       </provider>
     </entry>
