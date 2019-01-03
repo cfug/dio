@@ -14,28 +14,45 @@ main() async {
   var url1="https://accounts.google.com";
   var url2="https://www.facebook.com";
   var url3="https://www.baidu.com";
-  dio.get(url1, cancelToken: token)
-      .then((response) => print('${response.request.path}: succeed!'))
-      .catchError((DioError e) {
+  Response response;
+  try {
+    response=await dio.get(url1, cancelToken: token);
+    print(response);
+  }catch (e){
     if (CancelToken.isCancel(e)) {
       print('$url1: $e');
     }
-  });
+  }
 
-  dio.get(url2, cancelToken: token)
-      .then((response) => print('${response.request.path}: succeed!'))
-      .catchError((DioError e) {
-    if (CancelToken.isCancel(e)) {
-      print('$url2: $e');
-    }
-  });
+  /**
+   * 由于dart-lang #34586 bug所致，下面链式调用方式会抛出异常，目前的解决方法是使用await和try/catch
+   * 的方式来调用。
+   * 相关issue:
+   *  https://github.com/dart-lang/sdk/issues/35426
+   *  https://github.com/dart-lang/sdk/issues/34586
+   **/
+//  dio.get(url1, cancelToken: token)
+//      .then((response) => print('${response.request.path}: succeed!'))
+//      .catchError((DioError e) {
+//    if (CancelToken.isCancel(e)) {
+//      print('$url1: $e');
+//    }
+//  });
 
-  dio.get(url3, cancelToken: token)
-      .then((response) => print('${response.request.path}: succeed!'))
-      .catchError((DioError e) {
-    if (CancelToken.isCancel(e)) {
-      print('$url3: $e');
-    }
-  });
+//  dio.get(url2, cancelToken: token)
+//      .then((response) => print('${response.request.path}: succeed!'))
+//      .catchError((DioError e) {
+//    if (CancelToken.isCancel(e)) {
+//      print('$url2: $e');
+//    }
+//  });
+//
+//  dio.get(url3, cancelToken: token)
+//      .then((response) => print('${response.request.path}: succeed!'))
+//      .catchError((DioError e) {
+//    if (CancelToken.isCancel(e)) {
+//      print('$url3: $e');
+//    }
+//  });
 
 }
