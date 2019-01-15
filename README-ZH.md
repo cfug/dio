@@ -246,7 +246,7 @@ Response response=await dio.get("https://www.google.com");
 print(response.data);
 print(response.headers);
 print(response.request);
-print(statusCode);
+print(response.statusCode);
 ```
 
 ## 拦截器
