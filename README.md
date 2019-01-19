@@ -20,15 +20,15 @@ dependencies:
 
 ```dart
 import 'package:dio/dio.dart';
-void getHttp() async{
-      try {
-        Response response;
-        response = await Dio().get("http://www.google.com");
-        return print(response);
-      }catch(e){
-        return print(e);
-      }
- }
+void getHttp() async {
+  try {
+    Response response;
+    response = await Dio().get("http://www.google.com");
+    return print(response);
+  } catch (e) {
+    return print(e);
+  }
+}
 ```
 
 ## Table of contents 
@@ -68,59 +68,59 @@ void getHttp() async{
 Performing a `GET` request:
 
 ```dart
-Response response;
-Dio dio=new Dio();
-response=await dio.get("/test?id=12&name=wendu")
-print(response.data.toString());
+  Response response;
+  Dio dio = new Dio();
+  response = await dio.get("/test?id=12&name=wendu")
+  print(response.data.toString());
 // Optionally the request above could also be done as
-response=await dio.get("/test",data:{"id":12,"name":"wendu"})
-print(response.data.toString());
+  response = await dio.get("/test", data: {"id": 12, "name": "wendu"});
+  print(response.data.toString());
 ```
 
 Performing a `POST` request:
 
 ```dart
-response=await dio.post("/test",data:{"id":12,"name":"wendu"})
+response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
 ```
 
 Performing multiple concurrent requests:
 
 ```dart
-response= await Future.wait([dio.post("/info"),dio.get("/token")]);
+  response = await Future.wait([dio.post("/info"), dio.get("/token")]);
 ```
 
 Downloading a file:
 
 ```dart
-response=await dio.download("https://www.google.com/","./xx.html")
+response = await dio.download("https://www.google.com/", "./xx.html");
 ```
 
 Sending FormData:
 
 ```dart
 FormData formData = new FormData.from({
-   "name": "wendux",
-   "age": 25,
-});
-response = await dio.post("/info", data: formData)
+    "name": "wendux",
+    "age": 25,
+  });
+  response = await dio.post("/info", data: formData);
 ```
 
 Uploading multiple files to server by FormData:
 
 ```dart
-FormData formData = new FormData.from({
-   "name": "wendux",
-   "age": 25,
-   "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
-   // upload with bytes (List<int>) 
-   "file2": new UploadFileInfo.fromBytes(utf8.encode("hello world"),"word.txt"),
-   // Pass multiple files within an Array 
-   "files": [
+  FormData formData = new FormData.from({
+    "name": "wendux",
+    "age": 25,
+    "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
+    // upload with bytes (List<int>)
+    "file2": new UploadFileInfo.fromBytes(
+        utf8.encode("hello world"), "word.txt"),
+    // Pass multiple files within an Array
+    "files": [
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
-});
-response = await dio.post("/info", data: formData)
+  });
 ```
 
 …you can find all examples code [here](https://github.com/flutterchina/dio/tree/flutter/example).
@@ -135,17 +135,16 @@ You can create instance of Dio with an optional `Options` object:
 Dio dio = new Dio; // with default Options
 
 // Set default configs
-dio.options.baseUrl="https://www.xx.com/api" 
-dio.options.connectTimeout = 5000; //5s
-dio.options.receiveTimeout=3000;  
+  dio.options.baseUrl = "https://www.xx.com/api";
+  dio.options.connectTimeout = 5000; //5s
+  dio.options.receiveTimeout = 3000;
 
 // or new Dio with a Options instance.
-Options options= new Options(
-    baseUrl:"https://www.xx.com/api",
-    connectTimeout:5000,
-    receiveTimeout:3000
-);
-Dio dio = new Dio(options);
+  Options options = new Options(
+      baseUrl: "https://www.xx.com/api",
+      connectTimeout: 5000,
+      receiveTimeout: 3000);
+  Dio dio = new Dio(options);
 ```
 
 The core API in Dio instance is:
@@ -260,7 +259,7 @@ The response for a request contains the following information.
 When request is succeed, you will receive the response as follows:
 
 ```dart
-Response response=await dio.get("https://www.google.com");
+Response response = await dio.get("https://www.google.com");
 print(response.data);
 print(response.headers);
 print(response.request);
@@ -279,23 +278,23 @@ Each Dio instance has a `RequestInterceptor` and a `ResponseInterceptor`, by whi
      // you can return a `Response` object or return `dio.resolve(data)`.
      // If you want to reject the request with a error message, 
      // you can return a `DioError` object or return `dio.reject(errMsg)`    
- }
+ };
  dio.interceptor.response.onSuccess = (Response response) {
      // Do something with response data
      return response; // continue
  };
- dio.interceptor.response.onError = (DioError e){
+ dio.interceptor.response.onError = (DioError e) {
      // Do something with response error
      return  e;//continue
- }    
+ };
 ```
 
 If you may need to remove an interceptor later you can.
 
 ```dart
-dio.interceptor.request.onSend=null;
-dio.interceptor.response.onSuccess=null;
-dio.interceptor.response.onError=null;
+dio.interceptor.request.onSend = null;
+dio.interceptor.response.onSuccess = null;
+dio.interceptor.response.onError = null;
 ```
 
 ### Resolve and reject the request
@@ -306,7 +305,7 @@ In all interceptors, you can interfere with their execution flow. If you want to
  dio.interceptor.request.onSend = (Options options){
      return dio.resolve("fake data")    
  }
- Response response= await dio.get("/test");
+ Response response = await dio.get("/test");
  print(response.data);//"fake data"
 ```
 
@@ -321,7 +320,7 @@ Interceptors not only support synchronous tasks, but also supports asynchronous 
      //Set the token to headers 
      options.headers["token"] = response.data["data"]["token"];
      return options; //continue   
- }
+ };
 ```
 
 ### Lock/unlock the interceptors
@@ -329,19 +328,19 @@ Interceptors not only support synchronous tasks, but also supports asynchronous 
 You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue before they enter the interceptor, they will not be continued until the interceptor is unlocked.
 
 ```dart
-tokenDio=new Dio(); //Create a new instance to request the token.
-tokenDio.options=dio;
-dio.interceptor.request.onSend = (Options options) async{
-     // If no token, request token firstly and lock this interceptor
-     // to prevent other request enter this interceptor.
-     dio.interceptor.request.lock(); 
-     // We use a new Dio(to avoid dead lock) instance to request token. 
-     Response response = await tokenDio.get("/token");
-     //Set the token to headers 
-     options.headers["token"] = response.data["data"]["token"];
-     dio.interceptor.request.unlock() 
-     return options; //continue   
- }
+  tokenDio = new Dio(); //Create a new instance to request the token.
+  tokenDio.options = dio;
+  dio.interceptor.request.onSend = (Options options) async {
+    // If no token, request token firstly and lock this interceptor
+    // to prevent other request enter this interceptor.
+    dio.interceptor.request.lock();
+    // We use a new Dio(to avoid dead lock) instance to request token.
+    Response response = await tokenDio.get("/token");
+    //Set the token to headers
+    options.headers["token"] = response.data["data"]["token"];
+    dio.interceptor.request.unlock();
+    return options; //continue
+  };
 ```
 
 You can clean the waiting queue by calling `clear()`;
@@ -459,7 +458,7 @@ By default, Dio serializes request data(except String type) to `JSON`. To send d
 //Instance level
 dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 //or works once
-dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")))    
+dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")));
 ```
 
 There is an example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
@@ -474,7 +473,7 @@ FormData formData = new FormData.from({
     "age": 25,
     "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
 });
-response = await dio.post("/info", data: formData)
+response = await dio.post("/info", data: formData);
 ```
 
 > Note: Just the post method suppots FormData.
