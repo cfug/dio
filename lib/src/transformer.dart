@@ -110,6 +110,5 @@ class DefaultTransformer extends Transformer {
 }
 
 _parseAndDecode(String response) {
-  print('Computing');
   return jsonDecode(response);
 }
