@@ -103,8 +103,13 @@ class DefaultTransformer extends Transformer {
         && responseBody.isNotEmpty
         && options.responseType == ResponseType.JSON
         && response.headers.contentType?.mimeType == ContentType.json.mimeType) {
-      return json.decode(responseBody);
+      return compute(_parseAndDecode, responseBody);
     }
     return responseBody;
   }
+}
+
+_parseAndDecode(String response) {
+  print('Computing');
+  return jsonDecode(response);
 }
