@@ -153,7 +153,7 @@ The core API in Dio instance is:
 **Future<Response> request(String path, {data, Options options,CancelToken cancelToken})**
 
 ```dart
-response=await request("/test", data: {"id":12,"name":"xx"}, new Options(method:"GET"));
+response=await request("/test", data: {"id":12,"name":"xx"}, options: new Options(method:"GET"));
 ```
 
 ### Request method aliases
