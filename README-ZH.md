@@ -18,16 +18,15 @@ dependencies:
 
 ```dart
 import 'package:dio/dio.dart';
-void getHttp() async{
-      try {
-        Response response;
-        response = await Dio().get("http://www.baidu.com");
-        return print(response);
-      }catch(e){
-        return print(e);
-      }
-
+void getHttp() async {
+  try {
+    Response response;
+    response = await Dio().get("http://www.baidu.com");
+    return print(response);
+  } catch (e) {
+    return print(e);
   }
+}
 ```
 
 ## 内容列表
@@ -54,59 +53,60 @@ void getHttp() async{
 发起一个 `GET` 请求 :
 
 ```dart
-Response response;
-Dio dio=new Dio();
-response=await dio.get("/test?id=12&name=wendu")
-print(response.data.toString());
+  Response response;
+  Dio dio = new Dio();
+  response = await dio.get("/test?id=12&name=wendu")
+  print(response.data.toString());
 // 请求参数也可以通过对象传递，上面的代码等同于：
-response=await dio.get("/test",data:{"id":12,"name":"wendu"})
-print(response.data.toString());
+  response = await dio.get("/test", data: {"id": 12, "name": "wendu"});
+  print(response.data.toString());
 ```
 
 发起一个 `POST` 请求:
 
 ```dart
-response=await dio.post("/test",data:{"id":12,"name":"wendu"})
+  response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
 ```
 
 发起多个并发请求:
 
 ```dart
-response= await Future.wait([dio.post("/info"),dio.get("/token")]);
+  response = await Future.wait([dio.post("/info"), dio.get("/token")]);
 ```
 
 下载文件:
 
 ```dart
-response=await dio.download("https://www.google.com/","./xx.html")
+  response = await dio.download("https://www.google.com/", "./xx.html");
 ```
 
 发送 FormData:
 
 ```dart
 FormData formData = new FormData.from({
-   "name": "wendux",
-   "age": 25,
-});
-response = await dio.post("/info", data: formData)
+    "name": "wendux",
+    "age": 25,
+  });
+  response = await dio.post("/info", data: formData);
 ```
 
 通过FormData上传多个文件:
 
 ```dart
-FormData formData = new FormData.from({
-   "name": "wendux",
-   "age": 25,
-   "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
-   //支持直接上传字节数组 (List<int>) ，方便直接上传内存中的内容
-   "file2": new UploadFileInfo.fromBytes(utf8.encode("hello world"),"word.txt"),
-     // 支持文件数组上传
-   "files": [
+  FormData formData = new FormData.from({
+    "name": "wendux",
+    "age": 25,
+    "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
+    //支持直接上传字节数组 (List<int>) ，方便直接上传内存中的内容
+    "file2": new UploadFileInfo.fromBytes(
+        utf8.encode("hello world"), "word.txt"),
+    // 支持文件数组上传
+    "files": [
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
-});
-response = await dio.post("/info", data: formData)
+  });
+  response = await dio.post("/info", data: formData);
 ```
 
 …你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/flutter/example).
@@ -121,17 +121,16 @@ response = await dio.post("/info", data: formData)
 Dio dio = new Dio; // 使用默认配置
 
 // 配置dio实例
-dio.options.baseUrl="https://www.xx.com/api"
-dio.options.connectTimeout = 5000; //5s
-dio.options.receiveTimeout=3000;
+  dio.options.baseUrl = "https://www.xx.com/api";
+  dio.options.connectTimeout = 5000; //5s
+  dio.options.receiveTimeout = 3000;
 
 // 或者通过传递一个 `options`来创建dio实例
-Options options= new Options(
-    baseUrl:"https://www.xx.com/api",
-    connectTimeout:5000,
-    receiveTimeout:3000
-);
-Dio dio = new Dio(options);
+  Options options = new Options(
+      baseUrl: "https://www.xx.com/api",
+      connectTimeout: 5000,
+      receiveTimeout: 3000);
+  Dio dio = new Dio(options);
 ```
 
 Dio实例的核心API是 :
@@ -139,7 +138,8 @@ Dio实例的核心API是 :
 **Future<Response> request(String path, {data, Options options,CancelToken cancelToken})**
 
 ```dart
-response=await request("/test", data: {"id":12,"name":"xx"}, new Options(method:"GET"));
+  response = await request(
+      "/test", data: {"id": 12, "name": "xx"}, new Options(method: "GET"));
 ```
 
 ### 请求方法别名
@@ -192,7 +192,7 @@ response=await request("/test", data: {"id":12,"name":"xx"}, new Options(method:
 
   /// 请求路径，如果 `path` 以 "http(s)"开始, 则 `baseURL` 会被忽略； 否则,
   /// 将会和baseUrl拼接出完整的的url.
-  String path="";
+  String path = "";
 
   /// 请求的Content-Type，默认值是[ContentType.JSON].
   /// 如果您想以"application/x-www-form-urlencoded"格式编码请求数据,
@@ -242,11 +242,11 @@ response=await request("/test", data: {"id":12,"name":"xx"}, new Options(method:
 示例如下:
 
 ```dart
-Response response=await dio.get("https://www.google.com");
-print(response.data);
-print(response.headers);
-print(response.request);
-print(statusCode);
+  Response response = await dio.get("https://www.google.com");
+  print(response.data);
+  print(response.headers);
+  print(response.request);
+  print(statusCode);
 ```
 
 ## 拦截器
@@ -276,9 +276,9 @@ print(statusCode);
 如果你想移除拦截器，你可以将它们置为null:
 
 ```dart
-dio.interceptor.request.onSend=null;
-dio.interceptor.response.onSuccess=null;
-dio.interceptor.response.onError=null;
+  dio.interceptor.request.onSend = null;
+  dio.interceptor.response.onSuccess = null;
+  dio.interceptor.response.onError = null;
 ```
 
 ### 完成和终止请求/响应
@@ -286,11 +286,11 @@ dio.interceptor.response.onError=null;
 在所有拦截器中，你都可以改变请求执行流， 如果你想完成请求/响应并返回自定义数据，你可以返回一个 `Response` 对象或返回 `dio.resolve(data)`的结果。 如果你想终止(触发一个错误，上层`catchError`会被调用)一个请求/响应，那么可以返回一个`DioError` 对象或返回 `dio.reject(errMsg)` 的结果.
 
 ```dart
- dio.interceptor.request.onSend = (Options options){
-     return dio.resolve("fake data")
- }
- Response response= await dio.get("/test");
- print(response.data);//"fake data"
+  dio.interceptor.request.onSend = (Options options) {
+    return dio.resolve("fake data")
+  }
+  Response response = await dio.get("/test");
+  print(response.data); //"fake data"
 ```
 
 ### 拦截器中支持异步任务
@@ -298,7 +298,7 @@ dio.interceptor.response.onError=null;
 拦截器中不仅支持同步任务，而且也支持异步任务, 下面是在请求拦截器中发起异步任务的一个实例:
 
 ```dart
-  dio.interceptor.request.onSend = (Options options) async{
+  dio.interceptor.request.onSend = (Options options) async {
      //...If no token, request token firstly.
      Response response = await dio.get("/token");
      //Set the token to headers
@@ -312,19 +312,19 @@ dio.interceptor.response.onError=null;
 你可以通过调用拦截器的 `lock()`/`unlock` 方法来锁定/解锁拦截器。一旦请求/响应拦截器被锁定，接下来的请求/响应将会在进入请求/响应拦截器之前排队等待，直到解锁后，这些入队的请求才会继续执行(进入拦截器)。这在一些需要串行化请求/响应的场景中非常实用，后面我们将给出一个示例。
 
 ```dart
-tokenDio=new Dio(); //Create a new instance to request the token.
-tokenDio.options=dio;
-dio.interceptor.request.onSend = (Options options) async{
-     // If no token, request token firstly and lock this interceptor
-     // to prevent other request enter this interceptor.
-     dio.interceptor.request.lock();
-     // We use a new Dio(to avoid dead lock) instance to request token.
-     Response response = await tokenDio.get("/token");
-     //Set the token to headers
-     options.headers["token"] = response.data["data"]["token"];
-     dio.interceptor.request.unlock()
-     return options; //continue
- }
+  tokenDio = new Dio(); //Create a new instance to request the token.
+  tokenDio.options = dio;
+  dio.interceptor.request.onSend = (Options options) async {
+    // If no token, request token firstly and lock this interceptor
+    // to prevent other request enter this interceptor.
+    dio.interceptor.request.lock();
+    // We use a new Dio(to avoid dead lock) instance to request token.
+    Response response = await tokenDio.get("/token");
+    //Set the token to headers
+    options.headers["token"] = response.data["data"]["token"];
+    dio.interceptor.request.unlock();
+    return options; //continue
+  }
 ```
 
 **Clear()**
@@ -375,18 +375,18 @@ dio.interceptor.request.onSend = (Options options) {
   try {
     //404
     await dio.get("https://wendux.github.io/xsddddd");
-   } on DioError catch(e) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx and is also not 304.
-      if(e.response) {
-        print(e.response.data)
-        print(e.response.headers)
-        print(e.response.request)
-      } else{
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request)
-        print(e.message)
-      }
+  } on DioError catch (e) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx and is also not 304.
+    if (e.response) {
+      print(e.response.data);
+      print(e.response.headers);
+      print(e.response.request);
+    } else {
+      // Something happened in setting up or sending the request that triggered an Error
+      print(e.request);
+      print(e.message);
+    }
   }
 ```
 
@@ -442,7 +442,7 @@ enum DioErrorType {
 //Instance level
 dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 //or works once
-dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")))
+dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")));
 ```
 
 这里有一个[示例](https://github.com/flutterchina/dio/blob/flutter/example/options.dart).
@@ -457,7 +457,7 @@ FormData formData = new FormData.from({
     "age": 25,
     "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
 });
-response = await dio.post("/info", data: formData)
+response = await dio.post("/info", data: formData);
 ```
 
 > 注意: 只有 post 方法支持发送 FormData.
@@ -540,7 +540,7 @@ dio.get(url, cancelToken: token)
         }else{
             // handle error.
         }
-    })
+    });
 // cancel the requests with "cancelled" message.
 token.cancel("cancelled");
 ```
@@ -559,7 +559,7 @@ token.cancel("cancelled");
 
 ```dart
 var dio = new Dio();
-dio.cookieJar=new PersistCookieJar("./cookies");
+dio.cookieJar = new PersistCookieJar("./cookies");
 ```
 
 `PersistCookieJar` 实现了RFC中标准的cookie策略.  `PersistCookieJar` 会将cookie保存在文件中，所以 cookies 会一直存在除非显式调用 `delete` 删除.
