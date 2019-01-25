@@ -1,5 +1,6 @@
 import 'dart:io';
 
+
 /**
  *  Describes the info of file to upload.
  */
