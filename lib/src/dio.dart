@@ -243,6 +243,7 @@ class Dio {
         new Duration(milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
           sink.addError(new DioError(
+              request: options,
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
               type: DioErrorType.RECEIVE_TIMEOUT));
           sink.close();
@@ -412,6 +413,7 @@ class Dio {
         request = await _listenCancelForAsyncTask(cancelToken, requestFuture);
       } on TimeoutException {
         throw new DioError(
+          request: options,
           message: "Connecting timeout[${options.connectTimeout}ms]",
           type: DioErrorType.CONNECT_TIMEOUT,
         );
