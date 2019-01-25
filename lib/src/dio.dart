@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:cookie_jar/cookie_jar.dart';
-
+import 'dart:math' as math;
 import 'cancel_token.dart';
 import 'dio_error.dart';
 import 'form_data.dart';
@@ -11,6 +9,7 @@ import 'interceptor.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 
 /// Callback to listen the file downloading progress.
 ///
@@ -21,7 +20,7 @@ import 'transformer.dart';
 /// such as response data is compressed with gzip.
 typedef OnDownloadProgress(int received, int total);
 
-/// Callback to listen post uploading progress.
+/// Callback to listen request uploading progress.
 ///
 /// [sent] is the length of the bytes have been sent.
 ///
@@ -82,11 +81,13 @@ class Dio {
   }
 
   /// Handy method to make http POST request, which is a alias of  [Dio.request].
-  Future<Response<T>> post<T>(String path,
-      {data,
-      Options options,
-      CancelToken cancelToken,
-      OnUploadProgress onUploadProgress}) {
+  Future<Response<T>> post<T>(
+    String path, {
+    data,
+    Options options,
+    CancelToken cancelToken,
+    OnUploadProgress onUploadProgress,
+  }) {
     return request<T>(path,
         data: data,
         options: _checkOptions("POST", options),
@@ -96,7 +97,10 @@ class Dio {
 
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
   Future<Response<T>> put<T>(String path,
-      {data, Options options, CancelToken cancelToken}) {
+      {data,
+      Options options,
+      CancelToken cancelToken,
+      OnUploadProgress onUploadProgress}) {
     return request<T>(path,
         data: data,
         options: _checkOptions("PUT", options),
@@ -430,7 +434,7 @@ class Dio {
           _setHeaders(options, request);
         }
       } catch (e) {
-        //If user cancel  the request in transformer, close the connect by hand.
+        //If user cancel the request in transformer, close the connect by hand.
         request.addError(e);
       }
 
@@ -518,49 +522,44 @@ class Dio {
           request.headers.set(HttpHeaders.contentTypeHeader,
               'multipart/form-data; boundary=${data.boundary.substring(2)}');
           bytes = data.bytes();
-          //Must set the content-length
-          request.contentLength = bytes.length;
-          _setHeaders(options, request);
-
-          var length = bytes.length;
-          var complete = 0;
-
-          var stream = Stream.fromIterable(bytes.map((itm) => [itm]));
-
-          Stream<List<int>> byteStream = stream.transform(
-              StreamTransformer.fromHandlers(handleData: (data, sink) {
-            complete += data.length;
-            if (onUploadProgress != null) {
-              onUploadProgress(complete, length);
-            }
-            sink.add(data);
-          }));
-
-          await request.addStream(byteStream);
-          return;
+        } else {
+          options.headers[HttpHeaders.contentTypeHeader] =
+              options.contentType.toString();
+          // If Byte Array
+          if (options.data is List<int>) {
+            bytes = options.data;
+          } else {
+            // Call request transformer.
+            String _data = await transformer.transformRequest(options);
+            // Convert to utf8
+            bytes = utf8.encode(_data);
+          }
         }
       }
-      options.headers[HttpHeaders.contentTypeHeader] =
-          options.contentType.toString();
+      // Must set the content-length
+      request.contentLength = bytes.length;
+      _setHeaders(options, request);
 
-      // If Byte Array
-      if (options.data is List<int>) {
-        bytes = options.data;
-      } else {
-        // Call request transformer.
-        String _data = await transformer.transformRequest(options);
-
-        // Set the headers, must before `request.write`
-        _setHeaders(options, request);
-
-        // Convert to utf8
-        bytes = utf8.encode(_data);
+      // support data sending progress
+      int length = bytes.length;
+      int complete = 0;
+      var group = new List<List<int>>();
+      const size = 1024;
+      int groupCount = (bytes.length / size).ceil();
+      for (int i = 0; i < groupCount; ++i) {
+        int start = i * size;
+        group.add(bytes.sublist(start, math.min(start + size, bytes.length)));
       }
-
-      // Set Content-Length
-      request.headers.set(HttpHeaders.contentLengthHeader, bytes.length);
-
-      request.add(bytes);
+      var stream = Stream.fromIterable(group);
+      Stream<List<int>> byteStream = stream
+          .transform(StreamTransformer.fromHandlers(handleData: (data, sink) {
+        sink.add(data);
+        complete += data.length;
+        if (onUploadProgress != null) {
+          onUploadProgress(complete, length);
+        }
+      }));
+      await request.addStream(byteStream);
     } else {
       _setHeaders(options, request);
     }

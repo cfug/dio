@@ -123,6 +123,18 @@ Uploading multiple files to server by FormData:
   });
 ```
 
+Listening the uploading progress:
+
+```dart
+response = await dio.post(
+  "http://www.dtworkroom.com/doris/1/2.0.0/test",
+  data: {"aa": "bb" * 22},
+  onUploadProgress: (int sent, int total) {
+    print("$sent $total");
+  },
+);
+```
+
 …you can find all examples code [here](https://github.com/flutterchina/dio/tree/flutter/example).
 
 ## Dio APIs
@@ -174,7 +186,7 @@ For convenience aliases have been provided for all supported request methods.
 **Future<Response> path(path, {data, Options options,CancelToken cancelToken})** 
 
 **Future<Response> download(String urlPath, savePath,**
-    **{OnDownloadProgress onProgress, data, bool flush: false, Options options,CancelToken cancelToken})**
+​    **{OnDownloadProgress onProgress, data, bool flush: false, Options options,CancelToken cancelToken})**
 
 
 ## Request Options
