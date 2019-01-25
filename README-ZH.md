@@ -246,7 +246,7 @@ Dio实例的核心API是 :
   print(response.data);
   print(response.headers);
   print(response.request);
-  print(statusCode);
+  print(response.statusCode);
 ```
 
 ## 拦截器
