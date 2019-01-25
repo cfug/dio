@@ -23,7 +23,7 @@ class Response<T> {
   /// Custom field that you can retrieve it later in `then`.
   Map<String, dynamic> extra;
 
-  /// We care more about `data` field.
+  /// We are more concerned about `data` field.
   @override
   String toString() {
     if (data is Map) {
