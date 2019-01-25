@@ -1,3 +1,4 @@
+import 'options.dart';
 import 'response.dart';
 
 enum DioErrorType {
@@ -24,8 +25,15 @@ enum DioErrorType {
  * DioError describes the error info  when request failed.
  */
 class DioError extends Error {
-  DioError({this.response, this.message, this.type = DioErrorType
-      .DEFAULT, this.stackTrace});
+  DioError(
+      {this.request,
+      this.response,
+      this.message,
+      this.type = DioErrorType.DEFAULT,
+      this.stackTrace});
+
+  /// Request info.
+  Options request;
 
   /// Response info, it may be `null` if the request can't reach to
   /// the http server, for example, occurring a dns error, network is not available.

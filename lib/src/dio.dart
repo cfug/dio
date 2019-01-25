@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:cookie_jar/cookie_jar.dart';
+
 import 'cancel_token.dart';
-import 'form_data.dart';
 import 'dio_error.dart';
+import 'form_data.dart';
 import 'interceptor.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 
 /// Callback to listen the file downloading progress.
 ///
@@ -18,6 +20,13 @@ import 'package:cookie_jar/cookie_jar.dart';
 /// the size of the response body is not known in advance,
 /// such as response data is compressed with gzip.
 typedef OnDownloadProgress(int received, int total);
+
+/// Callback to listen post uploading progress.
+///
+/// [sent] is the length of the bytes have been sent.
+///
+/// [total] is the content length of the post body.
+typedef OnUploadProgress(int sent, int total);
 
 typedef dynamic OnHttpClientCreate(HttpClient client);
 
@@ -74,11 +83,15 @@ class Dio {
 
   /// Handy method to make http POST request, which is a alias of  [Dio.request].
   Future<Response<T>> post<T>(String path,
-      {data, Options options, CancelToken cancelToken}) {
+      {data,
+      Options options,
+      CancelToken cancelToken,
+      OnUploadProgress onUploadProgress}) {
     return request<T>(path,
         data: data,
         options: _checkOptions("POST", options),
-        cancelToken: cancelToken);
+        cancelToken: cancelToken,
+        onUploadProgress: onUploadProgress);
   }
 
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
@@ -230,6 +243,7 @@ class Dio {
         new Duration(milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
           sink.addError(new DioError(
+              request: options,
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
               type: DioErrorType.RECEIVE_TIMEOUT));
           sink.close();
@@ -279,6 +293,7 @@ class Dio {
     data,
     CancelToken cancelToken,
     Options options,
+    OnUploadProgress onUploadProgress,
   }) async {
     var httpClient = _httpClient;
     if (cancelToken != null) {
@@ -291,7 +306,8 @@ class Dio {
         data: data,
         cancelToken: cancelToken,
         options: options,
-        httpClient: httpClient);
+        httpClient: httpClient,
+        onUploadProgress: onUploadProgress);
   }
 
   HttpClient _configHttpClient(HttpClient httpClient,
@@ -308,7 +324,8 @@ class Dio {
       {data,
       CancelToken cancelToken,
       Options options,
-      HttpClient httpClient}) async {
+      HttpClient httpClient,
+      OnUploadProgress onUploadProgress}) async {
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptor.request, () {
       _mergeOptions(options);
@@ -334,7 +351,8 @@ class Dio {
             // If the Future value type is Options, continue the network request.
             if (data is Options) {
               options.method = data.method.toUpperCase();
-              response = _makeRequest<T>(data, cancelToken, httpClient);
+              response = _makeRequest<T>(
+                  data, cancelToken, httpClient, onUploadProgress);
             } else {
               // Otherwise, use the Future value as the request result.
               // If the return type is Error, we should throw it
@@ -349,7 +367,8 @@ class Dio {
         return future.catchError((err) => throw _assureDioError(err));
       } else {
         // If user don't provide the request interceptor, make request directly.
-        return _makeRequest<T>(options, cancelToken, httpClient);
+        return _makeRequest<T>(
+            options, cancelToken, httpClient, onUploadProgress);
       }
     });
     return _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
@@ -362,7 +381,7 @@ class Dio {
   }
 
   Future<Response<T>> _makeRequest<T>(Options options, CancelToken cancelToken,
-      [HttpClient httpClient]) async {
+      [HttpClient httpClient, OnUploadProgress onUploadProgress]) async {
     _checkCancelled(cancelToken);
     HttpClientResponse response;
     try {
@@ -394,6 +413,7 @@ class Dio {
         request = await _listenCancelForAsyncTask(cancelToken, requestFuture);
       } on TimeoutException {
         throw new DioError(
+          request: options,
           message: "Connecting timeout[${options.connectTimeout}ms]",
           type: DioErrorType.CONNECT_TIMEOUT,
         );
@@ -405,7 +425,7 @@ class Dio {
         if (!isGet) {
           // Transform the request data, set headers inner.
           await _listenCancelForAsyncTask(
-              cancelToken, _transformData(options, request));
+              cancelToken, _transformData(options, request, onUploadProgress));
         } else {
           _setHeaders(options, request);
         }
@@ -487,7 +507,8 @@ class Dio {
     }
   }
 
-  _transformData(Options options, HttpClientRequest request) async {
+  _transformData(Options options, HttpClientRequest request,
+      [OnUploadProgress onUploadProgress]) async {
     var data = options.data;
     List<int> bytes;
     if (data != null) {
@@ -500,7 +521,22 @@ class Dio {
           //Must set the content-length
           request.contentLength = bytes.length;
           _setHeaders(options, request);
-          request.add(bytes);
+
+          var length = bytes.length;
+          var complete = 0;
+
+          var stream = Stream.fromIterable(bytes.map((itm) => [itm]));
+
+          Stream<List<int>> byteStream = stream.transform(
+              StreamTransformer.fromHandlers(handleData: (data, sink) {
+            complete += data.length;
+            if (onUploadProgress != null) {
+              onUploadProgress(complete, length);
+            }
+            sink.add(data);
+          }));
+
+          await request.addStream(byteStream);
           return;
         }
       }
