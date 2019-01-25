@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'options.dart';
 
@@ -24,6 +25,11 @@ class Response<T> {
 
   /// We care more about `data` field.
   @override
-  String toString() => "[data]=" + data.toString();
+  String toString() {
+    if (data is Map) {
+      return json.encode(data);
+    }
+    return data.toString();
+  }
 
 }

@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 class MyTransformer extends DefaultTransformer {
   @override
   Future<String> transformRequest(Options options) async {
-    if (options.data is List) {
+    if (options.data is List<String>) {
       throw new DioError(message: "Can't send List to sever directly");
     } else {
       return super.transformRequest(options);
@@ -55,7 +55,6 @@ void main() {
       response = await dio.patch("/test", data: {"xx": "你好"});
       expect(response.data["errCode"], 0);
       expect(response.headers != null, true);
-      expect(response.toString().startsWith("[data]="), true);
 
       try {
         // Response response = await dio.head("/test");
@@ -153,7 +152,7 @@ void main() {
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
       try {
-        await dio.post("https://www.baidu.com", data: [1, 2]);
+        var r=await dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test", data: ["1", "2"]);
       } catch (e) {
         expect(e.message, "Can't send List to sever directly");
       }

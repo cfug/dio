@@ -109,6 +109,18 @@ FormData formData = new FormData.from({
   response = await dio.post("/info", data: formData);
 ```
 
+监听发送(上传)数据进度:
+
+```dart
+response = await dio.post(
+  "http://www.dtworkroom.com/doris/1/2.0.0/test",
+  data: {"aa": "bb" * 22},
+  onUploadProgress: (int sent, int total) {
+    print("$sent $total");
+  },
+);
+```
+
 …你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/flutter/example).
 
 ## Dio APIs
@@ -161,7 +173,7 @@ Dio实例的核心API是 :
 **Future<Response> path(path, {data, Options options,CancelToken cancelToken})**
 
 **Future<Response> download(String urlPath, savePath,**
-    **{OnDownloadProgress onProgress, data, bool flush: false, Options options,CancelToken cancelToken})**
+​    **{OnDownloadProgress onProgress, data, bool flush: false, Options options,CancelToken cancelToken})**
 
 
 ## 请求配置
