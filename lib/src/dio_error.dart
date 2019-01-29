@@ -45,7 +45,7 @@ class DioError extends Error {
   DioErrorType type;
 
   String toString() =>
-      "DioError [$type]: " + message + (stackTrace ?? "").toString();
+      "DioError [$type]: " + (message??"") + (stackTrace ?? "").toString();
 
   /// Error stacktrace info
   StackTrace stackTrace;

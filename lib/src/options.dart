@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dio.dart';
 
@@ -16,24 +17,19 @@ enum ResponseType {
 
 typedef bool ValidateStatus(int status);
 
-/**
- * The Options class describes the http request information and configuration.
- */
-class Options {
-  Options({
-    this.method,
-    this.baseUrl,
-    this.connectTimeout,
-    this.receiveTimeout,
-    this.path,
-    this.data,
-    this.extra,
-    this.headers,
-    this.responseType,
-    this.contentType,
-    this.validateStatus,
-    this.followRedirects:true
-  }) {
+class GlobalOptions {
+  GlobalOptions(
+      {this.method,
+      this.baseUrl,
+      this.connectTimeout,
+      this.receiveTimeout,
+      this.extra,
+      this.headers,
+      this.responseType,
+      this.contentType,
+      this.validateStatus,
+      this.cookies,
+      this.followRedirects: true}) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};
 
@@ -41,34 +37,30 @@ class Options {
   }
 
   /// Create a new Option from current instance with merging attributes.
-  Options merge({
-    String method,
-    String baseUrl,
-    String path,
-    int connectTimeout,
-    int receiveTimeout,
-    dynamic data,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    ContentType contentType,
-    ValidateStatus validateStatus,
-    bool followRedirects
-  }) {
+  Options merge(
+      {String method,
+      String baseUrl,
+      String path,
+      int connectTimeout,
+      int receiveTimeout,
+      dynamic data,
+      Map<String, dynamic> extra,
+      Map<String, dynamic> headers,
+      ResponseType responseType,
+      ContentType contentType,
+      ValidateStatus validateStatus,
+      bool followRedirects}) {
     return new Options(
-      method: method??this.method,
-      baseUrl: baseUrl??this.baseUrl,
-      path: path??this.path,
-      connectTimeout: connectTimeout??this.connectTimeout,
-      receiveTimeout: receiveTimeout??this.receiveTimeout,
-      data: data??this.data,
-      extra: extra??new Map.from(this.extra??{}),
-      headers: headers??new Map.from(this.headers??{}),
-      responseType: responseType??this.responseType,
-      contentType: contentType??this.contentType,
-      validateStatus: validateStatus??this.validateStatus,
-      followRedirects: followRedirects??this.followRedirects
-    );
+        method: method ?? this.method,
+        baseUrl: baseUrl ?? this.baseUrl,
+        connectTimeout: connectTimeout ?? this.connectTimeout,
+        receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+        extra: extra ?? new Map.from(this.extra ?? {}),
+        headers: headers ?? new Map.from(this.headers ?? {}),
+        responseType: responseType ?? this.responseType,
+        contentType: contentType ?? this.contentType,
+        validateStatus: validateStatus ?? this.validateStatus,
+        followRedirects: followRedirects ?? this.followRedirects);
   }
 
   /// Http method.
@@ -89,12 +81,6 @@ class Options {
   ///  Note: This is not the receiving time limitation.
   int receiveTimeout;
 
-  /// Request data, can be any type.
-  dynamic data;
-
-  /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
-  /// it will be combined and then resolved with the baseUrl.
-  String path = "";
 
   /// The request Content-Type. The default value is [ContentType.json].
   /// If you want to encode request body with "application/x-www-form-urlencoded",
@@ -125,4 +111,78 @@ class Options {
   /// see [HttpClientRequest.followRedirects]
   bool followRedirects;
 
+  /// Custom Cookies
+  Iterable<Cookie> cookies;
+}
+
+/**
+ * The Options class describes the http request information and configuration.
+ */
+class Options extends GlobalOptions {
+  Options(
+      {String method,
+      String baseUrl,
+      int connectTimeout,
+      int receiveTimeout,
+      Iterable<Cookie> cookies,
+      this.data,
+      this.path,
+      Map<String, dynamic> extra,
+      Map<String, dynamic> headers,
+      ResponseType responseType,
+      ContentType contentType,
+      ValidateStatus validateStatus,
+      bool followRedirects: true})
+      : super(
+          method: method,
+          baseUrl: baseUrl,
+          connectTimeout: connectTimeout,
+          receiveTimeout: receiveTimeout,
+          extra: extra,
+          headers: headers,
+          responseType: responseType,
+          contentType: contentType,
+          validateStatus: validateStatus,
+          followRedirects: followRedirects,
+          cookies: cookies,
+        );
+
+  /// Create a new Option from current instance with merging attributes.
+  Options merge(
+      {String method,
+      String baseUrl,
+      String path,
+      int connectTimeout,
+      int receiveTimeout,
+      dynamic data,
+      Map<String, dynamic> extra,
+      Map<String, dynamic> headers,
+      ResponseType responseType,
+      ContentType contentType,
+      ValidateStatus validateStatus,
+      bool followRedirects}) {
+    return new Options(
+        method: method ?? this.method,
+        baseUrl: baseUrl ?? this.baseUrl,
+        path: path ?? this.path,
+        connectTimeout: connectTimeout ?? this.connectTimeout,
+        receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+        data: data ?? this.data,
+        extra: extra ?? new Map.from(this.extra ?? {}),
+        headers: headers ?? new Map.from(this.headers ?? {}),
+        responseType: responseType ?? this.responseType,
+        contentType: contentType ?? this.contentType,
+        validateStatus: validateStatus ?? this.validateStatus,
+        followRedirects: followRedirects ?? this.followRedirects);
+  }
+
+  /// Request data, can be any type.
+  dynamic data;
+
+  /// Full path.
+  Uri uri;
+
+  /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
+  /// it will be combined and then resolved with the baseUrl.
+  String path = "";
 }

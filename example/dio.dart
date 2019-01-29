@@ -1,37 +1,33 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 
-
 main() async {
   var dio = new Dio();
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   dio.options.connectTimeout = 5000; //5s
   dio.options.receiveTimeout = 5000;
-  dio.options.headers = {
-    'user-agent': 'dio',
-    'common-header': 'xx'
-  };
+  dio.options.headers = {'user-agent': 'dio', 'common-header': 'xx'};
+  dio.interceptors.add(LogInterceptor(responseBody: false)); //Open log
 
-  var u = new Uri(scheme: "https", host: "www.baidu.com", queryParameters: {
-    "xx": "xx",
-    "yy": "dd"
-  });
+  var u = new Uri(
+      scheme: "https",
+      host: "www.baidu.com",
+      queryParameters: {"xx": "xx", "yy": "dd"});
 
   print(u);
 
-  // Add request interceptor
-  dio.interceptor.request.onSend = (Options options) async {
+  dio.interceptors.add(InterceptorsWrapper(onRequest: (Options options) {
     // return ds.resolve(new Response(data:"xxx"));
     // return ds.reject(new DioError(message: "eh"));
     return options;
-  };
+  }));
 
   Response response = await dio.get("https://www.google.com/");
   print(response.data);
 
   // Download a file
-  response = await dio.download(
-      "https://www.google.com/", "./xx.html", onProgress: (received, total) {
+  response = await dio.download("https://www.google.com/", "./xx.html",
+      onProgress: (received, total) {
     print('$received,$total');
   });
 
@@ -46,13 +42,11 @@ main() async {
   response = await dio.post("/test", data: formData);
   print(response);
 
-  response = await dio.post("/test",
+  response = await dio.post(
+    "/test",
     data: {
       "id": 8,
-      "info": {
-        "name": "wendux",
-        "age": 25
-      }
+      "info": {"name": "wendux", "age": 25}
     },
     // Send data with "application/x-www-form-urlencoded" format
     options: new Options(

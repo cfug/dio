@@ -141,7 +141,7 @@ response = await dio.post(
 
 ### Creating an instance and set default configs.
 
-You can create instance of Dio with an optional `Options` object:
+You can create instance of Dio with an optional `GlobalOptions` object:
 
 ```dart
 Dio dio = new Dio; // with default Options
@@ -152,7 +152,7 @@ Dio dio = new Dio; // with default Options
   dio.options.receiveTimeout = 3000;
 
 // or new Dio with a Options instance.
-  Options options = new Options(
+  Options options = new GlobalOptions(
       baseUrl: "https://www.xx.com/api",
       connectTimeout: 5000,
       receiveTimeout: 3000);
@@ -191,7 +191,7 @@ For convenience aliases have been provided for all supported request methods.
 
 ## Request Options
 
-These are the available config options for making requests. Requests will default to `GET` if `method` is not specified.
+These are the available config options for making requests. Request default `method`  is  `GET`  if `method` is not specified.
 
 ```dart
 {
@@ -244,6 +244,12 @@ These are the available config options for making requests. Requests will defaul
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic> extra;
+    
+  /// Full path.
+  Uri uri; 
+  
+  /// Custom Cookies
+  Iterable<Cookie> cookies;
 }
 ```
 
@@ -326,13 +332,15 @@ In all interceptors, you can interfere with their execution flow. If you want to
 Interceptors not only support synchronous tasks, but also supports asynchronous tasks, for example:
 
 ```dart
-  dio.interceptor.request.onSend = (Options options) async{
+  dio.interceptors.add(InterceptorsWrapper(
+    onRequest:(Options options) async{
      //...If no token, request token firstly.
      Response response = await dio.get("/token");
      //Set the token to headers 
      options.headers["token"] = response.data["data"]["token"];
      return options; //continue   
- };
+    }
+  ));
 ```
 
 ### Lock/unlock the interceptors
@@ -342,17 +350,18 @@ You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. 
 ```dart
   tokenDio = new Dio(); //Create a new instance to request the token.
   tokenDio.options = dio;
-  dio.interceptor.request.onSend = (Options options) async {
+  dio.interceptors.add(InterceptorsWrapper(
+   onRequest:(Options options) async {
     // If no token, request token firstly and lock this interceptor
     // to prevent other request enter this interceptor.
-    dio.interceptor.request.lock();
+    dio.interceptors.requestLock.lock();
     // We use a new Dio(to avoid dead lock) instance to request token.
     Response response = await tokenDio.get("/token");
     //Set the token to headers
     options.headers["token"] = response.data["data"]["token"];
-    dio.interceptor.request.unlock();
+    dio.interceptors.requestLock.unlock();
     return options; //continue
-  };
+  }));
 ```
 
 You can clean the waiting queue by calling `clear()`;
@@ -361,9 +370,9 @@ You can clean the waiting queue by calling `clear()`;
 
 When the **request** interceptor is locked, the incoming request will pause, this is equivalent to we locked the current dio instance, Therefore, Dio provied the two aliases for the `lock/unlock` of **request** interceptors.
 
-**dio.lock() ==  dio.interceptor.request.lock()**
+**dio.lock() ==  dio.interceptors.requestLock.lock()**
 
-**dio.unlock() ==  dio.interceptor.request.unlock()**
+**dio.unlock() ==  dio.interceptors.requestLock.unlock()**
 
 
 
@@ -374,26 +383,41 @@ When the **request** interceptor is locked, the incoming request will pause, thi
 Because of security reasons, we need all the requests to set up a csrfToken in the header, if csrfToken does not exist, we need to request a csrfToken first, and then perform the network request, because the request csrfToken progress is asynchronous, so we need to execute this async request in request interceptor. The code is as follows:
 
 ```dart
-dio.interceptor.request.onSend = (Options options) {
-    print('send request：path:${options.path}，baseURL:${options.baseUrl}');
-    if (csrfToken == null) {
-      print("no token，request token firstly...");
-      //lock the dio.
-      dio.lock();
-      return tokenDio.get("/token").then((d) {
-        options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
-        print("request token succeed, value: " + d.data['data']['token']);
-        print('continue to perform request：path:${options.path}，baseURL:${options.path}');
-        return options;
-      }).whenComplete(() => dio.unlock()); // unlock the dio
-    } else {
-      options.headers["csrfToken"] = csrfToken;
-      return options;
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest: (Options options) {
+        print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+        if (csrfToken == null) {
+            print("no token，request token firstly...");
+            //lock the dio.
+            dio.lock();
+            return tokenDio.get("/token").then((d) {
+                options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
+                print("request token succeed, value: " + d.data['data']['token']);
+                print(
+                    'continue to perform request：path:${options.path}，baseURL:${options.path}');
+                return options;
+            }).whenComplete(() => dio.unlock()); // unlock the dio
+        } else {
+            options.headers["csrfToken"] = csrfToken;
+            return options;
+        }
     }
-  };
+));
 ```
 
-For complete codes click [here](https://github.com/flutterchina/dio/tree/flutter/example/interceptorLock.dart).
+For complete codes click [here](https://github.com/flutterchina/dio/tree/1.1.x/example/interceptorLock.dart).
+
+### Log
+
+You can set  `LogInterceptor` to  print request/response log automaticlly, for example:
+
+```dart
+dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
+```
+
+### Custom Interceptor
+
+You can custom interceptor by extendding the `Interceptor` class. There is an example that implementing a simple cache policy: custom cache interceptor
 
 ## Handling Errors
 
