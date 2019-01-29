@@ -177,30 +177,32 @@ void main() {
     setUp(() {
       dio = new Dio();
       dio.options.baseUrl = BASE_URL;
-      dio.interceptor.request.onSend = (Options options) async {
-        switch (options.path) {
-          case "/fakepath1":
-            return dio.resolve("fake data");
-          case "/fakepath2":
-            return dio.get("/test");
-          case "/fakepath3":
-            return dio.reject(
-                "test error"); //you can also return a HttpError directly.
-          case "fakepath4":
-            return new DioError(
-                message:
-                    "test error"); // Here is equivalent to call dio.reject("test error")
-          case "/test?tag=1":
-            {
-              Response response = await dio.get("/token");
-              print(response);
-              options.headers["token"] = response.data["data"]["token"];
-              return options;
-            }
-          default:
-            return options; //continue
+      dio.interceptors.add(InterceptorsWrapper(
+        onRequest:  (Options options) async {
+          switch (options.path) {
+            case "/fakepath1":
+              return dio.resolve("fake data");
+            case "/fakepath2":
+              return dio.get("/test");
+            case "/fakepath3":
+              return dio.reject(
+                  "test error"); //you can also return a HttpError directly.
+            case "fakepath4":
+              return new DioError(
+                  message:
+                  "test error"); // Here is equivalent to call dio.reject("test error")
+            case "/test?tag=1":
+              {
+                Response response = await dio.get("/token");
+                print(response);
+                options.headers["token"] = response.data["data"]["token"];
+                return options;
+              }
+            default:
+              return options; //continue
+          }
         }
-      };
+      ));
     });
 
     test('TestRI', () async {
@@ -245,28 +247,30 @@ void main() {
     setUp(() {
       dio = new Dio();
       dio.options.baseUrl = BASE_URL;
-      dio.interceptor.response.onSuccess = (Response response) {
-        return response.data["data"]; //
-      };
-      dio.interceptor.response.onError = (DioError e) async {
-        if (e.response != null) {
-          switch (e.response.request.path) {
-            case URL_NOT_FIND:
-              return e;
-            case URL_NOT_FIND_1:
-              return dio.resolve(
-                  "fake data"); // you can also return a HttpError directly.
-            case URL_NOT_FIND_2:
-              return new Response(data: "fake data");
-            case URL_NOT_FIND_3:
-              return 'custom error info [${e.response.statusCode}]';
+      dio.interceptors.add(InterceptorsWrapper(
+        onResponse: (Response response) {
+          return response.data["data"];
+        },
+        onError: (DioError e) {
+          if (e.response != null) {
+            switch (e.response.request.path) {
+              case URL_NOT_FIND:
+                return e;
+              case URL_NOT_FIND_1:
+                return dio.resolve("fake data"); // you can also return a HttpError directly.
+              case URL_NOT_FIND_2:
+                return new Response(data: "fake data");
+              case URL_NOT_FIND_3:
+                return 'custom error info [${e.response.statusCode}]';
+            }
           }
+          return e;
         }
-        return e;
-      };
+      ));
     });
 
     test('Test', () async {
+     //await dio.get("/test").then(print);
       Response response = await dio.get("/test");
       expect(response.data["path"], "/test");
       try {
@@ -294,24 +298,27 @@ void main() {
       String csrfToken;
       dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
       tokenDio.options = dio.options;
-      dio.interceptor.request.onSend = (Options options) {
-        print('send request：path:${options.path}，baseURL:${options.baseUrl}');
-        if (csrfToken == null) {
-          print("no token，request token firstly...");
-          //lock the dio.
-          dio.lock();
-          return tokenDio.get("/token").then((d) {
-            options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
-            print("request token succeed, value: " + d.data['data']['token']);
-            print(
-                'continue to perform request：path:${options.path}，baseURL:${options.path}');
+      dio.interceptors.add(InterceptorsWrapper(
+        onRequest: (Options options) {
+          print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+          if (csrfToken == null) {
+            print("no token，request token firstly...");
+            //lock the dio.
+            dio.lock();
+            return tokenDio.get("/token").then((d) {
+              options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
+              print("request token succeed, value: " + d.data['data']['token']);
+              print(
+                  'continue to perform request：path:${options.path}，baseURL:${options.path}');
+              return options;
+            }).whenComplete(() => dio.unlock()); // unlock the dio
+          } else {
+            options.headers["csrfToken"] = csrfToken;
             return options;
-          }).whenComplete(() => dio.unlock()); // unlock the dio
-        } else {
-          options.headers["csrfToken"] = csrfToken;
-          return options;
+          }
         }
-      };
+      ));
+
       _onResult(d) {
         print("request ok!");
       }

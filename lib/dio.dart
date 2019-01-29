@@ -14,3 +14,4 @@ export 'src/options.dart';
 export 'src/response.dart';
 export 'src/cancel_token.dart';
 export 'src/upload_file_info.dart';
+export 'src/log_interceptor.dart';

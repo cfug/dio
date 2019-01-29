@@ -35,9 +35,9 @@ typedef dynamic OnHttpClientCreate(HttpClient client);
 class Dio {
   /// Create Dio instance with default [Options].
   /// It's mostly just one Dio instance in your application.
-  Dio([Options options]) {
+  Dio([GlobalOptions options]) {
     if (options == null) {
-      options = new Options();
+      options = new GlobalOptions();
     }
     this.options = options;
   }
@@ -46,7 +46,7 @@ class Dio {
   static const version = "0.0.4";
 
   /// Default Request config. More see [Options] .
-  Options options;
+  GlobalOptions options;
 
   /// Cookie manager for http requests。Learn more details about
   /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
@@ -63,9 +63,11 @@ class Dio {
   /// Each Dio instance has a interceptor by which you can intercept requests or responses before they are
   /// handled by `then` or `catchError`. the [interceptor] field
   /// contains a [RequestInterceptor] and a [ResponseInterceptor] instance.
-  Interceptor get interceptor => _interceptor;
+  ///
 
-  var _interceptor = new Interceptor();
+  Interceptors _interceptors = new Interceptors();
+
+  Interceptors get interceptors => _interceptors;
 
   /// [transformer] allows changes to the request/response data before it is sent/received to/from the server
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
@@ -237,7 +239,7 @@ class Dio {
    *
    */
   lock() {
-    interceptor.request.lock();
+    interceptors.requestLock.lock();
   }
 
   /**
@@ -246,14 +248,14 @@ class Dio {
    * Dio instance dequeue the request task。
    */
   unlock() {
-    interceptor.request.unlock();
+    interceptors.requestLock.unlock();
   }
 
   /**
    * Clear the current Dio instance waiting queue.
    */
   clear() {
-    interceptor.request.clear();
+    interceptors.requestLock.clear();
   }
 
   /**
@@ -492,57 +494,62 @@ class Dio {
     return httpClient;
   }
 
+  Future _assureFuture(e) {
+    if (e is! Future) {
+      return Future.value(e);
+    }
+    return e;
+  }
+
+  Future _executeInterceptors<T>(T ob, f(Interceptor inter, T ob)) async {
+    for (var inter in interceptors) {
+      try {
+        var res = await _assureFuture(f(inter, ob));
+        if (res != null) {
+          if (res is T) {
+            ob = res;
+            continue;
+          }
+          if (res is Response || res is DioError) return res;
+          return res;
+        }
+      } catch (e) {
+        return e;
+      }
+    }
+    return ob;
+  }
+
   Future<Response<T>> _request<T>(String path,
       {data,
       CancelToken cancelToken,
       Options options,
       HttpClient httpClient,
       OnUploadProgress onUploadProgress}) async {
+    options.path = path;
+    _mergeOptions(options);
     Future<Response<T>> future =
-        _checkIfNeedEnqueue<T>(interceptor.request, () {
-      _mergeOptions(options);
-      options.path = path;
-      // If user provide a request interceptor, enter the interceptor.
-      InterceptorCallback preSend = interceptor.request.onSend;
-      if (preSend != null) {
-        _checkCancelled(cancelToken);
-        var ret = preSend(options);
-        // Assure the return value type of request interceptor is `Future`.
-        if (ret is! Future) {
-          ret = new Future.value(ret);
-        }
-        Future<Response<T>> future;
-        //todo here test results are inconsistent between Dart VM and flutter.
-        //https://github.com/dart-lang/sdk/issues/33000
-        if (ret is Future<Response>) {
-          future = ret;
+        _checkIfNeedEnqueue<T>(interceptors.requestLock, () {
+      Future ret = _executeInterceptors<Options>(
+          options, (Interceptor inter, ob) => inter.onRequest(ob));
+      return ret.then<Response<T>>((data) {
+        FutureOr<Response<T>> response;
+        // If the Future value type is Options, continue the network request.
+        if (data is Options) {
+          options.method = data.method.toUpperCase();
+          response =
+              _makeRequest<T>(data, cancelToken, httpClient, onUploadProgress);
         } else {
-          future = ret.then<Response<T>>((data) {
-            FutureOr<Response<T>> response;
-            // If the Future value type is Options, continue the network request.
-            if (data is Options) {
-              options.method = data.method.toUpperCase();
-              response = _makeRequest<T>(
-                  data, cancelToken, httpClient, onUploadProgress);
-            } else {
-              // Otherwise, use the Future value as the request result.
-              // If the return type is Error, we should throw it
-              if (data is Error) {
-                throw _assureDioError(data);
-              }
-              response = _assureResponse(data);
-            }
-            return response;
-          });
+          // Otherwise, use the Future value as the request result.
+          // If the return type is Error, we should throw it
+          if (data is Error) throw _assureDioError(data);
+          response = _assureResponse(data);
         }
-        return future.catchError((err) => throw _assureDioError(err));
-      } else {
-        // If user don't provide the request interceptor, make request directly.
-        return _makeRequest<T>(
-            options, cancelToken, httpClient, onUploadProgress);
-      }
+        return response;
+      }).catchError((err) => throw _assureDioError(err));
     });
-    return _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
+
+    return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
         .then((d) {
       if (cancelToken != null) {
         httpClient.close();
@@ -551,33 +558,35 @@ class Dio {
     });
   }
 
+  Uri _makeFullPath(Options options) {
+    // Normalize the url.
+    String url = options.path;
+    if (!url.startsWith(new RegExp(r"https?:"))) {
+      url = options.baseUrl + url;
+      List<String> s = url.split(":/");
+      url = s[0] + ':/' + s[1].replaceAll("//", "/");
+    }
+    options.method = options.method.toUpperCase();
+    if (options.method == "GET" && options.data is Map) {
+      url += (url.contains("?") ? "&" : "?") +
+          Transformer.urlEncodeMap(options.data);
+    }
+    return Uri.parse(url).normalizePath();
+  }
+
   Future<Response<T>> _makeRequest<T>(Options options, CancelToken cancelToken,
       [HttpClient httpClient, OnUploadProgress onUploadProgress]) async {
     _checkCancelled(cancelToken);
     HttpClientResponse response;
     try {
-      // Normalize the url.
-      String url = options.path;
-      if (!url.startsWith(new RegExp(r"https?:"))) {
-        url = options.baseUrl + url;
-        List<String> s = url.split(":/");
-        url = s[0] + ':/' + s[1].replaceAll("//", "/");
-      }
-      options.method = options.method.toUpperCase();
-      bool isGet = options.method == "GET";
-      if (isGet && options.data is Map) {
-        url += (url.contains("?") ? "&" : "?") +
-            Transformer.urlEncodeMap(options.data);
-      }
-      Uri uri = Uri.parse(url).normalizePath();
       Future requestFuture;
       // Handle timeout
       if (options.connectTimeout > 0) {
         requestFuture = httpClient
-            .openUrl(options.method, uri)
+            .openUrl(options.method, options.uri)
             .timeout(new Duration(milliseconds: options.connectTimeout));
       } else {
-        requestFuture = httpClient.openUrl(options.method, uri);
+        requestFuture = httpClient.openUrl(options.method, options.uri);
       }
       HttpClientRequest request;
       try {
@@ -590,10 +599,10 @@ class Dio {
         );
       }
       request.followRedirects = options.followRedirects;
-      request.cookies.addAll(cookieJar.loadForRequest(uri));
+      request.cookies.addAll(options.cookies);
 
       try {
-        if (!isGet) {
+        if (options.method != "GET") {
           // Transform the request data, set headers inner.
           await _listenCancelForAsyncTask(
               cancelToken, _transformData(options, request, onUploadProgress));
@@ -606,7 +615,7 @@ class Dio {
       }
 
       response = await _listenCancelForAsyncTask(cancelToken, request.close());
-      cookieJar.saveFromResponse(uri, response.cookies);
+      cookieJar.saveFromResponse(options.uri, response.cookies);
 
       var retData = await _listenCancelForAsyncTask(
           cancelToken, transformer.transformResponse(options, response));
@@ -617,22 +626,18 @@ class Dio {
           request: options,
           statusCode: response.statusCode);
 
-      Future<Response<T>> future =
-          _checkIfNeedEnqueue<T>(interceptor.response, () {
-        _checkCancelled(cancelToken);
-        if (options.validateStatus(response.statusCode)) {
-          return _listenCancelForAsyncTask<Response<T>>(
-              cancelToken, _onSuccess<T>(ret));
-        } else {
-          var err = new DioError(
-            response: ret,
-            message: 'Http status error [${response.statusCode}]',
-            type: DioErrorType.RESPONSE,
-          );
-          return _listenCancelForAsyncTask<Response<T>>(
-              cancelToken, _onError(err));
-        }
-      });
+      Future future;
+      _checkCancelled(cancelToken);
+      if (options.validateStatus(response.statusCode)) {
+        future = _onResponse<T>(ret);
+      } else {
+        var err = new DioError(
+          response: ret,
+          message: 'Http status error [${response.statusCode}]',
+          type: DioErrorType.RESPONSE,
+        );
+        future = _onError(err);
+      }
       return _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
       DioError err = _assureDioError(e);
@@ -641,15 +646,10 @@ class Dio {
         throw err;
       } else {
         // Response onError
-        Future<Response<T>> future =
-            _checkIfNeedEnqueue<T>(interceptor.response, () {
-          _checkCancelled(cancelToken);
-          // Listen in error interceptor.
-          return _listenCancelForAsyncTask<Response<T>>(
-              cancelToken, _onError(err));
-        });
-        // Listen if in the queue.
-        return _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
+        _checkCancelled(cancelToken);
+        // Listen in error interceptor.
+        return _listenCancelForAsyncTask<Response<T>>(
+            cancelToken, _onError(err));
       }
     }
   }
@@ -748,25 +748,18 @@ class Dio {
     });
   }
 
-  Future<Response<T>> _onSuccess<T>(response) {
-    if (interceptor.response.onSuccess != null) {
-      response = interceptor.response.onSuccess(response) ?? response;
-    }
-    if (response is! Future) {
-      // Assure response is a Future
-      response = new Future.value(response);
-    }
-    return _transFutureStatusIfNecessary<T>(response);
+  Future<Response<T>> _onResponse<T>(Response response) {
+    return _checkIfNeedEnqueue(interceptors.responseLock, () {
+      return _transFutureStatusIfNecessary<T>(_executeInterceptors(
+          response, (Interceptor inter, ob) => inter.onResponse(ob)));
+    });
   }
 
   Future<Response<T>> _onError<T>(err) {
-    if (interceptor.response.onError != null) {
-      err = interceptor.response.onError(err) ?? err;
-    }
-    if (err is! Future) {
-      err = new Future.error(err);
-    }
-    return _transFutureStatusIfNecessary<T>(err);
+    return _checkIfNeedEnqueue(interceptors.errorLock, () {
+      return _transFutureStatusIfNecessary<T>(_executeInterceptors(
+          err, (Interceptor inter, ob) => inter.onError(err)));
+    });
   }
 
   void _mergeOptions(Options opt) {
@@ -777,12 +770,14 @@ class Dio {
     opt.connectTimeout ??= options.connectTimeout ?? 0;
     opt.receiveTimeout ??= options.receiveTimeout ?? 0;
     opt.responseType ??= options.responseType ?? ResponseType.JSON;
-    opt.data ??= options.data;
     opt.extra = (new Map.from(options.extra))..addAll(opt.extra);
     opt.contentType ??= options.contentType ?? ContentType.json;
     opt.validateStatus ??= options.validateStatus ??
         (int status) => status >= 200 && status < 300 || status == 304;
     opt.followRedirects ??= options.followRedirects ?? true;
+    opt.uri = _makeFullPath(opt);
+    var cookies = cookieJar?.loadForRequest(opt.uri);
+    opt.cookies=new List.from(options.cookies??[])..addAll(cookies??[]);
   }
 
   Options _checkOptions(method, options) {
@@ -793,9 +788,9 @@ class Dio {
     return options;
   }
 
-  Future<Response<T>> _checkIfNeedEnqueue<T>(interceptor, callback()) {
-    if (interceptor.locked) {
-      return interceptor.enqueue(callback);
+  Future<Response<T>> _checkIfNeedEnqueue<T>(Lock lock, callback()) {
+    if (lock.locked) {
+      return lock.enqueue(callback);
     } else {
       return callback();
     }
