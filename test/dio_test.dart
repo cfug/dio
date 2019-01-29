@@ -27,9 +27,9 @@ void main() {
   const BASE_URL = "http://www.dtworkroom.com/doris/1/2.0.0/";
   group('lan', () {
     test("lan", () {
-     var list=[""];
-     assert(list is List<String>);
-     assert(!(list is List<int>));
+      var list = [""];
+      assert(list is List<String>);
+      assert(!(list is List<int>));
     });
   });
   group('restful', () {
@@ -37,10 +37,7 @@ void main() {
     setUp(() {
       dio = new Dio();
       dio.options.baseUrl = BASE_URL;
-      dio.options.headers = {
-        'User-Agent': 'dartisan',
-        'XX': '8'
-      };
+      dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
     });
     test('test', () async {
       Response response;
@@ -61,7 +58,8 @@ void main() {
         Response response = await dio.head("http://www.dtworkroom.com:80");
         expect(response.data["errCode"], 0);
       } on DioError catch (e) {
-        assert(e.response != null && e.type == DioErrorType.RESPONSE &&
+        assert(e.response != null &&
+            e.type == DioErrorType.RESPONSE &&
             e.response.statusCode == 403);
       }
     });
@@ -70,15 +68,16 @@ void main() {
   group('download', () {
     test("test", () async {
       var dio = new Dio();
-      var url = "https://flutter.io/images/flutter-mark-square-100.png";
-      await dio.download(url,
-          "./example/flutter.png",
+      var url = "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
+      await dio.download(url, "./example/flutter.svg",
+          options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
           // Listen the download progress.
           onProgress: (received, total) {
-            print((received / total * 100).toStringAsFixed(0) + "%");
-          }
-      );
-      var f = new File("./example/flutter.png");
+        if (total != -1) {
+          print((received / total * 100).toStringAsFixed(0) + "%");
+        }
+      });
+      var f = new File("./example/flutter.svg");
       var t = await f.open();
       t.close();
     });
@@ -144,7 +143,6 @@ void main() {
     });
   });
 
-
   group('transfomer', () {
     test("test", () async {
       var dio = new Dio();
@@ -152,16 +150,24 @@ void main() {
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
       try {
-        var r=await dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test", data: ["1", "2"]);
+        var r = await dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test",
+            data: ["1", "2"]);
       } catch (e) {
         expect(e.message, "Can't send List to sever directly");
       }
       var data = {
         "a": "你好",
         "b": [5, "6"],
-        "c": {"d": 8, "e": {"a": 5, "b": [66, 8]}}
+        "c": {
+          "d": 8,
+          "e": {
+            "a": 5,
+            "b": [66, 8]
+          }
+        }
       };
-      var dest = "a=%E4%BD%A0%E5%A5%BD&b%5B%5D=5&b%5B%5D=6&c%5Bd%5D=8&c%5Be%5D%5Ba%5D=5&c%5Be%5D%5Bb%5D%5B%5D=66&c%5Be%5D%5Bb%5D%5B%5D=8";
+      var dest =
+          "a=%E4%BD%A0%E5%A5%BD&b%5B%5D=5&b%5B%5D=6&c%5Bd%5D=8&c%5Be%5D%5Ba%5D=5&c%5Be%5D%5Bb%5D%5B%5D=66&c%5Be%5D%5Bb%5D%5B%5D=8";
       expect(Transformer.urlEncodeMap(data), dest);
     });
   });
@@ -182,7 +188,8 @@ void main() {
                 "test error"); //you can also return a HttpError directly.
           case "fakepath4":
             return new DioError(
-                message: "test error"); // Here is equivalent to call dio.reject("test error")
+                message:
+                    "test error"); // Here is equivalent to call dio.reject("test error")
           case "/test?tag=1":
             {
               Response response = await dio.get("/token");
@@ -218,7 +225,7 @@ void main() {
 //      response = await dio.get("/test");
 //      expect(response.data["errCode"], 0);
 //
-      response = await dio.get("/test?tag=1");
+          response = await dio.get("/test?tag=1");
       expect(response.data["errCode"], 0);
 
 //      try {
@@ -228,7 +235,6 @@ void main() {
 //      }
     });
   });
-
 
   group('Response Interceptor', () {
     Dio dio;
@@ -261,8 +267,7 @@ void main() {
     });
 
     test('Test', () async {
-      Response
-      response = await dio.get("/test");
+      Response response = await dio.get("/test");
       expect(response.data["path"], "/test");
       try {
         await dio.get(URL_NOT_FIND);
@@ -298,8 +303,8 @@ void main() {
           return tokenDio.get("/token").then((d) {
             options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
             print("request token succeed, value: " + d.data['data']['token']);
-            print('continue to perform request：path:${options
-                .path}，baseURL:${options.path}');
+            print(
+                'continue to perform request：path:${options.path}，baseURL:${options.path}');
             return options;
           }).whenComplete(() => dio.unlock()); // unlock the dio
         } else {
@@ -310,7 +315,8 @@ void main() {
       _onResult(d) {
         print("request ok!");
       }
-     await Future.wait([
+
+      await Future.wait([
         dio.get("/test?tag=1").then(_onResult),
         dio.get("/test?tag=2").then(_onResult),
         dio.get("/test?tag=3").then(_onResult)

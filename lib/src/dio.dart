@@ -18,7 +18,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 /// [total] is the content length of the response body. Returns -1 if
 /// the size of the response body is not known in advance,
 /// such as response data is compressed with gzip.
-typedef OnDownloadProgress(int received, int total);
+typedef void OnDownloadProgress(int received, int total);
 
 /// Callback to listen request uploading progress.
 ///
@@ -80,6 +80,19 @@ class Dio {
         cancelToken: cancelToken);
   }
 
+  /// Handy method to make http GET request, which is a alias of [Dio.request].
+  Future<Response<T>> getUri<T>(
+    Uri uri, {
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return requestUri<T>(
+      uri,
+      options: _checkOptions("GET", options),
+      cancelToken: cancelToken,
+    );
+  }
+
   /// Handy method to make http POST request, which is a alias of  [Dio.request].
   Future<Response<T>> post<T>(
     String path, {
@@ -89,6 +102,21 @@ class Dio {
     OnUploadProgress onUploadProgress,
   }) {
     return request<T>(path,
+        data: data,
+        options: _checkOptions("POST", options),
+        cancelToken: cancelToken,
+        onUploadProgress: onUploadProgress);
+  }
+
+  /// Handy method to make http POST request, which is a alias of  [Dio.request].
+  Future<Response<T>> postUri<T>(
+    Uri uri, {
+    data,
+    Options options,
+    CancelToken cancelToken,
+    OnUploadProgress onUploadProgress,
+  }) {
+    return requestUri<T>(uri,
         data: data,
         options: _checkOptions("POST", options),
         cancelToken: cancelToken,
@@ -107,10 +135,33 @@ class Dio {
         cancelToken: cancelToken);
   }
 
+  /// Handy method to make http PUT request, which is a alias of  [Dio.request].
+  Future<Response<T>> putUri<T>(
+    Uri uri, {
+    data,
+    Options options,
+    CancelToken cancelToken,
+    OnUploadProgress onUploadProgress,
+  }) {
+    return requestUri<T>(uri,
+        data: data,
+        options: _checkOptions("PUT", options),
+        cancelToken: cancelToken);
+  }
+
   /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
   Future<Response<T>> head<T>(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path,
+    return request<T>(path,
+        data: data,
+        options: _checkOptions("HEAD", options),
+        cancelToken: cancelToken);
+  }
+
+  /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
+  Future<Response<T>> headUri<T>(Uri uri,
+      {data, Options options, CancelToken cancelToken}) {
+    return requestUri<T>(uri,
         data: data,
         options: _checkOptions("HEAD", options),
         cancelToken: cancelToken);
@@ -119,7 +170,16 @@ class Dio {
   /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
   Future<Response<T>> delete<T>(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path,
+    return request<T>(path,
+        data: data,
+        options: _checkOptions("DELETE", options),
+        cancelToken: cancelToken);
+  }
+
+  /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
+  Future<Response<T>> deleteUri<T>(Uri uri,
+      {data, Options options, CancelToken cancelToken}) {
+    return requestUri<T>(uri,
         data: data,
         options: _checkOptions("DELETE", options),
         cancelToken: cancelToken);
@@ -128,7 +188,16 @@ class Dio {
   /// Handy method to make http PATCH request, which is a alias of  [Dio.request].
   Future<Response<T>> patch<T>(String path,
       {data, Options options, CancelToken cancelToken}) {
-    return request(path,
+    return request<T>(path,
+        data: data,
+        options: _checkOptions("PATCH", options),
+        cancelToken: cancelToken);
+  }
+
+  /// Handy method to make http PATCH request, which is a alias of  [Dio.request].
+  Future<Response<T>> patchUri<T>(Uri uri,
+      {data, Options options, CancelToken cancelToken}) {
+    return requestUri<T>(uri,
         data: data,
         options: _checkOptions("PATCH", options),
         cancelToken: cancelToken);
@@ -198,12 +267,29 @@ class Dio {
    * [onProgress]: The callback to listen downloading progress.
    * please refer to [OnDownloadProgress].
    *
+   * [lengthHeader] : The real size of original file (not compressed).
+   * When file is compressed:
+   * 1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
+   * 2. If this value is not 'content-length', maybe a custom header indicates the original
+   * file size , the `total` argument of `onProgress` will be this header value.
+   *
+   * you can also disable the compression by specifying the 'accept-encoding' header value as '*'
+   * to assure the value of `total` argument of `onProgress` is not -1. for example:
+   *
+   *    await dio.download(url, "./example/flutter.svg",
+   *    options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+   *    onProgress: (received, total) {
+   *      if (total != -1) {
+   *       print((received / total * 100).toStringAsFixed(0) + "%");
+   *      }
+   *    });
    */
   Future<Response> download(
     String urlPath,
     savePath, {
     OnDownloadProgress onProgress,
     CancelToken cancelToken,
+    lengthHeader: HttpHeaders.contentLengthHeader,
     data,
     Options options,
   }) async {
@@ -255,6 +341,19 @@ class Dio {
       );
     }
 
+    bool compressed = false;
+    int total = 0;
+    String contentEncoding =
+        response.headers.value(HttpHeaders.contentEncodingHeader);
+    if (contentEncoding != null) {
+      compressed = ["gzip", 'deflate', 'compress'].contains(contentEncoding);
+    }
+    if (lengthHeader == HttpHeaders.contentLengthHeader && compressed) {
+      total = -1;
+    } else {
+      total = int.parse(response.headers.value(lengthHeader) ?? "-1");
+    }
+
     stream.listen(
       (data) {
         // Check if cancelled.
@@ -267,7 +366,7 @@ class Dio {
         // Notify progress
         received += data.length;
         if (onProgress != null) {
-          onProgress(received, response.data.contentLength);
+          onProgress(received, total);
         }
       },
       onDone: () {
@@ -283,6 +382,54 @@ class Dio {
       cancelOnError: true,
     );
     return _listenCancelForAsyncTask(cancelToken, future);
+  }
+
+  /**
+   * Download the file and save it in local. The default http method is "GET",
+   * you can custom it by [Options.method].
+   *
+   * [uri]: The file uri.
+   *
+   * [savePath]: The path to save the downloading file later.
+   *
+   * [onProgress]: The callback to listen downloading progress.
+   * please refer to [OnDownloadProgress].
+   *
+   * [lengthHeader] : The real size of original file (not compressed).
+   * When file is compressed:
+   * 1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
+   * 2. If this value is not 'content-length', maybe a custom header indicates the original
+   * file size , the `total` argument of `onProgress` will be this header value.
+   *
+   * you can also disable the compression by specifying the 'accept-encoding' header value as '*'
+   * to assure the value of `total` argument of `onProgress` is not -1. for example:
+   *
+   *    await dio.download(url, "./example/flutter.svg",
+   *    options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+   *    onProgress: (received, total) {
+   *      if (total != -1) {
+   *       print((received / total * 100).toStringAsFixed(0) + "%");
+   *      }
+   *    });
+   */
+  Future<Response> downloadUri(
+    Uri uri,
+    savePath, {
+    OnDownloadProgress onProgress,
+    CancelToken cancelToken,
+    lengthHeader: HttpHeaders.contentLengthHeader,
+    data,
+    Options options,
+  }) {
+    return download(
+      uri.toString(),
+      savePath,
+      onProgress: onProgress,
+      lengthHeader: lengthHeader,
+      cancelToken: cancelToken,
+      data: data,
+      options: options,
+    );
   }
 
   /**
@@ -314,6 +461,27 @@ class Dio {
         onUploadProgress: onUploadProgress);
   }
 
+  /**
+   * Make http request with options.
+   *
+   * [uri] The uri.
+   * [data] The request data
+   * [options] The request options.
+   */
+  Future<Response<T>> requestUri<T>(
+    Uri uri, {
+    data,
+    CancelToken cancelToken,
+    Options options,
+    OnUploadProgress onUploadProgress,
+  }) {
+    return request(uri.toString(),
+        data: data,
+        cancelToken: cancelToken,
+        options: options,
+        onUploadProgress: onUploadProgress);
+  }
+
   HttpClient _configHttpClient(HttpClient httpClient,
       [bool isDefault = false]) {
     httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
@@ -333,7 +501,6 @@ class Dio {
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptor.request, () {
       _mergeOptions(options);
-      options.data = data ?? options.data;
       options.path = path;
       // If user provide a request interceptor, enter the interceptor.
       InterceptorCallback preSend = interceptor.request.onSend;
@@ -515,27 +682,26 @@ class Dio {
       [OnUploadProgress onUploadProgress]) async {
     var data = options.data;
     List<int> bytes;
-    if (data != null) {
-      if (["POST", "PUT", "PATCH"].contains(options.method)) {
-        // Handle the FormData
-        if (data is FormData) {
-          request.headers.set(HttpHeaders.contentTypeHeader,
-              'multipart/form-data; boundary=${data.boundary.substring(2)}');
-          bytes = data.bytes();
+    if (data != null && ["POST", "PUT", "PATCH"].contains(options.method)) {
+      // Handle the FormData
+      if (data is FormData) {
+        request.headers.set(HttpHeaders.contentTypeHeader,
+            'multipart/form-data; boundary=${data.boundary.substring(2)}');
+        bytes = data.bytes();
+      } else {
+        options.headers[HttpHeaders.contentTypeHeader] =
+            options.contentType.toString();
+        // If Byte Array
+        if (data is List<int>) {
+          bytes = data;
         } else {
-          options.headers[HttpHeaders.contentTypeHeader] =
-              options.contentType.toString();
-          // If Byte Array
-          if (options.data is List<int>) {
-            bytes = options.data;
-          } else {
-            // Call request transformer.
-            String _data = await transformer.transformRequest(options);
-            // Convert to utf8
-            bytes = utf8.encode(_data);
-          }
+          // Call request transformer.
+          String _data = await transformer.transformRequest(options);
+          // Convert to utf8
+          bytes = utf8.encode(_data);
         }
       }
+
       // Must set the content-length
       request.contentLength = bytes.length;
       _setHeaders(options, request);
