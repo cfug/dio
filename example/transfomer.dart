@@ -10,7 +10,7 @@ import 'package:dio/dio.dart';
 class MyTransformer extends DefaultTransformer {
 
   @override
-  Future<String> transformRequest(Options options) async {
+  Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List) {
       throw new DioError(message: "Can't send List to sever directly");
     } else {
@@ -22,7 +22,7 @@ class MyTransformer extends DefaultTransformer {
   /// info to [Options.extra], and you can retrieve it in [ResponseInterceptor]
   /// and [Response] with `response.request.extra["cookies"]`.
   @override
-  Future transformResponse(Options options, HttpClientResponse response) async {
+  Future transformResponse(RequestOptions options, HttpClientResponse response) async {
     options.extra["cookies"] = response.cookies;
     return super.transformResponse(options, response);
   }

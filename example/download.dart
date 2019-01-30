@@ -13,19 +13,19 @@ main() async {
   // var url = "http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg";
 
   // This is a image, about 4KB
-  var url="https://flutter.io/images/flutter-mark-square-100.png";
-  //var url="https://cdn.pixabay.com/photo/2018/09/03/23/56/sea-3652697_640.jpg?attachment";
+  //var url = "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
+  var url="https://github.com/wendux/tt";
   try {
     Response response=await dio.download(url,
-      "./example/flutter.png",
-      // Listen the download progress.
+      "./example/flutter.svg",
       onProgress: (received, total) {
         print((received / total * 100).toStringAsFixed(0) + "%");
-      }
+      },
+      options: Options(receiveDataWhenStatusError: false)
     );
     print(response.statusCode);
-  } catch (e) {
-    print(e);
+  } on DioError catch (e) {
+    print(e.response.data);
   }
   print("download succeed!");
 }

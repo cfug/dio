@@ -7,7 +7,7 @@ class CacheInterceptor extends Interceptor {
   var _cache = new Map<Uri, Response>();
 
   @override
-  onRequest(Options options) {
+  onRequest(RequestOptions options) {
     Response response = _cache[options.uri];
     if (options.extra["refresh"] == true) {
       print("${options.uri}: force refresh, ignore cache! \n");

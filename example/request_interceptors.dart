@@ -4,7 +4,7 @@ main() async {
   Dio dio = new Dio();
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   dio.interceptors.add(InterceptorsWrapper(
-    onRequest: (Options options){
+    onRequest: (RequestOptions options){
       switch (options.path) {
         case "/fakepath1":
           return dio.resolve("fake data");

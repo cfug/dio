@@ -9,7 +9,6 @@ import 'interceptor.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 
 /// Callback to listen the file downloading progress.
 ///
@@ -35,9 +34,9 @@ typedef dynamic OnHttpClientCreate(HttpClient client);
 class Dio {
   /// Create Dio instance with default [Options].
   /// It's mostly just one Dio instance in your application.
-  Dio([GlobalOptions options]) {
+  Dio([BaseOptions options]) {
     if (options == null) {
-      options = new GlobalOptions();
+      options = new BaseOptions();
     }
     this.options = options;
   }
@@ -46,11 +45,7 @@ class Dio {
   static const version = "0.0.4";
 
   /// Default Request config. More see [Options] .
-  GlobalOptions options;
-
-  /// Cookie manager for http requests。Learn more details about
-  /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
-  CookieJar cookieJar = new CookieJar();
+  BaseOptions options;
 
   /// [Dio] will create new HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
@@ -74,12 +69,18 @@ class Dio {
   Transformer transformer = new DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
-  Future<Response<T>> get<T>(String path,
-      {data, Options options, CancelToken cancelToken}) {
-    return request<T>(path,
-        data: data,
-        options: _checkOptions("GET", options),
-        cancelToken: cancelToken);
+  Future<Response<T>> get<T>(
+    String path, {
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return request<T>(
+      path,
+      queryParameters: queryParameters,
+      options: _checkOptions("GET", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Handy method to make http GET request, which is a alias of [Dio.request].
@@ -307,13 +308,27 @@ class Dio {
     httpClient = _configHttpClient(httpClient);
 
     // Receive data with stream.
-    options.responseType = ResponseType.STREAM;
-
-    Response<HttpClientResponse> response = await _request(urlPath,
+    options.responseType = ResponseType.stream;
+    Response<HttpClientResponse> response;
+    try {
+      response = await _request(
+        urlPath,
         data: data,
         options: options,
         cancelToken: cancelToken,
-        httpClient: httpClient);
+        httpClient: httpClient,
+      );
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.RESPONSE &&
+          options.receiveDataWhenStatusError) {
+        var res = await transformer.transformResponse(
+          e.response.request.merge(responseType: ResponseType.json),
+          e.response.data,
+        );
+        e.response.data = res;
+      }
+      rethrow;
+    }
 
     File file = new File(savePath);
 
@@ -335,7 +350,7 @@ class Dio {
         new Duration(milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
           sink.addError(new DioError(
-              request: options,
+              request: response.request,
               message: "Receiving data timeout[${options.receiveTimeout}ms]",
               type: DioErrorType.RECEIVE_TIMEOUT));
           sink.close();
@@ -444,6 +459,7 @@ class Dio {
   Future<Response<T>> request<T>(
     String path, {
     data,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     CancelToken cancelToken,
     Options options,
     OnUploadProgress onUploadProgress,
@@ -457,6 +473,7 @@ class Dio {
     }
     return _request<T>(path,
         data: data,
+        queryParameters: queryParameters,
         cancelToken: cancelToken,
         options: options,
         httpClient: httpClient,
@@ -503,40 +520,39 @@ class Dio {
 
   Future _executeInterceptors<T>(T ob, f(Interceptor inter, T ob)) async {
     for (var inter in interceptors) {
-      try {
-        var res = await _assureFuture(f(inter, ob));
-        if (res != null) {
-          if (res is T) {
-            ob = res;
-            continue;
-          }
-          if (res is Response || res is DioError) return res;
-          return res;
+      var res = await _assureFuture(f(inter, ob));
+      if (res != null) {
+        if (res is T) {
+          ob = res;
+          continue;
         }
-      } catch (e) {
-        return e;
+        if (res is Response || res is DioError) return res;
+        return res;
       }
     }
     return ob;
   }
 
-  Future<Response<T>> _request<T>(String path,
-      {data,
-      CancelToken cancelToken,
-      Options options,
-      HttpClient httpClient,
-      OnUploadProgress onUploadProgress}) async {
-    options.path = path;
-    _mergeOptions(options);
+  Future<Response<T>> _request<T>(
+    String path, {
+    data,
+    Map<String, dynamic> queryParameters,
+    CancelToken cancelToken,
+    Options options,
+    HttpClient httpClient,
+    OnUploadProgress onUploadProgress,
+  }) async {
+    RequestOptions requestOptions =
+        _mergeOptions(options, path, data, queryParameters);
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptors.requestLock, () {
-      Future ret = _executeInterceptors<Options>(
-          options, (Interceptor inter, ob) => inter.onRequest(ob));
+      Future ret = _executeInterceptors<RequestOptions>(
+          requestOptions, (Interceptor inter, ob) => inter.onRequest(ob));
       return ret.then<Response<T>>((data) {
         FutureOr<Response<T>> response;
         // If the Future value type is Options, continue the network request.
-        if (data is Options) {
-          options.method = data.method.toUpperCase();
+        if (data is RequestOptions) {
+          requestOptions.method = data.method.toUpperCase();
           response =
               _makeRequest<T>(data, cancelToken, httpClient, onUploadProgress);
         } else {
@@ -558,23 +574,9 @@ class Dio {
     });
   }
 
-  Uri _makeFullPath(Options options) {
-    // Normalize the url.
-    String url = options.path;
-    if (!url.startsWith(new RegExp(r"https?:"))) {
-      url = options.baseUrl + url;
-      List<String> s = url.split(":/");
-      url = s[0] + ':/' + s[1].replaceAll("//", "/");
-    }
-    options.method = options.method.toUpperCase();
-    if (options.method == "GET" && options.data is Map) {
-      url += (url.contains("?") ? "&" : "?") +
-          Transformer.urlEncodeMap(options.data);
-    }
-    return Uri.parse(url).normalizePath();
-  }
 
-  Future<Response<T>> _makeRequest<T>(Options options, CancelToken cancelToken,
+  Future<Response<T>> _makeRequest<T>(
+      RequestOptions options, CancelToken cancelToken,
       [HttpClient httpClient, OnUploadProgress onUploadProgress]) async {
     _checkCancelled(cancelToken);
     HttpClientResponse response;
@@ -599,7 +601,6 @@ class Dio {
         );
       }
       request.followRedirects = options.followRedirects;
-      request.cookies.addAll(options.cookies);
 
       try {
         if (options.method != "GET") {
@@ -615,20 +616,20 @@ class Dio {
       }
 
       response = await _listenCancelForAsyncTask(cancelToken, request.close());
-      cookieJar.saveFromResponse(options.uri, response.cookies);
-
-      var retData = await _listenCancelForAsyncTask(
-          cancelToken, transformer.transformResponse(options, response));
-
       Response ret = new Response(
-          data: retData,
           headers: response.headers,
           request: options,
           statusCode: response.statusCode);
-
       Future future;
+      bool statusOk = options.validateStatus(response.statusCode);
+      if (statusOk || options.receiveDataWhenStatusError) {
+        ret.data = await _listenCancelForAsyncTask(
+            cancelToken, transformer.transformResponse(options, response));
+      } else {
+        response.drain();
+      }
       _checkCancelled(cancelToken);
-      if (options.validateStatus(response.statusCode)) {
+      if (statusOk) {
         future = _onResponse<T>(ret);
       } else {
         var err = new DioError(
@@ -636,7 +637,7 @@ class Dio {
           message: 'Http status error [${response.statusCode}]',
           type: DioErrorType.RESPONSE,
         );
-        future = _onError(err);
+        future = _onError<T>(err);
       }
       return _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
@@ -649,7 +650,7 @@ class Dio {
         _checkCancelled(cancelToken);
         // Listen in error interceptor.
         return _listenCancelForAsyncTask<Response<T>>(
-            cancelToken, _onError(err));
+            cancelToken, _onError<T>(err));
       }
     }
   }
@@ -678,7 +679,7 @@ class Dio {
     }
   }
 
-  _transformData(Options options, HttpClientRequest request,
+  _transformData(RequestOptions options, HttpClientRequest request,
       [OnUploadProgress onUploadProgress]) async {
     var data = options.data;
     List<int> bytes;
@@ -762,22 +763,28 @@ class Dio {
     });
   }
 
-  void _mergeOptions(Options opt) {
-    opt.method ??= options.method ?? "GET";
-    opt.method = opt.method.toUpperCase();
-    opt.headers = (new Map.from(options.headers))..addAll(opt.headers);
-    opt.baseUrl ??= options.baseUrl ?? "";
-    opt.connectTimeout ??= options.connectTimeout ?? 0;
-    opt.receiveTimeout ??= options.receiveTimeout ?? 0;
-    opt.responseType ??= options.responseType ?? ResponseType.JSON;
-    opt.extra = (new Map.from(options.extra))..addAll(opt.extra);
-    opt.contentType ??= options.contentType ?? ContentType.json;
-    opt.validateStatus ??= options.validateStatus ??
-        (int status) => status >= 200 && status < 300 || status == 304;
-    opt.followRedirects ??= options.followRedirects ?? true;
-    opt.uri = _makeFullPath(opt);
-    var cookies = cookieJar?.loadForRequest(opt.uri);
-    opt.cookies=new List.from(options.cookies??[])..addAll(cookies??[]);
+  RequestOptions _mergeOptions(
+      Options opt, String url, data, Map<String, dynamic> queryParameters) {
+    var query= (new Map<String,dynamic>.from(options.queryParameters??{}))
+      ..addAll(queryParameters??{});
+    return RequestOptions(
+      method: opt.method.toUpperCase(),
+      headers: (new Map.from(options.headers))..addAll(opt.headers),
+      baseUrl: options.baseUrl ?? "",
+      path: url,
+      connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
+      receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
+      responseType:
+          opt.responseType ?? options.responseType ?? ResponseType.json,
+      extra: (new Map.from(options.extra))..addAll(opt.extra),
+      contentType: opt.contentType ?? options.contentType ?? ContentType.json,
+      validateStatus: opt.validateStatus ??
+          options.validateStatus ??
+          (int status) => status >= 200 && status < 300 || status == 304,
+      followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
+      queryParameters: query,
+      cookies: new List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
+    );
   }
 
   Options _checkOptions(method, options) {
@@ -825,7 +832,7 @@ class Dio {
     return response;
   }
 
-  void _setHeaders(Options options, HttpClientRequest request) {
+  void _setHeaders(RequestOptions options, HttpClientRequest request) {
     options.headers.forEach((k, v) => request.headers.set(k, v));
   }
 }

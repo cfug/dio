@@ -5,7 +5,7 @@ import 'dio_error.dart';
 import 'options.dart';
 import 'response.dart';
 
-typedef InterceptorSendCallback(Options options);
+typedef InterceptorSendCallback(RequestOptions options);
 typedef InterceptorErrorCallback(DioError e);
 typedef InterceptorSuccessCallback(Response e);
 
@@ -81,7 +81,7 @@ class Interceptor {
   /// If you want to reject the request with a error message,
   /// you can return a [DioError] object or return [dio.reject] .
   /// If you want to continue the request, return the [Options] object.
-  onRequest(Options options) => options;
+  onRequest(RequestOptions options) => options;
 
   /// The callback will be executed on success.
   ///
@@ -112,7 +112,7 @@ class InterceptorsWrapper extends Interceptor {
         _onError = onError;
 
   @override
-  onRequest(Options options) {
+  onRequest(RequestOptions options) {
     if(_onRequest!=null) {
       return _onRequest(options);
     }

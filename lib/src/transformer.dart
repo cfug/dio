@@ -19,14 +19,14 @@ abstract class Transformer {
   /// sent to the server, but **after** the [RequestInterceptor].
   ///
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'
-  Future<String> transformRequest(Options options);
+  Future<String> transformRequest(RequestOptions options);
 
   /// `transformResponse` allows changes to the response data  before
   /// it is passed to [ResponseInterceptor].
   ///
   /// **Note**: As an agreement, you must return the [response]
-  /// when the Options.responseType is [ResponseType.STREAM].
-  Future transformResponse(Options options, HttpClientResponse response);
+  /// when the Options.responseType is [ResponseType.stream].
+  Future transformResponse(RequestOptions options, HttpClientResponse response);
 
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
@@ -65,7 +65,7 @@ abstract class Transformer {
 
 class DefaultTransformer extends Transformer {
 
-  Future<String> transformRequest(Options options) async {
+  Future<String> transformRequest(RequestOptions options) async {
     var data = options.data ?? "";
     if (data is! String) {
       if (options.contentType.mimeType == ContentType.json.mimeType) {
@@ -78,9 +78,9 @@ class DefaultTransformer extends Transformer {
   }
 
   /// As an agreement, you must return the [response]
-  /// when the Options.responseType is [ResponseType.STREAM].
-  Future transformResponse(Options options, HttpClientResponse response) async {
-    if (options.responseType == ResponseType.STREAM) {
+  /// when the Options.responseType is [ResponseType.stream].
+  Future transformResponse(RequestOptions options, HttpClientResponse response) async {
+    if (options.responseType == ResponseType.stream) {
       return response;
     }
     // Handle timeout
@@ -100,7 +100,7 @@ class DefaultTransformer extends Transformer {
     String responseBody = await stream.transform(Utf8Decoder(allowMalformed: true)).join();
     if (responseBody != null
         && responseBody.isNotEmpty
-        && options.responseType == ResponseType.JSON
+        && options.responseType == ResponseType.json
         && response.headers.contentType?.mimeType == ContentType.json.mimeType) {
       return json.decode(responseBody);
     }

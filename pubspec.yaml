@@ -8,7 +8,9 @@ environment:
   sdk: '>=1.9.0 <3.0.0'
 
 dependencies:
-  cookie_jar: ^0.0.7
+  #cookie_jar: ^0.0.7
+  cookie_jar:
+    path: ../cookie_jar
 
 dev_dependencies:
   test: ^1.5.1

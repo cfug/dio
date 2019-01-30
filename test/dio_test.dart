@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 class MyTransformer extends DefaultTransformer {
   @override
-  Future<String> transformRequest(Options options) async {
+  Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
       throw new DioError(message: "Can't send List to sever directly");
     } else {
@@ -178,7 +178,7 @@ void main() {
       dio = new Dio();
       dio.options.baseUrl = BASE_URL;
       dio.interceptors.add(InterceptorsWrapper(
-        onRequest:  (Options options) async {
+        onRequest:  (RequestOptions options) async {
           switch (options.path) {
             case "/fakepath1":
               return dio.resolve("fake data");
@@ -299,7 +299,7 @@ void main() {
       dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
       tokenDio.options = dio.options;
       dio.interceptors.add(InterceptorsWrapper(
-        onRequest: (Options options) {
+        onRequest: (RequestOptions options) {
           print('send request：path:${options.path}，baseURL:${options.baseUrl}');
           if (csrfToken == null) {
             print("no token，request token firstly...");
