@@ -33,7 +33,7 @@ class DioError extends Error {
       this.stackTrace});
 
   /// Request info.
-  Options request;
+  RequestOptions request;
 
   /// Response info, it may be `null` if the request can't reach to
   /// the http server, for example, occurring a dns error, network is not available.

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'interceptor.dart';
-import 'options.dart';
-import 'response.dart';
-import 'dio_error.dart';
+import '../interceptor.dart';
+import '../options.dart';
+import '../response.dart';
+import '../dio_error.dart';
 import 'dart:math' as math;
 
 class LogInterceptor extends Interceptor {
@@ -39,7 +39,7 @@ class LogInterceptor extends Interceptor {
       this.logSize: 2048});
 
   @override
-  onRequest(Options options) {
+  onRequest(RequestOptions options) {
     print('*** Request ***');
     printKV('uri', options.uri);
 
@@ -57,8 +57,6 @@ class LogInterceptor extends Interceptor {
       options.headers.forEach((key,v) => stringBuffer.write('\n  $key:$v'));
       printKV('header', stringBuffer.toString());
       stringBuffer.clear();
-      options.cookies.forEach((e) => stringBuffer.write('\n   $e'));
-      printKV('cookie', stringBuffer.toString());
     }
     if (requestBody) printKV('data', options.data);
     print("");

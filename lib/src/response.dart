@@ -15,7 +15,7 @@ class Response<T> {
   HttpHeaders headers;
 
   /// The corresponding request info.
-  Options request;
+  RequestOptions request;
 
   /// Http status code.
   int statusCode;

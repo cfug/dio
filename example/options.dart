@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio(new Options(
+  var dio = new Dio(new BaseOptions(
       baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
       connectTimeout: 5000,
       receiveTimeout: 100000,
@@ -14,7 +14,7 @@ main() async {
       contentType: ContentType.JSON,
       // Transform the response data to a String encoded with UTF8.
       // The default value is [ResponseType.JSON].
-      responseType: ResponseType.PLAIN
+      responseType: ResponseType.plain
   ));
 
   Response<String> response;
@@ -24,7 +24,7 @@ main() async {
 
   Response<Map> responseMap = await dio.get("/test",
     // Transform response data to Json Map
-    options: new Options(responseType: ResponseType.JSON),
+    options: new Options(responseType: ResponseType.json),
   );
   print(responseMap.data);
 
