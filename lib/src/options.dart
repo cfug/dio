@@ -16,76 +16,8 @@ enum ResponseType {
 
 typedef bool ValidateStatus(int status);
 
-class _RequestConfig {
-  _RequestConfig({
-    this.method,
-    this.connectTimeout,
-    this.receiveTimeout,
-    this.extra,
-    this.headers,
-    this.responseType,
-    this.contentType,
-    this.validateStatus,
-    this.cookies,
-    this.receiveDataWhenStatusError: true,
-    this.followRedirects: true,
-  }) {
-    // set the default user-agent with Dio version
-    this.headers = headers ?? {};
-
-    this.extra = extra ?? {};
-  }
-
-  /// Http method.
-  String method;
-
-  /// Http request headers.
-  Map<String, dynamic> headers;
-
-  /// Timeout in milliseconds for opening  url.
-  int connectTimeout;
-
-  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
-  ///
-  ///  Note: This is not the receiving time limitation.
-  int receiveTimeout;
-
-  /// The request Content-Type. The default value is [ContentType.json].
-  /// If you want to encode request body with "application/x-www-form-urlencoded",
-  /// you can set `ContentType.parse("application/x-www-form-urlencoded")`, and [Dio]
-  /// will automatically encode the request body.
-  ContentType contentType;
-
-  /// [responseType] indicates the type of data that the server will respond with
-  /// options which defined in [ResponseType] are `JSON`, `STREAM`, `PLAIN`.
-  ///
-  /// The default value is `JSON`, dio will parse response string to json object automatically
-  /// when the content-type of response is "application/json".
-  ///
-  /// If you want to receive response data with binary bytes, for example,
-  /// downloading a image, use `STREAM`.
-  ///
-  /// If you want to receive the response data with String, use `PLAIN`.
-  ResponseType responseType;
-
-  /// `validateStatus` defines whether the request is successful for a given
-  /// HTTP response status code. If `validateStatus` returns `true` ,
-  /// the request will be perceived as successful; otherwise, considered as failed.
-  ValidateStatus validateStatus;
-
-  bool receiveDataWhenStatusError;
-
-  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
-  Map<String, dynamic> extra;
-
-  /// see [HttpClientRequest.followRedirects]
-  bool followRedirects;
-
-  /// Custom Cookies
-  List<Cookie> cookies;
-}
-
+/// Dio instance request config
+/// `dio.options` is a instance of [BaseOptions]
 class BaseOptions extends _RequestConfig {
   BaseOptions({
     String method,
@@ -154,14 +86,14 @@ class BaseOptions extends _RequestConfig {
 }
 
 /**
- * The Options class describes the http request information and configuration.
+ * Every request can pass an [Options] object which will be merged with [Dio.options]
  */
 class Options extends _RequestConfig {
   Options({
     String method,
     String baseUrl,
-    int connectTimeout,
-    int receiveTimeout,
+    int connectTimeout:0,
+    int receiveTimeout:0,
     Iterable<Cookie> cookies,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
@@ -221,13 +153,13 @@ class Options extends _RequestConfig {
 class RequestOptions extends Options {
   RequestOptions({
     String method,
-    String baseUrl,
     int connectTimeout,
     int receiveTimeout,
     Iterable<Cookie> cookies,
     this.data,
     this.path,
     this.queryParameters,
+    this.baseUrl,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
     ResponseType responseType,
@@ -252,15 +184,16 @@ class RequestOptions extends Options {
 
   /// generate uri
   Uri get uri {
-    String url=path;
-    if (!url.startsWith(new RegExp(r"https?:"))) {
-      List<String> s = url.split(":/");
-      url = s[0] + ':/' + s[1].replaceAll("//", "/");
+    String _url=path;
+    if (!_url.startsWith(new RegExp(r"https?:"))) {
+      _url = baseUrl + _url;
+      List<String> s = _url.split(":/");
+      _url = s[0] + ':/' + s[1].replaceAll("//", "/");
     }
-    url += (url.contains("?") ? "&" : "?") +
+    _url += (_url.contains("?") ? "&" : "?") +
         Uri(queryParameters: queryParameters).query;
     // Normalize the url.
-    return Uri.parse(url).normalizePath();
+    return Uri.parse(_url).normalizePath();
   }
 
   /// Request data, can be any type.
@@ -275,4 +208,77 @@ class RequestOptions extends Options {
 
   /// See [Uri.queryParameters]
   Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+}
+
+/**
+ * The [_RequestConfig] class describes the http request information and configuration.
+ */
+class _RequestConfig {
+  _RequestConfig({
+    this.method,
+    this.connectTimeout,
+    this.receiveTimeout,
+    this.extra,
+    this.headers,
+    this.responseType,
+    this.contentType,
+    this.validateStatus,
+    this.cookies,
+    this.receiveDataWhenStatusError: true,
+    this.followRedirects: true,
+  }) {
+    // set the default user-agent with Dio version
+    this.headers = headers ?? {};
+
+    this.extra = extra ?? {};
+  }
+
+  /// Http method.
+  String method;
+
+  /// Http request headers.
+  Map<String, dynamic> headers;
+
+  /// Timeout in milliseconds for opening  url.
+  int connectTimeout;
+
+  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
+  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
+  ///
+  ///  Note: This is not the receiving time limitation.
+  int receiveTimeout;
+
+  /// The request Content-Type. The default value is [ContentType.json].
+  /// If you want to encode request body with "application/x-www-form-urlencoded",
+  /// you can set `ContentType.parse("application/x-www-form-urlencoded")`, and [Dio]
+  /// will automatically encode the request body.
+  ContentType contentType;
+
+  /// [responseType] indicates the type of data that the server will respond with
+  /// options which defined in [ResponseType] are `JSON`, `STREAM`, `PLAIN`.
+  ///
+  /// The default value is `JSON`, dio will parse response string to json object automatically
+  /// when the content-type of response is "application/json".
+  ///
+  /// If you want to receive response data with binary bytes, for example,
+  /// downloading a image, use `STREAM`.
+  ///
+  /// If you want to receive the response data with String, use `PLAIN`.
+  ResponseType responseType;
+
+  /// `validateStatus` defines whether the request is successful for a given
+  /// HTTP response status code. If `validateStatus` returns `true` ,
+  /// the request will be perceived as successful; otherwise, considered as failed.
+  ValidateStatus validateStatus;
+
+  bool receiveDataWhenStatusError;
+
+  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
+  Map<String, dynamic> extra;
+
+  /// see [HttpClientRequest.followRedirects]
+  bool followRedirects;
+
+  /// Custom Cookies
+  List<Cookie> cookies;
 }
