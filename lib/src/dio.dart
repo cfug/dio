@@ -44,7 +44,7 @@ class Dio {
   /// The Dio version.
   static const version = "0.0.4";
 
-  /// Default Request config. More see [Options] .
+  /// Default Request config. More see [BaseOptions] .
   BaseOptions options;
 
   /// [Dio] will create new HttpClient when it is needed.
@@ -299,7 +299,7 @@ class Dio {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
     // response stream.
     if (options != null) {
-      options.method ?? "GET";
+      options.method=options.method ?? "GET";
     } else {
       options = _checkOptions("GET", options);
     }
