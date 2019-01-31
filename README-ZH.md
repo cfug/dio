@@ -1,6 +1,6 @@
 
 
-文档语言: [English](https://github.com/flutterchina/dio) | [中文简体](https://github.com/flutterchina/dio/blob/flutter/README-ZH.md)
+文档语言: [English](https://github.com/flutterchina/dio) | [中文简体](README-ZH.md)
 
 # dio
 
@@ -14,7 +14,7 @@ dependencies:
   dio: ^2.0.x  // 请使用pub上2.0分支的最新版本
 ```
 
-如果您是1.0的用户，可以参照此文档升级到2.0，详情请查看 Change log 。
+如果您是1.0的用户，可以参照此文档升级到2.0，详情请查看 [Change log](https://github.com/flutterchina/dio/blob/master/CHANGELOG.md) 。
 
 ## 一个极简的示例
 
@@ -33,7 +33,21 @@ void getHttp() async {
 
 ## 内容列表
 
-[TOC]
+- [示例](#示例)
+- [Dio APIs](#dio-apis)
+- [请求配置](#请求配置)
+- [响应数据](#响应数据)
+- [拦截器](#拦截器)
+- [Cookie管理](#cookie管理)
+- [错误处理](#错误处理)
+- [使用application/x-www-form-urlencoded编码](#使用applicationx-www-form-urlencoded编码)
+- [FormData](#formdata)
+- [转换器](#转换器)
+- [HttpClientAdapter](#httpclientadapter )
+- [设置Http代理](#设置Http代理)
+- [Https证书校验](#Https证书校验)
+- [请求取消](#请求取消)
+- [Features and bugs](#features-and-bugs)
 
 
 ## 示例
@@ -109,7 +123,7 @@ response = await dio.post(
 );
 ```
 
-…你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/flutter/example).
+…你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/master/example).
 
 ## Dio APIs
 
@@ -224,7 +238,7 @@ Dio实例的核心API是 :
 }
 ```
 
-这里有一个完成的[示例](https://github.com/flutterchina/dio/blob/flutter/example/options.dart).
+这里有一个完成的[示例](https://github.com/flutterchina/dio/blob/master/example/options.dart).
 
 ## 响应数据
 
@@ -375,7 +389,7 @@ dio.interceptors.add(InterceptorsWrapper(
 ));
 ```
 
-完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/flutter/example/interceptorLock.dart).
+完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/master/example/interceptor_lock.dart).
 
 ### 日志
 
@@ -484,7 +498,7 @@ dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")));
 ```
 
-这里有一个[示例](https://github.com/flutterchina/dio/blob/flutter/example/options.dart).
+这里有一个[示例](https://github.com/flutterchina/dio/blob/6de8289ea71b0b7803654caaa2e9d3d47a588ab7/example/options.dart#L41).
 
 ## FormData
 
@@ -501,7 +515,7 @@ response = await dio.post("/info", data: formData);
 
 > 注意: 只有 post 方法支持发送 FormData.
 
-这里有一个完整的[示例](https://github.com/flutterchina/dio/blob/flutter/example/formdata.dart).
+这里有一个完整的[示例](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
 
 ## 转换器
 
@@ -515,7 +529,7 @@ response = await dio.post("/info", data: formData);
 
 *请求拦截器* >> *请求转换器* >> *发起请求*  >> *响应转换器*  >> *响应拦截器*  >> *最终结果*。
 
-这是一个自定义转换器的[示例](https://github.com/wendux/dio/blob/flutter/example/Transformer.dart).
+这是一个自定义转换器的[示例](https://github.com/flutterchina/dio/blob/master/example/transfomer.dart).
 
 ## HttpClientAdapter
 
@@ -541,7 +555,7 @@ Dio 使用`DefaultHttpClientAdapter`作为其默认HttpClientAdapter，`DefaultH
 };
 ```
 
-完整的示例请查看[这里](https://github.com/wendux/dio/tree/flutter/example/proxy.dart).
+完整的示例请查看[这里](https://github.com/flutterchina/dio/blob/master/example/proxy.dart).
 
 ### Https证书校验
 
@@ -595,7 +609,7 @@ token.cancel("cancelled");
 
 > 注意: 同一个cancel token 可以用于多个请求，当一个cancel token取消时，所有使用该cancel token的请求都会被取消。
 
-完整的示例请参考[取消示例](https://github.com/flutterchina/dio/blob/flutter/example/cancelRequest.dart).
+完整的示例请参考[取消示例](https://github.com/flutterchina/dio/blob/master/example/cancel_request.dart).
 
 
 
@@ -613,3 +627,9 @@ token.cancel("cancelled");
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/flutterchina/dio
+
+## 支持
+
+觉得对有帮助，请作者喝杯咖啡 (微信)：
+
+![](https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0.3/docs/imgs/pay.jpeg)

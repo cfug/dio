@@ -1,4 +1,4 @@
-Language: [English](https://github.com/flutterchina/dio) | [中文简体](https://github.com/flutterchina/dio/blob/flutter/README-ZH.md)
+Language: [English](README.md) | [中文简体](README-ZH.md)
 
 # dio
 
@@ -13,9 +13,9 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: x.x.x  #latest version
+  dio: 2.0.x  #latest version
 ```
-
+If you are using 1.0.x , this doc can help you upgrade to 2.0.x.  [Change log](https://github.com/flutterchina/dio/blob/master/CHANGELOG.md) 
 ## Super simple to use
 
 ```dart
@@ -43,6 +43,8 @@ void getHttp() async {
 
 - [Interceptors](#interceptors)
 
+- [Cookie Manager](#cookie-manager)
+
 - [Handling Errors](#handling-errors)
 
 - [Using application/x-www-form-urlencoded format](#using-application/x-www-form-urlencoded-format)
@@ -57,7 +59,7 @@ void getHttp() async {
 
 - [Cancellation](#cancellation)
 
-- [Cookie Manager](#cookie-manager)
+- [HttpClientAdapter](#httpclientadapter )
 
 - [Features and bugs](#features-and-bugs)
 
@@ -135,7 +137,7 @@ response = await dio.post(
 );
 ```
 
-…you can find all examples code [here](https://github.com/flutterchina/dio/tree/flutter/example).
+…you can find all examples code [here](https://github.com/flutterchina/dio/tree/master/example).
 
 ## Dio APIs
 
@@ -254,7 +256,7 @@ The Options class describes the http request information and configuration. Each
 }
 ```
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/options.dart).
 
 ## Response Schema
 
@@ -402,7 +404,7 @@ dio.interceptors.add(InterceptorsWrapper(
 ));
 ```
 
-For complete codes click [here](https://github.com/flutterchina/dio/tree/1.1.x/example/interceptorLock.dart).
+For complete codes click [here](https://github.com/flutterchina/dio/blob/master/example/interceptor_lock.dart).
 
 ### Log
 
@@ -511,7 +513,7 @@ dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
 dio.post("/info",data:{"id":5}, options: new Options(contentType:ContentType.parse("application/x-www-form-urlencoded")));
 ```
 
-There is an example [here](https://github.com/flutterchina/dio/tree/flutter/example/options.dart).
+There is an example [here](https://github.com/flutterchina/dio/blob/6de8289ea71b0b7803654caaa2e9d3d47a588ab7/example/options.dart#L41).
 
 ## Sending FormData
 
@@ -528,15 +530,15 @@ response = await dio.post("/info", data: formData);
 
 > Note: Just the post method suppots FormData.
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/formdata.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
 
 ## Transformer
 
 `Transformer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `Transformer`. If you want to customize the transformation of request/response data, you can provide a `Transformer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
 
-There is an example for [customizing Transformer](https://github.com/flutterchina/dio/blob/flutter/example/Transformer.dart).
+There is an example for [customizing Transformer](https://github.com/flutterchina/dio/blob/master/example/transfomer.dart).
 
-## Adapter 
+## HttpClientAdapter 
 
 HttpClientAdapter is a bridge between Dio and HttpClient.
 
@@ -568,7 +570,7 @@ dio.httpClientAdapter = new DefaultHttpClientAdapter();
 };
 ```
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/proxy.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/proxy.dart).
 
 ### Https certificate verification
 
@@ -613,7 +615,7 @@ dio.get(url2, cancelToken: token);
 token.cancel("cancelled");
 ```
 
-There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/cancelRequest.dart).
+There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/cancel_request.dart).
 
 ## Copyright & License
 
