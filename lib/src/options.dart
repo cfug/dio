@@ -16,7 +16,7 @@ enum ResponseType {
 
 typedef bool ValidateStatus(int status);
 
-/// Dio instance request config
+/// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
 class BaseOptions extends _RequestConfig {
   BaseOptions({
@@ -82,6 +82,7 @@ class BaseOptions extends _RequestConfig {
   /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
   String baseUrl;
 
+  /// Common query parameters
   Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
 }
 
@@ -279,6 +280,6 @@ class _RequestConfig {
   /// see [HttpClientRequest.followRedirects]
   bool followRedirects;
 
-  /// Custom Cookies
+  /// Custom Cookies for every request
   List<Cookie> cookies;
 }

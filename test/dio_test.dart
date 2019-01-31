@@ -17,8 +17,8 @@ class MyTransformer extends DefaultTransformer {
   /// info to [Options.extra], and you can retrieve it in [ResponseInterceptor]
   /// and [Response] with `response.request.extra["cookies"]`.
   @override
-  Future transformResponse(Options options, HttpClientResponse response) async {
-    options.extra["cookies"] = response.cookies;
+  Future transformResponse(RequestOptions options,  ResponseBody response) async {
+    options.extra["xx"] = "extra";
     return super.transformResponse(options, response);
   }
 }
@@ -41,7 +41,7 @@ void main() {
     });
     test('test', () async {
       Response response;
-      response = await dio.get("/test");
+      response = await dio.get("/test", queryParameters: {"id": '12', "name": "wendu"});
       expect(response.data["errCode"], 0);
       response = await dio.post("/test");
       expect(response.data["errCode"], 0);
@@ -146,15 +146,19 @@ void main() {
   group('transfomer', () {
     test("test", () async {
       var dio = new Dio();
+      dio.options.baseUrl="http://www.dtworkroom.com/doris/1/2.0.0";
       dio.transformer = new MyTransformer();
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
       try {
-        var r = await dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test",
+        var r = await dio.post("/test",
             data: ["1", "2"]);
       } catch (e) {
         expect(e.message, "Can't send List to sever directly");
       }
+      dio.get("/test").then((r){
+        expect(r.request.extra["xx"], "extra");
+      });
       var data = {
         "a": "你好",
         "b": [5, "6"],
