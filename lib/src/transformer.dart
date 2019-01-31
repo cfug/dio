@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dio_error.dart';
 import 'options.dart';
+import 'adapter.dart';
 
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
@@ -26,7 +27,7 @@ abstract class Transformer {
   ///
   /// **Note**: As an agreement, you must return the [response]
   /// when the Options.responseType is [ResponseType.stream].
-  Future transformResponse(RequestOptions options, HttpClientResponse response);
+  Future transformResponse(RequestOptions options, ResponseBody response);
 
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
@@ -79,12 +80,12 @@ class DefaultTransformer extends Transformer {
 
   /// As an agreement, you must return the [response]
   /// when the Options.responseType is [ResponseType.stream].
-  Future transformResponse(RequestOptions options, HttpClientResponse response) async {
+  Future transformResponse(RequestOptions options, ResponseBody response) async {
     if (options.responseType == ResponseType.stream) {
       return response;
     }
     // Handle timeout
-    Stream<List<int>> stream = response;
+    Stream<List<int>> stream = response.stream;
     if (options.receiveTimeout > 0) {
       stream = stream.timeout(
           new Duration(milliseconds: options.receiveTimeout),

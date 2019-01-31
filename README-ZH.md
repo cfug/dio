@@ -5,14 +5,16 @@
 # dio
 
 
-dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截器、请求取消、Cookie管理、文件上传/下载、超时等...
+dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截器、请求取消、Cookie管理、文件上传/下载、超时、自定义适配器等...
 
-### 添加依赖
+## 添加依赖
 
 ```yaml
 dependencies:
-  dio: ^x.x.x  // 请使用pub上的最新版本
+  dio: ^2.0.x  // 请使用pub上2.0分支的最新版本
 ```
+
+如果您是1.0的用户，可以参照此文档升级到2.0，详情请查看 Change log 。
 
 ## 一个极简的示例
 
@@ -31,21 +33,7 @@ void getHttp() async {
 
 ## 内容列表
 
-- [示例](#示例)
-- [Dio APIs](#dio-apis)
-- [请求配置](#请求配置)
-- [响应数据](#响应数据)
-- [拦截器](#拦截器)
-- [错误处理](#错误处理)
-- [使用application/x-www-form-urlencoded编码](#使用applicationx-www-form-urlencoded编码)
-- [FormData](#formdata)
-- [转换器](#转换器)
-- [设置Http代理](#设置Http代理)
-- [Https证书校验](#Https证书校验)
-- [请求取消](#请求取消)
-- [Cookie管理](#cookie管理)
-- [Features and bugs](#features-and-bugs)
-
+[TOC]
 
 
 ## 示例
@@ -53,31 +41,31 @@ void getHttp() async {
 发起一个 `GET` 请求 :
 
 ```dart
-  Response response;
-  Dio dio = new Dio();
-  response = await dio.get("/test?id=12&name=wendu")
-  print(response.data.toString());
+Response response;
+Dio dio = new Dio();
+response = await dio.get("/test?id=12&name=wendu")
+print(response.data.toString());
 // 请求参数也可以通过对象传递，上面的代码等同于：
-  response = await dio.get("/test", data: {"id": 12, "name": "wendu"});
-  print(response.data.toString());
+response = await dio.get("/test", queryParameters: {"id": '12', "name": "wendu"});
+print(response.data.toString());
 ```
 
 发起一个 `POST` 请求:
 
 ```dart
-  response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
+response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
 ```
 
 发起多个并发请求:
 
 ```dart
-  response = await Future.wait([dio.post("/info"), dio.get("/token")]);
+response = await Future.wait([dio.post("/info"), dio.get("/token")]);
 ```
 
 下载文件:
 
 ```dart
-  response = await dio.download("https://www.google.com/", "./xx.html");
+response = await dio.download("https://www.google.com/", "./xx.html");
 ```
 
 发送 FormData:
@@ -87,13 +75,13 @@ FormData formData = new FormData.from({
     "name": "wendux",
     "age": 25,
   });
-  response = await dio.post("/info", data: formData);
+response = await dio.post("/info", data: formData);
 ```
 
 通过FormData上传多个文件:
 
 ```dart
-  FormData formData = new FormData.from({
+FormData formData = new FormData.from({
     "name": "wendux",
     "age": 25,
     "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
@@ -102,11 +90,11 @@ FormData formData = new FormData.from({
         utf8.encode("hello world"), "word.txt"),
     // 支持文件数组上传
     "files": [
-      new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
-      new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
+        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
-  });
-  response = await dio.post("/info", data: formData);
+});
+response = await dio.post("/info", data: formData);
 ```
 
 监听发送(上传)数据进度:
@@ -127,53 +115,56 @@ response = await dio.post(
 
 ### 创建一个Dio实例，并配置它
 
-你可以使用默认配置或传递一个可选 `Options`参数来创建一个Dio实例 :
+你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个Dio实例 :
 
 ```dart
 Dio dio = new Dio; // 使用默认配置
 
 // 配置dio实例
-  dio.options.baseUrl = "https://www.xx.com/api";
-  dio.options.connectTimeout = 5000; //5s
-  dio.options.receiveTimeout = 3000;
+dio.options.baseUrl = "https://www.xx.com/api";
+dio.options.connectTimeout = 5000; //5s
+dio.options.receiveTimeout = 3000;
 
 // 或者通过传递一个 `options`来创建dio实例
-  Options options = new Options(
-      baseUrl: "https://www.xx.com/api",
-      connectTimeout: 5000,
-      receiveTimeout: 3000);
-  Dio dio = new Dio(options);
+Options options = new BaseOptions(
+    baseUrl: "https://www.xx.com/api",
+    connectTimeout: 5000,
+    receiveTimeout: 3000,
+);
+Dio dio = new Dio(options);
 ```
 
 Dio实例的核心API是 :
 
-**Future<Response> request(String path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken})**
 
 ```dart
   response = await request(
-      "/test", data: {"id": 12, "name": "xx"}, new Options(method: "GET"));
+      "/test",
+      data: {"id": 12, "name": "xx"},
+      new Options(method: "GET"),
+  );
 ```
 
 ### 请求方法别名
 
 为了方便使用，Dio提供了一些其它的Restful API, 这些API都是`request`的别名。
 
-**Future<Response> get(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> get(...)** 
 
-**Future<Response> post(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> post(...)** 
 
-**Future<Response> put(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> put(...)** 
 
-**Future<Response> delete(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> delete(...)**
 
-**Future<Response> head(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> head(...)** 
 
-**Future<Response> put(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> put(...)** 
 
-**Future<Response> path(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> path(...)** 
 
-**Future<Response> download(String urlPath, savePath,**
-​    **{OnDownloadProgress onProgress, data, bool flush: false, Options options,CancelToken cancelToken})**
+**Future<Response> download(...)** 
 
 
 ## 请求配置
@@ -227,6 +218,9 @@ Dio实例的核心API是 :
 
   /// 用户自定义字段，可以在 [Interceptor]、[Transformer] 和 [Response] 中取到.
   Map<String, dynamic> extra;
+    
+  /// 公共query参数  
+  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
 }
 ```
 
@@ -263,34 +257,29 @@ Dio实例的核心API是 :
 
 ## 拦截器
 
-每一个 Dio 实例都有一个请求拦截器  `RequestInterceptor` 和一个响应拦截器 `ResponseInterceptor`, 通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
+每个 Dio 实例都可以添加任意多个拦截器，通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
 
 ```dart
- dio.interceptor.request.onSend = (Options options){
+ 
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest:(RequestOptions options){
      // 在请求被发送之前做一些事情
      return options; //continue
      // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`对象或返回`dio.resolve(data)`。
      // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义数据data.
      //
      // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象，或返回`dio.reject(errMsg)`，
-     // 这样请求将被中止并触发异常，上层catchError会被调用。
- }
- dio.interceptor.response.onSuccess = (Response response) {
+     // 这样请求将被中止并触发异常，上层catchError会被调用。    
+    },
+    onResponse:(RequestOptions  response) {
      // 在返回响应数据之前做一些预处理
      return response; // continue
- };
- dio.interceptor.response.onError = (DioError e){
-     // 当请求失败时做一些预处理
+    },
+    onError: (DioError e) {
+      // 当请求失败时做一些预处理
      return e;//continue
- }
-```
-
-如果你想移除拦截器，你可以将它们置为null:
-
-```dart
-  dio.interceptor.request.onSend = null;
-  dio.interceptor.response.onSuccess = null;
-  dio.interceptor.response.onError = null;
+    }
+));
 ```
 
 ### 完成和终止请求/响应
@@ -298,11 +287,13 @@ Dio实例的核心API是 :
 在所有拦截器中，你都可以改变请求执行流， 如果你想完成请求/响应并返回自定义数据，你可以返回一个 `Response` 对象或返回 `dio.resolve(data)`的结果。 如果你想终止(触发一个错误，上层`catchError`会被调用)一个请求/响应，那么可以返回一个`DioError` 对象或返回 `dio.reject(errMsg)` 的结果.
 
 ```dart
-  dio.interceptor.request.onSend = (Options options) {
-    return dio.resolve("fake data")
-  }
-  Response response = await dio.get("/test");
-  print(response.data); //"fake data"
+dio.interceptors.add(InterceptorsWrapper(
+  onRequest:(RequestOptions options){
+   return dio.resolve("fake data")    
+  },
+));
+Response response = await dio.get("/test");
+print(response.data);//"fake data"
 ```
 
 ### 拦截器中支持异步任务
@@ -310,13 +301,15 @@ Dio实例的核心API是 :
 拦截器中不仅支持同步任务，而且也支持异步任务, 下面是在请求拦截器中发起异步任务的一个实例:
 
 ```dart
-  dio.interceptor.request.onSend = (Options options) async {
-     //...If no token, request token firstly.
-     Response response = await dio.get("/token");
-     //Set the token to headers
-     options.headers["token"] = response.data["data"]["token"];
-     return options; //continue
- }
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest:(Options options) async{
+        //...If no token, request token firstly.
+        Response response = await dio.get("/token");
+        //Set the token to headers 
+        options.headers["token"] = response.data["data"]["token"];
+        return options; //continue   
+    }
+));
 ```
 
 ### Lock/unlock 拦截器
@@ -324,19 +317,21 @@ Dio实例的核心API是 :
 你可以通过调用拦截器的 `lock()`/`unlock` 方法来锁定/解锁拦截器。一旦请求/响应拦截器被锁定，接下来的请求/响应将会在进入请求/响应拦截器之前排队等待，直到解锁后，这些入队的请求才会继续执行(进入拦截器)。这在一些需要串行化请求/响应的场景中非常实用，后面我们将给出一个示例。
 
 ```dart
-  tokenDio = new Dio(); //Create a new instance to request the token.
-  tokenDio.options = dio;
-  dio.interceptor.request.onSend = (Options options) async {
-    // If no token, request token firstly and lock this interceptor
-    // to prevent other request enter this interceptor.
-    dio.interceptor.request.lock();
-    // We use a new Dio(to avoid dead lock) instance to request token.
-    Response response = await tokenDio.get("/token");
-    //Set the token to headers
-    options.headers["token"] = response.data["data"]["token"];
-    dio.interceptor.request.unlock();
-    return options; //continue
-  }
+tokenDio = new Dio(); //Create a new instance to request the token.
+tokenDio.options = dio;
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest:(Options options) async {
+        // If no token, request token firstly and lock this interceptor
+        // to prevent other request enter this interceptor.
+        dio.interceptors.requestLock.lock();
+        // We use a new Dio(to avoid dead lock) instance to request token.
+        Response response = await tokenDio.get("/token");
+        //Set the token to headers
+        options.headers["token"] = response.data["data"]["token"];
+        dio.interceptors.requestLock.unlock();
+        return options; //continue
+    }
+));
 ```
 
 **Clear()**
@@ -347,37 +342,69 @@ Dio实例的核心API是 :
 
 当**请求**拦截器被锁定时，接下来的请求将会暂停，这等价于锁住了dio实例，因此，Dio示例上提供了**请求**拦截器`lock/unlock`的别名方法：
 
-**dio.lock() ==  dio.interceptor.request.lock()**
+**dio.lock() ==  dio.interceptors.requestLock.lock()**
 
-**dio.unlock() ==  dio.interceptor.request.unlock()**
+**dio.unlock() ==  dio.interceptors.requestLock.unlock()**
 
-**dio.clear() ==  dio.interceptor.request.clear()**
+**dio.clear() ==  dio.interceptors.requestLock.clear()**
 
 ### 示例
 
 假设这么一个场景：出于安全原因，我们需要给所有的请求头中添加一个csrfToken，如果csrfToken不存在，我们先去请求csrfToken，获取到csrfToken后，再发起后续请求。 由于请求csrfToken的过程是异步的，我们需要在请求过程中锁定后续请求（因为它们需要csrfToken), 直到csrfToken请求成功后，再解锁，代码如下：
 
 ```dart
-dio.interceptor.request.onSend = (Options options) {
-    print('send request：path:${options.path}，baseURL:${options.baseUrl}');
-    if (csrfToken == null) {
-      print("no token，request token firstly...");
-      //lock the dio.
-      dio.lock();
-      return tokenDio.get("/token").then((d) {
-        options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
-        print("request token succeed, value: " + d.data['data']['token']);
-        print('continue to perform request：path:${options.path}，baseURL:${options.path}');
-        return options;
-      }).whenComplete(() => dio.unlock()); // unlock the dio
-    } else {
-      options.headers["csrfToken"] = csrfToken;
-      return options;
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest: (Options options) {
+        print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+        if (csrfToken == null) {
+            print("no token，request token firstly...");
+            //lock the dio.
+            dio.lock();
+            return tokenDio.get("/token").then((d) {
+                options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
+                print("request token succeed, value: " + d.data['data']['token']);
+                print(
+                    'continue to perform request：path:${options.path}，baseURL:${options.path}');
+                return options;
+            }).whenComplete(() => dio.unlock()); // unlock the dio
+        } else {
+            options.headers["csrfToken"] = csrfToken;
+            return options;
+        }
     }
-  };
+));
 ```
 
 完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/flutter/example/interceptorLock.dart).
+
+### 日志
+
+我们可以添加  `LogInterceptor` 拦截器来自动打印请求、响应日志, 如:
+
+```dart
+dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
+```
+
+### Cookie管理
+
+我们可以通过添加`CookieManager`拦截器来自动管理请求/响应 cookie。`CookieManager` 依赖 `cookieJar`  package：
+
+> dio cookie 管理 API 是基于开源库 [cookie_jar](https://github.com/flutterchina/cookie_jar).
+
+你可以创建一个`CookieJar` 或 `PersistCookieJar` 来帮您自动管理cookie,  dio 默认使用  `CookieJar` , 它会将cookie保存在内存中。 如果您想对cookie进行持久化,  请使用 `PersistCookieJar` ,  示例代码如下:
+
+```dart
+var dio = new Dio();
+dio.interceptors.add(CookieManager(CookieJar()))
+```
+
+`PersistCookieJar` 实现了RFC中标准的cookie策略.  `PersistCookieJar` 会将cookie保存在文件中，所以 cookies 会一直存在除非显式调用 `delete` 删除.
+
+更多关于 [cookie_jar](https://github.com/flutterchina/)  请参考 : https://github.com/flutterchina/cookie_jar .
+
+### 自定义拦截器
+
+开发者可以通过继承`Interceptor` 类来实现自定义拦截器，这是一个简单的缓存示例拦截器。
 
 ## 错误处理
 
@@ -490,37 +517,46 @@ response = await dio.post("/info", data: formData);
 
 这是一个自定义转换器的[示例](https://github.com/wendux/dio/blob/flutter/example/Transformer.dart).
 
-## 设置Http代理
+## HttpClientAdapter
 
-Dio 是使用 HttpClient发起的http请求，所以你可以通过配置 `httpClient`来支持代理，示例如下：
+HttpClientAdapter是 Dio 和 HttpClient之间的桥梁。2.0抽象出adapter主要是方便切换、定制底层网络库。Dio实现了一套标准的、强大API，而HttpClient则是真正发起Http请求的对象。我们通过HttpClientAdapter将Dio和HttpClient解耦，这样一来便可以自由定制Http请求的底层实现，比如，在Flutter中我们可以通过自定义HttpClientAdapter将Http请求转发到Native中，然后再由Native统一发起请求。再比如，假如有一天OKHttp提供了dart版，你想使用OKHttp发起http请求，那么你便可以通过适配器来无缝切换到OKHttp，而不用改之前的代码。
+
+Dio 使用`DefaultHttpClientAdapter`作为其默认HttpClientAdapter，`DefaultHttpClientAdapter`使用`dart:io:HttpClient` 来发起网络请求。
+
+
+
+### 设置Http代理
+
+`DefaultHttpClientAdapter` 提供了一个`onHttpClientCreate` 回调来设置底层 `HttpClient`的代理，我们想使用代理，可以参考下面代码：
 
 ```dart
-  dio.onHttpClientCreate = (HttpClient client) {
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+    // config the http client  
     client.findProxy = (uri) {
-      //proxy all request to localhost:8888
-      return "PROXY localhost:8888";
+        //proxy all request to localhost:8888
+        return "PROXY localhost:8888";
     };
-    // 你也可以自己创建一个新的HttpClient实例返回。
-    // return new HttpClient(SecurityContext);
-  };
+    // you can also create a new HttpClient to dio
+    // return new HttpClient();  
+};
 ```
 
 完整的示例请查看[这里](https://github.com/wendux/dio/tree/flutter/example/proxy.dart).
 
-## Https证书校验
+### Https证书校验
 
 有两种方法可以校验https证书，假设我们的后台服务使用的是自签名证书，证书格式是PEM格式，我们将证书的内容保存在本地字符串中，那么我们的校验逻辑如下：
 
 ```dart
-  String PEM="XXXXX"; //证书内容
-  dio.onHttpClientCreate = (HttpClient client) {
+String PEM="XXXXX"; // certificate content 
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     client.badCertificateCallback=(X509Certificate cert, String host, int port){
-      if(cert.pem==PEM){ // 证书一致，则放行
-        return true; 
-      }
-      return false;
+        if(cert.pem==PEM){ // Verify the certificate
+            return true; 
+        }
+        return false;
     };
-  };
+};
 ```
 
 `X509Certificate`是证书的标准格式，包含了证书除私钥外所有信息，读者可以自行查阅文档。另外，上面的示例没有校验host，是因为只要服务器返回的证书内容和本地的保存一致就已经能证明是我们的服务器了（而不是中间人），host验证通常是为了防止证书和域名不匹配。
@@ -528,13 +564,13 @@ Dio 是使用 HttpClient发起的http请求，所以你可以通过配置 `httpC
 对于自签名的证书，我们也可以将其添加到本地证书信任链中，这样证书验证时就会自动通过，而不会再走到`badCertificateCallback`回调中：
 
 ```dart
-  dio.onHttpClientCreate = (HttpClient client) {
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     SecurityContext sc = new SecurityContext();
-    //file为证书路径
+    //file is the path of certificate
     sc.setTrustedCertificates(file);
     HttpClient httpClient = new HttpClient(context: sc);
     return httpClient;
-  };
+};
 ```
 
 注意，通过`setTrustedCertificates()`设置的证书格式必须为PEM或PKCS12，如果证书格式为PKCS12，则需将证书密码传入，这样则会在代码中暴露证书密码，所以客户端证书校验不建议使用PKCS12格式的证书。
@@ -561,23 +597,8 @@ token.cancel("cancelled");
 
 完整的示例请参考[取消示例](https://github.com/flutterchina/dio/blob/flutter/example/cancelRequest.dart).
 
-## Cookie管理
-
-你可以通过 `cookieJar` 来自动管理请求/响应cookie.
-
->  dio cookie 管理 API 是基于开源库 [cookie_jar](https://github.com/flutterchina/cookie_jar).
-
-你可以创建一个`CookieJar` 或 `PersistCookieJar` 来帮您自动管理cookie,  dio 默认使用  `CookieJar` , 它会将cookie保存在内存中。 如果您想对cookie进行持久化,  请使用 `PersistCookieJar` ,  示例代码如下:
-
-```dart
-var dio = new Dio();
-dio.cookieJar = new PersistCookieJar("./cookies");
-```
-
-`PersistCookieJar` 实现了RFC中标准的cookie策略.  `PersistCookieJar` 会将cookie保存在文件中，所以 cookies 会一直存在除非显式调用 `delete` 删除.
 
 
-更多关于 [cookie_jar](https://github.com/flutterchina/)  请参考 : https://github.com/flutterchina/cookie_jar .
 
 ## Copyright & License
 

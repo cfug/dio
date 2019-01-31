@@ -68,13 +68,13 @@ void getHttp() async {
 Performing a `GET` request:
 
 ```dart
-  Response response;
-  Dio dio = new Dio();
-  response = await dio.get("/test?id=12&name=wendu")
-  print(response.data.toString());
+Response response;
+Dio dio = new Dio();
+response = await dio.get("/test?id=12&name=wendu")
+print(response.data.toString());
 // Optionally the request above could also be done as
-  response = await dio.get("/test", data: {"id": 12, "name": "wendu"});
-  print(response.data.toString());
+response = await dio.get("/test", queryParameters: {"id": '12', "name": "wendu"});
+print(response.data.toString());
 ```
 
 Performing a `POST` request:
@@ -86,7 +86,7 @@ response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
 Performing multiple concurrent requests:
 
 ```dart
-  response = await Future.wait([dio.post("/info"), dio.get("/token")]);
+response = await Future.wait([dio.post("/info"), dio.get("/token")]);
 ```
 
 Downloading a file:
@@ -102,13 +102,13 @@ FormData formData = new FormData.from({
     "name": "wendux",
     "age": 25,
   });
-  response = await dio.post("/info", data: formData);
+response = await dio.post("/info", data: formData);
 ```
 
 Uploading multiple files to server by FormData:
 
 ```dart
-  FormData formData = new FormData.from({
+FormData formData = new FormData.from({
     "name": "wendux",
     "age": 25,
     "file1": new UploadFileInfo(new File("./upload.txt"), "upload1.txt"),
@@ -120,7 +120,7 @@ Uploading multiple files to server by FormData:
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
       new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
     ]
-  });
+});
 ```
 
 Listening the uploading progress:
@@ -141,57 +141,61 @@ response = await dio.post(
 
 ### Creating an instance and set default configs.
 
-You can create instance of Dio with an optional `GlobalOptions` object:
+You can create instance of Dio with an optional `BaseOptions` object:
 
 ```dart
 Dio dio = new Dio; // with default Options
 
 // Set default configs
-  dio.options.baseUrl = "https://www.xx.com/api";
-  dio.options.connectTimeout = 5000; //5s
-  dio.options.receiveTimeout = 3000;
+dio.options.baseUrl = "https://www.xx.com/api";
+dio.options.connectTimeout = 5000; //5s
+dio.options.receiveTimeout = 3000;
 
 // or new Dio with a Options instance.
-  Options options = new GlobalOptions(
-      baseUrl: "https://www.xx.com/api",
-      connectTimeout: 5000,
-      receiveTimeout: 3000);
-  Dio dio = new Dio(options);
+Options options = new BaseOptions(
+    baseUrl: "https://www.xx.com/api",
+    connectTimeout: 5000,
+    receiveTimeout: 3000,
+);
+Dio dio = new Dio(options);
 ```
 
 The core API in Dio instance is:
 
-**Future<Response> request(String path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken})**
 
 ```dart
-response=await request("/test", data: {"id":12,"name":"xx"}, options: new Options(method:"GET"));
+response=await request(
+    "/test",
+    data: {"id":12,"name":"xx"}, 
+    options: new Options(method:"GET"),
+);
 ```
 
 ### Request method aliases
 
 For convenience aliases have been provided for all supported request methods.
 
-**Future<Response> get(path, {data, Options options,CancelToken cancelToken})** 
+**Future<Response> get(...)** 
 
-**Future<Response> post(path, {data, Options options,CancelToken cancelToken})** 
+**Future<Response> post(...)** 
 
-**Future<Response> put(path, {data, Options options,CancelToken cancelToken})** 
+**Future<Response> put(...)** 
 
-**Future<Response> delete(path, {data, Options options,CancelToken cancelToken})**
+**Future<Response> delete(...)**
 
-**Future<Response> head(path, {data, Options options,CancelToken cancelToken})** 
+**Future<Response> head(...)** 
 
-**Future<Response> put(path, {data, Options options,CancelToken cancelToken})** 
+**Future<Response> put(...)** 
 
-**Future<Response> path(path, {data, Options options,CancelToken cancelToken})** 
+**Future<Response> path(...)** 
 
-**Future<Response> download(String urlPath, savePath,**
-​    **{OnDownloadProgress onProgress, data, bool flush: false, Options options,CancelToken cancelToken})**
+**Future<Response> download(...)** 
 
 
 ## Request Options
 
-These are the available config options for making requests. Request default `method`  is  `GET`  if `method` is not specified.
+The Options class describes the http request information and configuration. Each Dio instance has a base config for all requests maked by itself, and we can override the base config with [Options] when make a single request.  The  [BaseOptions] declaration as follows:
 
 ```dart
 {
@@ -242,11 +246,8 @@ These are the available config options for making requests. Request default `met
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus validateStatus;
 
-  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
+  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the   [Response] object.
   Map<String, dynamic> extra;
-    
-  /// Full path.
-  Uri uri; 
   
   /// Custom Cookies
   Iterable<Cookie> cookies;
@@ -286,33 +287,28 @@ print(response.statusCode);
 
 ## Interceptors
 
-Each Dio instance has a `RequestInterceptor` and a `ResponseInterceptor`, by which you can intercept requests or responses before they are handled by `then` or `catchError`.
+For each dio instance, We can add one or more interceptors, by which we can intercept requests or responses before they are handled by `then` or `catchError`.
 
 ```dart
- dio.interceptor.request.onSend = (Options options){
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest:(RequestOptions options){
      // Do something before request is sent
      return options; //continue
      // If you want to resolve the request with some custom data，
      // you can return a `Response` object or return `dio.resolve(data)`.
      // If you want to reject the request with a error message, 
      // you can return a `DioError` object or return `dio.reject(errMsg)`    
- };
- dio.interceptor.response.onSuccess = (Response response) {
+    },
+    onResponse:(RequestOptions  response) {
      // Do something with response data
      return response; // continue
- };
- dio.interceptor.response.onError = (DioError e) {
+    },
+    onError: (DioError e) {
      // Do something with response error
      return  e;//continue
- };
-```
+    }
+));
 
-If you may need to remove an interceptor later you can.
-
-```dart
-dio.interceptor.request.onSend = null;
-dio.interceptor.response.onSuccess = null;
-dio.interceptor.response.onError = null;
 ```
 
 ### Resolve and reject the request
@@ -320,11 +316,13 @@ dio.interceptor.response.onError = null;
 In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message, you can return a `DioError` object or return `dio.reject(errMsg)` . 
 
 ```dart
- dio.interceptor.request.onSend = (Options options){
-     return dio.resolve("fake data")    
- }
- Response response = await dio.get("/test");
- print(response.data);//"fake data"
+dio.interceptors.add(InterceptorsWrapper(
+  onRequest:(RequestOptions options){
+   return dio.resolve("fake data")    
+  },
+));
+Response response = await dio.get("/test");
+print(response.data);//"fake data"
 ```
 
 ### Supports Async tasks in Interceptors
@@ -332,15 +330,15 @@ In all interceptors, you can interfere with their execution flow. If you want to
 Interceptors not only support synchronous tasks, but also supports asynchronous tasks, for example:
 
 ```dart
-  dio.interceptors.add(InterceptorsWrapper(
+dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async{
-     //...If no token, request token firstly.
-     Response response = await dio.get("/token");
-     //Set the token to headers 
-     options.headers["token"] = response.data["data"]["token"];
-     return options; //continue   
+        //...If no token, request token firstly.
+        Response response = await dio.get("/token");
+        //Set the token to headers 
+        options.headers["token"] = response.data["data"]["token"];
+        return options; //continue   
     }
-  ));
+));
 ```
 
 ### Lock/unlock the interceptors
@@ -348,20 +346,21 @@ Interceptors not only support synchronous tasks, but also supports asynchronous 
 You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue before they enter the interceptor, they will not be continued until the interceptor is unlocked.
 
 ```dart
-  tokenDio = new Dio(); //Create a new instance to request the token.
-  tokenDio.options = dio;
-  dio.interceptors.add(InterceptorsWrapper(
-   onRequest:(Options options) async {
-    // If no token, request token firstly and lock this interceptor
-    // to prevent other request enter this interceptor.
-    dio.interceptors.requestLock.lock();
-    // We use a new Dio(to avoid dead lock) instance to request token.
-    Response response = await tokenDio.get("/token");
-    //Set the token to headers
-    options.headers["token"] = response.data["data"]["token"];
-    dio.interceptors.requestLock.unlock();
-    return options; //continue
-  }));
+tokenDio = new Dio(); //Create a new instance to request the token.
+tokenDio.options = dio;
+dio.interceptors.add(InterceptorsWrapper(
+    onRequest:(Options options) async {
+        // If no token, request token firstly and lock this interceptor
+        // to prevent other request enter this interceptor.
+        dio.interceptors.requestLock.lock();
+        // We use a new Dio(to avoid dead lock) instance to request token.
+        Response response = await tokenDio.get("/token");
+        //Set the token to headers
+        options.headers["token"] = response.data["data"]["token"];
+        dio.interceptors.requestLock.unlock();
+        return options; //continue
+    }
+));
 ```
 
 You can clean the waiting queue by calling `clear()`;
@@ -374,9 +373,7 @@ When the **request** interceptor is locked, the incoming request will pause, thi
 
 **dio.unlock() ==  dio.interceptors.requestLock.unlock()**
 
-
-
-
+**dio.clear() ==  dio.interceptors.requestLock.clear()**
 
 ### Example
 
@@ -415,31 +412,48 @@ You can set  `LogInterceptor` to  print request/response log automaticlly, for e
 dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 ```
 
+### Cookie Manager
+
+CookieManager Interceptor  can help us manage the request/response cookies automaticly. CookieManager depends on `cookieJar`  package :
+
+> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
+
+You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies, you can use the `PersistCookieJar` class, the example codes as follows:
+
+```dart
+var dio = new Dio();
+dio.interceptors.add(CookieManager(CookieJar()))
+```
+
+`PersistCookieJar` is a cookie manager which implements the standard cookie policy declared in RFC. `PersistCookieJar` persists the cookies in files, so if the application exit, the cookies always exist unless call `delete` explicitly.
+
+More details about [cookie_jar](https://github.com/flutterchina/cookie_jar)  see : https://github.com/flutterchina/cookie_jar .
+
 ### Custom Interceptor
 
-You can custom interceptor by extendding the `Interceptor` class. There is an example that implementing a simple cache policy: custom cache interceptor
+You can custom interceptor by extending the `Interceptor` class. There is an example that implementing a simple cache policy: custom cache interceptor.
 
 ## Handling Errors
 
 When a error occurs, Dio will wrap the `Error/Exception` to a `DioError`:
 
 ```dart
-  try {
+try {
     //404  
     await dio.get("https://wendux.github.io/xsddddd");
-   } on DioError catch(e) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx and is also not 304.
-      if(e.response) {
+} on DioError catch(e) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx and is also not 304.
+    if(e.response) {
         print(e.response.data) 
         print(e.response.headers) 
         print(e.response.request)    
-      } else{
+    } else{
         // Something happened in setting up or sending the request that triggered an Error  
         print(e.request)  
         print(e.message)
-      }  
-  }
+    }  
+}
 ```
 
 ### DioError scheme
@@ -522,50 +536,66 @@ There is a complete example [here](https://github.com/flutterchina/dio/tree/flut
 
 There is an example for [customizing Transformer](https://github.com/flutterchina/dio/blob/flutter/example/Transformer.dart).
 
-## Set proxy and HttpClient config
+## Adapter 
 
-Dio uses HttpClient to send http request, so you can config the `dio.httpClient` to support `proxy`, for example:
+HttpClientAdapter is a bridge between Dio and HttpClient.
+
+Dio implements standard and friendly API  for developer.
+
+HttpClient: It is the real object that makes Http requests.
+
+We can use any HttpClient not just `dart:io:HttpClient` to make the Http request.  And  all we need is providing a `HttpClientAdapter`. The default HttpClientAdapter for Dio is `DefaultHttpClientAdapter`.
 
 ```dart
-  dio.onHttpClientCreate = (HttpClient client) {
+dio.httpClientAdapter = new DefaultHttpClientAdapter();
+```
+
+
+
+### Using proxy 
+
+`DefaultHttpClientAdapter` provide a callback to set proxy to `dart:io:HttpClient`, for example:
+
+```dart
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
     // config the http client  
     client.findProxy = (uri) {
-      //proxy all request to localhost:8888
-      return "PROXY localhost:8888";
+        //proxy all request to localhost:8888
+        return "PROXY localhost:8888";
     };
     // you can also create a new HttpClient to dio
     // return new HttpClient();  
-  };
+};
 ```
 
 There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/proxy.dart).
 
-## Https certificate verification
+### Https certificate verification
 
 There are two ways  to verify the https certificate. Suppose the certificate format is PEM, the code like:
 
 ```dart
-  String PEM="XXXXX"; // certificate content 
-  dio.onHttpClientCreate = (HttpClient client) {
+String PEM="XXXXX"; // certificate content 
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     client.badCertificateCallback=(X509Certificate cert, String host, int port){
-      if(cert.pem==PEM){ // Verify the certificate
-        return true; 
-      }
-      return false;
+        if(cert.pem==PEM){ // Verify the certificate
+            return true; 
+        }
+        return false;
     };
-  };
+};
 ```
 
 Another way is creating a `SecurityContext` when create the `HttpClient`:
 
 ```dart
-  dio.onHttpClientCreate = (HttpClient client) {
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     SecurityContext sc = new SecurityContext();
     //file is the path of certificate
     sc.setTrustedCertificates(file);
     HttpClient httpClient = new HttpClient(context: sc);
     return httpClient;
-  };
+};
 ```
 
 In this way,  the format of certificate must be PEM or PKCS12.
@@ -584,24 +614,6 @@ token.cancel("cancelled");
 ```
 
 There is a complete example [here](https://github.com/flutterchina/dio/tree/flutter/example/cancelRequest.dart).
-
-## Cookie Manager
-
-You can manage the request/response cookies using `cookieJar` .  
-
-> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
-
-You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies, you can use the `PersistCookieJar` class, the example codes as follows:
-
-```dart
-var dio = new Dio();
-dio.cookieJar=new PersistCookieJar("./cookies");
-```
-
-`PersistCookieJar` is a cookie manager which implements the standard cookie policy declared in RFC. `PersistCookieJar` persists the cookies in files, so if the application exit, the cookies always exist unless call `delete` explicitly.
-
-
-More details about [cookie_jar](https://github.com/flutterchina/cookie_jar)  see : https://github.com/flutterchina/cookie_jar .
 
 ## Copyright & License
 

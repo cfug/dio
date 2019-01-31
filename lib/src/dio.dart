@@ -9,6 +9,7 @@ import 'interceptor.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
+import 'adapter.dart';
 
 /// Callback to listen the file downloading progress.
 ///
@@ -25,8 +26,6 @@ typedef void OnDownloadProgress(int received, int total);
 ///
 /// [total] is the content length of the post body.
 typedef OnUploadProgress(int sent, int total);
-
-typedef dynamic OnHttpClientCreate(HttpClient client);
 
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
@@ -47,14 +46,6 @@ class Dio {
   /// Default Request config. More see [BaseOptions] .
   BaseOptions options;
 
-  /// [Dio] will create new HttpClient when it is needed.
-  /// If [onHttpClientCreate] is provided, [Dio] will call
-  /// it when a new HttpClient created.
-  OnHttpClientCreate onHttpClientCreate;
-
-  bool _httpClientInited = false;
-  HttpClient _httpClient = new HttpClient();
-
   /// Each Dio instance has a interceptor by which you can intercept requests or responses before they are
   /// handled by `then` or `catchError`. the [interceptor] field
   /// contains a [RequestInterceptor] and a [ResponseInterceptor] instance.
@@ -63,6 +54,14 @@ class Dio {
   Interceptors _interceptors = new Interceptors();
 
   Interceptors get interceptors => _interceptors;
+
+  HttpClientAdapter _httpClientAdapter = new DefaultHttpClientAdapter();
+
+  HttpClientAdapter get httpClientAdapter => _httpClientAdapter;
+
+  set httpClientAdapter(HttpClientAdapter adapter) {
+    if (adapter != null) _httpClientAdapter = adapter;
+  }
 
   /// [transformer] allows changes to the request/response data before it is sent/received to/from the server
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
@@ -100,6 +99,7 @@ class Dio {
   Future<Response<T>> post<T>(
     String path, {
     data,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     Options options,
     CancelToken cancelToken,
     OnUploadProgress onUploadProgress,
@@ -107,6 +107,7 @@ class Dio {
     return request<T>(path,
         data: data,
         options: _checkOptions("POST", options),
+        queryParameters: queryParameters,
         cancelToken: cancelToken,
         onUploadProgress: onUploadProgress);
   }
@@ -129,13 +130,18 @@ class Dio {
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
   Future<Response<T>> put<T>(String path,
       {data,
+      Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
       Options options,
       CancelToken cancelToken,
       OnUploadProgress onUploadProgress}) {
-    return request<T>(path,
-        data: data,
-        options: _checkOptions("PUT", options),
-        cancelToken: cancelToken);
+    return request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: _checkOptions("PUT", options),
+      cancelToken: cancelToken,
+      onUploadProgress: onUploadProgress,
+    );
   }
 
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
@@ -146,24 +152,39 @@ class Dio {
     CancelToken cancelToken,
     OnUploadProgress onUploadProgress,
   }) {
-    return requestUri<T>(uri,
-        data: data,
-        options: _checkOptions("PUT", options),
-        cancelToken: cancelToken);
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: _checkOptions("PUT", options),
+      cancelToken: cancelToken,
+      onUploadProgress: onUploadProgress,
+    );
   }
 
   /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
-  Future<Response<T>> head<T>(String path,
-      {data, Options options, CancelToken cancelToken}) {
-    return request<T>(path,
-        data: data,
-        options: _checkOptions("HEAD", options),
-        cancelToken: cancelToken);
+  Future<Response<T>> head<T>(
+    String path, {
+    data,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: _checkOptions("HEAD", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
-  Future<Response<T>> headUri<T>(Uri uri,
-      {data, Options options, CancelToken cancelToken}) {
+  Future<Response<T>> headUri<T>(
+    Uri uri, {
+    data,
+    Options options,
+    CancelToken cancelToken,
+  }) {
     return requestUri<T>(uri,
         data: data,
         options: _checkOptions("HEAD", options),
@@ -171,39 +192,67 @@ class Dio {
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
-  Future<Response<T>> delete<T>(String path,
-      {data, Options options, CancelToken cancelToken}) {
-    return request<T>(path,
-        data: data,
-        options: _checkOptions("DELETE", options),
-        cancelToken: cancelToken);
+  Future<Response<T>> delete<T>(
+    String path, {
+    data,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: _checkOptions("DELETE", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
-  Future<Response<T>> deleteUri<T>(Uri uri,
-      {data, Options options, CancelToken cancelToken}) {
-    return requestUri<T>(uri,
-        data: data,
-        options: _checkOptions("DELETE", options),
-        cancelToken: cancelToken);
+  Future<Response<T>> deleteUri<T>(
+    Uri uri, {
+    data,
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: _checkOptions("DELETE", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Handy method to make http PATCH request, which is a alias of  [Dio.request].
-  Future<Response<T>> patch<T>(String path,
-      {data, Options options, CancelToken cancelToken}) {
-    return request<T>(path,
-        data: data,
-        options: _checkOptions("PATCH", options),
-        cancelToken: cancelToken);
+  Future<Response<T>> patch<T>(
+    String path, {
+    data,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: _checkOptions("PATCH", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Handy method to make http PATCH request, which is a alias of  [Dio.request].
-  Future<Response<T>> patchUri<T>(Uri uri,
-      {data, Options options, CancelToken cancelToken}) {
-    return requestUri<T>(uri,
-        data: data,
-        options: _checkOptions("PATCH", options),
-        cancelToken: cancelToken);
+  Future<Response<T>> patchUri<T>(
+    Uri uri, {
+    data,
+    Options options,
+    CancelToken cancelToken,
+  }) {
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: _checkOptions("PATCH", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Assure the final future state is succeed!
@@ -291,6 +340,7 @@ class Dio {
     String urlPath,
     savePath, {
     OnDownloadProgress onProgress,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     CancelToken cancelToken,
     lengthHeader: HttpHeaders.contentLengthHeader,
     data,
@@ -299,33 +349,34 @@ class Dio {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
     // response stream.
     if (options != null) {
-      options.method=options.method ?? "GET";
+      options.method = options.method ?? "GET";
     } else {
       options = _checkOptions("GET", options);
     }
 
-    HttpClient httpClient = new HttpClient();
-    httpClient = _configHttpClient(httpClient);
-
     // Receive data with stream.
     options.responseType = ResponseType.stream;
-    Response<HttpClientResponse> response;
+    Response<ResponseBody> response;
     try {
       response = await _request(
         urlPath,
         data: data,
         options: options,
-        cancelToken: cancelToken,
-        httpClient: httpClient,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken ?? CancelToken(),
       );
     } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE &&
-          options.receiveDataWhenStatusError) {
-        var res = await transformer.transformResponse(
-          e.response.request.merge(responseType: ResponseType.json),
-          e.response.data,
-        );
-        e.response.data = res;
+      if (e.type == DioErrorType.RESPONSE) {
+        if (options.receiveDataWhenStatusError) {
+          var res = await transformer.transformResponse(
+            e.response.request..responseType = ResponseType.json,
+            e.response.data,
+          );
+          e.response.data = res;
+        } else {
+          e.response.data.close();
+          e.response.data = null;
+        }
       }
       rethrow;
     }
@@ -343,10 +394,10 @@ class Dio {
     int received = 0;
 
     // Stream<List<int>>
-    Stream<List<int>> stream = response.data;
+    Stream<List<int>> stream = response.data.stream;
     // Handle  timeout
     if (options.receiveTimeout > 0) {
-      stream = response.data.timeout(
+      stream = stream.timeout(
         new Duration(milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
           sink.addError(new DioError(
@@ -375,7 +426,7 @@ class Dio {
       (data) {
         // Check if cancelled.
         if (cancelToken != null && cancelToken.cancelError != null) {
-          httpClient.close(force: true);
+          response.data.close();
           return;
         }
         // Write file.
@@ -464,19 +515,11 @@ class Dio {
     Options options,
     OnUploadProgress onUploadProgress,
   }) async {
-    var httpClient = _httpClient;
-    if (cancelToken != null) {
-      httpClient = _configHttpClient(new HttpClient());
-    } else if (!_httpClientInited) {
-      _httpClient = httpClient = _configHttpClient(_httpClient, true);
-      _httpClientInited = true;
-    }
     return _request<T>(path,
         data: data,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
         options: options,
-        httpClient: httpClient,
         onUploadProgress: onUploadProgress);
   }
 
@@ -499,16 +542,6 @@ class Dio {
         cancelToken: cancelToken,
         options: options,
         onUploadProgress: onUploadProgress);
-  }
-
-  HttpClient _configHttpClient(HttpClient httpClient,
-      [bool isDefault = false]) {
-    httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
-    if (onHttpClientCreate != null) {
-      //user can return a new HttpClient instance
-      httpClient = onHttpClientCreate(httpClient) ?? httpClient;
-    }
-    return httpClient;
   }
 
   Future _assureFuture(e) {
@@ -539,9 +572,12 @@ class Dio {
     Map<String, dynamic> queryParameters,
     CancelToken cancelToken,
     Options options,
-    HttpClient httpClient,
     OnUploadProgress onUploadProgress,
   }) async {
+    Completer cancelCompleter;
+    if (cancelToken != null) {
+      cancelCompleter = Completer();
+    }
     RequestOptions requestOptions =
         _mergeOptions(options, path, data, queryParameters);
     Future<Response<T>> future =
@@ -553,8 +589,8 @@ class Dio {
         // If the Future value type is Options, continue the network request.
         if (data is RequestOptions) {
           requestOptions.method = data.method.toUpperCase();
-          response =
-              _makeRequest<T>(data, cancelToken, httpClient, onUploadProgress);
+          response = _makeRequest<T>(
+              data, cancelToken, cancelCompleter, onUploadProgress);
         } else {
           // Otherwise, use the Future value as the request result.
           // If the return type is Error, we should throw it
@@ -565,68 +601,34 @@ class Dio {
       }).catchError((err) => throw _assureDioError(err));
     });
 
-    return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
-        .then((d) {
-      if (cancelToken != null) {
-        httpClient.close();
-      }
-      return d;
-    });
+    return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
   }
-
 
   Future<Response<T>> _makeRequest<T>(
       RequestOptions options, CancelToken cancelToken,
-      [HttpClient httpClient, OnUploadProgress onUploadProgress]) async {
+      [Completer cancelCompleter, OnUploadProgress onUploadProgress]) async {
     _checkCancelled(cancelToken);
-    HttpClientResponse response;
+    ResponseBody responseBody;
     try {
-      Future requestFuture;
-      // Handle timeout
-      if (options.connectTimeout > 0) {
-        requestFuture = httpClient
-            .openUrl(options.method, options.uri)
-            .timeout(new Duration(milliseconds: options.connectTimeout));
-      } else {
-        requestFuture = httpClient.openUrl(options.method, options.uri);
-      }
-      HttpClientRequest request;
-      try {
-        request = await _listenCancelForAsyncTask(cancelToken, requestFuture);
-      } on TimeoutException {
-        throw new DioError(
-          request: options,
-          message: "Connecting timeout[${options.connectTimeout}ms]",
-          type: DioErrorType.CONNECT_TIMEOUT,
-        );
-      }
-      request.followRedirects = options.followRedirects;
-
-      try {
-        if (options.method != "GET") {
-          // Transform the request data, set headers inner.
-          await _listenCancelForAsyncTask(
-              cancelToken, _transformData(options, request, onUploadProgress));
-        } else {
-          _setHeaders(options, request);
-        }
-      } catch (e) {
-        //If user cancel the request in transformer, close the connect by hand.
-        request.addError(e);
-      }
-
-      response = await _listenCancelForAsyncTask(cancelToken, request.close());
+      var stream = await _transformData(options);
+      responseBody = await httpClientAdapter.sendRequest(
+        options,
+        stream,
+        (future) => _listenCancelForAsyncTask(cancelToken, future),
+        cancelCompleter?.future,
+      );
       Response ret = new Response(
-          headers: response.headers,
+          headers: responseBody.headers,
           request: options,
-          statusCode: response.statusCode);
+          statusCode: responseBody.statusCode);
       Future future;
-      bool statusOk = options.validateStatus(response.statusCode);
+      bool statusOk = options.validateStatus(responseBody.statusCode);
       if (statusOk || options.receiveDataWhenStatusError) {
         ret.data = await _listenCancelForAsyncTask(
-            cancelToken, transformer.transformResponse(options, response));
+            cancelToken, transformer.transformResponse(options, responseBody));
       } else {
-        response.drain();
+        responseBody.stream.drain();
+        if (cancelToken != null) cancelCompleter.complete();
       }
       _checkCancelled(cancelToken);
       if (statusOk) {
@@ -634,7 +636,7 @@ class Dio {
       } else {
         var err = new DioError(
           response: ret,
-          message: 'Http status error [${response.statusCode}]',
+          message: 'Http status error [${responseBody.statusCode}]',
           type: DioErrorType.RESPONSE,
         );
         future = _onError<T>(err);
@@ -643,7 +645,7 @@ class Dio {
     } catch (e) {
       DioError err = _assureDioError(e);
       if (CancelToken.isCancel(err)) {
-        httpClient.close(force: true);
+        cancelCompleter?.complete();
         throw err;
       } else {
         // Response onError
@@ -679,15 +681,15 @@ class Dio {
     }
   }
 
-  _transformData(RequestOptions options, HttpClientRequest request,
+  Future<Stream<List<int>>> _transformData(RequestOptions options,
       [OnUploadProgress onUploadProgress]) async {
     var data = options.data;
     List<int> bytes;
     if (data != null && ["POST", "PUT", "PATCH"].contains(options.method)) {
       // Handle the FormData
       if (data is FormData) {
-        request.headers.set(HttpHeaders.contentTypeHeader,
-            'multipart/form-data; boundary=${data.boundary.substring(2)}');
+        options.headers[HttpHeaders.contentTypeHeader] =
+            'multipart/form-data; boundary=${data.boundary.substring(2)}';
         bytes = data.bytes();
       } else {
         options.headers[HttpHeaders.contentTypeHeader] =
@@ -702,11 +704,7 @@ class Dio {
           bytes = utf8.encode(_data);
         }
       }
-
-      // Must set the content-length
-      request.contentLength = bytes.length;
-      _setHeaders(options, request);
-
+      options.headers[HttpHeaders.contentLengthHeader] = bytes.length;
       // support data sending progress
       int length = bytes.length;
       int complete = 0;
@@ -726,10 +724,9 @@ class Dio {
           onUploadProgress(complete, length);
         }
       }));
-      await request.addStream(byteStream);
-    } else {
-      _setHeaders(options, request);
+      return byteStream;
     }
+    return null;
   }
 
 // Transform current Future status("success" and "error") if necessary
@@ -765,13 +762,14 @@ class Dio {
 
   RequestOptions _mergeOptions(
       Options opt, String url, data, Map<String, dynamic> queryParameters) {
-    var query= (new Map<String,dynamic>.from(options.queryParameters??{}))
-      ..addAll(queryParameters??{});
+    var query = (new Map<String, dynamic>.from(options.queryParameters ?? {}))
+      ..addAll(queryParameters ?? {});
     return RequestOptions(
       method: opt.method.toUpperCase(),
       headers: (new Map.from(options.headers))..addAll(opt.headers),
       baseUrl: options.baseUrl ?? "",
       path: url,
+      data: data,
       connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
       receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
       responseType:
@@ -830,9 +828,5 @@ class Dio {
       );
     }
     return response;
-  }
-
-  void _setHeaders(RequestOptions options, HttpClientRequest request) {
-    options.headers.forEach((k, v) => request.headers.set(k, v));
   }
 }

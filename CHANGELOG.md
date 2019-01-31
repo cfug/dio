@@ -1,3 +1,24 @@
+
+#2.0
+
+**Refactor the Interceptors**
+- Support add Multiple Interceptors.
+- Add Log Interceptor
+- Add CookieManager Interceptor
+
+**API**
+- Support Uri 
+- Support `queryParameters` for all request API
+- Modify the `get` API
+
+**Options**
+- Separate Options to three class: Options、BaseOptions、RequestOptions
+- Add `queryParameters` and `cookies` for BaseOptions
+
+**Adapter**
+- Abstract HttpClientAdapter layer.
+- Provide a DefaultHttpClientAdapter which make http requests by `dart:io:HttpClient`
+
 ## 0.1.8
 
 - change file name "TransFormer" to "Transformer"
