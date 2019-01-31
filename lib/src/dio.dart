@@ -606,7 +606,7 @@ class Dio {
       }
 
       response = await _listenCancelForAsyncTask(cancelToken, request.close());
-      cookieJar.saveFromResponse(uri, response.cookies);
+      _saveCookies(uri, response);
 
       var retData = await _listenCancelForAsyncTask(
           cancelToken, transformer.transformResponse(options, response));
@@ -652,6 +652,49 @@ class Dio {
         return _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
       }
     }
+  }
+
+  _saveCookies(Uri uri, response) {
+    List<String> cookies = response.headers[HttpHeaders.setCookieHeader];
+    if (cookies != null) {
+      var _cookies = normalizeCookies(cookies);
+      cookies
+        ..clear()
+        ..addAll(_cookies);
+      cookieJar.saveFromResponse(
+        uri,
+        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+      );
+    }
+  }
+
+  static List<String> normalizeCookies(List<String> cookies) {
+    if (cookies != null) {
+      const String expires = " Expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      return cookies.map((cookie) {
+        var _cookie = cookie.split(";");
+        var kv = _cookie.first?.split("=");
+        if (kv != null && kv[1].isEmpty) {
+          kv[1] = "_invalid_";
+          _cookie[0] = kv.join('=');
+          if (_cookie.length > 1) {
+            int i = 1;
+            while (i < _cookie.length) {
+              if (_cookie[i].trim().toLowerCase().startsWith("expires")) {
+                _cookie[i] = expires;
+                break;
+              }
+              ++i;
+            }
+            if (i == _cookie.length) {
+              _cookie.add(expires);
+            }
+          }
+        }
+        return _cookie.join(";");
+      }).toList();
+    }
+    return [];
   }
 
   // If the request has been cancelled, stop request and throw error.

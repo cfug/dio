@@ -1,6 +1,6 @@
 
 
-文档语言: [English](https://github.com/flutterchina/dio) | [中文简体](https://github.com/flutterchina/dio/blob/flutter/README-ZH.md)
+文档语言: [English](README.md) | [中文简体](README-ZH.md)
 
 # dio
 

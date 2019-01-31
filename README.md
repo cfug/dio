@@ -1,4 +1,4 @@
-Language: [English](https://github.com/flutterchina/dio) | [中文简体](https://github.com/flutterchina/dio/blob/flutter/README-ZH.md)
+Language: [English](README.md) | [中文简体](README-ZH.md)
 
 # dio
 
