@@ -43,7 +43,7 @@ class Dio {
   }
 
   /// The Dio version.
-  static const version = "0.0.4";
+  static const version = "1.0.16";
 
   /// Default Request config. More see [Options] .
   Options options;

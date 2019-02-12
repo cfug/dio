@@ -94,9 +94,6 @@ class FormData extends MapMixin<String, dynamic> {
     });
     if (_map.length > 0 || fileMap.length > 0) {
       data.clear();
-      if(fileMap.length>0) {
-        _writeln(data);
-      }
       data.write(boundary+"--");
       _writeln(data);
       //_writeln(data);
