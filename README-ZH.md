@@ -523,6 +523,14 @@ response = await dio.post("/info", data: formData);
 
 > 请求转换器  `Transformer.transformRequest(...)`   只会被用于 'PUT'、 'POST'、 'PATCH'方法，因为只有这些方法才可以携带请求体(request body)。但是响应转换器 `Transformer.transformResponse()` 会被用于所有请求方法的返回数据。
 
+### Flutter专用转换器
+
+如果你在开发Flutter应用，强烈建议使用 [FlutterTransformer](https://github.com/flutterchina/dio_flutter_transformer)来替换默认转换器，[FlutterTransformer](https://github.com/flutterchina/dio_flutter_transformer) 会将json的解码通过compute方法在后台进行，这样可以避免在解析复杂json时导致的UI卡顿。
+
+### 其它示例
+
+这里有一个 [自定义Transformer的示例](https://github.com/flutterchina/dio/blob/master/example/transfomer.dart).
+
 ### 执行流
 
 虽然在拦截器中也可以对数据进行预处理，但是转换器主要职责是对请求/响应数据进行编解码，之所以将转化器单独分离，一是为了和拦截器解耦，二是为了不修改原始请求数据(如果你在拦截器中修改请求数据(options.data)，会覆盖原始请求数据，而在某些时候您可能需要原始请求数据). Dio的请求流是：

@@ -536,6 +536,12 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 `Transformer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `Transformer`. If you want to customize the transformation of request/response data, you can provide a `Transformer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
 
+### In flutter
+
+If you use dio in flutter development, you'd better to use [FlutterTransformer](https://github.com/flutterchina/dio_flutter_transformer), by which the json decoding will be in background with [compute] function.
+
+### Other Example
+
 There is an example for [customizing Transformer](https://github.com/flutterchina/dio/blob/master/example/transfomer.dart).
 
 ## HttpClientAdapter 
