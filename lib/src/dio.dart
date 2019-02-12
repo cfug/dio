@@ -41,7 +41,7 @@ class Dio {
   }
 
   /// The Dio version.
-  static const version = "0.0.4";
+  static const version = "2.0.1";
 
   /// Default Request config. More see [BaseOptions] .
   BaseOptions options;
@@ -610,7 +610,7 @@ class Dio {
     _checkCancelled(cancelToken);
     ResponseBody responseBody;
     try {
-      var stream = await _transformData(options);
+      var stream = await _transformData(options, onUploadProgress);
       responseBody = await httpClientAdapter.sendRequest(
         options,
         stream,
