@@ -43,7 +43,7 @@ class Dio {
   }
 
   /// The Dio version.
-  static const version = "1.0.16";
+  static const version = "1.0.17";
 
   /// Default Request config. More see [Options] .
   Options options;
@@ -501,6 +501,7 @@ class Dio {
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptor.request, () {
       _mergeOptions(options);
+      options.data = data;
       options.path = path;
       // If user provide a request interceptor, enter the interceptor.
       InterceptorCallback preSend = interceptor.request.onSend;
@@ -820,7 +821,6 @@ class Dio {
     opt.connectTimeout ??= options.connectTimeout ?? 0;
     opt.receiveTimeout ??= options.receiveTimeout ?? 0;
     opt.responseType ??= options.responseType ?? ResponseType.JSON;
-    opt.data ??= options.data;
     opt.extra = (new Map.from(options.extra))..addAll(opt.extra);
     opt.contentType ??= options.contentType ?? ContentType.json;
     opt.validateStatus ??= options.validateStatus ??

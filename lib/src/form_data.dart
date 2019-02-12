@@ -79,6 +79,7 @@ class FormData extends MapMixin<String, dynamic> {
       }
       _appendTextField(data, key, value, bytes);
     });
+    //int length=bytes.length;
     fileMap.forEach((key,  fileInfo) {
       if(fileInfo is UploadFileInfo) {
         _appendFileContent(data,key, fileInfo, bytes);
@@ -92,11 +93,11 @@ class FormData extends MapMixin<String, dynamic> {
         });
       }
     });
+
     if (_map.length > 0 || fileMap.length > 0) {
       data.clear();
       data.write(boundary+"--");
       _writeln(data);
-      //_writeln(data);
       bytes.addAll(utf8.encode(data.toString()));
     }
     return bytes;
