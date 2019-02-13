@@ -29,9 +29,8 @@ class LogInterceptor extends Interceptor {
   final logSize;
 
   LogInterceptor(
-      {
-      this.request:true,
-      this.requestHeader:true,
+      {this.request: true,
+      this.requestHeader: true,
       this.requestBody: false,
       this.responseHeader: true,
       this.responseBody: false,
@@ -54,7 +53,7 @@ class LogInterceptor extends Interceptor {
     }
     if (requestHeader) {
       StringBuffer stringBuffer = new StringBuffer();
-      options.headers.forEach((key,v) => stringBuffer.write('\n  $key:$v'));
+      options.headers.forEach((key, v) => stringBuffer.write('\n  $key:$v'));
       printKV('header', stringBuffer.toString());
       stringBuffer.clear();
     }
@@ -64,19 +63,32 @@ class LogInterceptor extends Interceptor {
 
   @override
   onError(DioError err) {
-    if (error) printAll('*** DioError ***: $err');
+    if (error) {
+      print('*** DioError ***:');
+      print(err);
+      if (err.response != null) {
+        _printResponse(err.response);
+      }
+    }
   }
 
   @override
   onResponse(Response response) {
     print("*** Response ***");
+    _printResponse(response);
+  }
+
+  void _printResponse(Response response) {
     printKV('uri', response.request.uri);
     if (responseHeader) {
       printKV('statusCode', response.statusCode);
       print("headers:");
-      print(" "+response.headers.toString().replaceAll("\n", "\n "));
+      print(" " + response.headers.toString().replaceAll("\n", "\n "));
     }
-    if (responseBody) printKV("data:",response.data);
+    if (responseBody) {
+      print("data:");
+      printAll(response.toString());
+    }
     print("");
   }
 

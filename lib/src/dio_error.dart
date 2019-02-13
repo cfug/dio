@@ -25,12 +25,14 @@ enum DioErrorType {
  * DioError describes the error info  when request failed.
  */
 class DioError extends Error {
-  DioError(
-      {this.request,
-      this.response,
-      this.message,
-      this.type = DioErrorType.DEFAULT,
-      this.stackTrace});
+  DioError({
+    this.request,
+    this.response,
+    this.message,
+    this.type = DioErrorType.DEFAULT,
+    this.error,
+    this.stackTrace,
+  });
 
   /// Request info.
   RequestOptions request;
@@ -44,8 +46,11 @@ class DioError extends Error {
 
   DioErrorType type;
 
+  /// The original error/exception object
+  dynamic error;
+
   String toString() =>
-      "DioError [$type]: " + (message??"") + (stackTrace ?? "").toString();
+      "DioError [$type]: " + (message ?? "") + (stackTrace ?? "").toString();
 
   /// Error stacktrace info
   StackTrace stackTrace;

@@ -14,25 +14,45 @@ main() async {
   // var url = "http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg";
 
   // This is a image, about 4KB
-  var url = "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
-  //var url = "https://github.com/wendux/tt"; //404
+  //var url = "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
+  var url =
+      "https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0/docs/imgs/book.jpg";
+  await download1(dio, url, "./example/book1.jpg");
+  await download2(dio, url, "./example/book2.jpg");
+}
+
+Future download1(Dio dio, String url, String savePath) async {
   try {
-    Response response = await dio.download(
+    await dio.download(
       url,
-      "./example/flutter.svg",
-      onProgress: (received, total) {
-        if (total != -1) {
-          print((received / total * 100).toStringAsFixed(0) + "%");
-        }
-      },
-      cancelToken: CancelToken(),
-      options: Options(
-        //receiveDataWhenStatusError: false,
-        headers: {HttpHeaders.acceptEncodingHeader: "*"},
-      ),
+      "./example/book.jpg",
+      onReceiveProgress: showDownloadProgress,
     );
-    print("download succeed!");
   } catch (e) {
-    print(e.response.data);
+    print(e);
+  }
+}
+
+Future download2(Dio dio, String url, String savePath) async {
+  try {
+    Response response = await dio.get<List<int>>(
+      url,
+      onReceiveProgress: showDownloadProgress,
+      //Received data with List<int>
+      options: Options(responseType: ResponseType.bytes),
+    );
+    File file = new File(savePath);
+    var raf = file.openSync(mode: FileMode.write);
+    // response.data is List<int> type
+    raf.writeFromSync(response.data);
+    raf.close();
+  } catch (e) {
+    print(e);
+  }
+}
+
+void showDownloadProgress(received, total) {
+  if (total != -1) {
+    print((received / total * 100).toStringAsFixed(0) + "%");
   }
 }

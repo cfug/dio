@@ -31,7 +31,7 @@ main() async {
   });
 
   //Response response = await dio.post("/token", data: formData);
-  Response response = await dio.post("http://localhost:3000/upload", data: formData2);
+  Response response = await dio.post("http://localhost:3000/upload", data: formData2, cancelToken: CancelToken());
   print(response.statusCode);
   //Response response = await dio.post("http://localhost/ds/test", data: formData);
   print(response.data);
