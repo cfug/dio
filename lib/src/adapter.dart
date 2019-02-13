@@ -27,15 +27,12 @@ abstract class HttpClientAdapter {
   Future<ResponseBody> sendRequest(
     RequestOptions options,
     Stream<List<int>> requestStream,
-    CancelWrapper cancelWrapper,
     Future cancelFuture,
   );
 }
 
 class ResponseBody {
-  ResponseBody(this.stream, this.statusCode, this.headers,
-      {VoidCallback onClose})
-      : _onClose = onClose;
+  ResponseBody(this.stream, this.statusCode, this.headers);
 
   Stream<List<int>> stream;
   HttpHeaders headers;
@@ -52,10 +49,6 @@ class ResponseBody {
       {VoidCallback onClose})
       : _onClose = onClose,
         stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
-
-  void close() {
-    if (_onClose != null) _onClose();
-  }
 }
 
 /// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
@@ -65,7 +58,6 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
   Future<ResponseBody> sendRequest(
     RequestOptions options,
     Stream<List<int>> requestStream,
-    CancelWrapper cancelWrapper,
     Future cancelFuture,
   ) async {
     if (_httpClient == null) {
@@ -88,7 +80,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
 
     HttpClientRequest request;
     try {
-      request = await cancelWrapper(requestFuture);
+      request = await requestFuture;
       //Set Headers
       options.headers.forEach((k, v) => request.headers.set(k, v));
     } on TimeoutException {
@@ -100,22 +92,16 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     }
     request.followRedirects = options.followRedirects;
 
-    try {
-      if (options.method != "GET" && requestStream != null) {
-        // Transform the request data, set headers inner.
-        await request.addStream(requestStream);
-      }
-    } catch (e) {
-      //If user cancel the request in transformer, close the connect by hand.
-      request.addError(e);
+    if (options.method != "GET" && requestStream != null) {
+      // Transform the request data
+      await request.addStream(requestStream);
     }
-    HttpClientResponse responseStream = await cancelWrapper(request.close());
+
+    HttpClientResponse responseStream = await request.close();
     return new ResponseBody(
       responseStream,
       responseStream.statusCode,
       responseStream.headers,
-      onClose:
-          cancelFuture != null ? () => httpClient.close(force: true) : null,
     );
   }
 

@@ -131,7 +131,7 @@ Listening the uploading progress:
 response = await dio.post(
   "http://www.dtworkroom.com/doris/1/2.0.0/test",
   data: {"aa": "bb" * 22},
-  onUploadProgress: (int sent, int total) {
+  onSendProgress: (int sent, int total) {
     print("$sent $total");
   },
 );

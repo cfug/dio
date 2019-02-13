@@ -72,7 +72,7 @@ void main() {
       await dio.download(url, "./example/flutter.svg",
           options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
           // Listen the download progress.
-          onProgress: (received, total) {
+          onReceiveProgress: (received, total) {
         if (total != -1) {
           print((received / total * 100).toStringAsFixed(0) + "%");
         }

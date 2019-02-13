@@ -11,21 +11,18 @@ import 'response.dart';
 import 'transformer.dart';
 import 'adapter.dart';
 
-/// Callback to listen the file downloading progress.
+/// Callback to listen the progress for sending/receiving data.
 ///
-/// [received] is the length of the bytes have been received.
+/// [count] is the length of the bytes have been sent/received.
 ///
-/// [total] is the content length of the response body. Returns -1 if
-/// the size of the response body is not known in advance,
-/// such as response data is compressed with gzip.
-typedef void OnDownloadProgress(int received, int total);
+/// [total] is the content length of the response/request body.
+/// 1.When receiving data:
+///   [total] is the request body length.
+/// 2.When receiving data:
+///   [total] will be -1 if the size of the response body is not known in advance,
+///   for example: response data is compressed with gzip or no content-length header.
+typedef ProgressCallback = void Function(int count, int total);
 
-/// Callback to listen request uploading progress.
-///
-/// [sent] is the length of the bytes have been sent.
-///
-/// [total] is the content length of the post body.
-typedef OnUploadProgress(int sent, int total);
 
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
@@ -73,11 +70,13 @@ class Dio {
     Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     Options options,
     CancelToken cancelToken,
+    ProgressCallback onReceiveProgress,
   }) {
     return request<T>(
       path,
       queryParameters: queryParameters,
       options: _checkOptions("GET", options),
+      onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
     );
   }
@@ -87,10 +86,12 @@ class Dio {
     Uri uri, {
     Options options,
     CancelToken cancelToken,
+    ProgressCallback onReceiveProgress,
   }) {
     return requestUri<T>(
       uri,
       options: _checkOptions("GET", options),
+      onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
     );
   }
@@ -102,14 +103,18 @@ class Dio {
     Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     Options options,
     CancelToken cancelToken,
-    OnUploadProgress onUploadProgress,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) {
-    return request<T>(path,
-        data: data,
-        options: _checkOptions("POST", options),
-        queryParameters: queryParameters,
-        cancelToken: cancelToken,
-        onUploadProgress: onUploadProgress);
+    return request<T>(
+      path,
+      data: data,
+      options: _checkOptions("POST", options),
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
   }
 
   /// Handy method to make http POST request, which is a alias of  [Dio.request].
@@ -118,29 +123,37 @@ class Dio {
     data,
     Options options,
     CancelToken cancelToken,
-    OnUploadProgress onUploadProgress,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) {
-    return requestUri<T>(uri,
-        data: data,
-        options: _checkOptions("POST", options),
-        cancelToken: cancelToken,
-        onUploadProgress: onUploadProgress);
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: _checkOptions("POST", options),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
   }
 
   /// Handy method to make http PUT request, which is a alias of  [Dio.request].
-  Future<Response<T>> put<T>(String path,
-      {data,
-      Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
-      Options options,
-      CancelToken cancelToken,
-      OnUploadProgress onUploadProgress}) {
+  Future<Response<T>> put<T>(
+    String path, {
+    data,
+    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
+  }) {
     return request<T>(
       path,
       data: data,
       queryParameters: queryParameters,
       options: _checkOptions("PUT", options),
       cancelToken: cancelToken,
-      onUploadProgress: onUploadProgress,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
     );
   }
 
@@ -150,14 +163,16 @@ class Dio {
     data,
     Options options,
     CancelToken cancelToken,
-    OnUploadProgress onUploadProgress,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) {
     return requestUri<T>(
       uri,
       data: data,
       options: _checkOptions("PUT", options),
       cancelToken: cancelToken,
-      onUploadProgress: onUploadProgress,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
     );
   }
 
@@ -185,10 +200,12 @@ class Dio {
     Options options,
     CancelToken cancelToken,
   }) {
-    return requestUri<T>(uri,
-        data: data,
-        options: _checkOptions("HEAD", options),
-        cancelToken: cancelToken);
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: _checkOptions("HEAD", options),
+      cancelToken: cancelToken,
+    );
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [Dio.request].
@@ -230,6 +247,8 @@ class Dio {
     Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     Options options,
     CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) {
     return request<T>(
       path,
@@ -237,6 +256,8 @@ class Dio {
       queryParameters: queryParameters,
       options: _checkOptions("PATCH", options),
       cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
     );
   }
 
@@ -246,12 +267,16 @@ class Dio {
     data,
     Options options,
     CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) {
     return requestUri<T>(
       uri,
       data: data,
       options: _checkOptions("PATCH", options),
       cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
     );
   }
 
@@ -316,8 +341,8 @@ class Dio {
    *
    * [savePath]: The path to save the downloading file later.
    *
-   * [onProgress]: The callback to listen downloading progress.
-   * please refer to [OnDownloadProgress].
+   * [onReceiveProgress]: The callback to listen downloading progress.
+   * please refer to [ProgressCallback].
    *
    * [lengthHeader] : The real size of original file (not compressed).
    * When file is compressed:
@@ -339,7 +364,7 @@ class Dio {
   Future<Response> download(
     String urlPath,
     savePath, {
-    OnDownloadProgress onProgress,
+    ProgressCallback onReceiveProgress,
     Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     CancelToken cancelToken,
     lengthHeader: HttpHeaders.contentLengthHeader,
@@ -401,14 +426,15 @@ class Dio {
         new Duration(milliseconds: options.receiveTimeout),
         onTimeout: (EventSink sink) {
           sink.addError(new DioError(
-              request: response.request,
-              message: "Receiving data timeout[${options.receiveTimeout}ms]",
-              type: DioErrorType.RECEIVE_TIMEOUT));
+            request: response.request,
+            message: "Receiving data timeout[${options.receiveTimeout}ms]",
+            type: DioErrorType.RECEIVE_TIMEOUT,
+          ));
           sink.close();
         },
       );
     }
-
+    
     bool compressed = false;
     int total = 0;
     String contentEncoding =
@@ -422,30 +448,37 @@ class Dio {
       total = int.parse(response.headers.value(lengthHeader) ?? "-1");
     }
 
-    stream.listen(
+    StreamSubscription subscription;
+    subscription = stream.listen(
       (data) {
         // Check if cancelled.
         if (cancelToken != null && cancelToken.cancelError != null) {
-          response.data.close();
+          subscription.cancel();
           return;
         }
-        // Write file.
-        raf.writeFromSync(data);
-        // Notify progress
-        received += data.length;
-        if (onProgress != null) {
-          onProgress(received, total);
-        }
+        subscription.pause();
+        // Write file asynchronously
+        raf.writeFrom(data).then((_raf) {
+          // Notify progress
+          received += data.length;
+          if (onReceiveProgress != null) {
+            onReceiveProgress(received, total);
+          }
+          raf = _raf;
+          subscription.resume();
+        });
       },
       onDone: () {
-        raf.closeSync();
-        response.headers = response.data.headers;
-        completer.complete(response);
+        raf.close().then((_) {
+          response.headers = response.data.headers;
+          completer.complete(response);
+        }).catchError((e) => completer.completeError(_assureDioError(e)));
       },
       onError: (e) {
-        raf.closeSync();
-        file.deleteSync();
-        completer.completeError(_assureDioError(e));
+        raf
+            .close()
+            .then((_) => file.delete())
+            .whenComplete(() => completer.completeError(_assureDioError(e)));
       },
       cancelOnError: true,
     );
@@ -461,7 +494,7 @@ class Dio {
    * [savePath]: The path to save the downloading file later.
    *
    * [onProgress]: The callback to listen downloading progress.
-   * please refer to [OnDownloadProgress].
+   * please refer to [ProgressCallback].
    *
    * [lengthHeader] : The real size of original file (not compressed).
    * When file is compressed:
@@ -483,7 +516,7 @@ class Dio {
   Future<Response> downloadUri(
     Uri uri,
     savePath, {
-    OnDownloadProgress onProgress,
+    ProgressCallback onReceiveProgress,
     CancelToken cancelToken,
     lengthHeader: HttpHeaders.contentLengthHeader,
     data,
@@ -492,7 +525,7 @@ class Dio {
     return download(
       uri.toString(),
       savePath,
-      onProgress: onProgress,
+      onReceiveProgress: onReceiveProgress,
       lengthHeader: lengthHeader,
       cancelToken: cancelToken,
       data: data,
@@ -513,14 +546,18 @@ class Dio {
     Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     CancelToken cancelToken,
     Options options,
-    OnUploadProgress onUploadProgress,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) async {
-    return _request<T>(path,
-        data: data,
-        queryParameters: queryParameters,
-        cancelToken: cancelToken,
-        options: options,
-        onUploadProgress: onUploadProgress);
+    return _request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+      options: options,
+      onSendProgress: onSendProgress ?? onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
   }
 
   /**
@@ -535,13 +572,17 @@ class Dio {
     data,
     CancelToken cancelToken,
     Options options,
-    OnUploadProgress onUploadProgress,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) {
-    return request(uri.toString(),
-        data: data,
-        cancelToken: cancelToken,
-        options: options,
-        onUploadProgress: onUploadProgress);
+    return request(
+      uri.toString(),
+      data: data,
+      cancelToken: cancelToken,
+      options: options,
+      onSendProgress: onSendProgress ?? onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
   }
 
   Future _assureFuture(e) {
@@ -572,14 +613,13 @@ class Dio {
     Map<String, dynamic> queryParameters,
     CancelToken cancelToken,
     Options options,
-    OnUploadProgress onUploadProgress,
+    ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress,
   }) async {
-    Completer cancelCompleter;
-    if (cancelToken != null) {
-      cancelCompleter = Completer();
-    }
     RequestOptions requestOptions =
         _mergeOptions(options, path, data, queryParameters);
+    requestOptions.onReceiveProgress = onReceiveProgress;
+    requestOptions.cancelToken = cancelToken;
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptors.requestLock, () {
       Future ret = _executeInterceptors<RequestOptions>(
@@ -589,8 +629,7 @@ class Dio {
         // If the Future value type is Options, continue the network request.
         if (data is RequestOptions) {
           requestOptions.method = data.method.toUpperCase();
-          response = _makeRequest<T>(
-              data, cancelToken, cancelCompleter, onUploadProgress);
+          response = _makeRequest<T>(data, cancelToken, onSendProgress);
         } else {
           // Otherwise, use the Future value as the request result.
           // If the return type is Error, we should throw it
@@ -606,16 +645,15 @@ class Dio {
 
   Future<Response<T>> _makeRequest<T>(
       RequestOptions options, CancelToken cancelToken,
-      [Completer cancelCompleter, OnUploadProgress onUploadProgress]) async {
+      [ProgressCallback onSendProgress]) async {
     _checkCancelled(cancelToken);
     ResponseBody responseBody;
     try {
-      var stream = await _transformData(options, onUploadProgress);
+      var stream = await _transformData(options, onSendProgress);
       responseBody = await httpClientAdapter.sendRequest(
         options,
         stream,
-        (future) => _listenCancelForAsyncTask(cancelToken, future),
-        cancelCompleter?.future,
+        cancelToken?.cancelled,
       );
       Response ret = new Response(
           headers: responseBody.headers,
@@ -627,8 +665,7 @@ class Dio {
         ret.data = await _listenCancelForAsyncTask(
             cancelToken, transformer.transformResponse(options, responseBody));
       } else {
-        responseBody.stream.drain();
-        if (cancelToken != null) cancelCompleter.complete();
+        responseBody.stream.listen(null).cancel();
       }
       _checkCancelled(cancelToken);
       if (statusOk) {
@@ -645,7 +682,6 @@ class Dio {
     } catch (e) {
       DioError err = _assureDioError(e);
       if (CancelToken.isCancel(err)) {
-        cancelCompleter?.complete();
         throw err;
       } else {
         // Response onError
@@ -682,7 +718,7 @@ class Dio {
   }
 
   Future<Stream<List<int>>> _transformData(RequestOptions options,
-      [OnUploadProgress onUploadProgress]) async {
+      [ProgressCallback onSendProgress]) async {
     var data = options.data;
     List<int> bytes;
     if (data != null && ["POST", "PUT", "PATCH"].contains(options.method)) {
@@ -718,10 +754,16 @@ class Dio {
       var stream = Stream.fromIterable(group);
       Stream<List<int>> byteStream = stream
           .transform(StreamTransformer.fromHandlers(handleData: (data, sink) {
-        sink.add(data);
-        complete += data.length;
-        if (onUploadProgress != null) {
-          onUploadProgress(complete, length);
+        if (options.cancelToken?.cancelError != null) {
+          sink
+            ..addError(options.cancelToken?.cancelError)
+            ..close();
+        } else {
+          sink.add(data);
+          complete += data.length;
+          if (onSendProgress != null) {
+            onSendProgress(complete, length);
+          }
         }
       }));
       return byteStream;
@@ -806,9 +848,13 @@ class Dio {
       return err;
     } else if (err is Error) {
       err = new DioError(
-          response: null, message: err.toString(), stackTrace: err.stackTrace);
+        response: null,
+        message: err.toString(),
+        stackTrace: err.stackTrace,
+        error: err,
+      );
     } else {
-      err = new DioError(message: err.toString());
+      err = new DioError(message: err.toString(), error: err);
     }
     return err;
   }

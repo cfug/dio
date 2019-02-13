@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dio.dart';
+import 'cancel_token.dart';
 
 /// ResponseType indicates which transformation should
 /// be automatically applied to the response data by Dio.
@@ -11,10 +12,13 @@ enum ResponseType {
   stream,
 
   /// Transform the response data to a String encoded with UTF8.
-  plain
+  plain,
+
+  /// Get original bytes, the type of [Response.data] will be List<int>
+  bytes
 }
 
-typedef bool ValidateStatus(int status);
+typedef ValidateStatus = bool Function(int status);
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
@@ -93,8 +97,8 @@ class Options extends _RequestConfig {
   Options({
     String method,
     String baseUrl,
-    int connectTimeout:0,
-    int receiveTimeout:0,
+    int connectTimeout: 0,
+    int receiveTimeout: 0,
     Iterable<Cookie> cookies,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
@@ -142,7 +146,7 @@ class Options extends _RequestConfig {
       headers: headers ?? new Map.from(this.headers ?? {}),
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
-      cookies: cookies?? this.cookies??[],
+      cookies: cookies ?? this.cookies ?? [],
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
@@ -161,6 +165,8 @@ class RequestOptions extends Options {
     this.path,
     this.queryParameters,
     this.baseUrl,
+    this.onReceiveProgress,
+    this.cancelToken,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
     ResponseType responseType,
@@ -173,7 +179,7 @@ class RequestOptions extends Options {
           baseUrl: baseUrl,
           connectTimeout: connectTimeout,
           receiveTimeout: receiveTimeout,
-          cookies:cookies,
+          cookies: cookies,
           extra: extra,
           headers: headers,
           responseType: responseType,
@@ -185,7 +191,7 @@ class RequestOptions extends Options {
 
   /// generate uri
   Uri get uri {
-    String _url=path;
+    String _url = path;
     if (!_url.startsWith(new RegExp(r"https?:"))) {
       _url = baseUrl + _url;
       List<String> s = _url.split(":/");
@@ -209,6 +215,10 @@ class RequestOptions extends Options {
 
   /// See [Uri.queryParameters]
   Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+
+  CancelToken cancelToken;
+
+  ProgressCallback onReceiveProgress;
 }
 
 /**

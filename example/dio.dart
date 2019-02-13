@@ -9,13 +9,6 @@ main() async {
   dio.options.headers = {'user-agent': 'dio', 'common-header': 'xx'};
   dio.interceptors.add(LogInterceptor(responseBody: false)); //Open log
 
-  var u = new Uri(
-      scheme: "https",
-      host: "www.baidu.com",
-      queryParameters: {"xx": "xx", "yy": "dd"});
-
-  print(u);
-
   dio.interceptors.add(InterceptorsWrapper(onRequest: (Options options) {
     // return ds.resolve(new Response(data:"xxx"));
     // return ds.reject(new DioError(message: "eh"));
@@ -27,7 +20,7 @@ main() async {
 
   // Download a file
   response = await dio.download("https://www.google.com/", "./xx.html",
-      onProgress: (received, total) {
+      onReceiveProgress: (received, total) {
     print('$received,$total');
   });
 
