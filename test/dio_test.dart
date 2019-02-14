@@ -17,7 +17,8 @@ class MyTransformer extends DefaultTransformer {
   /// info to [Options.extra], and you can retrieve it in [ResponseInterceptor]
   /// and [Response] with `response.request.extra["cookies"]`.
   @override
-  Future transformResponse(RequestOptions options,  ResponseBody response) async {
+  Future transformResponse(
+      RequestOptions options, ResponseBody response) async {
     options.extra["xx"] = "extra";
     return super.transformResponse(options, response);
   }
@@ -41,7 +42,8 @@ void main() {
     });
     test('test', () async {
       Response response;
-      response = await dio.get("/test", queryParameters: {"id": '12', "name": "wendu"});
+      response = await dio
+          .get("/test", queryParameters: {"id": '12', "name": "wendu"});
       expect(response.data["errCode"], 0);
       response = await dio.post("/test");
       expect(response.data["errCode"], 0);
@@ -68,9 +70,11 @@ void main() {
   group('download', () {
     test("test", () async {
       var dio = new Dio();
-      var url = "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
+      var url =
+          "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
       await dio.download(url, "./example/flutter.svg",
-          options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+          options: Options(
+              headers: {HttpHeaders.acceptEncodingHeader: "*"}), // disable gzip
           // Listen the download progress.
           onReceiveProgress: (received, total) {
         if (total != -1) {
@@ -99,9 +103,11 @@ void main() {
       });
       formData.remove("name");
       formData["xx"] = 9;
-      formData.add("file",
-          new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"));
-      Response response = await dio.post("/test", data: formData);
+      formData.add(
+        "file",
+        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+      );
+      await dio.post("/test", data: formData);
       formData.clear();
       expect(formData.length, 0);
     });
@@ -146,17 +152,16 @@ void main() {
   group('transfomer', () {
     test("test", () async {
       var dio = new Dio();
-      dio.options.baseUrl="http://www.dtworkroom.com/doris/1/2.0.0";
+      dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0";
       dio.transformer = new MyTransformer();
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
       try {
-        var r = await dio.post("/test",
-            data: ["1", "2"]);
+        await dio.post("/test", data: ["1", "2"]);
       } catch (e) {
         expect(e.message, "Can't send List to sever directly");
       }
-      dio.get("/test").then((r){
+      dio.get("/test").then((r) {
         expect(r.request.extra["xx"], "extra");
       });
       var data = {
@@ -181,32 +186,31 @@ void main() {
     setUp(() {
       dio = new Dio();
       dio.options.baseUrl = BASE_URL;
-      dio.interceptors.add(InterceptorsWrapper(
-        onRequest:  (RequestOptions options) async {
-          switch (options.path) {
-            case "/fakepath1":
-              return dio.resolve("fake data");
-            case "/fakepath2":
-              return dio.get("/test");
-            case "/fakepath3":
-              return dio.reject(
-                  "test error"); //you can also return a HttpError directly.
-            case "fakepath4":
-              return new DioError(
-                  message:
-                  "test error"); // Here is equivalent to call dio.reject("test error")
-            case "/test?tag=1":
-              {
-                Response response = await dio.get("/token");
-                print(response);
-                options.headers["token"] = response.data["data"]["token"];
-                return options;
-              }
-            default:
-              return options; //continue
-          }
+      dio.interceptors
+          .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
+        switch (options.path) {
+          case "/fakepath1":
+            return dio.resolve("fake data");
+          case "/fakepath2":
+            return dio.get("/test");
+          case "/fakepath3":
+            return dio.reject(
+                "test error"); //you can also return a HttpError directly.
+          case "fakepath4":
+            return new DioError(
+                message:
+                    "test error"); // Here is equivalent to call dio.reject("test error")
+          case "/test?tag=1":
+            {
+              Response response = await dio.get("/token");
+              print(response);
+              options.headers["token"] = response.data["data"]["token"];
+              return options;
+            }
+          default:
+            return options; //continue
         }
-      ));
+      }));
     });
 
     test('TestRI', () async {
@@ -261,7 +265,8 @@ void main() {
               case URL_NOT_FIND:
                 return e;
               case URL_NOT_FIND_1:
-                return dio.resolve("fake data"); // you can also return a HttpError directly.
+                return dio.resolve(
+                    "fake data"); // you can also return a HttpError directly.
               case URL_NOT_FIND_2:
                 return new Response(data: "fake data");
               case URL_NOT_FIND_3:
@@ -269,12 +274,12 @@ void main() {
             }
           }
           return e;
-        }
+        },
       ));
     });
 
     test('Test', () async {
-     //await dio.get("/test").then(print);
+      //await dio.get("/test").then(print);
       Response response = await dio.get("/test");
       expect(response.data["path"], "/test");
       try {
@@ -302,26 +307,25 @@ void main() {
       String csrfToken;
       dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
       tokenDio.options = dio.options;
-      dio.interceptors.add(InterceptorsWrapper(
-        onRequest: (RequestOptions options) {
-          print('send request：path:${options.path}，baseURL:${options.baseUrl}');
-          if (csrfToken == null) {
-            print("no token，request token firstly...");
-            //lock the dio.
-            dio.lock();
-            return tokenDio.get("/token").then((d) {
-              options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
-              print("request token succeed, value: " + d.data['data']['token']);
-              print(
-                  'continue to perform request：path:${options.path}，baseURL:${options.path}');
-              return options;
-            }).whenComplete(() => dio.unlock()); // unlock the dio
-          } else {
-            options.headers["csrfToken"] = csrfToken;
+      dio.interceptors
+          .add(InterceptorsWrapper(onRequest: (RequestOptions options) {
+        print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+        if (csrfToken == null) {
+          print("no token，request token firstly...");
+          //lock the dio.
+          dio.lock();
+          return tokenDio.get("/token").then((d) {
+            options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
+            print("request token succeed, value: " + d.data['data']['token']);
+            print(
+                'continue to perform request：path:${options.path}，baseURL:${options.path}');
             return options;
-          }
+          }).whenComplete(() => dio.unlock()); // unlock the dio
+        } else {
+          options.headers["csrfToken"] = csrfToken;
+          return options;
         }
-      ));
+      }));
 
       _onResult(d) {
         print("request ok!");

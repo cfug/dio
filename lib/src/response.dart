@@ -31,5 +31,4 @@ class Response<T> {
     }
     return data.toString();
   }
-
 }

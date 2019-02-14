@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 /// [Transformer] that will throw error when request data is a `List` type.
 
 class MyTransformer extends DefaultTransformer {
-
   @override
   Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
@@ -22,11 +21,11 @@ class MyTransformer extends DefaultTransformer {
   /// info to [Options.extra], and you can retrieve it in [ResponseInterceptor]
   /// and [Response] with `response.request.extra["cookies"]`.
   @override
-  Future transformResponse(RequestOptions options, ResponseBody response) async {
+  Future transformResponse(
+      RequestOptions options, ResponseBody response) async {
     options.extra["self"] = 'XX';
     return super.transformResponse(options, response);
   }
-
 }
 
 main() async {

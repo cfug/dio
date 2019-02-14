@@ -113,21 +113,21 @@ class InterceptorsWrapper extends Interceptor {
 
   @override
   onRequest(RequestOptions options) {
-    if(_onRequest!=null) {
+    if (_onRequest != null) {
       return _onRequest(options);
     }
   }
 
   @override
   onResponse(Response response) {
-    if(_onResponse!=null) {
+    if (_onResponse != null) {
       return _onResponse(response);
     }
   }
 
   @override
   onError(DioError err) {
-    if(_onError!=null) {
+    if (_onError != null) {
       return _onError(err);
     }
   }
