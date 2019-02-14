@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -6,7 +5,7 @@ import 'package:dio/dio.dart';
 main() async {
   var dio = new Dio();
   dio.interceptors.add(LogInterceptor(responseBody: true));
-  dio.get(
+  await dio.get(
     "http://www.dtworkroom.com/doris/1/2.0.0/test",
     queryParameters: {"kk": "tt"},
     options: Options(

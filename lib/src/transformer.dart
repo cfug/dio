@@ -122,8 +122,9 @@ class DefaultTransformer extends Transformer {
       onDone: () => completer.complete(),
       cancelOnError: true,
     );
+    // ignore: unawaited_futures
     options.cancelToken?.whenCancel?.then((_) {
-      subscription.cancel();
+      return subscription.cancel();
     });
     await completer.future;
     if (options.responseType == ResponseType.bytes) return buffer;

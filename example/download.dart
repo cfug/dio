@@ -42,7 +42,7 @@ Future download2(Dio dio, String url, String savePath) async {
     var raf = file.openSync(mode: FileMode.write);
     // response.data is List<int> type
     raf.writeFromSync(response.data);
-    raf.close();
+    await raf.close();
   } catch (e) {
     print(e);
   }

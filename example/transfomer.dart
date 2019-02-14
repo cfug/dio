@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:dio/dio.dart';
 
 /// If the request data is a `List` type, the [DefaultTransformer] will send data

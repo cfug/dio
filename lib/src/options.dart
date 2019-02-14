@@ -172,8 +172,8 @@ class RequestOptions extends Options {
     ResponseType responseType,
     ContentType contentType,
     ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError: true,
-    bool followRedirects: true,
+    bool receiveDataWhenStatusError = true,
+    bool followRedirects = true,
   }) : super(
           method: method,
           baseUrl: baseUrl,
@@ -238,8 +238,8 @@ class _RequestConfig {
     this.contentType,
     this.validateStatus,
     this.cookies,
-    this.receiveDataWhenStatusError: true,
-    this.followRedirects: true,
+    this.receiveDataWhenStatusError = true,
+    this.followRedirects = true,
   }) {
     // set the default user-agent with Dio version
     this.headers = headers ?? {};

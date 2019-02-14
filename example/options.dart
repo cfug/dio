@@ -3,15 +3,16 @@ import 'package:dio/dio.dart';
 
 main() async {
   var dio = new Dio(new BaseOptions(
-      baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
-      connectTimeout: 5000,
-      receiveTimeout: 100000,
-      // 5s
-      headers: {"user-agent": "dio", "api": "1.0.0"},
-      contentType: ContentType.JSON,
-      // Transform the response data to a String encoded with UTF8.
-      // The default value is [ResponseType.JSON].
-      responseType: ResponseType.plain));
+    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
+    connectTimeout: 5000,
+    receiveTimeout: 100000,
+    // 5s
+    headers: {"user-agent": "dio", "api": "1.0.0"},
+    contentType: ContentType.json,
+    // Transform the response data to a String encoded with UTF8.
+    // The default value is [ResponseType.JSON].
+    responseType: ResponseType.plain,
+  ));
 
   Response<String> response;
 
