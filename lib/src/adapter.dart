@@ -24,7 +24,25 @@ typedef VoidCallback = dynamic Function();
 /// dio.httpClientAdapter = new DefaultHttpClientAdapter();
 /// ```
 abstract class HttpClientAdapter {
-  Future<ResponseBody> sendRequest(
+  /// We should implement this method to make real http requests.
+  ///
+  /// [options]: The request options
+  ///
+  /// [requestStream] The request stream, It will not be null
+  /// only when http method is one of "POST","PUT","PATCH"
+  /// and the request body is not empty.
+  ///
+  /// We should give priority to using requestStream(not options.data) as request data.
+  /// because supporting stream ensures the `onSendProgress` works.
+  ///
+  /// [cancelFuture]: When  cancelled the request, [cancelFuture] will be resolved!
+  /// you can listen cancel event by it, for example:
+  ///
+  /// ```dart
+  ///  cancelFuture?.then((_)=>print("request cancelled!"))
+  /// ```
+  /// [cancelFuture]: will be null when the request is not set [CancelToken].
+  Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<List<int>> requestStream,
     Future cancelFuture,
@@ -32,50 +50,46 @@ abstract class HttpClientAdapter {
 }
 
 class ResponseBody {
-  ResponseBody(this.stream, this.statusCode, this.headers);
+  ResponseBody(
+    this.stream,
+    this.statusCode,
+    this.headers,
+  );
 
+  /// The response stream
   Stream<List<int>> stream;
-  HttpHeaders headers;
-  int statusCode;
-  VoidCallback _onClose;
 
-  ResponseBody.fromString(String text, this.statusCode, this.headers,
-      {VoidCallback onClose})
-      : _onClose = onClose,
-        stream =
+  /// the response headers
+  HttpHeaders headers;
+
+  /// Http status code
+  int statusCode;
+
+  ResponseBody.fromString(String text, this.statusCode, this.headers)
+      : stream =
             Stream.fromIterable(utf8.encode(text).map((e) => [e]).toList());
 
-  ResponseBody.fromBytes(List<int> bytes, this.statusCode, this.headers,
-      {VoidCallback onClose})
-      : _onClose = onClose,
-        stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
+  ResponseBody.fromBytes(List<int> bytes, this.statusCode, this.headers)
+      : stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
 }
 
 /// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
 class DefaultHttpClientAdapter extends HttpClientAdapter {
   HttpClient _httpClient;
 
-  Future<ResponseBody> sendRequest(
+  Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<List<int>> requestStream,
     Future cancelFuture,
   ) async {
-    if (_httpClient == null) {
-      _httpClient = _configHttpClient(new HttpClient(), true);
-    }
-    var httpClient = _httpClient;
-    if (cancelFuture != null) {
-      httpClient = _configHttpClient(new HttpClient());
-      //if request was cancelled , close httpClient
-      cancelFuture.then((e) => httpClient.close(force: true));
-    }
+    _configHttpClient();
     Future requestFuture;
     if (options.connectTimeout > 0) {
-      requestFuture = httpClient
+      requestFuture = _httpClient
           .openUrl(options.method, options.uri)
           .timeout(new Duration(milliseconds: options.connectTimeout));
     } else {
-      requestFuture = httpClient.openUrl(options.method, options.uri);
+      requestFuture = _httpClient.openUrl(options.method, options.uri);
     }
 
     HttpClientRequest request;
@@ -105,14 +119,13 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(HttpClient httpClient,
-      [bool isDefault = false]) {
-    httpClient.idleTimeout = new Duration(seconds: isDefault ? 3 : 0);
+  void _configHttpClient() {
+    if (_httpClient == null) _httpClient = new HttpClient();
+    _httpClient.idleTimeout = new Duration(seconds: 3);
     if (onHttpClientCreate != null) {
       //user can return a new HttpClient instance
-      httpClient = onHttpClientCreate(httpClient) ?? httpClient;
+      _httpClient = onHttpClientCreate(_httpClient) ?? _httpClient;
     }
-    return httpClient;
   }
 
   /// [Dio] will create new HttpClient when it is needed.

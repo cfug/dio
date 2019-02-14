@@ -11,7 +11,7 @@ main() async {
     queryParameters: {"kk": "tt"},
     options: Options(
       headers: {HttpHeaders.acceptEncodingHeader: "*"},
-      responseType: ResponseType.bytes
+      responseType: ResponseType.bytes,
     ),
     onReceiveProgress: (received, total) {
       if (total != -1) {

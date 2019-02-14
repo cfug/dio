@@ -23,7 +23,6 @@ import 'adapter.dart';
 ///   for example: response data is compressed with gzip or no content-length header.
 typedef ProgressCallback = void Function(int count, int total);
 
-
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
 /// very easy to use.
@@ -38,7 +37,7 @@ class Dio {
   }
 
   /// The Dio version.
-  static const version = "2.0.1";
+  static const version = "2.0.3";
 
   /// Default Request config. More see [BaseOptions] .
   BaseOptions options;
@@ -367,7 +366,7 @@ class Dio {
     ProgressCallback onReceiveProgress,
     Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
     CancelToken cancelToken,
-    lengthHeader: HttpHeaders.contentLengthHeader,
+    lengthHeader = HttpHeaders.contentLengthHeader,
     data,
     Options options,
   }) async {
@@ -406,6 +405,8 @@ class Dio {
       rethrow;
     }
 
+    response.headers = response.data.headers;
+
     File file = new File(savePath);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
@@ -434,7 +435,7 @@ class Dio {
         },
       );
     }
-    
+
     bool compressed = false;
     int total = 0;
     String contentEncoding =
@@ -449,40 +450,55 @@ class Dio {
     }
 
     StreamSubscription subscription;
+    Future asyncWrite;
+    bool closed = false;
+    _closeAndDelete() async {
+      if (!closed) {
+        closed = true;
+        await asyncWrite;
+        await raf.close();
+        await file.delete();
+      }
+    }
     subscription = stream.listen(
       (data) {
-        // Check if cancelled.
-        if (cancelToken != null && cancelToken.cancelError != null) {
-          subscription.cancel();
-          return;
-        }
         subscription.pause();
         // Write file asynchronously
-        raf.writeFrom(data).then((_raf) {
+        asyncWrite = raf.writeFrom(data).then((_raf) {
           // Notify progress
           received += data.length;
           if (onReceiveProgress != null) {
             onReceiveProgress(received, total);
           }
           raf = _raf;
-          subscription.resume();
+          if (cancelToken == null || !cancelToken.isCancelled) {
+            subscription.resume();
+          }
         });
       },
-      onDone: () {
-        raf.close().then((_) {
-          response.headers = response.data.headers;
+      onDone: () async {
+        try {
+          await asyncWrite;
+          await raf.close();
           completer.complete(response);
-        }).catchError((e) => completer.completeError(_assureDioError(e)));
+        } catch (e) {
+          completer.completeError(_assureDioError(e));
+        }
       },
-      onError: (e) {
-        raf
-            .close()
-            .then((_) => file.delete())
-            .whenComplete(() => completer.completeError(_assureDioError(e)));
+      onError: (e) async {
+        try {
+          await _closeAndDelete();
+        } finally {
+          completer.completeError(_assureDioError(e));
+        }
       },
       cancelOnError: true,
     );
-    return _listenCancelForAsyncTask(cancelToken, future);
+    cancelToken?.whenCancel?.then((_) async {
+      subscription.cancel();
+      await _closeAndDelete();
+    });
+    return await _listenCancelForAsyncTask(cancelToken, future);
   }
 
   /**
@@ -493,7 +509,7 @@ class Dio {
    *
    * [savePath]: The path to save the downloading file later.
    *
-   * [onProgress]: The callback to listen downloading progress.
+   * [onReceiveProgress]: The callback to listen downloading progress.
    * please refer to [ProgressCallback].
    *
    * [lengthHeader] : The real size of original file (not compressed).
@@ -518,7 +534,7 @@ class Dio {
     savePath, {
     ProgressCallback onReceiveProgress,
     CancelToken cancelToken,
-    lengthHeader: HttpHeaders.contentLengthHeader,
+    lengthHeader = HttpHeaders.contentLengthHeader,
     data,
     Options options,
   }) {
@@ -650,10 +666,10 @@ class Dio {
     ResponseBody responseBody;
     try {
       var stream = await _transformData(options, onSendProgress);
-      responseBody = await httpClientAdapter.sendRequest(
+      responseBody = await httpClientAdapter.fetch(
         options,
         stream,
-        cancelToken?.cancelled,
+        cancelToken?.whenCancel,
       );
       Response ret = new Response(
           headers: responseBody.headers,
@@ -678,7 +694,7 @@ class Dio {
         );
         future = _onError<T>(err);
       }
-      return _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
+      return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
       DioError err = _assureDioError(e);
       if (CancelToken.isCancel(err)) {
@@ -687,7 +703,7 @@ class Dio {
         // Response onError
         _checkCancelled(cancelToken);
         // Listen in error interceptor.
-        return _listenCancelForAsyncTask<Response<T>>(
+        return await _listenCancelForAsyncTask<Response<T>>(
             cancelToken, _onError<T>(err));
       }
     }

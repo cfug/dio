@@ -20,14 +20,18 @@ class CancelToken {
   /// If request have been canceled, save the cancel Error.
   DioError get cancelError => _cancelError;
 
+  /// whether cancelled
+  bool get isCancelled => _cancelError != null;
+
   /// When cancelled, this future will be resolved.
-  Future<void> get cancelled=>_completer.future;
+  Future<void> get whenCancel => _completer.future;
 
   /// Cancel the request
   void cancel([String msg]) {
     _cancelError = new DioError(message: msg, type: DioErrorType.CANCEL);
     if (!completers.isEmpty) {
       completers.forEach((e) => e.completeError(cancelError));
+
       /// Don't remove [completers] here, [Dio] will remove the completer automatically.
     }
     _completer.complete();

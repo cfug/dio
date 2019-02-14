@@ -80,7 +80,8 @@ class DefaultTransformer extends Transformer {
 
   /// As an agreement, you must return the [response]
   /// when the Options.responseType is [ResponseType.stream].
-  Future transformResponse(RequestOptions options, ResponseBody response) async {
+  Future transformResponse(
+      RequestOptions options, ResponseBody response) async {
     if (options.responseType == ResponseType.stream) {
       return response;
     }
@@ -121,7 +122,7 @@ class DefaultTransformer extends Transformer {
       onDone: () => completer.complete(),
       cancelOnError: true,
     );
-    options.cancelToken?.cancelled?.then((_){
+    options.cancelToken?.whenCancel?.then((_) {
       subscription.cancel();
     });
     await completer.future;

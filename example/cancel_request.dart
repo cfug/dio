@@ -11,14 +11,14 @@ main() async {
   });
 
   // The follow three requests with the same token.
-  var url1="https://accounts.google.com";
-  var url2="https://www.facebook.com";
-  var url3="https://www.baidu.com";
+  var url1 = "https://accounts.google.com";
+  var url2 = "https://www.facebook.com";
+  var url3 = "https://www.baidu.com";
   Response response;
   try {
-    response=await dio.get(url1, cancelToken: token);
+    response = await dio.get(url1, cancelToken: token);
     print(response);
-  }catch (e){
+  } catch (e) {
     if (CancelToken.isCancel(e)) {
       print('$url1: $e');
     }
@@ -54,5 +54,4 @@ main() async {
 //      print('$url3: $e');
 //    }
 //  });
-
 }

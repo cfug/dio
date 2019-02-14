@@ -35,8 +35,8 @@ class BaseOptions extends _RequestConfig {
     ResponseType responseType,
     ContentType contentType,
     ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError: true,
-    bool followRedirects: true,
+    bool receiveDataWhenStatusError = true,
+    bool followRedirects = true,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -97,16 +97,16 @@ class Options extends _RequestConfig {
   Options({
     String method,
     String baseUrl,
-    int connectTimeout: 0,
-    int receiveTimeout: 0,
+    int connectTimeout = 0,
+    int receiveTimeout = 0,
     Iterable<Cookie> cookies,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
     ResponseType responseType,
     ContentType contentType,
     ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError: true,
-    bool followRedirects: true,
+    bool receiveDataWhenStatusError = true,
+    bool followRedirects = true,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -197,8 +197,11 @@ class RequestOptions extends Options {
       List<String> s = _url.split(":/");
       _url = s[0] + ':/' + s[1].replaceAll("//", "/");
     }
-    _url += (_url.contains("?") ? "&" : "?") +
-        Uri(queryParameters: queryParameters).query;
+    String query = Uri(queryParameters: queryParameters).query;
+    if (query.isNotEmpty) {
+      _url += (_url.contains("?") ? "&" : "?") +
+          Uri(queryParameters: queryParameters).query;
+    }
     // Normalize the url.
     return Uri.parse(_url).normalizePath();
   }

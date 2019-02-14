@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import '../interceptor.dart';
 import '../options.dart';
 import '../response.dart';
@@ -28,14 +26,15 @@ class LogInterceptor extends Interceptor {
   /// Log size per print
   final logSize;
 
-  LogInterceptor(
-      {this.request: true,
-      this.requestHeader: true,
-      this.requestBody: false,
-      this.responseHeader: true,
-      this.responseBody: false,
-      this.error: true,
-      this.logSize: 2048});
+  LogInterceptor({
+    this.request = true,
+    this.requestHeader = true,
+    this.requestBody = false,
+    this.responseHeader = true,
+    this.responseBody = false,
+    this.error = true,
+    this.logSize = 2048,
+  });
 
   @override
   onRequest(RequestOptions options) {

@@ -13,10 +13,7 @@ main() async {
   // This is big file(about 200M)
   // var url = "http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg";
 
-  // This is a image, about 4KB
-  //var url = "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
-  var url =
-      "https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0/docs/imgs/book.jpg";
+  var url = "https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0/docs/imgs/book.jpg";
   await download1(dio, url, "./example/book1.jpg");
   await download2(dio, url, "./example/book2.jpg");
 }
@@ -25,7 +22,7 @@ Future download1(Dio dio, String url, String savePath) async {
   try {
     await dio.download(
       url,
-      "./example/book.jpg",
+      savePath,
       onReceiveProgress: showDownloadProgress,
     );
   } catch (e) {
@@ -35,7 +32,7 @@ Future download1(Dio dio, String url, String savePath) async {
 
 Future download2(Dio dio, String url, String savePath) async {
   try {
-    Response response = await dio.get<List<int>>(
+    Response response = await dio.get(
       url,
       onReceiveProgress: showDownloadProgress,
       //Received data with List<int>

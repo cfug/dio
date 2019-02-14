@@ -24,12 +24,12 @@ class FormData extends MapMixin<String, dynamic> {
   /**
    * Create FormData instance with a Map.
    */
-  FormData.from(Map<String, dynamic>  other){
+  FormData.from(Map<String, dynamic> other) {
     _init();
     addAll(other);
   }
 
-  _init(){
+  _init() {
     // Assure the boundary unpredictable and unique
     Random random = new Random();
     boundary = _BOUNDARY_PRE_TAG + random.nextInt(4294967296).toString();
@@ -62,7 +62,7 @@ class FormData extends MapMixin<String, dynamic> {
     _map[key] = value;
   }
 
-  void _writeln(StringBuffer sb){
+  void _writeln(StringBuffer sb) {
     sb.write("\r\n");
   }
 
@@ -72,7 +72,7 @@ class FormData extends MapMixin<String, dynamic> {
     var fileMap = new Map<String, dynamic>();
     StringBuffer data = new StringBuffer();
     _map.forEach((key, value) {
-      if (value is UploadFileInfo||value is List) {
+      if (value is UploadFileInfo || value is List) {
         // If file, add it to `fileMap`, we handle it later.
         fileMap[key] = value;
         return;
@@ -80,14 +80,14 @@ class FormData extends MapMixin<String, dynamic> {
       _appendTextField(data, key, value, bytes);
     });
     //int length=bytes.length;
-    fileMap.forEach((key,  fileInfo) {
-      if(fileInfo is UploadFileInfo) {
-        _appendFileContent(data,key, fileInfo, bytes);
-      }else{
-        (fileInfo as List).forEach((e){
-          if(e is UploadFileInfo){
+    fileMap.forEach((key, fileInfo) {
+      if (fileInfo is UploadFileInfo) {
+        _appendFileContent(data, key, fileInfo, bytes);
+      } else {
+        (fileInfo as List).forEach((e) {
+          if (e is UploadFileInfo) {
             _appendFileContent(data, key, e, bytes);
-          }else{
+          } else {
             _appendTextField(data, key, e, bytes);
           }
         });
@@ -96,7 +96,7 @@ class FormData extends MapMixin<String, dynamic> {
 
     if (_map.length > 0 || fileMap.length > 0) {
       data.clear();
-      data.write(boundary+"--");
+      data.write(boundary + "--");
       _writeln(data);
       bytes.addAll(utf8.encode(data.toString()));
     }
@@ -117,22 +117,22 @@ class FormData extends MapMixin<String, dynamic> {
     data.clear();
   }
 
-  void _appendFileContent(StringBuffer data,String key, UploadFileInfo fileInfo, List<int> bytes) {
+  void _appendFileContent(
+      StringBuffer data, String key, UploadFileInfo fileInfo, List<int> bytes) {
     data.clear();
     data.write(boundary);
     _writeln(data);
     data.write(
-        'Content-Disposition: form-data; name="$key"; filename="${fileInfo
-            .fileName}"');
+        'Content-Disposition: form-data; name="$key"; filename="${fileInfo.fileName}"');
     _writeln(data);
-    data.write("Content-Type: " +
-        (fileInfo.contentType ?? ContentType.text).mimeType);
+    data.write(
+        "Content-Type: " + (fileInfo.contentType ?? ContentType.text).mimeType);
     _writeln(data);
     _writeln(data);
     bytes.addAll(utf8.encode(data.toString()));
-    if(fileInfo.bytes!=null){
+    if (fileInfo.bytes != null) {
       bytes.addAll(fileInfo.bytes);
-    }else {
+    } else {
       bytes.addAll(fileInfo.file.readAsBytesSync());
     }
     bytes.addAll(utf8.encode('\r\n'));
