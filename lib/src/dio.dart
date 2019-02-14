@@ -494,8 +494,9 @@ class Dio {
       },
       cancelOnError: true,
     );
+    // ignore: unawaited_futures
     cancelToken?.whenCancel?.then((_) async {
-      subscription.cancel();
+      await subscription.cancel();
       await _closeAndDelete();
     });
     return await _listenCancelForAsyncTask(cancelToken, future);
@@ -681,7 +682,7 @@ class Dio {
         ret.data = await _listenCancelForAsyncTask(
             cancelToken, transformer.transformResponse(options, responseBody));
       } else {
-        responseBody.stream.listen(null).cancel();
+        await responseBody.stream.listen(null).cancel();
       }
       _checkCancelled(cancelToken);
       if (statusOk) {

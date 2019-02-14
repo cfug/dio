@@ -29,9 +29,9 @@ main() async {
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt"),
     "file2": UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
   });
-
-  //Response response = await dio.post("/token", data: formData);
-  Response response = await dio.post("http://localhost:3000/upload",
+  Response response;
+  response = await dio.post("/token", data: formData);
+  response = await dio.post("http://localhost:3000/upload",
       data: formData2, cancelToken: CancelToken());
   print(response.statusCode);
   //Response response = await dio.post("http://localhost/ds/test", data: formData);

@@ -21,7 +21,7 @@ main() async {
   Response<String> response;
   //response= await dio.get("https://github.com/wendux/fly");
   response = await dio.get("https://www.baidu.com");
-  //print(response.data);
+  print(response.statusCode);
   response = await dio.get("https://www.baidu.com");
-  //print(response.data);
+  print(response.statusCode);
 }

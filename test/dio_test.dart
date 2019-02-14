@@ -83,7 +83,7 @@ void main() {
       });
       var f = new File("./example/flutter.svg");
       var t = await f.open();
-      t.close();
+      await t.close();
     });
   });
 
@@ -161,7 +161,7 @@ void main() {
       } catch (e) {
         expect(e.message, "Can't send List to sever directly");
       }
-      dio.get("/test").then((r) {
+      await dio.get("/test").then((r) {
         expect(r.request.extra["xx"], "extra");
       });
       var data = {

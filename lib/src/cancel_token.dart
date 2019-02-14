@@ -29,7 +29,7 @@ class CancelToken {
   /// Cancel the request
   void cancel([String msg]) {
     _cancelError = new DioError(message: msg, type: DioErrorType.CANCEL);
-    if (!completers.isEmpty) {
+    if (completers.isNotEmpty) {
       completers.forEach((e) => e.completeError(cancelError));
 
       /// Don't remove [completers] here, [Dio] will remove the completer automatically.
