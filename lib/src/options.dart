@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dio.dart';
 import 'cancel_token.dart';
+import 'transformer.dart';
 
 /// ResponseType indicates which transformation should
 /// be automatically applied to the response data by Dio.
@@ -197,10 +198,9 @@ class RequestOptions extends Options {
       List<String> s = _url.split(":/");
       _url = s[0] + ':/' + s[1].replaceAll("//", "/");
     }
-    String query = Uri(queryParameters: queryParameters).query;
+    String query = Transformer.urlEncodeMap(queryParameters);
     if (query.isNotEmpty) {
-      _url += (_url.contains("?") ? "&" : "?") +
-          Uri(queryParameters: queryParameters).query;
+      _url += (_url.contains("?") ? "&" : "?") + query;
     }
     // Normalize the url.
     return Uri.parse(_url).normalizePath();

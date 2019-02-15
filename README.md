@@ -75,7 +75,7 @@ Dio dio = new Dio();
 response = await dio.get("/test?id=12&name=wendu")
 print(response.data.toString());
 // Optionally the request above could also be done as
-response = await dio.get("/test", queryParameters: {"id": '12', "name": "wendu"});
+response = await dio.get("/test", queryParameters: {"id": 12, "name": "wendu"});
 print(response.data.toString());
 ```
 
