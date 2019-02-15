@@ -26,6 +26,28 @@ typedef ProgressCallback = void Function(int count, int total);
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
 /// very easy to use.
+///
+/// You can create a dio instance and config it by two ways:
+/// 1. create first , then config it
+///
+///   ```dart
+///    var dio = Dio();
+///    dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
+///    dio.options.connectTimeout = 5000; //5s
+///    dio.options.receiveTimeout = 5000;
+///    dio.options.headers = {'user-agent': 'dio', 'common-header': 'xx'};
+///   ```
+/// 2. create and config it:
+///
+/// ```dart
+///   var dio = Dio(BaseOptions(
+///    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
+///    connectTimeout: 5000,
+///    receiveTimeout: 5000,
+///    headers: {'user-agent': 'dio', 'common-header': 'xx'},
+///   ));
+///  ```
+
 class Dio {
   /// Create Dio instance with default [Options].
   /// It's mostly just one Dio instance in your application.
@@ -66,7 +88,7 @@ class Dio {
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
   Future<Response<T>> get<T>(
     String path, {
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onReceiveProgress,
@@ -99,7 +121,7 @@ class Dio {
   Future<Response<T>> post<T>(
     String path, {
     data,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
@@ -139,7 +161,7 @@ class Dio {
   Future<Response<T>> put<T>(
     String path, {
     data,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
@@ -179,7 +201,7 @@ class Dio {
   Future<Response<T>> head<T>(
     String path, {
     data,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
   }) {
@@ -211,7 +233,7 @@ class Dio {
   Future<Response<T>> delete<T>(
     String path, {
     data,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
   }) {
@@ -243,7 +265,7 @@ class Dio {
   Future<Response<T>> patch<T>(
     String path, {
     data,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
@@ -364,7 +386,7 @@ class Dio {
     String urlPath,
     savePath, {
     ProgressCallback onReceiveProgress,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     CancelToken cancelToken,
     lengthHeader = HttpHeaders.contentLengthHeader,
     data,
@@ -460,6 +482,7 @@ class Dio {
         await file.delete();
       }
     }
+
     subscription = stream.listen(
       (data) {
         subscription.pause();
@@ -560,7 +583,7 @@ class Dio {
   Future<Response<T>> request<T>(
     String path, {
     data,
-    Map<String, dynamic /*String|Iterable<String>*/ > queryParameters,
+    Map<String, dynamic> queryParameters,
     CancelToken cancelToken,
     Options options,
     ProgressCallback onSendProgress,

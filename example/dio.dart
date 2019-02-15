@@ -2,33 +2,50 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio();
+  var dio = Dio();
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   dio.options.connectTimeout = 5000; //5s
   dio.options.receiveTimeout = 5000;
   dio.options.headers = {'user-agent': 'dio', 'common-header': 'xx'};
-  dio.interceptors.add(LogInterceptor(responseBody: false)); //Open log
 
-  dio.interceptors.add(InterceptorsWrapper(onRequest: (Options options) {
-    // return ds.resolve(new Response(data:"xxx"));
-    // return ds.reject(new DioError(message: "eh"));
-    return options;
-  }));
+// Or you can create dio instance and config it as follow:
+// var dio = Dio(BaseOptions(
+//    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
+//    connectTimeout: 5000,
+//    receiveTimeout: 5000,
+//    headers: {'user-agent': 'dio', 'common-header': 'xx'},
+//  ));
+
+  dio.interceptors
+    ..add(InterceptorsWrapper(
+      onRequest: (Options options) {
+        // return ds.resolve( Response(data:"xxx"));
+        // return ds.reject( DioError(message: "eh"));
+        return options;
+      },
+    ))
+    ..add(LogInterceptor(responseBody: false)); //Open log;
 
   Response response = await dio.get("https://www.google.com/");
   print(response.data);
 
   // Download a file
-  response = await dio.download("https://www.google.com/", "./xx.html",
-      onReceiveProgress: (received, total) {
-    print('$received,$total');
-  });
+  response = await dio.download(
+    "https://www.google.com/",
+    "./example/xx.html",
+    queryParameters: {"a": 1},
+    onReceiveProgress: (received, total) {
+      if (total != -1) {
+        print('$received,$total');
+      }
+    },
+  );
 
   // Create a FormData
-  FormData formData = new FormData.from({
+  FormData formData = FormData.from({
     "name": "wendux",
     "age": 25,
-    "file": new UploadFileInfo(new File("./example/upload.txt"), "upload.txt")
+    "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt")
   });
 
   // Send FormData
@@ -42,8 +59,9 @@ main() async {
       "info": {"name": "wendux", "age": 25}
     },
     // Send data with "application/x-www-form-urlencoded" format
-    options: new Options(
-        contentType: ContentType.parse("application/x-www-form-urlencoded")),
+    options: Options(
+      contentType: ContentType.parse("application/x-www-form-urlencoded"),
+    ),
   );
   print(response.data);
 }

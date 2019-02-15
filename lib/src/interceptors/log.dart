@@ -5,6 +5,16 @@ import '../dio_error.dart';
 import 'dart:math' as math;
 
 class LogInterceptor extends Interceptor {
+  LogInterceptor({
+    this.request = true,
+    this.requestHeader = true,
+    this.requestBody = false,
+    this.responseHeader = true,
+    this.responseBody = false,
+    this.error = true,
+    this.logSize = 2048,
+  });
+
   /// Print request [Options]
   bool request;
 
@@ -25,16 +35,6 @@ class LogInterceptor extends Interceptor {
 
   /// Log size per print
   final logSize;
-
-  LogInterceptor({
-    this.request = true,
-    this.requestHeader = true,
-    this.requestBody = false,
-    this.responseHeader = true,
-    this.responseBody = false,
-    this.error = true,
-    this.logSize = 2048,
-  });
 
   @override
   onRequest(RequestOptions options) {
@@ -85,7 +85,7 @@ class LogInterceptor extends Interceptor {
       print(" " + response.headers.toString().replaceAll("\n", "\n "));
     }
     if (responseBody) {
-      print("data:");
+      print("Response Text:");
       printAll(response.toString());
     }
     print("");
