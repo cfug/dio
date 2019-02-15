@@ -4,18 +4,15 @@ import 'package:dio/dio.dart';
 // In this example we download a image and listen the downloading progress.
 main() async {
   var dio = new Dio();
-
-  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.idleTimeout = new Duration(seconds: 0);
-  };
-
+  dio.interceptors.add(LogInterceptor());
   // This is big file(about 200M)
   // var url = "http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg";
 
   var url =
       "https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0/docs/imgs/book.jpg";
-  await download1(dio, url, "./example/book1.jpg");
+
+ // var url = "https://www.baidu.com/img/bdlogo.gif";
+  //await download1(dio, url, "./example/book1.jpg");
   await download2(dio, url, "./example/book2.jpg");
 }
 
@@ -37,8 +34,13 @@ Future download2(Dio dio, String url, String savePath) async {
       url,
       onReceiveProgress: showDownloadProgress,
       //Received data with List<int>
-      options: Options(responseType: ResponseType.bytes),
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: {"range": "bytes=0-4999999999999"},
+        followRedirects: false,
+      ),
     );
+    print(response.headers);
     File file = new File(savePath);
     var raf = file.openSync(mode: FileMode.write);
     // response.data is List<int> type
