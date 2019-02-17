@@ -150,7 +150,8 @@ Dio dio = new Dio(options);
 
 Dio实例的核心API是 :
 
-**Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken})**
+**Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken, ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress)**
 
 ```dart
   response = await request(
@@ -413,6 +414,8 @@ dio.interceptors.add(CookieManager(CookieJar()))
 ```
 
 `PersistCookieJar` 实现了RFC中标准的cookie策略.  `PersistCookieJar` 会将cookie保存在文件中，所以 cookies 会一直存在除非显式调用 `delete` 删除.
+
+> 注意: 在Flutter中，传给 `PersistCookieJar` 的路径必须是有效的，必须是设备中存在的路径并且路径拥有写权限，你可以通过 [path_provider](https://pub.dartlang.org/packages/path_provider) 包来获取正确的路径。
 
 更多关于 [cookie_jar](https://github.com/flutterchina/)  请参考 : https://github.com/flutterchina/cookie_jar .
 
