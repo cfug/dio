@@ -164,7 +164,8 @@ Dio dio = new Dio(options);
 
 The core API in Dio instance is:
 
-**Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken})**
+**Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken, ProgressCallback onSendProgress,
+    ProgressCallback onReceiveProgress)**
 
 ```dart
 response=await request(
@@ -429,6 +430,8 @@ dio.interceptors.add(CookieManager(CookieJar()))
 
 `PersistCookieJar` is a cookie manager which implements the standard cookie policy declared in RFC. `PersistCookieJar` persists the cookies in files, so if the application exit, the cookies always exist unless call `delete` explicitly.
 
+> Note: In flutter, the path passed to `PersistCookieJar` must be valid(exists in phones and with write access). you can use [path_provider](https://pub.dartlang.org/packages/path_provider) package to get right path
+
 More details about [cookie_jar](https://github.com/flutterchina/cookie_jar)  see : https://github.com/flutterchina/cookie_jar .
 
 ### Custom Interceptor
@@ -632,3 +635,9 @@ This open source project authorized by https://flutterchina.club , and the licen
 Please file feature requests and bugs at the [issue tracker][tracker].
 
 [tracker]: https://github.com/flutterchina/dio/issues
+
+## Donate
+
+Buy a cup of coffee for me (Scan by wechat)：
+
+![](https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0.3/docs/imgs/pay.jpeg)

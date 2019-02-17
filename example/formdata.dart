@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 /// It can be used to submit forms and file uploads to http server.
 main() async {
   var dio = Dio();
-  //dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
+  dio.options.baseUrl = "http://localhost:3000/";
   FormData formData = FormData.from({
     "name": "wendux",
     "age": 25,
@@ -30,8 +30,8 @@ main() async {
     "file2": UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
   });
   Response response;
-  response = await dio.post("/token", data: formData);
-  response = await dio.post("http://localhost:3000/upload",
+  response = await dio.post("/upload", data: formData);
+  response = await dio.post("/upload",
       data: formData2, cancelToken: CancelToken());
   print(response.statusCode);
   //Response response = await dio.post("http://localhost/ds/test", data: formData);

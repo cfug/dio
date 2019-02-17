@@ -21,7 +21,7 @@ Future downloadWithChunks(
   savePath, {
   ProgressCallback onReceiveProgress,
 }) async {
-  const firstChunkSize = 102400;
+  const firstChunkSize = 102;
   const maxChunk = 3;
 
   int total = 0;
@@ -53,14 +53,14 @@ Future downloadWithChunks(
 
   Future mergeTempFiles(chunk) async {
     File f = File(savePath + "temp0");
-    var raf = await f.open(mode: FileMode.writeOnlyAppend);
+    IOSink ioSink= f.openWrite(mode: FileMode.writeOnlyAppend);
     for (int i = 1; i < chunk; ++i) {
       File _f = File(savePath + "temp$i");
-      raf = await raf.writeFrom(await _f.readAsBytes());
+      await ioSink.addStream(_f.openRead());
       await _f.delete();
     }
-    await raf.close();
-    f.rename(savePath);
+    await ioSink.close();
+    await f.rename(savePath);
   }
 
   Response response = await downloadChunk(url, 0, firstChunkSize, 0);
