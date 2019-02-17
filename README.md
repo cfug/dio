@@ -302,7 +302,7 @@ dio.interceptors.add(InterceptorsWrapper(
      // If you want to reject the request with a error message, 
      // you can return a `DioError` object or return `dio.reject(errMsg)`    
     },
-    onResponse:(RequestOptions  response) {
+    onResponse:(Response response) {
      // Do something with response data
      return response; // continue
     },

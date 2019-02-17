@@ -37,7 +37,7 @@ class CancelToken {
     _completer.complete();
   }
 
-  _trigger(completer) {
+  _trigger(Completer completer) {
     if (completer != null) {
       completer.completeError(cancelError);
       completers.remove(completer);
