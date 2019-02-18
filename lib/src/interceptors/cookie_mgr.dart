@@ -29,7 +29,8 @@ class CookieManager extends Interceptor {
   onRequest(RequestOptions options) {
     var cookies = cookieJar.loadForRequest(options.uri)
       ..addAll(options.cookies);
-    options.headers["cookie"] = getCookies(cookies);
+    String cookie = getCookies(cookies);
+    if (cookie.isNotEmpty) options.headers["cookie"] = cookie;
   }
 
   @override
