@@ -711,12 +711,11 @@ class Dio {
       if (statusOk) {
         future = _onResponse<T>(ret);
       } else {
-        var err = new DioError(
+        throw new DioError(
           response: ret,
           message: 'Http status error [${responseBody.statusCode}]',
           type: DioErrorType.RESPONSE,
         );
-        future = _onError<T>(err);
       }
       return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
