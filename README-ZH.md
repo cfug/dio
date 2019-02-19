@@ -132,7 +132,7 @@ response = await dio.post(
 你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个Dio实例 :
 
 ```dart
-Dio dio = new Dio; // 使用默认配置
+Dio dio = new Dio(); // 使用默认配置
 
 // 配置dio实例
 dio.options.baseUrl = "https://www.xx.com/api";

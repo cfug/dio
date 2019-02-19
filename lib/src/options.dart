@@ -88,7 +88,7 @@ class BaseOptions extends _RequestConfig {
   String baseUrl;
 
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+  Map<String, dynamic> queryParameters;
 }
 
 /**
@@ -97,7 +97,6 @@ class BaseOptions extends _RequestConfig {
 class Options extends _RequestConfig {
   Options({
     String method,
-    String baseUrl,
     int connectTimeout = 0,
     int receiveTimeout = 0,
     Iterable<Cookie> cookies,
@@ -125,8 +124,6 @@ class Options extends _RequestConfig {
   /// Create a new Option from current instance with merging attributes.
   Options merge({
     String method,
-    String baseUrl,
-    String path,
     int connectTimeout,
     int receiveTimeout,
     dynamic data,
@@ -177,7 +174,6 @@ class RequestOptions extends Options {
     bool followRedirects = true,
   }) : super(
           method: method,
-          baseUrl: baseUrl,
           connectTimeout: connectTimeout,
           receiveTimeout: receiveTimeout,
           cookies: cookies,
