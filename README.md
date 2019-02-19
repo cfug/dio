@@ -635,8 +635,8 @@ You can cancel a request using a *cancel token*. One token can be shared with mu
 
 ```dart
 CancelToken token = new CancelToken();
-dio.get(url1, cancelToken: token);
-dio.get(url2, cancelToken: token);
+dio.get(url1, cancelToken: token).catchError(print);
+dio.get(url2, cancelToken: token).catchError(print);
 
 // cancel the requests with "cancelled" message.
 token.cancel("cancelled");
