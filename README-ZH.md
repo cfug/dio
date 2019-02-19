@@ -625,7 +625,7 @@ String PEM="XXXXX"; // certificate content
 ```dart
 CancelToken token = new CancelToken();
 dio.get(url, cancelToken: token)
-    .catchError((DioError err){
+    .catchError((err){
         if (CancelToken.isCancel(err)) {
             print('Request canceled! '+ err.message)
         }else{
