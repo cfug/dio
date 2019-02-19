@@ -9,13 +9,13 @@ void main() {
   // add interceptors
   dio.interceptors..add(CookieManager(CookieJar()))..add(LogInterceptor());
   dio.transformer= FlutterTransformer();
-  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-      (client) {
-    client.findProxy = (uri) {
-      //proxy to my PC(charles)
-      return "PROXY 10.1.10.250:8888";
-    };
-  };
+//  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+//      (client) {
+//    client.findProxy = (uri) {
+//      //proxy to my PC(charles)
+//      return "PROXY 10.1.10.250:8888";
+//    };
+//  };
   runApp(MyApp());
 }
 

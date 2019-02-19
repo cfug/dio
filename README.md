@@ -146,7 +146,7 @@ response = await dio.post(
 You can create instance of Dio with an optional `BaseOptions` object:
 
 ```dart
-Dio dio = new Dio; // with default Options
+Dio dio = new Dio(); // with default Options
 
 // Set default configs
 dio.options.baseUrl = "https://www.xx.com/api";

@@ -846,7 +846,7 @@ class Dio {
     var query = (new Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     return RequestOptions(
-      method: opt.method.toUpperCase(),
+      method: opt.method?.toUpperCase()??"GET",
       headers: (new Map.from(options.headers))..addAll(opt.headers),
       baseUrl: options.baseUrl ?? "",
       path: url,
