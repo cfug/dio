@@ -158,7 +158,8 @@ class Interceptors extends ListMixin<Interceptor> {
   void operator []=(int index, value) {
     if (_list.length == index) {
       _list.add(value);
+    }else {
+      _list[index] = value;
     }
-    _list[index] = value;
   }
 }

@@ -51,10 +51,7 @@ class CookieManager extends Interceptor {
   }
 
   static String getCookies(List<Cookie> cookies) {
-    StringBuffer buffer = new StringBuffer();
-    cookies
-        ?.forEach((cookie) => buffer.write('${cookie.name}=${cookie.value};'));
-    return buffer.toString();
+    return cookies.map((cookie) => "${cookie.name}=${cookie.value}").join('; ');
   }
 
   static List<String> normalizeCookies(List<String> cookies) {

@@ -15,7 +15,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^2.0.7
+  dio: ^2.0.9
   dio_flutter_transformer: ^2.0.6
 
 
