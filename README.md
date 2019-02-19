@@ -541,7 +541,25 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ### In flutter
 
-If you use dio in flutter development, you'd better to use [FlutterTransformer](https://github.com/flutterchina/dio_flutter_transformer), by which the json decoding will be in background with [compute] function.
+If you use dio in flutter development, you'd better to decode json   in background with [compute] function.
+
+```dart
+// Must be top-level function
+_parseAndDecode(String response) {
+  return jsonDecode(response);
+}
+
+parseJson(String text) {
+  return compute(_parseAndDecode, text);
+}
+
+void main() {
+  ...
+  //Custom jsonDecodeCallback   
+  (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+  runApp(MyApp());
+}
+```
 
 ### Other Example
 

@@ -97,8 +97,8 @@ class BaseOptions extends _RequestConfig {
 class Options extends _RequestConfig {
   Options({
     String method,
-    int connectTimeout = 0,
-    int receiveTimeout = 0,
+    int connectTimeout,
+    int receiveTimeout,
     Iterable<Cookie> cookies,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
@@ -228,20 +228,16 @@ class _RequestConfig {
     this.method,
     this.connectTimeout,
     this.receiveTimeout,
-    this.extra,
-    this.headers,
+    Map<String, dynamic> extra,
+    Map<String, dynamic> headers,
     this.responseType,
     this.contentType,
     this.validateStatus,
     this.cookies,
     this.receiveDataWhenStatusError = true,
     this.followRedirects = true,
-  }) {
-    // set the default user-agent with Dio version
-    this.headers = headers ?? {};
-
-    this.extra = extra ?? {};
-  }
+  })  : this.headers = headers ?? {},
+        this.extra = extra ?? {};
 
   /// Http method.
   String method;
@@ -249,13 +245,14 @@ class _RequestConfig {
   /// Http request headers.
   Map<String, dynamic> headers;
 
-  /// Timeout in milliseconds for opening  url.
+  /// Timeout in milliseconds for opening url.
+  /// [Dio] will throw the [DioError] with [DioErrorType.CONNECT_TIMEOUT] type
+  ///  when time out.
   int connectTimeout;
 
-  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
-  ///
-  ///  Note: This is not the receiving time limitation.
+  ///  Timeout in milliseconds for receiving data.
+  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT] type
+  ///  when time out.
   int receiveTimeout;
 
   /// The request Content-Type. The default value is [ContentType.json].

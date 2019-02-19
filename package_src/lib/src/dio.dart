@@ -443,21 +443,6 @@ class Dio {
 
     // Stream<List<int>>
     Stream<List<int>> stream = response.data.stream;
-    // Handle  timeout
-    if (options.receiveTimeout > 0) {
-      stream = stream.timeout(
-        new Duration(milliseconds: options.receiveTimeout),
-        onTimeout: (EventSink sink) {
-          sink.addError(new DioError(
-            request: response.request,
-            message: "Receiving data timeout[${options.receiveTimeout}ms]",
-            type: DioErrorType.RECEIVE_TIMEOUT,
-          ));
-          sink.close();
-        },
-      );
-    }
-
     bool compressed = false;
     int total = 0;
     String contentEncoding =
@@ -522,6 +507,21 @@ class Dio {
       await subscription.cancel();
       await _closeAndDelete();
     });
+
+    if (response.request.receiveTimeout > 0) {
+      future = future
+          .timeout(Duration(milliseconds: response.request.receiveTimeout))
+          .catchError((err) async {
+        await subscription.cancel();
+        await _closeAndDelete();
+        throw DioError(
+          request: response.request,
+          message:
+              "Receiving data timeout[${response.request.receiveTimeout}ms]",
+          type: DioErrorType.RECEIVE_TIMEOUT,
+        );
+      });
+    }
     return await _listenCancelForAsyncTask(cancelToken, future);
   }
 
@@ -793,9 +793,9 @@ class Dio {
       var stream = Stream.fromIterable(group);
       Stream<List<int>> byteStream = stream
           .transform(StreamTransformer.fromHandlers(handleData: (data, sink) {
-        if (options.cancelToken?.cancelError != null) {
+        if (options.cancelToken != null && options.cancelToken.isCancelled) {
           sink
-            ..addError(options.cancelToken?.cancelError)
+            ..addError(options.cancelToken.cancelError)
             ..close();
         } else {
           sink.add(data);
@@ -846,7 +846,7 @@ class Dio {
     var query = (new Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     return RequestOptions(
-      method: opt.method?.toUpperCase()??"GET",
+      method: opt.method?.toUpperCase() ?? "GET",
       headers: (new Map.from(options.headers))..addAll(opt.headers),
       baseUrl: options.baseUrl ?? "",
       path: url,

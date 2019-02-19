@@ -65,7 +65,13 @@ abstract class Transformer {
 /// request/response data, you can provide a [Transformer] by your self, and
 /// replace the [DefaultTransformer] by setting the [dio.Transformer].
 
+typedef JsonDecodeCallback = dynamic Function(String);
+
 class DefaultTransformer extends Transformer {
+  DefaultTransformer({this.jsonDecodeCallback});
+
+  JsonDecodeCallback jsonDecodeCallback;
+
   Future<String> transformRequest(RequestOptions options) async {
     var data = options.data ?? "";
     if (data is! String) {
@@ -85,19 +91,6 @@ class DefaultTransformer extends Transformer {
     if (options.responseType == ResponseType.stream) {
       return response;
     }
-    // Handle timeout
-    Stream<List<int>> stream = response.stream;
-    if (options.receiveTimeout > 0) {
-      stream = stream
-          .timeout(new Duration(milliseconds: options.receiveTimeout),
-              onTimeout: (EventSink sink) {
-        sink.addError(new DioError(
-          message: "Receiving data timeout[${options.receiveTimeout}ms]",
-          type: DioErrorType.RECEIVE_TIMEOUT,
-        ));
-        sink.close();
-      });
-    }
     int length = 0;
     int received = 0;
     bool showDownloadProgress = options.onReceiveProgress != null;
@@ -106,7 +99,7 @@ class DefaultTransformer extends Transformer {
           response.headers.value(HttpHeaders.contentLengthHeader) ?? "-1");
     }
     Completer completer = new Completer();
-    Stream _stream = stream.transform<List<int>>(
+    Stream<List<int>> stream = response.stream.transform<List<int>>(
         StreamTransformer.fromHandlers(handleData: (data, sink) {
       sink.add(data);
       if (showDownloadProgress) {
@@ -116,7 +109,7 @@ class DefaultTransformer extends Transformer {
     }));
     List<int> buffer = new List<int>();
     StreamSubscription subscription;
-    subscription = _stream.listen(
+    subscription = stream.listen(
       (element) => buffer.addAll(element),
       onError: (e) => completer.completeError(e),
       onDone: () => completer.complete(),
@@ -126,14 +119,32 @@ class DefaultTransformer extends Transformer {
     options.cancelToken?.whenCancel?.then((_) {
       return subscription.cancel();
     });
-    await completer.future;
+    if (options.receiveTimeout > 0) {
+      try {
+        await completer.future
+            .timeout(new Duration(milliseconds: options.receiveTimeout));
+      } on TimeoutException {
+        subscription.cancel();
+        throw DioError(
+          request: options,
+          message: "Receiving data timeout[${options.receiveTimeout}ms]",
+          type: DioErrorType.RECEIVE_TIMEOUT,
+        );
+      }
+    } else {
+      await completer.future;
+    }
     if (options.responseType == ResponseType.bytes) return buffer;
     String responseBody = utf8.decode(buffer, allowMalformed: true);
     if (responseBody != null &&
         responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
         response.headers.contentType?.mimeType == ContentType.json.mimeType) {
-      return json.decode(responseBody);
+      if (jsonDecodeCallback != null) {
+        return jsonDecodeCallback(responseBody);
+      } else {
+        return json.decode(responseBody);
+      }
     }
     return responseBody;
   }

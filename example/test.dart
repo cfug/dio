@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio();
+  var dio = new Dio(BaseOptions(connectTimeout: 50));
   dio.interceptors.add(LogInterceptor(responseBody: true));
   await dio.get(
     "http://www.dtworkroom.com/doris/1/2.0.0/test",

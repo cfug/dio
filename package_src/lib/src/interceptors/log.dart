@@ -56,7 +56,10 @@ class LogInterceptor extends Interceptor {
       printKV('header', stringBuffer.toString());
       stringBuffer.clear();
     }
-    if (requestBody) printKV('data', options.data);
+    if (requestBody) {
+      print("data:");
+      printAll(options.data);
+    }
     print("");
   }
 
@@ -95,12 +98,16 @@ class LogInterceptor extends Interceptor {
     print('$key: $v');
   }
 
-  printAll(String msg) {
+  printAll(msg) {
+    msg.toString().split("\n").forEach(_printAll);
+  }
+
+  _printAll(String msg) {
     int groups = (msg.length / logSize).ceil();
     for (int i = 0; i < groups; ++i) {
       print((i > 0 ? '<<Log follows the previous line: ' : '') +
           msg.substring(
-              i * logSize, math.min(i * logSize + logSize, msg.length)));
+              i * logSize, math.min<int>(i * logSize + logSize, msg.length)));
     }
   }
 }

@@ -138,4 +138,9 @@ class FormData extends MapMixin<String, dynamic> {
     bytes.addAll(utf8.encode('\r\n'));
     data.clear();
   }
+
+  @override
+  String toString() {
+    return utf8.decode(bytes(),allowMalformed: true);
+  }
 }
