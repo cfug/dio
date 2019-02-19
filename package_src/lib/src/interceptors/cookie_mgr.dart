@@ -2,6 +2,7 @@ import 'dart:io';
 import '../interceptor.dart';
 import '../options.dart';
 import '../response.dart';
+import '../dio_error.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 
 class CookieManager extends Interceptor {
@@ -34,19 +35,26 @@ class CookieManager extends Interceptor {
   }
 
   @override
-  onResponse(Response response) {
-    List<String> cookies = response.headers[HttpHeaders.setCookieHeader];
-    if (cookies != null) {
-      if (needNormalize) {
-        var _cookies = normalizeCookies(cookies);
-        cookies
-          ..clear()
-          ..addAll(_cookies);
+  onResponse(Response response) => _saveCookies(response);
+
+  @override
+  onError(DioError err) => _saveCookies(err.response);
+
+  _saveCookies(Response response) {
+    if (response != null && response.headers != null) {
+      List<String> cookies = response.headers[HttpHeaders.setCookieHeader];
+      if (cookies != null) {
+        if (needNormalize) {
+          var _cookies = normalizeCookies(cookies);
+          cookies
+            ..clear()
+            ..addAll(_cookies);
+        }
+        cookieJar.saveFromResponse(
+          response.request.uri,
+          cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+        );
       }
-      cookieJar.saveFromResponse(
-        response.request.uri,
-        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
-      );
     }
   }
 

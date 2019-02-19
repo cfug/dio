@@ -90,6 +90,7 @@ void main() {
   group('formdata', () {
     test("test", () async {
       var dio = new Dio();
+      dio.interceptors.add(LogInterceptor(requestBody: true));
       dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
 //      dio.onHttpClientCreate = (HttpClient client) {
 //        client.findProxy = (uri) {
@@ -105,7 +106,7 @@ void main() {
       formData["xx"] = 9;
       formData.add(
         "file",
-        new UploadFileInfo(new File("./example/upload.txt"), "upload.txt"),
+        new UploadFileInfo(new File("./pubspec.yaml"), "pubspec.yaml"),
       );
       await dio.post("/test", data: formData);
       formData.clear();

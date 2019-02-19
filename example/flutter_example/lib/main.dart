@@ -1,14 +1,25 @@
+import 'dart:convert';
+
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_flutter_transformer/dio_flutter_transformer.dart';
 import 'http.dart'; // make dio as global top-level variable
 import 'routes/request.dart';
+
+// Must be top-level function
+_parseAndDecode(String response) {
+  return jsonDecode(response);
+}
+
+parseJson(String text) {
+  return compute(_parseAndDecode, text);
+}
 
 void main() {
   // add interceptors
   dio.interceptors..add(CookieManager(CookieJar()))..add(LogInterceptor());
-  dio.transformer= FlutterTransformer();
+  (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
 //  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
 //      (client) {
 //    client.findProxy = (uri) {
@@ -38,13 +49,13 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _text="";
+  String _text = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,9 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(
             child: Text("Request"),
             onPressed: () {
-              dio.get("https://baidu.com").then((r){
+              dio.get("https://baidu.com").then((r) {
                 setState(() {
-                  _text=r.data.replaceAll(RegExp(r"\s"), "");
+                  _text = r.data.replaceAll(RegExp(r"\s"), "");
                 });
               });
             },

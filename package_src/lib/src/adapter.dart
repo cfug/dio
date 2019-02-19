@@ -98,7 +98,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       //Set Headers
       options.headers.forEach((k, v) => request.headers.set(k, v));
     } on TimeoutException {
-      throw new DioError(
+      throw DioError(
         request: options,
         message: "Connecting timeout[${options.connectTimeout}ms]",
         type: DioErrorType.CONNECT_TIMEOUT,
@@ -118,6 +118,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       responseStream.headers,
     );
   }
+
 
   void _configHttpClient() {
     if (_httpClient == null) _httpClient = new HttpClient();
