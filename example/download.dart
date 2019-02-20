@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 // In this example we download a image and listen the downloading progress.
 main() async {
   var dio = new Dio();
-  dio.options.receiveTimeout=2000;
   dio.interceptors.add(LogInterceptor());
   // This is big file(about 200M)
    var url = "http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg";
