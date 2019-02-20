@@ -1,3 +1,3 @@
 ## Change Log:
 
-See https://github.com/flutterchina/dio/tree/master/example
+See https://github.com/flutterchina/dio/blob/master/CHANGELOG.md

@@ -528,25 +528,29 @@ response = await dio.post("/info", data: formData);
 
 ### Flutter中设置
 
-如果你在开发Flutter应用，强烈建议json的解码通过compute方法在后台进行，这样可以避免在解析复杂json时导致的UI卡顿。
+如果你在开发Flutter应用，强烈建议json的解码通过compute方法在后台进行，这样可以避免在解析复杂json时导致的UI卡顿。我们可以采用下面任意一种方法：
 
-```dart
-// 必须是顶层函数
-_parseAndDecode(String response) {
-  return jsonDecode(response);
-}
+1. 设置`DefaultTransformer.jsonDecodeCallback` , 自定义json解码逻辑。
 
-parseJson(String text) {
-  return compute(_parseAndDecode, text);
-}
+   ```dart
+   // 必须是顶层函数
+   _parseAndDecode(String response) {
+     return jsonDecode(response);
+   }
+   
+   parseJson(String text) {
+     return compute(_parseAndDecode, text);
+   }
+   
+   void main() {
+     ...
+     // 自定义 jsonDecodeCallback   
+     (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+     runApp(MyApp());
+   }
+   ```
 
-void main() {
-  ...
-  // 自定义 jsonDecodeCallback   
-  (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-  runApp(MyApp());
-}
-```
+2. 使用Flutter专用的 [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) .
 
 ### 其它示例
 
