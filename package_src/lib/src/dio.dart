@@ -357,7 +357,16 @@ class Dio {
    *
    * [urlPath]: The file url.
    *
-   * [savePath]: The path to save the downloading file later.
+   * [savePath]: The path to save the downloading file later. it can be a String or
+   * a callback:
+   * 1. A path with String type, eg "xs.jpg"
+   * 2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+   * ```dart
+   *  await dio.download(url,(HttpHeaders responseHeaders){
+   *     ...
+   *     return "...";
+   *   });
+   * ```
    *
    * [onReceiveProgress]: The callback to listen downloading progress.
    * please refer to [ProgressCallback].
@@ -425,8 +434,12 @@ class Dio {
     }
 
     response.headers = response.data.headers;
-
-    File file = new File(savePath);
+    File file;
+    if (savePath is Function) {
+      file = File(savePath(response.headers));
+    } else {
+      file = File(savePath.toString());
+    }
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
@@ -528,7 +541,16 @@ class Dio {
    *
    * [uri]: The file uri.
    *
-   * [savePath]: The path to save the downloading file later.
+   * [savePath]: The path to save the downloading file later. it can be a String or
+   * a callback:
+   * 1. A path with String type, eg "xs.jpg"
+   * 2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+   * ```dart
+   *  await dio.downloadUri(uri,(HttpHeaders responseHeaders){
+   *     ...
+   *     return "...";
+   *   });
+   * ```
    *
    * [onReceiveProgress]: The callback to listen downloading progress.
    * please refer to [ProgressCallback].
