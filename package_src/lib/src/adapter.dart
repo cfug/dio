@@ -84,11 +84,17 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
   ) async {
     _configHttpClient();
     Future requestFuture;
+
     if (options.connectTimeout > 0) {
+      // Because there is a bug in [httpClient.connectionTimeout] now, we replace it
+      // with `Future.timeout()` when it comes.
+      // Bug issue: https://github.com/dart-lang/sdk/issues/34980.
+      //_httpClient.connectionTimeout= Duration(milliseconds: options.connectTimeout);
       requestFuture = _httpClient
           .openUrl(options.method, options.uri)
-          .timeout(new Duration(milliseconds: options.connectTimeout));
+          .timeout(Duration(milliseconds: options.connectTimeout));
     } else {
+      _httpClient.connectionTimeout = null;
       requestFuture = _httpClient.openUrl(options.method, options.uri);
     }
 
@@ -103,6 +109,8 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
         message: "Connecting timeout[${options.connectTimeout}ms]",
         type: DioErrorType.CONNECT_TIMEOUT,
       );
+    } catch (e) {
+      print(e);
     }
     request.followRedirects = options.followRedirects;
 
@@ -119,10 +127,9 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     );
   }
 
-
   void _configHttpClient() {
     if (_httpClient == null) _httpClient = new HttpClient();
-    _httpClient.idleTimeout = new Duration(seconds: 3);
+    _httpClient.idleTimeout = Duration(seconds: 3);
     if (onHttpClientCreate != null) {
       //user can return a new HttpClient instance
       _httpClient = onHttpClientCreate(_httpClient) ?? _httpClient;
