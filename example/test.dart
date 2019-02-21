@@ -2,10 +2,15 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio(BaseOptions(connectTimeout: 50));
-  dio.interceptors.add(LogInterceptor(responseBody: true));
+  var dio = new Dio(
+    BaseOptions(
+      //connectTimeout: 5000,
+      baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
+    ),
+  );
+  dio.interceptors.add(LogInterceptor());
   await dio.get(
-    "http://www.dtworkroom.com/doris/1/2.0.0/test",
+    "/test",
     queryParameters: {"kk": "tt"},
     options: Options(
       headers: {HttpHeaders.acceptEncodingHeader: "*"},
