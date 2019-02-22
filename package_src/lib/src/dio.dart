@@ -436,6 +436,8 @@ class Dio {
     response.headers = response.data.headers;
     File file;
     if (savePath is Function) {
+      assert(savePath is String Function(HttpHeaders),
+          "savePath callback type must be `String Function(HttpHeaders)`");
       file = File(savePath(response.headers));
     } else {
       file = File(savePath.toString());
@@ -783,9 +785,18 @@ class Dio {
     if (data != null && ["POST", "PUT", "PATCH"].contains(options.method)) {
       // Handle the FormData
       int length;
-      if(data is Stream<List<int>>){
-        stream=data;
-      }else if (data is FormData) {
+      if (data is Stream) {
+        assert(
+            data is Stream<List<int>>, "Stream type must be `Stream<List<int>>`");
+        stream = data;
+        options.headers.keys.any((String key) {
+          if (key.toLowerCase() == HttpHeaders.contentLengthHeader) {
+            length = int.parse(options.headers[stream].toString());
+            return true;
+          }
+          return false;
+        });
+      } else if (data is FormData) {
         options.headers[HttpHeaders.contentTypeHeader] =
             'multipart/form-data; boundary=${data.boundary.substring(2)}';
         stream = data.stream;
