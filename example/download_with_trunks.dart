@@ -45,7 +45,6 @@ Future downloadWithChunks(
       savePath + "temp$no",
       onReceiveProgress: createCallback(no),
       options: Options(
-        responseType: ResponseType.bytes,
         headers: {"range": "bytes=$start-$end"},
       ),
     );

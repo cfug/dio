@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
@@ -32,7 +33,8 @@ class FormData extends MapMixin<String, dynamic> {
   _init() {
     // Assure the boundary unpredictable and unique
     Random random = new Random();
-    boundary = _BOUNDARY_PRE_TAG + random.nextInt(4294967296).toString();
+    boundary = _BOUNDARY_PRE_TAG +
+        random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
   @override
@@ -66,8 +68,83 @@ class FormData extends MapMixin<String, dynamic> {
     sb.write("\r\n");
   }
 
-  /// Generate the payload for request body.
-  List<int> bytes() {
+  static int _textFieldLen;
+  static int _fileFieldLen;
+
+  int get _textFieldLength {
+    if (_textFieldLen == null) {
+      _textFieldLen = _textField(StringBuffer(), "", "").length;
+    }
+    return _textFieldLen;
+  }
+
+  int get _fileFieldLength {
+    if (_fileFieldLen == null) {
+      _fileFieldLen = _chunkHeader(
+            StringBuffer(),
+            "",
+            UploadFileInfo(null, "", contentType: ContentType.text),
+          ).length -
+          utf8.encode(ContentType.text.mimeType).length;
+    }
+    return _fileFieldLen;
+  }
+
+  /// Get the length of the formData (as bytes)
+  int get length {
+    int len = 0;
+    int lineSplitLen = utf8.encode('\r\n').length;
+    var fileMap = new Map<String, dynamic>();
+    StringBuffer buf = StringBuffer();
+    _map.forEach((key, value) {
+      if (value is UploadFileInfo || value is List) {
+        fileMap[key] = value;
+        return;
+      }
+      len += _textFieldLength;
+      buf.write("$key$value");
+    });
+
+    _fileInfo(key, UploadFileInfo info) {
+      buf.write("$key${info.fileName}");
+      buf.write((info.contentType ?? ContentType.text).mimeType);
+    }
+
+    fileMap.forEach((key, fileInfo) {
+      if (fileInfo is UploadFileInfo) {
+        len += _fileFieldLength;
+        _fileInfo(key, fileInfo);
+        len += fileInfo.bytes?.length ?? fileInfo.file.lengthSync();
+        len += lineSplitLen;
+      } else {
+        (fileInfo as List).forEach((e) {
+          if (e is UploadFileInfo) {
+            len += _fileFieldLength;
+            _fileInfo(key, e);
+            len += e.bytes?.length ?? e.file.lengthSync();
+            len += lineSplitLen;
+          } else {
+            len += _textFieldLength;
+            buf.write("$key$e");
+          }
+        });
+      }
+    });
+    if (_map.isNotEmpty || fileMap.isNotEmpty) {
+      buf.write(boundary + "--");
+      _writeln(buf);
+    }
+    len += utf8.encode(buf.toString()).length;
+    return len;
+  }
+
+  ///Transform the entire FormData contents as a list of bytes asynchronously.
+  Future<List<int>> asBytesAsync() {
+    return stream.reduce((a, b) => []..addAll(a)..addAll(b));
+  }
+
+  ///Transform the entire FormData contents as a list of bytes synchronously.
+  List<int> asBytes() {
     List<int> bytes = new List();
     var fileMap = new Map<String, dynamic>();
     StringBuffer data = new StringBuffer();
@@ -77,18 +154,21 @@ class FormData extends MapMixin<String, dynamic> {
         fileMap[key] = value;
         return;
       }
-      _appendTextField(data, key, value, bytes);
+      bytes.addAll(_textField(data, key, value));
     });
-    //int length=bytes.length;
     fileMap.forEach((key, fileInfo) {
       if (fileInfo is UploadFileInfo) {
-        _appendFileContent(data, key, fileInfo, bytes);
+        bytes.addAll(_chunkHeader(data, key, fileInfo));
+        bytes.addAll(fileInfo.bytes ?? fileInfo.file.readAsBytesSync());
+        bytes.addAll(utf8.encode('\r\n'));
       } else {
         (fileInfo as List).forEach((e) {
           if (e is UploadFileInfo) {
-            _appendFileContent(data, key, e, bytes);
+            bytes.addAll(_chunkHeader(data, key, e));
+            bytes.addAll(e.bytes ?? e.file.readAsBytesSync());
+            bytes.addAll(utf8.encode('\r\n'));
           } else {
-            _appendTextField(data, key, e, bytes);
+            bytes.addAll(_textField(data, key, e));
           }
         });
       }
@@ -103,44 +183,98 @@ class FormData extends MapMixin<String, dynamic> {
     return bytes;
   }
 
-  void _appendTextField(StringBuffer data, String key, value, bytes) {
-    data.clear();
-    data.write(boundary);
-    _writeln(data);
-    data.write('Content-Disposition: form-data; name="${key}"');
-    _writeln(data);
-    _writeln(data);
-    data.write(value);
-    _writeln(data);
-    // Transform string to bytes.
-    bytes.addAll(utf8.encode(data.toString()));
-    data.clear();
+  @Deprecated('Use `asBytes` instead. Will be removed in 2.1.0')
+  List<int> bytes() {
+    return asBytes();
   }
 
-  void _appendFileContent(
-      StringBuffer data, String key, UploadFileInfo fileInfo, List<int> bytes) {
-    data.clear();
-    data.write(boundary);
-    _writeln(data);
-    data.write(
+  List<int> _textField(StringBuffer buffer, String key, value) {
+    buffer.clear();
+    buffer.write(boundary);
+    _writeln(buffer);
+    buffer.write('Content-Disposition: form-data; name="${key}"');
+    _writeln(buffer);
+    _writeln(buffer);
+    buffer.write(value);
+    _writeln(buffer);
+    String str = buffer.toString();
+    buffer.clear();
+    return utf8.encode(str);
+  }
+
+  List<int> _chunkHeader(
+    StringBuffer buffer,
+    String key,
+    UploadFileInfo fileInfo,
+  ) {
+    buffer.clear();
+    buffer.write(boundary);
+    _writeln(buffer);
+    buffer.write(
         'Content-Disposition: form-data; name="$key"; filename="${fileInfo.fileName}"');
-    _writeln(data);
-    data.write(
+    _writeln(buffer);
+    buffer.write(
         "Content-Type: " + (fileInfo.contentType ?? ContentType.text).mimeType);
-    _writeln(data);
-    _writeln(data);
-    bytes.addAll(utf8.encode(data.toString()));
-    if (fileInfo.bytes != null) {
-      bytes.addAll(fileInfo.bytes);
-    } else {
-      bytes.addAll(fileInfo.file.readAsBytesSync());
+    _writeln(buffer);
+    _writeln(buffer);
+    String str = buffer.toString();
+    buffer.clear();
+    return utf8.encode(str);
+  }
+
+  Stream<List<int>> get stream async* {
+    var fileMap = new Map<String, dynamic>();
+    StringBuffer buffer = new StringBuffer();
+
+    Stream<List<int>> addFile(key, value) async* {
+      yield _chunkHeader(buffer, key, value);
+      if (value.bytes != null) {
+        yield value.bytes;
+      } else {
+        await for (var chunk in value.file.openRead()) {
+          yield chunk;
+        }
+      }
+      yield utf8.encode('\r\n');
     }
-    bytes.addAll(utf8.encode('\r\n'));
-    data.clear();
+
+    for (var entry in _map.entries) {
+      if (entry.value is UploadFileInfo || entry.value is List) {
+        // If file, add it to `fileMap`, we handle it later.
+        fileMap[entry.key] = entry.value;
+        continue;
+      }
+      yield _textField(buffer, entry.key, entry.value);
+    }
+
+    for (var entry in fileMap.entries) {
+      if (entry.value is UploadFileInfo) {
+        await for (var chunk in addFile(entry.key, entry.value)) {
+          yield chunk;
+        }
+      } else {
+        for (var info in entry.value) {
+          if (info is UploadFileInfo) {
+            await for (var chunk in addFile(entry.key, info)) {
+              yield chunk;
+            }
+          } else {
+            yield _textField(buffer, entry.key, info);
+          }
+        }
+      }
+    }
+
+    if (_map.isNotEmpty || fileMap.isNotEmpty) {
+      buffer.clear();
+      buffer.write(boundary + "--");
+      _writeln(buffer);
+      yield utf8.encode(buffer.toString());
+    }
   }
 
   @override
   String toString() {
-    return utf8.decode(bytes(),allowMalformed: true);
+    return utf8.decode(asBytes(), allowMalformed: true);
   }
 }

@@ -779,12 +779,19 @@ class Dio {
       [ProgressCallback onSendProgress]) async {
     var data = options.data;
     List<int> bytes;
+    Stream<List<int>> stream;
     if (data != null && ["POST", "PUT", "PATCH"].contains(options.method)) {
       // Handle the FormData
-      if (data is FormData) {
+      int length;
+      if(data is Stream<List<int>>){
+        stream=data;
+      }else if (data is FormData) {
         options.headers[HttpHeaders.contentTypeHeader] =
             'multipart/form-data; boundary=${data.boundary.substring(2)}';
-        bytes = data.bytes();
+        stream = data.stream;
+        if (onSendProgress != null) {
+          length = data.length;
+        }
       } else {
         options.headers[HttpHeaders.contentTypeHeader] =
             options.contentType.toString();
@@ -797,19 +804,22 @@ class Dio {
           // Convert to utf8
           bytes = utf8.encode(_data);
         }
+        // support data sending progress
+        length = bytes.length;
+
+        var group = new List<List<int>>();
+        const size = 1024;
+        int groupCount = (bytes.length / size).ceil();
+        for (int i = 0; i < groupCount; ++i) {
+          int start = i * size;
+          group.add(bytes.sublist(start, math.min(start + size, bytes.length)));
+        }
+        stream = Stream.fromIterable(group);
       }
-      options.headers[HttpHeaders.contentLengthHeader] = bytes.length;
-      // support data sending progress
-      int length = bytes.length;
+      if (length != null) {
+        options.headers[HttpHeaders.contentLengthHeader] = length;
+      }
       int complete = 0;
-      var group = new List<List<int>>();
-      const size = 1024;
-      int groupCount = (bytes.length / size).ceil();
-      for (int i = 0; i < groupCount; ++i) {
-        int start = i * size;
-        group.add(bytes.sublist(start, math.min(start + size, bytes.length)));
-      }
-      var stream = Stream.fromIterable(group);
       Stream<List<int>> byteStream = stream
           .transform(StreamTransformer.fromHandlers(handleData: (data, sink) {
         if (options.cancelToken != null && options.cancelToken.isCancelled) {
@@ -818,9 +828,11 @@ class Dio {
             ..close();
         } else {
           sink.add(data);
-          complete += data.length;
-          if (onSendProgress != null) {
-            onSendProgress(complete, length);
+          if (length != null) {
+            complete += data.length;
+            if (onSendProgress != null) {
+              onSendProgress(complete, length);
+            }
           }
         }
       }));
