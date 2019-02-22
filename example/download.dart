@@ -12,7 +12,7 @@ main() async {
       "https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0/docs/imgs/book.jpg";
 
  // var url = "https://www.baidu.com/img/bdlogo.gif";
-  await download1(dio, url, "./example/book1.jpg");
+ // await download1(dio, url, "./example/book1.jpg");
   await download1(dio, url, (HttpHeaders headers)=>"./example/book1.jpg");
   //await download2(dio, url, "./example/book2.jpg");
 }
