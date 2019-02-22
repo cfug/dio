@@ -2,6 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 
+void showDownloadProgress(received, total) {
+  if (total != -1) {
+    print((received / total * 100).toStringAsFixed(0) + "%");
+  }
+}
+
 /// FormData will create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 main() async {
@@ -29,10 +35,19 @@ main() async {
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt"),
     "file2": UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
   });
+  print(formData.asBytes().length = formData.length);
+
   Response response;
-  response = await dio.post("/upload", data: formData);
-  response = await dio.post("/upload",
-      data: formData2, cancelToken: CancelToken());
+  response = await dio.post(
+    "/upload",
+    data: formData,
+    onSendProgress: showDownloadProgress,
+  );
+  response = await dio.post(
+    "/upload",
+    data: formData2,
+    cancelToken: CancelToken(),
+  );
   print(response.statusCode);
   //Response response = await dio.post("http://localhost/ds/test", data: formData);
   print(response.data);
