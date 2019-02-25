@@ -10,6 +10,7 @@ main() async {
 
   var imgFile=new File("");
   String savePath="";
+  String token="xxxxx";
 
   // Sending stream
   await dio.post(
@@ -21,7 +22,7 @@ main() async {
         HttpHeaders.contentLengthHeader: imgFile.lengthSync(),
         // Set content-length
         HttpHeaders
-            .authorizationHeader: "Bearer AIzaSyAJ5IMfIWjrIXuZY82zsBDOZfDaXr8q4Rg"
+            .authorizationHeader: "Bearer $token"
       },
     ),
   );
