@@ -681,6 +681,10 @@ class Dio {
         _mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
     requestOptions.cancelToken = cancelToken;
+    if (data is FormData) {
+      requestOptions.headers[HttpHeaders.contentTypeHeader] =
+          'multipart/form-data; boundary=${data.boundary.substring(2)}';
+    }
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptors.requestLock, () {
       Future ret = _executeInterceptors<RequestOptions>(
@@ -786,35 +790,30 @@ class Dio {
       // Handle the FormData
       int length;
       if (data is Stream) {
-        assert(
-            data is Stream<List<int>>, "Stream type must be `Stream<List<int>>`");
+        assert(data is Stream<List<int>>,
+            "Stream type must be `Stream<List<int>>`, but ${data.runtimeType} is found.");
         stream = data;
         options.headers.keys.any((String key) {
           if (key.toLowerCase() == HttpHeaders.contentLengthHeader) {
-            length = int.parse(options.headers[stream].toString());
+            length = int.parse(options.headers[key].toString());
             return true;
           }
           return false;
         });
       } else if (data is FormData) {
-        options.headers[HttpHeaders.contentTypeHeader] =
-            'multipart/form-data; boundary=${data.boundary.substring(2)}';
+        assert(
+            options.headers[HttpHeaders.contentTypeHeader] ==
+                'multipart/form-data; boundary=${data.boundary.substring(2)}',
+            "You shouldn't change the value of content-type in request headers when sending FormData.");
         stream = data.stream;
         if (onSendProgress != null) {
           length = data.length;
         }
       } else {
-        options.headers[HttpHeaders.contentTypeHeader] =
-            options.contentType.toString();
-        // If Byte Array
-        if (data is List<int>) {
-          bytes = data;
-        } else {
-          // Call request transformer.
-          String _data = await transformer.transformRequest(options);
-          // Convert to utf8
-          bytes = utf8.encode(_data);
-        }
+        // Call request transformer.
+        String _data = await transformer.transformRequest(options);
+        // Convert to utf8
+        bytes = utf8.encode(_data);
         // support data sending progress
         length = bytes.length;
 
@@ -827,6 +826,8 @@ class Dio {
         }
         stream = Stream.fromIterable(group);
       }
+      options.headers[HttpHeaders.contentTypeHeader] ??=
+          options.contentType.toString();
       if (length != null) {
         options.headers[HttpHeaders.contentLengthHeader] = length;
       }
@@ -885,11 +886,11 @@ class Dio {
 
   RequestOptions _mergeOptions(
       Options opt, String url, data, Map<String, dynamic> queryParameters) {
-    var query = (new Map<String, dynamic>.from(options.queryParameters ?? {}))
+    var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     return RequestOptions(
       method: opt.method?.toUpperCase() ?? "GET",
-      headers: (new Map.from(options.headers))..addAll(opt.headers),
+      headers: (Map.from(options.headers))..addAll(opt.headers),
       baseUrl: options.baseUrl ?? "",
       path: url,
       data: data,
@@ -897,14 +898,14 @@ class Dio {
       receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
       responseType:
           opt.responseType ?? options.responseType ?? ResponseType.json,
-      extra: (new Map.from(options.extra))..addAll(opt.extra),
+      extra: (Map.from(options.extra))..addAll(opt.extra),
       contentType: opt.contentType ?? options.contentType ?? ContentType.json,
       validateStatus: opt.validateStatus ??
           options.validateStatus ??
           (int status) => status >= 200 && status < 300 || status == 304,
       followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
       queryParameters: query,
-      cookies: new List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
+      cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
     );
   }
 
