@@ -109,8 +109,6 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
         message: "Connecting timeout[${options.connectTimeout}ms]",
         type: DioErrorType.CONNECT_TIMEOUT,
       );
-    } catch (e) {
-      print(e);
     }
     request.followRedirects = options.followRedirects;
 
