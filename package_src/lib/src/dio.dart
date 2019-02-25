@@ -35,7 +35,7 @@ typedef ProgressCallback = void Function(int count, int total);
 ///    dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
 ///    dio.options.connectTimeout = 5000; //5s
 ///    dio.options.receiveTimeout = 5000;
-///    dio.options.headers = {'user-agent': 'dio', 'common-header': 'xx'};
+///    dio.options.headers = {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'};
 ///   ```
 /// 2. create and config it:
 ///
@@ -44,7 +44,7 @@ typedef ProgressCallback = void Function(int count, int total);
 ///    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
 ///    connectTimeout: 5000,
 ///    receiveTimeout: 5000,
-///    headers: {'user-agent': 'dio', 'common-header': 'xx'},
+///    headers: {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'},
 ///   ));
 ///  ```
 
