@@ -10,6 +10,8 @@ class CookieManager extends Interceptor {
   /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
   final CookieJar cookieJar;
 
+  static const invalidCookieValue = "_invalid_";
+
   /// Dart SDK will cause an exception When response cookie's value is empty,
   /// eg. 'Set-Cookie: session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
   ///
@@ -28,8 +30,11 @@ class CookieManager extends Interceptor {
 
   @override
   onRequest(RequestOptions options) {
-    var cookies = cookieJar.loadForRequest(options.uri)
-      ..addAll(options.cookies);
+    var cookies = cookieJar.loadForRequest(options.uri);
+    cookies.removeWhere((cookie) =>
+        cookie.value == invalidCookieValue &&
+        cookie.expires.isBefore(DateTime.now()));
+    cookies.addAll(options.cookies);
     String cookie = getCookies(cookies);
     if (cookie.isNotEmpty) options.headers[HttpHeaders.cookieHeader] = cookie;
   }
@@ -69,7 +74,7 @@ class CookieManager extends Interceptor {
         var _cookie = cookie.split(";");
         var kv = _cookie.first?.split("=");
         if (kv != null && kv[1].isEmpty) {
-          kv[1] = "_invalid_";
+          kv[1] = invalidCookieValue;
           _cookie[0] = kv.join('=');
           if (_cookie.length > 1) {
             int i = 1;
