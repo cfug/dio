@@ -11,7 +11,7 @@ import 'upload_file_info.dart';
  */
 class FormData extends MapMixin<String, dynamic> {
   var _map = new Map<String, dynamic>();
-  static const String _BOUNDARY_PRE_TAG = "----dioBoundary&Happycoding-";
+  static const String _BOUNDARY_PRE_TAG = "----dio-boundary-";
 
   /// The boundary of FormData, it consists of a constant prefix and a random
   /// postfix to assure the the boundary unpredictable and unique, each FormData

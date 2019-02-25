@@ -213,7 +213,7 @@ class RequestOptions extends Options {
   String path = "";
 
   /// See [Uri.queryParameters]
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+  Map<String, dynamic> queryParameters;
 
   CancelToken cancelToken;
 
@@ -262,15 +262,18 @@ class _RequestConfig {
   ContentType contentType;
 
   /// [responseType] indicates the type of data that the server will respond with
-  /// options which defined in [ResponseType] are `JSON`, `STREAM`, `PLAIN`.
+  /// options which defined in [ResponseType] are `json`, `stream`, `plain`.
   ///
-  /// The default value is `JSON`, dio will parse response string to json object automatically
+  /// The default value is `json`, dio will parse response string to json object automatically
   /// when the content-type of response is "application/json".
   ///
   /// If you want to receive response data with binary bytes, for example,
-  /// downloading a image, use `STREAM`.
+  /// downloading a image, use `stream`.
   ///
-  /// If you want to receive the response data with String, use `PLAIN`.
+  /// If you want to receive the response data with String, use `plain`.
+  ///
+  /// If you want to receive the response data with  original bytes,
+  /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   ResponseType responseType;
 
   /// `validateStatus` defines whether the request is successful for a given

@@ -13,6 +13,7 @@ void showDownloadProgress(received, total) {
 main() async {
   var dio = Dio();
   dio.options.baseUrl = "http://localhost:3000/";
+  dio.interceptors.add(LogInterceptor(requestBody: true));
   FormData formData = FormData.from({
     "name": "wendux",
     "age": 25,
@@ -35,7 +36,7 @@ main() async {
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt"),
     "file2": UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
   });
-  print(formData.asBytes().length = formData.length);
+  print(formData.asBytes().length == formData.length);
 
   Response response;
   response = await dio.post(
