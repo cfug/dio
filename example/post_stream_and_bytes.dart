@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,9 +7,9 @@ main() async {
   var dio = new Dio(BaseOptions(connectTimeout: 5000));
   dio.interceptors.add(LogInterceptor(responseBody: true));
 
-  var imgFile=new File("");
-  String savePath="";
-  String token="xxxxx";
+  var imgFile = new File("");
+  String savePath = "";
+  String token = "xxxxx";
 
   // Sending stream
   await dio.post(
@@ -20,18 +19,16 @@ main() async {
       headers: {
         HttpHeaders.contentTypeHeader: ContentType.text,
         HttpHeaders.contentLengthHeader: imgFile.lengthSync(),
-        // Set content-length
-        HttpHeaders
-            .authorizationHeader: "Bearer $token"
+        HttpHeaders.authorizationHeader: "Bearer $token",
       },
     ),
   );
 
-  // Sending bytes
-  List<int> postData=utf8.encode('{"userName":"wendux"}');
+  // Sending bytes(Just an example, you can send json(Map) directly in action)
+  List<int> postData = utf8.encode('{"userName":"wendux"}');
   await dio.post(
     "http://www.dtworkroom.com/doris/1/2.0.0/test",
-    data: Stream.fromIterable(postData.map((e)=>[e])),
+    data: Stream.fromIterable(postData.map((e) => [e])),
     options: Options(
       headers: {
         HttpHeaders.contentLengthHeader: postData.length, // Set content-length
