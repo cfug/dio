@@ -811,9 +811,13 @@ class Dio {
         }
       } else {
         // Call request transformer.
-        String _data = await transformer.transformRequest(options);
-        // Convert to utf8
-        bytes = utf8.encode(_data);
+        if (options.data is List<int>) {
+          bytes = options.data;
+        } else {
+          String _data = await transformer.transformRequest(options);
+          // Convert to utf8
+          bytes = utf8.encode(_data);
+        }
         // support data sending progress
         length = bytes.length;
 
