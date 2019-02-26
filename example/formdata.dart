@@ -36,9 +36,20 @@ main() async {
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt"),
     "file2": UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
   });
-  print(formData.asBytes().length == formData.length);
 
   Response response;
+  //upload a video
+  response = await dio.post(
+    "/upload",
+    data: FormData.from({
+      "file": UploadFileInfo(File("./example/bee.mp4"), "bee.mp4"),
+    }),
+    onSendProgress: (received, total) {
+      if (total != -1) {
+        print((received / total * 100).toStringAsFixed(0) + "%");
+      }
+    },
+  );
   response = await dio.post(
     "/upload",
     data: formData,
@@ -49,7 +60,4 @@ main() async {
     data: formData2,
     cancelToken: CancelToken(),
   );
-  print(response.statusCode);
-  //Response response = await dio.post("http://localhost/ds/test", data: formData);
-  print(response.data);
 }
