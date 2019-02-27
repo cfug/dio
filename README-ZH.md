@@ -22,11 +22,10 @@ dependencies:
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
-    Response response;
-    response = await Dio().get("http://www.baidu.com");
-    return print(response);
+    Response response = await Dio().get("http://www.baidu.com");
+    print(response);
   } catch (e) {
-    return print(e);
+    print(e);
   }
 }
 ```
@@ -123,11 +122,33 @@ response = await dio.post(
 );
 ```
 
-…你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/master/example).
+以流的形式提交二进制数据：
+
+```dart
+// 二进制数据
+List<int> postData = <int>[...];
+await dio.post(
+  url,
+  data: Stream.fromIterable(postData.map((e) => [e])), //创建一个Stream<List<int>>
+  options: Options(
+    headers: {
+      HttpHeaders.contentLengthHeader: postData.length, // 设置content-length
+    },
+  ),
+);
+```
+
+注意：如果要监听提交进度，则必须设置content-length，反之则是可选的。
+
+### 示例目录
+
+你可以在这里查看dio的[全部示例](https://github.com/flutterchina/dio/tree/master/example).
 
 ## Dio APIs
 
 ### 创建一个Dio实例，并配置它
+
+> 建议在项目中使用Dio单例，这样便可对同一个dio实例发起的所有请求进行一些统一的配置，比如设置公共header、请求基地址、超时时间等；这里有一个在[Flutter工程中使用Dio单例](https://github.com/flutterchina/dio/tree/master/example/flutter_example)（定义为top level变量）的示例供开发者参考。
 
 你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个Dio实例 :
 
@@ -148,6 +169,8 @@ Options options = new BaseOptions(
 Dio dio = new Dio(options);
 ```
 
+
+
 Dio实例的核心API是 :
 
 **Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken, ProgressCallback onSendProgress,
@@ -157,7 +180,7 @@ Dio实例的核心API是 :
   response = await request(
       "/test",
       data: {"id": 12, "name": "xx"},
-      new Options(method: "GET"),
+      options: Options(method: "GET"),
   );
 ```
 
@@ -165,21 +188,21 @@ Dio实例的核心API是 :
 
 为了方便使用，Dio提供了一些其它的Restful API, 这些API都是`request`的别名。
 
-**Future<Response> get(...)** 
+**Future<Response> get(...)**
 
-**Future<Response> post(...)** 
+**Future<Response> post(...)**
 
-**Future<Response> put(...)** 
+**Future<Response> put(...)**
 
 **Future<Response> delete(...)**
 
-**Future<Response> head(...)** 
+**Future<Response> head(...)**
 
-**Future<Response> put(...)** 
+**Future<Response> put(...)**
 
-**Future<Response> path(...)** 
+**Future<Response> path(...)**
 
-**Future<Response> download(...)** 
+**Future<Response> download(...)**
 
 
 ## 请求配置
@@ -199,14 +222,8 @@ Dio实例的核心API是 :
 
   /// 连接服务器超时时间，单位是毫秒.
   int connectTimeout;
-
-  ///  响应流上前后两次接受到数据的间隔，单位为毫秒。如果两次间隔超过[receiveTimeout]，
-  ///  [Dio] 将会抛出一个[DioErrorType.RECEIVE_TIMEOUT]的异常.
-  ///  注意: 这并不是接收数据的总时限.
+  /// 2.x中为接收数据的最长时限.
   int receiveTimeout;
-
-  /// 请求数据,可以是任意类型.
-  var data;
 
   /// 请求路径，如果 `path` 以 "http(s)"开始, 则 `baseURL` 会被忽略； 否则,
   /// 将会和baseUrl拼接出完整的的url.
@@ -233,9 +250,9 @@ Dio实例的核心API是 :
 
   /// 用户自定义字段，可以在 [Interceptor]、[Transformer] 和 [Response] 中取到.
   Map<String, dynamic> extra;
-    
-  /// 公共query参数  
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
+
+  /// 公共query参数
+  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
 }
 ```
 
@@ -275,7 +292,7 @@ Dio实例的核心API是 :
 每个 Dio 实例都可以添加任意多个拦截器，通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
 
 ```dart
- 
+
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(RequestOptions options){
      // 在请求被发送之前做一些事情
@@ -284,7 +301,7 @@ dio.interceptors.add(InterceptorsWrapper(
      // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义数据data.
      //
      // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象，或返回`dio.reject(errMsg)`，
-     // 这样请求将被中止并触发异常，上层catchError会被调用。    
+     // 这样请求将被中止并触发异常，上层catchError会被调用。
     },
     onResponse:(Response response) {
      // 在返回响应数据之前做一些预处理
@@ -304,7 +321,7 @@ dio.interceptors.add(InterceptorsWrapper(
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
   onRequest:(RequestOptions options){
-   return dio.resolve("fake data")    
+   return dio.resolve("fake data")
   },
 ));
 Response response = await dio.get("/test");
@@ -320,9 +337,9 @@ dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async{
         //...If no token, request token firstly.
         Response response = await dio.get("/token");
-        //Set the token to headers 
+        //Set the token to headers
         options.headers["token"] = response.data["data"]["token"];
-        return options; //continue   
+        return options; //continue
     }
 ));
 ```
@@ -459,6 +476,9 @@ dio.interceptors.add(CookieManager(CookieJar()))
   /// 错误类型，见下文
   DioErrorType type;
 
+  ///原始的error或exception对象，通常type为DEFAULT时存在。
+  dynamic error;
+
   /// 错误栈信息，可能为null
   StackTrace stackTrace;
 }
@@ -468,9 +488,6 @@ dio.interceptors.add(CookieManager(CookieJar()))
 
 ```dart
 enum DioErrorType {
-  /// Default error type, usually occurs before connecting the server.
-  DEFAULT,
-
   /// When opening  url timeout, it occurs.
   CONNECT_TIMEOUT,
 
@@ -484,7 +501,11 @@ enum DioErrorType {
   RESPONSE,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL
+  CANCEL,
+
+  /// Default error type, Some other Error. In this case, you can
+  /// read the DioError.error if it is not null.
+  DEFAULT
 }
 ```
 
@@ -528,29 +549,25 @@ response = await dio.post("/info", data: formData);
 
 ### Flutter中设置
 
-如果你在开发Flutter应用，强烈建议json的解码通过compute方法在后台进行，这样可以避免在解析复杂json时导致的UI卡顿。我们可以采用下面任意一种方法：
+如果你在开发Flutter应用，强烈建议json的解码通过compute方法在后台进行，这样可以避免在解析复杂json时导致的UI卡顿。
 
-1. 设置`DefaultTransformer.jsonDecodeCallback` , 自定义json解码逻辑。
+```dart
+// 必须是顶层函数
+_parseAndDecode(String response) {
+  return jsonDecode(response);
+}
 
-   ```dart
-   // 必须是顶层函数
-   _parseAndDecode(String response) {
-     return jsonDecode(response);
-   }
-   
-   parseJson(String text) {
-     return compute(_parseAndDecode, text);
-   }
-   
-   void main() {
-     ...
-     // 自定义 jsonDecodeCallback   
-     (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-     runApp(MyApp());
-   }
-   ```
+parseJson(String text) {
+  return compute(_parseAndDecode, text);
+}
 
-2. 使用Flutter专用的 [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) .
+void main() {
+  ...
+  // 自定义 jsonDecodeCallback
+  (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+  runApp(MyApp());
+}
+```
 
 ### 其它示例
 
@@ -578,13 +595,13 @@ Dio 使用`DefaultHttpClientAdapter`作为其默认HttpClientAdapter，`DefaultH
 
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-    // config the http client  
+    // config the http client
     client.findProxy = (uri) {
         //proxy all request to localhost:8888
         return "PROXY localhost:8888";
     };
     // you can also create a new HttpClient to dio
-    // return new HttpClient();  
+    // return new HttpClient();
 };
 ```
 
@@ -595,11 +612,11 @@ Dio 使用`DefaultHttpClientAdapter`作为其默认HttpClientAdapter，`DefaultH
 有两种方法可以校验https证书，假设我们的后台服务使用的是自签名证书，证书格式是PEM格式，我们将证书的内容保存在本地字符串中，那么我们的校验逻辑如下：
 
 ```dart
-String PEM="XXXXX"; // certificate content 
+String PEM="XXXXX"; // certificate content
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     client.badCertificateCallback=(X509Certificate cert, String host, int port){
         if(cert.pem==PEM){ // Verify the certificate
-            return true; 
+            return true;
         }
         return false;
     };
@@ -629,7 +646,7 @@ String PEM="XXXXX"; // certificate content
 ```dart
 CancelToken token = new CancelToken();
 dio.get(url, cancelToken: token)
-    .catchError((err){
+    .catchError((DioError err){
         if (CancelToken.isCancel(err)) {
             print('Request canceled! '+ err.message)
         }else{

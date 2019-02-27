@@ -22,16 +22,15 @@ If you are using 1.0.x , this doc can help you upgrade to 2.0.x.  [Change log](h
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
-    Response response;
-    response = await Dio().get("http://www.google.com");
-    return print(response);
+    Response response = await Dio().get("http://www.google.com");
+    print(response);
   } catch (e) {
-    return print(e);
+    print(e);
   }
 }
 ```
 
-## Table of contents 
+## Table of contents
 
 - [Examples](#examples)
 
@@ -170,8 +169,8 @@ The core API in Dio instance is:
 ```dart
 response=await request(
     "/test",
-    data: {"id":12,"name":"xx"}, 
-    options: new Options(method:"GET"),
+    data: {"id":12,"name":"xx"},
+    options: Options(method:"GET"),
 );
 ```
 
@@ -179,21 +178,21 @@ response=await request(
 
 For convenience aliases have been provided for all supported request methods.
 
-**Future<Response> get(...)** 
+**Future<Response> get(...)**
 
-**Future<Response> post(...)** 
+**Future<Response> post(...)**
 
-**Future<Response> put(...)** 
+**Future<Response> put(...)**
 
 **Future<Response> delete(...)**
 
-**Future<Response> head(...)** 
+**Future<Response> head(...)**
 
-**Future<Response> put(...)** 
+**Future<Response> put(...)**
 
-**Future<Response> path(...)** 
+**Future<Response> path(...)**
 
-**Future<Response> download(...)** 
+**Future<Response> download(...)**
 
 
 ## Request Options
@@ -243,7 +242,7 @@ The Options class describes the http request information and configuration. Each
   ///
   /// If you want to receive the response data with String, use `PLAIN`.
   ResponseType responseType;
-  
+
   /// `validateStatus` defines whether the request is successful for a given
   /// HTTP response status code. If `validateStatus` returns `true` ,
   /// the request will be perceived as successful; otherwise, considered as failed.
@@ -251,7 +250,7 @@ The Options class describes the http request information and configuration. Each
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the   [Response] object.
   Map<String, dynamic> extra;
-  
+
   /// Custom Cookies
   Iterable<Cookie> cookies;
 }
@@ -299,8 +298,8 @@ dio.interceptors.add(InterceptorsWrapper(
      return options; //continue
      // If you want to resolve the request with some custom data，
      // you can return a `Response` object or return `dio.resolve(data)`.
-     // If you want to reject the request with a error message, 
-     // you can return a `DioError` object or return `dio.reject(errMsg)`    
+     // If you want to reject the request with a error message,
+     // you can return a `DioError` object or return `dio.reject(errMsg)`
     },
     onResponse:(Response response) {
      // Do something with response data
@@ -316,12 +315,12 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ### Resolve and reject the request
 
-In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message, you can return a `DioError` object or return `dio.reject(errMsg)` . 
+In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message, you can return a `DioError` object or return `dio.reject(errMsg)` .
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
   onRequest:(RequestOptions options){
-   return dio.resolve("fake data")    
+   return dio.resolve("fake data")
   },
 ));
 Response response = await dio.get("/test");
@@ -337,9 +336,9 @@ dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async{
         //...If no token, request token firstly.
         Response response = await dio.get("/token");
-        //Set the token to headers 
+        //Set the token to headers
         options.headers["token"] = response.data["data"]["token"];
-        return options; //continue   
+        return options; //continue
     }
 ));
 ```
@@ -419,7 +418,7 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 CookieManager Interceptor  can help us manage the request/response cookies automaticly. CookieManager depends on `cookieJar`  package :
 
-> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar). 
+> The dio cookie manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar).
 
 You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically, and dio use the  `CookieJar` by default, which saves the cookies **in RAM**. If you want to persists cookies, you can use the `PersistCookieJar` class, the example codes as follows:
 
@@ -444,20 +443,20 @@ When a error occurs, Dio will wrap the `Error/Exception` to a `DioError`:
 
 ```dart
 try {
-    //404  
+    //404
     await dio.get("https://wendux.github.io/xsddddd");
 } on DioError catch(e) {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx and is also not 304.
     if(e.response) {
-        print(e.response.data) 
-        print(e.response.headers) 
-        print(e.response.request)    
+        print(e.response.data)
+        print(e.response.headers)
+        print(e.response.request)
     } else{
-        // Something happened in setting up or sending the request that triggered an Error  
-        print(e.request)  
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request)
         print(e.message)
-    }  
+    }
 }
 ```
 
@@ -471,8 +470,12 @@ try {
 
   /// Error descriptions.
   String message;
-  
+
   DioErrorType type;
+
+  /// The original error/exception object; It's usually not null when `type`
+  /// is DioErrorType.DEFAULT
+  dynamic error;
 
   /// Error stacktrace info
   StackTrace stackTrace;
@@ -483,23 +486,21 @@ try {
 
 ```dart
 enum DioErrorType {
-  /// Default error type, usually occurs before connecting the server.
-  DEFAULT,
-
   /// When opening  url timeout, it occurs.
   CONNECT_TIMEOUT,
 
-  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
-  ///
-  ///  Note: This is not the receiving time limitation.
+  ///It occurs when receiving timeout.
   RECEIVE_TIMEOUT,
 
   /// When the server response, but with a incorrect status, such as 404, 503...
   RESPONSE,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL
+  CANCEL,
+
+  /// Default error type, Some other Error. In this case, you can
+  /// read the DioError.error if it is not null.
+  DEFAULT,
 }
 ```
 
@@ -541,35 +542,31 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ### In flutter
 
-If you use dio in flutter development, you'd better to decode json  in background with [compute] function. There are two ways to do this:
+If you use dio in flutter development, you'd better to decode json   in background with [compute] function.
 
-1. Set `DefaultTransformer.jsonDecodeCallback`:
+```dart
+// Must be top-level function
+_parseAndDecode(String response) {
+  return jsonDecode(response);
+}
 
-   ```dart
-   // Must be top-level function
-   _parseAndDecode(String response) {
-     return jsonDecode(response);
-   }
-   
-   parseJson(String text) {
-     return compute(_parseAndDecode, text);
-   }
-   
-   void main() {
-     ...
-     //Custom jsonDecodeCallback   
-     (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-     runApp(MyApp());
-   }
-   ```
+parseJson(String text) {
+  return compute(_parseAndDecode, text);
+}
 
-2. Use [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) (a flutter-specific transformer).
+void main() {
+  ...
+  //Custom jsonDecodeCallback
+  (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+  runApp(MyApp());
+}
+```
 
 ### Other Example
 
 There is an example for [customizing Transformer](https://github.com/flutterchina/dio/blob/master/example/transfomer.dart).
 
-## HttpClientAdapter 
+## HttpClientAdapter
 
 HttpClientAdapter is a bridge between Dio and HttpClient.
 
@@ -585,19 +582,19 @@ dio.httpClientAdapter = new DefaultHttpClientAdapter();
 
 
 
-### Using proxy 
+### Using proxy
 
 `DefaultHttpClientAdapter` provide a callback to set proxy to `dart:io:HttpClient`, for example:
 
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-    // config the http client  
+    // config the http client
     client.findProxy = (uri) {
         //proxy all request to localhost:8888
         return "PROXY localhost:8888";
     };
     // you can also create a new HttpClient to dio
-    // return new HttpClient();  
+    // return new HttpClient();
 };
 ```
 
@@ -608,11 +605,11 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 There are two ways  to verify the https certificate. Suppose the certificate format is PEM, the code like:
 
 ```dart
-String PEM="XXXXX"; // certificate content 
+String PEM="XXXXX"; // certificate content
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     client.badCertificateCallback=(X509Certificate cert, String host, int port){
         if(cert.pem==PEM){ // Verify the certificate
-            return true; 
+            return true;
         }
         return false;
     };
@@ -639,8 +636,8 @@ You can cancel a request using a *cancel token*. One token can be shared with mu
 
 ```dart
 CancelToken token = new CancelToken();
-dio.get(url1, cancelToken: token).catchError(print);
-dio.get(url2, cancelToken: token).catchError(print);
+dio.get(url1, cancelToken: token);
+dio.get(url2, cancelToken: token);
 
 // cancel the requests with "cancelled" message.
 token.cancel("cancelled");
