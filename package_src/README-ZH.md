@@ -22,11 +22,10 @@ dependencies:
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
-    Response response;
-    response = await Dio().get("http://www.baidu.com");
-    return print(response);
+    Response response = await Dio().get("http://www.baidu.com");
+    print(response);
   } catch (e) {
-    return print(e);
+    print(e);
   }
 }
 ```
@@ -123,11 +122,33 @@ response = await dio.post(
 );
 ```
 
-…你可以在这里获取所有[示例代码](https://github.com/flutterchina/dio/tree/master/example).
+以流的形式提交二进制数据：
+
+```dart
+// 二进制数据
+List<int> postData = <int>[...];
+await dio.post(
+  url,
+  data: Stream.fromIterable(postData.map((e) => [e])), //创建一个Stream<List<int>>
+  options: Options(
+    headers: {
+      HttpHeaders.contentLengthHeader: postData.length, // 设置content-length
+    },
+  ),
+);
+```
+
+注意：如果要监听提交进度，则必须设置content-length，反之则是可选的。
+
+### 示例目录
+
+你可以在这里查看dio的[全部示例](https://github.com/flutterchina/dio/tree/master/example).
 
 ## Dio APIs
 
 ### 创建一个Dio实例，并配置它
+
+> 建议在项目中使用Dio单例，这样便可对同一个dio实例发起的所有请求进行一些统一的配置，比如设置公共header、请求基地址、超时时间等；这里有一个在[Flutter工程中使用Dio单例](https://github.com/flutterchina/dio/tree/master/example/flutter_example)（定义为top level变量）的示例供开发者参考。
 
 你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个Dio实例 :
 
@@ -148,6 +169,8 @@ Options options = new BaseOptions(
 Dio dio = new Dio(options);
 ```
 
+
+
 Dio实例的核心API是 :
 
 **Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken, ProgressCallback onSendProgress,
@@ -157,7 +180,7 @@ Dio实例的核心API是 :
   response = await request(
       "/test",
       data: {"id": 12, "name": "xx"},
-      new Options(method: "GET"),
+      options: Options(method: "GET"),
   );
 ```
 
@@ -199,14 +222,8 @@ Dio实例的核心API是 :
 
   /// 连接服务器超时时间，单位是毫秒.
   int connectTimeout;
-
-  ///  响应流上前后两次接受到数据的间隔，单位为毫秒。如果两次间隔超过[receiveTimeout]，
-  ///  [Dio] 将会抛出一个[DioErrorType.RECEIVE_TIMEOUT]的异常.
-  ///  注意: 这并不是接收数据的总时限.
+  /// 2.x中为接收数据的最长时限.
   int receiveTimeout;
-
-  /// 请求数据,可以是任意类型.
-  var data;
 
   /// 请求路径，如果 `path` 以 "http(s)"开始, 则 `baseURL` 会被忽略； 否则,
   /// 将会和baseUrl拼接出完整的的url.
@@ -458,6 +475,9 @@ dio.interceptors.add(CookieManager(CookieJar()))
 
   /// 错误类型，见下文
   DioErrorType type;
+     
+  ///原始的error或exception对象，通常type为DEFAULT时存在。
+  dynamic error;   
 
   /// 错误栈信息，可能为null
   StackTrace stackTrace;
@@ -468,9 +488,6 @@ dio.interceptors.add(CookieManager(CookieJar()))
 
 ```dart
 enum DioErrorType {
-  /// Default error type, usually occurs before connecting the server.
-  DEFAULT,
-
   /// When opening  url timeout, it occurs.
   CONNECT_TIMEOUT,
 
@@ -484,7 +501,11 @@ enum DioErrorType {
   RESPONSE,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL
+  CANCEL,
+    
+  /// Default error type, Some other Error. In this case, you can
+  /// read the DioError.error if it is not null.
+  DEFAULT
 }
 ```
 

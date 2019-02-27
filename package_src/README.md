@@ -22,11 +22,10 @@ If you are using 1.0.x , this doc can help you upgrade to 2.0.x.  [Change log](h
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
-    Response response;
-    response = await Dio().get("http://www.google.com");
-    return print(response);
+    Response response = await Dio().get("http://www.google.com");
+    print(response);
   } catch (e) {
-    return print(e);
+    print(e);
   }
 }
 ```
@@ -171,7 +170,7 @@ The core API in Dio instance is:
 response=await request(
     "/test",
     data: {"id":12,"name":"xx"}, 
-    options: new Options(method:"GET"),
+    options: Options(method:"GET"),
 );
 ```
 
@@ -473,6 +472,10 @@ try {
   String message;
   
   DioErrorType type;
+  
+  /// The original error/exception object; It's usually not null when `type` 
+  /// is DioErrorType.DEFAULT
+  dynamic error;
 
   /// Error stacktrace info
   StackTrace stackTrace;
@@ -483,23 +486,21 @@ try {
 
 ```dart
 enum DioErrorType {
-  /// Default error type, usually occurs before connecting the server.
-  DEFAULT,
-
   /// When opening  url timeout, it occurs.
   CONNECT_TIMEOUT,
 
-  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
-  ///
-  ///  Note: This is not the receiving time limitation.
+  ///It occurs when receiving timeout.
   RECEIVE_TIMEOUT,
 
   /// When the server response, but with a incorrect status, such as 404, 503...
   RESPONSE,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL
+  CANCEL,
+
+  /// Default error type, Some other Error. In this case, you can
+  /// read the DioError.error if it is not null.
+  DEFAULT,
 }
 ```
 
