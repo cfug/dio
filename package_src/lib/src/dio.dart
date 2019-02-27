@@ -194,7 +194,7 @@ class Dio {
     );
   }
 
-  /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
+  /// Handy method to make http HEAD request, which is a alias of [Dio.request].
   Future<Response<T>> head<T>(
     String path, {
     data,
@@ -211,7 +211,7 @@ class Dio {
     );
   }
 
-  /// Handy method to make http HEAD request, which is a alias of  [Dio.request].
+  /// Handy method to make http HEAD request, which is a alias of [Dio.request].
   Future<Response<T>> headUri<T>(
     Uri uri, {
     data,
@@ -426,7 +426,6 @@ class Dio {
           );
           e.response.data = res;
         } else {
-          e.response.data.close();
           e.response.data = null;
         }
       }

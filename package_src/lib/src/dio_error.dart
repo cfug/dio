@@ -2,23 +2,21 @@ import 'options.dart';
 import 'response.dart';
 
 enum DioErrorType {
-  /// Default error type, usually occurs before connecting the server.
-  DEFAULT,
-
-  /// When opening  url timeout, it occurs.
+  /// It occurs when url is opened timeout.
   CONNECT_TIMEOUT,
 
-  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
-  ///
-  ///  Note: This is not the receiving time limitation.
+  ///It occurs when receiving timeout.
   RECEIVE_TIMEOUT,
 
   /// When the server response, but with a incorrect status, such as 404, 503...
   RESPONSE,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL
+  CANCEL,
+
+  /// Default error type, Some other Error. In this case, you can
+  /// read the DioError.error if it is not null.
+  DEFAULT,
 }
 
 /**
@@ -46,7 +44,8 @@ class DioError extends Error {
 
   DioErrorType type;
 
-  /// The original error/exception object
+  /// The original error/exception object; It's usually not null when `type`
+  /// is DioErrorType.DEFAULT
   dynamic error;
 
   String toString() =>
