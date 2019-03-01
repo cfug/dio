@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
+import 'mock_adapter.dart';
 
 class MyTransformer extends DefaultTransformer {
   @override
@@ -25,7 +26,6 @@ class MyTransformer extends DefaultTransformer {
 }
 
 void main() {
-  const BASE_URL = "http://www.dtworkroom.com/doris/1/2.0.0/";
   group('lan', () {
     test("lan", () {
       var list = [""];
@@ -37,8 +37,9 @@ void main() {
     Dio dio;
     setUp(() {
       dio = new Dio();
-      dio.options.baseUrl = BASE_URL;
+      dio.options.baseUrl = MockAdapter.mockBase;
       dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
+      dio.httpClientAdapter = MockAdapter();
     });
     test('test', () async {
       Response response;
@@ -53,35 +54,26 @@ void main() {
       expect(response.data["errCode"], 0);
       response = await dio.patch("/test", data: {"xx": "你好"});
       expect(response.data["errCode"], 0);
+      response = await dio.head("/test");
+      expect(response.data["errCode"], 0);
       expect(response.headers != null, true);
-
-      try {
-        // Response response = await dio.head("/test");
-        Response response = await dio.head("http://www.dtworkroom.com:80");
-        expect(response.data["errCode"], 0);
-      } on DioError catch (e) {
-        assert(e.response != null &&
-            e.type == DioErrorType.RESPONSE &&
-            e.response.statusCode == 403);
-      }
     });
   });
 
   group('download', () {
     test("test", () async {
       var dio = new Dio();
-      var url =
-          "https://flutter.io/assets/flutter-lockup-4cb0ee072ab312e59784d9fbf4fb7ad42688a7fdaea1270ccf6bbf4f34b7e03f.svg";
-      await dio.download(url, "./example/flutter.svg",
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter=MockAdapter();
+      await dio.download("/download", "../download.md",
           options: Options(
               headers: {HttpHeaders.acceptEncodingHeader: "*"}), // disable gzip
-          // Listen the download progress.
           onReceiveProgress: (received, total) {
         if (total != -1) {
           print((received / total * 100).toStringAsFixed(0) + "%");
         }
       });
-      var f = new File("./example/flutter.svg");
+      var f = new File("../download.md");
       var t = await f.open();
       await t.close();
     });
@@ -91,14 +83,9 @@ void main() {
     test("test", () async {
       var dio = new Dio();
       dio.interceptors.add(LogInterceptor(requestBody: true));
-      dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
-//      dio.onHttpClientCreate = (HttpClient client) {
-//        client.findProxy = (uri) {
-//          //proxy all request to localhost:8888
-//          return "PROXY localhost:8888";
-//        };
-//      };
-      FormData formData = new FormData.from({
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter=MockAdapter();
+      FormData formData = FormData.from({
         "name": "wendux",
         "age": 25,
       });
@@ -106,7 +93,7 @@ void main() {
       formData["xx"] = 9;
       formData.add(
         "file",
-        new UploadFileInfo(new File("./pubspec.yaml"), "pubspec.yaml"),
+        UploadFileInfo(File("./pubspec.yaml"), "pubspec.yaml"),
       );
       await dio.post("/test", data: formData);
       formData.clear();
@@ -153,7 +140,8 @@ void main() {
   group('transfomer', () {
     test("test", () async {
       var dio = new Dio();
-      dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0";
+      dio.httpClientAdapter=MockAdapter();
+      dio.options.baseUrl = MockAdapter.mockBase;
       dio.transformer = new MyTransformer();
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
@@ -186,7 +174,8 @@ void main() {
     Dio dio;
     setUp(() {
       dio = new Dio();
-      dio.options.baseUrl = BASE_URL;
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter=MockAdapter();
       dio.interceptors
           .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
         switch (options.path) {
@@ -197,7 +186,7 @@ void main() {
           case "/fakepath3":
             return dio.reject(
                 "test error"); //you can also return a HttpError directly.
-          case "fakepath4":
+          case "/fakepath4":
             return new DioError(
                 message:
                     "test error"); // Here is equivalent to call dio.reject("test error")
@@ -216,46 +205,42 @@ void main() {
 
     test('TestRI', () async {
       Response
-//      response = await dio.get("/fakepath1");
-//      expect(response.data, "fake data");
-//      response = await dio.get("/fakepath2");
-//      expect(response.data["errCode"], 0);
-//
-//      try {
-//        response = await dio.get("/fakepath3");
-//      } on DioError catch (e) {
-//        expect(e.message, "test error");
-//        expect(e.response, null);
-//      }
-//      try {
-//        response = await dio.get("/fakepath4");
-//      } on DioError catch (e) {
-//        expect(e.message, "test error");
-//        expect(e.response, null);
-//      }
-//      response = await dio.get("/test");
-//      expect(response.data["errCode"], 0);
-//
-          response = await dio.get("/test?tag=1");
+      response = await dio.get("/fakepath1");
+      expect(response.data, "fake data");
+      response = await dio.get("/fakepath2");
       expect(response.data["errCode"], 0);
 
-//      try {
-//        await dio.get("https://wendux.github.io/xsddddd");
-//      } on DioError catch (e) {
-//        expect(e.response.statusCode, 404);
-//      }
+      try {
+        response = await dio.get("/fakepath3");
+      } on DioError catch (e) {
+        expect(e.message, "test error");
+        expect(e.response, null);
+      }
+      try {
+        response = await dio.get("/fakepath4");
+      } on DioError catch (e) {
+        expect(e.message, "test error");
+        expect(e.response, null);
+      }
+      response = await dio.get("/test");
+      expect(response.data["errCode"], 0);
+      response = await dio.get("/test?tag=1");
+      expect(response.data["errCode"], 0);
     });
   });
 
   group('Response Interceptor', () {
     Dio dio;
-    const String URL_NOT_FIND = "https://wendux.github.io/xxxxx/";
+
+    const String URL_NOT_FIND = "/404/";
     const String URL_NOT_FIND_1 = URL_NOT_FIND + "1";
     const String URL_NOT_FIND_2 = URL_NOT_FIND + "2";
     const String URL_NOT_FIND_3 = URL_NOT_FIND + "3";
     setUp(() {
       dio = new Dio();
-      dio.options.baseUrl = BASE_URL;
+      dio.httpClientAdapter = MockAdapter();
+      dio.options.baseUrl = MockAdapter.mockBase;
+
       dio.interceptors.add(InterceptorsWrapper(
         onResponse: (Response response) {
           return response.data["data"];
@@ -302,12 +287,12 @@ void main() {
 
   group('Interceptor lock', () {
     test("test", () async {
+      String csrfToken;
       Dio dio = new Dio();
       // new dio instance to request token
       Dio tokenDio = new Dio();
-      String csrfToken;
-      dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
-      tokenDio.options = dio.options;
+      dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       dio.interceptors
           .add(InterceptorsWrapper(onRequest: (RequestOptions options) {
         print('send request：path:${options.path}，baseURL:${options.baseUrl}');

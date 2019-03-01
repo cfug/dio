@@ -9,6 +9,7 @@ main() async {
     ),
   );
   dio.interceptors.add(LogInterceptor());
+
   await dio.get(
     "/test",
     queryParameters: {"kk": "tt"},

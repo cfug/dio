@@ -10,6 +10,7 @@ import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
 import 'adapter.dart';
+import 'dio_http_headers.dart';
 
 /// Callback to listen the progress for sending/receiving data.
 ///
@@ -719,6 +720,9 @@ class Dio {
         stream,
         cancelToken?.whenCancel,
       );
+      if(responseBody.headers==null){
+        responseBody.headers=DioHttpHeaders();
+      }
       Response ret = new Response(
           headers: responseBody.headers,
           request: options,

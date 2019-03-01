@@ -50,11 +50,7 @@ abstract class HttpClientAdapter {
 }
 
 class ResponseBody {
-  ResponseBody(
-    this.stream,
-    this.statusCode,
-    this.headers,
-  );
+  ResponseBody(this.stream, this.statusCode, [this.headers]);
 
   /// The response stream
   Stream<List<int>> stream;
@@ -65,11 +61,11 @@ class ResponseBody {
   /// Http status code
   int statusCode;
 
-  ResponseBody.fromString(String text, this.statusCode, this.headers)
+  ResponseBody.fromString(String text, this.statusCode, [this.headers])
       : stream =
             Stream.fromIterable(utf8.encode(text).map((e) => [e]).toList());
 
-  ResponseBody.fromBytes(List<int> bytes, this.statusCode, this.headers)
+  ResponseBody.fromBytes(List<int> bytes, this.statusCode, [this.headers])
       : stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
 }
 
@@ -118,7 +114,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     }
 
     HttpClientResponse responseStream = await request.close();
-    return new ResponseBody(
+    return ResponseBody(
       responseStream,
       responseStream.statusCode,
       responseStream.headers,

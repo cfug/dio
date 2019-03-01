@@ -580,7 +580,7 @@ We can use any HttpClient not just `dart:io:HttpClient` to make the Http request
 dio.httpClientAdapter = new DefaultHttpClientAdapter();
 ```
 
-
+[Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter. 
 
 ### Using proxy
 
