@@ -587,6 +587,9 @@ HttpClientAdapter是 Dio 和 HttpClient之间的桥梁。2.0抽象出adapter主�
 
 Dio 使用`DefaultHttpClientAdapter`作为其默认HttpClientAdapter，`DefaultHttpClientAdapter`使用`dart:io:HttpClient` 来发起网络请求。
 
+[这里](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) 有一个简单的自定义Adapter的示例，读者可以参考。另外本项目的自动化测试用例全都是通过一个自定义的[MockAdapter](https://github.com/flutterchina/dio/blob/master/package_src/test/mock_adapter.dart)来模拟服务器返回数据的。
+
+
 
 
 ### 设置Http代理
