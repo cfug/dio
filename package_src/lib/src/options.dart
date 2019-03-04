@@ -33,7 +33,7 @@ class BaseOptions extends _RequestConfig {
     this.queryParameters,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
-    ResponseType responseType,
+    ResponseType responseType = ResponseType.json,
     ContentType contentType,
     ValidateStatus validateStatus,
     bool receiveDataWhenStatusError = true,
