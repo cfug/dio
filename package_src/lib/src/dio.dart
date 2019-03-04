@@ -682,6 +682,15 @@ class Dio {
         _mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
     requestOptions.cancelToken = cancelToken;
+    if (T != dynamic &&
+        !(requestOptions.responseType == ResponseType.bytes ||
+            requestOptions.responseType == ResponseType.stream)) {
+      if (T == String) {
+        requestOptions.responseType = ResponseType.plain;
+      } else {
+        requestOptions.responseType = ResponseType.json;
+      }
+    }
     if (data is FormData) {
       requestOptions.headers[HttpHeaders.contentTypeHeader] =
           'multipart/form-data; boundary=${data.boundary.substring(2)}';
@@ -706,7 +715,10 @@ class Dio {
       }).catchError((err) => throw _assureDioError(err));
     });
 
-    return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
+    return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
+        .catchError((e) {
+      throw e..request = e.request ?? requestOptions;
+    });
   }
 
   Future<Response<T>> _makeRequest<T>(
@@ -723,6 +735,9 @@ class Dio {
       );
       if (responseBody.headers == null) {
         responseBody.headers = DioHttpHeaders();
+      } else {
+        responseBody.headers =
+            DioHttpHeaders(initialHeaders: responseBody.headers);
       }
       Response ret = new Response(
           headers: responseBody.headers,
@@ -731,8 +746,21 @@ class Dio {
       Future future;
       bool statusOk = options.validateStatus(responseBody.statusCode);
       if (statusOk || options.receiveDataWhenStatusError) {
+        bool forceConvert = !(T == dynamic || T == String) &&
+            !(options.responseType == ResponseType.bytes ||
+                options.responseType == ResponseType.stream);
+        String contentType;
+        if (forceConvert) {
+          contentType =
+              responseBody.headers.value(HttpHeaders.contentTypeHeader);
+          responseBody.headers
+              .set(HttpHeaders.contentTypeHeader, ContentType.json.toString());
+        }
         ret.data = await _listenCancelForAsyncTask(
             cancelToken, transformer.transformResponse(options, responseBody));
+        if (forceConvert) {
+          responseBody.headers.set(HttpHeaders.contentTypeHeader, contentType);
+        }
       } else {
         await responseBody.stream.listen(null).cancel();
       }
@@ -749,7 +777,7 @@ class Dio {
       return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
       DioError err = _assureDioError(e);
-      err.request = options;
+      err.request = err.request ?? options;
       if (CancelToken.isCancel(err)) {
         throw err;
       } else {

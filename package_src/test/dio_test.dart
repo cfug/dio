@@ -60,6 +60,30 @@ void main() {
     });
   });
 
+  group('generic', () {
+    Dio dio;
+    setUp(() {
+      dio = new Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
+      dio.httpClientAdapter = MockAdapter();
+
+    });
+    test('test', () async {
+      // dio.options.responseType=ResponseType.json // Default
+      Response<Map>r0 =await dio.get("/test");
+      expect(r0.data is Map,true);
+      Response<String>r =await dio.get<String>("/test");
+      expect(r.data is String,true);
+      dio.options.responseType=ResponseType.plain;
+      r =await dio.get("/test");
+      expect(r.data is String,true);
+      Response<Map>r2 =await dio.get<Map>("/test");
+      expect(r2.data is Map,true);
+
+    });
+  });
+
   group('download', () {
     test("test", () async {
       var dio = new Dio();

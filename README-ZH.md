@@ -287,6 +287,53 @@ Dio实例的核心API是 :
   print(response.statusCode);
 ```
 
+### 泛型支持
+
+2.0.18版本后可以通过泛型来指定对响应数据
+
+假如有一个url返回的是json数据，返回数据在默认情况下(`options.responseType`为json)会被自动转为Json对象(Map或List)的: 
+
+```dart
+Response response = await dio.get("/test");
+print(response.data is Map); //true,自动转为了map
+```
+
+上面的代码在IDE里面输入时，IDE是无法推断出response.data的真实类型，所以对于Map的方法和属性给不出提示，这时我们只需要指定Response的泛型参数为Map即可：
+
+```dart
+Response<Map<String,dynamic>> r= await dio.get("/test");
+print(r.data.containsKey("errCode")); // IDE可以给出代码提示
+```
+
+有时我们如果想以字符串方式接收json文本的话，我们可以通过制定responseType为plain来禁止自动转化：
+
+```dart
+Response response = await dio.get("/test", options: Options(responseType: ResponseType.plain));
+```
+
+现在，我们也可以通过指定泛型参数来做到这一点了：
+
+```dart
+Response response = await dio.get<String>("/test");
+```
+
+是不是很简单，但是，上面的写法有个瑕疵就是有些编辑器无法推断出response.data的类型，所以当你对输入response.data时，字符串的方法和属性不会被推荐出来，要解决这个问题很简单，我们只需要指定Response的泛型参数为String即可：
+
+```dart
+Response<String> response = await dio.get<String>("/test");
+```
+
+同理，如果我们在BaseOptions里设置了`responseType`为`ResponseType.plain`，那么我们需要对某一个接口返回的数据转为Map的化，可以指定泛型参数为Map:
+
+```dart
+dio.options.responseType=ResponseType.plain;
+Response<Map> r= await dio.get<Map>("/test");
+```
+
+> 注意：当responseType类型为plain或json时，泛型参数只能是String、Map和List三种类型，所有的请求内容都可以String形式接收，但只有Json数据可以转为Map和List，所以如果泛型参数传入Map或List时，则会强制将响应内容转为Map或List，如果转换失败，则会抛出异常。
+
+详细示例请参见[这里](https://github.com/flutterchina/dio/blob/master/example/generic.dart)
+
 ## 拦截器
 
 每个 Dio 实例都可以添加任意多个拦截器，通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
