@@ -226,14 +226,13 @@ class FormData extends MapMixin<String, dynamic> {
     var fileMap = new Map<String, dynamic>();
     StringBuffer buffer = new StringBuffer();
 
-    Stream<List<int>> addFile(key, value) async* {
+    Stream<List<int>> addFile(String key, UploadFileInfo value) async* {
       yield _chunkHeader(buffer, key, value);
       if (value.bytes != null) {
-        for (var i = 0, p; i < value.bytes.length;) {
-          p = i + 65536;
+        for (var i = 0, p; i < value.bytes.length; i += 1024) {
+          p = i + 1024;
           if(p > value.bytes.length) p = value.bytes.length;
           yield value.bytes.sublist(i, p);
-          i += 65536;
         }
       } else {
         await for (var chunk in value.file.openRead()) {

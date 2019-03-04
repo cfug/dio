@@ -677,6 +677,7 @@ class Dio {
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
   }) async {
+    if (options == null) options = Options();
     RequestOptions requestOptions =
         _mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
@@ -720,8 +721,8 @@ class Dio {
         stream,
         cancelToken?.whenCancel,
       );
-      if(responseBody.headers==null){
-        responseBody.headers=DioHttpHeaders();
+      if (responseBody.headers == null) {
+        responseBody.headers = DioHttpHeaders();
       }
       Response ret = new Response(
           headers: responseBody.headers,
@@ -748,6 +749,7 @@ class Dio {
       return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
       DioError err = _assureDioError(e);
+      err.request = options;
       if (CancelToken.isCancel(err)) {
         throw err;
       } else {
@@ -892,7 +894,7 @@ class Dio {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     return RequestOptions(
-      method: opt.method?.toUpperCase() ?? "GET",
+      method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
       headers: (Map.from(options.headers))..addAll(opt.headers),
       baseUrl: options.baseUrl ?? "",
       path: url,

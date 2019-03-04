@@ -1,26 +1,8 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio(
-    BaseOptions(
-      //connectTimeout: 5000,
-      baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
-    ),
-  );
-  dio.interceptors.add(LogInterceptor());
-
-  await dio.get(
-    "/test",
-    queryParameters: {"kk": "tt"},
-    options: Options(
-      headers: {HttpHeaders.acceptEncodingHeader: "*"},
-      responseType: ResponseType.bytes,
-    ),
-    onReceiveProgress: (received, total) {
-      if (total != -1) {
-        print((received / total * 100).toStringAsFixed(0) + "%");
-      }
-    },
-  ).catchError(print);
+  BaseOptions options = BaseOptions( baseUrl: "https://github.com", method: "GET");
+  Dio dio = Dio(options);
+  Response<String> r = await dio.request<String>("/flutterchina/dio/issues/196");
+  print(r);
 }

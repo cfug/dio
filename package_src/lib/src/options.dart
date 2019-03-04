@@ -105,8 +105,8 @@ class Options extends _RequestConfig {
     ResponseType responseType,
     ContentType contentType,
     ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError = true,
-    bool followRedirects = true,
+    bool receiveDataWhenStatusError,
+    bool followRedirects,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
