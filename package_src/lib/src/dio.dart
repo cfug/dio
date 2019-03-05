@@ -937,6 +937,7 @@ class Dio {
           options.validateStatus ??
           (int status) => status >= 200 && status < 300 || status == 304,
       followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
+      maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
       queryParameters: query,
       cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
     );

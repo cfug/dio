@@ -38,6 +38,7 @@ class BaseOptions extends _RequestConfig {
     ValidateStatus validateStatus,
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
+    int maxRedirects = 5,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -50,6 +51,7 @@ class BaseOptions extends _RequestConfig {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           cookies: cookies,
+          maxRedirects: maxRedirects,
         );
 
   /// Create a new Option from current instance with merging attributes.
@@ -67,6 +69,7 @@ class BaseOptions extends _RequestConfig {
     ValidateStatus validateStatus,
     bool receiveDataWhenStatusError,
     bool followRedirects,
+    int maxRedirects,
   }) {
     return new BaseOptions(
       method: method ?? this.method,
@@ -81,6 +84,7 @@ class BaseOptions extends _RequestConfig {
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
+      maxRedirects: maxRedirects ?? this.maxRedirects,
     );
   }
 
@@ -107,6 +111,7 @@ class Options extends _RequestConfig {
     ValidateStatus validateStatus,
     bool receiveDataWhenStatusError,
     bool followRedirects,
+    int maxRedirects,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -119,6 +124,7 @@ class Options extends _RequestConfig {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           cookies: cookies,
+          maxRedirects: maxRedirects,
         );
 
   /// Create a new Option from current instance with merging attributes.
@@ -135,6 +141,7 @@ class Options extends _RequestConfig {
     ValidateStatus validateStatus,
     bool receiveDataWhenStatusError,
     bool followRedirects,
+    int maxRedirects,
   }) {
     return new Options(
       method: method ?? this.method,
@@ -149,6 +156,7 @@ class Options extends _RequestConfig {
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
+      maxRedirects: maxRedirects ?? this.maxRedirects,
     );
   }
 }
@@ -172,6 +180,7 @@ class RequestOptions extends Options {
     ValidateStatus validateStatus,
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
+    int maxRedirects,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -184,6 +193,7 @@ class RequestOptions extends Options {
           validateStatus: validateStatus,
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
+          maxRedirects: maxRedirects,
         );
 
   /// generate uri
@@ -236,6 +246,7 @@ class _RequestConfig {
     this.cookies,
     this.receiveDataWhenStatusError = true,
     this.followRedirects = true,
+    this.maxRedirects = 5,
   })  : this.headers = headers ?? {},
         this.extra = extra ?? {};
 
@@ -288,6 +299,15 @@ class _RequestConfig {
 
   /// see [HttpClientRequest.followRedirects]
   bool followRedirects;
+
+  /**
+   * Set this property to the maximum number of redirects to follow
+   * when [followRedirects] is `true`. If this number is exceeded
+   * an error event will be added with a [RedirectException].
+   *
+   * The default value is 5.
+   */
+  int maxRedirects;
 
   /// Custom Cookies for every request
   List<Cookie> cookies;

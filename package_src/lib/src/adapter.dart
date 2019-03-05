@@ -106,7 +106,9 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
         type: DioErrorType.CONNECT_TIMEOUT,
       );
     }
+
     request.followRedirects = options.followRedirects;
+    request.maxRedirects=options.maxRedirects;
 
     if (options.method != "GET" && requestStream != null) {
       // Transform the request data
