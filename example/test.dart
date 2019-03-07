@@ -1,25 +1,32 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 
 main() async {
-  BaseOptions options =
-      BaseOptions(baseUrl: "https://github.com", method: "GET");
-  Dio dio = Dio(options);
-  dio.interceptors.add(InterceptorsWrapper(onRequest: (r) {
-    //return dio.reject("xxxx");
-  }, onError: (e) {
-    print(e);
-  }));
-  Response response;
-  dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
-  dio.options.baseUrl="http://erp.xlianba.com/";
-  response = await dio.post("Api.php?c=Approval&a=post",
-      data: {"company_id": '27', "user_id": '204', "page": '0'},
-  );
-  print(response);
-//  response = await dio
-//      .request<Map>("http://www.dtworkroom.com/doris/1/2.0.0/test")
-//      .catchError((e) => print(e.request));
-//  print(response.data.runtimeType);
+  Dio dio = Dio();
+  dio.interceptors.add(LogInterceptor(requestBody: true));
+  dio.options.baseUrl = 'http://app.huka.com/';
+  dio.options.connectTimeout=5000;
+  dio.options.receiveTimeout=1;
+  FormData formData = new FormData.from({
+    "phone": "13981983532",
+    "password": "xxxxx",
+  });
+
+  Response response = await dio.post('/index.php/Api/Public/Login', data: formData);
+  print(response.data.toString());
+//  dio.get("https://google.com", queryParameters: {
+//    "key": [1, 2, 3]
+//  }).catchError((e){
+//    print(e.request);
+//  });
+
+//  dio.interceptors.add(LogInterceptor(requestBody: true));
+// Response response= await dio.post<String>("http://22786vp873.iok.la/weapp/uploadWxFile", data:
+// FormData.from({
+//  "file": UploadFileInfo.fromBytes(utf8.encode("hello"), "xx.txt", contentType: ContentType.text),
+//  })
+// );
+// print(response);
 }

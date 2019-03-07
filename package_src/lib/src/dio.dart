@@ -420,7 +420,7 @@ class Dio {
       );
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE) {
-        if (options.receiveDataWhenStatusError) {
+        if (e.response.request.receiveDataWhenStatusError) {
           var res = await transformer.transformResponse(
             e.response.request..responseType = ResponseType.json,
             e.response.data,
@@ -936,6 +936,7 @@ class Dio {
       validateStatus: opt.validateStatus ??
           options.validateStatus ??
           (int status) => status >= 200 && status < 300 || status == 304,
+      receiveDataWhenStatusError: opt.receiveDataWhenStatusError??options.receiveDataWhenStatusError??true,
       followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
       maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
       queryParameters: query,
