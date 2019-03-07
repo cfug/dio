@@ -20,8 +20,7 @@ void main() {
   // add interceptors
   dio.interceptors..add(CookieManager(CookieJar()))..add(LogInterceptor());
   (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-  dio.options.receiveTimeout = 1;
-  dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test", data: {"a": 8}).then(print);
+  dio.options.receiveTimeout = 10000;
 //  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
 //      (client) {
 //    client.findProxy = (uri) {

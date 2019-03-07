@@ -325,70 +325,64 @@ class Dio {
     });
   }
 
-  /**
-   * Lock the current Dio instance.
-   *
-   * Dio will enqueue the incoming request tasks instead
-   * send them directly when [interceptor.request] is locked.
-   *
-   */
+  /// Lock the current Dio instance.
+  ///
+  /// Dio will enqueue the incoming request tasks instead
+  /// send them directly when [interceptor.request] is locked.
+
   lock() {
     interceptors.requestLock.lock();
   }
 
-  /**
-   * Unlock the current Dio instance.
-   *
-   * Dio instance dequeue the request task。
-   */
+  /// Unlock the current Dio instance.
+  ///
+  /// Dio instance dequeue the request task。
   unlock() {
     interceptors.requestLock.unlock();
   }
 
-  /**
-   * Clear the current Dio instance waiting queue.
-   */
+  ///Clear the current Dio instance waiting queue.
+
   clear() {
     interceptors.requestLock.clear();
   }
 
-  /**
-   * Download the file and save it in local. The default http method is "GET",
-   * you can custom it by [Options.method].
-   *
-   * [urlPath]: The file url.
-   *
-   * [savePath]: The path to save the downloading file later. it can be a String or
-   * a callback:
-   * 1. A path with String type, eg "xs.jpg"
-   * 2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
-   * ```dart
-   *  await dio.download(url,(HttpHeaders responseHeaders){
-   *     ...
-   *     return "...";
-   *   });
-   * ```
-   *
-   * [onReceiveProgress]: The callback to listen downloading progress.
-   * please refer to [ProgressCallback].
-   *
-   * [lengthHeader] : The real size of original file (not compressed).
-   * When file is compressed:
-   * 1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-   * 2. If this value is not 'content-length', maybe a custom header indicates the original
-   * file size , the `total` argument of `onProgress` will be this header value.
-   *
-   * you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-   * to assure the value of `total` argument of `onProgress` is not -1. for example:
-   *
-   *    await dio.download(url, "./example/flutter.svg",
-   *    options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
-   *    onProgress: (received, total) {
-   *      if (total != -1) {
-   *       print((received / total * 100).toStringAsFixed(0) + "%");
-   *      }
-   *    });
-   */
+  ///  Download the file and save it in local. The default http method is "GET",
+  ///  you can custom it by [Options.method].
+  ///
+  ///  [urlPath]: The file url.
+  ///
+  ///  [savePath]: The path to save the downloading file later. it can be a String or
+  ///  a callback:
+  ///  1. A path with String type, eg "xs.jpg"
+  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  ```dart
+  ///   await dio.download(url,(HttpHeaders responseHeaders){
+  ///      ...
+  ///      return "...";
+  ///    });
+  ///  ```
+  ///
+  ///  [onReceiveProgress]: The callback to listen downloading progress.
+  ///  please refer to [ProgressCallback].
+  ///
+  ///  [lengthHeader] : The real size of original file (not compressed).
+  ///  When file is compressed:
+  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
+  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
+  ///  file size , the `total` argument of `onProgress` will be this header value.
+  ///
+  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
+  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
+  ///
+  ///     await dio.download(url, "./example/flutter.svg",
+  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+  ///     onProgress: (received, total) {
+  ///       if (total != -1) {
+  ///        print((received / total * 100).toStringAsFixed(0) + "%");
+  ///       }
+  ///     });
+
   Future<Response> download(
     String urlPath,
     savePath, {
@@ -537,43 +531,41 @@ class Dio {
     return await _listenCancelForAsyncTask(cancelToken, future);
   }
 
-  /**
-   * Download the file and save it in local. The default http method is "GET",
-   * you can custom it by [Options.method].
-   *
-   * [uri]: The file uri.
-   *
-   * [savePath]: The path to save the downloading file later. it can be a String or
-   * a callback:
-   * 1. A path with String type, eg "xs.jpg"
-   * 2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
-   * ```dart
-   *  await dio.downloadUri(uri,(HttpHeaders responseHeaders){
-   *     ...
-   *     return "...";
-   *   });
-   * ```
-   *
-   * [onReceiveProgress]: The callback to listen downloading progress.
-   * please refer to [ProgressCallback].
-   *
-   * [lengthHeader] : The real size of original file (not compressed).
-   * When file is compressed:
-   * 1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-   * 2. If this value is not 'content-length', maybe a custom header indicates the original
-   * file size , the `total` argument of `onProgress` will be this header value.
-   *
-   * you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-   * to assure the value of `total` argument of `onProgress` is not -1. for example:
-   *
-   *    await dio.download(url, "./example/flutter.svg",
-   *    options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
-   *    onProgress: (received, total) {
-   *      if (total != -1) {
-   *       print((received / total * 100).toStringAsFixed(0) + "%");
-   *      }
-   *    });
-   */
+  ///  Download the file and save it in local. The default http method is "GET",
+  ///  you can custom it by [Options.method].
+  ///
+  ///  [uri]: The file url.
+  ///
+  ///  [savePath]: The path to save the downloading file later. it can be a String or
+  ///  a callback:
+  ///  1. A path with String type, eg "xs.jpg"
+  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  ```dart
+  ///   await dio.downloadUri(uri,(HttpHeaders responseHeaders){
+  ///      ...
+  ///      return "...";
+  ///    });
+  ///  ```
+  ///
+  ///  [onReceiveProgress]: The callback to listen downloading progress.
+  ///  please refer to [ProgressCallback].
+  ///
+  ///  [lengthHeader] : The real size of original file (not compressed).
+  ///  When file is compressed:
+  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
+  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
+  ///  file size , the `total` argument of `onProgress` will be this header value.
+  ///
+  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
+  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
+  ///
+  ///     await dio.downloadUri(uri, "./example/flutter.svg",
+  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+  ///     onProgress: (received, total) {
+  ///       if (total != -1) {
+  ///        print((received / total * 100).toStringAsFixed(0) + "%");
+  ///       }
+  ///     });
   Future<Response> downloadUri(
     Uri uri,
     savePath, {
@@ -594,13 +586,12 @@ class Dio {
     );
   }
 
-  /**
-   * Make http request with options.
-   *
-   * [path] The url path.
-   * [data] The request data
-   * [options] The request options.
-   */
+  /// Make http request with options.
+  ///
+  /// [path] The url path.
+  /// [data] The request data
+  /// [options] The request options.
+
   Future<Response<T>> request<T>(
     String path, {
     data,
@@ -621,13 +612,11 @@ class Dio {
     );
   }
 
-  /**
-   * Make http request with options.
-   *
-   * [uri] The uri.
-   * [data] The request data
-   * [options] The request options.
-   */
+  /// Make http request with options.
+  ///
+  /// [uri] The uri.
+  /// [data] The request data
+  /// [options] The request options.
   Future<Response<T>> requestUri<T>(
     Uri uri, {
     data,
@@ -936,7 +925,9 @@ class Dio {
       validateStatus: opt.validateStatus ??
           options.validateStatus ??
           (int status) => status >= 200 && status < 300 || status == 304,
-      receiveDataWhenStatusError: opt.receiveDataWhenStatusError??options.receiveDataWhenStatusError??true,
+      receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
+          options.receiveDataWhenStatusError ??
+          true,
       followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
       maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
       queryParameters: query,

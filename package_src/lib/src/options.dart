@@ -95,9 +95,7 @@ class BaseOptions extends _RequestConfig {
   Map<String, dynamic> queryParameters;
 }
 
-/**
- * Every request can pass an [Options] object which will be merged with [Dio.options]
- */
+/// Every request can pass an [Options] object which will be merged with [Dio.options]
 class Options extends _RequestConfig {
   Options({
     String method,
@@ -230,9 +228,7 @@ class RequestOptions extends Options {
   ProgressCallback onReceiveProgress;
 }
 
-/**
- * The [_RequestConfig] class describes the http request information and configuration.
- */
+/// The [_RequestConfig] class describes the http request information and configuration.
 class _RequestConfig {
   _RequestConfig({
     this.method,
@@ -300,13 +296,11 @@ class _RequestConfig {
   /// see [HttpClientRequest.followRedirects]
   bool followRedirects;
 
-  /**
-   * Set this property to the maximum number of redirects to follow
-   * when [followRedirects] is `true`. If this number is exceeded
-   * an error event will be added with a [RedirectException].
-   *
-   * The default value is 5.
-   */
+  /// Set this property to the maximum number of redirects to follow
+  /// when [followRedirects] is `true`. If this number is exceeded
+  /// an error event will be added with a [RedirectException].
+  ///
+  /// The default value is 5.
   int maxRedirects;
 
   /// Custom Cookies for every request

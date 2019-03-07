@@ -46,7 +46,7 @@ void getHttp() async {
 
 - [Handling Errors](#handling-errors)
 
-- [Using application/x-www-form-urlencoded format](#using-application/x-www-form-urlencoded-format)
+- [Using application/x-www-form-urlencoded format](#using-applicationx-www-form-urlencoded-format)
 
 - [Sending FormData](#sending-formdata)
 

@@ -5,10 +5,8 @@ import 'dart:io';
 import 'dart:math';
 import 'upload_file_info.dart';
 
-/**
- * A class to create readable "multipart/form-data" streams.
- * It can be used to submit forms and file uploads to http server.
- */
+/// A class to create readable "multipart/form-data" streams.
+/// It can be used to submit forms and file uploads to http server.
 class FormData extends MapMixin<String, dynamic> {
   var _map = new Map<String, dynamic>();
   static const String _BOUNDARY_PRE_TAG = "----dio-boundary-";
@@ -22,9 +20,7 @@ class FormData extends MapMixin<String, dynamic> {
     _init();
   }
 
-  /**
-   * Create FormData instance with a Map.
-   */
+  /// Create FormData instance with a Map.
   FormData.from(Map<String, dynamic> other) {
     _init();
     addAll(other);
@@ -231,7 +227,7 @@ class FormData extends MapMixin<String, dynamic> {
       if (value.bytes != null) {
         for (var i = 0, p; i < value.bytes.length; i += 1024) {
           p = i + 1024;
-          if(p > value.bytes.length) p = value.bytes.length;
+          if (p > value.bytes.length) p = value.bytes.length;
           yield value.bytes.sublist(i, p);
         }
       } else {

@@ -19,9 +19,7 @@ enum DioErrorType {
   DEFAULT,
 }
 
-/**
- * DioError describes the error info  when request failed.
- */
+/// DioError describes the error info  when request failed.
 class DioError extends Error {
   DioError({
     this.request,

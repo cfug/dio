@@ -9,9 +9,7 @@ typedef InterceptorSendCallback(RequestOptions options);
 typedef InterceptorErrorCallback(DioError e);
 typedef InterceptorSuccessCallback(Response e);
 
-/**
- * Add lock/unlock API for interceptors.
- */
+/// Add lock/unlock API for interceptors.
 class Lock {
   Future _lock;
   Completer _completer;
@@ -19,13 +17,11 @@ class Lock {
   /// Whether this interceptor has been locked.
   bool get locked => _lock != null;
 
-  /**
-   * Lock the interceptor.
-   *
-   * Once the request/response interceptor is locked, the incoming request/response
-   * will be added to a queue  before they enter the interceptor, they will not be
-   * continued until the interceptor is unlocked.
-   */
+  /// Lock the interceptor.
+  ///
+  /// Once the request/response interceptor is locked, the incoming request/response
+  /// will be added to a queue  before they enter the interceptor, they will not be
+  /// continued until the interceptor is unlocked.
   void lock() {
     if (!locked) {
       _completer = new Completer();
@@ -33,9 +29,7 @@ class Lock {
     }
   }
 
-  /**
-   * Unlock the interceptor. please refer to [lock()]
-   */
+  /// Unlock the interceptor. please refer to [lock()]
   void unlock() {
     if (locked) {
       _completer.complete();
@@ -43,9 +37,7 @@ class Lock {
     }
   }
 
-  /**
-   * Clean the interceptor queue.
-   */
+  /// Clean the interceptor queue.
   void clear([String msg = "cancelled"]) {
     if (locked) {
       _completer.completeError(msg);
@@ -53,13 +45,12 @@ class Lock {
     }
   }
 
-  /**
-   * If the interceptor is locked, the incoming request/response task
-   * will enter a queue.
-   *
-   * [callback] the function  will return a `Future<Response>`
-   * @nodoc
-   */
+
+  /// If the interceptor is locked, the incoming request/response task
+  /// will enter a queue.
+  ///
+  /// [callback] the function  will return a `Future<Response>`
+  /// @nodoc
   Future<Response> enqueue(Future<Response> callback()) {
     if (locked) {
       // we use a future as a queue
@@ -69,10 +60,9 @@ class Lock {
   }
 }
 
-/**
- *  Dio instance may have interceptor(s) by which you can intercept
- *  requests or responses before they are handled by `then` or `catchError`.
- */
+
+///  Dio instance may have interceptor(s) by which you can intercept
+///  requests or responses before they are handled by `then` or `catchError`.
 class Interceptor {
   /// The callback will be executed before the request is initiated.
   ///
