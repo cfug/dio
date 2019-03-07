@@ -1,8 +1,6 @@
 import 'dart:io';
 
-/**
- *  Describes the info of file to upload.
- */
+/// Describes the info of file to upload.
 class UploadFileInfo {
   UploadFileInfo(this.file, this.fileName, {ContentType contentType})
       : bytes = null,

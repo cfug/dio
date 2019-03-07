@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 
 main() async {
@@ -8,7 +5,7 @@ main() async {
   dio.interceptors.add(LogInterceptor(requestBody: true));
   dio.options.baseUrl = 'http://app.huka.com/';
   dio.options.connectTimeout=5000;
-  dio.options.receiveTimeout=1;
+  dio.options.receiveTimeout=1000;
   FormData formData = new FormData.from({
     "phone": "13981983532",
     "password": "xxxxx",

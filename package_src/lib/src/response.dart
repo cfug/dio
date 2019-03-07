@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'options.dart';
 
-/**
- * Response describes the http Response info.
- */
+/// Response describes the http Response info.
 class Response<T> {
   Response({this.data, this.headers, this.request, this.statusCode = 0});
 
