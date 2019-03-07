@@ -43,6 +43,7 @@ main() async {
     "/upload",
     data: FormData.from({
       "file": UploadFileInfo(File("./example/bee.mp4"), "bee.mp4"),
+      "file2": UploadFileInfo(File("./example/xx.png"), "xx.img"),
     }),
     onSendProgress: (received, total) {
       if (total != -1) {
