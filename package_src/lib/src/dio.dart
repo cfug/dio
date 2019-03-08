@@ -667,9 +667,17 @@ class Dio {
     ProgressCallback onReceiveProgress,
   }) async {
     if (options == null) options = Options();
+    if(options is RequestOptions){
+      data=data??options.data;
+      queryParameters=queryParameters??options.queryParameters;
+      cancelToken=cancelToken??options.cancelToken;
+      onSendProgress=onSendProgress??options.onSendProgress;
+      onReceiveProgress=onReceiveProgress??options.onReceiveProgress;
+    }
     RequestOptions requestOptions =
         _mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
+    requestOptions.onSendProgress=onSendProgress;
     requestOptions.cancelToken = cancelToken;
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -693,7 +701,7 @@ class Dio {
         // If the Future value type is Options, continue the network request.
         if (data is RequestOptions) {
           requestOptions.method = data.method.toUpperCase();
-          response = _makeRequest<T>(data, cancelToken, onSendProgress);
+          response = _makeRequest<T>(data, cancelToken);
         } else {
           // Otherwise, use the Future value as the request result.
           // If the return type is Error, we should throw it
@@ -710,13 +718,11 @@ class Dio {
     });
   }
 
-  Future<Response<T>> _makeRequest<T>(
-      RequestOptions options, CancelToken cancelToken,
-      [ProgressCallback onSendProgress]) async {
+  Future<Response<T>> _makeRequest<T>(RequestOptions options, CancelToken cancelToken) async {
     _checkCancelled(cancelToken);
     ResponseBody responseBody;
     try {
-      var stream = await _transformData(options, onSendProgress);
+      var stream = await _transformData(options);
       responseBody = await httpClientAdapter.fetch(
         options,
         stream,
@@ -803,8 +809,7 @@ class Dio {
     }
   }
 
-  Future<Stream<List<int>>> _transformData(RequestOptions options,
-      [ProgressCallback onSendProgress]) async {
+  Future<Stream<List<int>>> _transformData(RequestOptions options) async {
     var data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
@@ -828,7 +833,7 @@ class Dio {
                 'multipart/form-data; boundary=${data.boundary.substring(2)}',
             "You shouldn't change the value of content-type in request headers when sending FormData.");
         stream = data.stream;
-        if (onSendProgress != null) {
+        if (options.onSendProgress != null) {
           length = data.length;
         }
       } else {
@@ -865,8 +870,8 @@ class Dio {
             sink.add(data);
             if (length != null) {
               complete += data.length;
-              if (onSendProgress != null) {
-                onSendProgress(complete, length);
+              if (options.onSendProgress != null) {
+                options.onSendProgress(complete, length);
               }
             }
           }
