@@ -124,7 +124,7 @@ class DefaultTransformer extends Transformer {
         await completer.future
             .timeout(new Duration(milliseconds: options.receiveTimeout));
       } on TimeoutException {
-        subscription.cancel();
+        await subscription.cancel();
         throw DioError(
           request: options,
           message: "Receiving data timeout[${options.receiveTimeout}ms]",

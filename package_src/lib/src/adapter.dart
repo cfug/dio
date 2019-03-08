@@ -80,7 +80,6 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
   ) async {
     _configHttpClient();
     Future requestFuture;
-
     if (options.connectTimeout > 0) {
       // Because there is a bug in [httpClient.connectionTimeout] now, we replace it
       // with `Future.timeout()` when it comes.
@@ -108,14 +107,26 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     }
 
     request.followRedirects = options.followRedirects;
-    request.maxRedirects=options.maxRedirects;
+    request.maxRedirects = options.maxRedirects;
 
     if (options.method != "GET" && requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
     }
-
-    HttpClientResponse responseStream = await request.close();
+    Future future = request.close();
+    if (options.receiveTimeout > 0) {
+      future = future.timeout(Duration(milliseconds: options.receiveTimeout));
+    }
+    HttpClientResponse responseStream;
+    try {
+      responseStream = await future;
+    } on TimeoutException {
+      throw DioError(
+        request: options,
+        message: "Receiving data timeout[${options.receiveTimeout}ms]",
+        type: DioErrorType.RECEIVE_TIMEOUT,
+      );
+    }
     return ResponseBody(
       responseStream,
       responseStream.statusCode,

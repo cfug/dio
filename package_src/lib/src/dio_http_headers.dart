@@ -84,7 +84,7 @@ class DioHttpHeaders implements HttpHeaders {
       if (index != -1) {
         values.removeRange(index, index + 1);
       }
-      if (values.length == 0) _headers.remove(name);
+      if (values.isEmpty) _headers.remove(name);
     }
     if (name == HttpHeaders.transferEncodingHeader && value == "chunked") {
       _chunkedTransferEncoding = false;

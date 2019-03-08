@@ -9,7 +9,15 @@ enum ResponseType {
   /// Transform the response data to JSON object.
   json,
 
-  /// Get the response stream without any transformation.
+  /// Get the response stream without any transformation. The
+  /// Response data will be a `ResponseBody` instance.
+  ///
+  ///    Response<ResponseBody> rs = await Dio().get<ResponseBody>(
+  ///      url,
+  ///      options: Options(
+  ///        responseType: ResponseType.stream,
+  ///      ),
+  ///    );
   stream,
 
   /// Transform the response data to a String encoded with UTF8.
@@ -100,6 +108,7 @@ class Options extends _RequestConfig {
   Options({
     String method,
     int connectTimeout,
+    int sendTimeout,
     int receiveTimeout,
     Iterable<Cookie> cookies,
     Map<String, dynamic> extra,
@@ -113,6 +122,7 @@ class Options extends _RequestConfig {
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
+          sendTimeout: sendTimeout,
           receiveTimeout: receiveTimeout,
           extra: extra,
           headers: headers,
@@ -163,6 +173,7 @@ class RequestOptions extends Options {
   RequestOptions({
     String method,
     int connectTimeout,
+    int sendTimeout,
     int receiveTimeout,
     Iterable<Cookie> cookies,
     this.data,
@@ -182,6 +193,7 @@ class RequestOptions extends Options {
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
+          sendTimeout: sendTimeout,
           receiveTimeout: receiveTimeout,
           cookies: cookies,
           extra: extra,
@@ -234,6 +246,7 @@ class _RequestConfig {
     this.method,
     this.connectTimeout,
     this.receiveTimeout,
+    this.sendTimeout,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
     this.responseType,
@@ -256,6 +269,11 @@ class _RequestConfig {
   /// [Dio] will throw the [DioError] with [DioErrorType.CONNECT_TIMEOUT] type
   ///  when time out.
   int connectTimeout;
+
+  /// Timeout in milliseconds for sending data.
+  /// [Dio] will throw the [DioError] with [DioErrorType.SEND_TIMEOUT] type
+  ///  when time out.
+  int sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
   ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT] type
@@ -288,6 +306,7 @@ class _RequestConfig {
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus validateStatus;
 
+  /// Whether receiving response data when http status code is not successful.
   bool receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.

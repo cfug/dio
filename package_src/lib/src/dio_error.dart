@@ -5,6 +5,9 @@ enum DioErrorType {
   /// It occurs when url is opened timeout.
   CONNECT_TIMEOUT,
 
+  /// It occurs when url is sent timeout.
+  SEND_TIMEOUT,
+
   ///It occurs when receiving timeout.
   RECEIVE_TIMEOUT,
 

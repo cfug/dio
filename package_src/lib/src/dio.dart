@@ -854,22 +854,35 @@ class Dio {
         options.headers[HttpHeaders.contentLengthHeader] = length;
       }
       int complete = 0;
-      Stream<List<int>> byteStream = stream
-          .transform(StreamTransformer.fromHandlers(handleData: (data, sink) {
-        if (options.cancelToken != null && options.cancelToken.isCancelled) {
-          sink
-            ..addError(options.cancelToken.cancelError)
-            ..close();
-        } else {
-          sink.add(data);
-          if (length != null) {
-            complete += data.length;
-            if (onSendProgress != null) {
-              onSendProgress(complete, length);
+      Stream<List<int>> byteStream =
+          stream.transform(StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          if (options.cancelToken != null && options.cancelToken.isCancelled) {
+            sink
+              ..addError(options.cancelToken.cancelError)
+              ..close();
+          } else {
+            sink.add(data);
+            if (length != null) {
+              complete += data.length;
+              if (onSendProgress != null) {
+                onSendProgress(complete, length);
+              }
             }
           }
-        }
-      }));
+        },
+      ));
+      if (options.sendTimeout > 0) {
+        byteStream.timeout(Duration(milliseconds: options.sendTimeout),
+            onTimeout: (sink) {
+          sink.addError(DioError(
+            request: options,
+            message: "Sending timeout[${options.connectTimeout}ms]",
+            type: DioErrorType.SEND_TIMEOUT,
+          ));
+          sink.close();
+        });
+      }
       return byteStream;
     }
     return null;
@@ -917,6 +930,7 @@ class Dio {
       path: url,
       data: data,
       connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
+      sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
       receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
       responseType:
           opt.responseType ?? options.responseType ?? ResponseType.json,
