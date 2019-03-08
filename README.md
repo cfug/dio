@@ -96,6 +96,24 @@ Downloading a file:
 response = await dio.download("https://www.google.com/", "./xx.html");
 ```
 
+Get response stream:
+
+```dart
+Response<ResponseBody> rs = await Dio().get<ResponseBody>(url,
+ options: Options(responseType: ResponseType.stream), // set responseType to `stream`
+);
+print(rs.data.stream); //response stream
+```
+
+Get response with bytes:
+
+```dart
+Response<List<int>> rs = await Dio().get<List<int>>(url,
+ options: Options(responseType: ResponseType.bytes), // // set responseType to `bytes`
+);
+print(rs.data); // List<int>
+```
+
 Sending FormData:
 
 ```dart
@@ -133,6 +151,21 @@ response = await dio.post(
   onSendProgress: (int sent, int total) {
     print("$sent $total");
   },
+);
+```
+Post binary data by Stream:
+
+```dart
+// Binary data
+List<int> postData = <int>[...];
+await dio.post(
+  url,
+  data: Stream.fromIterable(postData.map((e) => [e])), //create a Stream<List<int>>
+  options: Options(
+    headers: {
+      HttpHeaders.contentLengthHeader: postData.length, // set content-length
+    },
+  ),
 );
 ```
 

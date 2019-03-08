@@ -81,6 +81,24 @@ response = await Future.wait([dio.post("/info"), dio.get("/token")]);
 response = await dio.download("https://www.google.com/", "./xx.html");
 ```
 
+以流的方式接收响应数据：
+
+```dart
+Response<ResponseBody> rs = await Dio().get<ResponseBody>(url,
+  options: Options(responseType: ResponseType.stream), //设置接收类型为stream
+);
+print(rs.data.stream); //响应流
+```
+
+以二进制数组的方式接收响应数据：
+
+```dart
+Response<List<int>> rs = await Dio().get<List<int>>(url,
+ options: Options(responseType: ResponseType.bytes), //设置接收类型为bytes
+);
+print(rs.data); //二进制数组
+```
+
 发送 FormData:
 
 ```dart
