@@ -6,13 +6,26 @@ main() async {
   dio.options.baseUrl = 'http://app.huka.com/';
   dio.options.connectTimeout=5000;
   dio.options.receiveTimeout=1000;
+  dio.options.sendTimeout=2;
   FormData formData = new FormData.from({
     "phone": "13981983532",
     "password": "xxxxx",
   });
 
-  Response response = await dio.post('/index.php/Api/Public/Login', data: formData);
-  print(response.data.toString());
+
+  dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test",data:{"a":"d"*20000});
+//    Response<List<int>> rs = await Dio().get<List<int>>(
+//      'https://admin-test.shiguangkey.com/captcha.jpg',
+//      options: Options(
+//        responseType: ResponseType.bytes,
+//      ),
+//    );
+//    print(rs.data);
+//
+//    Uri(queryParameters: {"age":15});
+
+//  Response response = await dio.post('/index.php/Api/Public/Login', data: formData);
+//  print(response.data.toString());
 //  dio.get("https://google.com", queryParameters: {
 //    "key": [1, 2, 3]
 //  }).catchError((e){

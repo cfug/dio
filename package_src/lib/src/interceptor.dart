@@ -5,9 +5,9 @@ import 'dio_error.dart';
 import 'options.dart';
 import 'response.dart';
 
-typedef InterceptorSendCallback(RequestOptions options);
-typedef InterceptorErrorCallback(DioError e);
-typedef InterceptorSuccessCallback(Response e);
+typedef InterceptorSendCallback = dynamic Function(RequestOptions options);
+typedef InterceptorErrorCallback = dynamic Function(DioError e);
+typedef InterceptorSuccessCallback = dynamic Function(Response e);
 
 /// Add lock/unlock API for interceptors.
 class Lock {
@@ -45,7 +45,6 @@ class Lock {
     }
   }
 
-
   /// If the interceptor is locked, the incoming request/response task
   /// will enter a queue.
   ///
@@ -59,7 +58,6 @@ class Lock {
     return null;
   }
 }
-
 
 ///  Dio instance may have interceptor(s) by which you can intercept
 ///  requests or responses before they are handled by `then` or `catchError`.
