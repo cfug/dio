@@ -238,6 +238,8 @@ class RequestOptions extends Options {
   CancelToken cancelToken;
 
   ProgressCallback onReceiveProgress;
+
+  ProgressCallback onSendProgress;
 }
 
 /// The [_RequestConfig] class describes the http request information and configuration.
