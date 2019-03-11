@@ -4,7 +4,6 @@ Language: [English](README.md) | [中文简体](README-ZH.md)
 
 [![build status](https://img.shields.io/travis/flutterchina/dio/vm.svg?style=flat-square)](https://travis-ci.org/flutterchina/dio)
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
-[![coverage](https://img.shields.io/codecov/c/github/flutterchina/dio/vm.svg?style=flat-square)](https://codecov.io/github/flutterchina/dio?branch=vm)
 [![support](https://img.shields.io/badge/platform-flutter%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
 
 A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc. 
