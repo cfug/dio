@@ -84,6 +84,8 @@ class LogInterceptor extends Interceptor {
     printKV('uri', response.request.uri);
     if (responseHeader) {
       printKV('statusCode', response.statusCode);
+      if(response.isRedirect)
+      printKV('redirect',response.realUri);
       print("headers:");
       print(" " + response.headers.toString().replaceAll("\n", "\n "));
     }

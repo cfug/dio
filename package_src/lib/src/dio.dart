@@ -737,7 +737,10 @@ class Dio {
       Response ret = new Response(
           headers: responseBody.headers,
           request: options,
-          statusCode: responseBody.statusCode);
+          redirects: responseBody.redirects,
+          statusCode: responseBody.statusCode,
+          extra: responseBody.extra,
+      );
       Future future;
       bool statusOk = options.validateStatus(responseBody.statusCode);
       if (statusOk || options.receiveDataWhenStatusError) {

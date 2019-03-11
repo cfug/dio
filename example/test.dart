@@ -2,18 +2,11 @@ import 'package:dio/dio.dart';
 
 main() async {
   Dio dio = Dio();
-  dio.interceptors.add(LogInterceptor(requestBody: true));
-  dio.options.baseUrl = 'http://app.huka.com/';
+  dio.interceptors.add(LogInterceptor(requestBody: true, requestHeader: true));
   dio.options.connectTimeout=5000;
-  dio.options.receiveTimeout=1000;
-  dio.options.sendTimeout=2;
-  FormData formData = new FormData.from({
-    "phone": "13981983532",
-    "password": "xxxxx",
-  });
+  dio.options.receiveTimeout=5000;
+  dio.get("https://flutterchina.club");
 
-
-  dio.post("http://www.dtworkroom.com/doris/1/2.0.0/test",data:{"a":"d"*20000});
 //    Response<List<int>> rs = await Dio().get<List<int>>(
 //      'https://admin-test.shiguangkey.com/captcha.jpg',
 //      options: Options(

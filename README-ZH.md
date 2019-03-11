@@ -290,6 +290,12 @@ Dio实例的核心API是 :
   Options request;
   /// Http status code.
   int statusCode;
+  /// 是否重定向
+  bool isRedirect;  
+  /// 重定向信息   
+  List<RedirectInfo> redirects ;
+  /// 最终真正的请求地址(因为可能会重定向)
+  Uri realUri;   
   /// 响应对象的自定义字段（可以在拦截器中设置它），调用方可以在`then`中获取.
   Map<String, dynamic> extra;
 }
