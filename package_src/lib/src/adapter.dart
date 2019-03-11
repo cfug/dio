@@ -61,6 +61,10 @@ class ResponseBody {
   /// Http status code
   int statusCode;
 
+  List<RedirectInfo> redirects = [];
+
+  Map<String, dynamic> extra={};
+
   ResponseBody.fromString(String text, this.statusCode, [this.headers])
       : stream =
             Stream.fromIterable(utf8.encode(text).map((e) => [e]).toList());
@@ -118,6 +122,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       future = future.timeout(Duration(milliseconds: options.receiveTimeout));
     }
     HttpClientResponse responseStream;
+
     try {
       responseStream = await future;
     } on TimeoutException {
@@ -131,7 +136,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       responseStream,
       responseStream.statusCode,
       responseStream.headers,
-    );
+    )..redirects = responseStream.redirects;
   }
 
   void _configHttpClient() {

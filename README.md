@@ -305,6 +305,12 @@ The response for a request contains the following information.
   Options request;
   /// Http status code.
   int statusCode;
+  /// Whether redirect 
+  bool isRedirect;  
+  /// redirect info    
+  List<RedirectInfo> redirects ;
+  /// Returns the final real request uri (maybe redirect). 
+  Uri realUri;    
   /// Custom field that you can retrieve it later in `then`.
   Map<String, dynamic> extra;
 }
