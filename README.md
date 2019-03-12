@@ -12,7 +12,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: 2.0.x  #latest version
+  dio: 2.1.x  #latest version
 ```
 If you are using 1.0.x , this doc can help you upgrade to 2.0.x.  [Change log](https://github.com/flutterchina/dio/blob/master/CHANGELOG.md) 
 ## Super simple to use

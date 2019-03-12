@@ -11,7 +11,7 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^2.0.x  // 请使用pub上2.0分支的最新版本
+  dio: ^2.1.x  // 请使用pub上2.1分支的最新版本
 ```
 
 如果您是1.0的用户，可以参照此文档升级到2.0，详情请查看 [Change log](https://github.com/flutterchina/dio/blob/master/CHANGELOG.md) 。
@@ -307,7 +307,7 @@ Dio实例的核心API是 :
 
 ## 拦截器
 
-每个 Dio 实例都可以添加任意多个拦截器，通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
+每个 Dio 实例都可以添加任意多个拦截器，他们组成一个队列，拦截器队列的执行顺序是FIFO。通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
 
 ```dart
  
@@ -434,6 +434,8 @@ dio.interceptors.add(InterceptorsWrapper(
 ```dart
 dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 ```
+
+> 由于拦截器队列的执行顺序是FIFO，如果把log拦截器添加到了最前面，则后面拦截器对`options`的更改就不会被打印（但依然会生效）， 所以建议把log拦截添加到队尾。
 
 ### Cookie管理
 
