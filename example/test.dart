@@ -5,7 +5,17 @@ main() async {
   dio.interceptors.add(LogInterceptor(requestBody: true, requestHeader: true));
   dio.options.connectTimeout=5000;
   dio.options.receiveTimeout=5000;
-  dio.get("https://flutterchina.club");
+  dio.get("https://flutterchina.club",queryParameters: {
+    "selectedId": ["1", "2"],
+  },);
+
+  dio.options.baseUrl="http://domain.com/";
+  Response response = await dio.getUri(
+    Uri(path: "api",queryParameters:  {
+      "selectedId": ["1", "2"],
+    })
+  );
+  //print(response);
 
 //    Response<List<int>> rs = await Dio().get<List<int>>(
 //      'https://admin-test.shiguangkey.com/captcha.jpg',
