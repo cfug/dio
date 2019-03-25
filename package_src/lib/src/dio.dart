@@ -514,7 +514,7 @@ class Dio {
       await _closeAndDelete();
     });
 
-    if (response.request.receiveTimeout > 0) {
+    if (response.request != null && response.request.receiveTimeout > 0) {
       future = future
           .timeout(Duration(milliseconds: response.request.receiveTimeout))
           .catchError((err) async {
