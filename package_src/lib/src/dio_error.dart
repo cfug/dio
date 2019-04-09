@@ -50,7 +50,9 @@ class DioError extends Error {
   dynamic error;
 
   String toString() =>
-      "DioError [$type]: " + (message ?? "") + (stackTrace ?? "").toString();
+      "DioError [$type]: " +
+      (message ?? "") +
+      (stackTrace ?? "").toString();
 
   /// Error stacktrace info
   StackTrace stackTrace;
