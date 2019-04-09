@@ -66,6 +66,7 @@ class BaseOptions extends _RequestConfig {
   BaseOptions merge({
     String method,
     String baseUrl,
+    Map<String, dynamic> queryParameters,
     String path,
     int connectTimeout,
     int receiveTimeout,
@@ -82,6 +83,7 @@ class BaseOptions extends _RequestConfig {
     return new BaseOptions(
       method: method ?? this.method,
       baseUrl: baseUrl ?? this.baseUrl,
+      queryParameters: queryParameters ?? this.queryParameters,
       connectTimeout: connectTimeout ?? this.connectTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       extra: extra ?? new Map.from(this.extra ?? {}),
