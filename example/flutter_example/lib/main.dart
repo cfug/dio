@@ -20,7 +20,7 @@ void main() {
   // add interceptors
   dio.interceptors..add(CookieManager(CookieJar()))..add(LogInterceptor());
   (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-  dio.options.receiveTimeout = 10000;
+  dio.options.receiveTimeout = 15000;
 //  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
 //      (client) {
 //    client.findProxy = (uri) {
@@ -57,7 +57,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String _text = "";
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,11 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(
             child: Text("Request"),
             onPressed: () {
-              dio.get("https://baidu.com").then((r) {
+//              dio.get("https://baidu.com").then((r) {
+//                setState(() {
+//                  _text = r.data.replaceAll(RegExp(r"\s"), "");
+//                });
+//              });
+
+              dio.post("http://10.1.10.250:3000",data:{"a":1}).then((r) {
                 setState(() {
                   _text = r.data.replaceAll(RegExp(r"\s"), "");
                 });
-              });
+              }).catchError(print);
             },
           ),
           RaisedButton(

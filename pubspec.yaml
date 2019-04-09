@@ -9,6 +9,7 @@ environment:
 dependencies:
   dio:
     path: package_src
+  http: ^0.12.0+1
 
 
 

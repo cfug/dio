@@ -13,9 +13,18 @@ void showDownloadProgress(received, total) {
 main() async {
   var dio = Dio();
   dio.options.baseUrl = "http://localhost:3000/";
-  dio.interceptors.add(LogInterceptor(requestBody: true));
+ // dio.interceptors.add(LogInterceptor(requestBody: true));
+  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+      (HttpClient client) {
+    client.findProxy = (uri) {
+      //proxy all request to localhost:8888
+      return "PROXY localhost:8888";
+    };
+    client.badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
+  };
   FormData formData = FormData.from({
-    "name": "wendux",
+    "test": "wendux",
     "age": 25,
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt"),
     "file2": UploadFileInfo.fromBytes(utf8.encode("hello world"), "word.txt"),
@@ -30,7 +39,7 @@ main() async {
   });
 
   FormData formData2 = FormData.from({
-    "name": "wendux",
+    "test": "wendux",
     "age": 25,
     //"file":  UploadFileInfo( File("/Users/duwen/Downloads/YoudaoNote.dmg"), "YoudaoNote.dmg"),
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt"),
@@ -42,8 +51,9 @@ main() async {
   response = await dio.post(
     "/upload",
     data: FormData.from({
-      "file": UploadFileInfo(File("./example/bee.mp4"), "bee.mp4"),
-      "file2": UploadFileInfo(File("./example/xx.png"), "xx.img"),
+      "test":"haha",
+      //"file": UploadFileInfo(File("./example/bee.mp4"), "bee.mp4"),
+      //"file2": UploadFileInfo(File("./example/upload.txt"), "xx.text"),
     }),
     onSendProgress: (received, total) {
       if (total != -1) {
@@ -51,14 +61,14 @@ main() async {
       }
     },
   );
-  response = await dio.post(
-    "/upload",
-    data: formData,
-    onSendProgress: showDownloadProgress,
-  );
-  response = await dio.post(
-    "/upload",
-    data: formData2,
-    cancelToken: CancelToken(),
-  );
+//  response = await dio.post(
+//    "/upload",
+//    data: formData,
+//    onSendProgress: showDownloadProgress,
+//  );
+//  response = await dio.post(
+//    "/upload",
+//    data: formData2,
+//    cancelToken: CancelToken(),
+//  );
 }

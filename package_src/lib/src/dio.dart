@@ -425,6 +425,8 @@ class Dio {
         }
       }
       rethrow;
+    } catch (e) {
+      rethrow;
     }
 
     response.headers = response.data.headers;
@@ -667,17 +669,17 @@ class Dio {
     ProgressCallback onReceiveProgress,
   }) async {
     if (options == null) options = Options();
-    if(options is RequestOptions){
-      data=data??options.data;
-      queryParameters=queryParameters??options.queryParameters;
-      cancelToken=cancelToken??options.cancelToken;
-      onSendProgress=onSendProgress??options.onSendProgress;
-      onReceiveProgress=onReceiveProgress??options.onReceiveProgress;
+    if (options is RequestOptions) {
+      data = data ?? options.data;
+      queryParameters = queryParameters ?? options.queryParameters;
+      cancelToken = cancelToken ?? options.cancelToken;
+      onSendProgress = onSendProgress ?? options.onSendProgress;
+      onReceiveProgress = onReceiveProgress ?? options.onReceiveProgress;
     }
     RequestOptions requestOptions =
         _mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
-    requestOptions.onSendProgress=onSendProgress;
+    requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -698,6 +700,7 @@ class Dio {
           requestOptions, (Interceptor inter, ob) => inter.onRequest(ob));
       return ret.then<Response<T>>((data) {
         FutureOr<Response<T>> response;
+
         // If the Future value type is Options, continue the network request.
         if (data is RequestOptions) {
           requestOptions.method = data.method.toUpperCase();
@@ -706,7 +709,9 @@ class Dio {
           // Otherwise, use the Future value as the request result.
           // If the return type is Error, we should throw it
           if (data is Error) throw _assureDioError(data);
-          response = _assureResponse(data);
+          var r = _assureResponse<T>(data);
+          r.request = r.request ?? requestOptions;
+          response = r;
         }
         return response;
       }).catchError((err) => throw _assureDioError(err));
@@ -718,7 +723,8 @@ class Dio {
     });
   }
 
-  Future<Response<T>> _makeRequest<T>(RequestOptions options, CancelToken cancelToken) async {
+  Future<Response<T>> _makeRequest<T>(
+      RequestOptions options, CancelToken cancelToken) async {
     _checkCancelled(cancelToken);
     ResponseBody responseBody;
     try {
@@ -735,11 +741,11 @@ class Dio {
             DioHttpHeaders(initialHeaders: responseBody.headers);
       }
       Response ret = new Response(
-          headers: responseBody.headers,
-          request: options,
-          redirects: responseBody.redirects,
-          statusCode: responseBody.statusCode,
-          extra: responseBody.extra,
+        headers: responseBody.headers,
+        request: options,
+        redirects: responseBody.redirects,
+        statusCode: responseBody.statusCode,
+        extra: responseBody.extra,
       );
       Future future;
       bool statusOk = options.validateStatus(responseBody.statusCode);
