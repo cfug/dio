@@ -842,9 +842,7 @@ class Dio {
                 'multipart/form-data; boundary=${data.boundary.substring(2)}',
             "You shouldn't change the value of content-type in request headers when sending FormData.");
         stream = data.stream;
-        if (options.onSendProgress != null) {
-          length = data.length;
-        }
+        length = data.length;
       } else {
         // Call request transformer.
         String _data = await transformer.transformRequest(options);
