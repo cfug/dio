@@ -182,8 +182,8 @@ dio.options.baseUrl = "https://www.xx.com/api";
 dio.options.connectTimeout = 5000; //5s
 dio.options.receiveTimeout = 3000;
 
-// 或者通过传递一个 `options`来创建dio实例
-Options options = new BaseOptions(
+// 或者通过传递一个 `BaseOptions`来创建dio实例
+BaseOptions options = new BaseOptions(
     baseUrl: "https://www.xx.com/api",
     connectTimeout: 5000,
     receiveTimeout: 3000,
