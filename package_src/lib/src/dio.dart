@@ -743,8 +743,9 @@ class Dio {
       Response ret = new Response(
         headers: responseBody.headers,
         request: options,
-        redirects: responseBody.redirects,
+        redirects: responseBody.redirects??[],
         statusCode: responseBody.statusCode,
+        statusMessage: responseBody.statusMessage,
         extra: responseBody.extra,
       );
       Future future;

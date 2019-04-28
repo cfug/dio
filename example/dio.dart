@@ -6,6 +6,9 @@ main() async {
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   dio.options.connectTimeout = 5000; //5s
   dio.options.receiveTimeout = 5000;
+  dio.options.validateStatus=(int status){
+    return status >0;
+  } ;
   dio.options.headers = {
     HttpHeaders.userAgentHeader: 'dio',
     'common-header': 'xx',
@@ -33,7 +36,6 @@ main() async {
     ..add(LogInterceptor(responseBody: false)); //Open log;
 
   Response response = await dio.get("https://www.google.com/");
-  print(response.data);
 
   // Download a file
   response = await dio.download(
@@ -49,7 +51,6 @@ main() async {
 
   // Create a FormData
   FormData formData = FormData.from({
-    "name": "wendux",
     "age": 25,
     "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt")
   });
