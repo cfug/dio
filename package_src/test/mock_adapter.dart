@@ -22,7 +22,7 @@ class MockAdapter extends HttpClientAdapter {
               "data": {"path": uri.path}
             }),
             200,
-            DioHttpHeaders.fromMap({
+            headers: DioHttpHeaders.fromMap({
               HttpHeaders.contentTypeHeader: ContentType.json,
             }),
           );
@@ -30,7 +30,7 @@ class MockAdapter extends HttpClientAdapter {
           return ResponseBody(
             File("./README.MD").openRead(),
             200,
-            DioHttpHeaders.fromMap({
+            headers: DioHttpHeaders.fromMap({
               HttpHeaders.contentLengthHeader: File("./README.MD").lengthSync(),
             }),
           );
@@ -44,13 +44,13 @@ class MockAdapter extends HttpClientAdapter {
                 "data": {"token": t.join()}
               }),
               200,
-              DioHttpHeaders.fromMap({
+              headers: DioHttpHeaders.fromMap({
                 HttpHeaders.contentTypeHeader: ContentType.json,
               }),
             );
           }
         default:
-          return ResponseBody.fromString("", 404, DioHttpHeaders());
+          return ResponseBody.fromString("", 404, headers: DioHttpHeaders());
       }
     }
     return _defaultHttpClientAdapter.fetch(

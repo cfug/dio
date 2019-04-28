@@ -11,7 +11,7 @@ class MyAdapter extends HttpClientAdapter {
     Uri uri = options.uri;
     // hook requests to  google.com
     if (uri.host == "google.com") {
-      return ResponseBody.fromString("Too young too simple!", 200, null);
+      return ResponseBody.fromString("Too young too simple!", 200);
     }
     return defaultHttpClientAdapter.fetch(options, requestStream, cancelFuture);
   }

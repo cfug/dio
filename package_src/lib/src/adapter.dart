@@ -50,7 +50,13 @@ abstract class HttpClientAdapter {
 }
 
 class ResponseBody {
-  ResponseBody(this.stream, this.statusCode, [this.headers]);
+  ResponseBody(
+    this.stream,
+    this.statusCode, {
+    this.headers,
+    this.statusMessage,
+    this.redirects,
+  });
 
   /// The response stream
   Stream<List<int>> stream;
@@ -61,19 +67,33 @@ class ResponseBody {
   /// Http status code
   int statusCode;
 
+  /// Returns the reason phrase associated with the status code.
+  /// The reason phrase must be set before the body is written
+  /// to. Setting the reason phrase after writing to the body.
+  String statusMessage;
+
   /// Returns the series of redirects this connection has been through. The
   /// list will be empty if no redirects were followed. [redirects] will be
   /// updated both in the case of an automatic and a manual redirect.
-  List<RedirectInfo> redirects = [];
+  List<RedirectInfo> redirects;
 
-  Map<String, dynamic> extra={};
+  Map<String, dynamic> extra = {};
 
-  ResponseBody.fromString(String text, this.statusCode, [this.headers])
-      : stream =
-            Stream.fromIterable(utf8.encode(text).map((e) => [e]).toList());
+  ResponseBody.fromString(
+    String text,
+    this.statusCode, {
+    this.headers,
+    this.statusMessage,
+    this.redirects,
+  }) : stream = Stream.fromIterable(utf8.encode(text).map((e) => [e]).toList());
 
-  ResponseBody.fromBytes(List<int> bytes, this.statusCode, [this.headers])
-      : stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
+  ResponseBody.fromBytes(
+    List<int> bytes,
+    this.statusCode, {
+    this.headers,
+    this.statusMessage,
+    this.redirects,
+  }) : stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
 }
 
 /// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
@@ -138,8 +158,10 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     return ResponseBody(
       responseStream,
       responseStream.statusCode,
-      responseStream.headers,
-    )..redirects = responseStream.redirects;
+      headers: responseStream.headers,
+      redirects: responseStream.redirects,
+      statusMessage: responseStream.reasonPhrase,
+    );
   }
 
   void _configHttpClient() {

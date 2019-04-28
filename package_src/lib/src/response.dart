@@ -4,12 +4,14 @@ import 'options.dart';
 
 /// Response describes the http Response info.
 class Response<T> {
-  Response({this.data,
-      this.headers,
-      this.request,
-      this.redirects,
-      this.statusCode = 0,
-      this.extra,
+  Response({
+    this.data,
+    this.headers,
+    this.request,
+    this.redirects,
+    this.statusCode ,
+    this.statusMessage,
+    this.extra,
   });
 
   /// Response body. may have been transformed, please refer to [ResponseType].
@@ -23,6 +25,11 @@ class Response<T> {
 
   /// Http status code.
   int statusCode;
+
+  /// Returns the reason phrase associated with the status code.
+  /// The reason phrase must be set before the body is written
+  /// to. Setting the reason phrase after writing to the body.
+  String statusMessage;
 
   /// Returns the series of redirects this connection has been through. The
   /// list will be empty if no redirects were followed. [redirects] will be
