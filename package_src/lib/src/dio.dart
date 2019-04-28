@@ -710,7 +710,7 @@ class Dio {
           // If the return type is Error, we should throw it
           if (data is Error) throw _assureDioError(data);
           var r = _assureResponse<T>(data);
-          r.request = r.request ?? requestOptions;
+
           response = r;
         }
         return response;
@@ -718,7 +718,10 @@ class Dio {
     });
 
     return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
-        .catchError((e) {
+        .then((r) {
+      r.request = r.request ?? requestOptions;
+      return r;
+    }).catchError((e) {
       throw e..request = e.request ?? requestOptions;
     });
   }
@@ -743,7 +746,7 @@ class Dio {
       Response ret = new Response(
         headers: responseBody.headers,
         request: options,
-        redirects: responseBody.redirects??[],
+        redirects: responseBody.redirects ?? [],
         statusCode: responseBody.statusCode,
         statusMessage: responseBody.statusMessage,
         extra: responseBody.extra,
@@ -1006,6 +1009,8 @@ class Dio {
         headers: response.headers,
         request: response.request,
         statusCode: response.statusCode,
+        redirects: response.redirects,
+        statusMessage: response.statusMessage,
       );
     }
     return response;
