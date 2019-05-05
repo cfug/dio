@@ -123,6 +123,27 @@ void main() {
       formData.clear();
       expect(formData.length, 0);
     });
+    test("it should parse map data as expected", () async {
+      var dio = new Dio();
+      dio.interceptors.add(LogInterceptor(requestBody: true));
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter=MockAdapter();
+      FormData formData = FormData.from({
+        "name": "wendux",
+        "tag":["a","b","c"],
+        "student":{"a":"b","c": "d"},
+        "age": 25,
+      });
+      formData.remove("name");
+      formData["xx"] = 9;
+      formData.add(
+        "file",
+        UploadFileInfo(File("./pubspec.yaml"), "pubspec.yaml"),
+      );
+      await dio.post("/test", data: formData);
+      formData.clear();
+      expect(formData.length, 0);
+    });
   });
 
   group('Cancellation', () {
