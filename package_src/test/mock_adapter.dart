@@ -28,10 +28,10 @@ class MockAdapter extends HttpClientAdapter {
           );
         case "/download":
           return ResponseBody(
-            File("./README.MD").openRead(),
+            File("./README.md").openRead(),
             200,
             headers: DioHttpHeaders.fromMap({
-              HttpHeaders.contentLengthHeader: File("./README.MD").lengthSync(),
+              HttpHeaders.contentLengthHeader: File("./README.md").lengthSync(),
             }),
           );
 
