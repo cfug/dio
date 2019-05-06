@@ -1,12 +1,13 @@
 language: dart
+
 dart:
 # Install the latest stable release
   - stable
 dart_task:
   - dartanalyzer: true
   - test: --platform vm
-
 script:
-  - cd package_src & pub get & pub run test & pub global activate coverage & dart --enable-vm-service=8111 --pause-isolates-on-exit test/dio_test.dart & pub global run coverage:collect_coverage --port=8111 --out=coverage.json --wait-paused --resume-isolates & pub global run coverage:format_coverage --lcov --in=coverage.json --out=lcov.info --packages=.packages --report-on=lib
+  - pwd
+  - sh test.sh
 after_success:
   - bash <(curl -s https://codecov.io/bash)
