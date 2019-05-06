@@ -30,6 +30,7 @@ Future download1(Dio dio, String url, savePath) async {
   }
 }
 
+//Another way to downloading small file
 Future download2(Dio dio, String url, String savePath) async {
   try {
     Response response = await dio.get(
