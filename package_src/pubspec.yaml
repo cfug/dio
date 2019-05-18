@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   cookie_jar: ^1.0.0
+  gbk_codec: ^0.3.1+3
 #  cookie_jar:
 #    path: ../cookie_jar
 

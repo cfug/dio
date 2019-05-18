@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:gbk_codec/gbk_codec.dart';
+
+import 'adapter.dart';
 import 'dio_error.dart';
 import 'options.dart';
-import 'adapter.dart';
 
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
@@ -135,7 +138,13 @@ class DefaultTransformer extends Transformer {
       await completer.future;
     }
     if (options.responseType == ResponseType.bytes) return buffer;
-    String responseBody = utf8.decode(buffer, allowMalformed: true);
+
+    final bool isGBK =
+        response.headers.contentType?.charset?.toLowerCase() == 'gbk';
+    String responseBody = isGBK
+        ? gbk_bytes.decode(buffer)
+        : utf8.decode(buffer, allowMalformed: true);
+
     if (responseBody != null &&
         responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
