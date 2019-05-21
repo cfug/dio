@@ -1,3 +1,8 @@
+# 2.1.4
+
+- Add `options.responseDecoder`
+- Make DioError catchable by implementing Exception instead of Error
+
 # 2.1.3
 
 Add `statusMessage` attribute for `Response` and `ResponseBody`
