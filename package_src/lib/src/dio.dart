@@ -690,10 +690,6 @@ class Dio {
         requestOptions.responseType = ResponseType.json;
       }
     }
-    if (data is FormData) {
-      requestOptions.headers[HttpHeaders.contentTypeHeader] =
-          'multipart/form-data; boundary=${data.boundary.substring(2)}';
-    }
     Future<Response<T>> future =
         _checkIfNeedEnqueue<T>(interceptors.requestLock, () {
       Future ret = _executeInterceptors<RequestOptions>(
@@ -841,10 +837,10 @@ class Dio {
           return false;
         });
       } else if (data is FormData) {
-        assert(
-            options.headers[HttpHeaders.contentTypeHeader] ==
-                'multipart/form-data; boundary=${data.boundary.substring(2)}',
-            "You shouldn't change the value of content-type in request headers when sending FormData.");
+        if (data is FormData) {
+          options.headers[HttpHeaders.contentTypeHeader] =
+          'multipart/form-data; boundary=${data.boundary.substring(2)}';
+        }
         stream = data.stream;
         length = data.length;
       } else {

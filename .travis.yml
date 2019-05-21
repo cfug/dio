@@ -7,9 +7,6 @@ dart:
 before_install:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-
 script:
   - pwd
   - sh test.sh
-after_success:
-  - bash <(curl -s https://codecov.io/bash)

@@ -135,7 +135,12 @@ class DefaultTransformer extends Transformer {
       await completer.future;
     }
     if (options.responseType == ResponseType.bytes) return buffer;
-    String responseBody = utf8.decode(buffer, allowMalformed: true);
+    String responseBody;
+    if (options.responseDecoder != null) {
+      responseBody = options.responseDecoder(buffer, options, response..stream=null);
+    } else {
+      responseBody = utf8.decode(buffer, allowMalformed: true);
+    }
     if (responseBody != null &&
         responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dio.dart';
 import 'cancel_token.dart';
 import 'transformer.dart';
+import 'adapter.dart';
 
 /// ResponseType indicates which transformation should
 /// be automatically applied to the response data by Dio.
@@ -28,6 +29,7 @@ enum ResponseType {
 }
 
 typedef ValidateStatus = bool Function(int status);
+typedef ResponseDecoder = String Function(List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
@@ -47,6 +49,7 @@ class BaseOptions extends _RequestConfig {
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
     int maxRedirects = 5,
+    ResponseDecoder responseDecoder,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -60,6 +63,7 @@ class BaseOptions extends _RequestConfig {
           followRedirects: followRedirects,
           cookies: cookies,
           maxRedirects: maxRedirects,
+          responseDecoder: responseDecoder,
         );
 
   /// Create a new Option from current instance with merging attributes.
@@ -79,6 +83,7 @@ class BaseOptions extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    ResponseDecoder responseDecoder,
   }) {
     return new BaseOptions(
       method: method ?? this.method,
@@ -95,6 +100,7 @@ class BaseOptions extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
 
@@ -121,6 +127,7 @@ class Options extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    ResponseDecoder responseDecoder,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -135,6 +142,7 @@ class Options extends _RequestConfig {
           followRedirects: followRedirects,
           cookies: cookies,
           maxRedirects: maxRedirects,
+          responseDecoder: responseDecoder,
         );
 
   /// Create a new Option from current instance with merging attributes.
@@ -152,6 +160,7 @@ class Options extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    ResponseDecoder responseDecoder,
   }) {
     return new Options(
       method: method ?? this.method,
@@ -167,6 +176,7 @@ class Options extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
 }
@@ -192,6 +202,7 @@ class RequestOptions extends Options {
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
     int maxRedirects,
+    ResponseDecoder responseDecoder,
   }) : super(
           method: method,
           connectTimeout: connectTimeout,
@@ -206,6 +217,7 @@ class RequestOptions extends Options {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           maxRedirects: maxRedirects,
+          responseDecoder: responseDecoder,
         );
 
   /// generate uri
@@ -260,6 +272,7 @@ class _RequestConfig {
     this.receiveDataWhenStatusError = true,
     this.followRedirects = true,
     this.maxRedirects = 5,
+    this.responseDecoder,
   })  : this.headers = headers ?? {},
         this.extra = extra ?? {};
 
@@ -328,4 +341,8 @@ class _RequestConfig {
 
   /// Custom Cookies for every request
   List<Cookie> cookies;
+
+  /// The default response decoder is utf8decoder, you can set custom
+  /// decoder by this option, it will be used in [Transformer].
+  ResponseDecoder responseDecoder;
 }
