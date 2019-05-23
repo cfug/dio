@@ -703,8 +703,8 @@ class Dio {
           response = _makeRequest<T>(data, cancelToken);
         } else {
           // Otherwise, use the Future value as the request result.
-          // If the return type is Error, we should throw it
-          if (data is Error) throw _assureDioError(data);
+          // If the return type is Exception, we should throw it
+          if (data is Exception) throw _assureDioError(data);
           var r = _assureResponse<T>(data);
 
           response = r;
@@ -905,7 +905,7 @@ class Dio {
     return future.then<Response<T>>((data) {
       // Strictly be a DioError instance, but we relax the restrictions
       // if (data is DioError)
-      if (data is Error) {
+      if (data is Exception) {
         return reject<T>(data);
       }
       return resolve<T>(data);
@@ -980,7 +980,7 @@ class Dio {
   DioError _assureDioError(err) {
     if (err is DioError) {
       return err;
-    } else if (err is Error) {
+    } else if (err is Exception) {
       err = new DioError(
         response: null,
         message: err.toString(),
