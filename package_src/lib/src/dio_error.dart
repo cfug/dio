@@ -23,7 +23,7 @@ enum DioErrorType {
 }
 
 /// DioError describes the error info  when request failed.
-class DioError extends Error implements Exception {
+class DioError implements Exception {
   DioError({
     this.request,
     this.response,
