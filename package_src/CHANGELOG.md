@@ -1,3 +1,7 @@
+# 2.1.5
+
+- fix https://github.com/flutterchina/dio/issues/309
+
 # 2.1.4
 
 - Add `options.responseDecoder`
