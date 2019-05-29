@@ -77,10 +77,10 @@ class FormData extends MapMixin<String, dynamic> {
   int get _fileFieldLength {
     if (_fileFieldLen == null) {
       _fileFieldLen = _chunkHeader(
-        StringBuffer(),
-        "",
-        UploadFileInfo(null, "", contentType: ContentType.text),
-      ).length -
+            StringBuffer(),
+            "",
+            UploadFileInfo(null, "", contentType: ContentType.text),
+          ).length -
           utf8.encode(ContentType.text.mimeType).length;
     }
     return _fileFieldLen;
@@ -120,6 +120,7 @@ class FormData extends MapMixin<String, dynamic> {
     writeMapLength(buf, key, value) {
       value.keys.toList().forEach((mapKey) {
         var nestedKey = '${key}[${mapKey}]';
+        if (value[mapKey]) return;
         if (value[mapKey] is Map) {
           writeMapLength(buf, nestedKey, value[mapKey]);
         } else if (value[mapKey] is UploadFileInfo) {
@@ -136,18 +137,21 @@ class FormData extends MapMixin<String, dynamic> {
     }
 
     _map.forEach((key, value) {
+      if (value == null) return;
       if (value is UploadFileInfo || value is List) {
         fileMap[key] = value;
         return;
       } else if (value is Map) {
         value.keys.toList().forEach((mapKey) {
           var nestedKey = '${key}[${mapKey}]';
+          if (value[mapKey] == null) return;
           if (value[mapKey] is Map) {
             writeMapLength(buf, nestedKey, value[mapKey]);
           } else if (value[mapKey] is UploadFileInfo) {
             len += _fileFieldLength;
             _fileInfo(nestedKey, value[mapKey]);
-            len += value[mapKey].bytes?.length ?? value[mapKey].file.lengthSync();
+            len +=
+                value[mapKey].bytes?.length ?? value[mapKey].file.lengthSync();
             len += lineSplitLen;
           } else {
             len += _textFieldLength;
@@ -162,6 +166,7 @@ class FormData extends MapMixin<String, dynamic> {
     });
 
     fileMap.forEach((key, fileInfo) {
+      if (fileInfo == null) return;
       if (fileInfo is UploadFileInfo) {
         len += _fileFieldLength;
         _fileInfo(key, fileInfo);
@@ -177,6 +182,7 @@ class FormData extends MapMixin<String, dynamic> {
           } else if (e is Map) {
             e.keys.toList().forEach((mapKey) {
               var nestedKey = '${key}[][${mapKey}]';
+              if (e[mapKey] == null) return;
               if (e[mapKey] is Map) {
                 writeMapLength(buf, nestedKey, e[mapKey]);
               } else if (e[mapKey] is UploadFileInfo) {
@@ -215,6 +221,7 @@ class FormData extends MapMixin<String, dynamic> {
     var fileMap = new Map<String, dynamic>();
     StringBuffer data = new StringBuffer();
     _map.forEach((key, value) {
+      if (value == null) return;
       if (value is UploadFileInfo || value is List) {
         // If file, add it to `fileMap`, we handle it later.
         fileMap[key] = value;
@@ -251,12 +258,14 @@ class FormData extends MapMixin<String, dynamic> {
     }
     return bytes;
   }
-  
+
   handleMapField(List<int> bytes, String key, dynamic value) {
+    if (value == null) return;
     StringBuffer buffer = new StringBuffer();
     if (value is Map) {
       value.keys.toList().forEach((mapKey) {
         var nestedKey = '${key}[${mapKey}]';
+        if (value[mapKey] == null) return;
         if (value[mapKey] is Map) {
           handleMapField(bytes, nestedKey, value[mapKey]);
         } else if (value[mapKey] is UploadFileInfo) {
@@ -293,10 +302,10 @@ class FormData extends MapMixin<String, dynamic> {
   }
 
   List<int> _chunkHeader(
-      StringBuffer buffer,
-      String key,
-      UploadFileInfo fileInfo,
-      ) {
+    StringBuffer buffer,
+    String key,
+    UploadFileInfo fileInfo,
+  ) {
     buffer.clear();
     buffer.write(boundary);
     _writeln(buffer);
@@ -333,6 +342,7 @@ class FormData extends MapMixin<String, dynamic> {
     }
 
     for (var entry in _map.entries) {
+      if(entry.value==null) continue;
       if (entry.value is UploadFileInfo || entry.value is List) {
         // If file, add it to `fileMap`, we handle it later.
         fileMap[entry.key] = entry.value;
@@ -347,12 +357,14 @@ class FormData extends MapMixin<String, dynamic> {
     }
 
     for (var entry in fileMap.entries) {
+      if(entry.value==null) continue;
       if (entry.value is UploadFileInfo) {
         await for (var chunk in addFile(entry.key, entry.value)) {
           yield chunk;
         }
       } else {
         for (var info in entry.value) {
+          if(info==null) continue;
           if (info is UploadFileInfo) {
             await for (var chunk in addFile(entry.key, info)) {
               yield chunk;

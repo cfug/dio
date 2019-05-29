@@ -67,20 +67,18 @@ void main() {
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
       dio.httpClientAdapter = MockAdapter();
-
     });
     test('test', () async {
       // dio.options.responseType=ResponseType.json // Default
-      Response<Map>r0 =await dio.get("/test");
-      expect(r0.data is Map,true);
-      Response<String>r =await dio.get<String>("/test");
-      expect(r.data is String,true);
-      dio.options.responseType=ResponseType.plain;
-      r =await dio.get("/test");
-      expect(r.data is String,true);
-      Response<Map>r2 =await dio.get<Map>("/test");
-      expect(r2.data is Map,true);
-
+      Response<Map> r0 = await dio.get("/test");
+      expect(r0.data is Map, true);
+      Response<String> r = await dio.get<String>("/test");
+      expect(r.data is String, true);
+      dio.options.responseType = ResponseType.plain;
+      r = await dio.get("/test");
+      expect(r.data is String, true);
+      Response<Map> r2 = await dio.get<Map>("/test");
+      expect(r2.data is Map, true);
     });
   });
 
@@ -88,7 +86,7 @@ void main() {
     test("test", () async {
       var dio = new Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
-      dio.httpClientAdapter=MockAdapter();
+      dio.httpClientAdapter = MockAdapter();
       await dio.download("/download", "../download.md",
           options: Options(
               headers: {HttpHeaders.acceptEncodingHeader: "*"}), // disable gzip
@@ -108,10 +106,11 @@ void main() {
       var dio = new Dio();
       dio.interceptors.add(LogInterceptor(requestBody: true));
       dio.options.baseUrl = MockAdapter.mockBase;
-      dio.httpClientAdapter=MockAdapter();
+      dio.httpClientAdapter = MockAdapter();
       FormData formData = FormData.from({
         "name": "wendux",
         "age": 25,
+        "other": {"a": 1, "b": 2}
       });
       formData.remove("name");
       formData["xx"] = 9;
@@ -119,6 +118,8 @@ void main() {
         "file",
         UploadFileInfo(File("./pubspec.yaml"), "pubspec.yaml"),
       );
+      var t = await formData.asBytesAsync();
+      expect(formData.length, t.length);
       await dio.post("/test", data: formData);
       formData.clear();
       expect(formData.length, 0);
@@ -127,11 +128,11 @@ void main() {
       var dio = new Dio();
       dio.interceptors.add(LogInterceptor(requestBody: true));
       dio.options.baseUrl = MockAdapter.mockBase;
-      dio.httpClientAdapter=MockAdapter();
+      dio.httpClientAdapter = MockAdapter();
       FormData formData = FormData.from({
         "name": "wendux",
-        "tag":["a","b","c"],
-        "student":{"a":"b","c": "d"},
+        "tag": ["a", "b", "c"],
+        "student": {"a": "b", "c": "d"},
         "age": 25,
       });
       formData.remove("name");
@@ -186,7 +187,7 @@ void main() {
   group('transfomer', () {
     test("test", () async {
       var dio = new Dio();
-      dio.httpClientAdapter=MockAdapter();
+      dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.transformer = new MyTransformer();
 //      Response response = await dio.get("https://www.baidu.com");
@@ -221,7 +222,7 @@ void main() {
     setUp(() {
       dio = new Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
-      dio.httpClientAdapter=MockAdapter();
+      dio.httpClientAdapter = MockAdapter();
       dio.interceptors
           .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
         switch (options.path) {
@@ -250,8 +251,7 @@ void main() {
     });
 
     test('TestRI', () async {
-      Response
-      response = await dio.get("/fakepath1");
+      Response response = await dio.get("/fakepath1");
       expect(response.data, "fake data");
       response = await dio.get("/fakepath2");
       expect(response.data["errCode"], 0);
