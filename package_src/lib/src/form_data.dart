@@ -117,17 +117,17 @@ class FormData extends MapMixin<String, dynamic> {
       buf.write((info.contentType ?? ContentType.text).mimeType);
     }
 
-    writeMapLength(buf, key, value, len) {
+    writeMapLength(buf, key, value) {
       value.keys.toList().forEach((mapKey) {
         var nestedKey = '${key}[${mapKey}]';
         if (value[mapKey] is Map) {
-          writeMapLength(buf, nestedKey, value[mapKey], len);
+          writeMapLength(buf, nestedKey, value[mapKey]);
         } else if (value[mapKey] is UploadFileInfo) {
           var e = value[mapKey];
           len += _fileFieldLength;
           _fileInfo(nestedKey, value[mapKey]);
           len += e.bytes?.length ?? e.file.lengthSync();
-          len += utf8.encode('\r\n').length;
+          len += lineSplitLen;
         } else {
           len += _textFieldLength;
           buf.write("$nestedKey${value[mapKey]}");
@@ -143,7 +143,7 @@ class FormData extends MapMixin<String, dynamic> {
         value.keys.toList().forEach((mapKey) {
           var nestedKey = '${key}[${mapKey}]';
           if (value[mapKey] is Map) {
-            writeMapLength(buf, nestedKey, value[mapKey], len);
+            writeMapLength(buf, nestedKey, value[mapKey]);
           } else if (value[mapKey] is UploadFileInfo) {
             len += _fileFieldLength;
             _fileInfo(nestedKey, value[mapKey]);
@@ -178,7 +178,7 @@ class FormData extends MapMixin<String, dynamic> {
             e.keys.toList().forEach((mapKey) {
               var nestedKey = '${key}[][${mapKey}]';
               if (e[mapKey] is Map) {
-                writeMapLength(buf, nestedKey, e[mapKey], len);
+                writeMapLength(buf, nestedKey, e[mapKey]);
               } else if (e[mapKey] is UploadFileInfo) {
                 len += _fileFieldLength;
                 _fileInfo(nestedKey, e[mapKey]);
@@ -251,12 +251,7 @@ class FormData extends MapMixin<String, dynamic> {
     }
     return bytes;
   }
-
-  @Deprecated('Use `asBytes` instead. Will be removed in 2.1.0')
-  List<int> bytes() {
-    return asBytes();
-  }
-
+  
   handleMapField(List<int> bytes, String key, dynamic value) {
     StringBuffer buffer = new StringBuffer();
     if (value is Map) {
