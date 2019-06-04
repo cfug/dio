@@ -1,3 +1,12 @@
+
+# 2.1.7
+
+- fix #321 #318
+
+# 2.1.6
+
+- fix https://github.com/flutterchina/dio/issues/316
+
 # 2.1.5
 
 - fix https://github.com/flutterchina/dio/issues/309

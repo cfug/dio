@@ -29,7 +29,10 @@ enum ResponseType {
 }
 
 typedef ValidateStatus = bool Function(int status);
-typedef ResponseDecoder = String Function(List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
+typedef ResponseDecoder = String Function(
+    List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
+typedef RequestEncoder = List<int> Function(
+    String request, RequestOptions options);
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
@@ -49,6 +52,7 @@ class BaseOptions extends _RequestConfig {
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
     int maxRedirects = 5,
+   RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) : super(
           method: method,
@@ -63,6 +67,7 @@ class BaseOptions extends _RequestConfig {
           followRedirects: followRedirects,
           cookies: cookies,
           maxRedirects: maxRedirects,
+          requestEncoder:requestEncoder,
           responseDecoder: responseDecoder,
         );
 
@@ -83,6 +88,7 @@ class BaseOptions extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    RequestEncoder  requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
     return new BaseOptions(
@@ -100,6 +106,7 @@ class BaseOptions extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
@@ -127,6 +134,7 @@ class Options extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    RequestEncoder  requestEncoder,
     ResponseDecoder responseDecoder,
   }) : super(
           method: method,
@@ -142,6 +150,7 @@ class Options extends _RequestConfig {
           followRedirects: followRedirects,
           cookies: cookies,
           maxRedirects: maxRedirects,
+          requestEncoder:requestEncoder,
           responseDecoder: responseDecoder,
         );
 
@@ -160,6 +169,7 @@ class Options extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    RequestEncoder  requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
     return new Options(
@@ -176,6 +186,7 @@ class Options extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
@@ -202,6 +213,7 @@ class RequestOptions extends Options {
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
     int maxRedirects,
+    RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) : super(
           method: method,
@@ -217,6 +229,7 @@ class RequestOptions extends Options {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           maxRedirects: maxRedirects,
+          requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
         );
 
@@ -272,6 +285,7 @@ class _RequestConfig {
     this.receiveDataWhenStatusError = true,
     this.followRedirects = true,
     this.maxRedirects = 5,
+    this.requestEncoder,
     this.responseDecoder,
   })  : this.headers = headers ?? {},
         this.extra = extra ?? {};
@@ -341,6 +355,10 @@ class _RequestConfig {
 
   /// Custom Cookies for every request
   List<Cookie> cookies;
+
+  /// The default request encoder is utf8encoder, you can set custom
+  /// encoder by this option.
+  RequestEncoder requestEncoder;
 
   /// The default response decoder is utf8decoder, you can set custom
   /// decoder by this option, it will be used in [Transformer].

@@ -846,8 +846,12 @@ class Dio {
       } else {
         // Call request transformer.
         String _data = await transformer.transformRequest(options);
-        // Convert to utf8
-        bytes = utf8.encode(_data);
+        if(options.requestEncoder!=null){
+          bytes=options.requestEncoder(_data,options);
+        }else {
+          //Default convert to utf8
+          bytes = utf8.encode(_data);
+        }
         // support data sending progress
         length = bytes.length;
 
@@ -958,6 +962,8 @@ class Dio {
       maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
       queryParameters: query,
       cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
+      requestEncoder: opt.requestEncoder??options.requestEncoder,
+      responseDecoder: opt.responseDecoder??options.responseDecoder
     );
   }
 
@@ -980,17 +986,13 @@ class Dio {
   DioError _assureDioError(err) {
     if (err is DioError) {
       return err;
-    } else if (err is Exception) {
-      err = new DioError(
-        response: null,
-        message: err.toString(),
-        stackTrace: err.stackTrace,
-        error: err,
-      );
     } else {
-      err = new DioError(message: err.toString(), error: err);
+      var _err = DioError(message: err.toString(), error: err);
+      if(err is Error){
+        _err.stackTrace=err.stackTrace;
+      }
+      return _err;
     }
-    return err;
   }
 
   Response<T> _assureResponse<T>(response) {
