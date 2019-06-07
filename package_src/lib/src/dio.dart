@@ -490,6 +490,13 @@ class Dio {
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
+        }).catchError((derr) async {
+          try {
+            await subscription.cancel();
+            
+          } finally {
+            completer.completeError(_assureDioError(derr));
+          }
         });
       },
       onDone: () async {
