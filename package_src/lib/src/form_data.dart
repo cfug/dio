@@ -197,7 +197,7 @@ class FormData extends MapMixin<String, dynamic> {
             });
           } else {
             len += _textFieldLength;
-            buf.write("$key$e");
+            buf.write("$key[]$e");
           }
         });
       }
