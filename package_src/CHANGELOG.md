@@ -1,3 +1,7 @@
+# 2.1.8
+
+- fix #354 #312
+- Allow "delete" method with request body(#223)
 
 # 2.1.7
 

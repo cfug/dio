@@ -110,8 +110,10 @@ void main() {
       FormData formData = FormData.from({
         "name": "wendux",
         "age": 25,
-        "other": {"a": 1, "b": 2}
+        "other": {"a": 1, "b": 2},
+        "test":["xx",2]
       });
+
       formData.remove("name");
       formData["xx"] = 9;
       formData.add(
@@ -120,6 +122,7 @@ void main() {
       );
       var t = await formData.asBytesAsync();
       expect(formData.length, t.length);
+      expect(formData.length, formData.asBytes().length);
       await dio.post("/test", data: formData);
       formData.clear();
       expect(formData.length, 0);

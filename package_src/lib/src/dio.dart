@@ -609,7 +609,7 @@ class Dio {
       queryParameters: queryParameters,
       cancelToken: cancelToken,
       options: options,
-      onSendProgress: onSendProgress ?? onSendProgress,
+      onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
   }
@@ -632,7 +632,7 @@ class Dio {
       data: data,
       cancelToken: cancelToken,
       options: options,
-      onSendProgress: onSendProgress ?? onSendProgress,
+      onSendProgress: onSendProgress ,
       onReceiveProgress: onReceiveProgress,
     );
   }
@@ -822,7 +822,7 @@ class Dio {
     var data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
-    if (data != null && ["POST", "PUT", "PATCH"].contains(options.method)) {
+    if (data != null && ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
       // Handle the FormData
       int length;
       if (data is Stream) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import '../interceptor.dart';
 import '../options.dart';
@@ -29,7 +30,7 @@ class CookieManager extends Interceptor {
   }
 
   @override
-  onRequest(RequestOptions options) {
+  FutureOr<dynamic> onRequest(RequestOptions options) {
     var cookies = cookieJar.loadForRequest(options.uri);
     cookies.removeWhere((cookie) =>
         cookie.value == invalidCookieValue &&
@@ -40,10 +41,10 @@ class CookieManager extends Interceptor {
   }
 
   @override
-  onResponse(Response response) => _saveCookies(response);
+  FutureOr<dynamic> onResponse(Response response) => _saveCookies(response);
 
   @override
-  onError(DioError err) => _saveCookies(err.response);
+  FutureOr<dynamic> onError(DioError err) => _saveCookies(err.response);
 
   _saveCookies(Response response) {
     if (response != null && response.headers != null) {

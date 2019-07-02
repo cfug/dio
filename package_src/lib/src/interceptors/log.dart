@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../interceptor.dart';
 import '../options.dart';
 import '../response.dart';
@@ -37,7 +39,7 @@ class LogInterceptor extends Interceptor {
   final logSize;
 
   @override
-  onRequest(RequestOptions options) {
+  FutureOr<dynamic> onRequest(RequestOptions options) {
     print('*** Request ***');
     printKV('uri', options.uri);
 
@@ -64,7 +66,7 @@ class LogInterceptor extends Interceptor {
   }
 
   @override
-  onError(DioError err) {
+  FutureOr<dynamic> onError(DioError err) {
     if (error) {
       print('*** DioError ***:');
       print(err);
@@ -75,7 +77,7 @@ class LogInterceptor extends Interceptor {
   }
 
   @override
-  onResponse(Response response) {
+  FutureOr<dynamic> onResponse(Response response) {
     print("*** Response ***");
     _printResponse(response);
   }
@@ -84,8 +86,7 @@ class LogInterceptor extends Interceptor {
     printKV('uri', response?.request?.uri);
     if (responseHeader) {
       printKV('statusCode', response.statusCode);
-      if(response.isRedirect)
-      printKV('redirect',response.realUri);
+      if (response.isRedirect) printKV('redirect', response.realUri);
       print("headers:");
       print(" " + response?.headers?.toString()?.replaceAll("\n", "\n "));
     }

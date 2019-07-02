@@ -69,21 +69,21 @@ class Interceptor {
   /// If you want to reject the request with a error message,
   /// you can return a [DioError] object or return [dio.reject] .
   /// If you want to continue the request, return the [Options] object.
-  onRequest(RequestOptions options) => options;
+  FutureOr<dynamic> onRequest(RequestOptions options) => options;
 
   /// The callback will be executed on success.
   ///
   /// If you want to reject the request with a error message,
   /// you can return a [DioError] object or return [dio.reject] .
   /// If you want to continue the request, return the [Response] object.
-  onResponse(Response response) => response;
+  FutureOr<dynamic> onResponse(Response response) => response;
 
   /// The callback will be executed on error.
   ///
   /// If you want to resolve the request with some custom data，
   /// you can return a [Response] object or return [dio.resolve].
   /// If you want to continue the request, return the [DioError] object.
-  onError(DioError err) => err;
+  FutureOr<dynamic> onError(DioError err) => err;
 }
 
 class InterceptorsWrapper extends Interceptor {

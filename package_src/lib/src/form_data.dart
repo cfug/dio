@@ -86,24 +86,6 @@ class FormData extends MapMixin<String, dynamic> {
     return _fileFieldLen;
   }
 
-//  void writeMapLength(buf, key, value, len) {
-//
-//    value.keys.toList().forEach((mapKey) {
-//      var nestedKey = '${key}[${mapKey}]';
-//      len += _textFieldLength;
-//      buf.write("$nestedKey${value[mapKey]}");
-//      if (value[mapKey] is Map) {
-//        writeMapLength(buf, nestedKey, value[mapKey], len);
-//      }else if (value[mapKey] is UploadFileInfo){
-//        var e = value[mapKey];
-//        len += _fileFieldLength;
-//        _fileInfo(nestedKey, value[mapKey]);
-//        len += e.bytes?.length ?? e.file.lengthSync();
-//        len += utf8.encode('\r\n').length;
-//      }
-//      print(buf);
-//    });
-//  }
 
   /// Get the length of the formData (as bytes)
   int get length {
@@ -197,7 +179,7 @@ class FormData extends MapMixin<String, dynamic> {
             });
           } else {
             len += _textFieldLength;
-            buf.write("$key$e");
+            buf.write("$key[]$e");
           }
         });
       }
@@ -243,8 +225,10 @@ class FormData extends MapMixin<String, dynamic> {
             bytes.addAll(_chunkHeader(data, key, e));
             bytes.addAll(e.bytes ?? e.file.readAsBytesSync());
             bytes.addAll(utf8.encode('\r\n'));
+          } else if(e is Map){
+            handleMapField(bytes, key, e);
           } else {
-            bytes.addAll(_textField(data, key, e));
+            bytes.addAll(_textField(data, key+"[]", e));
           }
         });
       }
