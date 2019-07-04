@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'mock_adapter.dart';
@@ -30,7 +31,7 @@ void main() {
     test("lan", () {
       var list = [""];
       assert(list is List<String>);
-      assert(!(list is List<int>));
+      assert(!(list is Uint8List));
     });
   });
   group('restful', () {
@@ -111,7 +112,7 @@ void main() {
         "name": "wendux",
         "age": 25,
         "other": {"a": 1, "b": 2},
-        "test":["xx",2]
+        "test": ["xx", 2]
       });
 
       formData.remove("name");
