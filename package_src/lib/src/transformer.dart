@@ -102,8 +102,7 @@ class DefaultTransformer extends Transformer {
     }
     Completer completer = new Completer();
     Stream stream = response.stream.transform(
-        StreamTransformer<Uint8List, Uint8List>.fromHandlers(
-            handleData: (Uint8List data, EventSink<Uint8List> sink) {
+        StreamTransformer.fromHandlers(handleData: (data, EventSink sink) {
       sink.add(data);
       if (showDownloadProgress) {
         received += data.length;

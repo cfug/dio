@@ -113,8 +113,9 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       //_httpClient.connectionTimeout= Duration(milliseconds: options.connectTimeout);
 //      _httpClient.connectionTimeout =
 //          Duration(milliseconds: options.connectTimeout);
-      requestFuture = _httpClient.openUrl(options.method, options.uri)
-      .timeout(Duration(milliseconds: options.connectTimeout));
+      requestFuture = _httpClient
+          .openUrl(options.method, options.uri)
+          .timeout(Duration(milliseconds: options.connectTimeout));
     } else {
       _httpClient.connectionTimeout = null;
       requestFuture = _httpClient.openUrl(options.method, options.uri);
