@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'cancel_token.dart';
 import 'dio_error.dart';
 import 'form_data.dart';
@@ -449,8 +450,8 @@ class Dio {
     Future future = completer.future;
     int received = 0;
 
-    // Stream<List<int>>
-    Stream<List<int>> stream = response.data.stream;
+    // Stream<Uint8List>
+    Stream<Uint8List> stream = response.data.stream;
     bool compressed = false;
     int total = 0;
     String contentEncoding =
@@ -493,7 +494,7 @@ class Dio {
         }).catchError((derr) async {
           try {
             await subscription.cancel();
-            
+
           } finally {
             completer.completeError(_assureDioError(derr));
           }
@@ -825,16 +826,16 @@ class Dio {
     }
   }
 
-  Future<Stream<List<int>>> _transformData(RequestOptions options) async {
+  Future<Stream<Uint8List>> _transformData(RequestOptions options) async {
     var data = options.data;
-    List<int> bytes;
-    Stream<List<int>> stream;
+    Uint8List bytes;
+    Stream<Uint8List> stream;
     if (data != null && ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
       // Handle the FormData
       int length;
       if (data is Stream) {
-        assert(data is Stream<List<int>>,
-            "Stream type must be `Stream<List<int>>`, but ${data.runtimeType} is found.");
+        assert(data is Stream<Uint8List>,
+            "Stream type must be `Stream<Uint8List>`, but ${data.runtimeType} is found.");
         stream = data;
         options.headers.keys.any((String key) {
           if (key.toLowerCase() == HttpHeaders.contentLengthHeader) {
@@ -848,7 +849,9 @@ class Dio {
           options.headers[HttpHeaders.contentTypeHeader] =
           'multipart/form-data; boundary=${data.boundary.substring(2)}';
         }
-        stream = data.stream;
+        stream = data.stream.transform(StreamTransformer<List<int>,Uint8List>.fromHandlers(handleData: (data, sink) {
+          sink.add(data);
+        }));
         length = data.length;
       } else {
         // Call request transformer.
@@ -862,7 +865,7 @@ class Dio {
         // support data sending progress
         length = bytes.length;
 
-        var group = new List<List<int>>();
+        var group = new List<Uint8List>();
         const size = 1024;
         int groupCount = (bytes.length / size).ceil();
         for (int i = 0; i < groupCount; ++i) {
@@ -877,7 +880,7 @@ class Dio {
         options.headers[HttpHeaders.contentLengthHeader] = length;
       }
       int complete = 0;
-      Stream<List<int>> byteStream =
+      Stream<Uint8List> byteStream =
           stream.transform(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (options.cancelToken != null && options.cancelToken.isCancelled) {

@@ -1,3 +1,8 @@
+# 2.1.9
+
+- support flutter version>=1.8 (fix #357)
+
+
 # 2.1.8
 
 - fix #354 #312

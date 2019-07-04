@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dio_error.dart';
 import 'options.dart';
 import 'adapter.dart';
@@ -99,8 +100,8 @@ class DefaultTransformer extends Transformer {
           response.headers.value(HttpHeaders.contentLengthHeader) ?? "-1");
     }
     Completer completer = new Completer();
-    Stream<List<int>> stream = response.stream.transform<List<int>>(
-        StreamTransformer.fromHandlers(handleData: (data, sink) {
+    Stream stream = response.stream.transform(
+        StreamTransformer<Uint8List, List<int>>.fromHandlers(handleData: (data, sink) {
       sink.add(data);
       if (showDownloadProgress) {
         received += data.length;

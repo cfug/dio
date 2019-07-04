@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'dart:typed_data';
 import 'options.dart';
 import 'dio_error.dart';
 
@@ -59,7 +60,7 @@ class ResponseBody {
   });
 
   /// The response stream
-  Stream<List<int>> stream;
+  Stream<Uint8List> stream;
 
   /// the response headers
   HttpHeaders headers;
@@ -85,7 +86,7 @@ class ResponseBody {
     this.headers,
     this.statusMessage,
     this.redirects,
-  }) : stream = Stream.fromIterable(utf8.encode(text).map((e) => [e]).toList());
+  }) : stream = Stream.fromIterable(utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
 
   ResponseBody.fromBytes(
     List<int> bytes,
@@ -93,11 +94,12 @@ class ResponseBody {
     this.headers,
     this.statusMessage,
     this.redirects,
-  }) : stream = Stream.fromIterable(bytes.map((e) => [e]).toList());
+  }) : stream = Stream.fromIterable(bytes.map((e) => Uint8List.fromList([e])).toList());
 }
 
 /// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
 class DefaultHttpClientAdapter extends HttpClientAdapter {
+  Uint8List E;
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<List<int>> requestStream,

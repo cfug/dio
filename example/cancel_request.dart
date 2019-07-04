@@ -41,6 +41,7 @@ main() async {
       if (CancelToken.isCancel(e)) {
         print('$url3: $e');
       }
+      print(e);
     })
   ]);
 }
