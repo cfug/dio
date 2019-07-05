@@ -849,9 +849,7 @@ class Dio {
           options.headers[HttpHeaders.contentTypeHeader] =
           'multipart/form-data; boundary=${data.boundary.substring(2)}';
         }
-        stream = data.stream.transform(StreamTransformer<List<int>,Uint8List>.fromHandlers(handleData: (data, sink) {
-          sink.add(data);
-        }));
+        stream=data.stream.cast<Uint8List>();
         length = data.length;
       } else {
         // Call request transformer.

@@ -167,13 +167,8 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     if (responseStream is Stream<Uint8List>) {
       stream = responseStream;
     } else {
-      stream = responseStream.transform(
-          StreamTransformer<List<int>, Uint8List>.fromHandlers(
-              handleData: (data, sink) {
-        sink.add(data);
-      }));
+      stream=responseStream.cast<Uint8List>();
     }
-
     return ResponseBody(
       stream,
       responseStream.statusCode,
