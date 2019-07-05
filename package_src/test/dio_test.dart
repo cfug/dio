@@ -179,6 +179,7 @@ void main() {
       final url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';
       final savePath = './example/HBuilder.9.0.2.macosx_64.dmg';
       await dio.download(url, savePath, cancelToken: token).catchError((e) {
+        print(e);
         expect(CancelToken.isCancel(e), true);
         if (CancelToken.isCancel(e)) {
           expect(e.type, DioErrorType.CANCEL);

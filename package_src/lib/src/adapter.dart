@@ -86,7 +86,8 @@ class ResponseBody {
     this.headers,
     this.statusMessage,
     this.redirects,
-  }) : stream = Stream.fromIterable(utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
+  }) : stream = Stream.fromIterable(
+            utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
 
   ResponseBody.fromBytes(
     List<int> bytes,
@@ -94,12 +95,14 @@ class ResponseBody {
     this.headers,
     this.statusMessage,
     this.redirects,
-  }) : stream = Stream.fromIterable(bytes.map((e) => Uint8List.fromList([e])).toList());
+  }) : stream = Stream.fromIterable(
+            bytes.map((e) => Uint8List.fromList([e])).toList());
 }
 
 /// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
 class DefaultHttpClientAdapter extends HttpClientAdapter {
   Uint8List E;
+
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<List<int>> requestStream,
@@ -115,8 +118,9 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       //_httpClient.connectionTimeout= Duration(milliseconds: options.connectTimeout);
 //      _httpClient.connectionTimeout =
 //          Duration(milliseconds: options.connectTimeout);
-      requestFuture = _httpClient.openUrl(options.method, options.uri)
-      .timeout(Duration(milliseconds: options.connectTimeout));
+      requestFuture = _httpClient
+          .openUrl(options.method, options.uri)
+          .timeout(Duration(milliseconds: options.connectTimeout));
     } else {
       _httpClient.connectionTimeout = null;
       requestFuture = _httpClient.openUrl(options.method, options.uri);
@@ -146,8 +150,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     if (options.receiveTimeout > 0) {
       future = future.timeout(Duration(milliseconds: options.receiveTimeout));
     }
-    HttpClientResponse responseStream;
-
+    dynamic responseStream;
     try {
       responseStream = await future;
     } on TimeoutException {
@@ -157,8 +160,22 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
         type: DioErrorType.RECEIVE_TIMEOUT,
       );
     }
+
+    Stream<Uint8List> stream;
+
+    // https://github.com/dart-lang/co19/issues/383
+    if (responseStream is Stream<Uint8List>) {
+      stream = responseStream;
+    } else {
+      stream = responseStream.transform(
+          StreamTransformer<List<int>, Uint8List>.fromHandlers(
+              handleData: (data, sink) {
+        sink.add(data);
+      }));
+    }
+
     return ResponseBody(
-      responseStream,
+      stream,
       responseStream.statusCode,
       headers: responseStream.headers,
       redirects: responseStream.redirects,
