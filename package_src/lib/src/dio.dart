@@ -828,14 +828,14 @@ class Dio {
 
   Future<Stream<Uint8List>> _transformData(RequestOptions options) async {
     var data = options.data;
-    Uint8List bytes;
-    Stream<Uint8List> stream;
+    List<int> bytes;
+    Stream stream;
     if (data != null && ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
       // Handle the FormData
       int length;
       if (data is Stream) {
-        assert(data is Stream<Uint8List>,
-            "Stream type must be `Stream<Uint8List>`, but ${data.runtimeType} is found.");
+        assert(data is Stream<List>,
+            "Stream type must be `Stream<List>`, but ${data.runtimeType} is found.");
         stream = data;
         options.headers.keys.any((String key) {
           if (key.toLowerCase() == HttpHeaders.contentLengthHeader) {
@@ -849,7 +849,7 @@ class Dio {
           options.headers[HttpHeaders.contentTypeHeader] =
           'multipart/form-data; boundary=${data.boundary.substring(2)}';
         }
-        stream=data.stream.cast<Uint8List>();
+        stream=data.stream;
         length = data.length;
       } else {
         // Call request transformer.
@@ -863,7 +863,7 @@ class Dio {
         // support data sending progress
         length = bytes.length;
 
-        var group = new List<Uint8List>();
+        var group = List<List<int>>();
         const size = 1024;
         int groupCount = (bytes.length / size).ceil();
         for (int i = 0; i < groupCount; ++i) {
@@ -872,6 +872,7 @@ class Dio {
         }
         stream = Stream.fromIterable(group);
       }
+
       options.headers[HttpHeaders.contentTypeHeader] ??=
           options.contentType.toString();
       if (length != null) {
@@ -879,7 +880,7 @@ class Dio {
       }
       int complete = 0;
       Stream<Uint8List> byteStream =
-          stream.transform(StreamTransformer.fromHandlers(
+          stream.cast<Uint8List>().transform(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (options.cancelToken != null && options.cancelToken.isCancelled) {
             sink

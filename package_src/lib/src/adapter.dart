@@ -169,6 +169,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     } else {
       stream=responseStream.cast<Uint8List>();
     }
+
     return ResponseBody(
       stream,
       responseStream.statusCode,

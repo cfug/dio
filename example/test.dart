@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
@@ -9,5 +11,10 @@ void getHttp() async {
 }
 
 main() async{
-  await getHttp();
+//  await getHttp();
+//  Stream<Uint8List> t =Stream.empty();
+//  Stream<List<int>> v=Stream.empty();
+//  print(v is Stream<Uint8List>);
+//  print (t is Stream<List<int>> );
+//  print(t is Stream<Uint8List>);
 }
