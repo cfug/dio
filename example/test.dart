@@ -17,4 +17,9 @@ main() async{
 //  print(v is Stream<Uint8List>);
 //  print (t is Stream<List<int>> );
 //  print(t is Stream<Uint8List>);
+
+  FormData formData = FormData();
+  formData.add("vehicles", List.from(["one", "two"]));
+  Response response = await Dio().post("http://www.google.com",data: formData);
+
 }

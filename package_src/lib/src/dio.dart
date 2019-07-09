@@ -829,7 +829,7 @@ class Dio {
   Future<Stream<Uint8List>> _transformData(RequestOptions options) async {
     var data = options.data;
     List<int> bytes;
-    Stream stream;
+    Stream<List<int>> stream;
     if (data != null && ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
       // Handle the FormData
       int length;
@@ -879,15 +879,14 @@ class Dio {
         options.headers[HttpHeaders.contentLengthHeader] = length;
       }
       int complete = 0;
-      Stream<Uint8List> byteStream =
-          stream.cast<Uint8List>().transform(StreamTransformer.fromHandlers(
+      Stream<Uint8List>  byteStream =  stream.transform(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (options.cancelToken != null && options.cancelToken.isCancelled) {
             sink
               ..addError(options.cancelToken.cancelError)
               ..close();
           } else {
-            sink.add(data);
+            sink.add(Uint8List.fromList(data));
             if (length != null) {
               complete += data.length;
               if (options.onSendProgress != null) {

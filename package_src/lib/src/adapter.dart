@@ -150,7 +150,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     if (options.receiveTimeout > 0) {
       future = future.timeout(Duration(milliseconds: options.receiveTimeout));
     }
-    dynamic responseStream;
+    HttpClientResponse  responseStream;
     try {
       responseStream = await future;
     } on TimeoutException {
@@ -161,14 +161,12 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       );
     }
 
-    Stream<Uint8List> stream;
-
     // https://github.com/dart-lang/co19/issues/383
-    if (responseStream is Stream<Uint8List>) {
-      stream = responseStream;
-    } else {
-      stream=responseStream.cast<Uint8List>();
-    }
+    Stream<Uint8List> stream= responseStream.transform(StreamTransformer.fromHandlers(
+      handleData: (data, sink) {
+          sink.add(Uint8List.fromList(data));
+      },
+    ));
 
     return ResponseBody(
       stream,
