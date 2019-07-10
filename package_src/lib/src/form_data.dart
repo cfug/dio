@@ -102,7 +102,7 @@ class FormData extends MapMixin<String, dynamic> {
     writeMapLength(buf, key, value) {
       value.keys.toList().forEach((mapKey) {
         var nestedKey = '${key}[${mapKey}]';
-        if (value[mapKey]) return;
+        if (value[mapKey]==null) return;
         if (value[mapKey] is Map) {
           writeMapLength(buf, nestedKey, value[mapKey]);
         } else if (value[mapKey] is UploadFileInfo) {
