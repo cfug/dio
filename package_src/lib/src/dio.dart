@@ -947,10 +947,11 @@ class Dio {
       Options opt, String url, data, Map<String, dynamic> queryParameters) {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
+    var baseUrl = ((opt is RequestOptions) ? opt.baseUrl : null ) ?? options.baseUrl ?? "";
     return RequestOptions(
       method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
       headers: (Map.from(options.headers))..addAll(opt.headers),
-      baseUrl: options.baseUrl ?? "",
+      baseUrl: baseUrl,
       path: url,
       data: data,
       connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
