@@ -473,7 +473,7 @@ class Dio {
         closed = true;
         await asyncWrite;
         await raf.close();
-        await file.delete();
+//         await file.delete();
       }
     }
 
