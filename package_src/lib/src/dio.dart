@@ -963,7 +963,7 @@ class Dio {
   RequestOptions _mergeOptions(
       Options opt, String url, data, Map<String, dynamic> queryParameters,
       bool safeQuery) {
-    if (safeQuery) {
+    if (safeQuery && queryParameters != null) {
       queryParameters.removeWhere((_, value) => value == null);
     }
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
