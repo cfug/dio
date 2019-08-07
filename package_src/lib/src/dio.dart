@@ -443,7 +443,7 @@ class Dio {
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
     // file with a very big size(up 1G), it will be expensive in memory.
-    var raf = file.openSync(mode: FileMode.write);
+    var raf = file.openSync(mode: FileMode.append);
 
     //Create a new Completer to notify the success/error state.
     Completer completer = new Completer<Response>();
