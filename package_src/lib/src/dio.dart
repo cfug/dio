@@ -88,6 +88,7 @@ class Dio {
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onReceiveProgress,
@@ -95,6 +96,7 @@ class Dio {
     return request<T>(
       path,
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       options: _checkOptions("GET", options),
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
@@ -121,6 +123,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
@@ -131,6 +134,7 @@ class Dio {
       data: data,
       options: _checkOptions("POST", options),
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -161,6 +165,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
@@ -170,6 +175,7 @@ class Dio {
       path,
       data: data,
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       options: _checkOptions("PUT", options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
@@ -201,6 +207,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     Options options,
     CancelToken cancelToken,
   }) {
@@ -208,6 +215,7 @@ class Dio {
       path,
       data: data,
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       options: _checkOptions("HEAD", options),
       cancelToken: cancelToken,
     );
@@ -233,6 +241,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     Options options,
     CancelToken cancelToken,
   }) {
@@ -240,6 +249,7 @@ class Dio {
       path,
       data: data,
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       options: _checkOptions("DELETE", options),
       cancelToken: cancelToken,
     );
@@ -265,6 +275,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     Options options,
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
@@ -274,6 +285,7 @@ class Dio {
       path,
       data: data,
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       options: _checkOptions("PATCH", options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
@@ -389,6 +401,7 @@ class Dio {
     savePath, {
     ProgressCallback onReceiveProgress,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     CancelToken cancelToken,
     lengthHeader = HttpHeaders.contentLengthHeader,
     data,
@@ -411,6 +424,7 @@ class Dio {
         data: data,
         options: options,
         queryParameters: queryParameters,
+        safeQuery: safeQuery,
         cancelToken: cancelToken ?? CancelToken(),
       );
     } on DioError catch (e) {
@@ -606,6 +620,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     CancelToken cancelToken,
     Options options,
     ProgressCallback onSendProgress,
@@ -615,6 +630,7 @@ class Dio {
       path,
       data: data,
       queryParameters: queryParameters,
+      safeQuery: safeQuery,
       cancelToken: cancelToken,
       options: options,
       onSendProgress: onSendProgress,
@@ -671,6 +687,7 @@ class Dio {
     String path, {
     data,
     Map<String, dynamic> queryParameters,
+    bool safeQuery = true,
     CancelToken cancelToken,
     Options options,
     ProgressCallback onSendProgress,
@@ -685,7 +702,7 @@ class Dio {
       onReceiveProgress = onReceiveProgress ?? options.onReceiveProgress;
     }
     RequestOptions requestOptions =
-        _mergeOptions(options, path, data, queryParameters);
+    _mergeOptions(options, path, data, queryParameters, safeQuery);
     requestOptions.onReceiveProgress = onReceiveProgress;
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
@@ -944,7 +961,11 @@ class Dio {
   }
 
   RequestOptions _mergeOptions(
-      Options opt, String url, data, Map<String, dynamic> queryParameters) {
+      Options opt, String url, data, Map<String, dynamic> queryParameters,
+      bool safeQuery) {
+    if (safeQuery) {
+      queryParameters.removeWhere((_, value) => value == null);
+    }
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     return RequestOptions(
