@@ -876,7 +876,7 @@ class Dio {
       options.headers[HttpHeaders.contentTypeHeader] ??=
           options.contentType.toString();
       if (length != null) {
-        options.headers[HttpHeaders.contentLengthHeader] = length;
+        options.headers[HttpHeaders.contentLengthHeader] = length?.toString();
       }
       int complete = 0;
       Stream<Uint8List>  byteStream =  stream.transform(StreamTransformer.fromHandlers(
