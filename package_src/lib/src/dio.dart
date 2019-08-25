@@ -367,6 +367,8 @@ class Dio {
   ///  [onReceiveProgress]: The callback to listen downloading progress.
   ///  please refer to [ProgressCallback].
   ///
+  /// [deleteOnError] Whether delete the file when error occurs. The default value is [true].
+  ///
   ///  [lengthHeader] : The real size of original file (not compressed).
   ///  When file is compressed:
   ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
@@ -390,6 +392,7 @@ class Dio {
     ProgressCallback onReceiveProgress,
     Map<String, dynamic> queryParameters,
     CancelToken cancelToken,
+    bool deleteOnError = true,
     lengthHeader = HttpHeaders.contentLengthHeader,
     data,
     Options options,
@@ -473,7 +476,7 @@ class Dio {
         closed = true;
         await asyncWrite;
         await raf.close();
-        await file.delete();
+        if (deleteOnError) await file.delete();
       }
     }
 
@@ -494,7 +497,6 @@ class Dio {
         }).catchError((derr) async {
           try {
             await subscription.cancel();
-
           } finally {
             completer.completeError(_assureDioError(derr));
           }
@@ -581,6 +583,7 @@ class Dio {
     savePath, {
     ProgressCallback onReceiveProgress,
     CancelToken cancelToken,
+    bool deleteOnError = true,
     lengthHeader = HttpHeaders.contentLengthHeader,
     data,
     Options options,
@@ -590,6 +593,7 @@ class Dio {
       savePath,
       onReceiveProgress: onReceiveProgress,
       lengthHeader: lengthHeader,
+      deleteOnError: deleteOnError,
       cancelToken: cancelToken,
       data: data,
       options: options,
@@ -640,7 +644,7 @@ class Dio {
       data: data,
       cancelToken: cancelToken,
       options: options,
-      onSendProgress: onSendProgress ,
+      onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
   }
@@ -830,7 +834,8 @@ class Dio {
     var data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
-    if (data != null && ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
+    if (data != null &&
+        ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
       // Handle the FormData
       int length;
       if (data is Stream) {
@@ -847,16 +852,16 @@ class Dio {
       } else if (data is FormData) {
         if (data is FormData) {
           options.headers[HttpHeaders.contentTypeHeader] =
-          'multipart/form-data; boundary=${data.boundary.substring(2)}';
+              'multipart/form-data; boundary=${data.boundary.substring(2)}';
         }
-        stream=data.stream;
+        stream = data.stream;
         length = data.length;
       } else {
         // Call request transformer.
         String _data = await transformer.transformRequest(options);
-        if(options.requestEncoder!=null){
-          bytes=options.requestEncoder(_data,options);
-        }else {
+        if (options.requestEncoder != null) {
+          bytes = options.requestEncoder(_data, options);
+        } else {
           //Default convert to utf8
           bytes = utf8.encode(_data);
         }
@@ -876,10 +881,11 @@ class Dio {
       options.headers[HttpHeaders.contentTypeHeader] ??=
           options.contentType.toString();
       if (length != null) {
-        options.headers[HttpHeaders.contentLengthHeader] = length;
+        options.headers[HttpHeaders.contentLengthHeader] = length.toString();
       }
       int complete = 0;
-      Stream<Uint8List>  byteStream =  stream.transform(StreamTransformer.fromHandlers(
+      Stream<Uint8List> byteStream =
+          stream.transform(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (options.cancelToken != null && options.cancelToken.isCancelled) {
             sink
@@ -948,31 +954,30 @@ class Dio {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     return RequestOptions(
-      method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
-      headers: (Map.from(options.headers))..addAll(opt.headers),
-      baseUrl: options.baseUrl ?? "",
-      path: url,
-      data: data,
-      connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
-      sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
-      receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
-      responseType:
-          opt.responseType ?? options.responseType ?? ResponseType.json,
-      extra: (Map.from(options.extra))..addAll(opt.extra),
-      contentType: opt.contentType ?? options.contentType ?? ContentType.json,
-      validateStatus: opt.validateStatus ??
-          options.validateStatus ??
-          (int status) => status >= 200 && status < 300 || status == 304,
-      receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
-          options.receiveDataWhenStatusError ??
-          true,
-      followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
-      maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
-      queryParameters: query,
-      cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
-      requestEncoder: opt.requestEncoder??options.requestEncoder,
-      responseDecoder: opt.responseDecoder??options.responseDecoder
-    );
+        method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
+        headers: (Map.from(options.headers))..addAll(opt.headers),
+        baseUrl: options.baseUrl ?? "",
+        path: url,
+        data: data,
+        connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
+        sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
+        receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
+        responseType:
+            opt.responseType ?? options.responseType ?? ResponseType.json,
+        extra: (Map.from(options.extra))..addAll(opt.extra),
+        contentType: opt.contentType ?? options.contentType ?? ContentType.json,
+        validateStatus: opt.validateStatus ??
+            options.validateStatus ??
+            (int status) => status >= 200 && status < 300 || status == 304,
+        receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
+            options.receiveDataWhenStatusError ??
+            true,
+        followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
+        maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
+        queryParameters: query,
+        cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
+        requestEncoder: opt.requestEncoder ?? options.requestEncoder,
+        responseDecoder: opt.responseDecoder ?? options.responseDecoder);
   }
 
   Options _checkOptions(method, options) {
@@ -996,8 +1001,8 @@ class Dio {
       return err;
     } else {
       var _err = DioError(message: err.toString(), error: err);
-      if(err is Error){
-        _err.stackTrace=err.stackTrace;
+      if (err is Error) {
+        _err.stackTrace = err.stackTrace;
       }
       return _err;
     }
