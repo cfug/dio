@@ -374,4 +374,23 @@ void main() {
       ]);
     });
   });
+
+  group("basic tests", () {
+    Dio dio;
+    setUp(() {
+      dio = Dio();
+      // dio.options.baseUrl = MockAdapter.mockBase;
+      dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
+      dio.httpClientAdapter = MockAdapter();
+    });
+    test("base url in request options", () async {
+      Response response;
+      response = await dio.get(
+        "/test",
+        queryParameters: {"id": '12', "name": "wendu"},
+        options: RequestOptions(baseUrl: MockAdapter.mockBase),
+      );
+      expect(response.data["errCode"], 0);
+    });
+  });
 }
