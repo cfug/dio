@@ -40,4 +40,8 @@ main() async {
         contentType: ContentType.parse("application/x-www-form-urlencoded")),
   );
   print(response.data);
+
+  response = await dio.request("/get",
+      options: RequestOptions(baseUrl: "http://httpbin.org/"));
+  print(response.data);
 }

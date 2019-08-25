@@ -497,6 +497,7 @@ class Dio {
         }).catchError((derr) async {
           try {
             await subscription.cancel();
+
           } finally {
             completer.completeError(_assureDioError(derr));
           }
@@ -953,31 +954,33 @@ class Dio {
       Options opt, String url, data, Map<String, dynamic> queryParameters) {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
+    final optBaseUrl = (opt is RequestOptions) ? opt.baseUrl: null;
     return RequestOptions(
-        method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
-        headers: (Map.from(options.headers))..addAll(opt.headers),
-        baseUrl: options.baseUrl ?? "",
-        path: url,
-        data: data,
-        connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
-        sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
-        receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
-        responseType:
-            opt.responseType ?? options.responseType ?? ResponseType.json,
-        extra: (Map.from(options.extra))..addAll(opt.extra),
-        contentType: opt.contentType ?? options.contentType ?? ContentType.json,
-        validateStatus: opt.validateStatus ??
-            options.validateStatus ??
-            (int status) => status >= 200 && status < 300 || status == 304,
-        receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
-            options.receiveDataWhenStatusError ??
-            true,
-        followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
-        maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
-        queryParameters: query,
-        cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
-        requestEncoder: opt.requestEncoder ?? options.requestEncoder,
-        responseDecoder: opt.responseDecoder ?? options.responseDecoder);
+      method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
+      headers: (Map.from(options.headers))..addAll(opt.headers),
+      baseUrl: optBaseUrl ?? options.baseUrl ?? "",
+      path: url,
+      data: data,
+      connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
+      sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
+      receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
+      responseType:
+          opt.responseType ?? options.responseType ?? ResponseType.json,
+      extra: (Map.from(options.extra))..addAll(opt.extra),
+      contentType: opt.contentType ?? options.contentType ?? ContentType.json,
+      validateStatus: opt.validateStatus ??
+          options.validateStatus ??
+          (int status) => status >= 200 && status < 300 || status == 304,
+      receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
+          options.receiveDataWhenStatusError ??
+          true,
+      followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
+      maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
+      queryParameters: query,
+      cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
+      requestEncoder: opt.requestEncoder??options.requestEncoder,
+      responseDecoder: opt.responseDecoder??options.responseDecoder
+    );
   }
 
   Options _checkOptions(method, options) {
