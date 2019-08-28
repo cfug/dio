@@ -1,10 +1,5 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'dio_error.dart';
-import 'options.dart';
-import 'adapter.dart';
+part of 'dio.dart';
+
 
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
@@ -32,7 +27,7 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(Map data) {
-    StringBuffer urlData = new StringBuffer("");
+    StringBuffer urlData = StringBuffer("");
     bool first = true;
     void urlEncode(dynamic sub, String path) {
       if (sub is List) {
@@ -104,7 +99,7 @@ class DefaultTransformer extends Transformer {
       length = int.parse(
           response.headers.value(HttpHeaders.contentLengthHeader) ?? "-1");
     }
-    Completer completer = new Completer();
+    Completer completer = Completer();
     Stream stream = response.stream
         .transform(StreamTransformer.fromHandlers(handleData: (data, sink) {
       sink.add(Uint8List.fromList(data));
@@ -113,7 +108,7 @@ class DefaultTransformer extends Transformer {
         options.onReceiveProgress(received, length);
       }
     }));
-    List<int> buffer = new List<int>();
+    List<int> buffer = List<int>();
     StreamSubscription subscription;
     subscription = stream.listen(
       (element) => buffer.addAll(element),
@@ -128,12 +123,12 @@ class DefaultTransformer extends Transformer {
     if (options.receiveTimeout > 0) {
       try {
         await completer.future
-            .timeout(new Duration(milliseconds: options.receiveTimeout));
+            .timeout(Duration(milliseconds: options.receiveTimeout));
       } on TimeoutException {
         await subscription.cancel();
         throw DioError(
           request: options,
-          message: "Receiving data timeout[${options.receiveTimeout}ms]",
+          error: "Receiving data timeout[${options.receiveTimeout}ms]",
           type: DioErrorType.RECEIVE_TIMEOUT,
         );
       }

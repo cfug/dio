@@ -1,4 +1,4 @@
-import 'dart:io';
+part of 'dio.dart';
 
 class DioHttpHeaders implements HttpHeaders {
   final Map<String, List<String>> _headers;
@@ -47,7 +47,7 @@ class DioHttpHeaders implements HttpHeaders {
     List<String> values = _headers[name];
     if (values == null) return null;
     if (values.length > 1) {
-      throw new HttpException("More than one value for header $name");
+      throw HttpException("More than one value for header $name");
     }
     return values[0];
   }
@@ -101,7 +101,7 @@ class DioHttpHeaders implements HttpHeaders {
   }
 
   void noFolding(String name) {
-    if (_noFoldingHeaders == null) _noFoldingHeaders = new List<String>();
+    if (_noFoldingHeaders == null) _noFoldingHeaders = List<String>();
     _noFoldingHeaders.add(name);
   }
 
@@ -114,7 +114,7 @@ class DioHttpHeaders implements HttpHeaders {
         remove(HttpHeaders.connectionHeader, "close");
       } else {
         if (_contentLength == -1) {
-          throw new HttpException(
+          throw HttpException(
               "Trying to set 'Connection: Keep-Alive' on HTTP 1.0 headers with "
                   "no ContentLength");
         }
@@ -150,7 +150,7 @@ class DioHttpHeaders implements HttpHeaders {
 
   set chunkedTransferEncoding(bool chunkedTransferEncoding) {
     if (chunkedTransferEncoding && protocolVersion == "1.0") {
-      throw new HttpException(
+      throw HttpException(
           "Trying to set 'Transfer-Encoding: Chunked' on HTTP 1.0 headers");
     }
     if (chunkedTransferEncoding == _chunkedTransferEncoding) return;
@@ -312,7 +312,7 @@ class DioHttpHeaders implements HttpHeaders {
     } else if (value is String) {
       contentLength = int.parse(value);
     } else {
-      throw new HttpException("Unexpected type for header named $name");
+      throw HttpException("Unexpected type for header named $name");
     }
   }
 
@@ -330,7 +330,7 @@ class DioHttpHeaders implements HttpHeaders {
     } else if (value is String) {
       _set(HttpHeaders.dateHeader, value);
     } else {
-      throw new HttpException("Unexpected type for header named $name");
+      throw HttpException("Unexpected type for header named $name");
     }
   }
 
@@ -340,7 +340,7 @@ class DioHttpHeaders implements HttpHeaders {
     } else if (value is String) {
       _set(HttpHeaders.expiresHeader, value);
     } else {
-      throw new HttpException("Unexpected type for header named $name");
+      throw HttpException("Unexpected type for header named $name");
     }
   }
 
@@ -350,7 +350,7 @@ class DioHttpHeaders implements HttpHeaders {
     } else if (value is String) {
       _set(HttpHeaders.ifModifiedSinceHeader, value);
     } else {
-      throw new HttpException("Unexpected type for header named $name");
+      throw HttpException("Unexpected type for header named $name");
     }
   }
 
@@ -378,7 +378,7 @@ class DioHttpHeaders implements HttpHeaders {
       }
       _set(HttpHeaders.hostHeader, value);
     } else {
-      throw new HttpException("Unexpected type for header named $name");
+      throw HttpException("Unexpected type for header named $name");
     }
   }
 
@@ -399,7 +399,7 @@ class DioHttpHeaders implements HttpHeaders {
   void _addValue(String name, Object value) {
     List<String> values = _headers[name];
     if (values == null) {
-      values = new List<String>();
+      values = List<String>();
       _headers[name] = values;
     }
     if (value is DateTime) {
@@ -413,7 +413,7 @@ class DioHttpHeaders implements HttpHeaders {
 
   void _set(String name, String value) {
     assert(name == _validateField(name));
-    List<String> values = new List<String>();
+    List<String> values = List<String>();
     _headers[name] = values;
     values.add(value);
   }
@@ -431,7 +431,7 @@ class DioHttpHeaders implements HttpHeaders {
   }
 
   String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuffer sb = StringBuffer();
     _headers.forEach((String name, List<String> values) {
       sb..write(name)..write(": ");
       bool fold = _foldHeader(name);

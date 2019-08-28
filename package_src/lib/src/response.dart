@@ -1,6 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-import 'options.dart';
+part of 'dio.dart';
 
 /// Response describes the http Response info.
 class Response<T> {

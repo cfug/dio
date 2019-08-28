@@ -1,8 +1,4 @@
-import 'dart:io';
-import 'dio.dart';
-import 'cancel_token.dart';
-import 'transformer.dart';
-import 'adapter.dart';
+part of 'dio.dart';
 
 /// ResponseType indicates which transformation should
 /// be automatically applied to the response data by Dio.
@@ -71,7 +67,7 @@ class BaseOptions extends _RequestConfig {
           responseDecoder: responseDecoder,
         );
 
-  /// Create a new Option from current instance with merging attributes.
+  /// Create a Option from current instance with merging attributes.
   BaseOptions merge({
     String method,
     String baseUrl,
@@ -91,14 +87,14 @@ class BaseOptions extends _RequestConfig {
     RequestEncoder  requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
-    return new BaseOptions(
+    return BaseOptions(
       method: method ?? this.method,
       baseUrl: baseUrl ?? this.baseUrl,
       queryParameters: queryParameters ?? this.queryParameters,
       connectTimeout: connectTimeout ?? this.connectTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      extra: extra ?? new Map.from(this.extra ?? {}),
-      headers: headers ?? new Map.from(this.headers ?? {}),
+      extra: extra ?? Map.from(this.extra ?? {}),
+      headers: headers ?? Map.from(this.headers ?? {}),
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -154,7 +150,7 @@ class Options extends _RequestConfig {
           responseDecoder: responseDecoder,
         );
 
-  /// Create a new Option from current instance with merging attributes.
+  /// Create a Option from current instance with merging attributes.
   Options merge({
     String method,
     int connectTimeout,
@@ -172,12 +168,12 @@ class Options extends _RequestConfig {
     RequestEncoder  requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
-    return new Options(
+    return Options(
       method: method ?? this.method,
       connectTimeout: connectTimeout ?? this.connectTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      extra: extra ?? new Map.from(this.extra ?? {}),
-      headers: headers ?? new Map.from(this.headers ?? {}),
+      extra: extra ?? Map.from(this.extra ?? {}),
+      headers: headers ?? Map.from(this.headers ?? {}),
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       cookies: cookies ?? this.cookies ?? [],
@@ -236,7 +232,7 @@ class RequestOptions extends Options {
   /// generate uri
   Uri get uri {
     String _url = path;
-    if (!_url.startsWith(new RegExp(r"https?:"))) {
+    if (!_url.startsWith(RegExp(r"https?:"))) {
       _url = baseUrl + _url;
       List<String> s = _url.split(":/");
       _url = s[0] + ':/' + s[1].replaceAll("//", "/");

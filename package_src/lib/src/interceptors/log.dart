@@ -1,11 +1,9 @@
-import 'dart:async';
+part of '../dio.dart';
 
-import '../interceptor.dart';
-import '../options.dart';
-import '../response.dart';
-import '../dio_error.dart';
-import 'dart:math' as math;
-
+/// [LogInterceptor] is used to print logs during network requests.
+/// It's better to add [LogInterceptor] to the tail of the interceptor queue,
+/// otherwise the changes made in the interceptor behind A will not be printed out.
+/// This is because the execution of interceptors is in the order of addition.
 class LogInterceptor extends Interceptor {
   LogInterceptor({
     this.request = true,
@@ -53,7 +51,7 @@ class LogInterceptor extends Interceptor {
       printKV('extra', options.extra);
     }
     if (requestHeader) {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuffer stringBuffer = StringBuffer();
       options.headers.forEach((key, v) => stringBuffer.write('\n  $key:$v'));
       printKV('header', stringBuffer.toString());
       stringBuffer.clear();
@@ -69,10 +67,11 @@ class LogInterceptor extends Interceptor {
   FutureOr<dynamic> onError(DioError err) {
     if (error) {
       print('*** DioError ***:');
-      print(err);
+      print(err.message);
       if (err.response != null) {
         _printResponse(err.response);
       }
+      print("");
     }
   }
 

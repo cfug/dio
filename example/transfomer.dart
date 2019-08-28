@@ -10,7 +10,7 @@ class MyTransformer extends DefaultTransformer {
   @override
   Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
-      throw new DioError(message: "Can't send List to sever directly");
+      throw DioError(error: "Can't send List to sever directly");
     } else {
       return super.transformRequest(options);
     }
@@ -28,9 +28,9 @@ class MyTransformer extends DefaultTransformer {
 }
 
 main() async {
-  var dio = new Dio();
+  var dio = Dio();
   // Use custom Transformer
-  dio.transformer = new MyTransformer();
+  dio.transformer = MyTransformer();
 
   Response response = await dio.get("https://www.baidu.com");
   print(response.request.extra["self"]);

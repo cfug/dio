@@ -1,9 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:async';
-import 'dart:typed_data';
-import 'options.dart';
-import 'dio_error.dart';
+part of 'dio.dart';
 
 typedef CancelWrapper = Future Function(Future);
 typedef OnHttpClientCreate = dynamic Function(HttpClient client);
@@ -22,7 +17,7 @@ typedef VoidCallback = dynamic Function();
 /// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
 ///
 /// ```dart
-/// dio.httpClientAdapter = new DefaultHttpClientAdapter();
+/// dio.httpClientAdapter = DefaultHttpClientAdapter();
 /// ```
 abstract class HttpClientAdapter {
   /// We should implement this method to make real http requests.
@@ -134,7 +129,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     } on TimeoutException {
       throw DioError(
         request: options,
-        message: "Connecting timeout[${options.connectTimeout}ms]",
+        error: "Connecting timeout[${options.connectTimeout}ms]",
         type: DioErrorType.CONNECT_TIMEOUT,
       );
     }
@@ -156,7 +151,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     } on TimeoutException {
       throw DioError(
         request: options,
-        message: "Receiving data timeout[${options.receiveTimeout}ms]",
+        error: "Receiving data timeout[${options.receiveTimeout}ms]",
         type: DioErrorType.RECEIVE_TIMEOUT,
       );
     }
@@ -181,7 +176,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     if (cancelFuture != null) {
       var _httpClient = HttpClient();
       if (onHttpClientCreate != null) {
-        //user can return a new HttpClient instance
+        //user can return a HttpClient instance
         _httpClient = onHttpClientCreate(_httpClient) ?? _httpClient;
       }
       _httpClient.idleTimeout = Duration(seconds: 0);
@@ -199,7 +194,7 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
       _defaultHttpClient = HttpClient();
       _defaultHttpClient.idleTimeout = Duration(seconds: 3);
       if (onHttpClientCreate != null) {
-        //user can return a new HttpClient instance
+        //user can return a HttpClient instance
         _defaultHttpClient =
             onHttpClientCreate(_defaultHttpClient) ?? _defaultHttpClient;
       }
@@ -207,9 +202,9 @@ class DefaultHttpClientAdapter extends HttpClientAdapter {
     return _defaultHttpClient;
   }
 
-  /// [Dio] will create new HttpClient when it is needed.
+  /// [Dio] will create HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
-  /// it when a new HttpClient created.
+  /// it when a HttpClient created.
   OnHttpClientCreate onHttpClientCreate;
 
   HttpClient _defaultHttpClient;

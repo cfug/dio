@@ -1,5 +1,6 @@
-import 'options.dart';
-import 'response.dart';
+part of "dio.dart";
+//import 'options.dart';
+//import 'response.dart';
 
 enum DioErrorType {
   /// It occurs when url is opened timeout.
@@ -23,14 +24,13 @@ enum DioErrorType {
 }
 
 /// DioError describes the error info  when request failed.
-class DioError implements Exception {
+class DioError extends Error implements Exception {
   DioError({
     this.request,
     this.response,
-    this.message,
     this.type = DioErrorType.DEFAULT,
     this.error,
-    this.stackTrace,
+
   });
 
   /// Request info.
@@ -40,8 +40,9 @@ class DioError implements Exception {
   /// the http server, for example, occurring a dns error, network is not available.
   Response response;
 
-  /// Error descriptions.
-  String message;
+//  /// Error descriptions.
+//  String message;
+
 
   DioErrorType type;
 
@@ -49,11 +50,13 @@ class DioError implements Exception {
   /// is DioErrorType.DEFAULT
   dynamic error;
 
-  String toString() =>
-      "DioError [$type]: " +
-      (message ?? "") +
-      (stackTrace ?? "").toString();
+  String get message => (error?.toString() ?? "");
 
-  /// Error stacktrace info
-  StackTrace stackTrace;
+  String toString(){
+    var msg=message;
+    if(error is Error){
+     msg="DioError [$type]: $msg\n${error.stackTrace}";
+    }
+    return msg;
+  }
 }

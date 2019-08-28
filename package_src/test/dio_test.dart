@@ -8,7 +8,7 @@ class MyTransformer extends DefaultTransformer {
   @override
   Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
-      throw new DioError(message: "Can't send List to sever directly");
+      throw DioError(error: "Can't send List to sever directly");
     } else {
       return super.transformRequest(options);
     }
@@ -36,7 +36,7 @@ void main() {
   group('restful', () {
     Dio dio;
     setUp(() {
-      dio = new Dio();
+      dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
       dio.httpClientAdapter = MockAdapter();
@@ -63,7 +63,7 @@ void main() {
   group('generic', () {
     Dio dio;
     setUp(() {
-      dio = new Dio();
+      dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.options.headers = {'User-Agent': 'dartisan', 'XX': '8'};
       dio.httpClientAdapter = MockAdapter();
@@ -84,7 +84,7 @@ void main() {
 
   group('download', () {
     test("test", () async {
-      var dio = new Dio();
+      var dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
       await dio.download("/download", "../download.md",
@@ -95,7 +95,7 @@ void main() {
           print((received / total * 100).toStringAsFixed(0) + "%");
         }
       });
-      var f = new File("../download.md");
+      var f = File("../download.md");
       var t = await f.open();
       await t.close();
     });
@@ -103,7 +103,7 @@ void main() {
 
   group('formdata', () {
     test("test", () async {
-      var dio = new Dio();
+      var dio = Dio();
       dio.interceptors.add(LogInterceptor(requestBody: true));
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
@@ -128,7 +128,7 @@ void main() {
       expect(formData.length, 0);
     });
     test("it should parse map data as expected", () async {
-      var dio = new Dio();
+      var dio = Dio();
       dio.interceptors.add(LogInterceptor(requestBody: true));
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
@@ -153,9 +153,9 @@ void main() {
 
   group('Cancellation', () {
     test("test", () async {
-      var dio = new Dio();
-      CancelToken token = new CancelToken();
-      new Timer(new Duration(milliseconds: 10), () {
+      var dio = Dio();
+      CancelToken token = CancelToken();
+      Timer(Duration(milliseconds: 10), () {
         token.cancel("cancelled");
       });
 
@@ -170,9 +170,9 @@ void main() {
     });
 
     test("test download", () async {
-      var dio = new Dio();
-      CancelToken token = new CancelToken();
-      new Timer(new Duration(milliseconds: 1000), () {
+      var dio = Dio();
+      CancelToken token = CancelToken();
+      Timer(Duration(milliseconds: 1000), () {
         token.cancel("cancelled");
       });
 
@@ -190,10 +190,10 @@ void main() {
 
   group('transfomer', () {
     test("test", () async {
-      var dio = new Dio();
+      var dio = Dio();
       dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
-      dio.transformer = new MyTransformer();
+      dio.transformer = MyTransformer();
 //      Response response = await dio.get("https://www.baidu.com");
 //      assert(response.request.extra["cookies"]!=null);
       try {
@@ -224,7 +224,7 @@ void main() {
   group('Request Interceptor', () {
     Dio dio;
     setUp(() {
-      dio = new Dio();
+      dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
       dio.interceptors
@@ -238,8 +238,8 @@ void main() {
             return dio.reject(
                 "test error"); //you can also return a HttpError directly.
           case "/fakepath4":
-            return new DioError(
-                message:
+            return DioError(
+                error:
                     "test error"); // Here is equivalent to call dio.reject("test error")
           case "/test?tag=1":
             {
@@ -287,7 +287,7 @@ void main() {
     const String URL_NOT_FIND_2 = URL_NOT_FIND + "2";
     const String URL_NOT_FIND_3 = URL_NOT_FIND + "3";
     setUp(() {
-      dio = new Dio();
+      dio = Dio();
       dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
 
@@ -295,7 +295,8 @@ void main() {
         onResponse: (Response response) {
           return response.data["data"];
         },
-        onError: (DioError e) {
+        onError: (_e) {
+          DioError e= _e as DioError;
           if (e.response != null) {
             switch (e.response.request.path) {
               case URL_NOT_FIND:
@@ -304,7 +305,7 @@ void main() {
                 return dio.resolve(
                     "fake data"); // you can also return a HttpError directly.
               case URL_NOT_FIND_2:
-                return new Response(data: "fake data");
+                return Response(data: "fake data");
               case URL_NOT_FIND_3:
                 return 'custom error info [${e.response.statusCode}]';
             }
@@ -338,9 +339,9 @@ void main() {
   group('Interceptor lock', () {
     test("test", () async {
       String csrfToken;
-      Dio dio = new Dio();
-      // new dio instance to request token
-      Dio tokenDio = new Dio();
+      Dio dio = Dio();
+      // dio instance to request token
+      Dio tokenDio = Dio();
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       dio.interceptors

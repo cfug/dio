@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio(new BaseOptions(
-    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
+  var dio = Dio(BaseOptions(
+    baseUrl: "http://httpbin.org/",
     connectTimeout: 5000,
     receiveTimeout: 100000,
     // 5s
@@ -17,31 +17,30 @@ main() async {
     responseType: ResponseType.plain,
   ));
 
-  Response<String> response;
+  Response response;
 
-  response = await dio.get("/test");
+  response = await dio.get("/get");
   print(response.data);
 
   Response<Map> responseMap = await dio.get(
-    "/test",
+    "/get",
     // Transform response data to Json Map
-    options: new Options(responseType: ResponseType.json),
+    options: Options(responseType: ResponseType.json),
   );
   print(responseMap.data);
-
   response = await dio.post(
-    "/test",
+    "/post",
     data: {
       "id": 8,
       "info": {"name": "wendux", "age": 25}
     },
     // Send data with "application/x-www-form-urlencoded" format
-    options: new Options(
+    options: Options(
         contentType: ContentType.parse("application/x-www-form-urlencoded")),
   );
   print(response.data);
 
-  response = await dio.request("/get",
-      options: RequestOptions(baseUrl: "http://httpbin.org/"));
+  response = await dio.request("/",
+      options: RequestOptions(baseUrl: "https://baidu.com"));
   print(response.data);
 }

@@ -59,13 +59,13 @@ main() async {
   response = await dio.post("/test", data: formData);
   print(response);
 
+  // post data with "application/x-www-form-urlencoded" format
   response = await dio.post(
     "/test",
     data: {
       "id": 8,
       "info": {"name": "wendux", "age": 25}
     },
-    // Send data with "application/x-www-form-urlencoded" format
     options: Options(
       contentType: ContentType.parse("application/x-www-form-urlencoded"),
     ),

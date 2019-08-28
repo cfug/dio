@@ -1,9 +1,5 @@
-import 'dart:async';
-import 'dart:collection';
+part of 'dio.dart';
 
-import 'dio_error.dart';
-import 'options.dart';
-import 'response.dart';
 
 typedef InterceptorSendCallback = dynamic Function(RequestOptions options);
 typedef InterceptorErrorCallback = dynamic Function(DioError e);
@@ -24,7 +20,7 @@ class Lock {
   /// continued until the interceptor is unlocked.
   void lock() {
     if (!locked) {
-      _completer = new Completer();
+      _completer = Completer();
       _lock = _completer.future;
     }
   }
@@ -48,9 +44,9 @@ class Lock {
   /// If the interceptor is locked, the incoming request/response task
   /// will enter a queue.
   ///
-  /// [callback] the function  will return a `Future<Response>`
+  /// [callback] the function  will return a `Future`
   /// @nodoc
-  Future<Response> enqueue(Future<Response> callback()) {
+  Future _enqueue(FutureOr callback()) {
     if (locked) {
       // we use a future as a queue
       return _lock.then((d) => callback());
@@ -100,21 +96,21 @@ class InterceptorsWrapper extends Interceptor {
         _onError = onError;
 
   @override
-  onRequest(RequestOptions options) {
+  FutureOr<dynamic> onRequest(RequestOptions options) {
     if (_onRequest != null) {
       return _onRequest(options);
     }
   }
 
   @override
-  onResponse(Response response) {
+   FutureOr<dynamic> onResponse(Response response) {
     if (_onResponse != null) {
       return _onResponse(response);
     }
   }
 
   @override
-  onError(DioError err) {
+  FutureOr<dynamic> onError(DioError err) {
     if (_onError != null) {
       return _onError(err);
     }
@@ -122,11 +118,11 @@ class InterceptorsWrapper extends Interceptor {
 }
 
 class Interceptors extends ListMixin<Interceptor> {
-  List<Interceptor> _list = new List();
+  List<Interceptor> _list = List();
 
-  Lock _requestLock = new Lock();
-  Lock _responseLock = new Lock();
-  Lock _errorLock = new Lock();
+  Lock _requestLock = Lock();
+  Lock _responseLock = Lock();
+  Lock _errorLock = Lock();
 
   Lock get requestLock => _requestLock;
 

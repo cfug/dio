@@ -2,7 +2,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio();
+  var dio =  Dio();
   var cookieJar=CookieJar();
   dio.interceptors
     ..add(CookieManager(cookieJar))

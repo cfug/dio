@@ -1,14 +1,9 @@
-import 'dart:async';
-import 'dart:collection';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-import 'upload_file_info.dart';
+part of 'dio.dart';
 
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 class FormData extends MapMixin<String, dynamic> {
-  var _map = new Map<String, dynamic>();
+  var _map = Map<String, dynamic>();
   static const String _BOUNDARY_PRE_TAG = "----dio-boundary-";
 
   /// The boundary of FormData, it consists of a constant prefix and a random
@@ -28,7 +23,7 @@ class FormData extends MapMixin<String, dynamic> {
 
   _init() {
     // Assure the boundary unpredictable and unique
-    Random random = new Random();
+    Random random = Random();
     boundary = _BOUNDARY_PRE_TAG +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
@@ -91,7 +86,7 @@ class FormData extends MapMixin<String, dynamic> {
   int get length {
     var len = 0;
     int lineSplitLen = utf8.encode('\r\n').length;
-    var fileMap = new Map<String, dynamic>();
+    var fileMap = Map<String, dynamic>();
     StringBuffer buf = StringBuffer();
 
     _fileInfo(key, UploadFileInfo info) {
@@ -199,9 +194,9 @@ class FormData extends MapMixin<String, dynamic> {
 
   ///Transform the entire FormData contents as a list of bytes synchronously.
   List<int> asBytes() {
-    List<int> bytes = new List();
-    var fileMap = new Map<String, dynamic>();
-    StringBuffer data = new StringBuffer();
+    List<int> bytes = List();
+    var fileMap = Map<String, dynamic>();
+    StringBuffer data = StringBuffer();
     _map.forEach((key, value) {
       if (value == null) return;
       if (value is UploadFileInfo || value is List) {
@@ -245,7 +240,7 @@ class FormData extends MapMixin<String, dynamic> {
 
   handleMapField(List<int> bytes, String key, dynamic value) {
     if (value == null) return;
-    StringBuffer buffer = new StringBuffer();
+    StringBuffer buffer = StringBuffer();
     if (value is Map) {
       value.keys.toList().forEach((mapKey) {
         var nestedKey = '${key}[${mapKey}]';
@@ -306,8 +301,8 @@ class FormData extends MapMixin<String, dynamic> {
   }
 
   Stream<List<int>> get stream async* {
-    var fileMap = new Map<String, dynamic>();
-    StringBuffer buffer = new StringBuffer();
+    var fileMap = Map<String, dynamic>();
+    StringBuffer buffer = StringBuffer();
 
     Stream<List<int>> addFile(String key, UploadFileInfo value) async* {
       yield _chunkHeader(buffer, key, value);

@@ -18,7 +18,7 @@ class MyAdapter extends HttpClientAdapter {
 }
 
 main() async {
-  var dio = new Dio();
+  var dio =  Dio();
   dio.httpClientAdapter = MyAdapter();
   Response response = await dio.get("https://google.com");
   print(response);

@@ -1,17 +1,35 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:math';
 import 'dart:typed_data';
-import 'cancel_token.dart';
-import 'dio_error.dart';
-import 'form_data.dart';
-import 'interceptor.dart';
-import 'options.dart';
-import 'response.dart';
-import 'transformer.dart';
-import 'adapter.dart';
-import 'dio_http_headers.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+
+part 'cancel_token.dart';
+
+part 'dio_error.dart';
+
+part 'form_data.dart';
+
+part 'interceptor.dart';
+
+part 'options.dart';
+
+part 'response.dart';
+
+part 'transformer.dart';
+
+part 'adapter.dart';
+
+part 'dio_http_headers.dart';
+
+part 'upload_file_info.dart';
+
+part 'interceptors/log.dart';
+
+part 'interceptors/cookie_mgr.dart';
 
 /// Callback to listen the progress for sending/receiving data.
 ///
@@ -55,7 +73,7 @@ class Dio {
   /// It's mostly just one Dio instance in your application.
   Dio([BaseOptions options]) {
     if (options == null) {
-      options = new BaseOptions();
+      options = BaseOptions();
     }
     this.options = options;
   }
@@ -68,11 +86,11 @@ class Dio {
   /// contains a [RequestInterceptor] and a [ResponseInterceptor] instance.
   ///
 
-  Interceptors _interceptors = new Interceptors();
+  Interceptors _interceptors = Interceptors();
 
   Interceptors get interceptors => _interceptors;
 
-  HttpClientAdapter _httpClientAdapter = new DefaultHttpClientAdapter();
+  HttpClientAdapter _httpClientAdapter = DefaultHttpClientAdapter();
 
   HttpClientAdapter get httpClientAdapter => _httpClientAdapter;
 
@@ -82,7 +100,7 @@ class Dio {
 
   /// [transformer] allows changes to the request/response data before it is sent/received to/from the server
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
-  Transformer transformer = new DefaultTransformer();
+  Transformer transformer = DefaultTransformer();
 
   /// Handy method to make http GET request, which is a alias of  [Dio.request].
   Future<Response<T>> get<T>(
@@ -303,7 +321,7 @@ class Dio {
   /// Assure the final future state is succeed!
   Future<Response<T>> resolve<T>(response) {
     if (response is! Future) {
-      response = new Future.value(response);
+      response = Future.value(response);
     }
     return response.then<Response<T>>((data) {
       return _assureResponse<T>(data);
@@ -316,7 +334,7 @@ class Dio {
   /// Assure the final future state is failed!
   Future<Response<T>> reject<T>(err) {
     if (err is! Future) {
-      err = new Future.error(err);
+      err = Future.error(err);
     }
     return err.then<Response<T>>((v) {
       // transform "success" to "error"
@@ -409,7 +427,7 @@ class Dio {
     options.responseType = ResponseType.stream;
     Response<ResponseBody> response;
     try {
-      response = await _request(
+      response = await _request<ResponseBody>(
         urlPath,
         data: data,
         options: options,
@@ -448,8 +466,8 @@ class Dio {
     // file with a very big size(up 1G), it will be expensive in memory.
     var raf = file.openSync(mode: FileMode.write);
 
-    //Create a new Completer to notify the success/error state.
-    Completer completer = new Completer<Response>();
+    //Create a Completer to notify the success/error state.
+    Completer completer = Completer<Response>();
     Future future = completer.future;
     int received = 0;
 
@@ -497,7 +515,6 @@ class Dio {
         }).catchError((derr) async {
           try {
             await subscription.cancel();
-
           } finally {
             completer.completeError(_assureDioError(derr));
           }
@@ -535,13 +552,12 @@ class Dio {
         await _closeAndDelete();
         throw DioError(
           request: response.request,
-          message:
-              "Receiving data timeout[${response.request.receiveTimeout}ms]",
+          error: "Receiving data timeout[${response.request.receiveTimeout}ms]",
           type: DioErrorType.RECEIVE_TIMEOUT,
         );
       });
     }
-    return await _listenCancelForAsyncTask(cancelToken, future);
+    return _listenCancelForAsyncTask(cancelToken, future);
   }
 
   ///  Download the file and save it in local. The default http method is "GET",
@@ -650,28 +666,6 @@ class Dio {
     );
   }
 
-  Future _assureFuture(e) {
-    if (e is! Future) {
-      return Future.value(e);
-    }
-    return e;
-  }
-
-  Future _executeInterceptors<T>(T ob, f(Interceptor inter, T ob)) async {
-    for (var inter in interceptors) {
-      var res = await _assureFuture(f(inter, ob));
-      if (res != null) {
-        if (res is T) {
-          ob = res;
-          continue;
-        }
-        if (res is Response || res is DioError) return res;
-        return res;
-      }
-    }
-    return ob;
-  }
-
   Future<Response<T>> _request<T>(
     String path, {
     data,
@@ -703,41 +697,78 @@ class Dio {
         requestOptions.responseType = ResponseType.json;
       }
     }
-    Future<Response<T>> future =
-        _checkIfNeedEnqueue<T>(interceptors.requestLock, () {
-      Future ret = _executeInterceptors<RequestOptions>(
-          requestOptions, (Interceptor inter, ob) => inter.onRequest(ob));
-      return ret.then<Response<T>>((data) {
-        FutureOr<Response<T>> response;
 
-        // If the Future value type is Options, continue the network request.
-        if (data is RequestOptions) {
-          requestOptions.method = data.method.toUpperCase();
-          response = _makeRequest<T>(data, cancelToken);
+    bool _isErrorOrException(t) => t is Exception || t is Error;
+
+    _interceptorWrapper(interceptor, bool request) {
+      return (data) async {
+        bool type = request ? (data is RequestOptions) : (data is Response);
+        Lock lock =
+            request ? interceptors.requestLock : interceptors.responseLock;
+        _checkCancelled(cancelToken);
+        if (_isErrorOrException(data) || type) {
+          return _listenCancelForAsyncTask(
+            cancelToken,
+            Future(() {
+             // print("request:$type locked:" + lock.locked.toString());
+              return _checkIfNeedEnqueue(lock, () {
+                if (type) {
+                  if (!request) data.request = data.request ?? requestOptions;
+                  return interceptor(data) ?? data;
+                } else {
+                  throw _assureDioError(data);
+                }
+              });
+            }),
+          );
         } else {
-          // Otherwise, use the Future value as the request result.
-          // If the return type is Exception, we should throw it
-          if (data is Exception) throw _assureDioError(data);
-          var r = _assureResponse<T>(data);
-
-          response = r;
+          return _assureResponse(data, requestOptions);
         }
-        return response;
-      }).catchError((err) => throw _assureDioError(err));
-    });
+      };
+    }
 
-    return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future)
-        .then((r) {
-      r.request = r.request ?? requestOptions;
-      return r;
-    }).catchError((e) {
-      throw e..request = e.request ?? requestOptions;
+    _errorInterceptorWrapper(errInterceptor) {
+      return (err) async {
+        if (err is!Response) {
+          var _e = await errInterceptor(err);
+          if (_e is!Response) {
+            throw _assureDioError(_e ?? err);
+          }
+          err = _e;
+        }
+        // err is a Response instance
+        return err;
+      };
+    }
+
+    Future future = Future.value(requestOptions);
+    var completer = Completer();
+    var futureResponse = completer.future;
+    interceptors.forEach((Interceptor interceptor) {
+      future = future.then(_interceptorWrapper(interceptor.onRequest, true));
+      futureResponse = futureResponse.then(
+        _interceptorWrapper(interceptor.onResponse, false),
+        onError: _errorInterceptorWrapper(interceptor.onError),
+      );
+    });
+    future.then(_interceptorWrapper(_dispatchRequest, true)).then(
+      (d) {
+        completer.complete(d);
+      },
+      onError: (e) => completer.completeError(e),
+    );
+    return futureResponse.then<Response<T>>((data) {
+      return _assureResponse<T>(data);
+    }).catchError((err) {
+      if (err == null || _isErrorOrException(err)) {
+        throw _assureDioError(err);
+      }
+      return _assureResponse<T>(err, requestOptions);
     });
   }
 
-  Future<Response<T>> _makeRequest<T>(
-      RequestOptions options, CancelToken cancelToken) async {
-    _checkCancelled(cancelToken);
+  Future<Response<T>> _dispatchRequest<T>(RequestOptions options) async {
+    CancelToken cancelToken = options.cancelToken;
     ResponseBody responseBody;
     try {
       var stream = await _transformData(options);
@@ -752,7 +783,7 @@ class Dio {
         responseBody.headers =
             DioHttpHeaders(initialHeaders: responseBody.headers);
       }
-      Response ret = new Response(
+      Response ret = Response(
         headers: responseBody.headers,
         request: options,
         redirects: responseBody.redirects ?? [],
@@ -760,7 +791,6 @@ class Dio {
         statusMessage: responseBody.statusMessage,
         extra: responseBody.extra,
       );
-      Future future;
       bool statusOk = options.validateStatus(responseBody.statusCode);
       if (statusOk || options.receiveDataWhenStatusError) {
         bool forceConvert = !(T == dynamic || T == String) &&
@@ -773,8 +803,7 @@ class Dio {
           responseBody.headers
               .set(HttpHeaders.contentTypeHeader, ContentType.json.toString());
         }
-        ret.data = await _listenCancelForAsyncTask(
-            cancelToken, transformer.transformResponse(options, responseBody));
+        ret.data = await transformer.transformResponse(options, responseBody);
         if (forceConvert) {
           responseBody.headers.set(HttpHeaders.contentTypeHeader, contentType);
         }
@@ -783,27 +812,18 @@ class Dio {
       }
       _checkCancelled(cancelToken);
       if (statusOk) {
-        future = _onResponse<T>(ret);
+        return _checkIfNeedEnqueue(interceptors.responseLock, () => ret);
       } else {
-        throw new DioError(
+        throw DioError(
           response: ret,
-          message: 'Http status error [${responseBody.statusCode}]',
+          error: 'Http status error [${responseBody.statusCode}]',
           type: DioErrorType.RESPONSE,
         );
       }
-      return await _listenCancelForAsyncTask<Response<T>>(cancelToken, future);
     } catch (e) {
       DioError err = _assureDioError(e);
       err.request = err.request ?? options;
-      if (CancelToken.isCancel(err)) {
-        throw err;
-      } else {
-        // Response onError
-        _checkCancelled(cancelToken);
-        // Listen in error interceptor.
-        return await _listenCancelForAsyncTask<Response<T>>(
-            cancelToken, _onError<T>(err));
-      }
+      throw err;
     }
   }
 
@@ -816,19 +836,11 @@ class Dio {
 
   Future<T> _listenCancelForAsyncTask<T>(
       CancelToken cancelToken, Future<T> future) {
-    Completer completer = new Completer();
-    if (cancelToken != null && cancelToken.cancelError == null) {
-      cancelToken.addCompleter(completer);
-      return Future.any([completer.future, future]).then<T>((result) {
-        cancelToken.removeCompleter(completer);
-        return result;
-      }).catchError((e) {
-        cancelToken.removeCompleter(completer);
-        throw e;
-      });
-    } else {
-      return future;
-    }
+    return Future.any([
+      if (cancelToken != null)
+        cancelToken.whenCancel.then((e) => throw cancelToken.cancelError),
+      future,
+    ]);
   }
 
   Future<Stream<Uint8List>> _transformData(RequestOptions options) async {
@@ -908,7 +920,7 @@ class Dio {
             onTimeout: (sink) {
           sink.addError(DioError(
             request: options,
-            message: "Sending timeout[${options.connectTimeout}ms]",
+            error: "Sending timeout[${options.connectTimeout}ms]",
             type: DioErrorType.SEND_TIMEOUT,
           ));
           sink.close();
@@ -919,81 +931,51 @@ class Dio {
     return null;
   }
 
-// Transform current Future status("success" and "error") if necessary
-  Future<Response<T>> _transFutureStatusIfNecessary<T>(Future future) {
-    return future.then<Response<T>>((data) {
-      // Strictly be a DioError instance, but we relax the restrictions
-      // if (data is DioError)
-      if (data is Exception) {
-        return reject<T>(data);
-      }
-      return resolve<T>(data);
-    }, onError: (err) {
-      if (err is Response) {
-        return resolve<T>(err);
-      }
-      return reject<T>(err);
-    });
-  }
-
-  Future<Response<T>> _onResponse<T>(Response response) {
-    return _checkIfNeedEnqueue(interceptors.responseLock, () {
-      return _transFutureStatusIfNecessary<T>(_executeInterceptors(
-          response, (Interceptor inter, ob) => inter.onResponse(ob)));
-    });
-  }
-
-  Future<Response<T>> _onError<T>(err) {
-    return _checkIfNeedEnqueue(interceptors.errorLock, () {
-      return _transFutureStatusIfNecessary<T>(_executeInterceptors(
-          err, (Interceptor inter, ob) => inter.onError(err)));
-    });
-  }
-
   RequestOptions _mergeOptions(
       Options opt, String url, data, Map<String, dynamic> queryParameters) {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
-    final optBaseUrl = (opt is RequestOptions) ? opt.baseUrl: null;
+    final optBaseUrl = (opt is RequestOptions) ? opt.baseUrl : null;
     return RequestOptions(
-      method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
-      headers: (Map.from(options.headers))..addAll(opt.headers),
-      baseUrl: optBaseUrl ?? options.baseUrl ?? "",
-      path: url,
-      data: data,
-      connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
-      sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
-      receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
-      responseType:
-          opt.responseType ?? options.responseType ?? ResponseType.json,
-      extra: (Map.from(options.extra))..addAll(opt.extra),
-      contentType: opt.contentType ?? options.contentType ?? ContentType.json,
-      validateStatus: opt.validateStatus ??
-          options.validateStatus ??
-          (int status) => status >= 200 && status < 300 || status == 304,
-      receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
-          options.receiveDataWhenStatusError ??
-          true,
-      followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
-      maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
-      queryParameters: query,
-      cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
-      requestEncoder: opt.requestEncoder??options.requestEncoder,
-      responseDecoder: opt.responseDecoder??options.responseDecoder
-    );
+        method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
+        headers: (Map.from(options.headers))..addAll(opt.headers),
+        baseUrl: optBaseUrl ?? options.baseUrl ?? "",
+        path: url,
+        data: data,
+        connectTimeout: opt.connectTimeout ?? options.connectTimeout ?? 0,
+        sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
+        receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
+        responseType:
+            opt.responseType ?? options.responseType ?? ResponseType.json,
+        extra: (Map.from(options.extra))..addAll(opt.extra),
+        contentType: opt.contentType ?? options.contentType ?? ContentType.json,
+        validateStatus: opt.validateStatus ??
+            options.validateStatus ??
+            (int status) {
+              return status >= 200 && status < 300 || status == 304;
+            },
+        receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
+            options.receiveDataWhenStatusError ??
+            true,
+        followRedirects: opt.followRedirects ?? options.followRedirects ?? true,
+        maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
+        queryParameters: query,
+        cookies: List.from(options.cookies ?? [])..addAll(opt.cookies ?? []),
+        requestEncoder: opt.requestEncoder ?? options.requestEncoder,
+        responseDecoder: opt.responseDecoder ?? options.responseDecoder);
   }
 
   Options _checkOptions(method, options) {
     if (options == null) {
-      options = new Options();
+      options = Options();
     }
     options.method = method;
     return options;
   }
 
-  Future<Response<T>> _checkIfNeedEnqueue<T>(Lock lock, callback()) {
+  FutureOr _checkIfNeedEnqueue(Lock lock, callback()) {
     if (lock.locked) {
-      return lock.enqueue(callback);
+      return lock._enqueue(callback);
     } else {
       return callback();
     }
@@ -1003,22 +985,19 @@ class Dio {
     if (err is DioError) {
       return err;
     } else {
-      var _err = DioError(message: err.toString(), error: err);
-      if (err is Error) {
-        _err.stackTrace = err.stackTrace;
-      }
+      var _err = DioError(error: err);
       return _err;
     }
   }
 
-  Response<T> _assureResponse<T>(response) {
+  Response<T> _assureResponse<T>(response, [RequestOptions requestOptions]) {
     if (response is Response<T>) {
-      return response;
+      response.request = response.request ?? requestOptions;
     } else if (response is! Response) {
-      response = new Response<T>(data: response);
+      response = Response<T>(data: response, request: requestOptions);
     } else {
       T data = response.data;
-      response = new Response<T>(
+      response = Response<T>(
         data: data,
         headers: response.headers,
         request: response.request,
@@ -1027,6 +1006,7 @@ class Dio {
         statusMessage: response.statusMessage,
       );
     }
+
     return response;
   }
 }

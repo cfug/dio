@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio(BaseOptions(connectTimeout: 5000));
+  var dio =  Dio(BaseOptions(connectTimeout: 5000));
   dio.interceptors.add(LogInterceptor(responseBody: true));
 
-  var imgFile = new File("");
+  var imgFile =  File("");
   String savePath = "";
   String token = "xxxxx";
 

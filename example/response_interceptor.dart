@@ -5,8 +5,8 @@ main() async {
   const String URL_NOT_FIND_1 = URL_NOT_FIND + "1";
   const String URL_NOT_FIND_2 = URL_NOT_FIND + "2";
   const String URL_NOT_FIND_3 = URL_NOT_FIND + "3";
-  Dio dio = new Dio();
-  dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
+  Dio dio = Dio();
+  dio.options.baseUrl = "http://httpbin.org/";
   dio.interceptors.add(InterceptorsWrapper(onResponse: (Response response) {
     return response.data["data"]; //
   }, onError: (DioError e) async {
@@ -15,10 +15,10 @@ main() async {
         case URL_NOT_FIND:
           return e;
         case URL_NOT_FIND_1:
-          return dio.resolve(
-              "fake data"); // you can also return a HttpError directly.
+          // you can also return a HttpError directly.
+          return dio.resolve("fake data");
         case URL_NOT_FIND_2:
-          return new Response(data: "fake data");
+          return Response(data: "fake data");
         case URL_NOT_FIND_3:
           return 'custom error info [${e.response.statusCode}]';
       }
@@ -27,8 +27,8 @@ main() async {
   }));
 
   Response response;
-  response = await dio.get("/test");
-  assert(response.data["path"] == "/test");
+  response = await dio.get("/get");
+  assert(response.data["headers"] is Map);
   try {
     await dio.get(URL_NOT_FIND);
   } catch (e) {

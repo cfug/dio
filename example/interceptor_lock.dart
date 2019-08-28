@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 
 main() async {
-  Dio dio = new Dio();
-  // new dio instance to request token
-  Dio tokenDio = new Dio();
+  Dio dio = Dio();
+  //  dio instance to request token
+  Dio tokenDio = Dio();
   String csrfToken;
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   tokenDio.options = dio.options;
@@ -13,8 +13,8 @@ main() async {
     print('send request：path:${options.path}，baseURL:${options.baseUrl}');
     if (csrfToken == null) {
       print("no token，request token firstly...");
-      //lock the dio.
       dio.lock();
+      //print(dio.interceptors.requestLock.locked);
       return tokenDio.get("/token").then((d) {
         options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
         print("request token succeed, value: " + d.data['data']['token']);
@@ -27,6 +27,7 @@ main() async {
       return options;
     }
   }, onError: (DioError error) {
+    //print(error);
     // Assume 401 stands for token expired
     if (error.response?.statusCode == 401) {
       RequestOptions options = error.response.request;

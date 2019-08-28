@@ -1,10 +1,5 @@
-import 'dart:async';
-import 'dart:io';
-import '../interceptor.dart';
-import '../options.dart';
-import '../response.dart';
-import '../dio_error.dart';
-import 'package:cookie_jar/cookie_jar.dart';
+part of "../dio.dart";
+
 
 class CookieManager extends Interceptor {
   /// Cookie manager for http requests。Learn more details about

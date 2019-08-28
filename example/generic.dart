@@ -3,23 +3,25 @@ import 'package:dio/dio.dart';
 main() async {
   Dio dio = Dio(
     BaseOptions(
-      baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0",
+      baseUrl: "http://httpbin.org/",
       method: "GET",
     ),
   );
 
 
   Response response;
-  //No generic type, the ResponseType will work.
-  response = await dio.get("/test");
+  // No generic type, the ResponseType will work.
+  response = await dio.get("/get");
   print(response.data is Map);
-  Response<Map<String,dynamic>> r0= await dio.get("/test");
-  print(r0.data.containsKey("errCode"));
-  response = await dio.get<Map>("/test");
+  // Specify the generic type(Map)
+  response = await dio.get<Map>("/get");
   print(response.data is Map);
-  response = await dio.get<String>("/test");
+
+  // Specify the generic type(String)
+  response = await dio.get<String>("/get");
   print(response.data is String);
-  response = await dio.get("/test", options: Options(responseType: ResponseType.plain));
+  // Specify the ResponseType as ResponseType.plain
+  response = await dio.get("/get", options: Options(responseType: ResponseType.plain));
   print(response.data is String);
 
   // the content of "https://baidu.com" is a html file, So it can't be convert to Map type,
@@ -28,9 +30,11 @@ main() async {
 
   // This works well.
   response = await dio.get("https://baidu.com");
+  print("done");
   // This works well too.
   response = await dio.get<String>("https://baidu.com");
+  print("done");
   // This is the recommended way.
-  Response<String> r = await dio.get<String>("https://baidu.com");
+  var r = await dio.get<String>("https://baidu.com");
   print(r.data.length);
 }

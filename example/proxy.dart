@@ -3,7 +3,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 
 main() async {
-  var dio = new Dio();
+  var dio =  Dio();
   //dio.options.connectTimeout = 2000;
   // More about HttpClient proxy topic please refer to Dart SDK doc.
   dio.interceptors.add(CookieManager(PersistCookieJar()));
@@ -16,7 +16,7 @@ main() async {
     client.badCertificateCallback =
         (X509Certificate cert, String host, int port) => true;
   };
-  var dir = new Directory("./cookies");
+  var dir =  Directory("./cookies");
   await dir.create();
   Response<String> response;
   //response= await dio.get("https://github.com/wendux/fly");

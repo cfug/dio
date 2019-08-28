@@ -1,4 +1,4 @@
-import 'dart:io';
+part of 'dio.dart';
 
 /// Describes the info of file to upload.
 class UploadFileInfo {
