@@ -33,6 +33,7 @@ main() async {
   try {
     response = await dio.get("/fakepath4");
   } on DioError catch (e) {
+    print(e);
     assert(e.message == "test error");
     assert(e.response == null);
   }

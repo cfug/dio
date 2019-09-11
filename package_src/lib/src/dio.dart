@@ -512,11 +512,11 @@ class Dio {
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
-        }).catchError((derr) async {
+        }).catchError((err) async {
           try {
             await subscription.cancel();
           } finally {
-            completer.completeError(_assureDioError(derr));
+            completer.completeError(_assureDioError(err));
           }
         });
       },
@@ -705,12 +705,10 @@ class Dio {
         bool type = request ? (data is RequestOptions) : (data is Response);
         Lock lock =
             request ? interceptors.requestLock : interceptors.responseLock;
-        _checkCancelled(cancelToken);
         if (_isErrorOrException(data) || type) {
           return _listenCancelForAsyncTask(
             cancelToken,
             Future(() {
-             // print("request:$type locked:" + lock.locked.toString());
               return _checkIfNeedEnqueue(lock, () {
                 if (type) {
                   if (!request) data.request = data.request ?? requestOptions;
@@ -729,9 +727,9 @@ class Dio {
 
     _errorInterceptorWrapper(errInterceptor) {
       return (err) async {
-        if (err is!Response) {
+        if (err is! Response) {
           var _e = await errInterceptor(err);
-          if (_e is!Response) {
+          if (_e is! Response) {
             throw _assureDioError(_e ?? err);
           }
           err = _e;
@@ -1006,7 +1004,6 @@ class Dio {
         statusMessage: response.statusMessage,
       );
     }
-
     return response;
   }
 }

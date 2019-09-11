@@ -19,18 +19,17 @@ enum DioErrorType {
   CANCEL,
 
   /// Default error type, Some other Error. In this case, you can
-  /// read the DioError.error if it is not null.
+  /// use the DioError.error if it is not null.
   DEFAULT,
 }
 
 /// DioError describes the error info  when request failed.
-class DioError extends Error implements Exception {
+class DioError implements Exception {
   DioError({
     this.request,
     this.response,
     this.type = DioErrorType.DEFAULT,
     this.error,
-
   });
 
   /// Request info.
@@ -40,11 +39,8 @@ class DioError extends Error implements Exception {
   /// the http server, for example, occurring a dns error, network is not available.
   Response response;
 
-//  /// Error descriptions.
-//  String message;
-
-
   DioErrorType type;
+
 
   /// The original error/exception object; It's usually not null when `type`
   /// is DioErrorType.DEFAULT
@@ -52,10 +48,10 @@ class DioError extends Error implements Exception {
 
   String get message => (error?.toString() ?? "");
 
-  String toString(){
-    var msg=message;
-    if(error is Error){
-     msg="DioError [$type]: $msg\n${error.stackTrace}";
+  String toString() {
+    var msg = "DioError [$type]: $message";
+    if (error is Error) {
+      msg += "\n${error.stackTrace}";
     }
     return msg;
   }
