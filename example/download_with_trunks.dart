@@ -68,7 +68,7 @@ Future downloadWithChunks(
     total = int.parse(
         response.headers.value(HttpHeaders.contentRangeHeader).split("/").last);
     int reserved = total -
-        int.parse(response.headers.value(HttpHeaders.contentLengthHeader));
+        int.parse(response.headers.value(Headers.contentLengthHeader));
     int chunk = (reserved / firstChunkSize).ceil() + 1;
     if (chunk > 1) {
       int chunkSize = firstChunkSize;

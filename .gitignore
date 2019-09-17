@@ -1,6 +1,6 @@
 # Files and directories created by pub
-.dart_tool/
 .packages
+.dart_tool/
 .pub/
 .idea/
 .example/flutter.png
@@ -11,3 +11,22 @@ pubspec.lock
 # Directory created by dartdoc
 doc/api/
 .cookies/
+
+dio/.packages
+dio/.dart_tool/
+dio/.pub/
+dio/.idea/
+dio/.exampl
+
+# plugins
+plugins/cookie_manager/.packages
+plugins/cookie_manager/.dart_tool/
+plugins/cookie_manager/.pub/
+plugins/cookie_manager/.idea/
+plugins/cookie_manager/.exampl
+
+plugins/http2_adapter/.packages
+plugins/http2_adapter/.dart_tool/
+plugins/http2_adapter/.pub/
+plugins/http2_adapter/.idea/
+plugins/http2_adapter/.exampl

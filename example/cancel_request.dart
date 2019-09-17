@@ -3,12 +3,15 @@ import 'package:dio/dio.dart';
 
 main() async {
   var dio =  Dio();
+  dio.interceptors.add(LogInterceptor());
   // Token can be shared with different requests.
   CancelToken token =  CancelToken();
   // In one minute, we cancel!
    Timer( Duration(milliseconds: 500), () {
     token.cancel("cancelled");
   });
+
+
 
   // The follow three requests with the same token.
   var url1 = "https://www.google.com";
@@ -21,7 +24,6 @@ main() async {
         .then((response) => print('${response.request.path}: succeed!'))
         .catchError(
       (e) {
-        print(e);
         if (CancelToken.isCancel(e)) {
           print('$url1: $e');
         }

@@ -5,10 +5,10 @@ import 'package:dio/dio.dart';
 class CacheInterceptor extends Interceptor {
   CacheInterceptor();
 
-  var _cache =  Map<Uri, Response>();
+  var _cache = Map<Uri, Response>();
 
   @override
-  FutureOr<dynamic> onRequest(RequestOptions options) {
+  Future onRequest(RequestOptions options) async {
     Response response = _cache[options.uri];
     if (options.extra["refresh"] == true) {
       print("${options.uri}: force refresh, ignore cache! \n");
@@ -20,18 +20,18 @@ class CacheInterceptor extends Interceptor {
   }
 
   @override
-  FutureOr<dynamic> onResponse(Response response) {
+  Future onResponse(Response response) async {
     _cache[response.request.uri] = response;
   }
 
   @override
-  FutureOr<dynamic> onError(DioError e) {
+  Future onError(DioError e) async {
     print('onError: $e');
   }
 }
 
 main() async {
-  var dio =  Dio();
+  var dio = Dio();
   dio.options.baseUrl = "https://baidu.com";
   dio.interceptors
     ..add(CacheInterceptor())

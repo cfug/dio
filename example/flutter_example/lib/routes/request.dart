@@ -20,9 +20,9 @@ class _RequestRouteState extends State<RequestRoute> {
           RaisedButton(
             child: Text("Request"),
             onPressed: () {
-              dio.get("https://baidu.com").then((r){
+              dio.get<String>("http://httpbin.org/get").then((r){
                 setState(() {
-                  _text=r.data.replaceAll(RegExp(r"\s"), "");
+                  _text=r.data;
                 });
               });
             },

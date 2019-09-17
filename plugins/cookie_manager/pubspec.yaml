@@ -1,0 +1,20 @@
+name: dio_cookie_manager
+description: A cookie manager for Dio
+version: 0.0.1
+homepage:  https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager
+author: wendux <824783146@qq.com>
+
+environment:
+  sdk: '>2.2.9 <3.0.0'
+
+dependencies:
+  cookie_jar: ^1.0.1
+# dio: ^2.2.0
+  dio:
+    path: ../../dio
+
+dev_dependencies:
+  test: ^1.5.1
+  test_coverage: ^0.2.0
+  pedantic: '1.1.0'
+

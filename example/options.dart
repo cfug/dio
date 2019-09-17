@@ -11,7 +11,7 @@ main() async {
       HttpHeaders.userAgentHeader: "dio",
       "api": "1.0.0",
     },
-    contentType: ContentType.json,
+    contentType: Headers.jsonContentType,
     // Transform the response data to a String encoded with UTF8.
     // The default value is [ResponseType.JSON].
     responseType: ResponseType.plain,
@@ -36,11 +36,14 @@ main() async {
     },
     // Send data with "application/x-www-form-urlencoded" format
     options: Options(
-        contentType: ContentType.parse("application/x-www-form-urlencoded")),
+      contentType: Headers.formUrlEncodedContentType,
+    ),
   );
   print(response.data);
 
-  response = await dio.request("/",
-      options: RequestOptions(baseUrl: "https://baidu.com"));
+  response = await dio.request(
+    "/",
+    options: RequestOptions(baseUrl: "https://baidu.com"),
+  );
   print(response.data);
 }
