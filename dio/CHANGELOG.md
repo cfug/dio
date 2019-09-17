@@ -1,4 +1,4 @@
-# 2.2.0
+# 2.2.1
 
 ### New features
 
@@ -14,9 +14,9 @@
 
 - `Options.followRedirects`、`Options.maxRedirects`、`Response.redirects`  don't make sense in Flutter Web，because redirection  can be automatically handled by browsers.
 
-- ~~FormData.from~~， `FormData.fromMap` instead.
+- ~~FormData.from~~，use `FormData.fromMap` instead.
 
-- ~~``Formdata.asBytes()`~~、~~`Formdata.asBytesAsync()`~~ ,  `Formdata.readAsBytes()` instead.
+- Delete ~~Formdata.asBytes()~~、~~Formdata.asBytesAsync()~~ , use `Formdata.readAsBytes()` instead.
 
 - Delete ~~`UploadFileInfo`~~ class， `MultipartFile` instead.
 

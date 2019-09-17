@@ -23,9 +23,9 @@
 
 `FormData`进行了较大的变化，具体体现在：
 
-- `FormData.from`更名为`FormData.fromMap`，语义化更明确。另外对于嵌套Map支持多级编码（之前对于MapEntry的value会直接调用`toString()`作为字段值）。
-- 对于读取`FormData`的方法：废弃了~~``asBytes()`~~、~~`asBytesAsync()`~~两个方法，取代他们的是两个新方法`readAsBytes()`和`finalize()`，前者会将`FormData`内容读取到一个Byte数组中，而后者会返回一个Stream（流），用于支持Stream读取。实际上`readAsBytes()`也是通过Stream来读取`FormData`的，然后将读取到的数据保存在一个Byte数组中，因此，有一点需要特别注意：**一个`FormData`对象只能被读取一次**（因为一个Steam只能被读取一次）。
-- 删除~~`UploadFileInfo`~~类，引入了`MultipartFile`类；`MultipartFile`类不仅支持通过文件来构造上传头块，也支持通过Stream、Byte数组、字符串来构造。
+- ~~FormData.from~~更名为`FormData.fromMap`，语义化更明确。另外对于嵌套Map支持多级编码（之前对于MapEntry的value会直接调用`toString()`作为字段值）。
+- 对于读取`FormData`的方法：废弃了~~asBytes()~~、~~asBytesAsync()~~两个方法，取代他们的是两个新方法`readAsBytes()`和`finalize()`，前者会将`FormData`内容读取到一个Byte数组中，而后者会返回一个Stream（流），用于支持Stream读取。实际上`readAsBytes()`也是通过Stream来读取`FormData`的，然后将读取到的数据保存在一个Byte数组中，因此，有一点需要特别注意：**一个`FormData`对象只能被读取一次**（因为一个Steam只能被读取一次）。
+- 删除~~UploadFileInfo~~类，引入了`MultipartFile`类；`MultipartFile`类不仅支持通过文件来构造上传头块，也支持通过Stream、Byte数组、字符串来构造。
 
 ### Response
 

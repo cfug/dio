@@ -1,4 +1,4 @@
-part of 'http2_adapter.dart';
+part of 'dio_http2_adapter.dart';
 class ClientSetting {
   /// The certificate provided by the server is checked
   /// using the trusted certificates set in the SecurityContext object.

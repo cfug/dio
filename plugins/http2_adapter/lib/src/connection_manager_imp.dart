@@ -1,4 +1,4 @@
-part of 'http2_adapter.dart';
+part of 'dio_http2_adapter.dart';
 
 /// Default implementation of ConnectionManager
 class _ConnectionManager implements ConnectionManager {

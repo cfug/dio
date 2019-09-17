@@ -13,7 +13,6 @@ class FormData {
   /// The boundary of FormData, it consists of a constant prefix and a random
   /// postfix to assure the the boundary unpredictable and unique, each FormData
   /// instance will be different. And you can custom it by yourself.
-  ///
   String _boundary;
 
   String get boundary => _boundary;
@@ -55,8 +54,8 @@ class FormData {
   _init() {
     // Assure the boundary unpredictable and unique
     Random random = Random();
-    _boundary = _BOUNDARY_PRE_TAG + "1234567890";
-        //random.nextInt(4294967296).toString().padLeft(10, '0');
+    _boundary = _BOUNDARY_PRE_TAG +
+        random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
   /// Returns the header string for a field. The return value is guaranteed to

@@ -26,10 +26,10 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     Stream<List<int>> requestStream,
     Future cancelFuture,
   ) async {
-    if (_closed)
+    if (_closed) {
       throw Exception(
           "Can't establish connection after [HttpClientAdapter] closed!");
-
+    }
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     Future requestFuture = _httpClient.openUrl(options.method, options.uri);
 

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio_cookie_manager/cookie_manager.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 void main() {
   test('cookie-jar', () async {

@@ -69,12 +69,12 @@ String encodeMap(data, String handler(String key, dynamic value),
   bool first = true;
   String leftBracket = encode ? "%5B" : "[";
   String rightBracket = encode ? "%5B" : "]";
-  var encodeComponent=encode?Uri.encodeQueryComponent:(e)=>e;
+  var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
       for (int i = 0; i < sub.length; i++) {
-        urlEncode(
-            sub[i], "$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket");
+        urlEncode(sub[i],
+            "$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket");
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {

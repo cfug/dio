@@ -12,9 +12,9 @@ import 'transformer.dart';
 import 'response.dart';
 import 'dio_error.dart';
 import 'entry_stub.dart'
-    // ignore: uri_does_not_exist
+// ignore: uri_does_not_exist
     if (dart.library.html) 'entry/dio_for_browser.dart'
-    // ignore: uri_does_not_exist
+// ignore: uri_does_not_exist
     if (dart.library.io) 'entry/dio_for_native.dart';
 
 /// A powerful Http client for Dart, which supports Interceptors,
@@ -347,7 +347,7 @@ abstract class DioMixin implements Dio {
 
   bool _closed = false;
 
-  void close({bool force = false}){
+  void close({bool force = false}) {
     _closed = true;
     httpClientAdapter.close(force: force);
   }
@@ -783,8 +783,9 @@ abstract class DioMixin implements Dio {
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
   }) async {
-    if (_closed)
+    if (_closed) {
       throw DioError(error: "Dio can't establish new connection after closed.");
+    }
     if (options == null) options = Options();
     if (options is RequestOptions) {
       data = data ?? options.data;
@@ -821,12 +822,12 @@ abstract class DioMixin implements Dio {
           return listenCancelForAsyncTask(
             cancelToken,
             Future(() {
-              return checkIfNeedEnqueue(lock, (){
+              return checkIfNeedEnqueue(lock, () {
                 if (type) {
                   if (!request) data.request = data.request ?? requestOptions;
-                  return interceptor(data).then((e)=>e??data);
+                  return interceptor(data).then((e) => e ?? data);
                 } else {
-                  throw assureDioError(data,requestOptions);
+                  throw assureDioError(data, requestOptions);
                 }
               });
             }),
@@ -842,7 +843,7 @@ abstract class DioMixin implements Dio {
     _errorInterceptorWrapper(errInterceptor) {
       return (err) async {
         if (err is! Response) {
-          var _e = await errInterceptor(assureDioError(err,requestOptions));
+          var _e = await errInterceptor(assureDioError(err, requestOptions));
           if (_e is! Response) {
             throw assureDioError(_e ?? err, requestOptions);
           }
@@ -1097,14 +1098,14 @@ abstract class DioMixin implements Dio {
     }
   }
 
-  DioError assureDioError(err,[RequestOptions requestOptions]) {
+  DioError assureDioError(err, [RequestOptions requestOptions]) {
     DioError dioError;
     if (err is DioError) {
-      dioError=err;
+      dioError = err;
     } else {
       dioError = DioError(error: err);
     }
-    dioError.request=dioError.request??requestOptions;
+    dioError.request = dioError.request ?? requestOptions;
     return dioError;
   }
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import '../dio_error.dart';
 import '../interceptor.dart';
@@ -101,7 +100,9 @@ class LogInterceptor extends Interceptor {
     printKV('uri', response?.request?.uri);
     if (responseHeader) {
       printKV('statusCode', response.statusCode);
-      if (response.isRedirect == true) printKV('redirect', response.realUri);
+      if (response.isRedirect == true) {
+        printKV('redirect', response.realUri);
+      }
       logPrint("headers:");
       logPrint(" " + response?.headers?.toString()?.replaceAll("\n", "\n "));
     }

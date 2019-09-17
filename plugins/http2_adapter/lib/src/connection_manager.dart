@@ -1,4 +1,4 @@
-part of 'http2_adapter.dart';
+part of 'dio_http2_adapter.dart';
 /// ConnectionManager is used to manager the connections that should be reusable.
 /// The main responsibility of ConnectionManager is to implement a connection reuse
 /// strategy for http2.

@@ -29,5 +29,23 @@ void getHttp() async {
 }
 
 main() async {
-  await getHttp();
+  var data = {
+    "ownerId": "ccccc",
+    "token":"cvvvvvvvv",
+    "userName": "dffffffff",
+    "subtime": "2019-09-01"
+  };
+
+  Dio dio = new Dio();
+  BaseOptions options = new BaseOptions(
+    baseUrl: "xxxxxxx",
+    connectTimeout: 50000,
+  );
+  dio.options = options;
+  await dio.post('http://httpbin.org/post', data: data).then((value) {
+    print('value:' + value.toString());
+  }).catchError((e) {
+    print('e >> $e');
+  });
+  //await getHttp();
 }
