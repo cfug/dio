@@ -1,8 +1,8 @@
-# 从2.1.x升级到 2.2.x 
+# 从2.1.x升级到 3.0.0 
 
-2.2.0为了同时支持Flutter、Flutter  web，对项目进行了较大的重构，因此无法直接兼容2.1.x， 如果你是2.1.x用户，可以按照本文档指引升级到2.2.x.
+3.0.0为了同时支持Flutter、Flutter  web，对项目进行了较大的重构，因此无法直接兼容2.1.x， 如果你是2.1.x用户，可以按照本文档指引升级到3.0.0.
 
-## 2.2.x 主要特性
+## 3.0.0 主要特性
 
 - 支持Flutter  web
 - 将[CookieManager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager)抽离为单独的包
