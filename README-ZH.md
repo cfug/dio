@@ -15,10 +15,10 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^2.2.x  // 请使用pub上2.2分支的最新版本
+  dio: ^3.x.x  // 请使用pub上3.0.0分支的最新版本
 ```
 
-> dio 2.2.x为了支持Flutter Web，需要进行较大重构，因此无法直接兼容2.1.x， 如果你是2.1.x的用户，可以参照此文档升级到2.2.x，详情请查看 [从2.1升级到2.2指南](migration_to_2.2.x.md) 。
+> dio 3.0.0为了支持Flutter Web，需要进行较大重构，因此无法直接兼容2.1.x， 如果你是2.1.x的用户，可以参照此文档升级到3.0，详情请查看 [从2.1升级到3.0指南](migration_to_3.0.md) 。
 
 ## 一个极简的示例
 

@@ -12,6 +12,7 @@ class Response<T> {
     this.isRedirect,
     this.statusCode,
     this.statusMessage,
+    this.redirects,
     this.extra,
   });
 

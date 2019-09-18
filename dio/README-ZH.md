@@ -15,10 +15,10 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^2.2.x  // 请使用pub上2.2分支的最新版本
+  dio: ^3.x.x  // 请使用pub上3.0.0分支的最新版本
 ```
 
-> dio 2.2.x为了支持Flutter Web，需要进行较大重构，因此无法直接兼容2.1.x， 如果你是2.1.x的用户，可以参照此文档升级到2.2.x，详情请查看 [从2.1升级到2.2指南](migration_to_2.2.x.md) 。
+> dio 3.0.0为了支持Flutter Web，需要进行较大重构，因此无法直接兼容2.1.x， 如果你是2.1.x的用户，可以参照此文档升级到3.0，详情请查看 [从2.1升级到3.0指南](migration_to_3.0.md) 。
 
 ## 一个极简的示例
 
@@ -207,21 +207,21 @@ Dio实例的核心API是 :
 
 为了方便使用，Dio提供了一些其它的Restful API, 这些API都是`request`的别名。
 
-**Future<Response> get(...)** 
+**Future<Response> get(...)**
 
-**Future<Response> post(...)** 
+**Future<Response> post(...)**
 
-**Future<Response> put(...)** 
+**Future<Response> put(...)**
 
 **Future<Response> delete(...)**
 
-**Future<Response> head(...)** 
+**Future<Response> head(...)**
 
-**Future<Response> put(...)** 
+**Future<Response> put(...)**
 
-**Future<Response> path(...)** 
+**Future<Response> path(...)**
 
-**Future<Response> download(...)** 
+**Future<Response> download(...)**
 
 
 ## 请求配置
@@ -269,9 +269,9 @@ Dio实例的核心API是 :
 
   /// 用户自定义字段，可以在 [Interceptor]、[Transformer] 和 [Response] 中取到.
   Map<String, dynamic> extra;
-  
+
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
+  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
 }
 ```
 
@@ -291,12 +291,12 @@ Dio实例的核心API是 :
   Options request;
   /// Http status code.
   int statusCode;
-  /// 是否重定向(Flutter Web不可用) 
-  bool isRedirect;  
-  /// 重定向信息(Flutter Web不可用)    
+  /// 是否重定向(Flutter Web不可用)
+  bool isRedirect;
+  /// 重定向信息(Flutter Web不可用)
   List<RedirectInfo> redirects ;
-  /// 真正请求的url(重定向最终的uri) 
-  Uri realUri;  
+  /// 真正请求的url(重定向最终的uri)
+  Uri realUri;
   /// 响应对象的自定义字段（可以在拦截器中设置它），调用方可以在`then`中获取.
   Map<String, dynamic> extra;
 }
@@ -317,7 +317,7 @@ Dio实例的核心API是 :
 每个 Dio 实例都可以添加任意多个拦截器，他们组成一个队列，拦截器队列的执行顺序是FIFO。通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
 
 ```dart
- 
+
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(RequestOptions options) async {
      // 在请求被发送之前做一些事情
@@ -326,7 +326,7 @@ dio.interceptors.add(InterceptorsWrapper(
      // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义数据data.
      //
      // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象，或返回`dio.reject(errMsg)`，
-     // 这样请求将被中止并触发异常，上层catchError会被调用。    
+     // 这样请求将被中止并触发异常，上层catchError会被调用。
     },
     onResponse:(Response response) async {
      // 在返回响应数据之前做一些预处理
@@ -346,7 +346,7 @@ dio.interceptors.add(InterceptorsWrapper(
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
   onRequest:(RequestOptions options){
-   return dio.resolve("fake data")    
+   return dio.resolve("fake data")
   },
 ));
 Response response = await dio.get("/test");
@@ -362,9 +362,9 @@ dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async{
         //...If no token, request token firstly.
         Response response = await dio.get("/token");
-        //Set the token to headers 
+        //Set the token to headers
         options.headers["token"] = response.data["data"]["token"];
-        return options; //continue   
+        return options; //continue
     }
 ));
 ```
@@ -487,9 +487,9 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
   /// 错误类型，见下文
   DioErrorType type;
-     
+
   ///原始的error或exception对象，通常type为DEFAULT时存在。
-  dynamic error;   
+  dynamic error;
 }
 ```
 
@@ -511,7 +511,7 @@ enum DioErrorType {
 
   /// When the request is cancelled, dio will throw a error with this type.
   CANCEL,
-    
+
   /// Default error type, Some other Error. In this case, you can
   /// read the DioError.error if it is not null.
   DEFAULT
@@ -528,7 +528,7 @@ enum DioErrorType {
 //Instance level
 dio.options.contentType = Headers.formUrlEncodedContentType;
 //or works once
-dio.post("/info",data:{"id":5}, 
+dio.post("/info",data:{"id":5},
          options: Options(contentType:Headers.formUrlEncodedContentType));
 ```
 
@@ -575,7 +575,7 @@ parseJson(String text) {
 
 void main() {
   ...
-  // 自定义 jsonDecodeCallback   
+  // 自定义 jsonDecodeCallback
   (dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
   runApp(MyApp());
 }
@@ -610,13 +610,13 @@ import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 ...
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-    // config the http client  
+    // config the http client
     client.findProxy = (uri) {
         //proxy all request to localhost:8888
         return "PROXY localhost:8888";
     };
     // you can also create a new HttpClient to dio
-    // return new HttpClient();  
+    // return new HttpClient();
 };
 ```
 
@@ -627,11 +627,11 @@ import 'package:dio/adapter.dart';
 有两种方法可以校验https证书，假设我们的后台服务使用的是自签名证书，证书格式是PEM格式，我们将证书的内容保存在本地字符串中，那么我们的校验逻辑如下：
 
 ```dart
-String PEM="XXXXX"; // certificate content 
+String PEM="XXXXX"; // certificate content
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
     client.badCertificateCallback=(X509Certificate cert, String host, int port){
         if(cert.pem==PEM){ // Verify the certificate
-            return true; 
+            return true;
         }
         return false;
     };

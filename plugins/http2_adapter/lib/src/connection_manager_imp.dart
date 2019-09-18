@@ -1,4 +1,4 @@
-part of 'dio_http2_adapter.dart';
+part of 'http2_adapter.dart';
 
 /// Default implementation of ConnectionManager
 class _ConnectionManager implements ConnectionManager {
@@ -29,9 +29,10 @@ class _ConnectionManager implements ConnectionManager {
   @override
   Future<ClientTransportConnection> getConnection(
       RequestOptions options) async {
-    if (_closed)
+    if (_closed) {
       throw Exception(
           "Can't establish connection after [ConnectionManager] closed!");
+    }
     Uri uri = options.uri;
     String domain = "${uri.host}:${uri.port}";
     var transportState = _transportsMap[domain];

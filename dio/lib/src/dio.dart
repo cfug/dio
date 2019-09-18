@@ -905,6 +905,7 @@ abstract class DioMixin implements Dio {
       Response ret = Response(
         headers: headers,
         request: options,
+        redirects: responseBody.redirects ?? [],
         isRedirect: responseBody.isRedirect,
         statusCode: responseBody.statusCode,
         statusMessage: responseBody.statusMessage,
@@ -1122,6 +1123,7 @@ abstract class DioMixin implements Dio {
         request: response.request,
         statusCode: response.statusCode,
         isRedirect: response.isRedirect,
+        redirects: response.redirects,
         statusMessage: response.statusMessage,
       );
     }

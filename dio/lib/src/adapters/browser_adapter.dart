@@ -16,6 +16,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// cross-site requests.
   ///
   /// Defaults to `false`.
+  ///
+  /// You can also override this value in Options.extra['withCredentials'] for each request
   bool withCredentials = false;
 
   @override
@@ -23,17 +25,19 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       Stream<List<int>> requestStream, Future cancelFuture) {
     var xhr = HttpRequest();
     _xhrs.add(xhr);
-    _openHttpRequest(xhr, options.method, options.uri.toString(), async: true);
-    xhr.responseType = 'blob';
-    // todo
-    xhr.withCredentials = withCredentials;
+
+    xhr
+      ..open(options.method, options.uri.toString(), async: true)
+      ..responseType = 'blob'
+      ..withCredentials = options.extra['withCredentials'] ?? withCredentials;
     options.headers.remove(Headers.contentLengthHeader);
-    options.headers.forEach(xhr.setRequestHeader);
+    options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
+
     var completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
       // TODO: Set the response type to "arraybuffer" when issue 18542 is fixed.
-      var blob = xhr.response == null ? Blob([]) : xhr.response;
+      var blob = xhr.response ?? Blob([]);
       var reader = FileReader();
 
       reader.onLoad.first.then((_) {
@@ -97,12 +101,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     return completer.future.whenComplete(() {
       _xhrs.remove(xhr);
     });
-  }
-
-  // TODO: Remove this when sdk#24637 is fixed.
-  void _openHttpRequest(HttpRequest request, String method, String url,
-      {bool async, String user, String password}) {
-    request.open(method, url, async: async, user: user, password: password);
   }
 
   /// Closes the client.

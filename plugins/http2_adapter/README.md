@@ -50,21 +50,4 @@ dio.httpClientAdapter = Http2Adapter(
 
 You can also custom a connection manager with a specific connection reuse strategy  by implementing  the `ConnectionManager`.
 
-## Attention
-
-Http2Adapter doesn't support redirection yet, so we can't get information about redirection through `Response`, for example, the following code will be `true`：
-
-```dart
-response.redirects==null 
-response.isRedirect==null;  
-```
-
-However, we can use the status code to determine whether redirection is necessary:
-
-```dart
-if(response.statusCode==301||response.statusCode==302){
-  String redirectUrl=response.headers.value("location");
-  // do something
-}
-```
 

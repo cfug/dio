@@ -8,7 +8,7 @@ A  cookie manager for [Dio](https://github.com/flutterchina/dio).
 
 ```yaml
 dependencies:
-  dio_cookie_manager: x.x.x  #latest version
+  dio_cookie_manager: 1.0.x  #latest version
 ```
 
 ### Usage

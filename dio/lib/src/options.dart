@@ -171,7 +171,6 @@ class Options extends _RequestConfig {
     String method,
     int sendTimeout,
     int receiveTimeout,
-    dynamic data,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
     ResponseType responseType,
@@ -213,6 +212,7 @@ class RequestOptions extends Options {
     this.queryParameters,
     this.baseUrl,
     this.onReceiveProgress,
+    this.onSendProgress,
     this.cancelToken,
     Map<String, dynamic> extra,
     Map<String, dynamic> headers,
@@ -239,6 +239,55 @@ class RequestOptions extends Options {
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
         );
+
+  /// Create a Option from current instance with merging attributes.
+  RequestOptions merge({
+    String method,
+    int sendTimeout,
+    int receiveTimeout,
+    int connectTimeout,
+    String data,
+    String path,
+    Map<String, dynamic> queryParameters,
+    String baseUrl,
+    ProgressCallback onReceiveProgress,
+    ProgressCallback onSendProgress,
+    CancelToken cancelToken,
+    Map<String, dynamic> extra,
+    Map<String, dynamic> headers,
+    ResponseType responseType,
+    String contentType,
+    ValidateStatus validateStatus,
+    bool receiveDataWhenStatusError = true,
+    bool followRedirects = true,
+    int maxRedirects,
+    RequestEncoder requestEncoder,
+    ResponseDecoder responseDecoder,
+  }) {
+    return RequestOptions(
+      method: method ?? this.method,
+      sendTimeout: sendTimeout ?? this.sendTimeout,
+      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+      connectTimeout: connectTimeout??this.connectTimeout,
+      data: data??this.data,
+      path: path??this.path,
+      queryParameters:queryParameters??this.queryParameters,
+      baseUrl: baseUrl??this.baseUrl,
+      onReceiveProgress: onReceiveProgress??this.onReceiveProgress,
+      onSendProgress:onSendProgress??this.onSendProgress,
+      cancelToken: cancelToken??this.cancelToken,
+      extra: extra ?? Map.from(this.extra ?? {}),
+      headers: headers ?? Map.from(this.headers ?? {}),
+      responseType: responseType ?? this.responseType,
+      contentType: contentType ?? this.contentType,
+      validateStatus: validateStatus ?? this.validateStatus,
+      receiveDataWhenStatusError: receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
+      followRedirects: followRedirects ?? this.followRedirects,
+      maxRedirects: maxRedirects ?? this.maxRedirects,
+      requestEncoder: requestEncoder,
+      responseDecoder: responseDecoder ?? this.responseDecoder,
+    );
+  }
 
   /// generate uri
   Uri get uri {
