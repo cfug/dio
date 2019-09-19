@@ -1,3 +1,6 @@
+# 2.2.2
+
+This version is compatible with 2.1.x.
 
 # 2.1.16
 
