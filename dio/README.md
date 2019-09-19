@@ -542,6 +542,39 @@ response = await dio.post("/info", data: formData);
 
 There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
 
+### Multiple files upload
+
+There are two ways to add multiple files to ` FormData`， the only difference is that upload keys are different for array types。
+
+```dart
+  FormData.fromMap({
+    "files": [
+      MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+      MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+    ]
+  });
+```
+
+The upload key eventually becomes "files[]"，This is because many back-end services add a middle bracket to key when they get an array of files. **If you don't want “[]”**，you should create FormData as follows（Don't use `FormData.fromMap`）:
+
+```dart
+  var formData = FormData();
+  formData.files.addAll([
+    MapEntry(
+      "files",
+       MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+    ),
+    MapEntry(
+      "files",
+      MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+    ),
+  ]);
+```
+
 ## Transformer
 
 `Transformer` allows changes to the request/response data before it is sent/received to/from the server. This is only applicable for request methods 'PUT', 'POST', and 'PATCH'. Dio has already implemented a `DefaultTransformer`, and as the default `Transformer`. If you want to customize the transformation of request/response data, you can provide a `Transformer` by your self, and replace the `DefaultTransformer` by setting the `dio.transformer`.
@@ -674,3 +707,4 @@ Please file feature requests and bugs at the [issue tracker][tracker].
 Buy a cup of coffee for me (Scan by wechat)：
 
 ![](https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0.3/docs/imgs/pay.jpeg)
+

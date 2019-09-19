@@ -551,6 +551,41 @@ response = await dio.post("/info", data: formData);
 
 这里有一个完整的[示例](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
 
+### 多文件上传
+
+多文件上传时，通过给key加中括号“[]”方式作为文件数组的标记，大多数后台也会通过key[]这种方式来读取。不过RFC中并没有规定多文件上传就必须得加“[]”，所以有时不带“[]”也是可以的，关键在于后台和客户端得一致。v3.0.0 以后通过`Formdata.fromMap()`创建的`Formdata`,如果有文件数组，是默认会给key加上“[]”的，比如：
+
+```dart
+  FormData.fromMap({
+    "files": [
+      MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+      MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+    ]
+  });
+```
+
+最终编码时会key会为 "files[]"，**如果不想添加“[]”**，可以通过`Formdata`的API来构建：
+
+```dart
+  var formData = FormData();
+  formData.files.addAll([
+    MapEntry(
+      "files",
+       MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+    ),
+    MapEntry(
+      "files",
+      MultipartFile.fromFileSync("./example/upload.txt",
+          filename: "upload.txt"),
+    ),
+  ]);
+```
+
+这样构建的`FormData`的key是不会有“[]”。
+
 ## 转换器
 
 转换器`Transformer` 用于对请求数据和响应数据进行编解码处理。Dio实现了一个默认转换器`DefaultTransformer`作为默认的 `Transformer`. 如果你想对请求/响应数据进行自定义编解码处理，可以提供自定义转换器，通过 `dio.transformer`设置。
