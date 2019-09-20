@@ -180,6 +180,7 @@ class DioForNative with DioMixin implements Dio {
       onDone: () async {
         try {
           await asyncWrite;
+          closed=true;
           await raf.close();
           completer.complete(response);
         } catch (e) {

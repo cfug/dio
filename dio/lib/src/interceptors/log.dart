@@ -96,14 +96,19 @@ class LogInterceptor extends Interceptor {
   }
 
   void _printResponse(Response response) {
-    printKV('uri', response?.request?.uri);
+    printKV('uri', response.request?.uri);
     if (responseHeader) {
       printKV('statusCode', response.statusCode);
       if (response.isRedirect == true) {
         printKV('redirect', response.realUri);
       }
-      logPrint("headers:");
-      logPrint(" " + response?.headers?.toString()?.replaceAll("\n", "\n "));
+      if (response.headers != null) {
+        logPrint("headers:");
+        var headers = response.headers.toString()?.replaceAll("\n", "\n ");
+        if (headers != null) {
+          logPrint(" $headers");
+        }
+      }
     }
     if (responseBody) {
       logPrint("Response Text:");

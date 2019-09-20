@@ -71,13 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(
             child: Text("Request"),
             onPressed: () {
-//              dio.get("https://baidu.com").then((r) {
-//                setState(() {
-//                  _text = r.data.replaceAll(RegExp(r"\s"), "");
-//                });
-//              });
 
-              dio.post<String>("http://httpbin.org/post",data:{"a":1}).then((r) {
+              dio.get<String>("https://www.thelotent.com/WSVistaWebClient/OData.svc/GetNowShowingSessions?\$format=json&\$filter=CinemaId+eq+%27100%27").then((r) {
                 setState(() {
                   print(r.data);
                   _text = r.data.replaceAll(RegExp(r"\s"), "");
