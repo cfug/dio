@@ -8,6 +8,8 @@ Language: [English](README.md) | [中文简体](README-ZH.md)
 
 A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc.
 
+## Get started
+
 ### Add dependency
 
 ```yaml
@@ -16,7 +18,7 @@ dependencies:
 ```
 > In order to support Flutter Web, v3.0.0 was heavily refactored, so it was not compatible with version 3.0.x. See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
 
-## Super simple to use
+### Super simple to use
 
 ```dart
 import 'package:dio/dio.dart';
@@ -29,6 +31,22 @@ void getHttp() async {
   }
 }
 ```
+
+## awesome-dio
+
+🎉 A curated list of awesome things related to dio.
+
+### Plugins
+
+| Plugins                                                      | Status                                                       | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A cookie manager for Dio                                     |
+| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A Dio HttpClientAdapter which support Http/2.0               |
+| [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) | [![Pub](https://img.shields.io/pub/v/dio_flutter_transformer.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_flutter_transformer) | A Dio transformer especially for flutter, by which the json decoding will be in background with `compute` function. |
+
+### Related Projects
+
+Welcome to submit Dio's third-party plugins and related libraries [here](https://github.com/flutterchina/dio/issues/347) .
 
 ## Table of contents
 
@@ -56,9 +74,11 @@ void getHttp() async {
 
 - [Https certificate verification](#https-certificate-verification)
 
+- [HttpClientAdapter](#httpclientadapter )
+
 - [Cancellation](#cancellation)
 
-- [HttpClientAdapter](#httpclientadapter )
+- [Extends Dio class](#extends-dio-class)
 
 - [Http2 support](#http2-support )
 
@@ -692,6 +712,29 @@ token.cancel("cancelled");
 
 There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/cancel_request.dart).
 
+## Extends Dio class
+
+`Dio` is a abstract class with factory constructor，so we don't extends `Dio` class directy. For this purpose,  we can extends `DioForNative` or `DioForBrowser` instead, for example:
+
+```dart
+import 'package:dio/dio.dart';
+import 'package:dio/native_imp.dart'; //If in browser, import 'package:dio/browser_imp.dart'
+
+class Http extends DioForNative {
+  Http([BaseOptions options]):super(options){
+    // do something
+  }
+}
+```
+
+We can also implement our Dio client:
+
+```dart
+class MyDio with DioMixin implements Dio{
+  // ...
+}
+```
+
 ## Copyright & License
 
 This open source project authorized by https://flutterchina.club , and the license is MIT.
@@ -707,4 +750,3 @@ Please file feature requests and bugs at the [issue tracker][tracker].
 Buy a cup of coffee for me (Scan by wechat)：
 
 ![](https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0.3/docs/imgs/pay.jpeg)
-

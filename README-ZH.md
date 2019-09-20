@@ -51,6 +51,7 @@ void getHttp() async {
 - [Https证书校验](#Https证书校验)
 - [Http2支持](#Http2支持)
 - [请求取消](#请求取消)
+- [继承 Dio class](#继承-dio-class)
 - [Features and bugs](#features-and-bugs)
 
 
@@ -714,6 +715,29 @@ token.cancel("cancelled");
 > 注意: 同一个cancel token 可以用于多个请求，当一个cancel token取消时，所有使用该cancel token的请求都会被取消。
 
 完整的示例请参考[取消示例](https://github.com/flutterchina/dio/blob/master/example/cancel_request.dart).
+
+## 继承 Dio class
+
+`Dio` 是一个拥有factory 构造函数的接口类，因此不能直接继承 `Dio` ，但是可以通过  `DioForNative` 或`DioForBrowser` 来间接实现: 
+
+```dart
+import 'package:dio/dio.dart';
+import 'package:dio/native_imp.dart'; //在浏览器中, import 'package:dio/browser_imp.dart'
+
+class Http extends DioForNative {
+  Http([BaseOptions options]):super(options){
+    // 构造函数做一些事
+  }
+}
+```
+
+我们也可以直接实现 `Dio`接口类 :
+
+```dart
+class MyDio with DioMixin implements Dio{
+  // ...
+}
+```
 
 
 

@@ -1,4 +1,9 @@
-# 3.0.0-dev.1
+# 3.0.1 2019.9.20
+
+- Fix #467
+- Export `DioForNative` and `DioForBrowser` classes.
+
+# 3.0.0
 
 ### New features
 
