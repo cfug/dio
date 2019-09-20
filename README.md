@@ -714,7 +714,7 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ## Extends Dio class
 
-`Dio` is a abstract class with factory constructor，so we don't extends `Dio` class directy. For this purpose,  we can extends `DioForNative` or `DioForBrowser` instead, for example: 
+`Dio` is a abstract class with factory constructor，so we don't extend `Dio` class directy. For this purpose,  we can extend `DioForNative` or `DioForBrowser` instead, for example:
 
 ```dart
 import 'package:dio/dio.dart';
