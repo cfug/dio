@@ -57,7 +57,6 @@ class LogInterceptor extends Interceptor {
 
     if (request) {
       printKV('method', options.method);
-      printKV('contentType', options.contentType);
       printKV('responseType', options.responseType?.toString());
       printKV('followRedirects', options.followRedirects);
       printKV('connectTimeout', options.connectTimeout);

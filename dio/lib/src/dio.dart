@@ -1044,6 +1044,8 @@ abstract class DioMixin implements Dio {
         });
       }
       return byteStream;
+    }else{
+      options.headers.remove(Headers.contentTypeHeader);
     }
     return null;
   }

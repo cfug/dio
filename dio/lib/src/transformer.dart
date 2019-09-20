@@ -11,7 +11,6 @@ import 'utils.dart';
 
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
-/// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
 ///
 /// Dio has already implemented a [DefaultTransformer], and as the default
 /// [Transformer]. If you want to custom the transformation of
