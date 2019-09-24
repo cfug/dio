@@ -189,7 +189,7 @@ class Options extends _RequestConfig {
       extra: extra ?? Map.from(this.extra ?? {}),
       headers: headers ?? Map.from(this.headers ?? {}),
       responseType: responseType ?? this.responseType,
-      contentType: String ?? this.contentType,
+      contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
