@@ -18,7 +18,8 @@ typedef ProgressCallback = void Function(int count, int total);
 /// ResponseType indicates which transformation should
 /// be automatically applied to the response data by Dio.
 enum ResponseType {
-  /// Transform the response data to JSON object.
+  /// Transform the response data to JSON object only when the
+  /// content-type of response is "application/json" .
   json,
 
   /// Get the response stream without any transformation. The
@@ -189,7 +190,7 @@ class Options extends _RequestConfig {
       extra: extra ?? Map.from(this.extra ?? {}),
       headers: headers ?? Map.from(this.headers ?? {}),
       responseType: responseType ?? this.responseType,
-      contentType: String ?? this.contentType,
+      contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,

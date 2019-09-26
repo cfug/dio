@@ -14,9 +14,9 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: 3.x.x  #latest version
+  dio: 3.x  #latest version
 ```
-> In order to support Flutter Web, v3.0.0 was heavily refactored, so it was not compatible with version 3.0.x. See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
+> In order to support Flutter Web, v3.x was heavily refactored, so it was not compatible with version 3.x. See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
 
 ### Super simple to use
 
@@ -558,8 +558,6 @@ FormData formData = FormData.from({
 });
 response = await dio.post("/info", data: formData);
 ```
-
-> Note: Just the post method suppots FormData.
 
 There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
 

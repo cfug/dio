@@ -10,6 +10,9 @@ import 'multipart_file_stub.dart'
 
 /// A file to be uploaded as part of a [MultipartRequest]. This doesn't need to
 /// correspond to a physical file.
+///
+/// MultipartFile is based on stream, and a stream can be read only once,
+/// so the same MultipartFile can't be read multiple times.
 class MultipartFile {
   /// The size of the file in bytes. This must be known in advance, even if this
   /// file is created from a [ByteStream].

@@ -136,7 +136,8 @@ class DefaultTransformer extends Transformer {
     return responseBody;
   }
 
-  _isJsonMime(String contentType) {
+  bool _isJsonMime(String contentType) {
+    if (contentType == null) return false;
     return MediaType.parse(contentType).mimeType.toLowerCase() ==
         Headers.jsonMimeType.mimeType;
   }

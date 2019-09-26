@@ -900,8 +900,7 @@ abstract class DioMixin implements Dio {
         stream,
         cancelToken?.whenCancel,
       );
-      var headers =
-          Headers.fromMap(responseBody.headers ?? Map<String, String>());
+      var headers = Headers.fromMap(responseBody.headers ?? {});
       Response ret = Response(
         headers: headers,
         request: options,
