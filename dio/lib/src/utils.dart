@@ -68,7 +68,7 @@ String encodeMap(data, String handler(String key, dynamic value),
   StringBuffer urlData = StringBuffer("");
   bool first = true;
   String leftBracket = encode ? "%5B" : "[";
-  String rightBracket = encode ? "%5B" : "]";
+  String rightBracket = encode ? "%5D" : "]";
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
