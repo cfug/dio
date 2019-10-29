@@ -111,6 +111,10 @@ class FormData extends MapMixin<String, dynamic> {
           _fileInfo(nestedKey, value[mapKey]);
           len += e.bytes?.length ?? e.file.lengthSync();
           len += lineSplitLen;
+        } else if(value[mapKey] is List) {
+          for(var v in value[mapKey]) {
+            writeMapLength(buf, '${nestedKey}[]', v);
+          }
         } else {
           len += _textFieldLength;
           buf.write("$nestedKey${value[mapKey]}");
@@ -135,6 +139,10 @@ class FormData extends MapMixin<String, dynamic> {
             len +=
                 value[mapKey].bytes?.length ?? value[mapKey].file.lengthSync();
             len += lineSplitLen;
+          } else if(value[mapKey] is List) {
+            for(var v in value[mapKey]) {
+              writeMapLength(buf, '${nestedKey}[]', v);
+            }
           } else {
             len += _textFieldLength;
             buf.write(
@@ -257,7 +265,11 @@ class FormData extends MapMixin<String, dynamic> {
           bytes.addAll(_chunkHeader(buffer, nestedKey, fileInfo));
           bytes.addAll(fileInfo.bytes ?? fileInfo.file.readAsBytesSync());
           bytes.addAll(utf8.encode('\r\n'));
-        } else {
+        } else if(value[mapKey] is List) {
+          for (var v in value[mapKey]) {
+              handleMapField(bytes, '${nestedKey}[]', v);
+            }
+          } else {
           bytes.addAll(_textField(
               buffer, nestedKey, value[mapKey] == null ? '' : value[mapKey]));
         }
