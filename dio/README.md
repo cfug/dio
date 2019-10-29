@@ -6,7 +6,7 @@ Language: [English](README.md) | [中文简体](README-ZH.md)
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
 [![support](https://img.shields.io/badge/platform-flutter%7Cflutter%20web%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
 
-A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc.
+A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc. 
 
 ## Get started
 
@@ -14,9 +14,9 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: 3.x  #latest version
+  dio: 3.x #latest version
 ```
-> In order to support Flutter Web, v3.x was heavily refactored, so it was not compatible with version 3.x. See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
+> In order to support Flutter Web, v3.x was heavily refactored, so it was not compatible with version 3.x See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
 
 ### Super simple to use
 
@@ -44,6 +44,7 @@ void getHttp() async {
 | [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A Dio HttpClientAdapter which support Http/2.0               |
 | [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) | [![Pub](https://img.shields.io/pub/v/dio_flutter_transformer.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_flutter_transformer) | A Dio transformer especially for flutter, by which the json decoding will be in background with `compute` function. |
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache)   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http_cache) | A cache library for Dio, like [Rxcache](https://github.com/VictorAlbertos/RxCache) in Android. dio-http-cache uses [sqflite](https://github.com/tekartik/sqflite) as disk cache, and [LRU](https://github.com/google/quiver-dart) strategy as memory cache. |
+| [retrofit](https://github.com/trevorwang/retrofit.dart/)     | [![Pub](https://img.shields.io/pub/v/retrofit.svg?style=flat-square)](https://pub.dartlang.org/packages/retrofit) | retrofit.dart is an dio client generator using source_gen and inspired by Chopper and Retrofit. |
 
 ### Related Projects
 
@@ -85,7 +86,7 @@ Welcome to submit Dio's third-party plugins and related libraries [here](https:/
 
 - [Features and bugs](#features-and-bugs)
 
-
+  
 
 ## Examples
 
@@ -183,7 +184,7 @@ await dio.post(
   data: Stream.fromIterable(postData.map((e) => [e])), //create a Stream<List<int>>
   options: Options(
     headers: {
-      HttpHeaders.contentLengthHeader: postData.length, // set content-length
+      Headers.contentLengthHeader: postData.length, // set content-length
     },
   ),
 );
@@ -305,9 +306,9 @@ The Options class describes the http request information and configuration. Each
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the   [Response] object.
   Map<String, dynamic> extra;
-
+  
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
 
 }
 ```
@@ -323,17 +324,17 @@ The response for a request contains the following information.
   /// Response body. may have been transformed, please refer to [ResponseType].
   T data;
   /// Response headers.
-  HttpHeaders headers;
+  Headers headers;
   /// The corresponding request info.
   Options request;
   /// Http status code.
   int statusCode;
-  /// Whether redirect
-  bool isRedirect;
-  /// redirect info
+  /// Whether redirect 
+  bool isRedirect;  
+  /// redirect info    
   List<RedirectInfo> redirects ;
-  /// Returns the final real request uri (maybe redirect).
-  Uri realUri;
+  /// Returns the final real request uri (maybe redirect). 
+  Uri realUri;    
   /// Custom field that you can retrieve it later in `then`.
   Map<String, dynamic> extra;
 }
@@ -466,7 +467,7 @@ You can custom interceptor by extending the `Interceptor` class. There is an exa
 
 ## Cookie Manager
 
-[dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) package is a cookie manager for Dio.
+[dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) package is a cookie manager for Dio.  
 
 ## Handling Errors
 
@@ -542,7 +543,7 @@ By default, Dio serializes request data(except String type) to `JSON`. To send d
 //Instance level
 dio.options.contentType= Headers.formUrlEncodedContentType;
 //or works once
-dio.post("/info", data:{"id":5},
+dio.post("/info", data:{"id":5}, 
          options: Options(contentType:Headers.formUrlEncodedContentType ));
 ```
 
@@ -639,7 +640,7 @@ We can use any HttpClient not just `dart:io:HttpClient` to make the Http request
 dio.httpClientAdapter = new DefaultHttpClientAdapter();
 ```
 
-[Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter.
+[Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter. 
 
 ### Using proxy
 

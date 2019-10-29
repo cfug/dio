@@ -900,6 +900,7 @@ abstract class DioMixin implements Dio {
         stream,
         cancelToken?.whenCancel,
       );
+      responseBody.headers=responseBody.headers??{};
       var headers = Headers.fromMap(responseBody.headers ?? {});
       Response ret = Response(
         headers: headers,
@@ -1007,8 +1008,6 @@ abstract class DioMixin implements Dio {
         stream = Stream.fromIterable(group);
       }
 
-      options.headers[Headers.contentTypeHeader] ??=
-          options.contentType.toString();
       if (length != null) {
         options.headers[Headers.contentLengthHeader] = length.toString();
       }
@@ -1054,13 +1053,14 @@ abstract class DioMixin implements Dio {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     final optBaseUrl = (opt is RequestOptions) ? opt.baseUrl : null;
+    final optConnectTimeout = (opt is RequestOptions) ? opt.connectTimeout : null;
     return RequestOptions(
       method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
       headers: (Map.from(options.headers))..addAll(opt.headers),
       baseUrl: optBaseUrl ?? options.baseUrl ?? "",
       path: url,
       data: data,
-      connectTimeout: options.connectTimeout ?? 0,
+      connectTimeout: optConnectTimeout ?? options.connectTimeout ?? 0,
       sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
       receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
       responseType:

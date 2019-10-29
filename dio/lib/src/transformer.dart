@@ -76,7 +76,7 @@ class DefaultTransformer extends Transformer {
     int received = 0;
     bool showDownloadProgress = options.onReceiveProgress != null;
     if (showDownloadProgress) {
-      length = int.parse(response.headers[Headers.contentLengthHeader] ?? "-1");
+      length = int.parse(response.headers[Headers.contentLengthHeader]?.first ?? "-1");
     }
     Completer completer = Completer();
     Stream stream = response.stream.transform(StreamTransformer.fromHandlers(

@@ -184,7 +184,7 @@ await dio.post(
   data: Stream.fromIterable(postData.map((e) => [e])), //create a Stream<List<int>>
   options: Options(
     headers: {
-      HttpHeaders.contentLengthHeader: postData.length, // set content-length
+      Headers.contentLengthHeader: postData.length, // set content-length
     },
   ),
 );
@@ -324,7 +324,7 @@ The response for a request contains the following information.
   /// Response body. may have been transformed, please refer to [ResponseType].
   T data;
   /// Response headers.
-  HttpHeaders headers;
+  Headers headers;
   /// The corresponding request info.
   Options request;
   /// Http status code.

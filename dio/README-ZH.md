@@ -61,7 +61,7 @@ void getHttp() async {
 
 ```dart
 Response response;
-Dio dio = new Dio();
+Dio dio = Dio();
 response = await dio.get("/test?id=12&name=wendu")
 print(response.data.toString());
 // 请求参数也可以通过对象传递，上面的代码等同于：
@@ -108,7 +108,7 @@ print(rs.data); //二进制数组
 发送 FormData:
 
 ```dart
-FormData formData = new FormData.from({
+FormData formData = FormData.from({
     "name": "wendux",
     "age": 25,
   });
@@ -152,7 +152,7 @@ await dio.post(
   data: Stream.fromIterable(postData.map((e) => [e])), //创建一个Stream<List<int>>
   options: Options(
     headers: {
-      HttpHeaders.contentLengthHeader: postData.length, // 设置content-length
+      Headers.contentLengthHeader: postData.length, // 设置content-length
     },
   ),
 );
@@ -173,7 +173,7 @@ await dio.post(
 你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个Dio实例 :
 
 ```dart
-Dio dio = new Dio(); // 使用默认配置
+Dio dio = Dio(); // 使用默认配置
 
 // 配置dio实例
 dio.options.baseUrl = "https://www.xx.com/api";
@@ -181,12 +181,12 @@ dio.options.connectTimeout = 5000; //5s
 dio.options.receiveTimeout = 3000;
 
 // 或者通过传递一个 `options`来创建dio实例
-Options options = new BaseOptions(
+Options options = BaseOptions(
     baseUrl: "https://www.xx.com/api",
     connectTimeout: 5000,
     receiveTimeout: 3000,
 );
-Dio dio = new Dio(options);
+Dio dio = Dio(options);
 ```
 
 
@@ -287,7 +287,7 @@ Dio实例的核心API是 :
   /// 响应数据，可能已经被转换了类型, 详情请参考Options中的[ResponseType].
   T data;
   /// 响应头
-  HttpHeaders headers;
+  Headers headers;
   /// 本次请求信息
   Options request;
   /// Http status code.
@@ -375,14 +375,14 @@ dio.interceptors.add(InterceptorsWrapper(
 你可以通过调用拦截器的 `lock()`/`unlock` 方法来锁定/解锁拦截器。一旦请求/响应拦截器被锁定，接下来的请求/响应将会在进入请求/响应拦截器之前排队等待，直到解锁后，这些入队的请求才会继续执行(进入拦截器)。这在一些需要串行化请求/响应的场景中非常实用，后面我们将给出一个示例。
 
 ```dart
-tokenDio = new Dio(); //Create a new instance to request the token.
+tokenDio = Dio(); //Create a instance to request the token.
 tokenDio.options = dio;
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async {
         // If no token, request token firstly and lock this interceptor
         // to prevent other request enter this interceptor.
         dio.interceptors.requestLock.lock();
-        // We use a new Dio(to avoid dead lock) instance to request token.
+        // We use a Dio(to avoid dead lock) instance to request token.
         Response response = await tokenDio.get("/token");
         //Set the token to headers
         options.headers["token"] = response.data["data"]["token"];
@@ -651,8 +651,8 @@ import 'package:dio/adapter.dart';
         //proxy all request to localhost:8888
         return "PROXY localhost:8888";
     };
-    // you can also create a new HttpClient to dio
-    // return new HttpClient();
+    // you can also create a HttpClient to dio
+    // return HttpClient();
 };
 ```
 
@@ -680,10 +680,10 @@ String PEM="XXXXX"; // certificate content
 
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-    SecurityContext sc = new SecurityContext();
+    SecurityContext sc = SecurityContext();
     //file is the path of certificate
     sc.setTrustedCertificates(file);
-    HttpClient httpClient = new HttpClient(context: sc);
+    HttpClient httpClient = HttpClient(context: sc);
     return httpClient;
 };
 ```
@@ -699,7 +699,7 @@ String PEM="XXXXX"; // certificate content
 你可以通过 *cancel token* 来取消发起的请求：
 
 ```dart
-CancelToken token = new CancelToken();
+CancelToken token = CancelToken();
 dio.get(url, cancelToken: token)
     .catchError((DioError err){
         if (CancelToken.isCancel(err)) {
@@ -718,7 +718,7 @@ token.cancel("cancelled");
 
 ## 继承 Dio class
 
-`Dio` 是一个拥有factory 构造函数的接口类，因此不能直接继承 `Dio` ，但是可以通过  `DioForNative` 或`DioForBrowser` 来间接实现:
+`Dio` 是一个拥有factory 构造函数的接口类，因此不能直接继承 `Dio` ，但是可以通过  `DioForNative` 或`DioForBrowser` 来间接实现: 
 
 ```dart
 import 'package:dio/dio.dart';

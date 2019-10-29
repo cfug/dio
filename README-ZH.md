@@ -152,7 +152,7 @@ await dio.post(
   data: Stream.fromIterable(postData.map((e) => [e])), //创建一个Stream<List<int>>
   options: Options(
     headers: {
-      HttpHeaders.contentLengthHeader: postData.length, // 设置content-length
+      Headers.contentLengthHeader: postData.length, // 设置content-length
     },
   ),
 );
@@ -287,7 +287,7 @@ Dio实例的核心API是 :
   /// 响应数据，可能已经被转换了类型, 详情请参考Options中的[ResponseType].
   T data;
   /// 响应头
-  HttpHeaders headers;
+  Headers headers;
   /// 本次请求信息
   Options request;
   /// Http status code.
