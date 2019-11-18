@@ -64,7 +64,7 @@ class LogInterceptor extends Interceptor {
       printKV('extra', options.extra);
     }
     if (requestHeader) {
-      options.headers.forEach((key, v){print('$key:$v')});
+      options.headers.forEach((key, v){print('$key:$v');});
     }
     if (requestBody) {
       logPrint("data:");
