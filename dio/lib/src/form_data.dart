@@ -75,8 +75,8 @@ class FormData {
   /// contain only ASCII characters.
   String _headerForFile(MapEntry<String, MultipartFile> entry) {
     var file = entry.value;
-    var header = 'content-type: ${file.contentType}\r\n'
-        'content-disposition: form-data; name="${_browserEncode(entry.key)}"';
+    var header = 'content-disposition: form-data; name="${_browserEncode(entry.key)}"\r\n'
+        'content-type: ${file.contentType}';
 
     if (file.filename != null) {
       header = '$header; filename="${_browserEncode(file.filename)}"';

@@ -51,7 +51,7 @@ typedef RequestEncoder = List<int> Function(
 class BaseOptions extends _RequestConfig {
   BaseOptions({
     String method,
-    int connectTimeout,
+    this.connectTimeout,
     int receiveTimeout,
     int sendTimeout,
     this.baseUrl,
