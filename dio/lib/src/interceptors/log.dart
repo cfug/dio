@@ -64,10 +64,8 @@ class LogInterceptor extends Interceptor {
       printKV('extra', options.extra);
     }
     if (requestHeader) {
-      StringBuffer stringBuffer = StringBuffer();
-      options.headers.forEach((key, v) => stringBuffer.write('\n  $key:$v'));
-      printKV('headers', stringBuffer.toString());
-      stringBuffer.clear();
+      logPrint('headers:');
+      options.headers.forEach((key, v) => printKV(" $key", v));
     }
     if (requestBody) {
       logPrint("data:");
@@ -104,10 +102,7 @@ class LogInterceptor extends Interceptor {
       }
       if (response.headers != null) {
         logPrint("headers:");
-        var headers = response.headers.toString()?.replaceAll("\n", "\n ");
-        if (headers != null) {
-          logPrint(" $headers");
-        }
+        response.headers.forEach((key, v) => printKV(" $key", v.join(",")));
       }
     }
     if (responseBody) {

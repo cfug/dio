@@ -340,6 +340,29 @@ dio.interceptors.add(InterceptorsWrapper(
 ));
 ```
 
+一个简单的自定义拦截器示例:
+
+```dart
+import 'package:dio/dio.dart';
+class CustomInterceptors extends InterceptorsWrapper {
+  @override
+  Future onRequest(RequestOptions options) {
+    print("REQUEST[${options?.method}] => PATH: ${options?.path}");
+    return super.onRequest(options);
+  }
+  @override
+  Future onResponse(Response response) {
+    print("RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}");
+    return super.onResponse(response);
+  }
+  @override
+  Future onError(DioError err) {
+    print("ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}");
+    return super.onError(err);
+  }
+}
+```
+
 ### 完成和终止请求/响应
 
 在所有拦截器中，你都可以改变请求执行流， 如果你想完成请求/响应并返回自定义数据，你可以返回一个 `Response` 对象或返回 `dio.resolve(data)`的结果。 如果你想终止(触发一个错误，上层`catchError`会被调用)一个请求/响应，那么可以返回一个`DioError` 对象或返回 `dio.reject(errMsg)` 的结果.

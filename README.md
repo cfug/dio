@@ -376,6 +376,30 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ```
 
+Simple interceptor example:
+
+```dart
+import 'package:dio/dio.dart';
+class CustomInterceptors extends InterceptorsWrapper {
+  @override
+  Future onRequest(RequestOptions options) {
+    print("REQUEST[${options?.method}] => PATH: ${options?.path}");
+    return super.onRequest(options);
+  }
+  @override
+  Future onResponse(Response response) {
+    print("RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}");
+    return super.onResponse(response);
+  }
+  @override
+  Future onError(DioError err) {
+    print("ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}");
+    return super.onError(err);
+  }
+}
+```
+
+
 ### Resolve and reject the request
 
 In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can return a `Response` object or return `dio.resolve(data)`.  If you want to reject the request/response with a error message, you can return a `DioError` object or return `dio.reject(errMsg)` .
