@@ -15,5 +15,7 @@ void getHttp() async {
 }
 
 main() async {
-  await getHttp();
+  //await getHttp();
+  var t=await MultipartFile.fromBytes([5]);
+  print(t);
 }
