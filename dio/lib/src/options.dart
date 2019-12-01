@@ -3,6 +3,7 @@ import 'package:dio/src/dio.dart';
 import 'adapter.dart';
 import 'dio_error.dart';
 import 'headers.dart';
+import 'response.dart';
 import 'transformer.dart';
 import 'cancel_token.dart';
 
@@ -69,7 +70,7 @@ class BaseOptions extends _RequestConfig {
     int maxRedirects = 5,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) : super(
           method: method,
           receiveTimeout: receiveTimeout,
@@ -106,7 +107,7 @@ class BaseOptions extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -158,7 +159,7 @@ class Options extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -191,7 +192,7 @@ class Options extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) {
     return Options(
       method: method ?? this.method,
@@ -236,7 +237,7 @@ class RequestOptions extends Options {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -277,7 +278,7 @@ class RequestOptions extends Options {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) {
     return RequestOptions(
       method: method ?? this.method,
@@ -438,5 +439,5 @@ class _RequestConfig {
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder responseDecoder;
 
-  Function(DioError) onError;
+  Response Function(DioError) onError;
 }

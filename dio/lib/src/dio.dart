@@ -751,7 +751,7 @@ abstract class DioMixin implements Dio {
     Options options,
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) async {
     return _request<T>(
       path,
@@ -777,7 +777,7 @@ abstract class DioMixin implements Dio {
     Options options,
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) {
     return request(
       uri.toString(),
@@ -798,7 +798,7 @@ abstract class DioMixin implements Dio {
     Options options,
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
-    Function(DioError) onError,
+    Response Function(DioError) onError,
   }) async {
     if (_closed) {
       throw DioError(error: "Dio can't establish new connection after closed.");
@@ -960,7 +960,7 @@ abstract class DioMixin implements Dio {
     } catch (e) {
       DioError err = assureDioError(e, options);
       if (options.onError != null) {
-        options.onError(err);
+        return options.onError(err);
       } else {
         throw err;
       }
