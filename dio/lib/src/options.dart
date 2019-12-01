@@ -1,4 +1,7 @@
+import 'package:dio/src/dio.dart';
+
 import 'adapter.dart';
+import 'dio_error.dart';
 import 'headers.dart';
 import 'transformer.dart';
 import 'cancel_token.dart';
@@ -66,6 +69,7 @@ class BaseOptions extends _RequestConfig {
     int maxRedirects = 5,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    Function(DioError) onError,
   }) : super(
           method: method,
           receiveTimeout: receiveTimeout,
@@ -80,6 +84,7 @@ class BaseOptions extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
+          onError: onError,
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -101,6 +106,7 @@ class BaseOptions extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    Function(DioError) onError,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -120,6 +126,7 @@ class BaseOptions extends _RequestConfig {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
+      onError: onError ?? this.onError,
     );
   }
 
@@ -151,6 +158,7 @@ class Options extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    Function(DioError) onError,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -165,6 +173,7 @@ class Options extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
+          onError: onError
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -182,6 +191,7 @@ class Options extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    Function(DioError) onError,
   }) {
     return Options(
       method: method ?? this.method,
@@ -198,6 +208,7 @@ class Options extends _RequestConfig {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
+      onError: onError ?? this.onError
     );
   }
 }
@@ -225,6 +236,7 @@ class RequestOptions extends Options {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    Function(DioError) onError,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -239,6 +251,7 @@ class RequestOptions extends Options {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
+          onError: onError,
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -264,6 +277,7 @@ class RequestOptions extends Options {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    Function(DioError) onError,
   }) {
     return RequestOptions(
       method: method ?? this.method,
@@ -287,6 +301,7 @@ class RequestOptions extends Options {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
+      onError: onError ?? this.onError,
     );
   }
 
@@ -344,6 +359,7 @@ class _RequestConfig {
     this.maxRedirects = 5,
     this.requestEncoder,
     this.responseDecoder,
+    this.onError,
   }) {
     this.headers = headers ?? {};
     this.extra = extra ?? {};
@@ -421,4 +437,6 @@ class _RequestConfig {
   /// The default response decoder is utf8decoder, you can set custom
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder responseDecoder;
+
+  Function(DioError) onError;
 }

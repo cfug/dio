@@ -366,6 +366,7 @@ abstract class DioMixin implements Dio {
       options: checkOptions("GET", options),
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
+      onError: options?.onError,
     );
   }
 
@@ -381,6 +382,7 @@ abstract class DioMixin implements Dio {
       options: checkOptions("GET", options),
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
+      onError: options?.onError,
     );
   }
 
@@ -402,6 +404,7 @@ abstract class DioMixin implements Dio {
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: options?.onError,
     );
   }
 
@@ -421,6 +424,7 @@ abstract class DioMixin implements Dio {
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: options?.onError,
     );
   }
 
@@ -442,6 +446,7 @@ abstract class DioMixin implements Dio {
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: options?.onError,
     );
   }
 
@@ -461,6 +466,7 @@ abstract class DioMixin implements Dio {
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: options?.onError,
     );
   }
 
@@ -478,6 +484,7 @@ abstract class DioMixin implements Dio {
       queryParameters: queryParameters,
       options: checkOptions("HEAD", options),
       cancelToken: cancelToken,
+      onError: options?.onError,
     );
   }
 
@@ -493,6 +500,7 @@ abstract class DioMixin implements Dio {
       data: data,
       options: checkOptions("HEAD", options),
       cancelToken: cancelToken,
+      onError: options?.onError,
     );
   }
 
@@ -510,6 +518,7 @@ abstract class DioMixin implements Dio {
       queryParameters: queryParameters,
       options: checkOptions("DELETE", options),
       cancelToken: cancelToken,
+      onError: options?.onError,
     );
   }
 
@@ -525,6 +534,7 @@ abstract class DioMixin implements Dio {
       data: data,
       options: checkOptions("DELETE", options),
       cancelToken: cancelToken,
+      onError: options?.onError,
     );
   }
 
@@ -546,6 +556,7 @@ abstract class DioMixin implements Dio {
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: options?.onError,
     );
   }
 
@@ -565,6 +576,7 @@ abstract class DioMixin implements Dio {
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: options?.onError,
     );
   }
 
@@ -739,6 +751,7 @@ abstract class DioMixin implements Dio {
     Options options,
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
+    Function(DioError) onError,
   }) async {
     return _request<T>(
       path,
@@ -748,6 +761,7 @@ abstract class DioMixin implements Dio {
       options: options,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: onError,
     );
   }
 
@@ -763,6 +777,7 @@ abstract class DioMixin implements Dio {
     Options options,
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
+    Function(DioError) onError,
   }) {
     return request(
       uri.toString(),
@@ -771,6 +786,7 @@ abstract class DioMixin implements Dio {
       options: options,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
+      onError: onError,
     );
   }
 
@@ -782,6 +798,7 @@ abstract class DioMixin implements Dio {
     Options options,
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
+    Function(DioError) onError,
   }) async {
     if (_closed) {
       throw DioError(error: "Dio can't establish new connection after closed.");
@@ -793,12 +810,14 @@ abstract class DioMixin implements Dio {
       cancelToken = cancelToken ?? options.cancelToken;
       onSendProgress = onSendProgress ?? options.onSendProgress;
       onReceiveProgress = onReceiveProgress ?? options.onReceiveProgress;
+      onError = onError ?? options.onError;
     }
     RequestOptions requestOptions =
         mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
+    requestOptions.onError = onError;
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
             requestOptions.responseType == ResponseType.stream)) {
@@ -940,7 +959,11 @@ abstract class DioMixin implements Dio {
       }
     } catch (e) {
       DioError err = assureDioError(e, options);
-      throw err;
+      if (options.onError != null) {
+        options.onError(err);
+      } else {
+        throw err;
+      }
     }
   }
 
