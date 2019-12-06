@@ -492,6 +492,35 @@ try {
 }
 ```
 
+Sometimes when debugging in certain IDEs, such `try`/`catch` blocks fail to actually catch thrown `DioError`s (see [flutter/flutter/issues/33427](https://github.com/flutter/flutter/issues/33427#issuecomment-523605100)). To circumvent this problem, you can pass an `onError` param to the `Options` of your request, like so:
+
+```dart
+Response _onError(DioError error) =>
+  // Silently catch errors with responses
+  // (e.g. http status errors) but preserve
+  // other errors (like SocketExceptions) in
+  // the returned Response's data parameter
+  error?.response != null
+  ? error.response
+  : Response(data: error);
+
+// ...
+
+try {
+  final response = await dio.get(
+    "https://does.not.exist/",
+    options: Options(onError: _onError)
+  );
+  if (response.data is DioError) {
+    // Re-throw the preserved DioError in a new context
+    // so our try/catch block can see it
+    throw response.data;
+  }
+} on DioError catch (e) {
+  // Handle errors
+}
+```
+
 ### DioError scheme
 
 ```dart
