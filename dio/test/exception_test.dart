@@ -51,13 +51,13 @@ void main() {
     dynamic error;
 
     final options = Options(onError: (DioError error) {
-      throw error;
+      return Response(data: error);
     });
 
     try {
-      await Dio().get("https://does.not.exist", options: options);
-      fail("did not rethrow");
-    } on Exception catch (e) {
+      final response = await Dio().get("https://does.not.exist", options: options);
+      if (response.data is DioError) throw response.data;
+    } on DioError catch (e) {
       error = e;
     }
     expect(error, isNotNull);
