@@ -58,7 +58,7 @@ class DefaultTransformer extends Transformer {
   Future<String> transformRequest(RequestOptions options) async {
     var data = options.data ?? '';
     if (data is! String) {
-      if (_isJsonMime(options.contentType)) {
+      if (isJsonMime(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map) {
         return Transformer.urlEncodeMap(data);
@@ -148,7 +148,7 @@ class DefaultTransformer extends Transformer {
     if (responseBody != null &&
         responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
-        _isJsonMime(response.headers[Headers.contentTypeHeader]?.first)) {
+        isJsonMime(response.headers[Headers.contentTypeHeader]?.first)) {
       if (jsonDecodeCallback != null) {
         return jsonDecodeCallback(responseBody);
       } else {
@@ -158,9 +158,4 @@ class DefaultTransformer extends Transformer {
     return responseBody;
   }
 
-  bool _isJsonMime(String contentType) {
-    if (contentType == null) return false;
-    return MediaType.parse(contentType).mimeType.toLowerCase() ==
-        Headers.jsonMimeType.mimeType;
-  }
 }

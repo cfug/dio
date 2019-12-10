@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'dart:convert';
 
+import 'package:http_parser/http_parser.dart';
+
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
 final RegExp _asciiOnly = RegExp(r'^[\x00-\x7F]+$');
@@ -66,4 +68,10 @@ String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
 
   urlEncode(data, '');
   return urlData.toString();
+}
+
+bool isJsonMime(String contentType) {
+  if (contentType == null) return false;
+  final mediaType = MediaType.parse(contentType);
+  return mediaType.type == "application" && mediaType.subtype.contains("json");
 }
