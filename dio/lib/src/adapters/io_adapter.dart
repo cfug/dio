@@ -21,6 +21,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
   bool _closed = false;
 
+  @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<List<int>> requestStream,
@@ -33,10 +34,10 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     Future requestFuture = _httpClient.openUrl(options.method, options.uri);
 
-    _throwConnectingTimeout() {
+    void _throwConnectingTimeout() {
       throw DioError(
         request: options,
-        error: "Connecting timed out [${options.connectTimeout}ms]",
+        error: 'Connecting timed out [${options.connectTimeout}ms]',
         type: DioErrorType.CONNECT_TIMEOUT,
       );
     }
@@ -47,14 +48,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       //Set Headers
       options.headers.forEach((k, v) => request.headers.set(k, v));
     } on SocketException catch (e) {
-      if (e.message.contains("timed out")) _throwConnectingTimeout();
+      if (e.message.contains('timed out')) _throwConnectingTimeout();
       rethrow;
     }
 
     request.followRedirects = options.followRedirects;
     request.maxRedirects = options.maxRedirects;
 
-    if (options.method != "GET" && requestStream != null) {
+    if (options.method != 'GET' && requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
     }
@@ -70,14 +71,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     }
 
     // https://github.com/dart-lang/co19/issues/383
-    Stream<Uint8List> stream =
-        responseStream.transform(StreamTransformer.fromHandlers(
+    var stream =
+        responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         sink.add(Uint8List.fromList(data));
       },
     ));
 
-    var headers = Map<String, List<String>>();
+    var headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {
       headers[key] = values;
     });

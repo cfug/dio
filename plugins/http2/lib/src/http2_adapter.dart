@@ -80,7 +80,7 @@ class Http2Adapter extends HttpClientAdapter {
 
         if (!completer.isCompleted) {
           completer.completeError(e, StackTrace.current);
-        }else {
+        } else {
           sc.addError(e);
         }
       },

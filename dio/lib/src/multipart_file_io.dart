@@ -9,7 +9,7 @@ Future<MultipartFile> multipartFileFromPath(
   String filename,
   MediaType contentType,
 }) async {
-  if (filename == null) filename = p.basename(filePath);
+  filename ??= p.basename(filePath);
   var file = File(filePath);
   var length = await file.length();
   var stream = file.openRead();
@@ -26,7 +26,7 @@ MultipartFile multipartFileFromPathSync(
   String filename,
   MediaType contentType,
 }) {
-  if (filename == null) filename = p.basename(filePath);
+  filename ??= p.basename(filePath);
   var file = File(filePath);
   var length = file.lengthSync();
   var stream = file.openRead();

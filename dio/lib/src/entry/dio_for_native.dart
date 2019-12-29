@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-
 import '../adapter.dart';
 import '../cancel_token.dart';
 import '../response.dart';
@@ -11,17 +9,14 @@ import '../options.dart';
 import '../dio_error.dart';
 import '../adapters/io_adapter.dart';
 
-Dio createDio([BaseOptions options])=>DioForNative(options);
+Dio createDio([BaseOptions options]) => DioForNative(options);
 
 class DioForNative with DioMixin implements Dio {
   /// Create Dio instance with default [Options].
   /// It's mostly just one Dio instance in your application.
   DioForNative([BaseOptions options]) {
-    if (options == null) {
-      options = BaseOptions();
-    }
-    this.options = options;
-    this.httpClientAdapter=DefaultHttpClientAdapter();
+    this.options = options ?? BaseOptions();
+    httpClientAdapter = DefaultHttpClientAdapter();
   }
 
   ///  Download the file and save it in local. The default http method is "GET",
@@ -61,7 +56,7 @@ class DioForNative with DioMixin implements Dio {
   ///        print((received / total * 100).toStringAsFixed(0) + "%");
   ///       }
   ///     });
-
+  @override
   Future<Response> download(
     String urlPath,
     savePath, {
@@ -76,9 +71,9 @@ class DioForNative with DioMixin implements Dio {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
     // response stream.
     if (options != null) {
-      options.method = options.method ?? "GET";
+      options.method = options.method ?? 'GET';
     } else {
-      options = checkOptions("GET", options);
+      options = checkOptions('GET', options);
     }
 
     // Receive data with stream.
@@ -113,7 +108,7 @@ class DioForNative with DioMixin implements Dio {
     File file;
     if (savePath is Function) {
       assert(savePath is String Function(Headers),
-          "savePath callback type must be `String Function(HttpHeaders)`");
+          'savePath callback type must be `String Function(HttpHeaders)`');
       file = File(savePath(response.headers));
     } else {
       file = File(savePath.toString());
@@ -125,28 +120,28 @@ class DioForNative with DioMixin implements Dio {
     var raf = file.openSync(mode: FileMode.write);
 
     //Create a Completer to notify the success/error state.
-    Completer completer = Completer<Response>();
-    Future future = completer.future;
-    int received = 0;
+    var completer = Completer<Response>();
+    var future = completer.future;
+    var received = 0;
 
     // Stream<Uint8List>
-    Stream<Uint8List> stream = response.data.stream;
-    bool compressed = false;
-    int total = 0;
-    String contentEncoding = response.headers.value(Headers.contentEncodingHeader);
+    var stream = response.data.stream;
+    var compressed = false;
+    var total = 0;
+    var contentEncoding = response.headers.value(Headers.contentEncodingHeader);
     if (contentEncoding != null) {
-      compressed = ["gzip", 'deflate', 'compress'].contains(contentEncoding);
+      compressed = ['gzip', 'deflate', 'compress'].contains(contentEncoding);
     }
     if (lengthHeader == Headers.contentLengthHeader && compressed) {
       total = -1;
     } else {
-      total = int.parse(response.headers.value(lengthHeader) ?? "-1");
+      total = int.parse(response.headers.value(lengthHeader) ?? '-1');
     }
 
     StreamSubscription subscription;
     Future asyncWrite;
-    bool closed = false;
-    _closeAndDelete() async {
+    var closed = false;
+    void _closeAndDelete() async {
       if (!closed) {
         closed = true;
         await asyncWrite;
@@ -180,7 +175,7 @@ class DioForNative with DioMixin implements Dio {
       onDone: () async {
         try {
           await asyncWrite;
-          closed=true;
+          closed = true;
           await raf.close();
           completer.complete(response);
         } catch (e) {
@@ -208,29 +203,34 @@ class DioForNative with DioMixin implements Dio {
           .catchError((err) async {
         await subscription.cancel();
         await _closeAndDelete();
-        throw DioError(
-          request: response.request,
-          error: "Receiving data timeout[${response.request.receiveTimeout}ms]",
-          type: DioErrorType.RECEIVE_TIMEOUT,
-        );
+        if (err is TimeoutException) {
+          throw DioError(
+            request: response.request,
+            error:
+                'Receiving data timeout[${response.request.receiveTimeout}ms]',
+            type: DioErrorType.RECEIVE_TIMEOUT,
+          );
+        } else {
+          throw err;
+        }
       });
     }
     return listenCancelForAsyncTask(cancelToken, future);
   }
 
-  ///  Download the file and save it in local. The default http method is "GET",
+  ///  Download the file and save it in local. The default http method is 'GET',
   ///  you can custom it by [Options.method].
   ///
   ///  [uri]: The file url.
   ///
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
-  ///  1. A path with String type, eg "xs.jpg"
+  ///  1. A path with String type, eg 'xs.jpg'
   ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
   ///  ```dart
   ///   await dio.downloadUri(uri,(Headers responseHeaders){
   ///      ...
-  ///      return "...";
+  ///      return '...';
   ///    });
   ///  ```
   ///
@@ -246,11 +246,11 @@ class DioForNative with DioMixin implements Dio {
   ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
   ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
   ///
-  ///     await dio.downloadUri(uri, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+  ///     await dio.downloadUri(uri, './example/flutter.svg',
+  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
   ///     onProgress: (received, total) {
   ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
+  ///        print((received / total * 100).toStringAsFixed(0) + '%');
   ///       }
   ///     });
   @override

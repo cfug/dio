@@ -8,7 +8,6 @@ main() async {
     ),
   );
 
-
   Response response;
   // No generic type, the ResponseType will work.
   response = await dio.get("/get");
@@ -21,7 +20,8 @@ main() async {
   response = await dio.get<String>("/get");
   print(response.data is String);
   // Specify the ResponseType as ResponseType.plain
-  response = await dio.get("/get", options: Options(responseType: ResponseType.plain));
+  response =
+      await dio.get("/get", options: Options(responseType: ResponseType.plain));
   print(response.data is String);
 
   // the content of "https://baidu.com" is a html file, So it can't be convert to Map type,

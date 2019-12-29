@@ -5,10 +5,10 @@ import 'options.dart';
 import 'dio_error.dart';
 import 'response.dart';
 
-
 typedef InterceptorSendCallback = dynamic Function(RequestOptions options);
 typedef InterceptorErrorCallback = dynamic Function(DioError e);
 typedef InterceptorSuccessCallback = dynamic Function(Response e);
+typedef EnqueueCallback = FutureOr Function();
 
 /// Add lock/unlock API for interceptors.
 class Lock {
@@ -39,7 +39,7 @@ class Lock {
   }
 
   /// Clean the interceptor queue.
-  void clear([String msg = "cancelled"]) {
+  void clear([String msg = 'cancelled']) {
     if (locked) {
       _completer.completeError(msg);
       _lock = null;
@@ -51,7 +51,7 @@ class Lock {
   ///
   /// [callback] the function  will return a `Future`
   /// @nodoc
-  Future enqueue(FutureOr callback()) {
+  Future enqueue(EnqueueCallback callback) {
     if (locked) {
       // we use a future as a queue
       return _lock.then((d) => callback());
@@ -71,9 +71,9 @@ class Interceptor {
   /// you can return a [DioError] object or return [dio.reject] .
   /// If you want to continue the request, return the [Options] object.
   /// ```dart
-  ///  Future onRequest(RequestOptions options) => dio.resolve("fake data");
+  ///  Future onRequest(RequestOptions options) => dio.resolve('fake data');
   ///  ...
-  ///  print(response.data) // "fake data";
+  ///  print(response.data) // 'fake data';
   /// ```
   Future onRequest(RequestOptions options) async => options;
 
@@ -113,7 +113,7 @@ class InterceptorsWrapper extends Interceptor {
   }
 
   @override
-   Future onResponse(Response response) async {
+  Future onResponse(Response response) async {
     if (_onResponse != null) {
       return _onResponse(response);
     }
@@ -128,11 +128,10 @@ class InterceptorsWrapper extends Interceptor {
 }
 
 class Interceptors extends ListMixin<Interceptor> {
-  List<Interceptor> _list = List();
-
-  Lock _requestLock = Lock();
-  Lock _responseLock = Lock();
-  Lock _errorLock = Lock();
+  final _list = <Interceptor>[];
+  final Lock _requestLock = Lock();
+  final Lock _responseLock = Lock();
+  final Lock _errorLock = Lock();
 
   Lock get requestLock => _requestLock;
 
@@ -144,7 +143,7 @@ class Interceptors extends ListMixin<Interceptor> {
   int length = 0;
 
   @override
-  operator [](int index) {
+  Interceptor operator [](int index) {
     return _list[index];
   }
 

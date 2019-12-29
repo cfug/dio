@@ -1,16 +1,18 @@
 import 'package:http_parser/http_parser.dart';
 
+typedef HeaderForEachCallback = void Function(String name, List<String> values);
+
 class Headers {
   // Header field name
-  static const acceptHeader = "accept";
-  static const contentEncodingHeader = "content-encoding";
-  static const contentLengthHeader = "content-length";
-  static const contentTypeHeader = "content-type";
-  static const wwwAuthenticateHeader = "www-authenticate";
+  static const acceptHeader = 'accept';
+  static const contentEncodingHeader = 'content-encoding';
+  static const contentLengthHeader = 'content-length';
+  static const contentTypeHeader = 'content-type';
+  static const wwwAuthenticateHeader = 'www-authenticate';
 
   // Header field value
-  static const jsonContentType = "application/json; charset=utf-8";
-  static const formUrlEncodedContentType = "application/x-www-form-urlencoded";
+  static const jsonContentType = 'application/json; charset=utf-8';
+  static const formUrlEncodedContentType = 'application/x-www-form-urlencoded';
 
   static final jsonMimeType = MediaType.parse(jsonContentType);
 
@@ -18,11 +20,10 @@ class Headers {
 
   Map<String, List<String>> get map => _map;
 
-  Headers() : this._map = Map<String, List<String>>();
+  Headers() : _map = <String, List<String>>{};
 
   Headers.fromMap(Map<String, List<String>> map)
-      : this._map =
-            map.map((k, v) => MapEntry(k.trim().toLowerCase(), v));
+      : _map = map.map((k, v) => MapEntry(k.trim().toLowerCase(), v));
 
   /// Returns the list of values for the header named [name]. If there
   /// is no header with the provided name, [:null:] will be returned.
@@ -48,7 +49,7 @@ class Headers {
     var arr = this[name];
     if (arr == null) return set(name, value);
     arr.add(value);
-    set(name, arr.join(","));
+    set(name, arr.join(','));
   }
 
   /// Sets a header. The header named [name] will have all its values
@@ -81,7 +82,7 @@ class Headers {
   /// Enumerates the headers, applying the function [f] to each
   /// header. The header name passed in [:name:] will be all lower
   /// case.
-  void forEach(void f(String name, List<String> values)) {
+  void forEach(HeaderForEachCallback f) {
     _map.keys.forEach((key) => f(key, this[key]));
   }
 
@@ -89,7 +90,7 @@ class Headers {
   String toString() {
     var stringBuffer = StringBuffer();
     _map.forEach((key, value) {
-      value.forEach((e)=>stringBuffer.writeln("$key: $e"));
+      value.forEach((e) => stringBuffer.writeln('$key: $e'));
     });
     return stringBuffer.toString();
   }

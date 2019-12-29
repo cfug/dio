@@ -11,7 +11,7 @@ main() async {
 
   Response<String> response;
   response = await dio.get("/?xx=6");
-  response.redirects.forEach((e){
+  response.redirects.forEach((e) {
     print("redirect: ${e.statusCode} ${e.location}");
   });
   print(response.data);

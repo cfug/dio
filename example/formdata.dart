@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
@@ -12,8 +13,8 @@ Future<FormData> FormData1() async {
   return FormData.fromMap({
     "name": "wendux",
     "age": 25,
-    "file": await MultipartFile.fromFile("./example/xx.png",
-        filename: "xx.png"),
+    "file":
+        await MultipartFile.fromFile("./example/xx.png", filename: "xx.png"),
     "files": [
       await MultipartFile.fromFile("./example/upload.txt",
           filename: "upload.txt"),
@@ -29,8 +30,7 @@ Future<FormData> FormData2() async {
 
   formData.files.add(MapEntry(
     "file",
-    await MultipartFile.fromFile("./example/xx.png",
-        filename: "xx.png"),
+    await MultipartFile.fromFile("./example/xx.png", filename: "xx.png"),
   ));
 
   formData.files.addAll([
@@ -75,9 +75,12 @@ main() async {
 
   var formData1 = await FormData1();
   var formData2 = await FormData2();
-  var bytes1=await formData1.readAsBytes() ;
-  var bytes2=await formData2.readAsBytes() ;
-  assert(bytes1.length==bytes2.length);
+  var bytes1 = await formData1.readAsBytes();
+  var bytes2 = await formData2.readAsBytes();
+  assert(bytes1.length == bytes2.length);
+
+  var t = await FormData3();
+  print(utf8.decode(await t.readAsBytes()));
 
   response = await dio.post(
     //"/upload",
@@ -90,5 +93,4 @@ main() async {
     },
   );
   print(response);
-
 }

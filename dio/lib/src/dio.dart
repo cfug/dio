@@ -191,16 +191,16 @@ abstract class Dio {
   /// Dio will enqueue the incoming request tasks instead
   /// send them directly when [interceptor.request] is locked.
 
-  lock();
+  void lock();
 
   /// Unlock the current Dio instance.
   ///
   /// Dio instance dequeue the request task。
-  unlock();
+  void unlock();
 
   ///Clear the current Dio instance waiting queue.
 
-  clear();
+  void clear();
 
   ///  Download the file and save it in local. The default http method is "GET",
   ///  you can custom it by [Options.method].
@@ -330,29 +330,34 @@ abstract class Dio {
 }
 
 abstract class DioMixin implements Dio {
-  /// Default Request config. More see [BaseOptions] .
+  /// Default Request config. More see [BaseOptions].
+  @override
   BaseOptions options;
 
   /// Each Dio instance has a interceptor by which you can intercept requests or responses before they are
   /// handled by `then` or `catchError`. the [interceptor] field
   /// contains a [RequestInterceptor] and a [ResponseInterceptor] instance.
-  ///
-  Interceptors _interceptors = Interceptors();
+  final Interceptors _interceptors = Interceptors();
 
+  @override
   Interceptors get interceptors => _interceptors;
 
+  @override
   HttpClientAdapter httpClientAdapter;
 
+  @override
   Transformer transformer = DefaultTransformer();
 
   bool _closed = false;
 
+  @override
   void close({bool force = false}) {
     _closed = true;
     httpClientAdapter.close(force: force);
   }
 
   /// Handy method to make http GET request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic> queryParameters,
@@ -363,13 +368,14 @@ abstract class DioMixin implements Dio {
     return request<T>(
       path,
       queryParameters: queryParameters,
-      options: checkOptions("GET", options),
+      options: checkOptions('GET', options),
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
     );
   }
 
   /// Handy method to make http GET request, which is a alias of [BaseDio.request].
+  @override
   Future<Response<T>> getUri<T>(
     Uri uri, {
     Options options,
@@ -378,13 +384,14 @@ abstract class DioMixin implements Dio {
   }) {
     return requestUri<T>(
       uri,
-      options: checkOptions("GET", options),
+      options: checkOptions('GET', options),
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
     );
   }
 
   /// Handy method to make http POST request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> post<T>(
     String path, {
     data,
@@ -397,7 +404,7 @@ abstract class DioMixin implements Dio {
     return request<T>(
       path,
       data: data,
-      options: checkOptions("POST", options),
+      options: checkOptions('POST', options),
       queryParameters: queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
@@ -406,6 +413,7 @@ abstract class DioMixin implements Dio {
   }
 
   /// Handy method to make http POST request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> postUri<T>(
     Uri uri, {
     data,
@@ -417,7 +425,7 @@ abstract class DioMixin implements Dio {
     return requestUri<T>(
       uri,
       data: data,
-      options: checkOptions("POST", options),
+      options: checkOptions('POST', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -425,6 +433,7 @@ abstract class DioMixin implements Dio {
   }
 
   /// Handy method to make http PUT request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> put<T>(
     String path, {
     data,
@@ -438,7 +447,7 @@ abstract class DioMixin implements Dio {
       path,
       data: data,
       queryParameters: queryParameters,
-      options: checkOptions("PUT", options),
+      options: checkOptions('PUT', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -446,6 +455,7 @@ abstract class DioMixin implements Dio {
   }
 
   /// Handy method to make http PUT request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> putUri<T>(
     Uri uri, {
     data,
@@ -457,7 +467,7 @@ abstract class DioMixin implements Dio {
     return requestUri<T>(
       uri,
       data: data,
-      options: checkOptions("PUT", options),
+      options: checkOptions('PUT', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -465,6 +475,7 @@ abstract class DioMixin implements Dio {
   }
 
   /// Handy method to make http HEAD request, which is a alias of [BaseDio.request].
+  @override
   Future<Response<T>> head<T>(
     String path, {
     data,
@@ -476,12 +487,13 @@ abstract class DioMixin implements Dio {
       path,
       data: data,
       queryParameters: queryParameters,
-      options: checkOptions("HEAD", options),
+      options: checkOptions('HEAD', options),
       cancelToken: cancelToken,
     );
   }
 
   /// Handy method to make http HEAD request, which is a alias of [BaseDio.request].
+  @override
   Future<Response<T>> headUri<T>(
     Uri uri, {
     data,
@@ -491,12 +503,13 @@ abstract class DioMixin implements Dio {
     return requestUri<T>(
       uri,
       data: data,
-      options: checkOptions("HEAD", options),
+      options: checkOptions('HEAD', options),
       cancelToken: cancelToken,
     );
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> delete<T>(
     String path, {
     data,
@@ -508,12 +521,13 @@ abstract class DioMixin implements Dio {
       path,
       data: data,
       queryParameters: queryParameters,
-      options: checkOptions("DELETE", options),
+      options: checkOptions('DELETE', options),
       cancelToken: cancelToken,
     );
   }
 
   /// Handy method to make http DELETE request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> deleteUri<T>(
     Uri uri, {
     data,
@@ -523,12 +537,13 @@ abstract class DioMixin implements Dio {
     return requestUri<T>(
       uri,
       data: data,
-      options: checkOptions("DELETE", options),
+      options: checkOptions('DELETE', options),
       cancelToken: cancelToken,
     );
   }
 
   /// Handy method to make http PATCH request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> patch<T>(
     String path, {
     data,
@@ -542,7 +557,7 @@ abstract class DioMixin implements Dio {
       path,
       data: data,
       queryParameters: queryParameters,
-      options: checkOptions("PATCH", options),
+      options: checkOptions('PATCH', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -550,6 +565,7 @@ abstract class DioMixin implements Dio {
   }
 
   /// Handy method to make http PATCH request, which is a alias of  [BaseDio.request].
+  @override
   Future<Response<T>> patchUri<T>(
     Uri uri, {
     data,
@@ -561,7 +577,7 @@ abstract class DioMixin implements Dio {
     return requestUri<T>(
       uri,
       data: data,
-      options: checkOptions("PATCH", options),
+      options: checkOptions('PATCH', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
@@ -569,6 +585,7 @@ abstract class DioMixin implements Dio {
   }
 
   /// Assure the final future state is succeed!
+  @override
   Future<Response<T>> resolve<T>(response) {
     if (response is! Future) {
       response = Future.value(response);
@@ -576,18 +593,19 @@ abstract class DioMixin implements Dio {
     return response.then<Response<T>>((data) {
       return assureResponse<T>(data);
     }, onError: (err) {
-      // transform "error" to "success"
+      // transform 'error' to 'success'
       return assureResponse<T>(err);
     });
   }
 
   /// Assure the final future state is failed!
+  @override
   Future<Response<T>> reject<T>(err) {
     if (err is! Future) {
       err = Future.error(err);
     }
     return err.then<Response<T>>((v) {
-      // transform "success" to "error"
+      // transform 'success' to 'error'
       throw assureDioError(v);
     }, onError: (e) {
       throw assureDioError(e);
@@ -598,37 +616,38 @@ abstract class DioMixin implements Dio {
   ///
   /// Dio will enqueue the incoming request tasks instead
   /// send them directly when [interceptor.request] is locked.
-
-  lock() {
+  @override
+  void lock() {
     interceptors.requestLock.lock();
   }
 
   /// Unlock the current Dio instance.
   ///
   /// Dio instance dequeue the request task。
-  unlock() {
+  @override
+  void unlock() {
     interceptors.requestLock.unlock();
   }
 
   ///Clear the current Dio instance waiting queue.
-
-  clear() {
+  @override
+  void clear() {
     interceptors.requestLock.clear();
   }
 
-  ///  Download the file and save it in local. The default http method is "GET",
+  ///  Download the file and save it in local. The default http method is 'GET',
   ///  you can custom it by [Options.method].
   ///
   ///  [urlPath]: The file url.
   ///
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
-  ///  1. A path with String type, eg "xs.jpg"
+  ///  1. A path with String type, eg 'xs.jpg'
   ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
   ///  ```dart
   ///   await dio.download(url,(HttpHeaders responseHeaders){
   ///      ...
-  ///      return "...";
+  ///      return '...';
   ///    });
   ///  ```
   ///
@@ -646,14 +665,15 @@ abstract class DioMixin implements Dio {
   ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
   ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
   ///
-  ///     await dio.download(url, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+  ///     await dio.download(url, './example/flutter.svg',
+  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
   ///     onProgress: (received, total) {
   ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
+  ///        print((received / total * 100).toStringAsFixed(0) + '%');
   ///       }
   ///     });
 
+  @override
   Future<Response> download(
     String urlPath,
     savePath, {
@@ -665,22 +685,22 @@ abstract class DioMixin implements Dio {
     data,
     Options options,
   }) async {
-    throw UnsupportedError("Unsupport download API in browser");
+    throw UnsupportedError('Unsupport download API in browser');
   }
 
-  ///  Download the file and save it in local. The default http method is "GET",
+  ///  Download the file and save it in local. The default http method is 'GET',
   ///  you can custom it by [Options.method].
   ///
   ///  [uri]: The file url.
   ///
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
-  ///  1. A path with String type, eg "xs.jpg"
+  ///  1. A path with String type, eg 'xs.jpg'
   ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
   ///  ```dart
   ///   await dio.downloadUri(uri,(HttpHeaders responseHeaders){
   ///      ...
-  ///      return "...";
+  ///      return '...';
   ///    });
   ///  ```
   ///
@@ -696,13 +716,14 @@ abstract class DioMixin implements Dio {
   ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
   ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
   ///
-  ///     await dio.downloadUri(uri, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+  ///     await dio.downloadUri(uri, './example/flutter.svg',
+  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
   ///     onProgress: (received, total) {
   ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
+  ///        print((received / total * 100).toStringAsFixed(0) + '%');
   ///       }
   ///     });
+  @override
   Future<Response> downloadUri(
     Uri uri,
     savePath, {
@@ -730,7 +751,7 @@ abstract class DioMixin implements Dio {
   /// [path] The url path.
   /// [data] The request data
   /// [options] The request options.
-
+  @override
   Future<Response<T>> request<T>(
     String path, {
     data,
@@ -756,6 +777,7 @@ abstract class DioMixin implements Dio {
   /// [uri] The uri.
   /// [data] The request data
   /// [options] The request options.
+  @override
   Future<Response<T>> requestUri<T>(
     Uri uri, {
     data,
@@ -786,7 +808,7 @@ abstract class DioMixin implements Dio {
     if (_closed) {
       throw DioError(error: "Dio can't establish new connection after closed.");
     }
-    if (options == null) options = Options();
+    options ??= Options();
     if (options is RequestOptions) {
       data = data ?? options.data;
       queryParameters = queryParameters ?? options.queryParameters;
@@ -794,8 +816,7 @@ abstract class DioMixin implements Dio {
       onSendProgress = onSendProgress ?? options.onSendProgress;
       onReceiveProgress = onReceiveProgress ?? options.onReceiveProgress;
     }
-    RequestOptions requestOptions =
-        mergeOptions(options, path, data, queryParameters);
+    var requestOptions = mergeOptions(options, path, data, queryParameters);
     requestOptions.onReceiveProgress = onReceiveProgress;
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
@@ -813,10 +834,10 @@ abstract class DioMixin implements Dio {
 
     // Convert the request/response interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    _interceptorWrapper(interceptor, bool request) {
+    Function _interceptorWrapper(interceptor, bool request) {
       return (data) async {
-        bool type = request ? (data is RequestOptions) : (data is Response);
-        Lock lock =
+        var type = request ? (data is RequestOptions) : (data is Response);
+        var lock =
             request ? interceptors.requestLock : interceptors.responseLock;
         if (_isErrorOrException(data) || type) {
           return listenCancelForAsyncTask(
@@ -840,7 +861,7 @@ abstract class DioMixin implements Dio {
 
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    _errorInterceptorWrapper(errInterceptor) {
+    Function _errorInterceptorWrapper(errInterceptor) {
       return (err) async {
         if (err is! Response) {
           var _e = await errInterceptor(assureDioError(err, requestOptions));
@@ -858,8 +879,8 @@ abstract class DioMixin implements Dio {
     // execute in FIFO order.
 
     // Start the request flow
-    Future future = Future.value(requestOptions);
-
+    Future future;
+    future = Future.value(requestOptions);
     // Add request interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
       future = future.then(_interceptorWrapper(interceptor.onRequest, true));
@@ -891,7 +912,7 @@ abstract class DioMixin implements Dio {
 
   // Initiate Http requests
   Future<Response<T>> _dispatchRequest<T>(RequestOptions options) async {
-    CancelToken cancelToken = options.cancelToken;
+    var cancelToken = options.cancelToken;
     ResponseBody responseBody;
     try {
       var stream = await _transformData(options);
@@ -900,9 +921,9 @@ abstract class DioMixin implements Dio {
         stream,
         cancelToken?.whenCancel,
       );
-      responseBody.headers=responseBody.headers??{};
+      responseBody.headers = responseBody.headers ?? {};
       var headers = Headers.fromMap(responseBody.headers ?? {});
-      Response ret = Response(
+      var ret = Response(
         headers: headers,
         request: options,
         redirects: responseBody.redirects ?? [],
@@ -911,9 +932,9 @@ abstract class DioMixin implements Dio {
         statusMessage: responseBody.statusMessage,
         extra: responseBody.extra,
       );
-      bool statusOk = options.validateStatus(responseBody.statusCode);
+      var statusOk = options.validateStatus(responseBody.statusCode);
       if (statusOk || options.receiveDataWhenStatusError) {
-        bool forceConvert = !(T == dynamic || T == String) &&
+        var forceConvert = !(T == dynamic || T == String) &&
             !(options.responseType == ResponseType.bytes ||
                 options.responseType == ResponseType.stream);
         String contentType;
@@ -939,13 +960,12 @@ abstract class DioMixin implements Dio {
         );
       }
     } catch (e) {
-      DioError err = assureDioError(e, options);
-      throw err;
+      throw assureDioError(e, options);
     }
   }
 
   // If the request has been cancelled, stop request and throw error.
-  checkCancelled(CancelToken cancelToken) {
+  void checkCancelled(CancelToken cancelToken) {
     if (cancelToken != null && cancelToken.cancelError != null) {
       throw cancelToken.cancelError;
     }
@@ -965,12 +985,12 @@ abstract class DioMixin implements Dio {
     List<int> bytes;
     Stream<List<int>> stream;
     if (data != null &&
-        ["POST", "PUT", "PATCH", "DELETE"].contains(options.method)) {
+        ['POST', 'PUT', 'PATCH', 'DELETE'].contains(options.method)) {
       // Handle the FormData
       int length;
       if (data is Stream) {
         assert(data is Stream<List>,
-            "Stream type must be `Stream<List>`, but ${data.runtimeType} is found.");
+            'Stream type must be `Stream<List>`, but ${data.runtimeType} is found.');
         stream = data;
         options.headers.keys.any((String key) {
           if (key.toLowerCase() == Headers.contentLengthHeader) {
@@ -988,7 +1008,7 @@ abstract class DioMixin implements Dio {
         length = data.length;
       } else {
         // Call request transformer.
-        String _data = await transformer.transformRequest(options);
+        var _data = await transformer.transformRequest(options);
         if (options.requestEncoder != null) {
           bytes = options.requestEncoder(_data, options);
         } else {
@@ -998,11 +1018,11 @@ abstract class DioMixin implements Dio {
         // support data sending progress
         length = bytes.length;
 
-        var group = List<List<int>>();
+        var group = <List<int>>[];
         const size = 1024;
-        int groupCount = (bytes.length / size).ceil();
-        for (int i = 0; i < groupCount; ++i) {
-          int start = i * size;
+        var groupCount = (bytes.length / size).ceil();
+        for (var i = 0; i < groupCount; ++i) {
+          var start = i * size;
           group.add(bytes.sublist(start, math.min(start + size, bytes.length)));
         }
         stream = Stream.fromIterable(group);
@@ -1011,9 +1031,8 @@ abstract class DioMixin implements Dio {
       if (length != null) {
         options.headers[Headers.contentLengthHeader] = length.toString();
       }
-      int complete = 0;
-      Stream<Uint8List> byteStream =
-          stream.transform(StreamTransformer.fromHandlers(
+      var complete = 0;
+      var byteStream = stream.transform<Uint8List>(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (options.cancelToken != null && options.cancelToken.isCancelled) {
             sink
@@ -1035,14 +1054,14 @@ abstract class DioMixin implements Dio {
             onTimeout: (sink) {
           sink.addError(DioError(
             request: options,
-            error: "Sending timeout[${options.connectTimeout}ms]",
+            error: 'Sending timeout[${options.connectTimeout}ms]',
             type: DioErrorType.SEND_TIMEOUT,
           ));
           sink.close();
         });
       }
       return byteStream;
-    }else{
+    } else {
       options.headers.remove(Headers.contentTypeHeader);
     }
     return null;
@@ -1053,11 +1072,12 @@ abstract class DioMixin implements Dio {
     var query = (Map<String, dynamic>.from(options.queryParameters ?? {}))
       ..addAll(queryParameters ?? {});
     final optBaseUrl = (opt is RequestOptions) ? opt.baseUrl : null;
-    final optConnectTimeout = (opt is RequestOptions) ? opt.connectTimeout : null;
+    final optConnectTimeout =
+        (opt is RequestOptions) ? opt.connectTimeout : null;
     return RequestOptions(
-      method: (opt.method ?? options.method)?.toUpperCase() ?? "GET",
+      method: (opt.method ?? options.method)?.toUpperCase() ?? 'GET',
       headers: (Map.from(options.headers))..addAll(opt.headers),
-      baseUrl: optBaseUrl ?? options.baseUrl ?? "",
+      baseUrl: optBaseUrl ?? options.baseUrl ?? '',
       path: url,
       data: data,
       connectTimeout: optConnectTimeout ?? options.connectTimeout ?? 0,
@@ -1085,14 +1105,12 @@ abstract class DioMixin implements Dio {
   }
 
   Options checkOptions(method, options) {
-    if (options == null) {
-      options = Options();
-    }
+    options ??= Options();
     options.method = method;
     return options;
   }
 
-  FutureOr checkIfNeedEnqueue(Lock lock, callback()) {
+  FutureOr checkIfNeedEnqueue(Lock lock, EnqueueCallback callback) {
     if (lock.locked) {
       return lock.enqueue(callback);
     } else {

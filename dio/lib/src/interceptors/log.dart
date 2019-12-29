@@ -65,31 +65,31 @@ class LogInterceptor extends Interceptor {
     }
     if (requestHeader) {
       logPrint('headers:');
-      options.headers.forEach((key, v) => printKV(" $key", v));
+      options.headers.forEach((key, v) => printKV(' $key', v));
     }
     if (requestBody) {
-      logPrint("data:");
+      logPrint('data:');
       printAll(options.data);
     }
-    logPrint("");
+    logPrint('');
   }
 
   @override
   Future onError(DioError err) async {
     if (error) {
       logPrint('*** DioError ***:');
-      logPrint("uri: ${err.request.uri}");
-      logPrint("$err");
+      logPrint('uri: ${err.request.uri}');
+      logPrint('$err');
       if (err.response != null) {
         _printResponse(err.response);
       }
-      logPrint("");
+      logPrint('');
     }
   }
 
   @override
   Future onResponse(Response response) async {
-    logPrint("*** Response ***");
+    logPrint('*** Response ***');
     _printResponse(response);
   }
 
@@ -101,22 +101,22 @@ class LogInterceptor extends Interceptor {
         printKV('redirect', response.realUri);
       }
       if (response.headers != null) {
-        logPrint("headers:");
-        response.headers.forEach((key, v) => printKV(" $key", v.join(",")));
+        logPrint('headers:');
+        response.headers.forEach((key, v) => printKV(' $key', v.join(',')));
       }
     }
     if (responseBody) {
-      logPrint("Response Text:");
+      logPrint('Response Text:');
       printAll(response.toString());
     }
-    logPrint("");
+    logPrint('');
   }
 
-  printKV(String key, Object v) {
+  void printKV(String key, Object v) {
     logPrint('$key: $v');
   }
 
-  printAll(msg) {
-    msg.toString().split("\n").forEach(logPrint);
+  void printAll(msg) {
+    msg.toString().split('\n').forEach(logPrint);
   }
 }

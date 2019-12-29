@@ -44,12 +44,13 @@ class DioError implements Exception {
   /// is DioErrorType.DEFAULT
   dynamic error;
 
-  String get message => (error?.toString() ?? "");
+  String get message => (error?.toString() ?? '');
 
+  @override
   String toString() {
-    var msg = "DioError [$type]: $message";
+    var msg = 'DioError [$type]: $message';
     if (error is Error) {
-      msg += "\n${error.stackTrace}";
+      msg += '\n${error.stackTrace}';
     }
     return msg;
   }

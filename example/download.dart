@@ -36,9 +36,9 @@ Future download2(Dio dio, String url, String savePath) async {
       onReceiveProgress: showDownloadProgress,
       //Received data with List<int>
       options: Options(
-        responseType: ResponseType.bytes,
-        followRedirects: false,
-      ),
+          responseType: ResponseType.bytes,
+          followRedirects: false,
+          receiveTimeout: 0),
     );
     print(response.headers);
     File file = File(savePath);

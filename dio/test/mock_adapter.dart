@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 
 class MockAdapter extends HttpClientAdapter {
   static const String mockHost = "mockserver";
   static const String mockBase = "http://$mockHost";
-  DefaultHttpClientAdapter _adapter =
-      DefaultHttpClientAdapter();
-
+  DefaultHttpClientAdapter _adapter = DefaultHttpClientAdapter();
   @override
   Future<ResponseBody> fetch(RequestOptions options,
       Stream<List<int>> requestStream, Future cancelFuture) async {
@@ -29,10 +28,12 @@ class MockAdapter extends HttpClientAdapter {
           );
         case "/download":
           return ResponseBody(
-            File("./README.md").openRead(),
+            File("./README.md").openRead().cast<Uint8List>(),
             200,
             headers: {
-              Headers.contentLengthHeader: [File("./README.md").lengthSync().toString()],
+              Headers.contentLengthHeader: [
+                File("./README.md").lengthSync().toString()
+              ],
             },
           );
 
@@ -54,8 +55,7 @@ class MockAdapter extends HttpClientAdapter {
           return ResponseBody.fromString("", 404);
       }
     }
-    return _adapter.fetch(
-        options, requestStream, cancelFuture);
+    return _adapter.fetch(options, requestStream, cancelFuture);
   }
 
   @override

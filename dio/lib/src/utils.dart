@@ -4,7 +4,7 @@ import 'dart:convert';
 
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
-final RegExp _ASCII_ONLY = RegExp(r"^[\x00-\x7F]+$");
+final RegExp _ASCII_ONLY = RegExp(r'^[\x00-\x7F]+$');
 
 /// Returns whether [string] is composed entirely of ASCII-compatible
 /// characters.
@@ -26,69 +26,36 @@ Future writeStreamToSink(Stream stream, EventSink sink) {
 Encoding encodingForCharset(String charset, [Encoding fallback = latin1]) {
   if (charset == null) return fallback;
   var encoding = Encoding.getByName(charset);
-  return encoding == null ? fallback : encoding;
+  return encoding ?? fallback;
 }
 
-//String encodeMap(data,String handler(String key, dynamic value)) {
-//  StringBuffer urlData = StringBuffer("");
-//  bool first = true;
-//  void urlEncode(dynamic sub, String path) {
-//    if (sub is List) {
-//      for (int i = 0; i < sub.length; i++) {
-//        urlEncode(sub[i],
-//            "$path%5B${(sub[i] is Map || sub[i] is List) ? i : ''}%5D");
-//      }
-//    } else if (sub is Map) {
-//      sub.forEach((k, v) {
-//        if (path == "") {
-//          urlEncode(v, "${Uri.encodeQueryComponent(k)}");
-//        } else {
-//          urlEncode(v, "$path%5B${Uri.encodeQueryComponent(k)}%5D");
-//        }
-//      });
-//    } else {
-//      var str=handler(path,sub);
-//      bool isNotEmpty=str!=null&&str.trim().isNotEmpty;
-//      if (!first&&isNotEmpty) {
-//        urlData.write("&");
-//      }
-//      first = false;
-//      if(isNotEmpty) {
-//        urlData.write(str);
-//      }
-//    }
-//  }
-//
-//  urlEncode(data, "");
-//  return urlData.toString();
-//}
+typedef DioEncodeHandler = Function(String key, Object value);
 
-String encodeMap(data, String handler(String key, dynamic value),
-    {bool encode = true}) {
-  StringBuffer urlData = StringBuffer("");
-  bool first = true;
-  String leftBracket = encode ? "%5B" : "[";
-  String rightBracket = encode ? "%5D" : "]";
+String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
+  var urlData = StringBuffer('');
+  var first = true;
+  var leftBracket = encode ? '%5B' : '[';
+  var rightBracket = encode ? '%5D' : ']';
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
-      for (int i = 0; i < sub.length; i++) {
+      for (var i = 0; i < sub.length; i++) {
         urlEncode(sub[i],
-            "$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket");
+            '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket');
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {
-        if (path == "") {
-          urlEncode(v, "${encodeComponent(k)}");
+        if (path == '') {
+          urlEncode(v, '${encodeComponent(k)}');
         } else {
-          urlEncode(v, "$path$leftBracket${encodeComponent(k)}$rightBracket");
+          urlEncode(v, '$path$leftBracket${encodeComponent(k)}$rightBracket');
         }
       });
     } else {
       var str = handler(path, sub);
-      bool isNotEmpty = str != null && str.trim().isNotEmpty;
+      var isNotEmpty = str != null && str.trim().isNotEmpty;
       if (!first && isNotEmpty) {
-        urlData.write("&");
+        urlData.write('&');
       }
       first = false;
       if (isNotEmpty) {
@@ -97,6 +64,6 @@ String encodeMap(data, String handler(String key, dynamic value),
     }
   }
 
-  urlEncode(data, "");
+  urlEncode(data, '');
   return urlData.toString();
 }

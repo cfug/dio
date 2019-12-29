@@ -7,7 +7,7 @@ import 'utils.dart';
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 class FormData {
-  static const String _BOUNDARY_PRE_TAG = "--dio-boundary-";
+  static const String _BOUNDARY_PRE_TAG = '--dio-boundary-';
   static const _BOUNDARY_LENGTH = _BOUNDARY_PRE_TAG.length + 10;
 
   /// The boundary of FormData, it consists of a constant prefix and a random
@@ -17,13 +17,13 @@ class FormData {
 
   String get boundary => _boundary;
 
-  final _newlineRegExp = RegExp(r"\r\n|\r|\n");
+  final _newlineRegExp = RegExp(r'\r\n|\r|\n');
 
   /// The form fields to send for this request.
-  final List<MapEntry<String, String>> fields = [];
+  final fields = <MapEntry<String, String>>[];
 
   /// The [files].
-  final files = List<MapEntry<String, MultipartFile>>();
+  final files = <MapEntry<String, MultipartFile>>[];
 
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
@@ -51,9 +51,9 @@ class FormData {
     );
   }
 
-  _init() {
+  void _init() {
     // Assure the boundary unpredictable and unique
-    Random random = Random();
+    var random = Random();
     _boundary = _BOUNDARY_PRE_TAG +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
@@ -75,12 +75,13 @@ class FormData {
   /// contain only ASCII characters.
   String _headerForFile(MapEntry<String, MultipartFile> entry) {
     var file = entry.value;
-    var header = 'content-disposition: form-data; name="${_browserEncode(entry.key)}"';
+    var header =
+        'content-disposition: form-data; name="${_browserEncode(entry.key)}"';
     if (file.filename != null) {
       header = '$header; filename="${_browserEncode(file.filename)}"';
     }
     header = '$header\r\n'
-      'content-type: ${file.contentType}';
+        'content-type: ${file.contentType}';
     return '$header\r\n\r\n';
   }
 
@@ -91,7 +92,7 @@ class FormData {
     // follow this at all. Instead, they URL-encode `\r`, `\n`, and `\r\n` as
     // `\r\n`; URL-encode `"`; and do nothing else (even for `%` or non-ASCII
     // characters). We follow their behavior.
-    return value.replaceAll(_newlineRegExp, "%0D%0A").replaceAll('"', "%22");
+    return value.replaceAll(_newlineRegExp, '%0D%0A').replaceAll('"', '%22');
   }
 
   /// The total length of the request body, in bytes. This is calculated from
@@ -99,24 +100,24 @@ class FormData {
   int get length {
     var length = 0;
     fields.forEach((entry) {
-      length += "--".length +
+      length += '--'.length +
           _BOUNDARY_LENGTH +
-          "\r\n".length +
+          '\r\n'.length +
           utf8.encode(_headerForField(entry.key, entry.value)).length +
           utf8.encode(entry.value).length +
-          "\r\n".length;
+          '\r\n'.length;
     });
 
     for (var file in files) {
-      length += "--".length +
+      length += '--'.length +
           _BOUNDARY_LENGTH +
-          "\r\n".length +
+          '\r\n'.length +
           utf8.encode(_headerForFile(file)).length +
           file.value.length +
-          "\r\n".length;
+          '\r\n'.length;
     }
 
-    return length + "--".length + _BOUNDARY_LENGTH + "--\r\n".length;
+    return length + '--'.length + _BOUNDARY_LENGTH + '--\r\n'.length;
   }
 
   Stream<List<int>> finalize() {
@@ -129,8 +130,8 @@ class FormData {
       controller.add(utf8.encode(string));
     }
 
-    writeUtf8(String string) => controller.add(utf8.encode(string));
-    writeLine() => controller.add([13, 10]); // \r\n
+    void writeUtf8(String string) => controller.add(utf8.encode(string));
+    void writeLine() => controller.add([13, 10]); // \r\n
 
     fields.forEach((entry) {
       writeAscii('--$boundary\r\n');
@@ -153,6 +154,6 @@ class FormData {
 
   ///Transform the entire FormData contents as a list of bytes asynchronously.
   Future<List<int>> readAsBytes() {
-    return finalize().reduce((a, b) => []..addAll(a)..addAll(b));
+    return finalize().reduce((a, b) => [...a, ...b]);
   }
 }

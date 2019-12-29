@@ -37,7 +37,7 @@ abstract class Transformer {
   static String urlEncodeMap(Map map) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
-      return "$key=${Uri.encodeQueryComponent(value.toString())}";
+      return '$key=${Uri.encodeQueryComponent(value.toString())}';
     });
   }
 }
@@ -53,8 +53,9 @@ class DefaultTransformer extends Transformer {
 
   JsonDecodeCallback jsonDecodeCallback;
 
+  @override
   Future<String> transformRequest(RequestOptions options) async {
-    var data = options.data ?? "";
+    var data = options.data ?? '';
     if (data is! String) {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
@@ -67,19 +68,22 @@ class DefaultTransformer extends Transformer {
 
   /// As an agreement, you must return the [response]
   /// when the Options.responseType is [ResponseType.stream].
+  @override
   Future transformResponse(
       RequestOptions options, ResponseBody response) async {
     if (options.responseType == ResponseType.stream) {
       return response;
     }
-    int length = 0;
-    int received = 0;
-    bool showDownloadProgress = options.onReceiveProgress != null;
+    var length = 0;
+    var received = 0;
+    var showDownloadProgress = options.onReceiveProgress != null;
     if (showDownloadProgress) {
-      length = int.parse(response.headers[Headers.contentLengthHeader]?.first ?? "-1");
+      length = int.parse(
+          response.headers[Headers.contentLengthHeader]?.first ?? '-1');
     }
-    Completer completer = Completer();
-    Stream stream = response.stream.transform(StreamTransformer.fromHandlers(
+    var completer = Completer();
+    var stream =
+        response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         sink.add(Uint8List.fromList(data));
         if (showDownloadProgress) {
@@ -88,7 +92,7 @@ class DefaultTransformer extends Transformer {
         }
       },
     ));
-    List<int> buffer = List<int>();
+    var buffer = <int>[];
     StreamSubscription subscription;
     subscription = stream.listen(
       (element) => buffer.addAll(element),
@@ -108,7 +112,7 @@ class DefaultTransformer extends Transformer {
         await subscription.cancel();
         throw DioError(
           request: options,
-          error: "Receiving data timeout[${options.receiveTimeout}ms]",
+          error: 'Receiving data timeout[${options.receiveTimeout}ms]',
           type: DioErrorType.RECEIVE_TIMEOUT,
         );
       }

@@ -242,6 +242,7 @@ class RequestOptions extends Options {
         );
 
   /// Create a Option from current instance with merging attributes.
+  @override
   RequestOptions merge({
     String method,
     int sendTimeout,
@@ -269,20 +270,21 @@ class RequestOptions extends Options {
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      connectTimeout: connectTimeout??this.connectTimeout,
-      data: data??this.data,
-      path: path??this.path,
-      queryParameters:queryParameters??this.queryParameters,
-      baseUrl: baseUrl??this.baseUrl,
-      onReceiveProgress: onReceiveProgress??this.onReceiveProgress,
-      onSendProgress:onSendProgress??this.onSendProgress,
-      cancelToken: cancelToken??this.cancelToken,
+      connectTimeout: connectTimeout ?? this.connectTimeout,
+      data: data ?? this.data,
+      path: path ?? this.path,
+      queryParameters: queryParameters ?? this.queryParameters,
+      baseUrl: baseUrl ?? this.baseUrl,
+      onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
+      onSendProgress: onSendProgress ?? this.onSendProgress,
+      cancelToken: cancelToken ?? this.cancelToken,
       extra: extra ?? Map.from(this.extra ?? {}),
       headers: headers ?? Map.from(this.headers ?? {}),
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
-      receiveDataWhenStatusError: receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
+      receiveDataWhenStatusError:
+          receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder,
@@ -292,15 +294,15 @@ class RequestOptions extends Options {
 
   /// generate uri
   Uri get uri {
-    String _url = path;
-    if (!_url.startsWith(RegExp(r"https?:"))) {
+    var _url = path;
+    if (!_url.startsWith(RegExp(r'https?:'))) {
       _url = baseUrl + _url;
-      List<String> s = _url.split(":/");
-      _url = s[0] + ':/' + s[1].replaceAll("//", "/");
+      var s = _url.split(':/');
+      _url = s[0] + ':/' + s[1].replaceAll('//', '/');
     }
-    String query = Transformer.urlEncodeMap(queryParameters);
+    var query = Transformer.urlEncodeMap(queryParameters);
     if (query.isNotEmpty) {
-      _url += (_url.contains("?") ? "&" : "?") + query;
+      _url += (_url.contains('?') ? '&' : '?') + query;
     }
     // Normalize the url.
     return Uri.parse(_url).normalizePath();
@@ -309,12 +311,12 @@ class RequestOptions extends Options {
   /// Request data, can be any type.
   dynamic data;
 
-  /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
+  /// Request base url, it can contain sub path, like: 'https://www.google.com/api/'.
   String baseUrl;
 
-  /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
+  /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
-  String path = "";
+  String path = '';
 
   /// See [Uri.queryParameters]
   Map<String, dynamic> queryParameters;
@@ -348,13 +350,17 @@ class _RequestConfig {
     this.headers = headers ?? {};
     this.extra = extra ?? {};
     this.contentType = contentType;
-    this.headers = this.headers.map((key, v) => MapEntry(key.toString(), v));
+    this.headers =
+        this.headers.map((key, v) => MapEntry(key.toLowerCase().toString(), v));
   }
 
   /// Http method.
   String method;
 
-  /// Http request headers.
+  /// Http request headers. The keys of initial headers will be converted to lowercase,
+  /// for example 'Content-Type' will be converted to 'content-type'.
+  ///
+  /// You should use lowercase as the key name when you need to set the request header.
   Map<String, dynamic> headers;
 
   /// Timeout in milliseconds for sending data.
@@ -365,24 +371,25 @@ class _RequestConfig {
   ///  Timeout in milliseconds for receiving data.
   ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT] type
   ///  when time out.
+  ///
+  /// [0] meanings no timeout limit.
   int receiveTimeout;
 
   /// The request Content-Type. The default value is [ContentType.json].
-  /// If you want to encode request body with "application/x-www-form-urlencoded",
-  /// you can set `ContentType.parse("application/x-www-form-urlencoded")`, and [Dio]
+  /// If you want to encode request body with 'application/x-www-form-urlencoded',
+  /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
   /// will automatically encode the request body.
   set contentType(String contentType) {
-    this.headers[Headers.contentTypeHeader] =
-        contentType?.toLowerCase()?.trim();
+    headers[Headers.contentTypeHeader] = contentType?.toLowerCase()?.trim();
   }
 
-  get contentType => this.headers[Headers.contentTypeHeader];
+  String get contentType => headers[Headers.contentTypeHeader];
 
   /// [responseType] indicates the type of data that the server will respond with
   /// options which defined in [ResponseType] are `json`, `stream`, `plain`.
   ///
   /// The default value is `json`, dio will parse response string to json object automatically
-  /// when the content-type of response is "application/json".
+  /// when the content-type of response is 'application/json'.
   ///
   /// If you want to receive response data with binary bytes, for example,
   /// downloading a image, use `stream`.

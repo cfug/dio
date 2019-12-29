@@ -10,7 +10,7 @@ HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// These are aborted if the client is closed.
-  final _xhrs = List<HttpRequest>();
+  final _xhrs = <HttpRequest>[];
 
   /// Whether to send credentials such as cookies or authorization headers for
   /// cross-site requests.
@@ -47,7 +47,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             body,
             xhr.status,
             headers: xhr.responseHeaders
-                .map((k, v) => MapEntry(k.toLowerCase(), v.split(","))),
+                .map((k, v) => MapEntry(k.toLowerCase(), v.split(','))),
             statusMessage: xhr.statusText,
             isRedirect: xhr.status == 302 || xhr.status == 301,
           ),
@@ -73,7 +73,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       completer.completeError(
         DioError(
           type: DioErrorType.RESPONSE,
-          error: "XMLHttpRequest error.",
+          error: 'XMLHttpRequest error.',
           request: options,
         ),
         StackTrace.current,
@@ -94,7 +94,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       xhr.send();
     } else {
       requestStream
-          .reduce((a, b) => Uint8List.fromList([]..addAll(a)..addAll(b)))
+          .reduce((a, b) => Uint8List.fromList([...a, ...b]))
           .then(xhr.send);
     }
 
@@ -106,6 +106,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// Closes the client.
   ///
   /// This terminates all active requests.
+  @override
   void close({bool force = false}) {
     if (force) {
       for (var xhr in _xhrs) {

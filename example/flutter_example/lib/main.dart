@@ -19,7 +19,7 @@ parseJson(String text) {
 void main() {
   // add interceptors
   //dio.interceptors.add(CookieManager(CookieJar()));
-    dio.interceptors.add(LogInterceptor());
+  dio.interceptors.add(LogInterceptor());
   //(dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
   dio.options.receiveTimeout = 15000;
 //  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
@@ -67,12 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         padding: EdgeInsets.all(16),
         child: Column(children: [
-
           RaisedButton(
             child: Text("Request"),
             onPressed: () {
-
-              dio.get<String>("https://www.thelotent.com/WSVistaWebClient/OData.svc/GetNowShowingSessions?\$format=json&\$filter=CinemaId+eq+%27100%27").then((r) {
+              dio
+                  .get<String>(
+                      "https://www.thelotent.com/WSVistaWebClient/OData.svc/GetNowShowingSessions?\$format=json&\$filter=CinemaId+eq+%27100%27")
+                  .then((r) {
                 setState(() {
                   print(r.data);
                   _text = r.data.replaceAll(RegExp(r"\s"), "");
@@ -81,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           RaisedButton(
-
             child: Text("Open new page5"),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {

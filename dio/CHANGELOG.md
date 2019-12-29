@@ -1,4 +1,8 @@
-#3.0.7 2019.11.25
+# 3.0.8 2019.12.29
+
+- Code style improvement
+
+# 3.0.7 2019.11.25
 
 - Merge #574 : fix upload image header error, support both oss and other server
 

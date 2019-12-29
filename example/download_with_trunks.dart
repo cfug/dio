@@ -53,7 +53,7 @@ Future downloadWithChunks(
 
   Future mergeTempFiles(chunk) async {
     File f = File(savePath + "temp0");
-    IOSink ioSink= f.openWrite(mode: FileMode.writeOnlyAppend);
+    IOSink ioSink = f.openWrite(mode: FileMode.writeOnlyAppend);
     for (int i = 1; i < chunk; ++i) {
       File _f = File(savePath + "temp$i");
       await ioSink.addStream(_f.openRead());
@@ -67,8 +67,8 @@ Future downloadWithChunks(
   if (response.statusCode == 206) {
     total = int.parse(
         response.headers.value(HttpHeaders.contentRangeHeader).split("/").last);
-    int reserved = total -
-        int.parse(response.headers.value(Headers.contentLengthHeader));
+    int reserved =
+        total - int.parse(response.headers.value(Headers.contentLengthHeader));
     int chunk = (reserved / firstChunkSize).ceil() + 1;
     if (chunk > 1) {
       int chunkSize = firstChunkSize;

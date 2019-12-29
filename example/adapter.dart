@@ -3,8 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 
 class MyAdapter extends HttpClientAdapter {
-  DefaultHttpClientAdapter _adapter =
-      DefaultHttpClientAdapter();
+  DefaultHttpClientAdapter _adapter = DefaultHttpClientAdapter();
 
   @override
   Future<ResponseBody> fetch(RequestOptions options,
@@ -24,7 +23,7 @@ class MyAdapter extends HttpClientAdapter {
 }
 
 main() async {
-  var dio =  Dio();
+  var dio = Dio();
   dio.httpClientAdapter = MyAdapter();
   Response response = await dio.get("https://google.com");
   print(response);

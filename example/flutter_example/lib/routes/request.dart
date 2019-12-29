@@ -7,7 +7,7 @@ class RequestRoute extends StatefulWidget {
 }
 
 class _RequestRouteState extends State<RequestRoute> {
-  String _text="";
+  String _text = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,9 +20,9 @@ class _RequestRouteState extends State<RequestRoute> {
           RaisedButton(
             child: Text("Request"),
             onPressed: () {
-              dio.get<String>("http://httpbin.org/get").then((r){
+              dio.get<String>("http://httpbin.org/get").then((r) {
                 setState(() {
-                  _text=r.data;
+                  _text = r.data;
                 });
               });
             },
