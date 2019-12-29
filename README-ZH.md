@@ -399,7 +399,7 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ```dart
 tokenDio = Dio(); //Create a instance to request the token.
-tokenDio.options = dio;
+tokenDio.options = dio.options;
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(Options options) async {
         // If no token, request token firstly and lock this interceptor
@@ -503,11 +503,12 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 ```dart
  {
-  /// 响应信息, 如果错误发生在在服务器返回数据之前，它为 `null`
-  Response response;
+  /// Request info.
+  RequestOptions request;
 
-  /// 错误描述.
-  String message;
+  /// Response info, it may be `null` if the request can't reach to
+  /// the http server, for example, occurring a dns error, network is not available.
+  Response response;
 
   /// 错误类型，见下文
   DioErrorType type;
@@ -521,13 +522,13 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 ```dart
 enum DioErrorType {
-  /// When opening  url timeout, it occurs.
+  /// It occurs when url is opened timeout.
   CONNECT_TIMEOUT,
 
-  ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
-  ///
-  ///  Note: This is not the receiving time limitation.
+  /// It occurs when url is sent timeout.
+  SEND_TIMEOUT,
+
+  ///It occurs when receiving timeout.
   RECEIVE_TIMEOUT,
 
   /// When the server response, but with a incorrect status, such as 404, 503...
@@ -535,7 +536,7 @@ enum DioErrorType {
 
   /// When the request is cancelled, dio will throw a error with this type.
   CANCEL,
-
+  
   /// Default error type, Some other Error. In this case, you can
   /// read the DioError.error if it is not null.
   DEFAULT

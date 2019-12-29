@@ -576,7 +576,7 @@ dio.post("/info", data:{"id":5},
 You can also send FormData with Dio, which will send data in the `multipart/form-data`, and it supports uploading files.
 
 ```dart
-FormData formData = FormData.from({
+FormData formData = FormData.fromMap({
     "name": "wendux",
     "age": 25,
     "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt")
