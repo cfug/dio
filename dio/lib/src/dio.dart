@@ -198,6 +198,9 @@ abstract class Dio {
   /// Dio instance dequeue the request task。
   void unlock();
 
+  /// Whether Dio instance is currently locked.
+  bool locked();
+
   ///Clear the current Dio instance waiting queue.
 
   void clear();
@@ -627,6 +630,13 @@ abstract class DioMixin implements Dio {
   @override
   void unlock() {
     interceptors.requestLock.unlock();
+  }
+
+  /// Whether Dio instance is currently locked.
+
+  @override
+  bool locked() {
+    return interceptors.requestLock.locked;
   }
 
   ///Clear the current Dio instance waiting queue.
