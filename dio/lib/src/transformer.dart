@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
-import 'options.dart';
 import 'dio_error.dart';
 import 'headers.dart';
+import 'options.dart';
 import 'utils.dart';
 
 /// [Transformer] allows changes to the request/response data before
@@ -83,21 +84,29 @@ class DefaultTransformer extends Transformer {
     }
     var completer = Completer();
     var stream =
-        response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
+    response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
-        sink.add(Uint8List.fromList(data));
+        sink.add(data);
         if (showDownloadProgress) {
           received += data.length;
           options.onReceiveProgress(received, length);
         }
       },
     ));
-    var buffer = <int>[];
-    StreamSubscription subscription;
-    subscription = stream.listen(
-      (element) => buffer.addAll(element),
-      onError: (e) => completer.completeError(e),
-      onDone: () => completer.complete(),
+    // let's keep references to the data chunks and concatenate them later
+    final List<Uint8List> chunks = [];
+    int finalSize = 0;
+    StreamSubscription subscription = stream.listen(
+          (chunk) {
+        finalSize += chunk.length;
+        chunks.add(chunk);
+      },
+      onError: (e) {
+        completer.completeError(e);
+      },
+      onDone: () {
+        completer.complete();
+      },
       cancelOnError: true,
     );
     // ignore: unawaited_futures
@@ -119,13 +128,22 @@ class DefaultTransformer extends Transformer {
     } else {
       await completer.future;
     }
-    if (options.responseType == ResponseType.bytes) return buffer;
+    // we create a final Uint8List and copy all chunks into it
+    final responseBytes = Uint8List(finalSize);
+    int chunkOffset = 0;
+    for (var chunk in chunks) {
+      responseBytes.setAll(chunkOffset, chunk);
+      chunkOffset += chunk.length;
+    }
+
+    if (options.responseType == ResponseType.bytes) return responseBytes;
+
     String responseBody;
     if (options.responseDecoder != null) {
-      responseBody =
-          options.responseDecoder(buffer, options, response..stream = null);
+      responseBody = options.responseDecoder(
+          responseBytes, options, response..stream = null);
     } else {
-      responseBody = utf8.decode(buffer, allowMalformed: true);
+      responseBody = utf8.decode(responseBytes, allowMalformed: true);
     }
     if (responseBody != null &&
         responseBody.isNotEmpty &&
