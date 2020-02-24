@@ -94,8 +94,8 @@ class DefaultTransformer extends Transformer {
       },
     ));
     // let's keep references to the data chunks and concatenate them later
-    final List<Uint8List> chunks = [];
-    int finalSize = 0;
+    final  chunks = <Uint8List>[];
+    var finalSize = 0;
     StreamSubscription subscription = stream.listen(
           (chunk) {
         finalSize += chunk.length;
@@ -130,7 +130,7 @@ class DefaultTransformer extends Transformer {
     }
     // we create a final Uint8List and copy all chunks into it
     final responseBytes = Uint8List(finalSize);
-    int chunkOffset = 0;
+    var chunkOffset = 0;
     for (var chunk in chunks) {
       responseBytes.setAll(chunkOffset, chunk);
       chunkOffset += chunk.length;

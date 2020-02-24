@@ -1,5 +1,3 @@
-cd package_src
-pwd
-pub get
+cd dio
 pub run test
 

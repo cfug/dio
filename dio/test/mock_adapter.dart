@@ -9,6 +9,7 @@ class MockAdapter extends HttpClientAdapter {
   static const String mockHost = "mockserver";
   static const String mockBase = "http://$mockHost";
   DefaultHttpClientAdapter _adapter = DefaultHttpClientAdapter();
+
   @override
   Future<ResponseBody> fetch(RequestOptions options,
       Stream<List<int>> requestStream, Future cancelFuture) async {
@@ -27,15 +28,18 @@ class MockAdapter extends HttpClientAdapter {
             },
           );
         case "/download":
-          return ResponseBody(
-            File("./README.md").openRead().cast<Uint8List>(),
-            200,
-            headers: {
-              Headers.contentLengthHeader: [
-                File("./README.md").lengthSync().toString()
-              ],
-            },
-          );
+          return Future.delayed(Duration(milliseconds: 300), () {
+            return ResponseBody(
+              File("./README.md").openRead().cast<Uint8List>(),
+              200,
+              headers: {
+                Headers.contentLengthHeader: [
+                  File("./README.md").lengthSync().toString()
+                ],
+              },
+            );
+          });
+          break;
 
         case "/token":
           {
