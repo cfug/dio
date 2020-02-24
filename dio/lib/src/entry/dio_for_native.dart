@@ -114,6 +114,9 @@ class DioForNative with DioMixin implements Dio {
       file = File(savePath.toString());
     }
 
+    //If directory (or file) doesn't exist yet, the entire method fails
+    file.createSync(recursive: true);
+
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
     // file with a very big size(up 1G), it will be expensive in memory.
