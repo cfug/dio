@@ -17,6 +17,7 @@ dio/.dart_tool/
 dio/.pub/
 dio/.idea/
 dio/.exampl
+dio/coverage
 
 # plugins
 plugins/cookie_manager/.packages

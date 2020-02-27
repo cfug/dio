@@ -4,6 +4,16 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'mock_adapter.dart';
 
+class MyInterceptor extends Interceptor {
+  int requestCount = 0;
+
+  @override
+  Future onRequest(RequestOptions options) {
+    requestCount++;
+    return super.onRequest(options);
+  }
+}
+
 void main() {
   group('#test Request Interceptor', () {
     Dio dio;
@@ -108,6 +118,8 @@ void main() {
       Dio tokenDio = Dio();
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
+      var myInter = MyInterceptor();
+      dio.interceptors.add(myInter);
       dio.interceptors
           .add(InterceptorsWrapper(onRequest: (RequestOptions options) {
         if (csrfToken == null) {
@@ -135,6 +147,10 @@ void main() {
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);
+      assert(myInter.requestCount > 0);
+      dio.interceptors[0] = myInter;
+      dio.interceptors.clear();
+      assert(dio.interceptors.isEmpty == true);
     });
   });
 }

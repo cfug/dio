@@ -49,7 +49,6 @@ class Headers {
     var arr = this[name];
     if (arr == null) return set(name, value);
     arr.add(value);
-    set(name, arr.join(','));
   }
 
   /// Sets a header. The header named [name] will have all its values

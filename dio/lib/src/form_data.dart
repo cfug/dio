@@ -10,11 +10,11 @@ class FormData {
   static const String _BOUNDARY_PRE_TAG = '--dio-boundary-';
   static const _BOUNDARY_LENGTH = _BOUNDARY_PRE_TAG.length + 10;
 
-  /// The boundary of FormData, it consists of a constant prefix and a random
-  /// postfix to assure the the boundary unpredictable and unique, each FormData
-  /// instance will be different. And you can custom it by yourself.
   String _boundary;
 
+  /// The boundary of FormData, it consists of a constant prefix and a random
+  /// postfix to assure the the boundary unpredictable and unique, each FormData
+  /// instance will be different.
   String get boundary => _boundary;
 
   final _newlineRegExp = RegExp(r'\r\n|\r|\n');
@@ -154,6 +154,6 @@ class FormData {
 
   ///Transform the entire FormData contents as a list of bytes asynchronously.
   Future<List<int>> readAsBytes() {
-    return finalize().reduce((a, b) => [...a, ...b]);
+    return Future(()=>finalize().reduce((a, b) => [...a, ...b]));
   }
 }

@@ -86,7 +86,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       stream,
       responseStream.statusCode,
       headers: headers,
-      isRedirect: responseStream.isRedirect,
+      isRedirect: responseStream.isRedirect||responseStream.redirects.isNotEmpty,
       redirects: responseStream.redirects
           .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
           .toList(),

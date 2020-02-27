@@ -16,7 +16,7 @@ HttpServer _server;
 
 Encoding requiredEncodingForCharset(String charset) =>
     Encoding.getByName(charset) ??
-        (throw FormatException('Unsupported encoding "$charset".'));
+    (throw FormatException('Unsupported encoding "$charset".'));
 
 /// The URL for the current server instance.
 Uri get serverUrl => Uri.parse('http://localhost:${_server.port}');
@@ -29,9 +29,11 @@ Future<void> startServer() async {
       var response = request.response;
 
       if (path == '/error') {
+        const content = 'error';
         response
           ..statusCode = 400
-          ..contentLength = 0;
+          ..contentLength = content.length
+          ..write(content);
         unawaited(response.close());
         return;
       }
@@ -66,8 +68,7 @@ Future<void> startServer() async {
       }
 
       if (path == '/list') {
-        response.headers.contentType =
-            ContentType('application', 'json');
+        response.headers.contentType = ContentType('application', 'json');
         response
           ..statusCode = 200
           ..contentLength = -1
@@ -78,11 +79,15 @@ Future<void> startServer() async {
 
       if (path == "/download") {
         const content = 'I am a text file';
+        response.headers.set("content-encoding", 'plain');
         response
           ..statusCode = 200
           ..contentLength = content.length
           ..write(content);
-        unawaited(response.close());
+
+        Future.delayed(Duration(milliseconds: 300), () {
+          response.close();
+        });
         return;
       }
 

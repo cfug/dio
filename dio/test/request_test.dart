@@ -20,7 +20,16 @@ void main() {
       dio = Dio();
       dio.options
         ..baseUrl = serverUrl.toString()
+        ..connectTimeout = 1000
+        ..receiveTimeout = 5000
         ..headers = {'User-Agent': 'dartisan'};
+      dio.interceptors.add(LogInterceptor(
+        responseBody: true,
+        requestBody: true,
+        logPrint: (log) => {
+          // ignore log
+        },
+      ));
     });
     test('#test restful APIs', () async {
       Response response;
@@ -61,6 +70,64 @@ void main() {
       expect(dio.get('/error').catchError((e) => throw e.response.statusCode),
           throwsA(equals(400)));
 
+      // redirect test
+      response = await dio.get(
+        '/redirect',
+        onReceiveProgress: (received, total) {
+          // ignore progress
+        },
+      );
+      assert(response.isRedirect == true);
+      assert(response.redirects.length == 1);
+      var ri = response.redirects.first;
+      assert(ri.statusCode == 302);
+      assert(ri.method == "GET");
+    });
+
+    test('#test request with URI', () async {
+      Response response;
+
+      // test get
+      response = await dio.getUri(
+        Uri(path: '/test', queryParameters: {'id': '12', 'name': 'wendu'}),
+      );
+      expect(response.statusCode, 200);
+      expect(response.isRedirect, false);
+      expect(response.data['query'], equals('id=12&name=wendu'));
+      expect(response.headers.value('single'), equals('value'));
+
+      const map = {'content': 'I am playload'};
+
+      // test post
+      response = await dio.postUri(Uri(path: '/test'), data: map);
+      expect(response.data['method'], 'POST');
+      expect(response.data['body'], jsonEncode(map));
+
+      // test put
+      response = await dio.putUri(Uri(path: '/test'), data: map);
+      expect(response.data['method'], 'PUT');
+      expect(response.data['body'], jsonEncode(map));
+
+      // test patch
+      response = await dio.patchUri(Uri(path: '/test'), data: map);
+      expect(response.data['method'], 'PATCH');
+      expect(response.data['body'], jsonEncode(map));
+
+      // test head
+      response = await dio.deleteUri(Uri(path: '/test'), data: map);
+      expect(response.data['method'], 'DELETE');
+      expect(response.data['path'], '/test');
+    });
+
+    test('#test redirect', () async {
+      Response response;
+      response = await dio.get('/redirect');
+      assert(response.isRedirect == true);
+      assert(response.redirects.length == 1);
+      var ri = response.redirects.first;
+      assert(ri.statusCode == 302);
+      assert(ri.method == "GET");
+      assert(ri.location.path == '/');
     });
 
     test('#test generic parameters', () async {

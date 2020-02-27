@@ -44,11 +44,11 @@ class MockAdapter extends HttpClientAdapter {
         case "/token":
           {
             var t = "ABCDEFGHIJKLMN".split("")..shuffle();
-            return ResponseBody.fromString(
-              jsonEncode({
+            return ResponseBody.fromBytes(
+              utf8.encode(jsonEncode({
                 "errCode": 0,
                 "data": {"token": t.join()}
-              }),
+              })),
               200,
               headers: {
                 Headers.contentTypeHeader: [Headers.jsonContentType],
