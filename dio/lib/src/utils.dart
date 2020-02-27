@@ -4,11 +4,11 @@ import 'dart:convert';
 
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
-final RegExp _ASCII_ONLY = RegExp(r'^[\x00-\x7F]+$');
+final RegExp _asciiOnly = RegExp(r'^[\x00-\x7F]+$');
 
 /// Returns whether [string] is composed entirely of ASCII-compatible
 /// characters.
-bool isPlainAscii(String string) => _ASCII_ONLY.hasMatch(string);
+bool isPlainAscii(String string) => _asciiOnly.hasMatch(string);
 
 /// Pipes all data and errors from [stream] into [sink]. Completes [Future] once
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is

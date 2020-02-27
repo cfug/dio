@@ -144,7 +144,7 @@ class DioForNative with DioMixin implements Dio {
     StreamSubscription subscription;
     Future asyncWrite;
     var closed = false;
-    void _closeAndDelete() async {
+    Future _closeAndDelete() async {
       if (!closed) {
         closed = true;
         await asyncWrite;
