@@ -151,7 +151,7 @@ response = await dio.post("/info", data: formData);
 Uploading multiple files to server by FormData:
 
 ```dart
-FormData.fromMap({
+FormData formData = FormData.fromMap({
     "name": "wendux",
     "age": 25,
     "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt"),
