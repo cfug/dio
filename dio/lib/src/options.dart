@@ -137,7 +137,7 @@ class BaseOptions extends _RequestConfig {
 
 /// Every request can pass an [Options] object which will be merged with [Dio.options]
 class Options extends _RequestConfig {
-  Options({
+  const Options({
     String method,
     int sendTimeout,
     int receiveTimeout,
