@@ -55,6 +55,28 @@ class MockAdapter extends HttpClientAdapter {
               },
             );
           }
+        case "/todos":
+          {
+            var t = "ABCDEFGHIJKLMN".split("")..shuffle();
+            return ResponseBody.fromString(
+              jsonEncode({
+                "_embedded": {
+                  "todos": [
+                    {
+                      "id": 1
+                    }
+                  ]
+                },
+                "_links": {"self": {
+                  "href": "todos"
+                }}
+              }),
+              200,
+              headers: {
+                Headers.contentTypeHeader: [Headers.jsonContentType],
+              },
+            );
+          }
         default:
           return ResponseBody.fromString("", 404);
       }

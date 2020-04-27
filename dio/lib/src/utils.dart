@@ -73,5 +73,6 @@ String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
 bool isJsonMime(String contentType) {
   if (contentType == null) return false;
   final mediaType = MediaType.parse(contentType);
-  return mediaType.type == "application" && mediaType.subtype.contains("json");
+  return mediaType.type == "application" &&
+      mediaType.subtype.contains(RegExp(r"\+?json"));
 }

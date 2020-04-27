@@ -84,7 +84,7 @@ class DefaultTransformer extends Transformer {
     }
     var completer = Completer();
     var stream =
-    response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
+        response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         sink.add(data);
         if (showDownloadProgress) {
@@ -94,10 +94,10 @@ class DefaultTransformer extends Transformer {
       },
     ));
     // let's keep references to the data chunks and concatenate them later
-    final  chunks = <Uint8List>[];
+    final chunks = <Uint8List>[];
     var finalSize = 0;
     StreamSubscription subscription = stream.listen(
-          (chunk) {
+      (chunk) {
         finalSize += chunk.length;
         chunks.add(chunk);
       },
@@ -157,5 +157,4 @@ class DefaultTransformer extends Transformer {
     }
     return responseBody;
   }
-
 }
