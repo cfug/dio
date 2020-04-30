@@ -54,7 +54,7 @@ class Http2Adapter extends HttpClientAdapter {
     // Creates a new outgoing stream.
     var stream = transport.makeRequest(
       headers,
-      endStream: false,
+      endStream: true,
     );
     var _ = cancelFuture?.whenComplete(() {
       Future.delayed(Duration(seconds: 0)).then((e) {
