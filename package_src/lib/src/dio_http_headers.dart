@@ -52,7 +52,11 @@ class DioHttpHeaders implements HttpHeaders {
     return values[0];
   }
 
-  void add(String name, value) {
+  void add(
+    String name,
+    value, {
+    bool preserveHeaderCase = false,
+  }) {
     _addAll(_validateField(name), value);
   }
 
@@ -67,7 +71,11 @@ class DioHttpHeaders implements HttpHeaders {
     }
   }
 
-  void set(String name, Object value) {
+  void set(
+    String name,
+    Object value, {
+    bool preserveHeaderCase = false,
+  }) {
     name = _validateField(name);
     _headers.remove(name);
     if (name == HttpHeaders.transferEncodingHeader) {
