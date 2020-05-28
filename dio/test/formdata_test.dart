@@ -4,6 +4,7 @@
 @TestOn('vm')
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -22,22 +23,22 @@ void main() {
     var fmStr = await fm.readAsBytes();
     var f = File('../dio/test/_formdata');
     var content = f.readAsStringSync();
-    content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
+    content = content.replaceAll('--dio-boundary-1399962793', fm.boundary);
     assert(utf8.decode(fmStr, allowMalformed: true) == content);
-    expect(fm.readAsBytes(),throwsA(const TypeMatcher<StateError>()));
+    expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
     var fm1 = FormData();
     fm1.fields.add(MapEntry('name', 'wendux'));
     fm1.fields.add(MapEntry('age', '25'));
     fm1.files.add(MapEntry('file', MultipartFile.fromString('hellow world.')));
     fm1.files.add(MapEntry(
-      'files[]',
+      'files',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '1.txt'),
     ));
     fm1.files.add(MapEntry(
-      'files[]',
+      'files',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
     ));
-    assert(fmStr.length==fm1.length);
+    assert(fmStr.length == fm1.length);
   });
 }

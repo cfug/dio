@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'dart:convert';
 
 /// A regular expression that matches strings that are composed entirely of
@@ -41,7 +40,7 @@ String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
     if (sub is List) {
       for (var i = 0; i < sub.length; i++) {
         urlEncode(sub[i],
-            '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket');
+            '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '${(sub[i] is Map || sub[i] is List) ? i : ''}' + rightBracket : ''}');
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {
