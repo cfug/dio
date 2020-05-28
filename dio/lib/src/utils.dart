@@ -40,7 +40,7 @@ String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
     if (sub is List) {
       for (var i = 0; i < sub.length; i++) {
         urlEncode(sub[i],
-            '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '${(sub[i] is Map || sub[i] is List) ? i : ''}' + rightBracket : ''}');
+            '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {
