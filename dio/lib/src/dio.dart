@@ -1091,7 +1091,7 @@ abstract class DioMixin implements Dio {
       validateStatus: opt.validateStatus ??
           options.validateStatus ??
           (int status) {
-            return status >= 200 && status < 300 || status == 304;
+            return status >= 200 && status < 300;
           },
       receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
           options.receiveDataWhenStatusError ??
