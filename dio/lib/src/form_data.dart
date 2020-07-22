@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'multipart_file.dart';
 import 'utils.dart';
+import 'package:http/http.dart' as http;
 
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
@@ -10,11 +10,11 @@ class FormData {
   static const String _BOUNDARY_PRE_TAG = '--dio-boundary-';
   static const _BOUNDARY_LENGTH = _BOUNDARY_PRE_TAG.length + 10;
 
-  String _boundary;
-
   /// The boundary of FormData, it consists of a constant prefix and a random
   /// postfix to assure the the boundary unpredictable and unique, each FormData
-  /// instance will be different.
+  /// instance will be different. And you can custom it by yourself.
+  String _boundary;
+
   String get boundary => _boundary;
 
   final _newlineRegExp = RegExp(r'\r\n|\r|\n');
@@ -23,7 +23,7 @@ class FormData {
   final fields = <MapEntry<String, String>>[];
 
   /// The [files].
-  final files = <MapEntry<String, MultipartFile>>[];
+  final files = <MapEntry<String, http.MultipartFile>>[];
 
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
@@ -38,9 +38,9 @@ class FormData {
     _init();
     encodeMap(
       map,
-      (key, value) {
+          (key, value) {
         if (value == null) return null;
-        if (value is MultipartFile) {
+        if (value is http.MultipartFile) {
           files.add(MapEntry(key, value));
         } else {
           fields.add(MapEntry(key, value.toString()));
@@ -73,7 +73,7 @@ class FormData {
 
   /// Returns the header string for a file. The return value is guaranteed to
   /// contain only ASCII characters.
-  String _headerForFile(MapEntry<String, MultipartFile> entry) {
+  String _headerForFile(MapEntry<String, http.MultipartFile> entry) {
     var file = entry.value;
     var header =
         'content-disposition: form-data; name="${_browserEncode(entry.key)}"';
@@ -154,6 +154,6 @@ class FormData {
 
   ///Transform the entire FormData contents as a list of bytes asynchronously.
   Future<List<int>> readAsBytes() {
-    return Future(()=>finalize().reduce((a, b) => [...a, ...b]));
+    return finalize().reduce((a, b) => [...a, ...b]);
   }
 }
