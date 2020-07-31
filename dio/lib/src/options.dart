@@ -375,7 +375,7 @@ class _RequestConfig {
   /// [0] meanings no timeout limit.
   int receiveTimeout;
 
-  /// The request Content-Type. The default value is [ContentType.json].
+  /// The request Content-Type. The default value is [ContentType.json.mimeType].
   /// If you want to encode request body with 'application/x-www-form-urlencoded',
   /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
   /// will automatically encode the request body.
