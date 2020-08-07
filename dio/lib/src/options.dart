@@ -137,7 +137,7 @@ class BaseOptions extends _RequestConfig {
 
 /// Every request can pass an [Options] object which will be merged with [Dio.options]
 class Options extends _RequestConfig {
-  Options({
+ Options({
     String method,
     int sendTimeout,
     int receiveTimeout,
@@ -350,8 +350,6 @@ class _RequestConfig {
     this.headers = headers ?? {};
     this.extra = extra ?? {};
     this.contentType = contentType;
-    this.headers =
-        this.headers.map((key, v) => MapEntry(key.toLowerCase().toString(), v));
   }
 
   /// Http method.
@@ -380,7 +378,7 @@ class _RequestConfig {
   /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
   /// will automatically encode the request body.
   set contentType(String contentType) {
-    headers[Headers.contentTypeHeader] = contentType?.toLowerCase()?.trim();
+    headers[Headers.contentTypeHeader] = contentType?.trim();
   }
 
   String get contentType => headers[Headers.contentTypeHeader];

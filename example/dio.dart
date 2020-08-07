@@ -13,6 +13,7 @@ main() async {
     ..headers = {
       HttpHeaders.userAgentHeader: 'dio',
       'common-header': 'xx',
+      'Common-header': 'xx',
     };
 
 // Or you can create dio instance and config it as follow:

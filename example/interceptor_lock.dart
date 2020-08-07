@@ -9,7 +9,8 @@ main() async {
   String csrfToken;
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   tokenDio.options = dio.options;
-  dio.interceptors.add(InterceptorsWrapper(onRequest: (RequestOptions options) {
+  dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (RequestOptions options) {
     print('send request：path:${options.path}，baseURL:${options.baseUrl}');
     if (csrfToken == null) {
       print("no token，request token firstly...");

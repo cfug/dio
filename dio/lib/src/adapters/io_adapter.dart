@@ -86,7 +86,8 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       stream,
       responseStream.statusCode,
       headers: headers,
-      isRedirect: responseStream.isRedirect||responseStream.redirects.isNotEmpty,
+      isRedirect:
+          responseStream.isRedirect || responseStream.redirects.isNotEmpty,
       redirects: responseStream.redirects
           .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
           .toList(),
@@ -100,6 +101,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         : null;
     if (cancelFuture != null) {
       var _httpClient = HttpClient();
+      _httpClient.userAgent = null;
       if (onHttpClientCreate != null) {
         //user can return a HttpClient instance
         _httpClient = onHttpClientCreate(_httpClient) ?? _httpClient;

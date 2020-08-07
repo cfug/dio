@@ -862,16 +862,19 @@ abstract class DioMixin implements Dio {
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     Function _errorInterceptorWrapper(errInterceptor) {
-      return (err) async {
-        if (err is! Response) {
-          var _e = await errInterceptor(assureDioError(err, requestOptions));
-          if (_e is! Response) {
-            throw assureDioError(_e ?? err, requestOptions);
+      return (err) {
+        return checkIfNeedEnqueue(interceptors.errorLock, (){
+          if (err is! Response) {
+            return errInterceptor(assureDioError(err, requestOptions)).then((e){
+              if (e is! Response) {
+                throw assureDioError(e ?? err, requestOptions);
+              }
+              return e;
+            });
           }
-          err = _e;
-        }
-        // err is a Response instance
-        return err;
+          // err is a Response instance
+          return err;
+        });
       };
     }
 
@@ -1032,7 +1035,8 @@ abstract class DioMixin implements Dio {
         options.headers[Headers.contentLengthHeader] = length.toString();
       }
       var complete = 0;
-      var byteStream = stream.transform<Uint8List>(StreamTransformer.fromHandlers(
+      var byteStream =
+          stream.transform<Uint8List>(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (options.cancelToken != null && options.cancelToken.isCancelled) {
             sink

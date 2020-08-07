@@ -47,7 +47,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             body,
             xhr.status,
             headers: xhr.responseHeaders
-                .map((k, v) => MapEntry(k.toLowerCase(), v.split(','))),
+                .map((k, v) => MapEntry(k, v.split(','))),
             statusMessage: xhr.statusText,
             isRedirect: xhr.status == 302 || xhr.status == 301,
           ),

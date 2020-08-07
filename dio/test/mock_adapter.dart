@@ -27,6 +27,35 @@ class MockAdapter extends HttpClientAdapter {
               Headers.contentTypeHeader: [Headers.jsonContentType],
             },
           );
+          break;
+        case "/test-auth":
+          {
+            return Future.delayed(Duration(milliseconds: 300), () {
+              if (options.headers['csrfToken'] == null) {
+                return ResponseBody.fromString(
+                  jsonEncode({
+                    "errCode": -1,
+                    "data": {"path": uri.path}
+                  }),
+                  401,
+                  headers: {
+                    Headers.contentTypeHeader: [Headers.jsonContentType],
+                  },
+                );
+              }
+              return ResponseBody.fromString(
+                jsonEncode({
+                  "errCode": 0,
+                  "data": {"path": uri.path}
+                }),
+                200,
+                headers: {
+                  Headers.contentTypeHeader: [Headers.jsonContentType],
+                },
+              );
+            });
+          }
+          break;
         case "/download":
           return Future.delayed(Duration(milliseconds: 300), () {
             return ResponseBody(
