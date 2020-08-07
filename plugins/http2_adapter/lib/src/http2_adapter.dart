@@ -11,6 +11,7 @@ part 'client_setting.dart';
 
 part 'connection_manager_imp.dart';
 
+
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter extends HttpClientAdapter {
   final ConnectionManager _connectionMgr;
@@ -34,8 +35,8 @@ class Http2Adapter extends HttpClientAdapter {
     Future cancelFuture,
     List<RedirectRecord> redirects,
   ) async {
-    var transport = await _connectionMgr.getConnection(options);
-    var uri = options.uri;
+    final transport = await _connectionMgr.getConnection(options);
+    final uri = options.uri;
     var path = uri.path;
     if (uri.query.trim().isNotEmpty) path += ("?" + uri.query);
     if (!path.startsWith("/")) path = "/" + path;
@@ -45,6 +46,7 @@ class Http2Adapter extends HttpClientAdapter {
       Header.ascii(':scheme', uri.scheme),
       Header.ascii(':authority', uri.host),
     ];
+
     // Add custom headers
     headers.addAll(
       options.headers.keys
@@ -52,23 +54,27 @@ class Http2Adapter extends HttpClientAdapter {
           .toList(),
     );
     // Creates a new outgoing stream.
-    var stream = transport.makeRequest(
-      headers,
-      endStream: false,
-    );
-    var _ = cancelFuture?.whenComplete(() {
+    final stream = transport.makeRequest(headers);
+    cancelFuture?.whenComplete(() {
       Future.delayed(Duration(seconds: 0)).then((e) {
         stream.terminate();
       });
     });
 
-    var sc = StreamController<Uint8List>();
-    Headers responseHeaders = Headers();
+    await (requestStream
+      ?.listen((data) {
+          stream.outgoingMessages.add(DataStreamMessage(data));
+      })
+      ?.asFuture());
+    await stream.outgoingMessages.close();
+
+    final sc = StreamController<Uint8List>();
+    final Headers responseHeaders = Headers();
     Completer completer = Completer();
     var statusCode;
-    bool needRedirect = false;
+    var needRedirect = false;
     StreamSubscription subscription;
-    bool needResponse = false;
+    var needResponse = false;
     subscription = stream.incomingMessages.listen(
       (message) async {
         if (message is HeadersStreamMessage) {
@@ -77,6 +83,7 @@ class Http2Adapter extends HttpClientAdapter {
             var value = utf8.decode(header.value);
             responseHeaders.add(name, value);
           }
+
           var status = responseHeaders.value(":status");
           statusCode = int.parse(status);
           responseHeaders.removeAll(":status");
@@ -85,26 +92,17 @@ class Http2Adapter extends HttpClientAdapter {
               [301, 302, 303, 307, 308].contains(statusCode);
           needResponse = !needRedirect && options.validateStatus(statusCode) ||
               options.receiveDataWhenStatusError;
-          if (needResponse) {
-            // Write outgoing stream
-            await requestStream
-                ?.listen((data) =>
-                    stream.outgoingMessages.add(DataStreamMessage(data)))
-                ?.asFuture();
-            await stream.outgoingMessages.close();
-          }
           completer.complete();
         } else if (message is DataStreamMessage) {
           if (needResponse) {
             sc.add(Uint8List.fromList(message.bytes));
           } else {
-            var _ = subscription.cancel().whenComplete(() => sc.close());
+            subscription.cancel().whenComplete(() => sc.close());
           }
         }
       },
       onDone: () => sc.close(),
       onError: (e) {
-        print(e);
         // If connection is being forcefully terminated, remove the connection
         if (e is TransportConnectionException) {
           _connectionMgr.removeConnection(transport);

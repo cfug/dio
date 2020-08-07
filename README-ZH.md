@@ -181,7 +181,7 @@ dio.options.connectTimeout = 5000; //5s
 dio.options.receiveTimeout = 3000;
 
 // 或者通过传递一个 `options`来创建dio实例
-Options options = BaseOptions(
+BaseOptions options = BaseOptions(
     baseUrl: "https://www.xx.com/api",
     connectTimeout: 5000,
     receiveTimeout: 3000,
@@ -564,7 +564,7 @@ dio.post("/info",data:{"id":5},
 Dio支持发送 FormData, 请求数据将会以 `multipart/form-data`方式编码, FormData中可以一个或多个包含文件 .
 
 ```dart
-FormData formData = FormData.from({
+FormData formData = FormData.fromMap({
     "name": "wendux",
     "age": 25,
     "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt")

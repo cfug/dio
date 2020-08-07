@@ -23,4 +23,15 @@ void main() {
     );
     assert(response.statusCode == 404);
   });
+
+  test("request with payload", () async {
+    final dio = Dio()
+      ..options.baseUrl = "https://postman-echo.com/"
+      ..httpClientAdapter = Http2Adapter(ConnectionManager(
+        idleTimeout: 10,
+      ));
+
+    final res = await dio.post("post", data: "TEST");
+    assert(res.data["data"] == "TEST");
+  });
 }
