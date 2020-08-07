@@ -1,3 +1,11 @@
+
+# 3.0.10 2020.8.7
+
+1. fix #877 'dio.interceptors.errorLock.lock()'
+2. fix #851
+3. fix #641
+
+
 # 3.0.9 2020.2.24
 
 - Add test cases
