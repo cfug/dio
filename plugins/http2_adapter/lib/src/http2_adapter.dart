@@ -50,7 +50,7 @@ class Http2Adapter extends HttpClientAdapter {
     // Add custom headers
     headers.addAll(
       options.headers.keys
-          .map((key) => Header.ascii(key, options.headers[key]))
+          .map((key) => Header.ascii(key, options.headers[key]??''))
           .toList(),
     );
     // Creates a new outgoing stream.

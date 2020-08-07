@@ -15,10 +15,10 @@ void getHttp() async {
 }
 
 main() async {
-  //await getHttp();
+  await getHttp();
 
-  var response = await Dio().get("http://flutterchina.club");
-  print(response.isRedirect);
+//  var response = await Dio().get("http://flutterchina.club");
+//  print(response.isRedirect);
 
 //  var t = await MultipartFile.fromBytes([5]);
 //  print(t);
