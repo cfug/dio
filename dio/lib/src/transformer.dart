@@ -35,11 +35,12 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   ///
-  static String urlEncodeMap(Map map) {
+  static String urlEncodeMap(Map map, {UriEncoder encoder}) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
-      return '$key=${Uri.encodeQueryComponent(value.toString())}';
-    });
+      var encoded = encoder ?? Uri.encodeQueryComponent;
+      return '$key=${encoded(value.toString())}';
+    }, encoder: encoder);
   }
 }
 
@@ -61,7 +62,7 @@ class DefaultTransformer extends Transformer {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map) {
-        return Transformer.urlEncodeMap(data);
+        return Transformer.urlEncodeMap(data, encoder: options.uriEncoder);
       }
     }
     return data.toString();

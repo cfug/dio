@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'dart:convert';
 
+import 'options.dart';
+
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
 final RegExp _asciiOnly = RegExp(r'^[\x00-\x7F]+$');
@@ -31,12 +33,12 @@ Encoding encodingForCharset(String charset, [Encoding fallback = latin1]) {
 
 typedef DioEncodeHandler = Function(String key, Object value);
 
-String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
+String encodeMap(data, DioEncodeHandler handler, {bool encode = true, UriEncoder encoder}) {
   var urlData = StringBuffer('');
   var first = true;
   var leftBracket = encode ? '%5B' : '[';
   var rightBracket = encode ? '%5D' : ']';
-  var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
+  var encodeComponent = encode ? encoder ?? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
       for (var i = 0; i < sub.length; i++) {

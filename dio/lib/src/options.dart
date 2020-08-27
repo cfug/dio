@@ -45,6 +45,7 @@ typedef ResponseDecoder = String Function(
     List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
 typedef RequestEncoder = List<int> Function(
     String request, RequestOptions options);
+typedef UriEncoder = String Function(String component);
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
@@ -64,6 +65,7 @@ class BaseOptions extends _RequestConfig {
     bool receiveDataWhenStatusError = true,
     bool followRedirects = true,
     int maxRedirects = 5,
+    UriEncoder uriEncoder,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) : super(
@@ -78,6 +80,7 @@ class BaseOptions extends _RequestConfig {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           maxRedirects: maxRedirects,
+          uriEncoder: uriEncoder,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
         );
@@ -99,6 +102,7 @@ class BaseOptions extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    UriEncoder uriEncoder,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
@@ -118,6 +122,7 @@ class BaseOptions extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      uriEncoder: uriEncoder ?? this.uriEncoder,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
@@ -149,6 +154,7 @@ class Options extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    UriEncoder uriEncoder,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) : super(
@@ -163,6 +169,7 @@ class Options extends _RequestConfig {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           maxRedirects: maxRedirects,
+          uriEncoder: uriEncoder,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
         );
@@ -180,6 +187,7 @@ class Options extends _RequestConfig {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    UriEncoder uriEncoder,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
@@ -196,6 +204,7 @@ class Options extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      uriEncoder: uriEncoder ?? this.uriEncoder,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
@@ -223,6 +232,7 @@ class RequestOptions extends Options {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    UriEncoder uriEncoder,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) : super(
@@ -237,6 +247,7 @@ class RequestOptions extends Options {
           receiveDataWhenStatusError: receiveDataWhenStatusError,
           followRedirects: followRedirects,
           maxRedirects: maxRedirects,
+          uriEncoder: uriEncoder,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
         );
@@ -263,6 +274,7 @@ class RequestOptions extends Options {
     bool receiveDataWhenStatusError,
     bool followRedirects,
     int maxRedirects,
+    UriEncoder uriEncoder,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
   }) {
@@ -287,6 +299,7 @@ class RequestOptions extends Options {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
+      uriEncoder: uriEncoder ?? this.uriEncoder,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
@@ -300,7 +313,7 @@ class RequestOptions extends Options {
       var s = _url.split(':/');
       _url = s[0] + ':/' + s[1].replaceAll('//', '/');
     }
-    var query = Transformer.urlEncodeMap(queryParameters);
+    var query = Transformer.urlEncodeMap(queryParameters, encoder: this.uriEncoder);
     if (query.isNotEmpty) {
       _url += (_url.contains('?') ? '&' : '?') + query;
     }
@@ -344,6 +357,7 @@ class _RequestConfig {
     this.receiveDataWhenStatusError = true,
     this.followRedirects = true,
     this.maxRedirects = 5,
+    this.uriEncoder,
     this.requestEncoder,
     this.responseDecoder,
   }) {
@@ -418,6 +432,11 @@ class _RequestConfig {
   ///
   /// The default value is 5.
   int maxRedirects;
+
+  /// This uri encoder function is to customize query and x-www-form-urlencoded encoding functions. 
+  /// The default is Uri.encodeQueryComponent, 
+  /// which can be modified to any other custom encoding function
+  UriEncoder uriEncoder;
 
   /// The default request encoder is utf8encoder, you can set custom
   /// encoder by this option.
