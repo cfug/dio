@@ -19,6 +19,7 @@ void main() {
       queryParameters: map,
       extra: map,
       headers: map,
+      uriEncoder: Uri.encodeComponent,
       contentType: "application/json",
       followRedirects: false,
     );
@@ -40,6 +41,7 @@ void main() {
     assert(opt1.extra['b'] == '6');
     assert(opt1.queryParameters['b'] == null);
     assert(opt1.contentType == 'text/html');
+    assert(opt1.uriEncoder('2020-08-27 00:00:00') == '2020-08-27%2000%3A00%3A00');
 
     var opt2 = Options(
       method: 'get',
@@ -47,6 +49,7 @@ void main() {
       sendTimeout: 2000,
       extra: map,
       headers: map,
+      uriEncoder: Uri.encodeComponent,
       contentType: "application/json",
       followRedirects: false,
     );
@@ -64,6 +67,7 @@ void main() {
     assert(opt3.headers['b'] == '6');
     assert(opt3.extra['b'] == '6');
     assert(opt3.contentType == 'text/html');
+    assert(opt3.uriEncoder('2020-08-27 00:00:00') == '2020-08-27%2000%3A00%3A00');
 
     var opt4 = RequestOptions(
       sendTimeout: 2000,
@@ -87,6 +91,7 @@ void main() {
     assert(opt5.extra['b'] == '6');
     assert(opt5.data == 'xx=5');
     assert(opt5.path == '/');
+    assert(opt5.uriEncoder ==  null);
   });
 
   test('#test headers', () {

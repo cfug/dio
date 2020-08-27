@@ -22,6 +22,7 @@ void main() {
         ..baseUrl = serverUrl.toString()
         ..connectTimeout = 1000
         ..receiveTimeout = 5000
+        ..uriEncoder = Uri.encodeComponent
         ..headers = {'User-Agent': 'dartisan'};
       dio.interceptors.add(LogInterceptor(
         responseBody: true,
@@ -37,12 +38,20 @@ void main() {
       // test get
       response = await dio.get(
         '/test',
-        queryParameters: {'id': '12', 'name': 'wendu'},
+        queryParameters: {'id': '12', 'name': 'wendu', 'timeSpace': '2020-08-27 00:00:00'},
+        options: Options(uriEncoder: Uri.encodeQueryComponent)
       );
       expect(response.statusCode, 200);
       expect(response.isRedirect, false);
-      expect(response.data['query'], equals('id=12&name=wendu'));
+      expect(response.data['query'], equals('id=12&name=wendu&timeSpace=2020-08-27+00%3A00%3A00'));
       expect(response.headers.value('single'), equals('value'));
+
+      response = await dio.get(
+        '/test',
+        queryParameters: {'id': '12', 'name': 'wendu', 'timeSpace': '2020-08-27 00:00:00'},
+        options: Options(uriEncoder: Uri.encodeComponent)
+      );
+      expect(response.data['query'], equals('id=12&name=wendu&timeSpace=2020-08-27%2000%3A00%3A00'));
 
       const map = {'content': 'I am playload'};
 
@@ -50,6 +59,11 @@ void main() {
       response = await dio.post('/test', data: map);
       expect(response.data['method'], 'POST');
       expect(response.data['body'], jsonEncode(map));
+
+      // test post
+      response = await dio.post('/test', data: map, options: Options(contentType: 'application/x-www-form-urlencoded; charset=utf-8'));
+      expect(response.data['method'], 'POST');
+      expect(response.data['body'], 'content=I%20am%20playload');
 
       // test put
       response = await dio.put('/test', data: map);
