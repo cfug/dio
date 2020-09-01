@@ -39,23 +39,17 @@ String encodeMap(data, DioEncodeHandler handler,
   var first = true;
   var leftBracket = encode ? '%5B' : '[';
   var rightBracket = encode ? '%5D' : ']';
-
+  var separatorChar = getSeparatorChar(collectionFormat);
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
-      if (collectionFormat == CollectionFormat.csv) {
-        urlEncode(sub.join(','), path);
-      } else if (collectionFormat == CollectionFormat.multi) {
+      if (collectionFormat == CollectionFormat.multi) {
         for (var i = 0; i < sub.length; i++) {
           urlEncode(sub[i],
               '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
         }
-      } else if (collectionFormat == CollectionFormat.ssv) {
-        urlEncode(sub.join(' '), path);
-      } else if (collectionFormat == CollectionFormat.tsv) {
-        urlEncode(sub.join(r'\t'), path);
-      } else if (collectionFormat == CollectionFormat.pipes) {
-        urlEncode(sub.join('|'), path);
+      } else {
+        urlEncode(sub.join(separatorChar), path);
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {
@@ -80,4 +74,24 @@ String encodeMap(data, DioEncodeHandler handler,
 
   urlEncode(data, '');
   return urlData.toString();
+}
+
+String getSeparatorChar(CollectionFormat collectionFormat) {
+  switch (collectionFormat) {
+    case CollectionFormat.csv:
+      return ',';
+      break;
+    case CollectionFormat.ssv:
+      return ' ';
+      break;
+    case CollectionFormat.tsv:
+      return r'\t';
+      break;
+    case CollectionFormat.pipes:
+      return '|';
+      break;
+    default:
+      return '';
+      break;
+  }
 }
