@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+
+import 'package:dio/dio.dart';
+
 import 'multipart_file.dart';
 import 'utils.dart';
 
@@ -47,6 +50,7 @@ class FormData {
         }
         return null;
       },
+      collectionFormat: CollectionFormat.multi,
       encode: false,
     );
   }
@@ -154,6 +158,6 @@ class FormData {
 
   ///Transform the entire FormData contents as a list of bytes asynchronously.
   Future<List<int>> readAsBytes() {
-    return Future(()=>finalize().reduce((a, b) => [...a, ...b]));
+    return Future(() => finalize().reduce((a, b) => [...a, ...b]));
   }
 }

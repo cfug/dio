@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
+
 import 'adapter.dart';
+import 'cancel_token.dart';
 import 'headers.dart';
 import 'transformer.dart';
-import 'cancel_token.dart';
 
 /// Callback to listen the progress for sending/receiving data.
 ///
@@ -40,6 +42,27 @@ enum ResponseType {
   bytes
 }
 
+// CollectionFormat specifies the array format
+// (a single parameter with multiple parameter or multiple parameters with the same name)
+// and the separator for array items.
+enum CollectionFormat {
+  // Comma-separated values
+  // e.g. (foo,bar,baz)
+  csv,
+  // Space-separated values
+  // e.g. (foo bar baz)
+  ssv,
+  // Space-separated values
+  // e.g. (foo\tbar\tbaz)
+  tsv,
+  // Space-separated values
+  // e.g. (foo\tbar\tbaz)
+  pipes,
+  // Multiple parameter instances rather than multiple values.
+  // e.g. (foo=value&foo=another_value)
+  multi,
+}
+
 typedef ValidateStatus = bool Function(int status);
 typedef ResponseDecoder = String Function(
     List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
@@ -66,6 +89,7 @@ class BaseOptions extends _RequestConfig {
     int maxRedirects = 5,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    CollectionFormat collectionFormat = CollectionFormat.csv,
   }) : super(
           method: method,
           receiveTimeout: receiveTimeout,
@@ -80,6 +104,7 @@ class BaseOptions extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
+          collectionFormat: collectionFormat,
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -101,26 +126,27 @@ class BaseOptions extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    CollectionFormat collectionFormat,
   }) {
     return BaseOptions(
-      method: method ?? this.method,
-      baseUrl: baseUrl ?? this.baseUrl,
-      queryParameters: queryParameters ?? this.queryParameters,
-      connectTimeout: connectTimeout ?? this.connectTimeout,
-      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      sendTimeout: sendTimeout ?? this.sendTimeout,
-      extra: extra ?? Map.from(this.extra ?? {}),
-      headers: headers ?? Map.from(this.headers ?? {}),
-      responseType: responseType ?? this.responseType,
-      contentType: contentType ?? this.contentType,
-      validateStatus: validateStatus ?? this.validateStatus,
-      receiveDataWhenStatusError:
-          receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
-      followRedirects: followRedirects ?? this.followRedirects,
-      maxRedirects: maxRedirects ?? this.maxRedirects,
-      requestEncoder: requestEncoder,
-      responseDecoder: responseDecoder ?? this.responseDecoder,
-    );
+        method: method ?? this.method,
+        baseUrl: baseUrl ?? this.baseUrl,
+        queryParameters: queryParameters ?? this.queryParameters,
+        connectTimeout: connectTimeout ?? this.connectTimeout,
+        receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+        sendTimeout: sendTimeout ?? this.sendTimeout,
+        extra: extra ?? Map.from(this.extra ?? {}),
+        headers: headers ?? Map.from(this.headers ?? {}),
+        responseType: responseType ?? this.responseType,
+        contentType: contentType ?? this.contentType,
+        validateStatus: validateStatus ?? this.validateStatus,
+        receiveDataWhenStatusError:
+            receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
+        followRedirects: followRedirects ?? this.followRedirects,
+        maxRedirects: maxRedirects ?? this.maxRedirects,
+        requestEncoder: requestEncoder,
+        responseDecoder: responseDecoder ?? this.responseDecoder,
+        collectionFormat: collectionFormat ?? this.collectionFormat);
   }
 
   /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
@@ -151,6 +177,7 @@ class Options extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    CollectionFormat collectionFormat,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -165,6 +192,7 @@ class Options extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
+          collectionFormat: collectionFormat,
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -182,6 +210,7 @@ class Options extends _RequestConfig {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    CollectionFormat collectionFormat,
   }) {
     return Options(
       method: method ?? this.method,
@@ -198,6 +227,7 @@ class Options extends _RequestConfig {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
+      collectionFormat: collectionFormat ?? this.collectionFormat,
     );
   }
 }
@@ -225,6 +255,7 @@ class RequestOptions extends Options {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    CollectionFormat collectionFormat,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -239,6 +270,7 @@ class RequestOptions extends Options {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
+          collectionFormat: collectionFormat,
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -265,6 +297,7 @@ class RequestOptions extends Options {
     int maxRedirects,
     RequestEncoder requestEncoder,
     ResponseDecoder responseDecoder,
+    CollectionFormat collectionFormat,
   }) {
     return RequestOptions(
       method: method ?? this.method,
@@ -289,6 +322,7 @@ class RequestOptions extends Options {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
+      collectionFormat: collectionFormat ?? this.collectionFormat,
     );
   }
 
@@ -300,7 +334,7 @@ class RequestOptions extends Options {
       var s = _url.split(':/');
       _url = s[0] + ':/' + s[1].replaceAll('//', '/');
     }
-    var query = Transformer.urlEncodeMap(queryParameters);
+    var query = Transformer.urlEncodeMap(queryParameters, collectionFormat);
     if (query.isNotEmpty) {
       _url += (_url.contains('?') ? '&' : '?') + query;
     }
@@ -346,6 +380,7 @@ class _RequestConfig {
     this.maxRedirects = 5,
     this.requestEncoder,
     this.responseDecoder,
+    this.collectionFormat,
   }) {
     this.headers = headers ?? {};
     this.extra = extra ?? {};
@@ -428,4 +463,9 @@ class _RequestConfig {
   /// The default response decoder is utf8decoder, you can set custom
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder responseDecoder;
+
+  /// [collectionFormat] indicates the format of collection data in request
+  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`.
+  /// The default value is `csv`
+  CollectionFormat collectionFormat;
 }

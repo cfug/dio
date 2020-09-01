@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
 final RegExp _asciiOnly = RegExp(r'^[\x00-\x7F]+$');
@@ -30,17 +32,30 @@ Encoding encodingForCharset(String charset, [Encoding fallback = latin1]) {
 
 typedef DioEncodeHandler = Function(String key, Object value);
 
-String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
+String encodeMap(data, DioEncodeHandler handler,
+    {bool encode = true,
+    CollectionFormat collectionFormat = CollectionFormat.csv}) {
   var urlData = StringBuffer('');
   var first = true;
   var leftBracket = encode ? '%5B' : '[';
   var rightBracket = encode ? '%5D' : ']';
+
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
-      for (var i = 0; i < sub.length; i++) {
-        urlEncode(sub[i],
-            '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
+      if (collectionFormat == CollectionFormat.csv) {
+        urlEncode(sub.join(','), path);
+      } else if (collectionFormat == CollectionFormat.multi) {
+        for (var i = 0; i < sub.length; i++) {
+          urlEncode(sub[i],
+              '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
+        }
+      } else if (collectionFormat == CollectionFormat.ssv) {
+        urlEncode(sub.join(' '), path);
+      } else if (collectionFormat == CollectionFormat.tsv) {
+        urlEncode(sub.join(r'\t'), path);
+      } else if (collectionFormat == CollectionFormat.pipes) {
+        urlEncode(sub.join('|'), path);
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {

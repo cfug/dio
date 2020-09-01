@@ -35,11 +35,12 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   ///
-  static String urlEncodeMap(Map map) {
+  static String urlEncodeMap(Map map,
+      [CollectionFormat collectionFormat = CollectionFormat.csv]) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
       return '$key=${Uri.encodeQueryComponent(value.toString())}';
-    });
+    }, collectionFormat: collectionFormat);
   }
 }
 
@@ -61,7 +62,7 @@ class DefaultTransformer extends Transformer {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map) {
-        return Transformer.urlEncodeMap(data);
+        return Transformer.urlEncodeMap(data, options.collectionFormat);
       }
     }
     return data.toString();
@@ -84,7 +85,7 @@ class DefaultTransformer extends Transformer {
     }
     var completer = Completer();
     var stream =
-    response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
+        response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         sink.add(data);
         if (showDownloadProgress) {
@@ -94,10 +95,10 @@ class DefaultTransformer extends Transformer {
       },
     ));
     // let's keep references to the data chunks and concatenate them later
-    final  chunks = <Uint8List>[];
+    final chunks = <Uint8List>[];
     var finalSize = 0;
     StreamSubscription subscription = stream.listen(
-          (chunk) {
+      (chunk) {
         finalSize += chunk.length;
         chunks.add(chunk);
       },
