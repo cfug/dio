@@ -64,51 +64,77 @@ void main() {
     });
   });
 
-  test('#test Response Interceptor', () async {
+  group('#test response interceptor', () {
     Dio dio;
+    test('#test Response Interceptor', () async {
+      const String URL_NOT_FIND = '/404/';
+      const String URL_NOT_FIND_1 = URL_NOT_FIND + '1';
+      const String URL_NOT_FIND_2 = URL_NOT_FIND + '2';
+      const String URL_NOT_FIND_3 = URL_NOT_FIND + '3';
 
-    const String URL_NOT_FIND = '/404/';
-    const String URL_NOT_FIND_1 = URL_NOT_FIND + '1';
-    const String URL_NOT_FIND_2 = URL_NOT_FIND + '2';
-    const String URL_NOT_FIND_3 = URL_NOT_FIND + '3';
+      dio = Dio();
+      dio.httpClientAdapter = MockAdapter();
+      dio.options.baseUrl = MockAdapter.mockBase;
 
-    dio = Dio();
-    dio.httpClientAdapter = MockAdapter();
-    dio.options.baseUrl = MockAdapter.mockBase;
-
-    dio.interceptors.add(InterceptorsWrapper(
-      onResponse: (Response response) {
-        return response.data['data'];
-      },
-      onError: (e) {
-        if (e.response != null) {
-          switch (e.response.request.path) {
-            case URL_NOT_FIND:
-              return e;
-            case URL_NOT_FIND_1:
-              return dio.resolve(
-                  'fake data'); // you can also return a HttpError directly.
-            case URL_NOT_FIND_2:
-              return Response(data: 'fake data');
-            case URL_NOT_FIND_3:
-              return 'custom error info [${e.response.statusCode}]';
+      dio.interceptors.add(InterceptorsWrapper(
+        onResponse: (Response response) {
+          return response.data['data'];
+        },
+        onError: (e) {
+          if (e.response != null) {
+            switch (e.response.request.path) {
+              case URL_NOT_FIND:
+                return e;
+              case URL_NOT_FIND_1:
+                return dio.resolve(
+                    'fake data'); // you can also return a HttpError directly.
+              case URL_NOT_FIND_2:
+                return Response(data: 'fake data');
+              case URL_NOT_FIND_3:
+                return 'custom error info [${e.response.statusCode}]';
+            }
           }
-        }
-        return e;
-      },
-    ));
-    Response response = await dio.get('/test');
-    expect(response.data['path'], '/test');
-    expect(dio.get(URL_NOT_FIND).catchError((e) => throw e.response.statusCode),
-        throwsA(equals(404)));
-    response = await dio.get(URL_NOT_FIND + '1');
-    expect(response.data, 'fake data');
-    response = await dio.get(URL_NOT_FIND + '2');
-    expect(response.data, 'fake data');
-    expect(dio.get(URL_NOT_FIND + '3').catchError((e) => throw e.message),
-        throwsA(equals('custom error info [404]')));
+          return e;
+        },
+      ));
+      Response response = await dio.get('/test');
+      expect(response.data['path'], '/test');
+      expect(
+          dio.get(URL_NOT_FIND).catchError((e) => throw e.response.statusCode),
+          throwsA(equals(404)));
+      response = await dio.get(URL_NOT_FIND + '1');
+      expect(response.data, 'fake data');
+      response = await dio.get(URL_NOT_FIND + '2');
+      expect(response.data, 'fake data');
+      expect(dio.get(URL_NOT_FIND + '3').catchError((e) => throw e.message),
+          throwsA(equals('custom error info [404]')));
+    });
+    test('multi response interceptor', () async {
+      dio = Dio();
+      dio.httpClientAdapter = MockAdapter();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.interceptors
+        ..add(InterceptorsWrapper(
+          onResponse: (resp) => resp.data['data'],
+        ))
+        ..add(InterceptorsWrapper(
+          onResponse: (resp) {
+            resp.data['extra_1'] = 'extra';
+            return resp;
+          },
+        ))
+        ..add(InterceptorsWrapper(
+          onResponse: (resp) {
+            resp.data['extra_2'] = 'extra';
+            return resp;
+          },
+        ));
+      final resp = await dio.get('/test');
+      expect(resp.data['path'], '/test');
+      expect(resp.data['extra_1'], 'extra');
+      expect(resp.data['extra_2'], 'extra');
+    });
   });
-
   group('Interceptor request lock', () {
     test('test', () async {
       String csrfToken;
