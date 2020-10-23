@@ -2,6 +2,7 @@ import 'adapter.dart';
 import 'headers.dart';
 import 'transformer.dart';
 import 'cancel_token.dart';
+import 'utils.dart';
 
 /// Callback to listen the progress for sending/receiving data.
 ///
@@ -137,7 +138,7 @@ class BaseOptions extends _RequestConfig {
 
 /// Every request can pass an [Options] object which will be merged with [Dio.options]
 class Options extends _RequestConfig {
- Options({
+  Options({
     String method,
     int sendTimeout,
     int receiveTimeout,
@@ -347,7 +348,7 @@ class _RequestConfig {
     this.requestEncoder,
     this.responseDecoder,
   }) {
-    this.headers = headers ?? {};
+    this.headers = caseInsensitiveKeyMap(value: headers);
     this.extra = extra ?? {};
     this.contentType = contentType;
   }

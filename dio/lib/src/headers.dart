@@ -1,5 +1,7 @@
 import 'package:http_parser/http_parser.dart';
 
+import 'utils.dart';
+
 typedef HeaderForEachCallback = void Function(String name, List<String> values);
 
 class Headers {
@@ -20,10 +22,12 @@ class Headers {
 
   Map<String, List<String>> get map => _map;
 
-  Headers() : _map = <String, List<String>>{};
+  Headers() : _map = caseInsensitiveKeyMap<List<String>>();
 
   Headers.fromMap(Map<String, List<String>> map)
-      : _map = map.map((k, v) => MapEntry(k.trim().toLowerCase(), v));
+      : _map = caseInsensitiveKeyMap<List<String>>(
+          value: map.map((k, v) => MapEntry(k.trim().toLowerCase(), v)),
+        );
 
   /// Returns the list of values for the header named [name]. If there
   /// is no header with the provided name, [:null:] will be returned.
