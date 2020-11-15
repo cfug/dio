@@ -44,11 +44,15 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     HttpClientRequest request;
     try {
-      request = await requestFuture;
+      request = await requestFuture
+          .timeout(Duration(milliseconds: options.connectTimeout));
       //Set Headers
       options.headers.forEach((k, v) => request.headers.set(k, v));
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) _throwConnectingTimeout();
+      rethrow;
+    } on TimeoutException {
+      _throwConnectingTimeout();
       rethrow;
     }
 
