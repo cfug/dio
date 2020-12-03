@@ -58,7 +58,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       rethrow;
     } on TimeoutException {
       _throwConnectingTimeout();
-      rethrow;
     }
 
     request.followRedirects = options.followRedirects;
