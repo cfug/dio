@@ -55,8 +55,8 @@ enum CollectionFormat {
   // Tab-separated values
   // e.g. (foo\tbar\tbaz)
   tsv,
-  // Space-separated values
-  // e.g. (foo\tbar\tbaz)
+  // Pipe-separated values
+  // e.g. (foo|bar|baz)
   pipes,
   // Multiple parameter instances rather than multiple values.
   // e.g. (foo=value&foo=another_value)
