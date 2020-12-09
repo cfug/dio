@@ -52,7 +52,7 @@ enum CollectionFormat {
   // Space-separated values
   // e.g. (foo bar baz)
   ssv,
-  // Space-separated values
+  // Tab-separated values
   // e.g. (foo\tbar\tbaz)
   tsv,
   // Space-separated values
