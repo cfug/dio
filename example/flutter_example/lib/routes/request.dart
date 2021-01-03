@@ -17,7 +17,7 @@ class _RequestRouteState extends State<RequestRoute> {
       body: Container(
         padding: EdgeInsets.all(16),
         child: Column(children: [
-          RaisedButton(
+          ElevatedButton(
             child: Text("Request"),
             onPressed: () {
               dio.get<String>("http://httpbin.org/get").then((r) {
