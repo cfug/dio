@@ -4,6 +4,8 @@ import '../dio_error.dart';
 import '../interceptor.dart';
 import '../options.dart';
 import '../response.dart';
+import '../form_data.dart';
+
 
 /// [LogInterceptor] is used to print logs during network requests.
 /// It's better to add [LogInterceptor] to the tail of the interceptor queue,
@@ -69,7 +71,11 @@ class LogInterceptor extends Interceptor {
     }
     if (requestBody) {
       logPrint('data:');
-      _printAll(options.data);
+      if (options.data is FormData) {
+        _printAll(options.data.fields);
+      } else {
+        _printAll(options.data);
+      }
     }
     logPrint('');
   }
