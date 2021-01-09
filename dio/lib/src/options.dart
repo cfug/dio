@@ -40,7 +40,7 @@ enum ResponseType {
   bytes
 }
 
-typedef ValidateStatus = bool Function(int status);
+typedef ValidateStatus = bool Function(int? status);
 typedef ResponseDecoder = String Function(
     List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
 typedef RequestEncoder = List<int> Function(
@@ -50,22 +50,22 @@ typedef RequestEncoder = List<int> Function(
 /// `dio.options` is a instance of [BaseOptions]
 class BaseOptions extends _RequestConfig {
   BaseOptions({
-    String method,
+    String? method,
     this.connectTimeout,
-    int receiveTimeout,
-    int sendTimeout,
-    this.baseUrl,
-    this.queryParameters,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType = ResponseType.json,
-    String contentType,
-    ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError = true,
-    bool followRedirects = true,
-    int maxRedirects = 5,
-    RequestEncoder requestEncoder,
-    ResponseDecoder responseDecoder,
+    int? receiveTimeout,
+    int? sendTimeout,
+    String? baseUrl,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    ResponseType? responseType = ResponseType.json,
+    String? contentType,
+    ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError = true,
+    bool? followRedirects = true,
+    int? maxRedirects = 5,
+    RequestEncoder? requestEncoder,
+    ResponseDecoder? responseDecoder,
   }) : super(
           method: method,
           receiveTimeout: receiveTimeout,
@@ -80,27 +80,30 @@ class BaseOptions extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
-        );
+        ) {
+    this.queryParameters = queryParameters ?? {};
+    this.baseUrl = baseUrl ?? '';
+  }
 
   /// Create a Option from current instance with merging attributes.
   BaseOptions merge({
-    String method,
-    String baseUrl,
-    Map<String, dynamic> queryParameters,
-    String path,
-    int connectTimeout,
-    int receiveTimeout,
-    int sendTimeout,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    String contentType,
-    ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError,
-    bool followRedirects,
-    int maxRedirects,
-    RequestEncoder requestEncoder,
-    ResponseDecoder responseDecoder,
+    String? method,
+    String? baseUrl,
+    Map<String, dynamic>? queryParameters,
+    String? path,
+    int? connectTimeout,
+    int? receiveTimeout,
+    int? sendTimeout,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    ResponseType? responseType,
+    String? contentType,
+    ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
+    RequestEncoder? requestEncoder,
+    ResponseDecoder? responseDecoder,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -109,48 +112,48 @@ class BaseOptions extends _RequestConfig {
       connectTimeout: connectTimeout ?? this.connectTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       sendTimeout: sendTimeout ?? this.sendTimeout,
-      extra: extra ?? Map.from(this.extra ?? {}),
-      headers: headers ?? Map.from(this.headers ?? {}),
-      responseType: responseType ?? this.responseType,
+      extra: extra ?? this.extra,
+      headers: headers ?? this.headers,
+      responseType: (responseType != null) ? responseType : this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
-      requestEncoder: requestEncoder,
+      requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
 
   /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
-  String baseUrl;
+  late String baseUrl;
 
   /// Common query parameters
-  Map<String, dynamic> queryParameters;
+  late Map<String, dynamic> queryParameters;
 
   /// Timeout in milliseconds for opening url.
   /// [Dio] will throw the [DioError] with [DioErrorType.CONNECT_TIMEOUT] type
   ///  when time out.
-  int connectTimeout;
+  int? connectTimeout;
 }
 
 /// Every request can pass an [Options] object which will be merged with [Dio.options]
 class Options extends _RequestConfig {
- Options({
-    String method,
-    int sendTimeout,
-    int receiveTimeout,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    String contentType,
-    ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError,
-    bool followRedirects,
-    int maxRedirects,
-    RequestEncoder requestEncoder,
-    ResponseDecoder responseDecoder,
+  Options({
+    String? method,
+    int? sendTimeout,
+    int? receiveTimeout,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    ResponseType? responseType,
+    String? contentType,
+    ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
+    RequestEncoder? requestEncoder,
+    ResponseDecoder? responseDecoder,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -169,26 +172,26 @@ class Options extends _RequestConfig {
 
   /// Create a Option from current instance with merging attributes.
   Options merge({
-    String method,
-    int sendTimeout,
-    int receiveTimeout,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    String contentType,
-    ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError,
-    bool followRedirects,
-    int maxRedirects,
-    RequestEncoder requestEncoder,
-    ResponseDecoder responseDecoder,
+    String? method,
+    int? sendTimeout,
+    int? receiveTimeout,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    ResponseType? responseType,
+    String? contentType,
+    ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
+    RequestEncoder? requestEncoder,
+    ResponseDecoder? responseDecoder,
   }) {
     return Options(
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      extra: extra ?? Map.from(this.extra ?? {}),
-      headers: headers ?? Map.from(this.headers ?? {}),
+      extra: extra ?? this.extra,
+      headers: headers ?? this.headers,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -196,7 +199,7 @@ class Options extends _RequestConfig {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
-      requestEncoder: requestEncoder,
+      requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
@@ -204,27 +207,27 @@ class Options extends _RequestConfig {
 
 class RequestOptions extends Options {
   RequestOptions({
-    String method,
-    int sendTimeout,
-    int receiveTimeout,
+    String? method,
+    int? sendTimeout,
+    int? receiveTimeout,
     this.connectTimeout,
     this.data,
-    this.path,
-    this.queryParameters,
-    this.baseUrl,
+    String? path,
+    Map<String, dynamic>? queryParameters,
+    String? baseUrl,
     this.onReceiveProgress,
     this.onSendProgress,
     this.cancelToken,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    String contentType,
-    ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError,
-    bool followRedirects,
-    int maxRedirects,
-    RequestEncoder requestEncoder,
-    ResponseDecoder responseDecoder,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    ResponseType? responseType,
+    String? contentType,
+    ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
+    RequestEncoder? requestEncoder,
+    ResponseDecoder? responseDecoder,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -239,32 +242,36 @@ class RequestOptions extends Options {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
-        );
+        ) {
+    this.path = path ?? this.path;
+    this.queryParameters = queryParameters ?? {};
+    this.baseUrl = baseUrl ?? '';
+  }
 
   /// Create a Option from current instance with merging attributes.
   @override
   RequestOptions merge({
-    String method,
-    int sendTimeout,
-    int receiveTimeout,
-    int connectTimeout,
-    String data,
-    String path,
-    Map<String, dynamic> queryParameters,
-    String baseUrl,
-    ProgressCallback onReceiveProgress,
-    ProgressCallback onSendProgress,
-    CancelToken cancelToken,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    ResponseType responseType,
-    String contentType,
-    ValidateStatus validateStatus,
-    bool receiveDataWhenStatusError,
-    bool followRedirects,
-    int maxRedirects,
-    RequestEncoder requestEncoder,
-    ResponseDecoder responseDecoder,
+    String? method,
+    int? sendTimeout,
+    int? receiveTimeout,
+    int? connectTimeout,
+    String? data,
+    String? path,
+    Map<String, dynamic>? queryParameters,
+    String? baseUrl,
+    ProgressCallback? onReceiveProgress,
+    ProgressCallback? onSendProgress,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    ResponseType? responseType,
+    String? contentType,
+    ValidateStatus? validateStatus,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
+    RequestEncoder? requestEncoder,
+    ResponseDecoder? responseDecoder,
   }) {
     return RequestOptions(
       method: method ?? this.method,
@@ -278,8 +285,8 @@ class RequestOptions extends Options {
       onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
       onSendProgress: onSendProgress ?? this.onSendProgress,
       cancelToken: cancelToken ?? this.cancelToken,
-      extra: extra ?? Map.from(this.extra ?? {}),
-      headers: headers ?? Map.from(this.headers ?? {}),
+      extra: extra ?? this.extra,
+      headers: headers ?? this.headers,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -287,7 +294,7 @@ class RequestOptions extends Options {
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
       followRedirects: followRedirects ?? this.followRedirects,
       maxRedirects: maxRedirects ?? this.maxRedirects,
-      requestEncoder: requestEncoder,
+      requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
     );
   }
@@ -312,22 +319,22 @@ class RequestOptions extends Options {
   dynamic data;
 
   /// Request base url, it can contain sub path, like: 'https://www.google.com/api/'.
-  String baseUrl;
+  late String baseUrl;
 
   /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
   String path = '';
 
   /// See [Uri.queryParameters]
-  Map<String, dynamic> queryParameters;
+  late Map<String, dynamic> queryParameters;
 
-  CancelToken cancelToken;
+  CancelToken? cancelToken;
 
-  ProgressCallback onReceiveProgress;
+  ProgressCallback? onReceiveProgress;
 
-  ProgressCallback onSendProgress;
+  ProgressCallback? onSendProgress;
 
-  int connectTimeout;
+  int? connectTimeout;
 }
 
 /// The [_RequestConfig] class describes the http request information and configuration.
@@ -336,52 +343,55 @@ class _RequestConfig {
     this.method,
     this.receiveTimeout,
     this.sendTimeout,
-    Map<String, dynamic> extra,
-    Map<String, dynamic> headers,
-    String contentType,
+    Map<String, dynamic>? extra,
+    Map<String, dynamic>? headers,
+    String? contentType,
     this.responseType,
     this.validateStatus,
-    this.receiveDataWhenStatusError = true,
-    this.followRedirects = true,
-    this.maxRedirects = 5,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
     this.requestEncoder,
     this.responseDecoder,
   }) {
     this.headers = headers ?? {};
     this.extra = extra ?? {};
     this.contentType = contentType;
+    this.receiveDataWhenStatusError = receiveDataWhenStatusError ?? true;
+    this.followRedirects = followRedirects ?? true;
+    this.maxRedirects = maxRedirects ?? 5;
   }
 
   /// Http method.
-  String method;
+  String? method;
 
   /// Http request headers. The keys of initial headers will be converted to lowercase,
   /// for example 'Content-Type' will be converted to 'content-type'.
   ///
   /// You should use lowercase as the key name when you need to set the request header.
-  Map<String, dynamic> headers;
+  late Map<String, dynamic> headers;
 
   /// Timeout in milliseconds for sending data.
   /// [Dio] will throw the [DioError] with [DioErrorType.SEND_TIMEOUT] type
   ///  when time out.
-  int sendTimeout;
+  int? sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
   ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT] type
   ///  when time out.
   ///
   /// [0] meanings no timeout limit.
-  int receiveTimeout;
+  int? receiveTimeout;
 
   /// The request Content-Type. The default value is [ContentType.json].
   /// If you want to encode request body with 'application/x-www-form-urlencoded',
   /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
   /// will automatically encode the request body.
-  set contentType(String contentType) {
+  set contentType(String? contentType) {
     headers[Headers.contentTypeHeader] = contentType?.trim();
   }
 
-  String get contentType => headers[Headers.contentTypeHeader];
+  String? get contentType => headers[Headers.contentTypeHeader];
 
   /// [responseType] indicates the type of data that the server will respond with
   /// options which defined in [ResponseType] are `json`, `stream`, `plain`.
@@ -396,34 +406,34 @@ class _RequestConfig {
   ///
   /// If you want to receive the response data with  original bytes,
   /// that's to say the type of [Response.data] will be List<int>, use `bytes`
-  ResponseType responseType;
+  ResponseType? responseType;
 
   /// `validateStatus` defines whether the request is successful for a given
   /// HTTP response status code. If `validateStatus` returns `true` ,
   /// the request will be perceived as successful; otherwise, considered as failed.
-  ValidateStatus validateStatus;
+  ValidateStatus? validateStatus;
 
   /// Whether receiving response data when http status code is not successful.
-  bool receiveDataWhenStatusError;
+  bool? receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
-  Map<String, dynamic> extra;
+  late Map<String, dynamic> extra;
 
   /// see [HttpClientRequest.followRedirects]
-  bool followRedirects;
+  bool? followRedirects;
 
   /// Set this property to the maximum number of redirects to follow
   /// when [followRedirects] is `true`. If this number is exceeded
   /// an error event will be added with a [RedirectException].
   ///
   /// The default value is 5.
-  int maxRedirects;
+  int? maxRedirects;
 
   /// The default request encoder is utf8encoder, you can set custom
   /// encoder by this option.
-  RequestEncoder requestEncoder;
+  RequestEncoder? requestEncoder;
 
   /// The default response decoder is utf8decoder, you can set custom
   /// decoder by this option, it will be used in [Transformer].
-  ResponseDecoder responseDecoder;
+  ResponseDecoder? responseDecoder;
 }
