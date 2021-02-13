@@ -23,8 +23,9 @@ void main() {
     var f = File('../dio/test/_formdata');
     var content = f.readAsStringSync();
     content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
-    assert(utf8.decode(fmStr, allowMalformed: true) == content);
-    expect(fm.readAsBytes(),throwsA(const TypeMatcher<StateError>()));
+    expect(utf8.decode(fmStr, allowMalformed: true).replaceAll('\r\n', '\n'),
+        content);
+    expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
     var fm1 = FormData();
     fm1.fields.add(MapEntry('name', 'wendux'));
@@ -38,6 +39,6 @@ void main() {
       'files[]',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
     ));
-    assert(fmStr.length==fm1.length);
+    assert(fmStr.length == fm1.length);
   });
 }
