@@ -150,8 +150,9 @@ class DefaultTransformer extends Transformer {
     if (responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
         _isJsonMime(response.headers[Headers.contentTypeHeader]?.first)) {
-      if (jsonDecodeCallback != null) {
-        return jsonDecodeCallback!(responseBody);
+      var callback = jsonDecodeCallback;
+      if (callback != null) {
+        return callback(responseBody);
       } else {
         return json.decode(responseBody);
       }
