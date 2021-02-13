@@ -75,8 +75,7 @@ class MultipartFile {
     MediaType? contentType,
   }) {
     contentType ??= MediaType('text', 'plain');
-    var encoding =
-        encodingForCharset(contentType.parameters['charset'] ?? '', utf8);
+    var encoding = encodingForCharset(contentType.parameters['charset'], utf8);
     contentType = contentType.change(parameters: {'charset': encoding.name});
 
     return MultipartFile.fromBytes(

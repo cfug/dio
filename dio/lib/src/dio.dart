@@ -1044,9 +1044,10 @@ abstract class DioMixin implements Dio {
       var byteStream =
           stream.transform<Uint8List>(StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          if (options.cancelToken != null && options.cancelToken!.isCancelled) {
+          final cancelToken = options.cancelToken;
+          if (cancelToken != null && cancelToken.isCancelled) {
             sink
-              ..addError(options.cancelToken!.cancelError!)
+              ..addError(cancelToken.cancelError!)
               ..close();
           } else {
             sink.add(Uint8List.fromList(data));

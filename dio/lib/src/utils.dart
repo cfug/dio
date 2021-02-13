@@ -23,13 +23,13 @@ Future writeStreamToSink(Stream stream, EventSink sink) {
 /// Returns the [Encoding] that corresponds to [charset]. Returns [fallback] if
 /// [charset] is null or if no [Encoding] was found that corresponds to
 /// [charset].
-Encoding encodingForCharset(String charset, [Encoding fallback = latin1]) {
+Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
   if (charset == null) return fallback;
   var encoding = Encoding.getByName(charset);
   return encoding ?? fallback;
 }
 
-typedef DioEncodeHandler = Function(String key, Object value);
+typedef DioEncodeHandler = Function(String key, Object? value);
 
 String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
   var urlData = StringBuffer('');
