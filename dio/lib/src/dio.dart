@@ -941,7 +941,7 @@ abstract class DioMixin implements Dio {
         extra: responseBody.extra,
       );
       var statusOk = options.validateStatus!(responseBody.statusCode);
-      if (statusOk || options.receiveDataWhenStatusError != null) {
+      if (statusOk || options.receiveDataWhenStatusError == true) {
         var forceConvert = !(T == dynamic || T == String) &&
             !(options.responseType == ResponseType.bytes ||
                 options.responseType == ResponseType.stream);

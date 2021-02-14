@@ -23,8 +23,11 @@ void main() {
     var f = File('../dio/test/_formdata');
     var content = f.readAsStringSync();
     content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
-    expect(utf8.decode(fmStr, allowMalformed: true).replaceAll('\r\n', '\n'),
-        content);
+    var actual = utf8.decode(fmStr, allowMalformed: true);
+    if (!Platform.isWindows) {
+      actual = actual.replaceAll('\r\n', '\n');
+    }
+    expect(actual, content);
     expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
     var fm1 = FormData();
