@@ -46,7 +46,7 @@ abstract class Dio {
   factory Dio([BaseOptions? options]) => createDio(options);
 
   /// Default Request config. More see [BaseOptions] .
-  BaseOptions? options;
+  late BaseOptions options;
 
   Interceptors get interceptors;
 
@@ -332,7 +332,7 @@ abstract class Dio {
 abstract class DioMixin implements Dio {
   /// Default Request config. More see [BaseOptions].
   @override
-  BaseOptions? options;
+  late BaseOptions options;
 
   /// Each Dio instance has a interceptor by which you can intercept requests or responses before they are
   /// handled by `then` or `catchError`. the [interceptor] field
@@ -1080,38 +1080,37 @@ abstract class DioMixin implements Dio {
 
   RequestOptions mergeOptions(
       Options opt, String url, data, Map<String, dynamic> queryParameters) {
-    var query = (Map<String, dynamic>.from(options!.queryParameters))
+    var query = (Map<String, dynamic>.from(options.queryParameters))
       ..addAll(queryParameters);
     final optBaseUrl = (opt is RequestOptions) ? opt.baseUrl : null;
     final optConnectTimeout =
         (opt is RequestOptions) ? opt.connectTimeout : null;
     return RequestOptions(
-      method: (opt.method ?? options!.method)?.toUpperCase() ?? 'GET',
-      headers: (Map.from(options!.headers))..addAll(opt.headers),
-      baseUrl: optBaseUrl ?? options!.baseUrl,
+      method: (opt.method ?? options.method)?.toUpperCase() ?? 'GET',
+      headers: (Map.from(options.headers))..addAll(opt.headers),
+      baseUrl: optBaseUrl ?? options.baseUrl,
       path: url,
       data: data,
-      connectTimeout: optConnectTimeout ?? options!.connectTimeout ?? 0,
-      sendTimeout: opt.sendTimeout ?? options!.sendTimeout ?? 0,
-      receiveTimeout: opt.receiveTimeout ?? options!.receiveTimeout ?? 0,
+      connectTimeout: optConnectTimeout ?? options.connectTimeout ?? 0,
+      sendTimeout: opt.sendTimeout ?? options.sendTimeout ?? 0,
+      receiveTimeout: opt.receiveTimeout ?? options.receiveTimeout ?? 0,
       responseType:
-          opt.responseType ?? options!.responseType ?? ResponseType.json,
-      extra: (Map.from(options!.extra))..addAll(opt.extra),
+          opt.responseType ?? options.responseType ?? ResponseType.json,
+      extra: (Map.from(options.extra))..addAll(opt.extra),
       contentType:
-          opt.contentType ?? options?.contentType ?? Headers.jsonContentType,
+          opt.contentType ?? options.contentType ?? Headers.jsonContentType,
       validateStatus: opt.validateStatus ??
-          options!.validateStatus ??
+          options.validateStatus ??
           (int? status) {
             return status != null && status >= 200 && status < 300;
           },
       receiveDataWhenStatusError: opt.receiveDataWhenStatusError ??
-          options!.receiveDataWhenStatusError ??
-          true,
-      followRedirects: opt.followRedirects ?? options!.followRedirects,
-      maxRedirects: opt.maxRedirects ?? options!.maxRedirects ?? 5,
+          (options.receiveDataWhenStatusError ?? true),
+      followRedirects: opt.followRedirects ?? (options.followRedirects ?? true),
+      maxRedirects: opt.maxRedirects ?? options.maxRedirects ?? 5,
       queryParameters: query,
-      requestEncoder: opt.requestEncoder ?? options!.requestEncoder,
-      responseDecoder: opt.responseDecoder ?? options!.responseDecoder,
+      requestEncoder: opt.requestEncoder ?? options.requestEncoder,
+      responseDecoder: opt.responseDecoder ?? options.responseDecoder,
     );
   }
 

@@ -85,7 +85,7 @@ class DioForNative with DioMixin implements Dio {
       );
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE) {
-        if (e.response!.request!.receiveDataWhenStatusError!) {
+        if (e.response!.request!.receiveDataWhenStatusError == true) {
           var res = await transformer.transformResponse(
             e.response!.request!..responseType = ResponseType.json,
             e.response!.data,

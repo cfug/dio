@@ -17,7 +17,7 @@ void main() {
     late Dio dio;
     setUp(() {
       dio = Dio();
-      dio.options!
+      dio.options
         ..baseUrl = serverUrl.toString()
         ..connectTimeout = 1000
         ..receiveTimeout = 5000

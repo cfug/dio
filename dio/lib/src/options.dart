@@ -54,19 +54,20 @@ class BaseOptions extends _RequestConfig {
     this.connectTimeout,
     int? receiveTimeout,
     int? sendTimeout,
-    String? baseUrl,
+    this.baseUrl = '',
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
     ResponseType? responseType = ResponseType.json,
     String? contentType,
     ValidateStatus? validateStatus,
-    bool? receiveDataWhenStatusError = true,
-    bool? followRedirects = true,
-    int? maxRedirects = 5,
+    bool? receiveDataWhenStatusError,
+    bool? followRedirects,
+    int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-  }) : super(
+  })  : queryParameters = queryParameters ?? {},
+        super(
           method: method,
           receiveTimeout: receiveTimeout,
           sendTimeout: sendTimeout,
@@ -80,10 +81,7 @@ class BaseOptions extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
-        ) {
-    this.queryParameters = queryParameters ?? {};
-    this.baseUrl = baseUrl ?? '';
-  }
+        );
 
   /// Create a Option from current instance with merging attributes.
   BaseOptions merge({
@@ -112,9 +110,9 @@ class BaseOptions extends _RequestConfig {
       connectTimeout: connectTimeout ?? this.connectTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       sendTimeout: sendTimeout ?? this.sendTimeout,
-      extra: extra ?? this.extra,
-      headers: headers ?? this.headers,
-      responseType: (responseType != null) ? responseType : this.responseType,
+      extra: extra ?? Map.from(this.extra),
+      headers: headers ?? Map.from(this.headers),
+      responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
@@ -130,7 +128,7 @@ class BaseOptions extends _RequestConfig {
   late String baseUrl;
 
   /// Common query parameters
-  late Map<String, dynamic> queryParameters;
+  Map<String, dynamic> queryParameters;
 
   /// Timeout in milliseconds for opening url.
   /// [Dio] will throw the [DioError] with [DioErrorType.CONNECT_TIMEOUT] type
@@ -190,8 +188,8 @@ class Options extends _RequestConfig {
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      extra: extra ?? this.extra,
-      headers: headers ?? this.headers,
+      extra: extra ?? Map.from(this.extra),
+      headers: headers ?? Map.from(this.headers),
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -212,9 +210,9 @@ class RequestOptions extends Options {
     int? receiveTimeout,
     this.connectTimeout,
     this.data,
-    String? path,
+    this.path = '',
     Map<String, dynamic>? queryParameters,
-    String? baseUrl,
+    this.baseUrl = '',
     this.onReceiveProgress,
     this.onSendProgress,
     this.cancelToken,
@@ -228,7 +226,8 @@ class RequestOptions extends Options {
     int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-  }) : super(
+  })  : queryParameters = queryParameters ?? {},
+        super(
           method: method,
           sendTimeout: sendTimeout,
           receiveTimeout: receiveTimeout,
@@ -242,11 +241,7 @@ class RequestOptions extends Options {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
-        ) {
-    this.path = path ?? this.path;
-    this.queryParameters = queryParameters ?? {};
-    this.baseUrl = baseUrl ?? '';
-  }
+        );
 
   /// Create a Option from current instance with merging attributes.
   @override
@@ -285,8 +280,8 @@ class RequestOptions extends Options {
       onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
       onSendProgress: onSendProgress ?? this.onSendProgress,
       cancelToken: cancelToken ?? this.cancelToken,
-      extra: extra ?? this.extra,
-      headers: headers ?? this.headers,
+      extra: extra ?? Map.from(this.extra),
+      headers: headers ?? Map.from(this.headers),
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -326,7 +321,7 @@ class RequestOptions extends Options {
   String path = '';
 
   /// See [Uri.queryParameters]
-  late Map<String, dynamic> queryParameters;
+  Map<String, dynamic> queryParameters;
 
   CancelToken? cancelToken;
 
@@ -348,18 +343,14 @@ class _RequestConfig {
     String? contentType,
     this.responseType,
     this.validateStatus,
-    bool? receiveDataWhenStatusError,
-    bool? followRedirects,
-    int? maxRedirects,
+    this.receiveDataWhenStatusError = true,
+    this.followRedirects = true,
+    this.maxRedirects = 5,
     this.requestEncoder,
     this.responseDecoder,
-  }) {
-    this.headers = headers ?? {};
-    this.extra = extra ?? {};
+  })  : headers = headers ?? {},
+        extra = extra ?? {} {
     this.contentType = contentType;
-    this.receiveDataWhenStatusError = receiveDataWhenStatusError ?? true;
-    this.followRedirects = followRedirects ?? true;
-    this.maxRedirects = maxRedirects ?? 5;
   }
 
   /// Http method.
@@ -369,7 +360,7 @@ class _RequestConfig {
   /// for example 'Content-Type' will be converted to 'content-type'.
   ///
   /// You should use lowercase as the key name when you need to set the request header.
-  late Map<String, dynamic> headers;
+  Map<String, dynamic> headers;
 
   /// Timeout in milliseconds for sending data.
   /// [Dio] will throw the [DioError] with [DioErrorType.SEND_TIMEOUT] type
@@ -417,7 +408,7 @@ class _RequestConfig {
   bool? receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
-  late Map<String, dynamic> extra;
+  Map<String, dynamic> extra;
 
   /// see [HttpClientRequest.followRedirects]
   bool? followRedirects;

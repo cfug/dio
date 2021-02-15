@@ -19,7 +19,7 @@ void main() {
 
     test('#test request interceptor', () async {
       dio = Dio();
-      dio.options!.baseUrl = MockAdapter.mockBase;
+      dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
       dio.interceptors
           .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
@@ -73,7 +73,7 @@ void main() {
 
     dio = Dio();
     dio.httpClientAdapter = MockAdapter();
-    dio.options!.baseUrl = MockAdapter.mockBase;
+    dio.options.baseUrl = MockAdapter.mockBase;
 
     dio.interceptors.add(InterceptorsWrapper(
       onResponse: (Response response) {
@@ -115,7 +115,7 @@ void main() {
       var tokenRequestCounts = 0;
       // dio instance to request token
       final tokenDio = Dio();
-      dio.options!.baseUrl = tokenDio.options!.baseUrl = MockAdapter.mockBase;
+      dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       var myInter = MyInterceptor();
       dio.interceptors.add(myInter);
@@ -160,7 +160,7 @@ void main() {
       var tokenRequestCounts = 0;
       // dio instance to request token
       final tokenDio = Dio();
-      dio.options!.baseUrl = tokenDio.options!.baseUrl = MockAdapter.mockBase;
+      dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       dio.interceptors.add(InterceptorsWrapper(onRequest: (opt) {
         opt.headers['csrfToken'] = csrfToken;

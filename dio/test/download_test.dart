@@ -14,7 +14,7 @@ void main() {
   test('#test download1', () async {
     const savePath = '../_download_test.md';
     var dio = Dio();
-    dio.options!.baseUrl = serverUrl.toString();
+    dio.options.baseUrl = serverUrl.toString();
     await dio.download(
       '/download', savePath, // disable gzip
       onReceiveProgress: (received, total) {
@@ -30,7 +30,7 @@ void main() {
   test('#test download2', () async {
     const savePath = '../_download_test.md';
     var dio = Dio();
-    dio.options!.baseUrl = serverUrl.toString();
+    dio.options.baseUrl = serverUrl.toString();
     await dio.downloadUri(
       serverUrl.replace(path: '/download'),
       (header) => savePath, // disable gzip
@@ -44,7 +44,7 @@ void main() {
   test('#test download error', () async {
     const savePath = '../_download_test.md';
     var dio = Dio();
-    dio.options!.baseUrl = serverUrl.toString();
+    dio.options.baseUrl = serverUrl.toString();
     var r =
         await dio.download('/error', savePath).catchError((e) => e.response);
     assert(r.data == 'error');
