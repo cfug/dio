@@ -53,7 +53,6 @@ abstract class Dio {
   HttpClientAdapter httpClientAdapter;
 
   /// [transformer] allows changes to the request/response data before it is sent/received to/from the server
-  /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
   Transformer transformer;
 
   /// Shuts down the dio client.
