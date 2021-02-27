@@ -52,7 +52,7 @@ typedef JsonDecodeCallback = dynamic Function(String);
 class DefaultTransformer extends Transformer {
   DefaultTransformer({this.jsonDecodeCallback});
 
-  JsonDecodeCallback jsonDecodeCallback;
+  JsonDecodeCallback? jsonDecodeCallback;
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
@@ -79,25 +79,27 @@ class DefaultTransformer extends Transformer {
     var received = 0;
     var showDownloadProgress = options.onReceiveProgress != null;
     if (showDownloadProgress) {
-      length = int.parse(
-          response.headers[Headers.contentLengthHeader]?.first ?? '-1');
+      length = -1;
+      int.parse(response.headers[Headers.contentLengthHeader]?.first ?? '-1');
     }
     var completer = Completer();
     var stream =
-    response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
+        response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         sink.add(data);
         if (showDownloadProgress) {
           received += data.length;
-          options.onReceiveProgress(received, length);
+          if (options.onReceiveProgress != null) {
+            options.onReceiveProgress!(received, length);
+          }
         }
       },
     ));
     // let's keep references to the data chunks and concatenate them later
-    final  chunks = <Uint8List>[];
+    final chunks = <Uint8List>[];
     var finalSize = 0;
     StreamSubscription subscription = stream.listen(
-          (chunk) {
+      (chunk) {
         finalSize += chunk.length;
         chunks.add(chunk);
       },
@@ -110,13 +112,13 @@ class DefaultTransformer extends Transformer {
       cancelOnError: true,
     );
     // ignore: unawaited_futures
-    options.cancelToken?.whenCancel?.then((_) {
+    options.cancelToken?.whenCancel.then((_) {
       return subscription.cancel();
     });
-    if (options.receiveTimeout > 0) {
+    if (options.receiveTimeout != null && options.receiveTimeout! > 0) {
       try {
         await completer.future
-            .timeout(Duration(milliseconds: options.receiveTimeout));
+            .timeout(Duration(milliseconds: options.receiveTimeout!));
       } on TimeoutException {
         await subscription.cancel();
         throw DioError(
@@ -138,19 +140,19 @@ class DefaultTransformer extends Transformer {
 
     if (options.responseType == ResponseType.bytes) return responseBytes;
 
-    String responseBody;
+    String? responseBody;
     if (options.responseDecoder != null) {
-      responseBody = options.responseDecoder(
-          responseBytes, options, response..stream = null);
+      responseBody = options.responseDecoder!(
+          responseBytes, options, response..stream = Stream.empty());
     } else {
       responseBody = utf8.decode(responseBytes, allowMalformed: true);
     }
-    if (responseBody != null &&
-        responseBody.isNotEmpty &&
+    if (responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
         _isJsonMime(response.headers[Headers.contentTypeHeader]?.first)) {
-      if (jsonDecodeCallback != null) {
-        return jsonDecodeCallback(responseBody);
+      final callback = jsonDecodeCallback;
+      if (callback != null) {
+        return callback(responseBody);
       } else {
         return json.decode(responseBody);
       }
@@ -158,7 +160,7 @@ class DefaultTransformer extends Transformer {
     return responseBody;
   }
 
-  bool _isJsonMime(String contentType) {
+  bool _isJsonMime(String? contentType) {
     if (contentType == null) return false;
     return MediaType.parse(contentType).mimeType.toLowerCase() ==
         Headers.jsonMimeType.mimeType;

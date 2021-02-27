@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'dart:convert';
 
@@ -23,13 +24,13 @@ Future writeStreamToSink(Stream stream, EventSink sink) {
 /// Returns the [Encoding] that corresponds to [charset]. Returns [fallback] if
 /// [charset] is null or if no [Encoding] was found that corresponds to
 /// [charset].
-Encoding encodingForCharset(String charset, [Encoding fallback = latin1]) {
+Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
   if (charset == null) return fallback;
   var encoding = Encoding.getByName(charset);
   return encoding ?? fallback;
 }
 
-typedef DioEncodeHandler = Function(String key, Object value);
+typedef DioEncodeHandler = Function(String key, Object? value);
 
 String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
   var urlData = StringBuffer('');
@@ -66,4 +67,13 @@ String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
 
   urlEncode(data, '');
   return urlData.toString();
+}
+
+Map<String, V> caseInsensitiveKeyMap<V>({Map<String, V> value}) {
+  final map = LinkedHashMap<String, V>(
+    equals: (key1, key2) => key1.toLowerCase() == key2.toLowerCase(),
+    hashCode: (key) => key.toLowerCase().hashCode,
+  );
+  if (value != null && value.isNotEmpty) map.addAll(value);
+  return map;
 }

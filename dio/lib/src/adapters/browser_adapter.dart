@@ -22,12 +22,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
   @override
   Future<ResponseBody> fetch(RequestOptions options,
-      Stream<List<int>> requestStream, Future cancelFuture) {
+      Stream<List<int>>? requestStream, Future? cancelFuture) {
     var xhr = HttpRequest();
     _xhrs.add(xhr);
 
     xhr
-      ..open(options.method, options.uri.toString(), async: true)
+      ..open(options.method!, options.uri.toString(), async: true)
       ..responseType = 'blob'
       ..withCredentials = options.extra['withCredentials'] ?? withCredentials;
     options.headers.remove(Headers.contentLengthHeader);
@@ -46,8 +46,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           ResponseBody.fromBytes(
             body,
             xhr.status,
-            headers: xhr.responseHeaders
-                .map((k, v) => MapEntry(k, v.split(','))),
+            headers:
+                xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
             statusMessage: xhr.statusText,
             isRedirect: xhr.status == 302 || xhr.status == 301,
           ),

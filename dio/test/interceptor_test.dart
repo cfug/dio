@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'mock_adapter.dart';
@@ -38,7 +37,7 @@ void main() {
                     'test error'); // Here is equivalent to call dio.reject('test error')
           case '/test?tag=1':
             {
-              Response response = await dio.get('/token');
+              final response = await dio.get('/token');
               options.headers['token'] = response.data['data']['token'];
               return options;
             }
@@ -47,7 +46,7 @@ void main() {
         }
       }));
 
-      Response response = await dio.get('/fakepath1');
+      var response = await dio.get('/fakepath1');
       expect(response.data, 'fake data');
       response = await dio.get('/fakepath2');
       expect(response.data['errCode'], 0);
@@ -71,7 +70,7 @@ void main() {
       const String URL_NOT_FIND_1 = URL_NOT_FIND + '1';
       const String URL_NOT_FIND_2 = URL_NOT_FIND + '2';
       const String URL_NOT_FIND_3 = URL_NOT_FIND + '3';
-
+      
       dio = Dio();
       dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
@@ -137,11 +136,11 @@ void main() {
   });
   group('Interceptor request lock', () {
     test('test', () async {
-      String csrfToken;
-      Dio dio = Dio();
-      int tokenRequestCounts = 0;
+      String? csrfToken;
+      final dio = Dio();
+      var tokenRequestCounts = 0;
       // dio instance to request token
-      Dio tokenDio = Dio();
+      final tokenDio = Dio();
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       var myInter = MyInterceptor();
@@ -161,8 +160,8 @@ void main() {
         }
       }));
 
-      int result = 0;
-      _onResult(d) {
+      var result = 0;
+      void _onResult(d) {
         if (tokenRequestCounts > 0) ++result;
       }
 
@@ -182,22 +181,22 @@ void main() {
 
   group('Interceptor error lock', () {
     test('test', () async {
-      String csrfToken;
-      Dio dio = Dio();
-      int tokenRequestCounts = 0;
+      String? csrfToken;
+      final dio = Dio();
+      var tokenRequestCounts = 0;
       // dio instance to request token
-      Dio tokenDio = Dio();
+      final tokenDio = Dio();
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       dio.interceptors.add(InterceptorsWrapper(onRequest: (opt) {
-        opt.headers["csrfToken"] = csrfToken;
+        opt.headers['csrfToken'] = csrfToken;
       }, onError: (DioError error) {
         // Assume 401 stands for token expired
         if (error.response?.statusCode == 401) {
-          RequestOptions options = error.response.request;
+          final options = error.response!.request!;
           // If the token has been updated, repeat directly.
-          if (csrfToken != options.headers["csrfToken"]) {
-            options.headers["csrfToken"] = csrfToken;
+          if (csrfToken != options.headers['csrfToken']) {
+            options.headers['csrfToken'] = csrfToken;
             //repeat
             return dio.request(options.path, options: options);
           }
@@ -207,9 +206,9 @@ void main() {
           dio.interceptors.responseLock.lock();
           dio.interceptors.errorLock.lock();
           tokenRequestCounts++;
-          return tokenDio.get("/token").then((d) {
+          return tokenDio.get('/token').then((d) {
             //update csrfToken
-            options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
+            options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
           }).whenComplete(() {
             dio.unlock();
             dio.interceptors.responseLock.unlock();
@@ -222,8 +221,8 @@ void main() {
         return error;
       }));
 
-      int result = 0;
-      _onResult(d) {
+      var result = 0;
+      void _onResult(d) {
         if (tokenRequestCounts > 0) ++result;
       }
 

@@ -19,10 +19,10 @@ class MultipartFile {
   final int length;
 
   /// The basename of the file. May be null.
-  final String filename;
+  final String? filename;
 
   /// The content-type of the file. Defaults to `application/octet-stream`.
-  final MediaType contentType;
+  final MediaType? contentType;
 
   /// The stream that will emit the file's contents.
   final Stream<List<int>> _stream;
@@ -41,7 +41,7 @@ class MultipartFile {
     Stream<List<int>> stream,
     this.length, {
     this.filename,
-    MediaType contentType,
+    MediaType? contentType,
   })  : _stream = stream,
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
@@ -51,8 +51,8 @@ class MultipartFile {
   /// future may be inferred from [filename].
   factory MultipartFile.fromBytes(
     List<int> value, {
-    String filename,
-    MediaType contentType,
+    String? filename,
+    MediaType? contentType,
   }) {
     var stream = Stream.fromIterable([value]);
     return MultipartFile(
@@ -71,8 +71,8 @@ class MultipartFile {
   /// the future may be inferred from [filename].
   factory MultipartFile.fromString(
     String value, {
-    String filename,
-    MediaType contentType,
+    String? filename,
+    MediaType? contentType,
   }) {
     contentType ??= MediaType('text', 'plain');
     var encoding = encodingForCharset(contentType.parameters['charset'], utf8);
@@ -95,8 +95,8 @@ class MultipartFile {
   /// environment.
   static Future<MultipartFile> fromFile(
     String filePath, {
-    String filename,
-    MediaType contentType,
+    String? filename,
+    MediaType? contentType,
   }) =>
       multipartFileFromPath(
         filePath,
@@ -106,8 +106,8 @@ class MultipartFile {
 
   static MultipartFile fromFileSync(
     String filePath, {
-    String filename,
-    MediaType contentType,
+    String? filename,
+    MediaType? contentType,
   }) =>
       multipartFileFromPathSync(
         filePath,
