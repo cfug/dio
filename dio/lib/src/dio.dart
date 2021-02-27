@@ -834,21 +834,21 @@ abstract class DioMixin implements Dio {
 
     bool _isErrorOrException(t) => t is Exception || t is Error;
 
-    // Convert the request/response interceptor to a functional callback in which
+    // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic) _interceptorWrapper(
         interceptor, bool request) {
+
       return (data) async {
-        var type = request ? (data is RequestOptions) : (data is Response);
-        var lock =
-            request ? interceptors.requestLock : interceptors.responseLock;
-        if (_isErrorOrException(data) || type) {
+        var isReq = data is RequestOptions;
+        var isError = _isErrorOrException(data);
+        var lock = interceptors.requestLock;
+        if (isError || isReq) {
           return listenCancelForAsyncTask(
             cancelToken,
             Future(() {
               return checkIfNeedEnqueue(lock, () {
-                if (type) {
-                  if (!request) data.request = data.request ?? requestOptions;
+                if (isReq) {
                   return interceptor(data).then((e) => e ?? data);
                 } else {
                   throw assureDioError(data, requestOptions);
@@ -857,8 +857,37 @@ abstract class DioMixin implements Dio {
             }),
           );
         } else {
+          // skip request interceptor
           return assureResponse(data, requestOptions);
         }
+      };
+    }
+
+    // Convert the response interceptor to a functional callback in which
+    // we can handle the return value of interceptor callback.
+    Function _responseInterceptorWrapper(interceptor) {
+      return (data) async {
+        var isResp = data is Response;
+        var isError = _isErrorOrException(data);
+        var lock = interceptors.responseLock;
+        return listenCancelForAsyncTask(
+          cancelToken,
+          Future(() {
+            return checkIfNeedEnqueue(lock, () {
+              if (isError) {
+                throw assureDioError(data, requestOptions);
+              } else {
+                if (isResp) {
+                  data.request = data.request ?? requestOptions;
+                } else {
+                  // ensure data is Response
+                  data = assureResponse(data, requestOptions);
+                }
+                return interceptor(data).then((e) => e ?? data);
+              }
+            });
+          }),
+        );
       };
     }
 
@@ -891,15 +920,15 @@ abstract class DioMixin implements Dio {
     future = Future.value(requestOptions);
     // Add request interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
-      future = future.then(_interceptorWrapper(interceptor.onRequest, true));
+      future = future.then(_requestInterceptorWrapper(interceptor.onRequest));
     });
 
     // Add dispatching callback to request flow
-    future = future.then(_interceptorWrapper(_dispatchRequest, true));
+    future = future.then(_requestInterceptorWrapper(_dispatchRequest));
 
     // Add response interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
-      future = future.then(_interceptorWrapper(interceptor.onResponse, false));
+      future = future.then(_responseInterceptorWrapper(interceptor.onResponse));
     });
 
     // Add error handlers to request flow
