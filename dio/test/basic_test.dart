@@ -19,7 +19,7 @@ void main() {
       queryParameters: map,
       extra: map,
       headers: map,
-      contentType: "application/json",
+      contentType: 'application/json',
       followRedirects: false,
     );
     var opt1 = baseOptions.merge(
@@ -31,7 +31,7 @@ void main() {
       headers: mapOverride,
       contentType: 'text/html',
     );
-    assert(opt1.method == "post");
+    assert(opt1.method == 'post');
     assert(opt1.receiveTimeout == 3000);
     assert(opt1.connectTimeout == 2000);
     assert(opt1.followRedirects == false);
@@ -47,7 +47,7 @@ void main() {
       sendTimeout: 2000,
       extra: map,
       headers: map,
-      contentType: "application/json",
+      contentType: 'application/json',
       followRedirects: false,
     );
     var opt3 = opt2.merge(
@@ -58,7 +58,7 @@ void main() {
       headers: mapOverride,
       contentType: 'text/html',
     );
-    assert(opt3.method == "post");
+    assert(opt3.method == 'post');
     assert(opt3.receiveTimeout == 3000);
     assert(opt3.followRedirects == false);
     assert(opt3.headers['b'] == '6');
@@ -75,11 +75,11 @@ void main() {
       sendTimeout: 3000,
       extra: mapOverride,
       headers: mapOverride,
-      data: "xx=5",
+      data: 'xx=5',
       path: '/',
       contentType: 'text/html',
     );
-    assert(opt5.method == "post");
+    assert(opt5.method == 'post');
     assert(opt5.receiveTimeout == 3000);
     assert(opt5.followRedirects == false);
     assert(opt5.contentType == 'text/html');
@@ -91,16 +91,16 @@ void main() {
 
   test('#test headers', () {
     var headers = Headers.fromMap({
-      "set-cookie": ['k=v', 'k1=v1'],
+      'set-cookie': ['k=v', 'k1=v1'],
       'content-length': ['200'],
       'test': ['1', '2'],
     });
     headers.add('SET-COOKIE', 'k2=v2');
     assert(headers.value('content-length') == '200');
     expect(Future(() => headers.value('test')), throwsException);
-    assert(headers['set-cookie'].length == 3);
-    headers.remove("set-cookie", 'k=v');
-    assert(headers['set-cookie'].length == 2);
+    assert(headers['set-cookie']?.length == 3);
+    headers.remove('set-cookie', 'k=v');
+    assert(headers['set-cookie']?.length == 2);
     headers.removeAll('set-cookie');
     assert(headers['set-cookie'] == null);
     var ls = [];
@@ -108,7 +108,7 @@ void main() {
       ls.addAll(list);
     });
     assert(ls.length == 3);
-    assert(headers.toString() == "content-length: 200\ntest: 1\ntest: 2\n");
+    assert(headers.toString() == 'content-length: 200\ntest: 1\ntest: 2\n');
     headers.set('content-length', '300');
     assert(headers.value('content-length') == '300');
     headers.set('content-length', ['400']);
@@ -128,7 +128,7 @@ void main() {
 
   test('#cancellation', () async {
     var dio = Dio();
-    CancelToken token = CancelToken();
+    final token = CancelToken();
     Timer(Duration(milliseconds: 10), () {
       token.cancel('cancelled');
       dio.httpClientAdapter.close(force: true);

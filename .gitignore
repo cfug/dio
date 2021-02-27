@@ -31,3 +31,5 @@ plugins/http2_adapter/.dart_tool/
 plugins/http2_adapter/.pub/
 plugins/http2_adapter/.idea/
 plugins/http2_adapter/.exampl
+
+.vscode/

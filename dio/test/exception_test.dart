@@ -2,12 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test("catch DioError", () async {
+  test('catch DioError', () async {
     dynamic error;
 
     try {
-      await Dio().get("https://does.not.exist");
-      fail("did not throw");
+      await Dio().get('https://does.not.exist');
+      fail('did not throw');
     } on DioError catch (e) {
       error = e;
     }
@@ -16,12 +16,12 @@ void main() {
     expect(error is Exception, isTrue);
   });
 
-  test("catch DioError as Exception", () async {
+  test('catch DioError as Exception', () async {
     dynamic error;
 
     try {
-      await Dio().get("https://does.not.exist");
-      fail("did not throw");
+      await Dio().get('https://does.not.exist');
+      fail('did not throw');
     } on Exception catch (e) {
       error = e;
     }

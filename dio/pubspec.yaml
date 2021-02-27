@@ -4,16 +4,15 @@ version: 3.0.10
 homepage: https://github.com/flutterchina/dio
 
 environment:
-  sdk: '>2.4.0 <3.0.0'
+  sdk: ">=2.12.0-0 <3.0.0"
 
 dependencies:
-  http_parser: ">=0.0.1 <4.0.0"
-  path: ^1.6.4
+  http_parser: ^4.0.0
+  path: ^1.8.0
 
 dev_dependencies:
-  test: ^1.5.1
-  pedantic: ^1.8.0
-  test_coverage: ^0.4.1
+  test: ^1.16.0
+  pedantic: ^1.10.0
+  test_coverage: ^0.5.0
 #  flutter_test:
 #    sdk: flutter
-

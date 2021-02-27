@@ -15,24 +15,24 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   /// [Dio] will create HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
   /// it when a HttpClient created.
-  OnHttpClientCreate onHttpClientCreate;
+  OnHttpClientCreate? onHttpClientCreate;
 
-  HttpClient _defaultHttpClient;
+  HttpClient? _defaultHttpClient;
 
   bool _closed = false;
 
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Stream<List<int>>? requestStream,
+    Future? cancelFuture,
   ) async {
     if (_closed) {
       throw Exception(
           "Can't establish connection after [HttpClientAdapter] closed!");
     }
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
-    Future requestFuture = _httpClient.openUrl(options.method, options.uri);
+    Future requestFuture = _httpClient.openUrl(options.method!, options.uri);
 
     void _throwConnectingTimeout() {
       throw DioError(
@@ -52,18 +52,18 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       rethrow;
     }
 
-    request.followRedirects = options.followRedirects;
-    request.maxRedirects = options.maxRedirects;
+    request.followRedirects = options.followRedirects ?? true;
+    request.maxRedirects = options.maxRedirects ?? 5;
 
     if (options.method != 'GET' && requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
     }
     Future future = request.close();
-    if (options.connectTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.connectTimeout));
+    if (options.connectTimeout != null && options.connectTimeout! > 0) {
+      future = future.timeout(Duration(milliseconds: options.connectTimeout!));
     }
-    HttpClientResponse responseStream;
+    late HttpClientResponse responseStream;
     try {
       responseStream = await future;
     } on TimeoutException {
@@ -95,16 +95,18 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(Future cancelFuture, int connectionTimeout) {
-    var _connectionTimeout = connectionTimeout > 0
-        ? Duration(milliseconds: connectionTimeout)
-        : null;
+  HttpClient _configHttpClient(Future? cancelFuture, int? connectionTimeout) {
+    var _connectionTimeout =
+        (connectionTimeout != null && connectionTimeout > 0)
+            ? Duration(milliseconds: connectionTimeout)
+            : null;
+
     if (cancelFuture != null) {
       var _httpClient = HttpClient();
       _httpClient.userAgent = null;
       if (onHttpClientCreate != null) {
         //user can return a HttpClient instance
-        _httpClient = onHttpClientCreate(_httpClient) ?? _httpClient;
+        _httpClient = onHttpClientCreate!(_httpClient) ?? _httpClient;
       }
       _httpClient.idleTimeout = Duration(seconds: 0);
       cancelFuture.whenComplete(() {
@@ -117,17 +119,18 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         });
       });
       return _httpClient..connectionTimeout = _connectionTimeout;
-    } else if (_defaultHttpClient == null) {
+    }
+    if (_defaultHttpClient == null) {
       _defaultHttpClient = HttpClient();
-      _defaultHttpClient.idleTimeout = Duration(seconds: 3);
+      _defaultHttpClient!.idleTimeout = Duration(seconds: 3);
       if (onHttpClientCreate != null) {
         //user can return a HttpClient instance
         _defaultHttpClient =
-            onHttpClientCreate(_defaultHttpClient) ?? _defaultHttpClient;
+            onHttpClientCreate!(_defaultHttpClient!) ?? _defaultHttpClient;
       }
-      _defaultHttpClient.connectionTimeout = _connectionTimeout;
+      _defaultHttpClient!.connectionTimeout = _connectionTimeout;
     }
-    return _defaultHttpClient;
+    return _defaultHttpClient!;
   }
 
   @override
