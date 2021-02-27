@@ -78,10 +78,10 @@ class LogInterceptor extends Interceptor {
   Future onError(DioError err) async {
     if (error) {
       logPrint('*** DioError ***:');
-      logPrint('uri: ${err.request.uri}');
+      logPrint('uri: ${err.request?.uri}');
       logPrint('$err');
       if (err.response != null) {
-        _printResponse(err.response);
+        _printResponse(err.response!);
       }
       logPrint('');
     }
@@ -100,10 +100,9 @@ class LogInterceptor extends Interceptor {
       if (response.isRedirect == true) {
         _printKV('redirect', response.realUri);
       }
-      if (response.headers != null) {
-        logPrint('headers:');
-        response.headers.forEach((key, v) => _printKV(' $key', v.join(',')));
-      }
+
+      logPrint('headers:');
+      response.headers.forEach((key, v) => _printKV(' $key', v.join(',')));
     }
     if (responseBody) {
       logPrint('Response Text:');
@@ -112,7 +111,7 @@ class LogInterceptor extends Interceptor {
     logPrint('');
   }
 
-  void _printKV(String key, Object v) {
+  void _printKV(String key, Object? v) {
     logPrint('$key: $v');
   }
 
