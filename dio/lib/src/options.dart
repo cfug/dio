@@ -2,6 +2,7 @@ import 'adapter.dart';
 import 'headers.dart';
 import 'transformer.dart';
 import 'cancel_token.dart';
+import 'utils.dart';
 
 /// Callback to listen the progress for sending/receiving data.
 ///
@@ -348,8 +349,9 @@ class _RequestConfig {
     this.maxRedirects = 5,
     this.requestEncoder,
     this.responseDecoder,
-  })  : headers = headers ?? {},
-        extra = extra ?? {} {
+  }) {
+    this.headers = caseInsensitiveKeyMap(value: headers);
+    this.extra = extra ?? {};
     this.contentType = contentType;
   }
 
