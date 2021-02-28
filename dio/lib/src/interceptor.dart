@@ -12,8 +12,8 @@ typedef EnqueueCallback = FutureOr Function();
 
 /// Add lock/unlock API for interceptors.
 class Lock {
-  Future _lock;
-  Completer _completer;
+  Future? _lock;
+  late Completer _completer;
 
   /// Whether this interceptor has been locked.
   bool get locked => _lock != null;
@@ -51,10 +51,10 @@ class Lock {
   ///
   /// [callback] the function  will return a `Future`
   /// @nodoc
-  Future enqueue(EnqueueCallback callback) {
+  Future? enqueue(EnqueueCallback callback) {
     if (locked) {
       // we use a future as a queue
-      return _lock.then((d) => callback());
+      return _lock!.then((d) => callback());
     }
     return null;
   }
@@ -93,14 +93,14 @@ class Interceptor {
 }
 
 class InterceptorsWrapper extends Interceptor {
-  final InterceptorSendCallback _onRequest;
-  final InterceptorSuccessCallback _onResponse;
-  final InterceptorErrorCallback _onError;
+  final InterceptorSendCallback? _onRequest;
+  final InterceptorSuccessCallback? _onResponse;
+  final InterceptorErrorCallback? _onError;
 
   InterceptorsWrapper({
-    InterceptorSendCallback onRequest,
-    InterceptorSuccessCallback onResponse,
-    InterceptorErrorCallback onError,
+    InterceptorSendCallback? onRequest,
+    InterceptorSuccessCallback? onResponse,
+    InterceptorErrorCallback? onError,
   })  : _onRequest = onRequest,
         _onResponse = onResponse,
         _onError = onError;
@@ -108,21 +108,21 @@ class InterceptorsWrapper extends Interceptor {
   @override
   Future onRequest(RequestOptions options) async {
     if (_onRequest != null) {
-      return _onRequest(options);
+      return _onRequest!(options);
     }
   }
 
   @override
   Future onResponse(Response response) async {
     if (_onResponse != null) {
-      return _onResponse(response);
+      return _onResponse!(response);
     }
   }
 
   @override
   Future onError(DioError err) async {
     if (_onError != null) {
-      return _onError(err);
+      return _onError!(err);
     }
   }
 }

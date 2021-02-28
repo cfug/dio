@@ -16,12 +16,12 @@ class CancelToken {
   }
 
   /// If request have been canceled, save the cancel Error.
-  DioError _cancelError;
+  DioError? _cancelError;
 
   /// If request have been canceled, save the cancel Error.
-  DioError get cancelError => _cancelError;
+  DioError? get cancelError => _cancelError;
 
-  Completer _completer;
+  late Completer _completer;
 
   /// whether cancelled
   bool get isCancelled => _cancelError != null;

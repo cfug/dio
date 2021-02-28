@@ -6,8 +6,8 @@ import 'multipart_file.dart';
 
 Future<MultipartFile> multipartFileFromPath(
   String filePath, {
-  String filename,
-  MediaType contentType,
+  String? filename,
+  MediaType? contentType,
 }) async {
   filename ??= p.basename(filePath);
   var file = File(filePath);
@@ -23,8 +23,8 @@ Future<MultipartFile> multipartFileFromPath(
 
 MultipartFile multipartFileFromPathSync(
   String filePath, {
-  String filename,
-  MediaType contentType,
+  String? filename,
+  MediaType? contentType,
 }) {
   filename ??= p.basename(filePath);
   var file = File(filePath);

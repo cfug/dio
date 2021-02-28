@@ -32,17 +32,17 @@ class DioError implements Exception {
   });
 
   /// Request info.
-  RequestOptions request;
+  RequestOptions? request;
 
   /// Response info, it may be `null` if the request can't reach to
   /// the http server, for example, occurring a dns error, network is not available.
-  Response response;
+  Response? response;
 
   DioErrorType type;
 
   /// The original error/exception object; It's usually not null when `type`
   /// is DioErrorType.DEFAULT
-  dynamic error;
+  dynamic? error;
 
   String get message => (error?.toString() ?? '');
 

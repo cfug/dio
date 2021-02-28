@@ -45,10 +45,8 @@ void getHttp() async {
 | [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) | [![Pub](https://img.shields.io/pub/v/dio_flutter_transformer.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_flutter_transformer) | A Dio transformer especially for flutter, by which the json decoding will be in background with `compute` function. |
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache)   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http_cache) | A cache library for Dio, like [Rxcache](https://github.com/VictorAlbertos/RxCache) in Android. dio-http-cache uses [sqflite](https://github.com/tekartik/sqflite) as disk cache, and [LRU](https://github.com/google/quiver-dart) strategy as memory cache. |
 | [retrofit](https://github.com/trevorwang/retrofit.dart/)     | [![Pub](https://img.shields.io/pub/v/retrofit.svg?style=flat-square)](https://pub.dartlang.org/packages/retrofit) | retrofit.dart is an dio client generator using source_gen and inspired by Chopper and Retrofit. |
-| [dio_firebase_performance](https://github.com/eyeem/dio_firebase_performance) | [![Pub](https://img.shields.io/pub/v/dio_firebase_performance.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_firebase_performance) | A Dio Interceptor for reporting network metrics to Firebase  |
-| [dio_http_formatter](https://github.com/assemmarwan/dio_http_formatter) | [![Pub](https://img.shields.io/pub/v/dio_firebase_performance.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http_formatter) | A simple Dio interceptor for pretty printing the HTTP request/response (using the awesome package [Logger](https://github.com/leisim/logger)) to be printed in the console for easier debugging and sharing. |
-
-There are more than **250 packages** depended on Dio by now ,   [Complete list is here](https://pub.dev/packages?q=dependency%3Adio) .
+| [dio_firebase_performance](https://github.com/eyeem/dio_firebase_performance)     | [![Pub](https://img.shields.io/pub/v/dio_firebase_performance.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_firebase_performance) | A Dio Interceptor for reporting network metrics to Firebase |
+ [postman_dio](https://github.com/zfx-com/postman_dio) | [![Pub](https://img.shields.io/pub/v/postman_dio.svg?style=flat-square)](https://pub.dartlang.org/packages/postman_dio) | A Dio Logger Interceptor for export to "Postman Collection".json |
 
 ### Related Projects
 
