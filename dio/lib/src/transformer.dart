@@ -35,7 +35,7 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   ///
-  static String urlEncodeMap(Map map,[CollectionFormat collectionFormat = CollectionFormat.csv]) {
+  static String urlEncodeMap(Map map,[CollectionFormat collectionFormat = CollectionFormat.multiCompatible]) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
       return '$key=${Uri.encodeQueryComponent(value.toString())}';

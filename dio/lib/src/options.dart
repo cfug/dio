@@ -60,6 +60,9 @@ enum CollectionFormat {
   // Multiple parameter instances rather than multiple values.
   // e.g. (foo=value&foo=another_value)
   multi,
+  // Forward compatibility
+  // e.g. (foo[]=value&foo[]=another_value)
+  multiCompatible,
 }
 
 typedef ValidateStatus = bool Function(int? status);
@@ -230,6 +233,7 @@ class Options {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) {
+
     var query = <String, dynamic>{};
     if (queryParameters != null) query.addAll(queryParameters);
     query.addAll(baseOpt.queryParameters);
@@ -346,8 +350,9 @@ class Options {
   ResponseDecoder? responseDecoder;
 
   /// [collectionFormat] indicates the format of collection data in request
-  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`.
-  /// The default value is `csv`
+  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
+  ///
+  /// The default value is `multiCompatible`
   CollectionFormat? collectionFormat;
 }
 
@@ -500,7 +505,7 @@ class _RequestConfig {
     this.method = method ?? 'GET';
     this.sendTimeout = sendTimeout ?? 0;
     this.receiveTimeout = receiveTimeout ?? 0;
-    this.collectionFormat = collectionFormat ?? CollectionFormat.csv;
+    this.collectionFormat = collectionFormat ?? CollectionFormat.multiCompatible;
     this.extra = extra ?? {};
     this.followRedirects = followRedirects ?? true;
     this.maxRedirects = maxRedirects ?? 5;
@@ -589,7 +594,7 @@ class _RequestConfig {
   ResponseDecoder? responseDecoder;
 
   /// [collectionFormat] indicates the format of collection data in request
-  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`.
-  /// The default value is `csv`
+  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
+  /// The default value is `multiCompatible`
   late CollectionFormat collectionFormat;
 }

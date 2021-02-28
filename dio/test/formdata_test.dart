@@ -7,7 +7,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
-void main() {
+void main() async {
   test('#test FormData', () async {
     var fm = FormData.fromMap({
       'name': 'wendux',
@@ -36,11 +36,11 @@ void main() {
     fm1.fields.add(MapEntry('age', '25'));
     fm1.files.add(MapEntry('file', MultipartFile.fromString('hellow world.')));
     fm1.files.add(MapEntry(
-      'files',
+      'files[]',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '1.txt'),
     ));
     fm1.files.add(MapEntry(
-      'files',
+      'files[]',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
     ));
     assert(fmStr.length == fm1.length);

@@ -11,7 +11,6 @@ part 'client_setting.dart';
 
 part 'connection_manager_imp.dart';
 
-
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter extends HttpClientAdapter {
   final ConnectionManager _connectionMgr;
@@ -25,8 +24,9 @@ class Http2Adapter extends HttpClientAdapter {
     Stream<List<int>> requestStream,
     Future? cancelFuture,
   ) async {
-    var  redirects = <RedirectRecord>[];
-    return _fetch(options, await requestStream.toList(), cancelFuture, redirects);
+    var redirects = <RedirectRecord>[];
+    return _fetch(
+        options, await requestStream.toList(), cancelFuture, redirects);
   }
 
   Future<ResponseBody> _fetch(
@@ -50,22 +50,22 @@ class Http2Adapter extends HttpClientAdapter {
     // Add custom headers
     headers.addAll(
       options.headers.keys
-          .map((key) => Header.ascii(key, options.headers[key]??''))
+          .map((key) => Header.ascii(key, options.headers[key] ?? ''))
           .toList(),
     );
 
     // Creates a new outgoing stream.
     final stream = transport.makeRequest(headers);
 
-    // unawaited
+    // ignore: unawaited_futures
     cancelFuture?.whenComplete(() {
-     Future(() {
-      stream.terminate();
-     });
+      Future(() {
+        stream.terminate();
+      });
     });
 
     await Stream.fromIterable(requestStream).listen((data) {
-          stream.outgoingMessages.add(DataStreamMessage(data));
+      stream.outgoingMessages.add(DataStreamMessage(data));
     }).asFuture();
 
     await stream.outgoingMessages.close();
@@ -87,21 +87,22 @@ class Http2Adapter extends HttpClientAdapter {
           }
 
           var status = responseHeaders.value(':status');
-          if(status!=null){
-           statusCode = int.parse(status);
-           responseHeaders.removeAll(':status');
-           needRedirect = options.followRedirects &&
-               options.maxRedirects > 0 &&
-               const [301, 302, 303, 307, 308].contains(statusCode);
-           needResponse = !needRedirect && options.validateStatus(statusCode) ||
-              options.receiveDataWhenStatusError;
-           completer.complete();
+          if (status != null) {
+            statusCode = int.parse(status);
+            responseHeaders.removeAll(':status');
+            needRedirect = options.followRedirects &&
+                options.maxRedirects > 0 &&
+                const [301, 302, 303, 307, 308].contains(statusCode);
+            needResponse =
+                !needRedirect && options.validateStatus(statusCode) ||
+                    options.receiveDataWhenStatusError;
+            completer.complete();
           }
         } else if (message is DataStreamMessage) {
           if (needResponse) {
             sc.add(Uint8List.fromList(message.bytes));
           } else {
-            //unawaited
+            // ignore: unawaited_futures
             subscription.cancel().whenComplete(() => sc.close());
           }
         }
@@ -124,7 +125,8 @@ class Http2Adapter extends HttpClientAdapter {
     // Handle redirection
     if (needRedirect) {
       var url = responseHeaders.value('location');
-      redirects.add(RedirectRecord(statusCode, options.method, Uri.parse(url??'')));
+      redirects.add(
+          RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')));
       return _fetch(
         options.merge(path: url, maxRedirects: --options.maxRedirects),
         requestStream,

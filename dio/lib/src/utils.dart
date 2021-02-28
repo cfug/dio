@@ -38,7 +38,7 @@ String encodeMap(
   data,
   DioEncodeHandler handler, {
   bool encode = true,
-  CollectionFormat collectionFormat = CollectionFormat.csv,
+  CollectionFormat collectionFormat = CollectionFormat.multiCompatible,
 }) {
   var urlData = StringBuffer('');
   var first = true;
@@ -48,10 +48,16 @@ String encodeMap(
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
-      if (collectionFormat == CollectionFormat.multi) {
+      if (collectionFormat == CollectionFormat.multi || collectionFormat == CollectionFormat.multiCompatible) {
         for (var i = 0; i < sub.length; i++) {
-          urlEncode(sub[i],
-              '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
+          if(collectionFormat==CollectionFormat.multi) {
+            urlEncode(sub[i],
+                '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
+          }else{
+            // Forward compatibility
+            urlEncode(sub[i],
+                '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket');
+          }
         }
       } else {
         urlEncode(sub.join(separatorChar), path);

@@ -62,7 +62,7 @@ class DioForNative with DioMixin implements Dio {
     String urlPath,
     savePath, {
     ProgressCallback? onReceiveProgress,
-    Map<String, dynamic> queryParameters = const {},
+    Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
@@ -247,8 +247,8 @@ class DioForNative with DioMixin implements Dio {
   ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
   ///
   ///     await dio.downloadUri(uri, './example/flutter.svg',
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
-  ///     onProgress: (received, total) {
+  ///      options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
+  ///      onProgress: (received, total) {
   ///       if (total != -1) {
   ///        print((received / total * 100).toStringAsFixed(0) + '%');
   ///       }
