@@ -4,7 +4,6 @@
 
 @TestOn('vm')
 import 'dart:convert';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'utils.dart';
@@ -15,7 +14,7 @@ void main() {
   tearDown(stopServer);
 
   group('#test requests', () {
-    Dio dio;
+    late Dio dio;
     setUp(() {
       dio = Dio();
       dio.options
@@ -81,7 +80,7 @@ void main() {
       assert(response.redirects.length == 1);
       var ri = response.redirects.first;
       assert(ri.statusCode == 302);
-      assert(ri.method == "GET");
+      assert(ri.method == 'GET');
     });
 
     test('#test request with URI', () async {
@@ -126,7 +125,7 @@ void main() {
       assert(response.redirects.length == 1);
       var ri = response.redirects.first;
       assert(ri.statusCode == 302);
-      assert(ri.method == "GET");
+      assert(ri.method == 'GET');
       assert(ri.location.path == '/');
     });
 

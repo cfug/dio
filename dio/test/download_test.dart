@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 @TestOn('vm')
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
@@ -46,7 +45,7 @@ void main() {
     const savePath = '../_download_test.md';
     var dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
-    Response r =
+    var r =
         await dio.download('/error', savePath).catchError((e) => e.response);
     assert(r.data == 'error');
     r = await dio

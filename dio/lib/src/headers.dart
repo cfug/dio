@@ -1,5 +1,7 @@
 import 'package:http_parser/http_parser.dart';
 
+import 'utils.dart';
+
 typedef HeaderForEachCallback = void Function(String name, List<String> values);
 
 class Headers {
@@ -20,14 +22,16 @@ class Headers {
 
   Map<String, List<String>> get map => _map;
 
-  Headers() : _map = <String, List<String>>{};
+  Headers() : _map = caseInsensitiveKeyMap<List<String>>();
 
   Headers.fromMap(Map<String, List<String>> map)
-      : _map = map.map((k, v) => MapEntry(k.trim().toLowerCase(), v));
+      : _map = caseInsensitiveKeyMap<List<String>>(
+          value: map.map((k, v) => MapEntry(k.trim().toLowerCase(), v)),
+        );
 
   /// Returns the list of values for the header named [name]. If there
   /// is no header with the provided name, [:null:] will be returned.
-  List<String> operator [](String name) {
+  List<String>? operator [](String name) {
     return _map[name.trim().toLowerCase()];
   }
 
@@ -35,7 +39,7 @@ class Headers {
   /// there is no header with the provided name, [:null:] will be
   /// returned. If the header has more than one value an exception is
   /// thrown.
-  String value(String name) {
+  String? value(String name) {
     var arr = this[name];
     if (arr == null) return null;
     if (arr.length == 1) return arr.first;
@@ -82,7 +86,7 @@ class Headers {
   /// header. The header name passed in [:name:] will be all lower
   /// case.
   void forEach(HeaderForEachCallback f) {
-    _map.keys.forEach((key) => f(key, this[key]));
+    _map.keys.forEach((key) => f(key, this[key]!));
   }
 
   @override
