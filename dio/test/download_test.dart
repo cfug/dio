@@ -61,7 +61,7 @@ void main() {
   test('#test download timeout', () async {
     const savePath = '../_download_test.md';
     var dio = Dio(BaseOptions(
-      receiveTimeout: 100,
+      receiveTimeout: 1,
       baseUrl: serverUrl.toString(),
     ));
     expect(dio.download('/download', savePath).catchError((e) => throw e.type),

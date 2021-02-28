@@ -57,7 +57,7 @@ class LogInterceptor extends Interceptor {
 
     if (request) {
       _printKV('method', options.method);
-      _printKV('responseType', options.responseType?.toString());
+      _printKV('responseType', options.responseType.toString());
       _printKV('followRedirects', options.followRedirects);
       _printKV('connectTimeout', options.connectTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
@@ -94,7 +94,7 @@ class LogInterceptor extends Interceptor {
   }
 
   void _printResponse(Response response) {
-    _printKV('uri', response.request?.uri);
+    _printKV('uri', response.request.uri);
     if (responseHeader) {
       _printKV('statusCode', response.statusCode);
       if (response.isRedirect == true) {

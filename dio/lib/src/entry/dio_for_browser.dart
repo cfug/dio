@@ -1,3 +1,4 @@
+import '../dio_mixin.dart';
 import '../options.dart';
 import '../dio.dart';
 import '../adapters/browser_adapter.dart';

@@ -3,6 +3,8 @@ import 'dart:collection';
 
 import 'dart:convert';
 
+import 'options.dart';
+
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
 final RegExp _asciiOnly = RegExp(r'^[\x00-\x7F]+$');
@@ -32,17 +34,27 @@ Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
 
 typedef DioEncodeHandler = Function(String key, Object? value);
 
-String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
+String encodeMap(
+  data,
+  DioEncodeHandler handler, {
+  bool encode = true,
+  CollectionFormat collectionFormat = CollectionFormat.csv,
+}) {
   var urlData = StringBuffer('');
   var first = true;
   var leftBracket = encode ? '%5B' : '[';
   var rightBracket = encode ? '%5D' : ']';
+  var separatorChar = _getSeparatorChar(collectionFormat);
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
-      for (var i = 0; i < sub.length; i++) {
-        urlEncode(sub[i],
-            '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket');
+      if (collectionFormat == CollectionFormat.multi) {
+        for (var i = 0; i < sub.length; i++) {
+          urlEncode(sub[i],
+              '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
+        }
+      } else {
+        urlEncode(sub.join(separatorChar), path);
       }
     } else if (sub is Map) {
       sub.forEach((k, v) {
@@ -69,7 +81,22 @@ String encodeMap(data, DioEncodeHandler handler, {bool encode = true}) {
   return urlData.toString();
 }
 
-Map<String, V> caseInsensitiveKeyMap<V>({Map<String, V> value}) {
+String _getSeparatorChar(CollectionFormat collectionFormat) {
+  switch (collectionFormat) {
+    case CollectionFormat.csv:
+      return ',';
+    case CollectionFormat.ssv:
+      return ' ';
+    case CollectionFormat.tsv:
+      return r'\t';
+    case CollectionFormat.pipes:
+      return '|';
+    default:
+      return '';
+  }
+}
+
+Map<String, V> caseInsensitiveKeyMap<V>([Map<String, V>? value]) {
   final map = LinkedHashMap<String, V>(
     equals: (key1, key2) => key1.toLowerCase() == key2.toLowerCase(),
     hashCode: (key) => key.toLowerCase().hashCode,

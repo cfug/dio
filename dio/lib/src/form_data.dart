@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+
+import 'options.dart';
 import 'multipart_file.dart';
 import 'utils.dart';
 
@@ -34,7 +36,8 @@ class FormData {
   }
 
   /// Create FormData instance with a Map.
-  FormData.fromMap(Map<String, dynamic> map) {
+  FormData.fromMap(Map<String, dynamic> map,
+      [CollectionFormat collectionFormat = CollectionFormat.multi]) {
     _init();
     encodeMap(
       map,
@@ -47,6 +50,7 @@ class FormData {
         }
         return null;
       },
+      collectionFormat: collectionFormat,
       encode: false,
     );
   }

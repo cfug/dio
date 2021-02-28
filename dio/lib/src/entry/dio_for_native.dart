@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import '../adapter.dart';
 import '../cancel_token.dart';
+import '../dio_mixin.dart';
 import '../response.dart';
 import '../dio.dart';
 import '../headers.dart';
@@ -85,9 +86,9 @@ class DioForNative with DioMixin implements Dio {
       );
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE) {
-        if (e.response!.request!.receiveDataWhenStatusError == true) {
+        if (e.response!.request.receiveDataWhenStatusError == true) {
           var res = await transformer.transformResponse(
-            e.response!.request!..responseType = ResponseType.json,
+            e.response!.request..responseType = ResponseType.json,
             e.response!.data,
           );
           e.response!.data = res;
@@ -196,10 +197,9 @@ class DioForNative with DioMixin implements Dio {
       await _closeAndDelete();
     });
 
-    if (response.request?.receiveTimeout != null &&
-        response.request!.receiveTimeout! > 0) {
+    if (response.request.receiveTimeout > 0) {
       future = future
-          .timeout(Duration(milliseconds: response.request!.receiveTimeout!))
+          .timeout(Duration(milliseconds: response.request.receiveTimeout))
           .catchError((err) async {
         await subscription.cancel();
         await _closeAndDelete();
@@ -207,7 +207,7 @@ class DioForNative with DioMixin implements Dio {
           throw DioError(
             request: response.request,
             error:
-                'Receiving data timeout[${response.request!.receiveTimeout}ms]',
+                'Receiving data timeout[${response.request.receiveTimeout}ms]',
             type: DioErrorType.RECEIVE_TIMEOUT,
           );
         } else {

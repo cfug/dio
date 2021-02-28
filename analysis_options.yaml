@@ -1,1 +1,4 @@
 include: package:pedantic/analysis_options.yaml
+analyzer:
+  enable-experiment:
+  - non-nullable

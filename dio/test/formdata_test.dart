@@ -24,9 +24,10 @@ void main() {
     var content = f.readAsStringSync();
     content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
     var actual = utf8.decode(fmStr, allowMalformed: true);
-    if (!Platform.isWindows) {
-      actual = actual.replaceAll('\r\n', '\n');
-    }
+
+    actual = actual.replaceAll('\r\n', '\n');
+    content = content.replaceAll('\r\n', '\n');
+
     expect(actual, content);
     expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
@@ -35,11 +36,11 @@ void main() {
     fm1.fields.add(MapEntry('age', '25'));
     fm1.files.add(MapEntry('file', MultipartFile.fromString('hellow world.')));
     fm1.files.add(MapEntry(
-      'files[]',
+      'files',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '1.txt'),
     ));
     fm1.files.add(MapEntry(
-      'files[]',
+      'files',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
     ));
     assert(fmStr.length == fm1.length);

@@ -26,7 +26,7 @@ class Headers {
 
   Headers.fromMap(Map<String, List<String>> map)
       : _map = caseInsensitiveKeyMap<List<String>>(
-          value: map.map((k, v) => MapEntry(k.trim().toLowerCase(), v)),
+          map.map((k, v) => MapEntry(k.trim().toLowerCase(), v)),
         );
 
   /// Returns the list of values for the header named [name]. If there

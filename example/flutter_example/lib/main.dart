@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .then((r) {
                 setState(() {
                   print(r.data);
-                  _text = r.data.replaceAll(RegExp(r"\s"), "");
+                  _text = r.data!.replaceAll(RegExp(r"\s"), "");
                 });
               }).catchError(print);
             },

@@ -8,7 +8,8 @@ class Response<T> {
   Response({
     this.data,
     Headers? headers,
-    this.request,
+    //this.request,
+    RequestOptions? request,
     this.isRedirect,
     this.statusCode,
     this.statusMessage,
@@ -18,6 +19,7 @@ class Response<T> {
     this.headers = headers ?? Headers();
     this.extra = extra ?? {};
     this.redirects = redirects ?? [];
+    this.request= request ?? RequestOptions();
   }
 
   /// Response body. may have been transformed, please refer to [ResponseType].
@@ -27,7 +29,7 @@ class Response<T> {
   late Headers headers;
 
   /// The corresponding request info.
-  RequestOptions? request;
+  late RequestOptions request;
 
   /// Http status code.
   int? statusCode;
@@ -58,7 +60,7 @@ class Response<T> {
   /// ** Attention **: Whether this field is available depends on whether the
   /// implementation of the adapter supports it or not.
   Uri? get realUri =>
-      (redirects.isNotEmpty) ? redirects.last.location : request?.uri;
+      (redirects.isNotEmpty) ? redirects.last.location : request.uri;
 
   /// We are more concerned about `data` field.
   @override

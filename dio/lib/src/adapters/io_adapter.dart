@@ -32,7 +32,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
           "Can't establish connection after [HttpClientAdapter] closed!");
     }
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
-    Future requestFuture = _httpClient.openUrl(options.method!, options.uri);
+    Future requestFuture = _httpClient.openUrl(options.method, options.uri);
 
     void _throwConnectingTimeout() {
       throw DioError(
@@ -42,7 +42,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    HttpClientRequest request;
+    late HttpClientRequest request;
     try {
       if (options.connectTimeout > 0) {
         request = await requestFuture
@@ -60,16 +60,13 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       _throwConnectingTimeout();
     }
 
-    request.followRedirects = options.followRedirects ?? true;
-    request.maxRedirects = options.maxRedirects ?? 5;
-
     if (options.method != 'GET' && requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
     }
     Future future = request.close();
-    if (options.connectTimeout != null && options.connectTimeout! > 0) {
-      future = future.timeout(Duration(milliseconds: options.connectTimeout!));
+    if (options.connectTimeout > 0) {
+      future = future.timeout(Duration(milliseconds: options.connectTimeout));
     }
     late HttpClientResponse responseStream;
     try {

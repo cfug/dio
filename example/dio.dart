@@ -28,7 +28,7 @@ main() async {
 
   dio.interceptors
     ..add(InterceptorsWrapper(
-      onRequest: (Options options) {
+      onRequest: (RequestOptions options) {
         // return ds.resolve( Response(data:"xxx"));
         // return ds.reject( DioError(message: "eh"));
         return options;

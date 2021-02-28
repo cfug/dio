@@ -36,7 +36,7 @@ main() async {
       if (csrfToken != options.headers["csrfToken"]) {
         options.headers["csrfToken"] = csrfToken;
         //repeat
-        return dio.request(options.path, options: options);
+        return dio.fetch(options);
       }
       // update token and repeat
       // Lock to block the incoming request until the token updated
@@ -52,7 +52,7 @@ main() async {
         dio.interceptors.errorLock.unlock();
       }).then((e) {
         //repeat
-        return dio.request(options.path, options: options);
+        return dio.fetch(options);
       });
     }
     return error;

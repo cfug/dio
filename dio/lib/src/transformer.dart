@@ -35,11 +35,11 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   ///
-  static String urlEncodeMap(Map map) {
+  static String urlEncodeMap(Map map,[CollectionFormat collectionFormat = CollectionFormat.csv]) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
       return '$key=${Uri.encodeQueryComponent(value.toString())}';
-    });
+    },collectionFormat: collectionFormat);
   }
 }
 
@@ -115,10 +115,10 @@ class DefaultTransformer extends Transformer {
     options.cancelToken?.whenCancel.then((_) {
       return subscription.cancel();
     });
-    if (options.receiveTimeout != null && options.receiveTimeout! > 0) {
+    if (options.receiveTimeout > 0) {
       try {
         await completer.future
-            .timeout(Duration(milliseconds: options.receiveTimeout!));
+            .timeout(Duration(milliseconds: options.receiveTimeout));
       } on TimeoutException {
         await subscription.cancel();
         throw DioError(

@@ -66,11 +66,11 @@ void main() {
   group('#test response interceptor', () {
     Dio dio;
     test('#test Response Interceptor', () async {
-      const String URL_NOT_FIND = '/404/';
-      const String URL_NOT_FIND_1 = URL_NOT_FIND + '1';
-      const String URL_NOT_FIND_2 = URL_NOT_FIND + '2';
-      const String URL_NOT_FIND_3 = URL_NOT_FIND + '3';
-      
+      const  URL_NOT_FIND = '/404/';
+      const  URL_NOT_FIND_1 = URL_NOT_FIND + '1';
+      const  URL_NOT_FIND_2 = URL_NOT_FIND + '2';
+      const  URL_NOT_FIND_3 = URL_NOT_FIND + '3';
+
       dio = Dio();
       dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
@@ -80,8 +80,8 @@ void main() {
           return response.data['data'];
         },
         onError: (e) {
-          if (e.response != null) {
-            switch (e.response.request.path) {
+          if (e.response?.request!=null) {
+            switch (e.response!.request.path) {
               case URL_NOT_FIND:
                 return e;
               case URL_NOT_FIND_1:
@@ -90,13 +90,13 @@ void main() {
               case URL_NOT_FIND_2:
                 return Response(data: 'fake data');
               case URL_NOT_FIND_3:
-                return 'custom error info [${e.response.statusCode}]';
+                return 'custom error info [${e.response!.statusCode}]';
             }
           }
           return e;
         },
       ));
-      Response response = await dio.get('/test');
+      var response = await dio.get('/test');
       expect(response.data['path'], '/test');
       expect(
           dio.get(URL_NOT_FIND).catchError((e) => throw e.response.statusCode),
@@ -193,12 +193,12 @@ void main() {
       }, onError: (DioError error) {
         // Assume 401 stands for token expired
         if (error.response?.statusCode == 401) {
-          final options = error.response!.request!;
+          final options = error.response!.request;
           // If the token has been updated, repeat directly.
           if (csrfToken != options.headers['csrfToken']) {
             options.headers['csrfToken'] = csrfToken;
             //repeat
-            return dio.request(options.path, options: options);
+            return dio.fetch(options);
           }
           // update token and repeat
           // Lock to block the incoming request until the token updated
@@ -215,7 +215,7 @@ void main() {
             dio.interceptors.errorLock.unlock();
           }).then((e) {
             //repeat
-            return dio.request(options.path, options: options);
+            return dio.fetch(options);
           });
         }
         return error;
