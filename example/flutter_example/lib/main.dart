@@ -67,8 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         padding: EdgeInsets.all(16),
         child: Column(children: [
-          RaisedButton(
-            child: Text("Request"),
+          ElevatedButton(
+            child: const Text("Request"),
             onPressed: () {
               dio
                   .get<String>(
@@ -81,8 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
               }).catchError(print);
             },
           ),
-          RaisedButton(
-            child: Text("Open new page5"),
+          ElevatedButton(
+            child: const Text("Open new page5"),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return RequestRoute();

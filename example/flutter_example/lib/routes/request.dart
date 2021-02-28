@@ -17,12 +17,12 @@ class _RequestRouteState extends State<RequestRoute> {
       body: Container(
         padding: EdgeInsets.all(16),
         child: Column(children: [
-          RaisedButton(
-            child: Text("Request"),
+          ElevatedButton(
+            child: const Text("Request"),
             onPressed: () {
               dio.get<String>("http://httpbin.org/get").then((r) {
                 setState(() {
-                  _text = r.data;
+                  _text = r.data!;
                 });
               });
             },
