@@ -93,9 +93,15 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (requestStream == null) {
       xhr.send();
     } else {
-      requestStream
-          .reduce((a, b) => Uint8List.fromList([...a, ...b]))
-          .then(xhr.send);
+      requestStream.isEmpty.then((isEmpty) {
+        if (isEmpty) {
+          xhr.send();
+        } else {
+          requestStream
+            .reduce((a, b) => Uint8List.fromList([...a, ...b]))
+            .then(xhr.send);
+        }
+      });
     }
 
     return completer.future.whenComplete(() {
