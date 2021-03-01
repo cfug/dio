@@ -26,18 +26,24 @@ class Http2Adapter extends HttpClientAdapter {
   ) async {
     var redirects = <RedirectRecord>[];
     return _fetch(
-        options, await requestStream.toList(), cancelFuture, redirects);
+      options,
+      requestStream,
+      cancelFuture,
+      redirects,
+    );
   }
 
   Future<ResponseBody> _fetch(
     RequestOptions options,
-    List<List<int>> requestStream,
+    Stream<List<int>> requestStream,
     Future? cancelFuture,
     List<RedirectRecord> redirects,
   ) async {
     final transport = await _connectionMgr.getConnection(options);
     final uri = options.uri;
     var path = uri.path;
+    const excludeMethods = ['PUT', 'POST', 'PATCH'];
+
     if (path.isEmpty || !path.startsWith('/')) path = '/' + path;
     if (uri.query.trim().isNotEmpty) path += ('?' + uri.query);
     var headers = [
@@ -64,7 +70,14 @@ class Http2Adapter extends HttpClientAdapter {
       });
     });
 
-    await Stream.fromIterable(requestStream).listen((data) {
+    var list;
+
+    if (!excludeMethods.contains(options.method)) {
+      list = await requestStream.toList();
+      requestStream = Stream.fromIterable(list);
+    }
+
+    await requestStream.listen((data) {
       stream.outgoingMessages.add(DataStreamMessage(data));
     }).asFuture();
 
@@ -90,12 +103,13 @@ class Http2Adapter extends HttpClientAdapter {
           if (status != null) {
             statusCode = int.parse(status);
             responseHeaders.removeAll(':status');
-            needRedirect = options.followRedirects &&
-                options.maxRedirects > 0 &&
-                const [301, 302, 303, 307, 308].contains(statusCode);
+
+            needRedirect = list != null && _needRedirect(options, statusCode);
+
             needResponse =
                 !needRedirect && options.validateStatus(statusCode) ||
                     options.receiveDataWhenStatusError;
+
             completer.complete();
           }
         } else if (message is DataStreamMessage) {
@@ -121,15 +135,17 @@ class Http2Adapter extends HttpClientAdapter {
       },
       cancelOnError: true,
     );
+
     await completer.future;
+
     // Handle redirection
     if (needRedirect) {
       var url = responseHeaders.value('location');
       redirects.add(
           RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')));
       return _fetch(
-        options.merge(path: url, maxRedirects: --options.maxRedirects),
-        requestStream,
+        options.copyWith(path: url, maxRedirects: --options.maxRedirects),
+        Stream.fromIterable(list),
         cancelFuture,
         redirects,
       );
@@ -141,6 +157,13 @@ class Http2Adapter extends HttpClientAdapter {
       redirects: redirects,
       isRedirect: redirects.isNotEmpty,
     );
+  }
+
+  bool _needRedirect(RequestOptions options, int status) {
+    const statusCodes = [301, 302, 303, 307, 308];
+    return options.followRedirects &&
+        options.maxRedirects > 0 &&
+        statusCodes.contains(status);
   }
 
   @override

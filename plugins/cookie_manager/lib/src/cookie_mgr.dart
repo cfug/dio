@@ -13,7 +13,7 @@ class CookieManager extends Interceptor {
 
   @override
   Future onRequest(RequestOptions options) async {
-    var cookies = cookieJar.loadForRequest(options.uri);
+    var cookies = await cookieJar.loadForRequest(options.uri);
     var cookie = getCookies(cookies);
     if (cookie.isNotEmpty) options.headers[HttpHeaders.cookieHeader] = cookie;
   }
@@ -24,10 +24,10 @@ class CookieManager extends Interceptor {
   @override
   Future onError(DioError err) async => _saveCookies(err.response);
 
-  void _saveCookies(Response? response) {
+  void _saveCookies(Response? response) async {
       var cookies = response?.headers[HttpHeaders.setCookieHeader];
       if (cookies != null) {
-        cookieJar.saveFromResponse(
+       await cookieJar.saveFromResponse(
           response!.request.uri,
           cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
         );

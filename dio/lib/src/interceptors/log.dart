@@ -54,13 +54,16 @@ class LogInterceptor extends Interceptor {
   Future onRequest(RequestOptions options) async {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
+    //options.headers;
 
     if (request) {
       _printKV('method', options.method);
       _printKV('responseType', options.responseType.toString());
       _printKV('followRedirects', options.followRedirects);
       _printKV('connectTimeout', options.connectTimeout);
+      _printKV('sendTimeout', options.sendTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
+      _printKV('receiveDataWhenStatusError', options.receiveDataWhenStatusError);
       _printKV('extra', options.extra);
     }
     if (requestHeader) {
@@ -102,7 +105,7 @@ class LogInterceptor extends Interceptor {
       }
 
       logPrint('headers:');
-      response.headers.forEach((key, v) => _printKV(' $key', v.join(',')));
+      response.headers.forEach((key, v) => _printKV(' $key', v.join('\r\n\t')));
     }
     if (responseBody) {
       logPrint('Response Text:');

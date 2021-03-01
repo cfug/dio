@@ -14,10 +14,8 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: 3.x #latest version
+  dio: 4.0.0-beta1 # support null-safety & some new features
 ```
-> In order to support Flutter Web, v3.x was heavily refactored, so it was not compatible with version 3.x See [here](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
-
 ### Super simple to use
 
 ```dart
@@ -38,13 +36,12 @@ void getHttp() async {
 
 ### Plugins
 
-| Plugins                                                      | Status                                                       | Description                                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A cookie manager for Dio                                     |
-| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A Dio HttpClientAdapter which support Http/2.0               |
-| [dio_flutter_transformer](https://github.com/flutterchina/dio_flutter_transformer) | [![Pub](https://img.shields.io/pub/v/dio_flutter_transformer.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_flutter_transformer) | A Dio transformer especially for flutter, by which the json decoding will be in background with `compute` function. |
-| [dio_http_cache](https://github.com/hurshi/dio-http-cache)   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http_cache) | A cache library for Dio, like [Rxcache](https://github.com/VictorAlbertos/RxCache) in Android. dio-http-cache uses [sqflite](https://github.com/tekartik/sqflite) as disk cache, and [LRU](https://github.com/google/quiver-dart) strategy as memory cache. |
-| [retrofit](https://github.com/trevorwang/retrofit.dart/)     | [![Pub](https://img.shields.io/pub/v/retrofit.svg?style=flat-square)](https://pub.dartlang.org/packages/retrofit) | retrofit.dart is an dio client generator using source_gen and inspired by Chopper and Retrofit. |
+| Plugins                                                      | Support version | Description                                                  |
+| ------------------------------------------------------------ | --------------- | ------------------------------------------------------------ |
+| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | >= 2.0.0-beta1  | A cookie manager for Dio                                     |
+| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | >= 2.0.0-beta1  | A Dio HttpClientAdapter which support Http/2.0               |
+| [dio_http_cache](https://github.com/hurshi/dio-http-cache)   | Unsupport       | A cache library for Dio, like [Rxcache](https://github.com/VictorAlbertos/RxCache) in Android. dio-http-cache uses [sqflite](https://github.com/tekartik/sqflite) as disk cache, and [LRU](https://github.com/google/quiver-dart) strategy as memory cache. |
+| [retrofit](https://github.com/trevorwang/retrofit.dart/)     | Unknown         | retrofit.dart is an dio client generator using source_gen and inspired by Chopper and Retrofit. |
 
 ### Related Projects
 
@@ -250,6 +247,8 @@ For convenience aliases have been provided for all supported request methods.
 
 **Future<Response> download(...)**
 
+**Future<Response> fetch(RequestOptions)**
+
 
 ## Request Options
 
@@ -309,6 +308,11 @@ The Options class describes the http request information and configuration. Each
   
   /// Common query parameters
   Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
+  
+  /// [collectionFormat] indicates the format of collection data in request
+  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
+  /// The default value is `multiCompatible`
+  late CollectionFormat collectionFormat;
 
 }
 ```
@@ -480,10 +484,10 @@ try {
 } on DioError catch(e) {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx and is also not 304.
-    if(e.response) {
-        print(e.response.data)
-        print(e.response.headers)
-        print(e.response.request)
+    if(e.response!=null) {
+        print(e.response!.data)
+        print(e.response!.headers)
+        print(e.response!.request)
     } else{
         // Something happened in setting up or sending the request that triggered an Error
         print(e.request)

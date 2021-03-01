@@ -57,7 +57,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       reader.onError.first.then((error) {
         completer.completeError(
           DioError(
-            type: DioErrorType.RESPONSE,
+            type: DioErrorType.response,
             error: error,
             request: options,
           ),
@@ -72,7 +72,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       // specific information about the error itself.
       completer.completeError(
         DioError(
-          type: DioErrorType.RESPONSE,
+          type: DioErrorType.response,
           error: 'XMLHttpRequest error.',
           request: options,
         ),

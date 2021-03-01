@@ -433,44 +433,18 @@ abstract class DioMixin implements Dio {
 
   /// Make http request with options.
   ///
-  /// [path] The url path.
-  /// [data] The request data
-  /// [options] The request options.
-  @override
-  Future<Response<T>> request<T>(
-    String path, {
-    data,
-    Map<String, dynamic>? queryParameters,
-    CancelToken? cancelToken,
-    Options? options,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    return _request<T>(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      cancelToken: cancelToken,
-      options: options,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
-  }
-
-  /// Make http request with options.
-  ///
   /// [uri] The uri.
   /// [data] The request data
   /// [options] The request options.
   @override
   Future<Response<T>> requestUri<T>(
-    Uri uri, {
-    data,
-    CancelToken? cancelToken,
-    Options? options,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) {
+      Uri uri, {
+        data,
+        CancelToken? cancelToken,
+        Options? options,
+        ProgressCallback? onSendProgress,
+        ProgressCallback? onReceiveProgress,
+      }) {
     return request(
       uri.toString(),
       data: data,
@@ -481,7 +455,13 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  Future<Response<T>> _request<T>(
+  /// Make http request with options.
+  ///
+  /// [path] The url path.
+  /// [data] The request data
+  /// [options] The request options.
+  @override
+  Future<Response<T>> request<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -519,9 +499,10 @@ abstract class DioMixin implements Dio {
     return fetch<T>(requestOptions);
   }
 
+  bool _isErrorOrException(t) => t is Exception || t is Error;
+
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-    bool _isErrorOrException(t) => t is Exception || t is Error;
 
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
@@ -556,7 +537,6 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(dynamic) _responseInterceptorWrapper(
         interceptor) {
       return (data) async {
-        var isResp = data is Response;
         var isError = _isErrorOrException(data);
         var lock = interceptors.responseLock;
         return listenCancelForAsyncTask(
@@ -566,7 +546,8 @@ abstract class DioMixin implements Dio {
               if (isError) {
                 throw assureDioError(data, requestOptions);
               } else {
-                if (isResp) {
+                if (data is Response) {
+                  // Make sure Response.request exists.
                   data.request = data.request ?? requestOptions;
                 } else {
                   // ensure data is Response object
@@ -627,7 +608,7 @@ abstract class DioMixin implements Dio {
 
     // Normalize errors, we convert error to the DioError
     return future.then<Response<T>>((data) {
-      return assureResponse<T>(data);
+      return assureResponse<T>(data,requestOptions);
     }).catchError((err) {
       if (err == null || _isErrorOrException(err)) {
         throw assureDioError(err, requestOptions);
@@ -683,7 +664,7 @@ abstract class DioMixin implements Dio {
         throw DioError(
           response: ret,
           error: 'Http status error [${responseBody.statusCode}]',
-          type: DioErrorType.RESPONSE,
+          type: DioErrorType.response,
         );
       }
     } catch (e) {
@@ -784,7 +765,7 @@ abstract class DioMixin implements Dio {
           sink.addError(DioError(
             request: options,
             error: 'Sending timeout[${options.connectTimeout}ms]',
-            type: DioErrorType.SEND_TIMEOUT,
+            type: DioErrorType.sendTimeout,
           ));
           sink.close();
         });
@@ -825,7 +806,10 @@ abstract class DioMixin implements Dio {
     if (response is Response<T>) {
       response.request = requestOptions ?? response.request;
     } else if (response is! Response) {
-      response = Response<T>(data: response, request: requestOptions);
+      response = Response<T>(
+          data: response,
+          request: requestOptions ?? RequestOptions(path: ''),
+      );
     } else {
       T data = response.data;
       response = Response<T>(

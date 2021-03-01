@@ -1,3 +1,9 @@
+## [2.0.0-beta1]
+
+- support null-safety
+- support dio 4.x
+
+
 ## [1.0.1] - 2020.8.7
 
 - merge #760

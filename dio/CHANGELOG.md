@@ -1,4 +1,12 @@
 
+# 4.0.0-beta2
+
+- support null-safety
+- add `CollectionFormat` configuration in Options
+- add `fetch` API for Dio
+- rename DioErrorType enums from uppercase to camel style
+- rename 'Options.merge' to 'Options.copyWith'
+
 # 3.0.10 2020.8.7
 
 1. fix #877 'dio.interceptors.errorLock.lock()'

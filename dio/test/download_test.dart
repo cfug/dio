@@ -65,7 +65,7 @@ void main() {
       baseUrl: serverUrl.toString(),
     ));
     expect(dio.download('/download', savePath).catchError((e) => throw e.type),
-        throwsA(DioErrorType.RECEIVE_TIMEOUT));
+        throwsA(DioErrorType.receiveTimeout));
     //print(r);
   });
 
@@ -83,7 +83,7 @@ void main() {
             cancelToken: cancelToken,
           )
           .catchError((e) => throw e.type),
-      throwsA(DioErrorType.CANCEL),
+      throwsA(DioErrorType.cancel),
     );
     //print(r);
   });

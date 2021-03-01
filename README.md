@@ -14,7 +14,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: 3.x #latest version
+  dio: ^4.0.0-beta2
 ```
 > In order to support Flutter Web, v3.x was heavily refactored, so v3.x is not compatible with v2.x See [the changelog](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
 
@@ -24,7 +24,7 @@ dependencies:
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
-    Response response = await Dio().get("http://www.google.com");
+    var response = await Dio().get('http://www.google.com');
     print(response);
   } catch (e) {
     print(e);
@@ -46,7 +46,7 @@ void getHttp() async {
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache)   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http_cache) | A cache library for Dio, like [Rxcache](https://github.com/VictorAlbertos/RxCache) in Android. dio-http-cache uses [sqflite](https://github.com/tekartik/sqflite) as disk cache, and [LRU](https://github.com/google/quiver-dart) strategy as memory cache. |
 | [retrofit](https://github.com/trevorwang/retrofit.dart/)     | [![Pub](https://img.shields.io/pub/v/retrofit.svg?style=flat-square)](https://pub.dartlang.org/packages/retrofit) | retrofit.dart is an dio client generator using source_gen and inspired by Chopper and Retrofit. |
 | [dio_firebase_performance](https://github.com/eyeem/dio_firebase_performance)     | [![Pub](https://img.shields.io/pub/v/dio_firebase_performance.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_firebase_performance) | A Dio Interceptor for reporting network metrics to Firebase |
- [postman_dio](https://github.com/zfx-com/postman_dio) | [![Pub](https://img.shields.io/pub/v/postman_dio.svg?style=flat-square)](https://pub.dartlang.org/packages/postman_dio) | A Dio Logger Interceptor for export to "Postman Collection".json |
+ [postman_dio](https://github.com/zfx-com/postman_dio) | [![Pub](https://img.shields.io/pub/v/postman_dio.svg?style=flat-square)](https://pub.dartlang.org/packages/postman_dio) | A Dio Logger Interceptor for export to 'Postman Collection'.json |
 
 ### Related Projects
 
@@ -96,37 +96,38 @@ Performing a `GET` request:
 
 ```dart
 Response response;
-Dio dio = new Dio();
-response = await dio.get("/test?id=12&name=wendu");
+var dio = Dio();
+response = await dio.get('/test?id=12&name=wendu');
 print(response.data.toString());
 // Optionally the request above could also be done as
-response = await dio.get("/test", queryParameters: {"id": 12, "name": "wendu"});
+response = await dio.get('/test', queryParameters: {'id': 12, 'name': 'wendu'});
 print(response.data.toString());
 ```
 
 Performing a `POST` request:
 
 ```dart
-response = await dio.post("/test", data: {"id": 12, "name": "wendu"});
+response = await dio.post('/test', data: {'id': 12, 'name': 'wendu'});
 ```
 
 Performing multiple concurrent requests:
 
 ```dart
-response = await Future.wait([dio.post("/info"), dio.get("/token")]);
+response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
 Downloading a file:
 
 ```dart
-response = await dio.download("https://www.google.com/", "./xx.html");
+response = await dio.download('https://www.google.com/', './xx.html');
 ```
 
 Get response stream:
 
 ```dart
-Response<ResponseBody> rs = await Dio().get<ResponseBody>(url,
- options: Options(responseType: ResponseType.stream), // set responseType to `stream`
+Response<ResponseBody> rs;
+rs = await Dio().get<ResponseBody>(url,
+  options: Options(responseType: ResponseType.stream),  // set responseType to `stream`
 );
 print(rs.data.stream); //response stream
 ```
@@ -134,8 +135,9 @@ print(rs.data.stream); //response stream
 Get response with bytes:
 
 ```dart
-Response<List<int>> rs = await Dio().get<List<int>>(url,
- options: Options(responseType: ResponseType.bytes), // // set responseType to `bytes`
+Response<List<int>> rs 
+rs = await Dio().get<List<int>>(url,
+ options: Options(responseType: ResponseType.bytes), // set responseType to `bytes`
 );
 print(rs.data); // List<int>
 ```
@@ -143,36 +145,36 @@ print(rs.data); // List<int>
 Sending FormData:
 
 ```dart
-FormData formData = new FormData.fromMap({
-    "name": "wendux",
-    "age": 25,
-  });
-response = await dio.post("/info", data: formData);
+var formData = FormData.fromMap({
+  'name': 'wendux',
+  'age': 25,
+});
+var response = await dio.post('/info', data: formData);
 ```
 
 Uploading multiple files to server by FormData:
 
 ```dart
-FormData.fromMap({
-    "name": "wendux",
-    "age": 25,
-    "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt"),
-    "files": [
-      await MultipartFile.fromFile("./text1.txt", filename: "text1.txt"),
-      await MultipartFile.fromFile("./text2.txt", filename: "text2.txt"),
-    ]
+var formData = FormData.fromMap({
+  'name': 'wendux',
+  'age': 25,
+  'file': await MultipartFile.fromFile('./text.txt', filename: 'upload.txt'),
+  'files': [
+    await MultipartFile.fromFile('./text1.txt', filename: 'text1.txt'),
+    await MultipartFile.fromFile('./text2.txt', filename: 'text2.txt'),
+  ]
 });
-response = await dio.post("/info", data: formData);
+var response = await dio.post('/info', data: formData);
 ```
 
 Listening the uploading progress:
 
 ```dart
 response = await dio.post(
-  "http://www.dtworkroom.com/doris/1/2.0.0/test",
-  data: {"aa": "bb" * 22},
+  'http://www.dtworkroom.com/doris/1/2.0.0/test',
+  data: {'aa': 'bb' * 22},
   onSendProgress: (int sent, int total) {
-    print("$sent $total");
+    print('$sent $total');
   },
 );
 ```
@@ -203,20 +205,20 @@ await dio.post(
 You can create instance of Dio with an optional `BaseOptions` object:
 
 ```dart
-Dio dio = new Dio(); // with default Options
+var dio = Dio(); // with default Options
 
 // Set default configs
-dio.options.baseUrl = "https://www.xx.com/api";
+dio.options.baseUrl = 'https://www.xx.com/api';
 dio.options.connectTimeout = 5000; //5s
 dio.options.receiveTimeout = 3000;
 
 // or new Dio with a BaseOptions instance.
-BaseOptions options = new BaseOptions(
-    baseUrl: "https://www.xx.com/api",
-    connectTimeout: 5000,
-    receiveTimeout: 3000,
+var options = BaseOptions(
+  baseUrl: 'https://www.xx.com/api',
+  connectTimeout: 5000,
+  receiveTimeout: 3000,
 );
-Dio dio = new Dio(options);
+Dio dio = Dio(options);
 ```
 
 The core API in Dio instance is:
@@ -225,10 +227,10 @@ The core API in Dio instance is:
     ProgressCallback onReceiveProgress)**
 
 ```dart
-response=await request(
-    "/test",
-    data: {"id":12,"name":"xx"},
-    options: Options(method:"GET"),
+response = await dio.request(
+  '/test',
+  data: {'id':12,'name':'xx'},
+  options: Options(method:'GET'),
 );
 ```
 
@@ -252,6 +254,8 @@ For convenience aliases have been provided for all supported request methods.
 
 **Future<Response> download(...)**
 
+**Future<Response> fetch(RequestOptions)**  new*
+
 
 ## Request Options
 
@@ -262,7 +266,7 @@ The Options class describes the http request information and configuration. Each
   /// Http method.
   String method;
 
-  /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
+  /// Request base url, it can contain sub path, like: 'https://www.google.com/api/'.
   String baseUrl;
 
   /// Http request headers.
@@ -279,12 +283,12 @@ The Options class describes the http request information and configuration. Each
   /// Request data, can be any type.
   T data;
 
-  /// If the `path` starts with "http(s)", the `baseURL` will be ignored, otherwise,
+  /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
-  String path="";
+  String path='';
 
-  /// The request Content-Type. The default value is "application/json; charset=utf-8".
-  /// If you want to encode request body with "application/x-www-form-urlencoded",
+  /// The request Content-Type. The default value is 'application/json; charset=utf-8'.
+  /// If you want to encode request body with 'application/x-www-form-urlencoded',
   /// you can set [Headers.formUrlEncodedContentType], and [Dio]
   /// will automatically encode the request body.
   String contentType;
@@ -293,7 +297,7 @@ The Options class describes the http request information and configuration. Each
   /// options which defined in [ResponseType] are `JSON`, `STREAM`, `PLAIN`.
   ///
   /// The default value is `JSON`, dio will parse response string to json object automatically
-  /// when the content-type of response is "application/json".
+  /// when the content-type of response is 'application/json'.
   ///
   /// If you want to receive response data with binary bytes, for example,
   /// downloading a image, use `STREAM`.
@@ -311,6 +315,11 @@ The Options class describes the http request information and configuration. Each
   
   /// Common query parameters
   Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
+  
+   /// [collectionFormat] indicates the format of collection data in request
+  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
+  /// The default value is `multiCompatible`
+  late CollectionFormat collectionFormat;
 
 }
 ```
@@ -324,15 +333,16 @@ The response for a request contains the following information.
 ```dart
 {
   /// Response body. may have been transformed, please refer to [ResponseType].
-  T data;
+  T? data;
   /// Response headers.
   Headers headers;
   /// The corresponding request info.
   Options request;
   /// Http status code.
-  int statusCode;
+  int? statusCode;
+  String? statusMessage;
   /// Whether redirect 
-  bool isRedirect;  
+  bool? isRedirect;  
   /// redirect info    
   List<RedirectInfo> redirects ;
   /// Returns the final real request uri (maybe redirect). 
@@ -345,7 +355,7 @@ The response for a request contains the following information.
 When request is succeed, you will receive the response as follows:
 
 ```dart
-Response response = await dio.get("https://www.google.com");
+Response response = await dio.get('https://www.google.com');
 print(response.data);
 print(response.headers);
 print(response.request);
@@ -385,17 +395,17 @@ import 'package:dio/dio.dart';
 class CustomInterceptors extends InterceptorsWrapper {
   @override
   Future onRequest(RequestOptions options) {
-    print("REQUEST[${options?.method}] => PATH: ${options?.path}");
+    print('REQUEST[${options?.method}] => PATH: ${options?.path}');
     return super.onRequest(options);
   }
   @override
   Future onResponse(Response response) {
-    print("RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}");
+    print('RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}');
     return super.onResponse(response);
   }
   @override
   Future onError(DioError err) {
-    print("ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}");
+    print('ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}');
     return super.onError(err);
   }
 }
@@ -409,11 +419,11 @@ In all interceptors, you can interfere with their execution flow. If you want to
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
   onRequest:(RequestOptions options) {
-   return dio.resolve("fake data")
+   return dio.resolve('fake data')
   },
 ));
-Response response = await dio.get("/test");
-print(response.data);//"fake data"
+Response response = await dio.get('/test');
+print(response.data);//'fake data'
 ```
 
 ### Lock/unlock the interceptors
@@ -421,20 +431,20 @@ print(response.data);//"fake data"
 You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue before they enter the interceptor, they will not be continued until the interceptor is unlocked.
 
 ```dart
-tokenDio = new Dio(); //Create a new instance to request the token.
-tokenDio.options = dio;
+tokenDio = Dio(); //Create a new instance to request the token.
+tokenDio.options = dio.options.copyWith();
 dio.interceptors.add(InterceptorsWrapper(
-    onRequest:(Options options) async {
-        // If no token, request token firstly and lock this interceptor
-        // to prevent other request enter this interceptor.
-        dio.interceptors.requestLock.lock();
-        // We use a new Dio(to avoid dead lock) instance to request token.
-        Response response = await tokenDio.get("/token");
-        //Set the token to headers
-        options.headers["token"] = response.data["data"]["token"];
-        dio.interceptors.requestLock.unlock();
-        return options; //continue
-    }
+  onRequest:(Options options) async {
+    // If no token, request token firstly and lock this interceptor
+    // to prevent other request enter this interceptor.
+    dio.interceptors.requestLock.lock();
+    // We use a new Dio(to avoid dead lock) instance to request token.
+    Response response = await tokenDio.get('/token');
+    //Set the token to headers
+    options.headers['token'] = response.data['data']['token'];
+    dio.interceptors.requestLock.unlock();
+    return options; //continue
+  }
 ));
 ```
 
@@ -456,24 +466,23 @@ Because of security reasons, we need all the requests to set up a csrfToken in t
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
-    onRequest: (Options options) async {
-        print('send request：path:${options.path}，baseURL:${options.baseUrl}');
-        if (csrfToken == null) {
-            print("no token，request token firstly...");
-            //lock the dio.
-            dio.lock();
-            return tokenDio.get("/token").then((d) {
-                options.headers["csrfToken"] = csrfToken = d.data['data']['token'];
-                print("request token succeed, value: " + d.data['data']['token']);
-                print(
-                    'continue to perform request：path:${options.path}，baseURL:${options.path}');
-                return options;
-            }).whenComplete(() => dio.unlock()); // unlock the dio
-        } else {
-            options.headers["csrfToken"] = csrfToken;
-            return options;
-        }
+  onRequest: (Options options) async {
+    print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+    if (csrfToken == null) {
+      print('no token，request token firstly...');
+      //lock the dio.
+      dio.lock();
+      return tokenDio.get('/token').then((d) {
+        options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
+        print('request token succeed, value: ' + d.data['data']['token']);
+        print( 'continue to perform request：path:${options.path}，baseURL:${options.path}');
+        return options;
+      }).whenComplete(() => dio.unlock()); // unlock the dio
+    } else {
+      options.headers['csrfToken'] = csrfToken;
+      return options;
     }
+  }
 ));
 ```
 
@@ -501,20 +510,20 @@ When a error occurs, Dio will wrap the `Error/Exception` to a `DioError`:
 
 ```dart
 try {
-    //404
-    await dio.get("https://wendux.github.io/xsddddd");
-} on DioError catch(e) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx and is also not 304.
-    if(e.response) {
-        print(e.response.data)
-        print(e.response.headers)
-        print(e.response.request)
-    } else{
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request)
-        print(e.message)
-    }
+  //404
+  await dio.get('https://wendux.github.io/xsddddd');
+} on DioError catch (e) {
+  // The request was made and the server responded with a status code
+  // that falls out of the range of 2xx and is also not 304.
+  if (e.response) {
+    print(e.response.data)
+    print(e.response.headers)
+    print(e.response.request)
+  } else {
+    // Something happened in setting up or sending the request that triggered an Error
+    print(e.request)
+    print(e.message)
+  }
 }
 ```
 
@@ -524,16 +533,16 @@ try {
  {
   /// Response info, it may be `null` if the request can't reach to
   /// the http server, for example, occurring a dns error, network is not available.
-  Response response;
-
+  Response? response;
+  /// Request info.
+  RequestOptions? request;
   /// Error descriptions.
   String message;
 
   DioErrorType type;
-
   /// The original error/exception object; It's usually not null when `type`
   /// is DioErrorType.DEFAULT
-  dynamic error;
+  dynamic? error;
 }
 ```
 
@@ -541,21 +550,24 @@ try {
 
 ```dart
 enum DioErrorType {
-  /// When opening  url timeout, it occurs.
-  CONNECT_TIMEOUT,
+  /// It occurs when url is opened timeout.
+  connectTimeout,
+
+  /// It occurs when url is sent timeout.
+  sendTimeout,
 
   ///It occurs when receiving timeout.
-  RECEIVE_TIMEOUT,
+  receiveTimeout,
 
   /// When the server response, but with a incorrect status, such as 404, 503...
-  RESPONSE,
+  response,
 
   /// When the request is cancelled, dio will throw a error with this type.
-  CANCEL,
+  cancel,
 
   /// Default error type, Some other Error. In this case, you can
-  /// read the DioError.error if it is not null.
-  DEFAULT,
+  /// use the DioError.error if it is not null.
+  other,
 }
 ```
 
@@ -569,8 +581,11 @@ By default, Dio serializes request data(except String type) to `JSON`. To send d
 //Instance level
 dio.options.contentType= Headers.formUrlEncodedContentType;
 //or works once
-dio.post("/info", data:{"id":5}, 
-         options: Options(contentType:Headers.formUrlEncodedContentType ));
+dio.post(
+  '/info',
+  data: {'id': 5},
+  options: Options(contentType: Headers.formUrlEncodedContentType),
+);
 ```
 
 ## Sending FormData
@@ -578,12 +593,12 @@ dio.post("/info", data:{"id":5},
 You can also send FormData with Dio, which will send data in the `multipart/form-data`, and it supports uploading files.
 
 ```dart
-FormData formData = FormData.fromMap({
-    "name": "wendux",
-    "age": 25,
-    "file": await MultipartFile.fromFile("./text.txt",filename: "upload.txt")
+var formData = FormData.fromMap({
+  'name': 'wendux',
+  'age': 25,
+  'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt')
 });
-response = await dio.post("/info", data: formData);
+response = await dio.post('/info', data: formData);
 ```
 
 There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/formdata.dart).
@@ -593,32 +608,26 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 There are two ways to add multiple files to ` FormData`， the only difference is that upload keys are different for array types。
 
 ```dart
-  FormData.fromMap({
-    "files": [
-      MultipartFile.fromFileSync("./example/upload.txt",
-          filename: "upload.txt"),
-      MultipartFile.fromFileSync("./example/upload.txt",
-          filename: "upload.txt"),
-    ]
-  });
+FormData.fromMap({
+  'files': [
+    MultipartFile.fromFileSync('./example/upload.txt', filename: 'upload.txt'),
+    MultipartFile.fromFileSync('./example/upload.txt', filename: 'upload.txt'),
+  ]
+});
 ```
 
-The upload key eventually becomes "files[]"，This is because many back-end services add a middle bracket to key when they get an array of files. **If you don't want “[]”**，you should create FormData as follows（Don't use `FormData.fromMap`）:
+The upload key eventually becomes 'files[]'，This is because many back-end services add a middle bracket to key when they get an array of files. **If you don't want “[]”**，you should create FormData as follows（Don't use `FormData.fromMap`）:
 
 ```dart
-  var formData = FormData();
-  formData.files.addAll([
-    MapEntry(
-      "files",
-       MultipartFile.fromFileSync("./example/upload.txt",
-          filename: "upload.txt"),
-    ),
-    MapEntry(
-      "files",
-      MultipartFile.fromFileSync("./example/upload.txt",
-          filename: "upload.txt"),
-    ),
-  ]);
+var formData = FormData();
+formData.files.addAll([
+  MapEntry('files',
+    MultipartFile.fromFileSync('./example/upload.txt',filename: 'upload.txt'),
+  ),
+  MapEntry('files',
+    MultipartFile.fromFileSync('./example/upload.txt',filename: 'upload.txt'),
+  ),
+]);
 ```
 
 ## Transformer
@@ -677,13 +686,13 @@ import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 ...
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-    // config the http client
-    client.findProxy = (uri) {
-        //proxy all request to localhost:8888
-        return "PROXY localhost:8888";
-    };
-    // you can also create a new HttpClient to dio
-    // return new HttpClient();
+  // config the http client
+  client.findProxy = (uri) {
+    //proxy all request to localhost:8888
+    return 'PROXY localhost:8888';
+  };
+  // you can also create a new HttpClient to dio
+  // return HttpClient();
 };
 ```
 
@@ -694,14 +703,14 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 There are two ways  to verify the https certificate. Suppose the certificate format is PEM, the code like:
 
 ```dart
-String PEM="XXXXX"; // certificate content
+String PEM='XXXXX'; // certificate content
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-    client.badCertificateCallback=(X509Certificate cert, String host, int port){
-        if(cert.pem==PEM){ // Verify the certificate
-            return true;
-        }
-        return false;
-    };
+  client.badCertificateCallback=(X509Certificate cert, String host, int port){
+    if(cert.pem==PEM){ // Verify the certificate
+      return true;
+    }
+    return false;
+  };
 };
 ```
 
@@ -709,11 +718,11 @@ Another way is creating a `SecurityContext` when create the `HttpClient`:
 
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-    SecurityContext sc = new SecurityContext();
-    //file is the path of certificate
-    sc.setTrustedCertificates(file);
-    HttpClient httpClient = new HttpClient(context: sc);
-    return httpClient;
+  SecurityContext sc = new SecurityContext();
+  //file is the path of certificate
+  sc.setTrustedCertificates(file);
+  HttpClient httpClient = new HttpClient(context: sc);
+  return httpClient;
 };
 ```
 
@@ -729,11 +738,16 @@ You can cancel a request using a *cancel token*. One token can be shared with mu
 
 ```dart
 CancelToken token = CancelToken();
-dio.get(url1, cancelToken: token);
-dio.get(url2, cancelToken: token);
-
+dio.get(url, cancelToken: token)
+   .catchError((DioError err){
+    if (CancelToken.isCancel(err)) {
+      print('Request canceled! '+ err.message)
+    }else{
+      // handle error.
+    }
+   });
 // cancel the requests with "cancelled" message.
-token.cancel("cancelled");
+token.cancel('cancelled');
 ```
 
 There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/cancel_request.dart).

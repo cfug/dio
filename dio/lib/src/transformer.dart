@@ -34,7 +34,6 @@ abstract class Transformer {
 
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
-  ///
   static String urlEncodeMap(Map map,[CollectionFormat collectionFormat = CollectionFormat.multiCompatible]) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
@@ -124,7 +123,7 @@ class DefaultTransformer extends Transformer {
         throw DioError(
           request: options,
           error: 'Receiving data timeout[${options.receiveTimeout}ms]',
-          type: DioErrorType.RECEIVE_TIMEOUT,
+          type: DioErrorType.receiveTimeout,
         );
       }
     } else {

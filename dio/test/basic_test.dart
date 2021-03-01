@@ -22,7 +22,7 @@ void main() {
       contentType: 'application/json',
       followRedirects: false,
     );
-    var opt1 = baseOptions.merge(
+    var opt1 = baseOptions.copyWith(
       method: 'post',
       receiveTimeout: 3000,
       sendTimeout: 3000,
@@ -50,7 +50,8 @@ void main() {
       contentType: 'application/json',
       followRedirects: false,
     );
-    var opt3 = opt2.merge(
+
+    var opt3 = opt2.copyWith(
       method: 'post',
       receiveTimeout: 3000,
       sendTimeout: 3000,
@@ -58,6 +59,7 @@ void main() {
       headers: mapOverride,
       contentType: 'text/html',
     );
+
     assert(opt3.method == 'post');
     assert(opt3.receiveTimeout == 3000);
     assert(opt3.followRedirects == false);
@@ -66,10 +68,11 @@ void main() {
     assert(opt3.contentType == 'text/html');
 
     var opt4 = RequestOptions(
+      path: '/xxx',
       sendTimeout: 2000,
       followRedirects: false,
     );
-    var opt5 = opt4.merge(
+    var opt5 = opt4.copyWith(
       method: 'post',
       receiveTimeout: 3000,
       sendTimeout: 3000,
@@ -87,6 +90,12 @@ void main() {
     assert(opt5.extra['b'] == '6');
     assert(opt5.data == 'xx=5');
     assert(opt5.path == '/');
+
+    // Keys of header are case-insensitive
+    expect(opt5.headers['B'],'6');
+    opt5.headers['B']=9;
+    assert(opt5.headers['b'] == 9);
+
   });
 
   test('#test headers', () {

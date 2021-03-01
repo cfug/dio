@@ -88,7 +88,7 @@ void main() {
                 return dio.resolve(
                     'fake data'); // you can also return a HttpError directly.
               case URL_NOT_FIND_2:
-                return Response(data: 'fake data');
+                return Response(data: 'fake data',request:e.response!.request);
               case URL_NOT_FIND_3:
                 return 'custom error info [${e.response!.statusCode}]';
             }

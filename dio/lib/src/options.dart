@@ -114,7 +114,7 @@ class BaseOptions extends _RequestConfig {
   }
 
   /// Create a Option from current instance with merging attributes.
-  BaseOptions merge({
+  BaseOptions copyWith({
     String? method,
     String? baseUrl,
     Map<String, dynamic>? queryParameters,
@@ -163,7 +163,7 @@ class BaseOptions extends _RequestConfig {
   Map<String, dynamic> queryParameters;
 
   /// Timeout in milliseconds for opening url.
-  /// [Dio] will throw the [DioError] with [DioErrorType.CONNECT_TIMEOUT] type
+  /// [Dio] will throw the [DioError] with [DioErrorType.connectTimeout] type
   ///  when time out.
   late int connectTimeout;
 }
@@ -188,7 +188,7 @@ class Options {
   }) ;
 
   /// Create a Option from current instance with merging attributes.
-  Options merge({
+  Options copyWith({
     String? method,
     int? sendTimeout,
     int? receiveTimeout,
@@ -204,12 +204,23 @@ class Options {
     ResponseDecoder? responseDecoder,
     CollectionFormat? collectionFormat,
   }) {
+
+    Map<String,dynamic>? _headers;
+    if(headers==null&&this.headers!=null){
+      _headers=Map.from(this.headers!);
+    }
+
+    Map<String,dynamic>? _extra;
+    if(extra==null&&this.extra!=null){
+     _extra=Map.from(this.extra!);
+    }
+
     return Options(
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      extra: extra ?? this.extra,
-      headers: headers ?? this.headers,
+      extra: extra ?? _extra,
+      headers: headers ?? _headers,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -288,12 +299,12 @@ class Options {
   Map<String, dynamic>? headers;
 
   /// Timeout in milliseconds for sending data.
-  /// [Dio] will throw the [DioError] with [DioErrorType.SEND_TIMEOUT] type
+  /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
   ///  when time out.
   int? sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT] type
+  ///  [Dio] will throw the [DioError] with [DioErrorType.receiveTimeout] type
   ///  when time out.
   ///
   /// [0] meanings no timeout limit.
@@ -363,7 +374,7 @@ class RequestOptions extends BaseOptions {
     int? receiveTimeout,
     int? connectTimeout,
     this.data,
-    this.path = '',
+    required this.path,
     Map<String, dynamic>? queryParameters,
     this.onReceiveProgress,
     this.onSendProgress,
@@ -402,7 +413,7 @@ class RequestOptions extends BaseOptions {
 
   /// Create a Option from current instance with merging attributes.
   @override
-  RequestOptions merge({
+  RequestOptions copyWith({
     String? method,
     int? sendTimeout,
     int? receiveTimeout,
@@ -433,8 +444,8 @@ class RequestOptions extends BaseOptions {
         connectTimeout: connectTimeout ?? this.connectTimeout,
         data: data ?? this.data,
         path: path ?? this.path,
-        queryParameters: queryParameters ?? this.queryParameters,
         baseUrl: baseUrl ?? this.baseUrl,
+        queryParameters: queryParameters ?? Map.from(this.queryParameters),
         onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
         onSendProgress: onSendProgress ?? this.onSendProgress,
         cancelToken: cancelToken ?? this.cancelToken,
@@ -473,7 +484,7 @@ class RequestOptions extends BaseOptions {
 
   /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
-  String path = '';
+  String path;
 
   CancelToken? cancelToken;
 
@@ -500,6 +511,7 @@ class _RequestConfig {
     this.requestEncoder,
     this.responseDecoder,
   }) {
+    // Case-insensitive Map, eg: content-type and Content-Type are regard as the same key.
     this.headers = caseInsensitiveKeyMap(headers);
     this.contentType = contentType;
     this.method = method ?? 'GET';
@@ -524,16 +536,16 @@ class _RequestConfig {
   /// Http request headers. The keys of initial headers will be converted to lowercase,
   /// for example 'Content-Type' will be converted to 'content-type'.
   ///
-  /// You should use lowercase as the key name when you need to set the request header.
+  /// Case-insensitive Map, eg: content-type and Content-Type are regard as the same key.
   late Map<String, dynamic> headers;
 
   /// Timeout in milliseconds for sending data.
-  /// [Dio] will throw the [DioError] with [DioErrorType.SEND_TIMEOUT] type
+  /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
   ///  when time out.
   late int sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
-  ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT] type
+  ///  [Dio] will throw the [DioError] with [DioErrorType.receiveTimeout] type
   ///  when time out.
   ///
   /// [0] meanings no timeout limit.

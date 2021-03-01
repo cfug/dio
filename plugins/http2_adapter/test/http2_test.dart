@@ -5,7 +5,7 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 void main() {
   test('adds one to input values', () async {
     var dio = Dio()
-      ..options.baseUrl = "https://www.ustc.edu.cn/"
+      ..options.baseUrl = 'https://www.ustc.edu.cn/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
@@ -15,23 +15,23 @@ void main() {
       );
 
     Response<String> response;
-    response = await dio.get("?xx=6");
+    response = await dio.get('?xx=6');
     assert(response.statusCode == 200);
     response = await dio.get(
-      "nkjnjknjn.html",
+      'nkjnjknjn.html',
       options: Options(validateStatus: (status) => true),
     );
     assert(response.statusCode == 404);
   });
 
-  test("request with payload", () async {
+  test('request with payload', () async {
     final dio = Dio()
-      ..options.baseUrl = "https://postman-echo.com/"
+      ..options.baseUrl = 'https://postman-echo.com/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager(
         idleTimeout: 10,
       ));
 
-    final res = await dio.post("post", data: "TEST");
-    assert(res.data["data"] == "TEST");
+    final res = await dio.post('post', data: 'TEST');
+    assert(res.data['data'] == 'TEST');
   });
 }

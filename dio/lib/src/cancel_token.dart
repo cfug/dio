@@ -12,7 +12,7 @@ class CancelToken {
 
   /// Whether is throw by [cancel]
   static bool isCancel(DioError e) {
-    return e.type == DioErrorType.CANCEL;
+    return e.type == DioErrorType.cancel;
   }
 
   /// If request have been canceled, save the cancel Error.
@@ -31,7 +31,7 @@ class CancelToken {
 
   /// Cancel the request
   void cancel([dynamic reason]) {
-    _cancelError = DioError(type: DioErrorType.CANCEL, error: reason);
+    _cancelError = DioError(type: DioErrorType.cancel, error: reason);
     _completer.complete();
   }
 }
