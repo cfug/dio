@@ -6,6 +6,7 @@
 library dio;
 
 export 'src/dio.dart';
+export 'src/dio_mixin.dart';
 export 'src/form_data.dart';
 export 'src/dio_error.dart';
 export 'src/transformer.dart';
