@@ -721,10 +721,10 @@ String PEM='XXXXX'; // certificate content
 
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-  SecurityContext sc = new SecurityContext();
+  SecurityContext sc = SecurityContext();
   //file is the path of certificate
   sc.setTrustedCertificates(file);
-  HttpClient httpClient = new HttpClient(context: sc);
+  HttpClient httpClient = HttpClient(context: sc);
   return httpClient;
 };
 ```

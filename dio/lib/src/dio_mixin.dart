@@ -438,13 +438,13 @@ abstract class DioMixin implements Dio {
   /// [options] The request options.
   @override
   Future<Response<T>> requestUri<T>(
-      Uri uri, {
-        data,
-        CancelToken? cancelToken,
-        Options? options,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) {
+    Uri uri, {
+    data,
+    CancelToken? cancelToken,
+    Options? options,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) {
     return request(
       uri.toString(),
       data: data,
@@ -503,7 +503,6 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic) _requestInterceptorWrapper(
@@ -608,7 +607,7 @@ abstract class DioMixin implements Dio {
 
     // Normalize errors, we convert error to the DioError
     return future.then<Response<T>>((data) {
-      return assureResponse<T>(data,requestOptions);
+      return assureResponse<T>(data, requestOptions);
     }).catchError((err) {
       if (err == null || _isErrorOrException(err)) {
         throw assureDioError(err, requestOptions);
@@ -692,8 +691,8 @@ abstract class DioMixin implements Dio {
     var data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
-    if (data != null &&
-        ['POST', 'PUT', 'PATCH', 'DELETE'].contains(options.method)) {
+    const allowPayloadMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+    if (data != null && allowPayloadMethods.contains(options.method)) {
       // Handle the FormData
       int? length;
       if (data is Stream) {
@@ -714,6 +713,7 @@ abstract class DioMixin implements Dio {
         }
         stream = data.finalize();
         length = data.length;
+        options.headers[Headers.contentLengthHeader] = length.toString();
       } else {
         // Call request transformer.
         var _data = await transformer.transformRequest(options);
@@ -725,6 +725,7 @@ abstract class DioMixin implements Dio {
         }
         // support data sending progress
         length = bytes.length;
+        options.headers[Headers.contentLengthHeader] = length.toString();
 
         var group = <List<int>>[];
         const size = 1024;
@@ -736,9 +737,6 @@ abstract class DioMixin implements Dio {
         stream = Stream.fromIterable(group);
       }
 
-      if (length != null) {
-        options.headers[Headers.contentLengthHeader] = length.toString();
-      }
       var complete = 0;
       var byteStream =
           stream.transform<Uint8List>(StreamTransformer.fromHandlers(
@@ -774,7 +772,7 @@ abstract class DioMixin implements Dio {
     } else {
       options.headers.remove(Headers.contentTypeHeader);
     }
-    return Future.value(Stream.empty());
+    return Stream<Uint8List>.empty();
   }
 
   Options checkOptions(method, options) {
@@ -807,8 +805,8 @@ abstract class DioMixin implements Dio {
       response.request = requestOptions ?? response.request;
     } else if (response is! Response) {
       response = Response<T>(
-          data: response,
-          request: requestOptions ?? RequestOptions(path: ''),
+        data: response,
+        request: requestOptions ?? RequestOptions(path: ''),
       );
     } else {
       T data = response.data;

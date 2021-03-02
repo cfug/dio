@@ -8,9 +8,9 @@ environment:
 
 dependencies:
   http2: ^2.0.0
-  dio: ^4.0.0-beta2
-#  dio:
-#    path: ../../dio
+#  dio: ^4.0.0-beta2
+  dio:
+    path: ../../dio
 
 dev_dependencies:
   test: ^1.16.4

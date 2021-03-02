@@ -12,6 +12,7 @@ HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
 
 /// The default HttpClientAdapter for Dio.
 class DefaultHttpClientAdapter implements HttpClientAdapter {
+
   /// [Dio] will create HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
   /// it when a HttpClient created.
@@ -24,7 +25,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>>? requestStream,
+    Stream<Uint8List> requestStream,
     Future? cancelFuture,
   ) async {
     if (_closed) {
@@ -60,7 +61,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       _throwConnectingTimeout();
     }
 
-    if (options.method != 'GET' && requestStream != null) {
+    if (options.method != 'GET') {
       // Transform the request data
       await request.addStream(requestStream);
     }
@@ -75,7 +76,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       _throwConnectingTimeout();
     }
 
-    // https://github.com/dart-lang/co19/issues/383
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
@@ -100,11 +100,10 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(Future? cancelFuture, int? connectionTimeout) {
-    var _connectionTimeout =
-        (connectionTimeout != null && connectionTimeout > 0)
-            ? Duration(milliseconds: connectionTimeout)
-            : null;
+  HttpClient _configHttpClient(Future? cancelFuture, int connectionTimeout) {
+    var _connectionTimeout = connectionTimeout > 0
+        ? Duration(milliseconds: connectionTimeout)
+        : null;
 
     if (cancelFuture != null) {
       var _httpClient = HttpClient();

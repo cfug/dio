@@ -92,10 +92,9 @@ void main() {
     assert(opt5.path == '/');
 
     // Keys of header are case-insensitive
-    expect(opt5.headers['B'],'6');
-    opt5.headers['B']=9;
+    expect(opt5.headers['B'], '6');
+    opt5.headers['B'] = 9;
     assert(opt5.headers['b'] == 9);
-
   });
 
   test('#test headers', () {
@@ -151,4 +150,16 @@ void main() {
         throwsA(isTrue));
   });
 
+  test('#test download3', () async {
+    const savePath = '../_download.html';
+    var dio = Dio();
+    await dio.download(
+      'http://flutterchina.club',
+      (header) {
+        print(header);
+        return savePath;
+      }, // disable gzip
+    );
+    File(savePath).deleteSync();
+  });
 }

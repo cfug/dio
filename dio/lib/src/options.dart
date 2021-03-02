@@ -41,27 +41,27 @@ enum ResponseType {
   bytes
 }
 
-/// CollectionFormat specifies the array format
+/// ListFormat specifies the array format
 /// (a single parameter with multiple parameter or multiple parameters with the same name)
 /// and the separator for array items.
-enum CollectionFormat {
-  // Comma-separated values
-  // e.g. (foo,bar,baz)
+enum ListFormat {
+  /// Comma-separated values
+  /// e.g. (foo,bar,baz)
   csv,
-  // Space-separated values
-  // e.g. (foo bar baz)
+  /// Space-separated values
+  /// e.g. (foo bar baz)
   ssv,
-  // Tab-separated values
-  // e.g. (foo\tbar\tbaz)
+  /// Tab-separated values
+  /// e.g. (foo\tbar\tbaz)
   tsv,
-  // Pipe-separated values
-  // e.g. (foo|bar|baz)
+  /// Pipe-separated values
+  /// e.g. (foo|bar|baz)
   pipes,
-  // Multiple parameter instances rather than multiple values.
-  // e.g. (foo=value&foo=another_value)
+  /// Multiple parameter instances rather than multiple values.
+  /// e.g. (foo=value&foo=another_value)
   multi,
-  // Forward compatibility
-  // e.g. (foo[]=value&foo[]=another_value)
+  /// Forward compatibility
+  /// e.g. (foo[]=value&foo[]=another_value)
   multiCompatible,
 }
 
@@ -92,7 +92,7 @@ class BaseOptions extends _RequestConfig {
     int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-    CollectionFormat? collectionFormat,
+    ListFormat? listFormat,
   })  : queryParameters = queryParameters ?? {},
         super(
           method: method,
@@ -108,7 +108,7 @@ class BaseOptions extends _RequestConfig {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
-          collectionFormat: collectionFormat,
+          listFormat: listFormat,
         ) {
     this.connectTimeout = connectTimeout ?? 0;
   }
@@ -132,7 +132,7 @@ class BaseOptions extends _RequestConfig {
     int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-    CollectionFormat? collectionFormat,
+    ListFormat? listFormat,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -152,7 +152,7 @@ class BaseOptions extends _RequestConfig {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
-      collectionFormat: collectionFormat ?? this.collectionFormat,
+      listFormat: listFormat ?? this.listFormat,
     );
   }
 
@@ -184,7 +184,7 @@ class Options {
     this.maxRedirects,
     this.requestEncoder,
     this.responseDecoder,
-    this.collectionFormat,
+    this.listFormat,
   }) ;
 
   /// Create a Option from current instance with merging attributes.
@@ -202,7 +202,7 @@ class Options {
     int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-    CollectionFormat? collectionFormat,
+    ListFormat? listFormat,
   }) {
 
     Map<String,dynamic>? _headers;
@@ -230,7 +230,7 @@ class Options {
       maxRedirects: maxRedirects ?? this.maxRedirects,
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
-      collectionFormat: collectionFormat ?? this.collectionFormat,
+      listFormat: listFormat ?? this.listFormat,
     );
   }
 
@@ -360,11 +360,11 @@ class Options {
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder? responseDecoder;
 
-  /// [collectionFormat] indicates the format of collection data in request
-  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
+  /// [listFormat] indicates the format of collection data in request
+  /// options which defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
   ///
   /// The default value is `multiCompatible`
-  CollectionFormat? collectionFormat;
+  ListFormat? listFormat;
 }
 
 class RequestOptions extends BaseOptions {
@@ -390,7 +390,7 @@ class RequestOptions extends BaseOptions {
     int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-    CollectionFormat? collectionFormat,
+    ListFormat? listFormat,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
@@ -408,7 +408,7 @@ class RequestOptions extends BaseOptions {
           maxRedirects: maxRedirects,
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
-          collectionFormat: collectionFormat,
+          listFormat: listFormat,
         );
 
   /// Create a Option from current instance with merging attributes.
@@ -435,7 +435,7 @@ class RequestOptions extends BaseOptions {
     int? maxRedirects,
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
-    CollectionFormat? collectionFormat,
+    ListFormat? listFormat,
   }) {
     return RequestOptions(
         method: method ?? this.method,
@@ -460,7 +460,7 @@ class RequestOptions extends BaseOptions {
         maxRedirects: maxRedirects ?? this.maxRedirects,
         requestEncoder: requestEncoder ?? this.requestEncoder,
         responseDecoder: responseDecoder ?? this.responseDecoder,
-        collectionFormat: collectionFormat ?? this.collectionFormat);
+        listFormat: listFormat ?? this.listFormat);
   }
 
   /// generate uri
@@ -471,7 +471,7 @@ class RequestOptions extends BaseOptions {
       var s = _url.split(':/');
       _url = s[0] + ':/' + s[1].replaceAll('//', '/');
     }
-    var query = Transformer.urlEncodeMap(queryParameters, collectionFormat);
+    var query = Transformer.urlEncodeMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
       _url += (_url.contains('?') ? '&' : '?') + query;
     }
@@ -502,7 +502,7 @@ class _RequestConfig {
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
     String? contentType,
-    CollectionFormat? collectionFormat,
+    ListFormat? listFormat,
     bool? followRedirects,
     int? maxRedirects,
     bool? receiveDataWhenStatusError,
@@ -517,7 +517,7 @@ class _RequestConfig {
     this.method = method ?? 'GET';
     this.sendTimeout = sendTimeout ?? 0;
     this.receiveTimeout = receiveTimeout ?? 0;
-    this.collectionFormat = collectionFormat ?? CollectionFormat.multiCompatible;
+    this.listFormat = listFormat ?? ListFormat.multi;
     this.extra = extra ?? {};
     this.followRedirects = followRedirects ?? true;
     this.maxRedirects = maxRedirects ?? 5;
@@ -605,8 +605,8 @@ class _RequestConfig {
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder? responseDecoder;
 
-  /// [collectionFormat] indicates the format of collection data in request
-  /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
+  /// [listFormat] indicates the format of collection data in request
+  /// options which defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
   /// The default value is `multiCompatible`
-  late CollectionFormat collectionFormat;
+  late ListFormat listFormat;
 }

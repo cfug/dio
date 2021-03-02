@@ -43,7 +43,7 @@ abstract class HttpClientAdapter {
 
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
+    Stream<Uint8List> requestStream,
     Future? cancelFuture,
   );
 

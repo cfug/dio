@@ -37,7 +37,7 @@ class FormData {
 
   /// Create FormData instance with a Map.
   FormData.fromMap(Map<String, dynamic> map,
-      [CollectionFormat collectionFormat = CollectionFormat.multiCompatible]) {
+      [ListFormat collectionFormat = ListFormat.multi]) {
     _init();
     encodeMap(
       map,
@@ -50,7 +50,7 @@ class FormData {
         }
         return null;
       },
-      collectionFormat: collectionFormat,
+      listFormat: collectionFormat,
       encode: false,
     );
   }

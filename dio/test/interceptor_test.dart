@@ -29,14 +29,12 @@ void main() {
           case '/fakepath2':
             return dio.get('/test');
           case '/fakepath3':
-            return dio.reject(
-                'test error'); //you can also return a HttpError directly.
+            // You can also return a HttpError directly.
+            return dio.reject('test error');
           case '/fakepath4':
-            return DioError(
-                error:
-                    'test error'); // Here is equivalent to call dio.reject('test error')
-          case '/test?tag=1':
-            {
+             // Here is equivalent to call dio.reject('test error')
+            return DioError(error: 'test error');
+          case '/test?tag=1':{
               final response = await dio.get('/token');
               options.headers['token'] = response.data['data']['token'];
               return options;
@@ -66,10 +64,10 @@ void main() {
   group('#test response interceptor', () {
     Dio dio;
     test('#test Response Interceptor', () async {
-      const  URL_NOT_FIND = '/404/';
-      const  URL_NOT_FIND_1 = URL_NOT_FIND + '1';
-      const  URL_NOT_FIND_2 = URL_NOT_FIND + '2';
-      const  URL_NOT_FIND_3 = URL_NOT_FIND + '3';
+      const URL_NOT_FIND = '/404/';
+      const URL_NOT_FIND_1 = URL_NOT_FIND + '1';
+      const URL_NOT_FIND_2 = URL_NOT_FIND + '2';
+      const URL_NOT_FIND_3 = URL_NOT_FIND + '3';
 
       dio = Dio();
       dio.httpClientAdapter = MockAdapter();
@@ -80,7 +78,7 @@ void main() {
           return response.data['data'];
         },
         onError: (e) {
-          if (e.response?.request!=null) {
+          if (e.response?.request != null) {
             switch (e.response!.request.path) {
               case URL_NOT_FIND:
                 return e;
@@ -88,7 +86,8 @@ void main() {
                 return dio.resolve(
                     'fake data'); // you can also return a HttpError directly.
               case URL_NOT_FIND_2:
-                return Response(data: 'fake data',request:e.response!.request);
+                return Response(
+                    data: 'fake data', request: e.response!.request);
               case URL_NOT_FIND_3:
                 return 'custom error info [${e.response!.statusCode}]';
             }

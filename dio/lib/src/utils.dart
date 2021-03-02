@@ -38,25 +38,30 @@ String encodeMap(
   data,
   DioEncodeHandler handler, {
   bool encode = true,
-  CollectionFormat collectionFormat = CollectionFormat.multiCompatible,
+  ListFormat listFormat = ListFormat.multiCompatible,
 }) {
   var urlData = StringBuffer('');
   var first = true;
   var leftBracket = encode ? '%5B' : '[';
   var rightBracket = encode ? '%5D' : ']';
-  var separatorChar = _getSeparatorChar(collectionFormat);
+  var separatorChar = _getSeparatorChar(listFormat);
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     if (sub is List) {
-      if (collectionFormat == CollectionFormat.multi || collectionFormat == CollectionFormat.multiCompatible) {
+      if (listFormat == ListFormat.multi ||
+          listFormat == ListFormat.multiCompatible) {
         for (var i = 0; i < sub.length; i++) {
-          if(collectionFormat==CollectionFormat.multi) {
-            urlEncode(sub[i],
-                '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}');
-          }else{
+          if (listFormat == ListFormat.multi) {
+            urlEncode(
+              sub[i],
+              '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}',
+            );
+          } else {
             // Forward compatibility
-            urlEncode(sub[i],
-                '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket');
+            urlEncode(
+              sub[i],
+              '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket',
+            );
           }
         }
       } else {
@@ -87,15 +92,15 @@ String encodeMap(
   return urlData.toString();
 }
 
-String _getSeparatorChar(CollectionFormat collectionFormat) {
+String _getSeparatorChar(ListFormat collectionFormat) {
   switch (collectionFormat) {
-    case CollectionFormat.csv:
+    case ListFormat.csv:
       return ',';
-    case CollectionFormat.ssv:
+    case ListFormat.ssv:
       return ' ';
-    case CollectionFormat.tsv:
+    case ListFormat.tsv:
       return r'\t';
-    case CollectionFormat.pipes:
+    case ListFormat.pipes:
       return '|';
     default:
       return '';

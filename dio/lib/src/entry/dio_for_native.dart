@@ -97,15 +97,20 @@ class DioForNative with DioMixin implements Dio {
         }
       }
       rethrow;
-    } catch (e) {
-      rethrow;
     }
 
     response.headers = Headers.fromMap(response.data!.headers);
+
     File file;
     if (savePath is Function) {
       assert(savePath is String Function(Headers),
           'savePath callback type must be `String Function(HttpHeaders)`');
+
+      // Add real uri and redirect information to headers
+      response.headers
+        ..add('redirects', response.redirects.length.toString())
+        ..add('uri', response.realUri.toString());
+
       file = File(savePath(response.headers));
     } else {
       file = File(savePath.toString());

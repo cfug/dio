@@ -12,7 +12,7 @@ void main() async {
     var fm = FormData.fromMap({
       'name': 'wendux',
       'age': 25,
-      'file': MultipartFile.fromString('hellow world.'),
+      'file': MultipartFile.fromString('hello world.'),
       'files': [
         await MultipartFile.fromFile('../dio/test/_testfile',
             filename: '1.txt'),
@@ -34,13 +34,13 @@ void main() async {
     var fm1 = FormData();
     fm1.fields.add(MapEntry('name', 'wendux'));
     fm1.fields.add(MapEntry('age', '25'));
-    fm1.files.add(MapEntry('file', MultipartFile.fromString('hellow world.')));
+    fm1.files.add(MapEntry('file', MultipartFile.fromString('hello world.')));
     fm1.files.add(MapEntry(
-      'files[]',
+      'files',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '1.txt'),
     ));
     fm1.files.add(MapEntry(
-      'files[]',
+      'files',
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
     ));
     assert(fmStr.length == fm1.length);

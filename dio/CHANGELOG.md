@@ -1,4 +1,10 @@
 
+# 4.0.0-beta3
+
+- rename CollectionFormat to ListFormat
+- change default value of Options.listFormat from `mutiComptible` to `multi`
+- add upload_stream_test.dart
+
 # 4.0.0-beta2
 
 - support null-safety

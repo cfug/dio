@@ -21,7 +21,7 @@ class Http2Adapter extends HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
+    Stream<Uint8List> requestStream,
     Future? cancelFuture,
   ) async {
     var redirects = <RedirectRecord>[];
@@ -35,7 +35,7 @@ class Http2Adapter extends HttpClientAdapter {
 
   Future<ResponseBody> _fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
+    Stream<Uint8List> requestStream,
     Future? cancelFuture,
     List<RedirectRecord> redirects,
   ) async {
