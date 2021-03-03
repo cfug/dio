@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
-
 import 'dart:convert';
 
 import 'options.dart';
+import 'parameter.dart';
 
 /// A regular expression that matches strings that are composed entirely of
 /// ASCII-compatible characters.
@@ -44,23 +44,32 @@ String encodeMap(
   var first = true;
   var leftBracket = encode ? '%5B' : '[';
   var rightBracket = encode ? '%5D' : ']';
-  var separatorChar = _getSeparatorChar(listFormat);
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
+    // detect if the list format for this parameter derivates from default
+    final format = sub is MultiParam ? sub.format : listFormat;
+    final separatorChar = _getSeparatorChar(format);
+
+    if (sub is Param) {
+      // Need to unwrap all param objects here
+      sub = sub.value;
+    }
+
     if (sub is List) {
-      if (listFormat == ListFormat.multi ||
-          listFormat == ListFormat.multiCompatible) {
+      if (format == ListFormat.multi || format == ListFormat.multiCompatible) {
         for (var i = 0; i < sub.length; i++) {
+          final isCollection =
+              sub[i] is Map || sub[i] is List || sub[i] is MultiParam;
           if (listFormat == ListFormat.multi) {
             urlEncode(
               sub[i],
-              '$path${(sub[i] is Map || sub[i] is List) ? leftBracket + '$i' + rightBracket : ''}',
+              '$path${isCollection ? leftBracket + '$i' + rightBracket : ''}',
             );
           } else {
             // Forward compatibility
             urlEncode(
               sub[i],
-              '$path$leftBracket${(sub[i] is Map || sub[i] is List) ? i : ''}$rightBracket',
+              '$path$leftBracket${isCollection ? i : ''}$rightBracket',
             );
           }
         }
