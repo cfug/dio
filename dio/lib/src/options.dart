@@ -363,7 +363,7 @@ class Options {
   /// [listFormat] indicates the format of collection data in request
   /// options which defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
   ///
-  /// The default value is `multiCompatible`
+  /// The default value is `multi`
   ListFormat? listFormat;
 }
 
@@ -607,6 +607,6 @@ class _RequestConfig {
 
   /// [listFormat] indicates the format of collection data in request
   /// options which defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
-  /// The default value is `multiCompatible`
+  /// The default value is `multi`
   late ListFormat listFormat;
 }
