@@ -1,4 +1,8 @@
 
+# 4.0.0-beta4
+
+- fix #1060
+
 # 4.0.0-beta3
 
 - rename CollectionFormat to ListFormat

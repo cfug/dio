@@ -78,8 +78,8 @@ class DefaultTransformer extends Transformer {
     var received = 0;
     var showDownloadProgress = options.onReceiveProgress != null;
     if (showDownloadProgress) {
-      length = -1;
-      int.parse(response.headers[Headers.contentLengthHeader]?.first ?? '-1');
+      length = int.parse(
+          response.headers[Headers.contentLengthHeader]?.first ?? '-1');
     }
     var completer = Completer();
     var stream =

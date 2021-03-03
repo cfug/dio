@@ -150,16 +150,14 @@ void main() {
         throwsA(isTrue));
   });
 
-  test('#test download3', () async {
-    const savePath = '../_download.html';
-    var dio = Dio();
-    await dio.download(
-      'http://flutterchina.club',
-      (header) {
-        print(header);
-        return savePath;
-      }, // disable gzip
-    );
-    File(savePath).deleteSync();
+  test('#status error', () async {
+    var dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
+
+    expect(dio.get('401').catchError((e) => throw e.response.statusCode),
+        throwsA(401));
+
+    var r= await dio.get('401', options: Options(validateStatus:(status)=>true));
+    expect(r.statusCode,401);
+
   });
 }
