@@ -205,9 +205,13 @@ abstract class Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers headers)`; for example:
   ///  ```dart
-  ///   await dio.download(url,(HttpHeaders responseHeaders){
+  ///   await dio.download(url,(Headers headers){
+  ///        // Extra info: redirect counts
+  ///        print(headers.value('redirects'));
+  ///        // Extra info: real uri
+  ///        print(headers.value('uri'));
   ///      ...
   ///      return "...";
   ///    });
@@ -255,11 +259,15 @@ abstract class Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers)`; for example:
   ///  ```dart
-  ///   await dio.downloadUri(uri,(HttpHeaders responseHeaders){
-  ///      ...
-  ///      return "...";
+  ///   await dio.downloadUri(uri,(Headers headers){
+  ///        // Extra info: redirect counts
+  ///        print(headers.value('redirects'));
+  ///        // Extra info: real uri
+  ///        print(headers.value('uri'));
+  ///       ...
+  ///       return "...";
   ///    });
   ///  ```
   ///

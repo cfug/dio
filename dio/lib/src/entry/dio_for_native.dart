@@ -28,9 +28,13 @@ class DioForNative with DioMixin implements Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers)`; for example:
   ///  ```dart
-  ///   await dio.download(url,(Headers responseHeaders){
+  ///   await dio.download(url,(Headers headers){
+  ///        // Extra info: redirect counts
+  ///        print(headers.value('redirects'));
+  ///        // Extra info: real uri
+  ///        print(headers.value('uri'));
   ///      ...
   ///      return "...";
   ///    });
@@ -223,19 +227,23 @@ class DioForNative with DioMixin implements Dio {
     return listenCancelForAsyncTask(cancelToken, future);
   }
 
-  ///  Download the file and save it in local. The default http method is 'GET',
+  ///  Download the file and save it in local. The default http method is "GET",
   ///  you can custom it by [Options.method].
   ///
   ///  [uri]: The file url.
   ///
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
-  ///  1. A path with String type, eg 'xs.jpg'
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  1. A path with String type, eg "xs.jpg"
+  ///  2. A callback `String Function(Headers)`; for example:
   ///  ```dart
-  ///   await dio.downloadUri(uri,(Headers responseHeaders){
+  ///   await dio.downloadUri(uri,(Headers headers){
+  ///        // Extra info: redirect counts
+  ///        print(headers.value('redirects'));
+  ///        // Extra info: real uri
+  ///        print(headers.value('uri'));
   ///      ...
-  ///      return '...';
+  ///      return "...";
   ///    });
   ///  ```
   ///
@@ -251,11 +259,11 @@ class DioForNative with DioMixin implements Dio {
   ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
   ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
   ///
-  ///     await dio.downloadUri(uri, './example/flutter.svg',
-  ///      options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
-  ///      onProgress: (received, total) {
+  ///     await dio.downloadUri(uri, "./example/flutter.svg",
+  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
+  ///     onProgress: (received, total) {
   ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + '%');
+  ///        print((received / total * 100).toStringAsFixed(0) + "%");
   ///       }
   ///     });
   @override
