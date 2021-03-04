@@ -38,7 +38,7 @@ String encodeMap(
   data,
   DioEncodeHandler handler, {
   bool encode = true,
-  ListFormat listFormat = ListFormat.multiCompatible,
+  ListFormat listFormat = ListFormat.multi,
 }) {
   var urlData = StringBuffer('');
   var first = true;

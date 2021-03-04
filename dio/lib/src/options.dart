@@ -371,10 +371,7 @@ class Options {
   /// The [listFormat] indicates the format of collection data in request
   /// query parameters and `x-www-url-encoded` body data.
   /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
-  /// The default value is `multiCompatible`.
-  ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
-  /// object to the query or body data map.
+  /// The default value is `multi`.
   ListFormat? listFormat;
 }
 
@@ -625,7 +622,7 @@ class _RequestConfig {
   /// The [listFormat] indicates the format of collection data in request
   /// query parameters and `x-www-url-encoded` body data.
   /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
-  /// The default value is `multiCompatible`.
+  /// The default value is `multi`.
   ///
   /// The value can be overridden per parameter by adding a [MultiParam]
   /// object to the query or body data map.
