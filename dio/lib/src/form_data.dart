@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'options.dart';
 import 'multipart_file.dart';
+import 'options.dart';
 import 'utils.dart';
 
 /// A class to create readable "multipart/form-data" streams.
@@ -36,8 +36,10 @@ class FormData {
   }
 
   /// Create FormData instance with a Map.
-  FormData.fromMap(Map<String, dynamic> map,
-      [ListFormat collectionFormat = ListFormat.multi]) {
+  FormData.fromMap(
+    Map<String, dynamic> map, [
+    ListFormat collectionFormat = ListFormat.multi,
+  ]) {
     _init();
     encodeMap(
       map,
