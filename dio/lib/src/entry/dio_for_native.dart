@@ -28,7 +28,7 @@ class DioForNative with DioMixin implements Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers responseHeaders)`; for example:
   ///  ```dart
   ///   await dio.download(url,(Headers responseHeaders){
   ///      ...
@@ -105,7 +105,7 @@ class DioForNative with DioMixin implements Dio {
     File file;
     if (savePath is Function) {
       assert(savePath is String Function(Headers),
-          'savePath callback type must be `String Function(HttpHeaders)`');
+          'savePath callback type must be `String Function(Headers)`');
       file = File(savePath(response.headers));
     } else {
       file = File(savePath.toString());
@@ -226,7 +226,7 @@ class DioForNative with DioMixin implements Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg 'xs.jpg'
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers responseHeaders)`; for example:
   ///  ```dart
   ///   await dio.downloadUri(uri,(Headers responseHeaders){
   ///      ...

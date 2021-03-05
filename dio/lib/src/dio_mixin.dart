@@ -328,9 +328,9 @@ abstract class DioMixin implements Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg 'xs.jpg'
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers responseHeaders)`; for example:
   ///  ```dart
-  ///   await dio.download(url,(HttpHeaders responseHeaders){
+  ///   await dio.download(url,(Headers responseHeaders){
   ///      ...
   ///      return '...';
   ///    });
@@ -381,9 +381,9 @@ abstract class DioMixin implements Dio {
   ///  [savePath]: The path to save the downloading file later. it can be a String or
   ///  a callback:
   ///  1. A path with String type, eg 'xs.jpg'
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
+  ///  2. A callback `String Function(Headers responseHeaders)`; for example:
   ///  ```dart
-  ///   await dio.downloadUri(uri,(HttpHeaders responseHeaders){
+  ///   await dio.downloadUri(uri,(Headers responseHeaders){
   ///      ...
   ///      return '...';
   ///    });
