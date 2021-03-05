@@ -1,7 +1,7 @@
 import 'adapter.dart';
+import 'cancel_token.dart';
 import 'headers.dart';
 import 'transformer.dart';
-import 'cancel_token.dart';
 import 'utils.dart';
 
 /// Callback to listen the progress for sending/receiving data.
@@ -48,18 +48,23 @@ enum ListFormat {
   /// Comma-separated values
   /// e.g. (foo,bar,baz)
   csv,
+
   /// Space-separated values
   /// e.g. (foo bar baz)
   ssv,
+
   /// Tab-separated values
   /// e.g. (foo\tbar\tbaz)
   tsv,
+
   /// Pipe-separated values
   /// e.g. (foo|bar|baz)
   pipes,
+
   /// Multiple parameter instances rather than multiple values.
   /// e.g. (foo=value&foo=another_value)
   multi,
+
   /// Forward compatibility
   /// e.g. (foo[]=value&foo[]=another_value)
   multiCompatible,
@@ -159,7 +164,12 @@ class BaseOptions extends _RequestConfig {
   /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
   late String baseUrl;
 
-  /// Common query parameters
+  /// Common query parameters.
+  ///
+  /// List values use the default [ListFormat.multiCompatible].
+  ///
+  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// object wrapping the actual List value and the desired format.
   Map<String, dynamic> queryParameters;
 
   /// Timeout in milliseconds for opening url.
@@ -185,7 +195,7 @@ class Options {
     this.requestEncoder,
     this.responseDecoder,
     this.listFormat,
-  }) ;
+  });
 
   /// Create a Option from current instance with merging attributes.
   Options copyWith({
@@ -204,15 +214,14 @@ class Options {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
   }) {
-
-    Map<String,dynamic>? _headers;
-    if(headers==null&&this.headers!=null){
-      _headers=Map.from(this.headers!);
+    Map<String, dynamic>? _headers;
+    if (headers == null && this.headers != null) {
+      _headers = Map.from(this.headers!);
     }
 
-    Map<String,dynamic>? _extra;
-    if(extra==null&&this.extra!=null){
-     _extra=Map.from(this.extra!);
+    Map<String, dynamic>? _extra;
+    if (extra == null && this.extra != null) {
+      _extra = Map.from(this.extra!);
     }
 
     return Options(
@@ -244,18 +253,17 @@ class Options {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) {
-
     var query = <String, dynamic>{};
     if (queryParameters != null) query.addAll(queryParameters);
     query.addAll(baseOpt.queryParameters);
 
-    var _headers = Map<String,dynamic>.from(baseOpt.headers);
-    if(headers!=null){
+    var _headers = Map<String, dynamic>.from(baseOpt.headers);
+    if (headers != null) {
       _headers.addAll(headers!);
     }
 
-    var _extra = Map<String,dynamic>.from(baseOpt.extra);
-    if(extra!=null){
+    var _extra = Map<String, dynamic>.from(baseOpt.extra);
+    if (extra != null) {
       _extra.addAll(extra!);
     }
 
@@ -360,10 +368,10 @@ class Options {
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder? responseDecoder;
 
-  /// [listFormat] indicates the format of collection data in request
-  /// options which defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
-  ///
-  /// The default value is `multi`
+  /// The [listFormat] indicates the format of collection data in request
+  /// query parameters and `x-www-url-encoded` body data.
+  /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
+  /// The default value is `multi`.
   ListFormat? listFormat;
 }
 
@@ -480,6 +488,12 @@ class RequestOptions extends BaseOptions {
   }
 
   /// Request data, can be any type.
+  ///
+  /// When using `x-www-url-encoded` body data,
+  /// List values use the default [ListFormat.multiCompatible].
+  ///
+  /// The value can be overridden per value by adding a [MultiParam]
+  /// object wrapping the actual List value and the desired format.
   dynamic? data;
 
   /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
@@ -605,8 +619,12 @@ class _RequestConfig {
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder? responseDecoder;
 
-  /// [listFormat] indicates the format of collection data in request
-  /// options which defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
-  /// The default value is `multi`
+  /// The [listFormat] indicates the format of collection data in request
+  /// query parameters and `x-www-url-encoded` body data.
+  /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
+  /// The default value is `multi`.
+  ///
+  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// object to the query or body data map.
   late ListFormat listFormat;
 }
