@@ -51,18 +51,18 @@ void main() {
     expect(
       Transformer.urlEncodeMap(
         {
-          'a': Param('你好'),
-          'b': MultiParam<int>([5, 6], ListFormat.pipes),
-          'c': Param({
-            'd': Param(8),
-            'e': Param({
-              'a': Param(5),
-              'b': MultiParam<String>(['foo', 'bar'], ListFormat.csv),
-              'c': MultiParam<String>(['foo', 'bar'], ListFormat.ssv),
-              'd': MultiParam<String>(['foo', 'bar'], ListFormat.multi),
-              'e': MultiParam<String>(['foo', 'bar'], ListFormat.tsv),
-            }),
-          }),
+          'a': '你好',
+          'b': ListParam<int>([5, 6], ListFormat.pipes),
+          'c': {
+            'd': 8,
+            'e': {
+              'a': 5,
+              'b': ListParam<String>(['foo', 'bar'], ListFormat.csv),
+              'c': ListParam<String>(['foo', 'bar'], ListFormat.ssv),
+              'd': ListParam<String>(['foo', 'bar'], ListFormat.multi),
+              'e': ListParam<String>(['foo', 'bar'], ListFormat.tsv),
+            },
+          },
         },
         ListFormat.multiCompatible,
       ),

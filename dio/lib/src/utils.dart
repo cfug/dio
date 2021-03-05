@@ -47,10 +47,10 @@ String encodeMap(
   var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
     // detect if the list format for this parameter derivates from default
-    final format = sub is MultiParam ? sub.format : listFormat;
+    final format = sub is ListParam ? sub.format : listFormat;
     final separatorChar = _getSeparatorChar(format);
 
-    if (sub is Param) {
+    if (sub is ListParam) {
       // Need to unwrap all param objects here
       sub = sub.value;
     }
@@ -59,7 +59,7 @@ String encodeMap(
       if (format == ListFormat.multi || format == ListFormat.multiCompatible) {
         for (var i = 0; i < sub.length; i++) {
           final isCollection =
-              sub[i] is Map || sub[i] is List || sub[i] is MultiParam;
+              sub[i] is Map || sub[i] is List || sub[i] is ListParam;
           if (listFormat == ListFormat.multi) {
             urlEncode(
               sub[i],

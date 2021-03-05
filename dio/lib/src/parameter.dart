@@ -1,13 +1,8 @@
 import 'package:dio/dio.dart';
 
-class Param<T> {
-  final T value;
-
-  Param(this.value);
-}
-
-class MultiParam<T> extends Param<List<T>> {
+class ListParam<T> {
   final ListFormat format;
+  List<T> value;
 
-  MultiParam(List<T> value, this.format) : super(value);
+  ListParam(this.value, this.format);
 }

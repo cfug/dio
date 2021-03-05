@@ -345,6 +345,7 @@ class Options {
   ValidateStatus? validateStatus;
 
   /// Whether receiving response data when http status code is not successful.
+  /// The default value is true
   bool? receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
@@ -490,7 +491,7 @@ class RequestOptions extends BaseOptions {
   /// Request data, can be any type.
   ///
   /// When using `x-www-url-encoded` body data,
-  /// List values use the default [ListFormat.multiCompatible].
+  /// List values use the default [ListFormat.multi].
   ///
   /// The value can be overridden per value by adding a [MultiParam]
   /// object wrapping the actual List value and the desired format.
@@ -596,6 +597,7 @@ class _RequestConfig {
   late ValidateStatus validateStatus;
 
   /// Whether receiving response data when http status code is not successful.
+  /// The default value is true
   late bool receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.

@@ -36,7 +36,7 @@ abstract class Transformer {
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
     Map map, [
-    ListFormat collectionFormat = ListFormat.multi,
+    ListFormat listFormat = ListFormat.multi,
   ]) {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
