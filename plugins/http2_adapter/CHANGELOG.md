@@ -1,4 +1,4 @@
-## [2.0.0-beta1]
+## [2.0.0-beta2]
 
 - support null-safety
 - support dio 4.x

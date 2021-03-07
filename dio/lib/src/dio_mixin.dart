@@ -687,7 +687,7 @@ abstract class DioMixin implements Dio {
     ]);
   }
 
-  Future<Stream<Uint8List>> _transformData(RequestOptions options) async {
+  Future<Stream<Uint8List>?> _transformData(RequestOptions options) async {
     var data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
@@ -772,7 +772,7 @@ abstract class DioMixin implements Dio {
     } else {
       options.headers.remove(Headers.contentTypeHeader);
     }
-    return Stream<Uint8List>.empty();
+    return null;
   }
 
   Options checkOptions(method, options) {

@@ -4,8 +4,8 @@
 
 ```
 dependencies:
-  dio: ^4.0.0.beta2
-  dio_http2_adapter: ^2.0.0-beta1
+  dio: ^4.0.0.beta6
+  dio_http2_adapter: ^2.0.0-beta2
 ```
 
 ### Example

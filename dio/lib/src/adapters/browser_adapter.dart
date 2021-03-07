@@ -90,18 +90,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    if (requestStream == null) {
-      xhr.send();
+    if (requestStream != null) {
+      requestStream
+          .reduce((a, b) => Uint8List.fromList([...a, ...b]))
+          .then(xhr.send);
     } else {
-      requestStream.isEmpty.then((isEmpty) {
-        if (isEmpty) {
-          xhr.send();
-        } else {
-          requestStream
-              .reduce((a, b) => Uint8List.fromList([...a, ...b]))
-              .then(xhr.send);
-        }
-      });
+      xhr.send();
     }
 
     return completer.future.whenComplete(() {

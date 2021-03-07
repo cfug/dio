@@ -1,4 +1,8 @@
 
+# 4.0.0-beta6
+
+- fix #1070
+
 # 4.0.0-beta5
 
 - support ListParam

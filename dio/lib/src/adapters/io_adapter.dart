@@ -25,7 +25,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<Uint8List> requestStream,
+    Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
     if (_closed) {
@@ -61,7 +61,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       _throwConnectingTimeout();
     }
 
-    if (options.method != 'GET') {
+    if (requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
     }

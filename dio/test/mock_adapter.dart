@@ -12,7 +12,7 @@ class MockAdapter extends HttpClientAdapter {
 
   @override
   Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List> requestStream, Future? cancelFuture) async {
+      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
     final uri = options.uri;
     if (uri.host == mockHost) {
       switch (uri.path) {
