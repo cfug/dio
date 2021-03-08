@@ -528,7 +528,6 @@ class _RequestConfig {
   }) {
     // Case-insensitive Map, eg: content-type and Content-Type are regard as the same key.
     this.headers = caseInsensitiveKeyMap(headers);
-    this.contentType = contentType;
     this.method = method ?? 'GET';
     this.sendTimeout = sendTimeout ?? 0;
     this.receiveTimeout = receiveTimeout ?? 0;
@@ -571,7 +570,11 @@ class _RequestConfig {
   /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
   /// will automatically encode the request body.
   set contentType(String? contentType) {
-    headers[Headers.contentTypeHeader] = contentType?.trim();
+    if(contentType!=null){
+      headers[Headers.contentTypeHeader] = contentType.trim();
+    }else{
+      headers.remove(Headers.contentTypeHeader);
+    }
   }
 
   String? get contentType => headers[Headers.contentTypeHeader];

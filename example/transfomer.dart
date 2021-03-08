@@ -22,23 +22,22 @@ class MyTransformer extends DefaultTransformer {
   @override
   Future transformResponse(
       RequestOptions options, ResponseBody response) async {
-    options.extra["self"] = 'XX';
+    options.extra['self'] = 'XX';
     return super.transformResponse(options, response);
   }
 }
 
-main() async {
+void main() async {
   var dio = Dio();
   // Use custom Transformer
   dio.transformer = MyTransformer();
 
-  Response response = await dio.get("https://www.baidu.com");
-  print(response.request.extra["self"]);
+  var response = await dio.get('https://www.baidu.com');
+  print(response.request.extra['self']);
 
   try {
-    await dio.post("https://www.baidu.com", data: ["1", "2"]);
+    await dio.post('https://www.baidu.com', data: ['1', '2']);
   } catch (e) {
     print(e);
   }
-  print("xxx");
 }

@@ -3,13 +3,13 @@ import 'package:dio/dio.dart';
 
 main() async {
   var dio = Dio(BaseOptions(
-    baseUrl: "http://httpbin.org/",
+    baseUrl: 'http://httpbin.org/',
     connectTimeout: 5000,
     receiveTimeout: 100000,
     // 5s
     headers: {
-      HttpHeaders.userAgentHeader: "dio",
-      "api": "1.0.0",
+      HttpHeaders.userAgentHeader: 'dio',
+      'api': '1.0.0',
     },
     contentType: Headers.jsonContentType,
     // Transform the response data to a String encoded with UTF8.
@@ -19,20 +19,20 @@ main() async {
 
   Response response;
 
-  response = await dio.get("/get");
+  response = await dio.get('/get');
   print(response.data);
 
-  Response<Map> responseMap = await dio.get(
-    "/get",
+  var responseMap = await dio.get(
+    '/get',
     // Transform response data to Json Map
     options: Options(responseType: ResponseType.json),
   );
   print(responseMap.data);
   response = await dio.post(
-    "/post",
+    '/post',
     data: {
-      "id": 8,
-      "info": {"name": "wendux", "age": 25}
+      'id': 8,
+      'info': {'name': 'wendux', 'age': 25}
     },
     // Send data with "application/x-www-form-urlencoded" format
     options: Options(
@@ -42,7 +42,7 @@ main() async {
   print(response.data);
 
   response = await dio.fetch(
-    RequestOptions(baseUrl: "https://baidu.com/"),
+    RequestOptions(path: 'https://baidu.com/'),
   );
   print(response.data);
 }

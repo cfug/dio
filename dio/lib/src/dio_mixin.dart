@@ -617,13 +617,13 @@ abstract class DioMixin implements Dio {
   }
 
   // Initiate Http requests
-  Future<Response<T>> _dispatchRequest<T>(RequestOptions options) async {
-    var cancelToken = options.cancelToken;
+  Future<Response<T>> _dispatchRequest<T>(RequestOptions reqOpt) async {
+    var cancelToken = reqOpt.cancelToken;
     ResponseBody responseBody;
     try {
-      var stream = await _transformData(options);
+      var stream = await _transformData(reqOpt);
       responseBody = await httpClientAdapter.fetch(
-        options,
+        reqOpt,
         stream,
         cancelToken?.whenCancel,
       );
@@ -631,24 +631,24 @@ abstract class DioMixin implements Dio {
       var headers = Headers.fromMap(responseBody.headers);
       var ret = Response(
         headers: headers,
-        request: options,
+        request: reqOpt,
         redirects: responseBody.redirects ?? [],
         isRedirect: responseBody.isRedirect,
         statusCode: responseBody.statusCode,
         statusMessage: responseBody.statusMessage,
         extra: responseBody.extra,
       );
-      var statusOk = options.validateStatus(responseBody.statusCode);
-      if (statusOk || options.receiveDataWhenStatusError == true) {
+      var statusOk = reqOpt.validateStatus(responseBody.statusCode);
+      if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
         var forceConvert = !(T == dynamic || T == String) &&
-            !(options.responseType == ResponseType.bytes ||
-                options.responseType == ResponseType.stream);
+            !(reqOpt.responseType == ResponseType.bytes ||
+                reqOpt.responseType == ResponseType.stream);
         String? contentType;
         if (forceConvert) {
           contentType = headers.value(Headers.contentTypeHeader);
           headers.set(Headers.contentTypeHeader, Headers.jsonContentType);
         }
-        ret.data = await transformer.transformResponse(options, responseBody);
+        ret.data = await transformer.transformResponse(reqOpt, responseBody);
         if (forceConvert) {
           headers.set(Headers.contentTypeHeader, contentType);
         }
@@ -667,7 +667,7 @@ abstract class DioMixin implements Dio {
         );
       }
     } catch (e) {
-      throw assureDioError(e, options);
+      throw assureDioError(e, reqOpt);
     }
   }
 

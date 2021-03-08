@@ -10,13 +10,13 @@ import '../options.dart';
 import '../dio_error.dart';
 import '../adapters/io_adapter.dart';
 
-Dio createDio([BaseOptions? options]) => DioForNative(options);
+Dio createDio([BaseOptions? baseOptions]) => DioForNative(baseOptions);
 
 class DioForNative with DioMixin implements Dio {
-  /// Create Dio instance with default [Options].
-  /// It's mostly just one Dio instance in your application.
-  DioForNative([BaseOptions? options]) {
-    this.options = options ?? BaseOptions();
+  /// Create Dio instance with default [BaseOptions].
+  /// It is recommended that an application use only the same DIO singleton.
+  DioForNative([BaseOptions? baseOptions]) {
+    options = baseOptions ?? BaseOptions();
     httpClientAdapter = DefaultHttpClientAdapter();
   }
 
