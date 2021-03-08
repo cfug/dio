@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dio/native_imp.dart';
 
@@ -7,10 +9,14 @@ class HttpService extends DioForNative {
       ..baseUrl = 'http://httpbin.org/'
       ..contentType = Headers.jsonContentType;
   }
+
+  FutureOr<String> echo(String data) {
+    return post('/post', data: data).then((resp) => resp.data['data']);
+  }
 }
 
 void main() async {
   var httpService = HttpService();
-  var res = await httpService.post('/post', data: {'a': 5});
-  assert(res.request.headers[Headers.contentTypeHeader]==Headers.jsonContentType);
+  var res = await httpService.echo('hello server!');
+  print(res);
 }

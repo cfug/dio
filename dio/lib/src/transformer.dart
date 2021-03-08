@@ -41,7 +41,7 @@ abstract class Transformer {
     return encodeMap(map, (key, value) {
       if (value == null) return key;
       return '$key=${Uri.encodeQueryComponent(value.toString())}';
-    },listFormat: listFormat);
+    }, listFormat: listFormat);
   }
 }
 
@@ -63,9 +63,11 @@ class DefaultTransformer extends Transformer {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map) {
+        options.contentType = Headers.formUrlEncodedContentType;
         return Transformer.urlEncodeMap(data);
       }
     }
+    options.contentType = Headers.textPlainContentType;
     return data.toString();
   }
 

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 
-main() async {
+void main() async {
   var dio = Dio();
   //  dio instance to request token
   var tokenDio = Dio();

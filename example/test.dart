@@ -6,12 +6,13 @@ void getHttp() async {
   dio.options.baseUrl = 'http://httpbin.org';
   dio.options.headers = {'Authorization': 'Bearer '};
   //dio.options.baseUrl = "http://localhost:3000";
-  var response = await dio.post('/post',
-      data: null,
-      options: Options(
-        contentType: Headers.jsonContentType,
-        headers: {'Content-Type': 'application/json'},
-      ));
+  var response = await dio.post(
+    '/post',
+    data: null,
+    options: Options(
+      contentType: Headers.jsonContentType,
+    ),
+  );
   print(response);
 }
 

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 
-main() async {
+void main() async {
   var url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';
   var savePath = './example/HBuilder.9.0.2.macosx_64.dmg';
 

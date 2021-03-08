@@ -2,10 +2,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 
-main() async {
+void main() async {
   var dio = Dio();
-  dio.options.headers['user-agent'] = 'xxx';
-  dio.options.contentType = 'text';
+  dio.options
+    ..headers['user-agent'] = 'xxx'
+    ..contentType = 'text';
   // dio.options.connectTimeout = 2000;
   // More about HttpClient proxy topic please refer to Dart SDK doc.
   (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =

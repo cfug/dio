@@ -715,8 +715,10 @@ abstract class DioMixin implements Dio {
         length = data.length;
         options.headers[Headers.contentLengthHeader] = length.toString();
       } else {
+
         // Call request transformer.
         var _data = await transformer.transformRequest(options);
+
         if (options.requestEncoder != null) {
           bytes = options.requestEncoder!(_data, options);
         } else {

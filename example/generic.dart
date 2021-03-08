@@ -27,15 +27,19 @@ void main() async {
   print(response.data is String);
 
   // the content of "https://baidu.com" is a html file, So it can't be convert to Map type,
-  // it will cause a FormatException.
-  response = await dio.get<Map>('https://baidu.com').catchError(print);
+  // it will cause a Error (type 'String' is not a subtype of type 'Map<dynamic, dynamic>')
+  try {
+    response = await dio.get<Map>('https://baidu.com');
+  } on DioError catch(e){
+    print(e.message);
+  }
 
   // This works well.
   response = await dio.get('https://baidu.com');
-  print('done');
+
   // This works well too.
   response = await dio.get<String>('https://baidu.com');
-  print('done');
+
   // This is the recommended way.
   var r = await dio.get<String>('https://baidu.com');
   print(r.data?.length);
