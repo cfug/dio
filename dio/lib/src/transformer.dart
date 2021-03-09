@@ -67,12 +67,11 @@ class DefaultTransformer extends Transformer {
         return Transformer.urlEncodeMap(data);
       }
     }
-    options.contentType = Headers.textPlainContentType;
     return data.toString();
   }
 
-  /// As an agreement, you must return the [response]
-  /// when the Options.responseType is [ResponseType.stream].
+  /// As an agreement, we return the [response] when the
+  /// Options.responseType is [ResponseType.stream].
   @override
   Future transformResponse(
       RequestOptions options, ResponseBody response) async {
@@ -166,7 +165,7 @@ class DefaultTransformer extends Transformer {
 
   bool _isJsonMime(String? contentType) {
     if (contentType == null) return false;
-    return MediaType.parse(contentType).mimeType.toLowerCase() ==
+    return MediaType.parse(contentType).mimeType ==
         Headers.jsonMimeType.mimeType;
   }
 }

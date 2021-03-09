@@ -14,7 +14,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^4.0.0-beta6
+  dio: ^4.0.0-beta7
 ```
 > In order to support Flutter Web, v3.x was heavily refactored, so v3.x is not compatible with v2.x See [the changelog](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
 

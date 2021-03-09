@@ -303,7 +303,8 @@ class Options {
   /// Http request headers. The keys of initial headers will be converted to lowercase,
   /// for example 'Content-Type' will be converted to 'content-type'.
   ///
-  /// You should use lowercase as the key name when you need to set the request header.
+  /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
+  /// regard as the same key.
   Map<String, dynamic>? headers;
 
   /// Timeout in milliseconds for sending data.
@@ -351,7 +352,8 @@ class Options {
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   Map<String, dynamic>? extra;
 
-  /// see [HttpClientRequest.followRedirects]
+  /// see [HttpClientRequest.followRedirects],
+  /// The default value is true
   bool? followRedirects;
 
   /// Set this property to the maximum number of redirects to follow
@@ -550,7 +552,8 @@ class _RequestConfig {
   /// Http request headers. The keys of initial headers will be converted to lowercase,
   /// for example 'Content-Type' will be converted to 'content-type'.
   ///
-  /// Case-insensitive Map, eg: content-type and Content-Type are regard as the same key.
+  /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
+  /// regard as the same key.
   late Map<String, dynamic> headers;
 
   /// Timeout in milliseconds for sending data.
@@ -606,7 +609,8 @@ class _RequestConfig {
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   late Map<String, dynamic> extra;
 
-  /// see [HttpClientRequest.followRedirects]
+  /// see [HttpClientRequest.followRedirects],
+  /// The default value is true
   late bool followRedirects;
 
   /// Set this property to the maximum number of redirects to follow

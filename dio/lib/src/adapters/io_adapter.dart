@@ -12,7 +12,6 @@ HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
 
 /// The default HttpClientAdapter for Dio.
 class DefaultHttpClientAdapter implements HttpClientAdapter {
-
   /// [Dio] will create HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
   /// it when a HttpClient created.
@@ -33,7 +32,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
           "Can't establish connection after [HttpClientAdapter] closed!");
     }
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
-    Future requestFuture = _httpClient.openUrl(options.method, options.uri);
+    var reqFuture = _httpClient.openUrl(options.method, options.uri);
 
     void _throwConnectingTimeout() {
       throw DioError(
@@ -46,26 +45,31 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     late HttpClientRequest request;
     try {
       if (options.connectTimeout > 0) {
-        request = await requestFuture
+        request = await reqFuture
             .timeout(Duration(milliseconds: options.connectTimeout));
       } else {
-        request = await requestFuture;
+        request = await reqFuture;
       }
 
       //Set Headers
       options.headers.forEach((k, v) => request.headers.set(k, v));
     } on SocketException catch (e) {
-      if (e.message.contains('timed out')) _throwConnectingTimeout();
+      if (e.message.contains('timed out')) {
+        _throwConnectingTimeout();
+      }
       rethrow;
     } on TimeoutException {
       _throwConnectingTimeout();
     }
 
+    request.followRedirects = options.followRedirects;
+    request.maxRedirects = options.maxRedirects;
+
     if (requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
     }
-    Future future = request.close();
+    var future = request.close();
     if (options.connectTimeout > 0) {
       future = future.timeout(Duration(milliseconds: options.connectTimeout));
     }

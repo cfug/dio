@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:dio/native_imp.dart';
 
@@ -10,7 +8,7 @@ class HttpService extends DioForNative {
       ..contentType = Headers.jsonContentType;
   }
 
-  FutureOr<String> echo(String data) {
+  Future<String> echo(String data) {
     return post('/post', data: data).then((resp) => resp.data['data']);
   }
 }
