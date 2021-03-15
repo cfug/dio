@@ -7,8 +7,8 @@ main() async {
     ..baseUrl = "http://httpbin.org/"
     ..connectTimeout = 5000 //5s
     ..receiveTimeout = 5000
-    ..validateStatus = (int status) {
-      return status > 0;
+    ..validateStatus = (int? status) {
+      return status != null && status > 0;
     }
     ..headers = {
       HttpHeaders.userAgentHeader: 'dio',

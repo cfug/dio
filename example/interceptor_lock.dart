@@ -6,11 +6,10 @@ main() async {
   Dio dio = Dio();
   //  dio instance to request token
   Dio tokenDio = Dio();
-  String csrfToken;
+  late String csrfToken;
   dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
   tokenDio.options = dio.options;
-  dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (RequestOptions options) {
+  dio.interceptors.add(InterceptorsWrapper(onRequest: (RequestOptions options) {
     print('send request：path:${options.path}，baseURL:${options.baseUrl}');
     if (csrfToken == null) {
       print("no token，request token firstly...");
@@ -31,7 +30,7 @@ main() async {
     //print(error);
     // Assume 401 stands for token expired
     if (error.response?.statusCode == 401) {
-      RequestOptions options = error.response.request;
+      var options = error.response!.request;
       // If the token has been updated, repeat directly.
       if (csrfToken != options.headers["csrfToken"]) {
         options.headers["csrfToken"] = csrfToken;

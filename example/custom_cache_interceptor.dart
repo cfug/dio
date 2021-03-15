@@ -9,7 +9,7 @@ class CacheInterceptor extends Interceptor {
 
   @override
   Future onRequest(RequestOptions options) async {
-    Response response = _cache[options.uri];
+    var response = _cache[options.uri];
     if (options.extra["refresh"] == true) {
       print("${options.uri}: force refresh, ignore cache! \n");
       return options;

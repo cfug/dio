@@ -45,6 +45,6 @@ main() async {
   try {
     await dio.get("xsddddd");
   } on DioError catch (e) {
-    assert(e.response.statusCode == 404);
+    assert(e.response!.statusCode == 404);
   }
 }

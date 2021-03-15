@@ -11,7 +11,7 @@ main() async {
     return response.data["data"]; //
   }, onError: (DioError e) async {
     if (e.response != null) {
-      switch (e.response.request.path) {
+      switch (e.response!.request.path) {
         case URL_NOT_FIND:
           return e;
         case URL_NOT_FIND_1:
@@ -20,7 +20,7 @@ main() async {
         case URL_NOT_FIND_2:
           return Response(data: "fake data");
         case URL_NOT_FIND_3:
-          return 'custom error info [${e.response.statusCode}]';
+          return 'custom error info [${e.response!.statusCode}]';
       }
     }
     return e;
@@ -31,8 +31,8 @@ main() async {
   assert(response.data["headers"] is Map);
   try {
     await dio.get(URL_NOT_FIND);
-  } catch (e) {
-    assert(e.response.statusCode == 404);
+  } on DioError catch (e) {
+    assert(e.response!.statusCode == 404);
   }
   response = await dio.get(URL_NOT_FIND + "1");
   assert(response.data == "fake data");
@@ -41,6 +41,6 @@ main() async {
   try {
     await dio.get(URL_NOT_FIND + "3");
   } catch (e) {
-    assert(e.message == 'custom error info [404]');
+    assert((e as dynamic).message == 'custom error info [404]');
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 main() async {
@@ -20,7 +21,7 @@ main() async {
 Future downloadWithChunks(
   url,
   savePath, {
-  ProgressCallback onReceiveProgress,
+  ProgressCallback? onReceiveProgress,
 }) async {
   const firstChunkSize = 102;
   const maxChunk = 3;
@@ -65,10 +66,12 @@ Future downloadWithChunks(
 
   Response response = await downloadChunk(url, 0, firstChunkSize, 0);
   if (response.statusCode == 206) {
-    total = int.parse(
-        response.headers.value(HttpHeaders.contentRangeHeader).split("/").last);
+    total = int.parse(response.headers
+        .value(HttpHeaders.contentRangeHeader)!
+        .split("/")
+        .last);
     int reserved =
-        total - int.parse(response.headers.value(Headers.contentLengthHeader));
+        total - int.parse(response.headers.value(Headers.contentLengthHeader)!);
     int chunk = (reserved / firstChunkSize).ceil() + 1;
     if (chunk > 1) {
       int chunkSize = firstChunkSize;

@@ -15,14 +15,14 @@ part 'connection_manager_imp.dart';
 class Http2Adapter extends HttpClientAdapter {
   final ConnectionManager _connectionMgr;
 
-  Http2Adapter(ConnectionManager connectionManager)
+  Http2Adapter(ConnectionManager? connectionManager)
       : this._connectionMgr = connectionManager ?? ConnectionManager();
 
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Future? cancelFuture,
   ) async {
     var transport = await _connectionMgr.getConnection(options);
     var uri = options.uri;
@@ -91,7 +91,7 @@ class Http2Adapter extends HttpClientAdapter {
     responseHeaders.removeAll(":status");
     return ResponseBody(
       sc.stream,
-      int.parse(status),
+      int.parse(status!),
       headers: responseHeaders.map,
     );
   }

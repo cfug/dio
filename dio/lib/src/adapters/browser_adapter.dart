@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:html';
 import 'dart:typed_data';
+
 import 'package:buffer/buffer.dart';
 
-import '../dio_error.dart';
-import '../options.dart';
 import '../adapter.dart';
-import 'dart:html';
+import '../dio_error.dart';
 import '../headers.dart';
+import '../options.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -95,7 +96,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (requestStream == null) {
       xhr.send();
     } else {
-      readFully(requestStream).then(xhr.send);
+      requestStream.isEmpty.then((isEmpty) {
+        if (isEmpty) {
+          xhr.send();
+        } else {
+          readFully(requestStream).then(xhr.send);
+        }
+      });
     }
 
     return completer.future.whenComplete(() {

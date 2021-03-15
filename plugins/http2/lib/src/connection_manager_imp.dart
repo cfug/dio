@@ -6,7 +6,7 @@ class _ConnectionManager implements ConnectionManager {
   ///
   /// We can set trusted certificates and handler
   /// for unverifiable certificates.
-  final void Function(Uri uri, ClientSetting) onClientCreate;
+  final void Function(Uri uri, ClientSetting)? onClientCreate;
 
   /// Sets the idle timeout(milliseconds) of non-active persistent
   /// connections. For the sake of socket reuse feature with http/2,
@@ -23,8 +23,8 @@ class _ConnectionManager implements ConnectionManager {
   bool _closed = false;
   bool _forceClosed = false;
 
-  _ConnectionManager({int idleTimeout, this.onClientCreate})
-      : this._idleTimeout = idleTimeout ?? 1000;
+  _ConnectionManager({int? idleTimeout, required this.onClientCreate})
+      : _idleTimeout = idleTimeout ?? 1000;
 
   @override
   Future<ClientTransportConnection> getConnection(
@@ -62,9 +62,7 @@ class _ConnectionManager implements ConnectionManager {
     Uri uri = options.uri;
     String domain = "${uri.host}:${uri.port}";
     ClientSetting clientConfig = ClientSetting();
-    if (onClientCreate != null) {
-      onClientCreate(uri, clientConfig);
-    }
+    onClientCreate?.call(uri, clientConfig);
     var socket;
     try {
       // Create socket
@@ -113,7 +111,7 @@ class _ConnectionManager implements ConnectionManager {
 
   @override
   void removeConnection(ClientTransportConnection transport) {
-    _ClientTransportConnectionState _transportState;
+    _ClientTransportConnectionState? _transportState;
     _transportsMap.removeWhere((_, state) {
       if (state.transport == transport) {
         _transportState = state;
@@ -146,8 +144,8 @@ class _ClientTransportConnectionState {
   }
 
   bool isActive = true;
-  int latestIdleTimeStamp;
-  Timer _timer;
+  int? latestIdleTimeStamp;
+  Timer? _timer;
 
   void delayClose(int idleTimeout, void Function() callback) {
     idleTimeout = idleTimeout < 100 ? 100 : idleTimeout;
@@ -163,7 +161,7 @@ class _ClientTransportConnectionState {
     _timer = Timer(Duration(milliseconds: duration), () {
       if (!isActive) {
         int interval =
-            DateTime.now().millisecondsSinceEpoch - latestIdleTimeStamp;
+            DateTime.now().millisecondsSinceEpoch - latestIdleTimeStamp!;
         if (interval >= duration) {
           return callback();
         }
