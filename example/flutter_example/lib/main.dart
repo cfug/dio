@@ -3,7 +3,7 @@ import 'dart:convert';
 //import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'http.dart'; // make dio as global top-level variable
 import 'routes/request.dart';
 

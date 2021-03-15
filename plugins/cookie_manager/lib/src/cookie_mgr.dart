@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 /// Don't use this class in Browser environment
 class CookieManager extends Interceptor {
@@ -25,13 +25,13 @@ class CookieManager extends Interceptor {
   Future onError(DioError err) async => _saveCookies(err.response);
 
   void _saveCookies(Response? response) {
-      var cookies = response?.headers[HttpHeaders.setCookieHeader];
-      if (cookies != null) {
-        cookieJar.saveFromResponse(
-          response!.request.uri,
-          cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
-        );
-      }
+    var cookies = response?.headers[HttpHeaders.setCookieHeader];
+    if (cookies != null) {
+      cookieJar.saveFromResponse(
+        response!.request.uri,
+        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+      );
+    }
   }
 
   static String getCookies(List<Cookie> cookies) {

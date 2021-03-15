@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'package:dio/adapter.dart';
 
 void showProgress(received, total) {

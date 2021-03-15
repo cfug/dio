@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'package:test/test.dart';
 import 'mock_adapter.dart';
 
@@ -66,10 +66,10 @@ void main() {
   group('#test response interceptor', () {
     Dio dio;
     test('#test Response Interceptor', () async {
-      const  URL_NOT_FIND = '/404/';
-      const  URL_NOT_FIND_1 = URL_NOT_FIND + '1';
-      const  URL_NOT_FIND_2 = URL_NOT_FIND + '2';
-      const  URL_NOT_FIND_3 = URL_NOT_FIND + '3';
+      const URL_NOT_FIND = '/404/';
+      const URL_NOT_FIND_1 = URL_NOT_FIND + '1';
+      const URL_NOT_FIND_2 = URL_NOT_FIND + '2';
+      const URL_NOT_FIND_3 = URL_NOT_FIND + '3';
 
       dio = Dio();
       dio.httpClientAdapter = MockAdapter();
@@ -80,7 +80,7 @@ void main() {
           return response.data['data'];
         },
         onError: (e) {
-          if (e.response?.request!=null) {
+          if (e.response?.request != null) {
             switch (e.response!.request.path) {
               case URL_NOT_FIND:
                 return e;

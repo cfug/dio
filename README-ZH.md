@@ -23,7 +23,7 @@ dependencies:
 ## 一个极简的示例
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 void getHttp() async {
   try {
     Response response = await Dio().get("http://www.baidu.com");
@@ -343,7 +343,7 @@ dio.interceptors.add(InterceptorsWrapper(
 一个简单的自定义拦截器示例:
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 class CustomInterceptors extends InterceptorsWrapper {
   @override
   Future onRequest(RequestOptions options) {
@@ -666,7 +666,7 @@ Dio 使用`DefaultHttpClientAdapter`作为其默认HttpClientAdapter，`DefaultH
 `DefaultHttpClientAdapter` 提供了一个`onHttpClientCreate` 回调来设置底层 `HttpClient`的代理，我们想使用代理，可以参考下面代码：
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'package:dio/adapter.dart';
 ...
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
@@ -745,7 +745,7 @@ token.cancel("cancelled");
 `Dio` 是一个拥有factory 构造函数的接口类，因此不能直接继承 `Dio` ，但是可以通过  `DioForNative` 或`DioForBrowser` 来间接实现: 
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'package:dio/native_imp.dart'; //在浏览器中, import 'package:dio/browser_imp.dart'
 
 class Http extends DioForNative {

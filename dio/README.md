@@ -21,7 +21,7 @@ dependencies:
 ### Super simple to use
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 void getHttp() async {
   try {
     Response response = await Dio().get("http://www.google.com");
@@ -647,7 +647,7 @@ dio.httpClientAdapter = new DefaultHttpClientAdapter();
 `DefaultHttpClientAdapter` provide a callback to set proxy to `dart:io:HttpClient`, for example:
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'package:dio/adapter.dart';
 ...
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
@@ -717,7 +717,7 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 `Dio` is a abstract class with factory constructor，so we don't extend `Dio` class directy. For this purpose,  we can extend `DioForNative` or `DioForBrowser` instead, for example:
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 import 'package:dio/native_imp.dart'; //If in browser, import 'package:dio/browser_imp.dart'
 
 class Http extends DioForNative {

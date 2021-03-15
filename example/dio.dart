@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 main() async {
   var dio = Dio();

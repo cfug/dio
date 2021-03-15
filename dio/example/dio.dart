@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 /// More examples see https://github.com/flutterchina/dio/tree/master/example
 void main() async {

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 // In this example we download a image and listen the downloading progress.
 main() async {

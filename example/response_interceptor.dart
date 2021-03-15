@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 main() async {
   const String URL_NOT_FIND = "https://wendux.github.io/xxxxx/";

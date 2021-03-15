@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 class CacheInterceptor extends Interceptor {
   CacheInterceptor();

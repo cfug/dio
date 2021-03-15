@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http2/http2.dart';
-import 'package:dio/dio.dart';
+import 'package:dio2/dio2.dart';
 
 part 'connection_manager.dart';
 
