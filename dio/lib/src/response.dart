@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../dio.dart';
 import 'options.dart';
 import 'headers.dart';
 import 'redirect_record.dart';
@@ -8,7 +9,7 @@ class Response<T> {
   Response({
     this.data,
     Headers? headers,
-    required this.request,
+    RequestOptions? request,
     this.isRedirect,
     this.statusCode,
     this.statusMessage,
@@ -18,6 +19,7 @@ class Response<T> {
     this.headers = headers ?? Headers();
     this.extra = extra ?? {};
     this.redirects = redirects ?? [];
+    this.request = request ?? RequestOptions(path: '');
   }
 
   /// Response body. may have been transformed, please refer to [ResponseType].
