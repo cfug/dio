@@ -692,7 +692,7 @@ abstract class DioMixin implements Dio {
     List<int> bytes;
     Stream<List<int>> stream;
     const allowPayloadMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    if (data != null && allowPayloadMethods.contains(options.method)) {
+    if ((options.method == 'GET') || data != null && allowPayloadMethods.contains(options.method)) {
       // Handle the FormData
       int? length;
       if (data is Stream) {
