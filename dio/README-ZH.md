@@ -15,10 +15,10 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^4.0.0-beta7 
+  dio: ^4.0.0-prev1 
 ```
 
-> 4.0 changelog 待补充
+> 如果你是dio 3.x 用户，想了解4.0的变更，请参考 [4.x更新列表](./migration_to_4.x.md)!
 
 ## 一个极简的示例
 
@@ -336,27 +336,30 @@ print(response.statusCode);
 
 ## 拦截器
 
-每个 Dio 实例都可以添加任意多个拦截器，他们组成一个队列，拦截器队列的执行顺序是FIFO。通过拦截器你可以在请求之前或响应之后(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
+每个 Dio 实例都可以添加任意多个拦截器，他们组成一个队列，拦截器队列的执行顺序是FIFO。通过拦截器你可以在请求之前、响应之后和发生异常时(但还没有被 `then` 或 `catchError`处理)做一些统一的预处理操作。
 
 ```dart
-
 dio.interceptors.add(InterceptorsWrapper(
-    onRequest:(RequestOptions options) async {
-     // 在请求被发送之前做一些事情
-     return options; //continue
-     // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`对象或返回`dio.resolve(data)`。
-     // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义数据data.
+    onRequest:(options, handler){
+     // Do something before request is sent
+     return hanlder.next(options); //continue
+     // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`,如`dio.resolve(response)`。
+     // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
      //
-     // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象，或返回`dio.reject(errMsg)`，
+     // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象,如`dio.reject(error)`，
      // 这样请求将被中止并触发异常，上层catchError会被调用。
     },
-    onResponse:(Response response) async {
-     // 在返回响应数据之前做一些预处理
-     return response; // continue
+    onResponse:(response,handler) {
+     // Do something with response data
+     return handler.next(response); // continue
+     // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象,如`dio.reject(error)`，
+     // 这样请求将被中止并触发异常，上层catchError会被调用。
     },
-    onError: (DioError e) async {
-      // 当请求失败时做一些预处理
-     return e;//continue
+    onError: (DioError e, handler) {
+     // Do something with response error
+     return  handler.next(e);//continue
+     // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`,如`dio.resolve(response)`。
+     // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
     }
 ));
 ```
@@ -365,21 +368,21 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ```dart
 import 'package:dio/dio.dart';
-class CustomInterceptors extends InterceptorsWrapper {
+class CustomInterceptors extends Interceptor {
   @override
-  Future onRequest(RequestOptions options) {
-    print('REQUEST[${options?.method}] => PATH: ${options?.path}');
-    return super.onRequest(options);
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    print('REQUEST[${options.method}] => PATH: ${options.path}');
+    return super.onRequest(options, handler);
   }
   @override
-  Future onResponse(Response response) {
-    print('RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}');
-    return super.onResponse(response);
+  Future onResponse(Response response, ResponseInterceptorHandler handler) {
+    print('RESPONSE[${response.statusCode}] => PATH: ${response.request?.path}');
+    return super.onResponse(response, handler);
   }
   @override
-  Future onError(DioError err) {
-    print('ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}');
-    return super.onError(err);
+  Future onError(DioError err, ErrorInterceptorHandler handler) {
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.request.path}');
+    return super.onError(err, handler);
   }
 }
 ```
@@ -390,28 +393,12 @@ class CustomInterceptors extends InterceptorsWrapper {
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(RequestOptions options) {
-   return dio.resolve('fake data')
+  onRequest:(options, handler) {
+   return handler.resolve(Response(requestOptions:options,data:'fake data'));
   },
 ));
 Response response = await dio.get('/test');
 print(response.data);//'fake data'
-```
-
-### 拦截器中支持异步任务
-
-拦截器中不仅支持同步任务，而且也支持异步任务, 下面是在请求拦截器中发起异步任务的一个实例:
-
-```dart
-dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(Options options) async{
-    //...If no token, request token firstly.
-    Response response = await dio.get("/token");
-    //Set the token to headers
-    options.headers["token"] = response.data["data"]["token"];
-    return options; //continue
-  }
-));
 ```
 
 ### Lock/unlock 拦截器
@@ -422,16 +409,18 @@ dio.interceptors.add(InterceptorsWrapper(
 tokenDio = Dio(); //Create a new instance to request the token.
 tokenDio.options = dio.options.copyWith();
 dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(Options options) async {
+  onRequest:(Options options, handler){
     // If no token, request token firstly and lock this interceptor
     // to prevent other request enter this interceptor.
     dio.interceptors.requestLock.lock();
     // We use a new Dio(to avoid dead lock) instance to request token.
-    Response response = await tokenDio.get('/token');
-    //Set the token to headers
-    options.headers['token'] = response.data['data']['token'];
-    dio.interceptors.requestLock.unlock();
-    return options; //continue
+    tokenDio.get('/token').then((response){
+       //Set the token to headers
+       options.headers['token'] = response.data['data']['token'];
+       handler.next(options); //continue
+    }).catchError((error, stackTrace) {
+       handler.reject(error, true);
+    }).whenComplete(() => dio.interceptors.requestLock.unlock());
   }
 ));
 ```
@@ -456,21 +445,23 @@ dio.interceptors.add(InterceptorsWrapper(
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
-  onRequest: (Options options) async {
+  onRequest: (Options options, handler) async {
     print('send request：path:${options.path}，baseURL:${options.baseUrl}');
     if (csrfToken == null) {
       print('no token，request token firstly...');
       //lock the dio.
       dio.lock();
-      return tokenDio.get('/token').then((d) {
+      tokenDio.get('/token').then((d) {
         options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
         print('request token succeed, value: ' + d.data['data']['token']);
         print( 'continue to perform request：path:${options.path}，baseURL:${options.path}');
-        return options;
-      }).whenComplete(() => dio.unlock()); // unlock the dio
+        handler.next(options);
+      }).catchError((error, stackTrace) {
+        handler.reject(error, true);
+      }) .whenComplete(() => dio.unlock()); // unlock the dio
     } else {
       options.headers['csrfToken'] = csrfToken;
-      return options;
+      handler.next(options);
     }
   }
 ));

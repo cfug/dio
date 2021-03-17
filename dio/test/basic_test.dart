@@ -130,8 +130,10 @@ void main() {
   });
 
   test('#send with an invalid URL', () {
-    expect(Dio().get('http://http.invalid').catchError((e) => throw e.error),
-        throwsA(const TypeMatcher<SocketException>()));
+    expect(
+      Dio().get('http://http.invalid').catchError((e) => throw e.error),
+      throwsA(const TypeMatcher<SocketException>()),
+    );
   });
 
   test('#cancellation', () async {
@@ -144,20 +146,25 @@ void main() {
 
     var url = 'https://accounts.google.com';
     expect(
-        dio
-            .get(url, cancelToken: token)
-            .catchError((e) => throw CancelToken.isCancel(e)),
-        throwsA(isTrue));
+      dio
+          .get(url, cancelToken: token)
+          .catchError((e) => throw CancelToken.isCancel(e)),
+      throwsA(isTrue),
+    );
   });
 
   test('#status error', () async {
     var dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
 
-    expect(dio.get('401').catchError((e) => throw e.response.statusCode),
-        throwsA(401));
+    expect(
+      dio.get('401').catchError((e) => throw e.response.statusCode),
+      throwsA(401),
+    );
 
-    var r= await dio.get('401', options: Options(validateStatus:(status)=>true));
-    expect(r.statusCode,401);
-
+    var r = await dio.get(
+      '401',
+      options: Options(validateStatus: (status) => true),
+    );
+    expect(r.statusCode, 401);
   });
 }

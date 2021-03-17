@@ -10,7 +10,10 @@ class MyTransformer extends DefaultTransformer {
   @override
   Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
-      throw DioError(error: "Can't send List to sever directly");
+      throw DioError(
+        error: "Can't send List to sever directly",
+        requestOptions: options,
+      );
     } else {
       return super.transformRequest(options);
     }
@@ -21,7 +24,9 @@ class MyTransformer extends DefaultTransformer {
   /// and [Response] with `response.request.extra["cookies"]`.
   @override
   Future transformResponse(
-      RequestOptions options, ResponseBody response) async {
+    RequestOptions options,
+    ResponseBody response,
+  ) async {
     options.extra['self'] = 'XX';
     return super.transformResponse(options, response);
   }
@@ -33,7 +38,7 @@ void main() async {
   dio.transformer = MyTransformer();
 
   var response = await dio.get('https://www.baidu.com');
-  print(response.request.extra['self']);
+  print(response.requestOptions.extra['self']);
 
   try {
     await dio.post('https://www.baidu.com', data: ['1', '2']);

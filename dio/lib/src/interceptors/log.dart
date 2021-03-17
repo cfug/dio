@@ -51,7 +51,7 @@ class LogInterceptor extends Interceptor {
   void Function(Object object) logPrint;
 
   @override
-  Future onRequest(RequestOptions options) async {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -75,29 +75,36 @@ class LogInterceptor extends Interceptor {
       _printAll(options.data);
     }
     logPrint('');
+
+    handler.next(options);
   }
 
   @override
-  Future onError(DioError err) async {
+  void onResponse(Response response, ResponseInterceptorHandler handler) async {
+    logPrint('*** Response ***');
+    _printResponse(response);
+    handler.next(response);
+  }
+
+
+  @override
+  void  onError(DioError err, ErrorInterceptorHandler handler) async {
     if (error) {
       logPrint('*** DioError ***:');
-      logPrint('uri: ${err.request?.uri}');
+      logPrint('uri: ${err.requestOptions.uri}');
       logPrint('$err');
       if (err.response != null) {
         _printResponse(err.response!);
       }
       logPrint('');
     }
+
+    handler.next(err);
   }
 
-  @override
-  Future onResponse(Response response) async {
-    logPrint('*** Response ***');
-    _printResponse(response);
-  }
 
   void _printResponse(Response response) {
-    _printKV('uri', response.request.uri);
+    _printKV('uri', response.requestOptions.uri);
     if (responseHeader) {
       _printKV('statusCode', response.statusCode);
       if (response.isRedirect == true) {

@@ -8,7 +8,7 @@ class Response<T> {
   Response({
     this.data,
     Headers? headers,
-    required this.request,
+    required this.requestOptions,
     this.isRedirect,
     this.statusCode,
     this.statusMessage,
@@ -27,7 +27,7 @@ class Response<T> {
   late Headers headers;
 
   /// The corresponding request info.
-  late RequestOptions request;
+  late RequestOptions requestOptions;
 
   /// Http status code.
   int? statusCode;
@@ -51,14 +51,14 @@ class Response<T> {
   /// Whether this response is a redirect.
   /// ** Attention **: Whether this field is available depends on whether the
   /// implementation of the adapter supports it or not.
-  final bool? isRedirect;
+  bool? isRedirect;
 
   /// Return the final real request uri (maybe redirect).
   ///
   /// ** Attention **: Whether this field is available depends on whether the
   /// implementation of the adapter supports it or not.
   Uri get realUri =>
-      (redirects.isNotEmpty) ? redirects.last.location : request.uri;
+      (redirects.isNotEmpty) ? redirects.last.location : requestOptions.uri;
 
   /// We are more concerned about `data` field.
   @override

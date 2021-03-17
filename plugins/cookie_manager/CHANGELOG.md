@@ -1,3 +1,8 @@
+
+## [2.0.0-prev1]
+
+* support dio 4.0.0-prev1
+
 ## [2.0.0-beta1]
 
 * support nullsafety

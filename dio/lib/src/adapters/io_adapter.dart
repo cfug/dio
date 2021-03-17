@@ -36,7 +36,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     void _throwConnectingTimeout() {
       throw DioError(
-        request: options,
+        requestOptions: options,
         error: 'Connecting timed out [${options.connectTimeout}ms]',
         type: DioErrorType.connectTimeout,
       );

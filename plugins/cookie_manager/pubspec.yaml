@@ -1,6 +1,6 @@
 name: dio_cookie_manager
 description: A cookie manager for Dio, which supports persistent cookies in RAM and file.
-version: 2.0.0-beta1
+version: 2.0.0-prev1
 homepage:  https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager
 
 environment:
@@ -8,9 +8,9 @@ environment:
 
 dependencies:
   cookie_jar: ^3.0.0-beta1
-#  dio: ^4.0.0-beta6
-  dio:
-    path: ../../dio
+  dio: ^4.0.0-prev1
+#  dio:
+#    path: ../../dio
 
 dev_dependencies:
   test: ^1.16.4

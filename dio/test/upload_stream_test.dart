@@ -40,5 +40,4 @@ void main() {
     var img = base64Encode(f.readAsBytesSync());
     expect(r.data['data'], 'data:application/octet-stream;base64,' + img);
   });
-
 }

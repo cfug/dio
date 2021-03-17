@@ -41,7 +41,7 @@ abstract class DioMixin implements Dio {
     httpClientAdapter.close(force: force);
   }
 
-  /// Handy method to make http GET request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http GET request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> get<T>(
     String path, {
@@ -59,7 +59,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http GET request, which is a alias of [BaseDio.request].
+  /// Handy method to make http GET request, which is a alias of [BaseDio.requestOptions].
   @override
   Future<Response<T>> getUri<T>(
     Uri uri, {
@@ -75,7 +75,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http POST request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http POST request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> post<T>(
     String path, {
@@ -97,7 +97,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http POST request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http POST request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> postUri<T>(
     Uri uri, {
@@ -117,7 +117,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http PUT request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PUT request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> put<T>(
     String path, {
@@ -139,7 +139,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http PUT request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PUT request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> putUri<T>(
     Uri uri, {
@@ -159,7 +159,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http HEAD request, which is a alias of [BaseDio.request].
+  /// Handy method to make http HEAD request, which is a alias of [BaseDio.requestOptions].
   @override
   Future<Response<T>> head<T>(
     String path, {
@@ -177,7 +177,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http HEAD request, which is a alias of [BaseDio.request].
+  /// Handy method to make http HEAD request, which is a alias of [BaseDio.requestOptions].
   @override
   Future<Response<T>> headUri<T>(
     Uri uri, {
@@ -193,7 +193,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> delete<T>(
     String path, {
@@ -211,7 +211,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> deleteUri<T>(
     Uri uri, {
@@ -227,7 +227,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> patch<T>(
     String path, {
@@ -249,7 +249,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.requestOptions].
   @override
   Future<Response<T>> patchUri<T>(
     Uri uri, {
@@ -269,38 +269,10 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Assure the final future state is succeed!
-  @override
-  Future<Response<T>> resolve<T>(response) {
-    if (response is! Future) {
-      response = Future.value(response);
-    }
-    return response.then<Response<T>>((data) {
-      return assureResponse<T>(data);
-    }, onError: (err) {
-      // transform 'error' to 'success'
-      return assureResponse<T>(err);
-    });
-  }
-
-  /// Assure the final future state is failed!
-  @override
-  Future<Response<T>> reject<T>(err) {
-    if (err is! Future) {
-      err = Future.error(err);
-    }
-    return err.then<Response<T>>((v) {
-      // transform 'success' to 'error'
-      throw assureDioError(v);
-    }, onError: (e) {
-      throw assureDioError(e);
-    });
-  }
-
   /// Lock the current Dio instance.
   ///
   /// Dio will enqueue the incoming request tasks instead
-  /// send them directly when [interceptor.request] is locked.
+  /// send them directly when [interceptor.requestOptions] is locked.
   @override
   void lock() {
     interceptors.requestLock.lock();
@@ -470,9 +442,6 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    if (_closed) {
-      throw DioError(error: "Dio can't establish new connection after closed.");
-    }
     options ??= Options();
     var requestOptions = options.compose(
       this.options,
@@ -487,6 +456,15 @@ abstract class DioMixin implements Dio {
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
 
+    if (_closed) {
+      throw DioError(
+        requestOptions: requestOptions,
+        error: "Dio can't establish new connection after closed.",
+      );
+    }
+
+    if (cancelToken != null) cancelToken.requestOptions = requestOptions;
+
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
             requestOptions.responseType == ResponseType.stream)) {
@@ -499,34 +477,32 @@ abstract class DioMixin implements Dio {
     return fetch<T>(requestOptions);
   }
 
-  bool _isErrorOrException(t) => t is Exception || t is Error;
-
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic) _requestInterceptorWrapper(
-        interceptor) {
-      return (data) async {
-        var isReq = data is RequestOptions;
-        var isError = _isErrorOrException(data);
-        var lock = interceptors.requestLock;
-        if (isError || isReq) {
+    FutureOr Function(dynamic) _requestInterceptorWrapper(
+      void Function(
+        RequestOptions options,
+        RequestInterceptorHandler handler,
+      )
+          interceptor,
+    ) {
+      return (dynamic _state) async {
+        var state = _state as InterceptorState;
+        if (state.type == InterceptorResultType.next) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() {
-              return checkIfNeedEnqueue(lock, () {
-                if (isReq) {
-                  return interceptor(data).then((e) => e ?? data);
-                } else {
-                  throw assureDioError(data, requestOptions);
-                }
+              return checkIfNeedEnqueue(interceptors.requestLock, () {
+                var requestHandler = RequestInterceptorHandler();
+                interceptor(state.data, requestHandler);
+                return requestHandler.future;
               });
             }),
           );
         } else {
-          // skip request interceptor
-          return assureResponse(data, requestOptions);
+          return state;
         }
       };
     }
@@ -535,49 +511,54 @@ abstract class DioMixin implements Dio {
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic) _responseInterceptorWrapper(
         interceptor) {
-      return (data) async {
-        var isError = _isErrorOrException(data);
-        var lock = interceptors.responseLock;
-        return listenCancelForAsyncTask(
-          requestOptions.cancelToken,
-          Future(() {
-            return checkIfNeedEnqueue(lock, () {
-              if (isError) {
-                throw assureDioError(data, requestOptions);
-              } else {
-                if (data is Response) {
-                  // Make sure Response.request exists.
-                  data.request = data.request ?? requestOptions;
-                } else {
-                  // ensure data is Response object
-                  data = assureResponse(data, requestOptions);
-                }
-                return interceptor(data).then((e) => e ?? data);
-              }
-            });
-          }),
-        );
+      return (_state) async {
+        var state = _state as InterceptorState;
+        if (state.type == InterceptorResultType.next ||
+            state.type == InterceptorResultType.resolveCallFollowing) {
+          return listenCancelForAsyncTask(
+            requestOptions.cancelToken,
+            Future(() {
+              return checkIfNeedEnqueue(interceptors.responseLock, () {
+                var responseHandler = ResponseInterceptorHandler();
+                interceptor(state.data, responseHandler);
+                return responseHandler.future;
+              });
+            }),
+          );
+        } else {
+          return state;
+        }
       };
     }
 
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic) _errorInterceptorWrapper(
-        errInterceptor) {
-      return (err) {
-        return checkIfNeedEnqueue(interceptors.errorLock, () {
-          if (err is! Response) {
-            return errInterceptor(assureDioError(err, requestOptions))
-                .then((e) {
-              if (e is! Response) {
-                throw assureDioError(e ?? err, requestOptions);
-              }
-              return e;
-            });
-          }
-          // err is a Response instance
-          return err;
-        });
+    FutureOr<dynamic> Function(dynamic, StackTrace stackTrace)
+        _errorInterceptorWrapper(interceptor) {
+      return (err, stackTrace) {
+        if (err is! InterceptorState) {
+          err = InterceptorState(assureDioError(
+            err,
+            requestOptions,
+            stackTrace,
+          ));
+        }
+
+        if (err.type == InterceptorResultType.next ||
+            err.type == InterceptorResultType.rejectCallFollowing) {
+          return listenCancelForAsyncTask(
+            requestOptions.cancelToken,
+            Future(() {
+              return checkIfNeedEnqueue(interceptors.errorLock, () {
+                var errorHandler = ErrorInterceptorHandler();
+                interceptor(err.data, errorHandler);
+                return errorHandler.future;
+              });
+            }),
+          );
+        } else {
+          throw err;
+        }
       };
     }
 
@@ -585,15 +566,26 @@ abstract class DioMixin implements Dio {
     // execute in FIFO order.
 
     // Start the request flow
-    late Future future;
-    future = Future.value(requestOptions);
+    var future = Future<dynamic>(() => InterceptorState(requestOptions));
+
     // Add request interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
       future = future.then(_requestInterceptorWrapper(interceptor.onRequest));
     });
 
     // Add dispatching callback to request flow
-    future = future.then(_requestInterceptorWrapper(_dispatchRequest));
+    future = future.then(_requestInterceptorWrapper((
+      RequestOptions reqOpt,
+      RequestInterceptorHandler handler,
+    ) {
+      requestOptions = reqOpt;
+      _dispatchRequest(reqOpt).then(
+        (value) => handler.resolve(value, true),
+        onError: (e) {
+          handler.reject(e, true);
+        },
+      );
+    }));
 
     // Add response interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
@@ -607,12 +599,24 @@ abstract class DioMixin implements Dio {
 
     // Normalize errors, we convert error to the DioError
     return future.then<Response<T>>((data) {
-      return assureResponse<T>(data, requestOptions);
-    }).catchError((err) {
-      if (err == null || _isErrorOrException(err)) {
-        throw assureDioError(err, requestOptions);
+      return assureResponse<T>(
+        data is InterceptorState ? data.data : data,
+        requestOptions,
+      );
+    }).catchError((err, stackTrace) {
+      var isState = err is InterceptorState;
+
+      if (isState) {
+        if ((err as InterceptorState).type == InterceptorResultType.resolve) {
+          return assureResponse<T>(err.data, requestOptions);
+        }
       }
-      return assureResponse<T>(err, requestOptions);
+
+      throw assureDioError(
+        isState ? err.data : err,
+        requestOptions,
+        stackTrace,
+      );
     });
   }
 
@@ -631,7 +635,7 @@ abstract class DioMixin implements Dio {
       var headers = Headers.fromMap(responseBody.headers);
       var ret = Response(
         headers: headers,
-        request: reqOpt,
+        requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
         isRedirect: responseBody.isRedirect,
         statusCode: responseBody.statusCode,
@@ -661,6 +665,7 @@ abstract class DioMixin implements Dio {
             as Response<T>;
       } else {
         throw DioError(
+          requestOptions: reqOpt,
           response: ret,
           error: 'Http status error [${responseBody.statusCode}]',
           type: DioErrorType.response,
@@ -669,22 +674,6 @@ abstract class DioMixin implements Dio {
     } catch (e) {
       throw assureDioError(e, reqOpt);
     }
-  }
-
-  // If the request has been cancelled, stop request and throw error.
-  void checkCancelled(CancelToken? cancelToken) {
-    if (cancelToken != null && cancelToken.cancelError != null) {
-      throw cancelToken.cancelError!;
-    }
-  }
-
-  Future<T> listenCancelForAsyncTask<T>(
-      CancelToken? cancelToken, Future<T> future) {
-    return Future.any([
-      if (cancelToken != null)
-        cancelToken.whenCancel.then((e) => throw cancelToken.cancelError!),
-      future,
-    ]);
   }
 
   Future<Stream<Uint8List>?> _transformData(RequestOptions options) async {
@@ -715,7 +704,6 @@ abstract class DioMixin implements Dio {
         length = data.length;
         options.headers[Headers.contentLengthHeader] = length.toString();
       } else {
-
         // Call request transformer.
         var _data = await transformer.transformRequest(options);
 
@@ -763,7 +751,7 @@ abstract class DioMixin implements Dio {
         byteStream.timeout(Duration(milliseconds: options.sendTimeout),
             onTimeout: (sink) {
           sink.addError(DioError(
-            request: options,
+            requestOptions: options,
             error: 'Sending timeout[${options.connectTimeout}ms]',
             type: DioErrorType.sendTimeout,
           ));
@@ -777,13 +765,28 @@ abstract class DioMixin implements Dio {
     return null;
   }
 
-  Options checkOptions(method, options) {
+  // If the request has been cancelled, stop request and throw error.
+  static void checkCancelled(CancelToken? cancelToken) {
+    if (cancelToken != null && cancelToken.cancelError != null) {
+      throw cancelToken.cancelError!;
+    }
+  }
+
+  static Future<T> listenCancelForAsyncTask<T>(
+      CancelToken? cancelToken, Future<T> future) {
+    return Future.any([
+      if (cancelToken != null) cancelToken.whenCancel.then((e) => throw e),
+      future,
+    ]);
+  }
+
+  static Options checkOptions(method, options) {
     options ??= Options();
     options.method = method;
     return options;
   }
 
-  FutureOr checkIfNeedEnqueue(Lock lock, EnqueueCallback callback) {
+  static FutureOr checkIfNeedEnqueue(Lock lock, EnqueueCallback callback) {
     if (lock.locked) {
       return lock.enqueue(callback);
     } else {
@@ -791,31 +794,44 @@ abstract class DioMixin implements Dio {
     }
   }
 
-  DioError assureDioError(err, [RequestOptions? requestOptions]) {
+  static DioError assureDioError(
+    err,
+    RequestOptions requestOptions, [
+    StackTrace? stackTrace,
+  ]) {
     DioError dioError;
     if (err is DioError) {
       dioError = err;
     } else {
-      dioError = DioError(error: err);
+      dioError = DioError(requestOptions: requestOptions, error: err);
     }
-    dioError.request = dioError.request ?? requestOptions;
+
+    var errorStackTrace;
+    if (dioError.error is Error) {
+      errorStackTrace = dioError.error.stackTrace;
+    }
+
+    dioError.stackTrace = stackTrace ??
+        dioError.stackTrace ??
+        errorStackTrace ??
+        StackTrace.current;
+
     return dioError;
   }
 
-  Response<T> assureResponse<T>(response, [RequestOptions? requestOptions]) {
-    if (response is Response<T>) {
-      response.request = requestOptions ?? response.request;
-    } else if (response is! Response) {
-      response = Response<T>(
+  static Response<T> assureResponse<T>(response,
+      [RequestOptions? requestOptions]) {
+    if (response is! Response) {
+      return Response<T>(
         data: response,
-        request: requestOptions ?? RequestOptions(path: ''),
+        requestOptions: requestOptions ?? RequestOptions(path: ''),
       );
-    } else {
-      T data = response.data;
-      response = Response<T>(
+    } else if (response is! Response<T>) {
+      T? data = response.data;
+      return Response<T>(
         data: data,
         headers: response.headers,
-        request: response.request,
+        requestOptions: response.requestOptions,
         statusCode: response.statusCode,
         isRedirect: response.isRedirect,
         redirects: response.redirects,

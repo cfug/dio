@@ -106,8 +106,8 @@ class DefaultTransformer extends Transformer {
         finalSize += chunk.length;
         chunks.add(chunk);
       },
-      onError: (e) {
-        completer.completeError(e);
+      onError: (e,stackTrace) {
+        completer.completeError(e,stackTrace);
       },
       onDone: () {
         completer.complete();
@@ -125,7 +125,7 @@ class DefaultTransformer extends Transformer {
       } on TimeoutException {
         await subscription.cancel();
         throw DioError(
-          request: options,
+          requestOptions: options,
           error: 'Receiving data timeout[${options.receiveTimeout}ms]',
           type: DioErrorType.receiveTimeout,
         );

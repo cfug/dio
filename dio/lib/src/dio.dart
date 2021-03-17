@@ -61,7 +61,7 @@ abstract class Dio {
   /// calling [close] will throw an exception.
   void close({bool force = false});
 
-  /// Handy method to make http GET request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http GET request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -70,7 +70,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http GET request, which is a alias of [BaseDio.request].
+  /// Handy method to make http GET request, which is a alias of [BaseDio.requestOptions].
   Future<Response<T>> getUri<T>(
     Uri uri, {
     Options? options,
@@ -78,7 +78,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http POST request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http POST request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> post<T>(
     String path, {
     data,
@@ -89,7 +89,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http POST request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http POST request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> postUri<T>(
     Uri uri, {
     data,
@@ -99,7 +99,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http PUT request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PUT request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> put<T>(
     String path, {
     data,
@@ -110,7 +110,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http PUT request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PUT request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> putUri<T>(
     Uri uri, {
     data,
@@ -120,7 +120,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http HEAD request, which is a alias of [BaseDio.request].
+  /// Handy method to make http HEAD request, which is a alias of [BaseDio.requestOptions].
   Future<Response<T>> head<T>(
     String path, {
     data,
@@ -129,7 +129,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// Handy method to make http HEAD request, which is a alias of [BaseDio.request].
+  /// Handy method to make http HEAD request, which is a alias of [BaseDio.requestOptions].
   Future<Response<T>> headUri<T>(
     Uri uri, {
     data,
@@ -137,7 +137,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> delete<T>(
     String path, {
     data,
@@ -146,7 +146,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http DELETE request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> deleteUri<T>(
     Uri uri, {
     data,
@@ -154,7 +154,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> patch<T>(
     String path, {
     data,
@@ -165,7 +165,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.request].
+  /// Handy method to make http PATCH request, which is a alias of  [BaseDio.requestOptions].
   Future<Response<T>> patchUri<T>(
     Uri uri, {
     data,
@@ -175,16 +175,10 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Assure the final future state is succeed!
-  Future<Response<T>> resolve<T>(response);
-
-  /// Assure the final future state is failed!
-  Future<Response<T>> reject<T>(err);
-
   /// Lock the current Dio instance.
   ///
   /// Dio will enqueue the incoming request tasks instead
-  /// send them directly when [interceptor.request] is locked.
+  /// send them directly when [interceptor.requestOptions] is locked.
 
   void lock();
 

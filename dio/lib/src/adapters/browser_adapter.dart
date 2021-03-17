@@ -59,7 +59,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           DioError(
             type: DioErrorType.response,
             error: error,
-            request: options,
+            requestOptions: options,
           ),
           StackTrace.current,
         );
@@ -74,7 +74,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         DioError(
           type: DioErrorType.response,
           error: 'XMLHttpRequest error.',
-          request: options,
+          requestOptions: options,
         ),
         StackTrace.current,
       );

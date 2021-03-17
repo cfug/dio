@@ -75,7 +75,7 @@ class DioForNative with DioMixin implements Dio {
   }) async {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
     // response stream.
-    options ??= checkOptions('GET', options);
+    options ??= DioMixin.checkOptions('GET', options);
 
     // Receive data with stream.
     options.responseType = ResponseType.stream;
@@ -90,9 +90,9 @@ class DioForNative with DioMixin implements Dio {
       );
     } on DioError catch (e) {
       if (e.type == DioErrorType.response) {
-        if (e.response!.request.receiveDataWhenStatusError == true) {
+        if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
           var res = await transformer.transformResponse(
-            e.response!.request..responseType = ResponseType.json,
+            e.response!.requestOptions..responseType = ResponseType.json,
             e.response!.data,
           );
           e.response!.data = res;
@@ -173,11 +173,15 @@ class DioForNative with DioMixin implements Dio {
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
-        }).catchError((err) async {
+        }).catchError((err,stackTrace) async {
           try {
             await subscription.cancel();
           } finally {
-            completer.completeError(assureDioError(err));
+            completer.completeError(DioMixin.assureDioError(
+              err,
+              response.requestOptions,
+              stackTrace
+            ));
           }
         });
       },
@@ -188,14 +192,20 @@ class DioForNative with DioMixin implements Dio {
           await raf.close();
           completer.complete(response);
         } catch (e) {
-          completer.completeError(assureDioError(e));
+          completer.completeError(DioMixin.assureDioError(
+            e,
+            response.requestOptions,
+          ));
         }
       },
       onError: (e) async {
         try {
           await _closeAndDelete();
         } finally {
-          completer.completeError(assureDioError(e));
+          completer.completeError(DioMixin.assureDioError(
+            e,
+            response.requestOptions,
+          ));
         }
       },
       cancelOnError: true,
@@ -206,17 +216,19 @@ class DioForNative with DioMixin implements Dio {
       await _closeAndDelete();
     });
 
-    if (response.request.receiveTimeout > 0) {
+    if (response.requestOptions.receiveTimeout > 0) {
       future = future
-          .timeout(Duration(milliseconds: response.request.receiveTimeout))
+          .timeout(Duration(
+        milliseconds: response.requestOptions.receiveTimeout,
+      ))
           .catchError((err) async {
         await subscription.cancel();
         await _closeAndDelete();
         if (err is TimeoutException) {
           throw DioError(
-            request: response.request,
+            requestOptions: response.requestOptions,
             error:
-                'Receiving data timeout[${response.request.receiveTimeout}ms]',
+                'Receiving data timeout[${response.requestOptions.receiveTimeout}ms]',
             type: DioErrorType.receiveTimeout,
           );
         } else {
@@ -224,7 +236,7 @@ class DioForNative with DioMixin implements Dio {
         }
       });
     }
-    return listenCancelForAsyncTask(cancelToken, future);
+    return DioMixin.listenCancelForAsyncTask(cancelToken, future);
   }
 
   ///  Download the file and save it in local. The default http method is "GET",

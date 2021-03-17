@@ -14,9 +14,9 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^4.0.0-beta7
+  dio: ^4.0.0-prev1
 ```
-> In order to support Flutter Web, v3.x was heavily refactored, so v3.x is not compatible with v2.x See [the changelog](https://github.com/flutterchina/dio/blob/master/dio/CHANGELOG.md) for a detailed list of updates.
+> Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_to_4.x.md)!
 
 ### Super simple to use
 
@@ -364,25 +364,29 @@ print(response.statusCode);
 
 ## Interceptors
 
-For each dio instance, We can add one or more interceptors, by which we can intercept requests or responses before they are handled by `then` or `catchError`.
+For each dio instance, We can add one or more interceptors, by which we can intercept requests 、 responses and errors before they are handled by `then` or `catchError`.
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
-    onRequest:(RequestOptions options) async {
+    onRequest:(options, handler){
      // Do something before request is sent
-     return options; //continue
+     return hanlder.next(options); //continue
      // If you want to resolve the request with some custom data，
-     // you can return a `Response` object or return `dio.resolve(data)`.
+     // you can resolve a `Response` object eg: return `dio.resolve(response)`.
      // If you want to reject the request with a error message,
-     // you can return a `DioError` object or return `dio.reject(errMsg)`
+     // you can reject a `DioError` object eg: return `dio.reject(dioError)`
     },
-    onResponse:(Response response) async {
+    onResponse:(response,handler) {
      // Do something with response data
-     return response; // continue
+     return handler.next(response); // continue
+     // If you want to reject the request with a error message,
+     // you can reject a `DioError` object eg: return `dio.reject(dioError)` 
     },
-    onError: (DioError e) async {
+    onError: (DioError e, handler) {
      // Do something with response error
-     return  e;//continue
+     return  handler.next(e);//continue
+     // If you want to resolve the request with some custom data，
+     // you can resolve a `Response` object eg: return `dio.resolve(response)`.  
     }
 ));
 
@@ -392,21 +396,21 @@ Simple interceptor example:
 
 ```dart
 import 'package:dio/dio.dart';
-class CustomInterceptors extends InterceptorsWrapper {
+class CustomInterceptors extends Interceptor {
   @override
-  Future onRequest(RequestOptions options) {
-    print('REQUEST[${options?.method}] => PATH: ${options?.path}');
-    return super.onRequest(options);
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    print('REQUEST[${options.method}] => PATH: ${options.path}');
+    return super.onRequest(options, handler);
   }
   @override
-  Future onResponse(Response response) {
-    print('RESPONSE[${response?.statusCode}] => PATH: ${response?.request?.path}');
-    return super.onResponse(response);
+  Future onResponse(Response response, ResponseInterceptorHandler handler) {
+    print('RESPONSE[${response.statusCode}] => PATH: ${response.request?.path}');
+    return super.onResponse(response, handler);
   }
   @override
-  Future onError(DioError err) {
-    print('ERROR[${err?.response?.statusCode}] => PATH: ${err?.request?.path}');
-    return super.onError(err);
+  Future onError(DioError err, ErrorInterceptorHandler handler) {
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.request.path}');
+    return super.onError(err, handler);
   }
 }
 ```
@@ -418,8 +422,8 @@ In all interceptors, you can interfere with their execution flow. If you want to
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(RequestOptions options) {
-   return dio.resolve('fake data')
+  onRequest:(options, handler) {
+   return handler.resolve(Response(requestOptions:options,data:'fake data'));
   },
 ));
 Response response = await dio.get('/test');
@@ -434,16 +438,18 @@ You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. 
 tokenDio = Dio(); //Create a new instance to request the token.
 tokenDio.options = dio.options.copyWith();
 dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(Options options) async {
+  onRequest:(Options options, handler){
     // If no token, request token firstly and lock this interceptor
     // to prevent other request enter this interceptor.
     dio.interceptors.requestLock.lock();
     // We use a new Dio(to avoid dead lock) instance to request token.
-    Response response = await tokenDio.get('/token');
-    //Set the token to headers
-    options.headers['token'] = response.data['data']['token'];
-    dio.interceptors.requestLock.unlock();
-    return options; //continue
+    tokenDio.get('/token').then((response){
+       //Set the token to headers
+       options.headers['token'] = response.data['data']['token'];
+       handler.next(options); //continue
+    }).catchError((error, stackTrace) {
+       handler.reject(error, true);
+    }).whenComplete(() => dio.interceptors.requestLock.unlock());
   }
 ));
 ```
@@ -466,21 +472,23 @@ Because of security reasons, we need all the requests to set up a csrfToken in t
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
-  onRequest: (Options options) async {
+  onRequest: (Options options, handler) async {
     print('send request：path:${options.path}，baseURL:${options.baseUrl}');
     if (csrfToken == null) {
       print('no token，request token firstly...');
       //lock the dio.
       dio.lock();
-      return tokenDio.get('/token').then((d) {
+      tokenDio.get('/token').then((d) {
         options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
         print('request token succeed, value: ' + d.data['data']['token']);
         print( 'continue to perform request：path:${options.path}，baseURL:${options.path}');
-        return options;
-      }).whenComplete(() => dio.unlock()); // unlock the dio
+        handler.next(options);
+      }).catchError((error, stackTrace) {
+        handler.reject(error, true);
+      }) .whenComplete(() => dio.unlock()); // unlock the dio
     } else {
       options.headers['csrfToken'] = csrfToken;
-      return options;
+      handler.next(options);
     }
   }
 ));
@@ -718,10 +726,10 @@ Another way is creating a `SecurityContext` when create the `HttpClient`:
 
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-  SecurityContext sc = new SecurityContext();
+  SecurityContext sc = SecurityContext();
   //file is the path of certificate
   sc.setTrustedCertificates(file);
-  HttpClient httpClient = new HttpClient(context: sc);
+  HttpClient httpClient = HttpClient(context: sc);
   return httpClient;
 };
 ```

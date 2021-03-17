@@ -19,7 +19,7 @@ void main() async {
   await Future.wait([
     dio
         .get(url1, cancelToken: token)
-        .then((response) => print('${response.request.path}: succeed!'))
+        .then((response) => print('${response.requestOptions.path}: succeed!'))
         .catchError(
       (e) {
         if (CancelToken.isCancel(e)) {
@@ -29,7 +29,7 @@ void main() async {
     ),
     dio
         .get(url2, cancelToken: token)
-        .then((response) => print('${response.request.path}: succeed!'))
+        .then((response) => print('${response.requestOptions.path}: succeed!'))
         .catchError((e) {
       if (CancelToken.isCancel(e)) {
         print('$url2: $e');
@@ -37,7 +37,7 @@ void main() async {
     }),
     dio
         .get(url3, cancelToken: token)
-        .then((response) => print('${response.request.path}: succeed!'))
+        .then((response) => print('${response.requestOptions.path}: succeed!'))
         .catchError((e) {
       if (CancelToken.isCancel(e)) {
         print('$url3: $e');

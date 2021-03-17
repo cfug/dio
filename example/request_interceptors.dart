@@ -1,25 +1,33 @@
 import 'package:dio/dio.dart';
 
-main() async {
+void main() async {
   var dio = Dio();
   dio.options.baseUrl = 'http://httpbin.org/';
   dio.options.connectTimeout = 5000;
-  dio.interceptors
-      .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
-    print(options.connectTimeout);
+  dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
     switch (options.path) {
       case '/fakepath1':
-        return dio.resolve('fake data');
+        return handler.resolve(
+          Response(
+            requestOptions: options,
+            data: 'fake data',
+          ),
+        );
       case '/fakepath2':
-        return dio.get('/get');
+        dio
+            .get('/get')
+            .then(handler.resolve)
+            .catchError((e) => handler.reject(e));
+        break;
       case '/fakepath3':
-        // You can also return a HttpError directly.
-        return dio.reject('test error');
-      case '/fakepath4':
-        // Here is equivalent to call dio.reject("test error")
-        return DioError(error: 'test error');
+        return handler.reject(
+          DioError(
+            requestOptions: options,
+            error: 'test error',
+          ),
+        );
       default:
-        return options; //continue
+        return handler.next(options); //continue
     }
   }));
   Response response;
@@ -30,13 +38,7 @@ main() async {
   try {
     response = await dio.get('/fakepath3');
   } on DioError catch (e) {
-    assert(e.message == 'test error');
-    assert(e.response == null);
-  }
-  try {
-    response = await dio.get('/fakepath4');
-  } on DioError catch (e) {
-    print(e);
+    print(1);
     assert(e.message == 'test error');
     assert(e.response == null);
   }

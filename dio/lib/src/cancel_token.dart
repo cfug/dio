@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dio_error.dart';
+import 'options.dart';
 
 /// You can cancel a request by using a cancel token.
 /// One token can be shared with different requests.
@@ -7,7 +8,7 @@ import 'dio_error.dart';
 /// with this token will be cancelled.
 class CancelToken {
   CancelToken() {
-    _completer = Completer();
+    _completer = Completer<DioError>();
   }
 
   /// Whether is throw by [cancel]
@@ -21,17 +22,24 @@ class CancelToken {
   /// If request have been canceled, save the cancel Error.
   DioError? get cancelError => _cancelError;
 
-  late Completer _completer;
+  late Completer<DioError> _completer;
+
+  late RequestOptions requestOptions;
 
   /// whether cancelled
   bool get isCancelled => _cancelError != null;
 
   /// When cancelled, this future will be resolved.
-  Future<void> get whenCancel => _completer.future;
+  Future<DioError> get whenCancel => _completer.future;
 
   /// Cancel the request
   void cancel([dynamic reason]) {
-    _cancelError = DioError(type: DioErrorType.cancel, error: reason);
-    _completer.complete();
+    _cancelError = DioError(
+      type: DioErrorType.cancel,
+      error: reason,
+      requestOptions: requestOptions,
+    );
+    _cancelError!.stackTrace = StackTrace.current;
+    _completer.complete(_cancelError);
   }
 }

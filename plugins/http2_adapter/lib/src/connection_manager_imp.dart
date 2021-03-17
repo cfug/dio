@@ -82,7 +82,7 @@ class _ConnectionManager implements ConnectionManager {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
           throw DioError(
-            request: options,
+            requestOptions: options,
             error: 'Connecting timed out [${options.connectTimeout}ms]',
             type: DioErrorType.connectTimeout,
           );

@@ -27,10 +27,10 @@ void main() async {
   //  ));
   dio.interceptors
     ..add(InterceptorsWrapper(
-      onRequest: (RequestOptions options) {
-        // return ds.resolve( Response(data:"xxx"));
-        // return ds.reject( DioError(message: "eh"));
-        return options;
+      onRequest: (options, handler) {
+        // return handler.resolve( Response(data:"xxx"));
+        // return handler.reject( DioError(message: "eh"));
+        return handler.next(options);
       },
     ))
     ..add(LogInterceptor(responseBody: false)); //Open log;

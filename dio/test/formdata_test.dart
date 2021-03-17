@@ -14,9 +14,14 @@ void main() async {
       'age': 25,
       'file': MultipartFile.fromString('hello world.'),
       'files': [
-        await MultipartFile.fromFile('../dio/test/_testfile',
-            filename: '1.txt'),
-        MultipartFile.fromFileSync('../dio/test/_testfile', filename: '2.txt'),
+        await MultipartFile.fromFile(
+          '../dio/test/_testfile',
+          filename: '1.txt',
+        ),
+        MultipartFile.fromFileSync(
+          '../dio/test/_testfile',
+          filename: '2.txt',
+        ),
       ]
     });
     var fmStr = await fm.readAsBytes();
@@ -34,14 +39,23 @@ void main() async {
     var fm1 = FormData();
     fm1.fields.add(MapEntry('name', 'wendux'));
     fm1.fields.add(MapEntry('age', '25'));
-    fm1.files.add(MapEntry('file', MultipartFile.fromString('hello world.')));
     fm1.files.add(MapEntry(
-      'files',
-      await MultipartFile.fromFile('../dio/test/_testfile', filename: '1.txt'),
+      'file',
+      MultipartFile.fromString('hello world.'),
     ));
     fm1.files.add(MapEntry(
       'files',
-      await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
+      await MultipartFile.fromFile(
+        '../dio/test/_testfile',
+        filename: '1.txt',
+      ),
+    ));
+    fm1.files.add(MapEntry(
+      'files',
+      await MultipartFile.fromFile(
+        '../dio/test/_testfile',
+        filename: '2.txt',
+      ),
     ));
     assert(fmStr.length == fm1.length);
   });

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 
 class CacheInterceptor extends Interceptor {
@@ -8,25 +6,28 @@ class CacheInterceptor extends Interceptor {
   final _cache = <Uri, Response>{};
 
   @override
-  Future onRequest(RequestOptions options) async {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     var response = _cache[options.uri];
     if (options.extra['refresh'] == true) {
       print('${options.uri}: force refresh, ignore cache! \n');
-      return options;
+      return handler.next(options);
     } else if (response != null) {
       print('cache hit: ${options.uri} \n');
-      return response;
+      return handler.resolve(response);
     }
+    super.onRequest(options, handler);
   }
 
   @override
-  Future onResponse(Response response) async {
-    _cache[response.request.uri] = response;
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    _cache[response.requestOptions.uri] = response;
+    super.onResponse(response, handler);
   }
 
   @override
-  Future onError(DioError e) async {
-    print('onError: $e');
+  void onError(DioError err, ErrorInterceptorHandler handler) {
+    print('onError: $err');
+    super.onError(err, handler);
   }
 }
 

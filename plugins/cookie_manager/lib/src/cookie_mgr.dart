@@ -12,26 +12,58 @@ class CookieManager extends Interceptor {
   CookieManager(this.cookieJar);
 
   @override
-  Future onRequest(RequestOptions options) async {
-    var cookies = await cookieJar.loadForRequest(options.uri);
-    var cookie = getCookies(cookies);
-    if (cookie.isNotEmpty) options.headers[HttpHeaders.cookieHeader] = cookie;
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    cookieJar.loadForRequest(options.uri).then((cookies) {
+      var cookie = getCookies(cookies);
+      if (cookie.isNotEmpty) {
+        options.headers[HttpHeaders.cookieHeader] = cookie;
+      }
+      handler.next(options);
+    }).catchError((e, stackTrace) {
+      var err = DioError(requestOptions: options, error: e);
+      err.stackTrace = stackTrace;
+      handler.reject(err, true);
+    });
   }
 
   @override
-  Future onResponse(Response response) async => _saveCookies(response);
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    _saveCookies(response)
+        .then((_) => handler.next(response))
+        .catchError((e, stackTrace) {
+      var err = DioError(requestOptions: response.requestOptions, error: e);
+      err.stackTrace = stackTrace;
+      handler.reject(err, true);
+    });
+  }
 
   @override
-  Future onError(DioError err) async => _saveCookies(err.response);
-
-  void _saveCookies(Response? response) async {
-      var cookies = response?.headers[HttpHeaders.setCookieHeader];
-      if (cookies != null) {
-       await cookieJar.saveFromResponse(
-          response!.request.uri,
-          cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+  void onError(DioError err, ErrorInterceptorHandler handler) {
+    if (err.response != null) {
+      _saveCookies(err.response!)
+          .then((_) => handler.next(err))
+          .catchError((e, stackTrace) {
+        var _err = DioError(
+          requestOptions: err.response!.requestOptions,
+          error: e,
         );
-      }
+        _err.stackTrace = stackTrace;
+        handler.next(_err);
+      });
+    } else {
+      handler.next(err);
+    }
+  }
+
+  Future<void> _saveCookies(Response response) async {
+    var cookies = response.headers[HttpHeaders.setCookieHeader];
+
+    if (cookies != null) {
+      await cookieJar.saveFromResponse(
+        response.requestOptions.uri,
+        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+      );
+    }
   }
 
   static String getCookies(List<Cookie> cookies) {
