@@ -196,6 +196,7 @@ void main() {
     var dio = Dio();
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
+
     var r1 = await dio.get('');
     assert(r1.requestOptions.headers[Headers.contentTypeHeader] == null);
 
