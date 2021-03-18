@@ -79,13 +79,13 @@ typedef RequestEncoder = List<int> Function(
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
-class BaseOptions extends _RequestConfig {
+class BaseOptions extends _RequestConfig with OptionsMixin {
   BaseOptions({
     String? method,
     int? connectTimeout,
     int? receiveTimeout,
     int? sendTimeout,
-    this.baseUrl = '',
+    String baseUrl = '',
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
@@ -98,8 +98,8 @@ class BaseOptions extends _RequestConfig {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
-  })  : queryParameters = queryParameters ?? {},
-        super(
+    this.setRequestContentTypeWhenNoPayload = false,
+  }) : super(
           method: method,
           receiveTimeout: receiveTimeout,
           sendTimeout: sendTimeout,
@@ -115,6 +115,8 @@ class BaseOptions extends _RequestConfig {
           responseDecoder: responseDecoder,
           listFormat: listFormat,
         ) {
+    this.queryParameters = queryParameters ?? {};
+    this.baseUrl = baseUrl;
     this.connectTimeout = connectTimeout ?? 0;
   }
 
@@ -138,6 +140,7 @@ class BaseOptions extends _RequestConfig {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    bool? setRequestContentTypeWhenNoPayload,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -158,9 +161,26 @@ class BaseOptions extends _RequestConfig {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
+      setRequestContentTypeWhenNoPayload: setRequestContentTypeWhenNoPayload ??
+          this.setRequestContentTypeWhenNoPayload,
     );
   }
 
+  static const _allowPayloadMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+
+  /// if false, content-type in request header will be deleted when method is not on of `_allowPayloadMethods`
+  bool setRequestContentTypeWhenNoPayload;
+
+  String? contentTypeWithRequestBody(String method) {
+    if (setRequestContentTypeWhenNoPayload) {
+      return contentType;
+    } else {
+      return _allowPayloadMethods.contains(method) ? contentType : null;
+    }
+  }
+}
+
+mixin OptionsMixin {
   /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
   late String baseUrl;
 
@@ -170,7 +190,7 @@ class BaseOptions extends _RequestConfig {
   ///
   /// The value can be overridden per parameter by adding a [MultiParam]
   /// object wrapping the actual List value and the desired format.
-  Map<String, dynamic> queryParameters;
+  late Map<String, dynamic> queryParameters;
 
   /// Timeout in milliseconds for opening url.
   /// [Dio] will throw the [DioError] with [DioErrorType.connectTimeout] type
@@ -216,7 +236,15 @@ class Options {
   }) {
     Map<String, dynamic>? _headers;
     if (headers == null && this.headers != null) {
-      _headers = Map.from(this.headers!);
+      _headers = caseInsensitiveKeyMap(this.headers!);
+    }
+
+    if (headers != null) {
+      headers = caseInsensitiveKeyMap(headers);
+      assert(
+        !(contentType != null && headers.containsKey('content-type')),
+        'You cannot set both contentType param and a content-type header',
+      );
     }
 
     Map<String, dynamic>? _extra;
@@ -245,8 +273,8 @@ class Options {
 
   RequestOptions compose(
     BaseOptions baseOpt,
-    String path,
-    data, {
+    String path, {
+    data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
@@ -257,18 +285,23 @@ class Options {
     if (queryParameters != null) query.addAll(queryParameters);
     query.addAll(baseOpt.queryParameters);
 
-    var _headers = Map<String, dynamic>.from(baseOpt.headers);
+    var _headers = caseInsensitiveKeyMap(baseOpt.headers);
+    _headers.remove('content-type');
+
+    var _contentType;
+
     if (headers != null) {
       _headers.addAll(headers!);
+      _contentType = _headers['content-type'];
     }
 
     var _extra = Map<String, dynamic>.from(baseOpt.extra);
     if (extra != null) {
       _extra.addAll(extra!);
     }
-
+    var _method = (method ?? baseOpt.method).toUpperCase();
     var requestOptions = RequestOptions(
-      method: (method ?? baseOpt.method).toUpperCase(),
+      method: _method,
       headers: _headers,
       extra: _extra,
       baseUrl: baseOpt.baseUrl,
@@ -278,8 +311,6 @@ class Options {
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
       receiveTimeout: receiveTimeout ?? baseOpt.receiveTimeout,
       responseType: responseType ?? baseOpt.responseType,
-      contentType:
-          contentType ?? baseOpt.contentType ?? Headers.jsonContentType,
       validateStatus: validateStatus ?? baseOpt.validateStatus,
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? baseOpt.receiveDataWhenStatusError,
@@ -294,6 +325,9 @@ class Options {
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
 
+    requestOptions.contentType = _contentType ??
+        contentType ??
+        baseOpt.contentTypeWithRequestBody(_method);
     return requestOptions;
   }
 
@@ -378,7 +412,7 @@ class Options {
   ListFormat? listFormat;
 }
 
-class RequestOptions extends BaseOptions {
+class RequestOptions extends _RequestConfig with OptionsMixin {
   RequestOptions({
     String? method,
     int? sendTimeout,
@@ -402,14 +436,12 @@ class RequestOptions extends BaseOptions {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    bool? setRequestContentTypeWhenNoPayload,
   }) : super(
           method: method,
           sendTimeout: sendTimeout,
           receiveTimeout: receiveTimeout,
-          connectTimeout: connectTimeout,
-          queryParameters: queryParameters,
           extra: extra,
-          baseUrl: baseUrl ?? '',
           headers: headers,
           responseType: responseType,
           contentType: contentType,
@@ -420,10 +452,13 @@ class RequestOptions extends BaseOptions {
           requestEncoder: requestEncoder,
           responseDecoder: responseDecoder,
           listFormat: listFormat,
-        );
+        ) {
+    this.queryParameters = queryParameters ?? {};
+    this.baseUrl = baseUrl ?? '';
+    this.connectTimeout = connectTimeout ?? 0;
+  }
 
   /// Create a Option from current instance with merging attributes.
-  @override
   RequestOptions copyWith({
     String? method,
     int? sendTimeout,
@@ -447,31 +482,33 @@ class RequestOptions extends BaseOptions {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    bool? setRequestContentTypeWhenNoPayload,
   }) {
     return RequestOptions(
-        method: method ?? this.method,
-        sendTimeout: sendTimeout ?? this.sendTimeout,
-        receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-        connectTimeout: connectTimeout ?? this.connectTimeout,
-        data: data ?? this.data,
-        path: path ?? this.path,
-        baseUrl: baseUrl ?? this.baseUrl,
-        queryParameters: queryParameters ?? Map.from(this.queryParameters),
-        onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
-        onSendProgress: onSendProgress ?? this.onSendProgress,
-        cancelToken: cancelToken ?? this.cancelToken,
-        extra: extra ?? Map.from(this.extra),
-        headers: headers ?? Map.from(this.headers),
-        responseType: responseType ?? this.responseType,
-        contentType: contentType ?? this.contentType,
-        validateStatus: validateStatus ?? this.validateStatus,
-        receiveDataWhenStatusError:
-            receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
-        followRedirects: followRedirects ?? this.followRedirects,
-        maxRedirects: maxRedirects ?? this.maxRedirects,
-        requestEncoder: requestEncoder ?? this.requestEncoder,
-        responseDecoder: responseDecoder ?? this.responseDecoder,
-        listFormat: listFormat ?? this.listFormat);
+      method: method ?? this.method,
+      sendTimeout: sendTimeout ?? this.sendTimeout,
+      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+      connectTimeout: connectTimeout ?? this.connectTimeout,
+      data: data ?? this.data,
+      path: path ?? this.path,
+      baseUrl: baseUrl ?? this.baseUrl,
+      queryParameters: queryParameters ?? Map.from(this.queryParameters),
+      onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
+      onSendProgress: onSendProgress ?? this.onSendProgress,
+      cancelToken: cancelToken ?? this.cancelToken,
+      extra: extra ?? Map.from(this.extra),
+      headers: headers ?? Map.from(this.headers),
+      responseType: responseType ?? this.responseType,
+      contentType: contentType ?? this.contentType,
+      validateStatus: validateStatus ?? this.validateStatus,
+      receiveDataWhenStatusError:
+          receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
+      followRedirects: followRedirects ?? this.followRedirects,
+      maxRedirects: maxRedirects ?? this.maxRedirects,
+      requestEncoder: requestEncoder ?? this.requestEncoder,
+      responseDecoder: responseDecoder ?? this.responseDecoder,
+      listFormat: listFormat ?? this.listFormat,
+    );
   }
 
   /// generate uri
@@ -530,6 +567,13 @@ class _RequestConfig {
   }) {
     // Case-insensitive Map, eg: content-type and Content-Type are regard as the same key.
     this.headers = caseInsensitiveKeyMap(headers);
+
+    var contentTypeInHeader = this.headers.containsKey('content-type');
+    assert(
+      !(contentType != null && contentTypeInHeader),
+      'You cannot set both contentType param and a content-type header',
+    );
+
     this.method = method ?? 'GET';
     this.sendTimeout = sendTimeout ?? 0;
     this.receiveTimeout = receiveTimeout ?? 0;
@@ -543,7 +587,9 @@ class _RequestConfig {
           return status != null && status >= 200 && status < 300;
         };
     this.responseType = responseType ?? ResponseType.json;
-    this.contentType = contentType ?? Headers.jsonContentType;
+    if (!contentTypeInHeader) {
+      this.contentType = contentType ?? Headers.jsonContentType;
+    }
   }
 
   /// Http method.
@@ -554,7 +600,16 @@ class _RequestConfig {
   ///
   /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
   /// regard as the same key.
-  late Map<String, dynamic> headers;
+
+  Map<String, dynamic> get headers => _headers;
+  late Map<String, dynamic> _headers;
+
+  set headers(Map<String, dynamic> headers) {
+    _headers = caseInsensitiveKeyMap(headers);
+    if (_defaultContentType != null && !_headers.containsKey('content-type')) {
+      _headers['content-type'] = _defaultContentType;
+    }
+  }
 
   /// Timeout in milliseconds for sending data.
   /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
@@ -573,14 +628,18 @@ class _RequestConfig {
   /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
   /// will automatically encode the request body.
   set contentType(String? contentType) {
-    if(contentType!=null){
-      headers[Headers.contentTypeHeader] = contentType.trim();
-    }else{
-      headers.remove(Headers.contentTypeHeader);
+    if (contentType != null) {
+      _headers[Headers.contentTypeHeader] =
+          _defaultContentType = contentType.trim();
+    } else {
+      _defaultContentType = null;
+      _headers.remove(Headers.contentTypeHeader);
     }
   }
 
-  String? get contentType => headers[Headers.contentTypeHeader];
+  String? _defaultContentType;
+
+  String? get contentType => _headers[Headers.contentTypeHeader];
 
   /// [responseType] indicates the type of data that the server will respond with
   /// options which defined in [ResponseType] are `json`, `stream`, `plain`.

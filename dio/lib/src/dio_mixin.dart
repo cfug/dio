@@ -446,7 +446,7 @@ abstract class DioMixin implements Dio {
     var requestOptions = options.compose(
       this.options,
       path,
-      data,
+      data: data,
       queryParameters: queryParameters,
       onReceiveProgress: onReceiveProgress,
       onSendProgress: onSendProgress,
@@ -759,8 +759,6 @@ abstract class DioMixin implements Dio {
         });
       }
       return byteStream;
-    } else {
-      options.headers.remove(Headers.contentTypeHeader);
     }
     return null;
   }

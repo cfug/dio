@@ -1,4 +1,8 @@
 
+# 4.0.0-prev2
+
+- fix #1082 and # 1076
+
 # 4.0.0-prev1
 
  **Interceptors:** Add  `handler` for Interceptor APIs which can specify the subsequent interceptors processing logic more finely（whether to skip them or not)）
