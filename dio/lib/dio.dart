@@ -10,7 +10,7 @@ export 'src/dio_mixin.dart';
 export 'src/form_data.dart';
 export 'src/dio_error.dart';
 export 'src/transformer.dart';
-export 'src/interceptor.dart';
+export 'src/interceptor.dart' hide InterceptorState, InterceptorResultType;
 export 'src/options.dart';
 export 'src/response.dart';
 export 'src/cancel_token.dart';

@@ -5,21 +5,6 @@ import 'options.dart';
 import 'dio_error.dart';
 import 'response.dart';
 
-typedef InterceptorSendCallback = void Function(
-  RequestOptions options,
-  RequestInterceptorHandler handler,
-);
-
-typedef InterceptorSuccessCallback = void Function(
-  Response e,
-  ResponseInterceptorHandler handler,
-);
-
-typedef InterceptorErrorCallback = void Function(
-  DioError e,
-  ErrorInterceptorHandler handler,
-);
-
 typedef EnqueueCallback = FutureOr Function();
 
 /// Add lock/unlock API for interceptors.
@@ -73,6 +58,8 @@ class Lock {
   }
 }
 
+/// Internal enum
+/// @nodoc
 enum InterceptorResultType {
   next,
   resolve,
@@ -81,6 +68,8 @@ enum InterceptorResultType {
   rejectCallFollowing,
 }
 
+/// Internal class, It is used to pass state between current and next interceptors.
+/// @nodoc
 class InterceptorState<T> {
   InterceptorState(this.data, [this.type = InterceptorResultType.next]);
 
@@ -91,19 +80,24 @@ class InterceptorState<T> {
 class _BaseHandler {
   final _completer = Completer<InterceptorState>();
 
-  /// Assure the final future state is succeed!
-
   Future<InterceptorState> get future => _completer.future;
 
   bool get isCompleted => _completer.isCompleted;
 }
 
+/// Handler for request interceptor.
 class RequestInterceptorHandler extends _BaseHandler {
+  /// Continue to call the next request interceptor.
   void next(RequestOptions requestOptions) {
     _completer.complete(InterceptorState<RequestOptions>(requestOptions));
   }
 
-  /// Assure the final future state is succeed!
+  /// Return the response directly! Other request interceptor(s) will not be executed,
+  /// but response and error interceptor(s) may be executed, which depends on whether
+  /// the value of parameter [callFollowingResponseInterceptor] is true.
+  ///
+  /// [response]: Response object to return.
+  /// [callFollowingResponseInterceptor]: Whether to call the response interceptor(s).
   void resolve(Response response,
       [bool callFollowingResponseInterceptor = false]) {
     _completer.complete(
@@ -116,6 +110,12 @@ class RequestInterceptorHandler extends _BaseHandler {
     );
   }
 
+  /// Complete the request with an error! Other request/response interceptor(s) will not
+  /// be executed, but error interceptor(s) may be executed, which depends on whether the
+  /// value of parameter [callFollowingErrorInterceptor] is true.
+  ///
+  /// [error]: Error info to reject.
+  /// [callFollowingErrorInterceptor]: Whether to call the error interceptor(s).
   void reject(DioError error, [bool callFollowingErrorInterceptor = false]) {
     _completer.completeError(
       InterceptorState<DioError>(
@@ -129,14 +129,17 @@ class RequestInterceptorHandler extends _BaseHandler {
   }
 }
 
+/// Handler for response interceptor.
 class ResponseInterceptorHandler extends _BaseHandler {
+  /// Continue to call the next response interceptor.
   void next(Response response) {
     _completer.complete(
       InterceptorState<Response>(response),
     );
   }
 
-  /// Assure the final future state is succeed!
+  /// Return the response directly! Other response interceptor(s) will not be executed.
+  /// [response]: Response object to return.
   void resolve(Response response) {
     _completer.complete(
       InterceptorState<Response>(
@@ -146,6 +149,12 @@ class ResponseInterceptorHandler extends _BaseHandler {
     );
   }
 
+  /// Complete the request with an error! Other response interceptor(s) will not
+  /// be executed, but error interceptor(s) may be executed, which depends on whether the
+  /// value of parameter [callFollowingErrorInterceptor] is true.
+  ///
+  /// [error]: Error info to reject.
+  /// [callFollowingErrorInterceptor]: Whether to call the error interceptor(s).
   void reject(DioError error, [bool callFollowingErrorInterceptor = false]) {
     _completer.completeError(
       InterceptorState<DioError>(
@@ -159,7 +168,9 @@ class ResponseInterceptorHandler extends _BaseHandler {
   }
 }
 
+/// Handler for error interceptor.
 class ErrorInterceptorHandler extends _BaseHandler {
+  /// Continue to call the next error interceptor.
   void next(DioError err) {
     _completer.completeError(
       InterceptorState<DioError>(err),
@@ -167,6 +178,10 @@ class ErrorInterceptorHandler extends _BaseHandler {
     );
   }
 
+  /// Complete the request with Response object and other error interceptor(s) will not be executed.
+  /// This will be considered a successful request!
+  ///
+  /// [response]: Response object to return.
   void resolve(Response response) {
     _completer.complete(InterceptorState<Response>(
       response,
@@ -174,6 +189,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
     ));
   }
 
+  /// Complete the request with a error directly! Other error interceptor(s) will not be executed.
   void reject(DioError error) {
     _completer.completeError(
       InterceptorState<DioError>(
@@ -186,20 +202,17 @@ class ErrorInterceptorHandler extends _BaseHandler {
 }
 
 ///  Dio instance may have interceptor(s) by which you can intercept
-///  requests or responses before they are handled by `then` or `catchError`.
+///  requests/responses/errors before they are handled by `then` or `catchError`.
 class Interceptor {
   /// The callback will be executed before the request is initiated.
   ///
-  /// If you want to resolve the request with some custom data，
-  /// you can return a [Response] object or return [dio.resolve].
-  /// If you want to reject the request with a error message,
-  /// you can return a [DioError] object or return [dio.reject] .
-  /// If you want to continue the request, return the [Options] object.
-  /// ```dart
-  ///  Future onRequest(RequestOptions options) => dio.resolve('fake data');
-  ///  ...
-  ///  print(response.data) // 'fake data';
-  /// ```
+  /// If you want to continue the request, call [handler.next].
+  ///
+  /// If you want to complete the request with some custom data，
+  /// you can resolve a [Response] object with [handler.resolve].
+  ///
+  /// If you want to complete the request with an error message,
+  /// you can reject a [DioError] object with [handler.reject].
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
@@ -207,10 +220,14 @@ class Interceptor {
       handler.next(options);
 
   /// The callback will be executed on success.
+  /// If you want to continue the response, call [handler.next].
   ///
-  /// If you want to reject the request with a error message,
-  /// you can return a [DioError] object or return [dio.reject] .
-  /// If you want to continue the request, return the [Response] object.
+  /// If you want to complete the response with some custom data directly,
+  /// you can resolve a [Response] object with [handler.resolve] and other
+  /// response interceptor(s) will not be executed.
+  ///
+  /// If you want to complete the response with an error message,
+  /// you can reject a [DioError] object with [handler.reject].
   void onResponse(
     Response response,
     ResponseInterceptorHandler handler,
@@ -219,9 +236,15 @@ class Interceptor {
 
   /// The callback will be executed on error.
   ///
-  /// If you want to resolve the request with some custom data，
-  /// you can return a [Response] object or return [dio.resolve].
-  /// If you want to continue the request, return the [DioError] object.
+  /// If you want to continue the error , call [handler.next].
+  ///
+  /// If you want to complete the response with some custom data directly,
+  /// you can resolve a [Response] object with [handler.resolve] and other
+  /// error interceptor(s) will be skipped.
+  ///
+  /// If you want to complete the response with an error message directly,
+  /// you can reject a [DioError] object with [handler.reject], and other
+  ///  error interceptor(s) will be skipped.
   void onError(
     DioError err,
     ErrorInterceptorHandler handler,
@@ -229,6 +252,23 @@ class Interceptor {
       handler.next(err);
 }
 
+typedef InterceptorSendCallback = void Function(
+  RequestOptions options,
+  RequestInterceptorHandler handler,
+);
+
+typedef InterceptorSuccessCallback = void Function(
+  Response e,
+  ResponseInterceptorHandler handler,
+);
+
+typedef InterceptorErrorCallback = void Function(
+  DioError e,
+  ErrorInterceptorHandler handler,
+);
+
+/// [InterceptorsWrapper] is a helper class, which is used to conveniently
+/// create interceptor(s). More details see [Interceptor].
 class InterceptorsWrapper extends Interceptor {
   final InterceptorSendCallback? _onRequest;
 
@@ -281,6 +321,8 @@ class InterceptorsWrapper extends Interceptor {
   }
 }
 
+/// Interceptors are a queue, and you can add any number of interceptors,
+/// All interceptors will be executed in first in first out order.
 class Interceptors extends ListMixin<Interceptor> {
   final _list = <Interceptor>[];
   final Lock _requestLock = Lock();

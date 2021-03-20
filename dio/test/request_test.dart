@@ -33,15 +33,15 @@ void main() {
     test('#test restful APIs', () async {
       Response response;
 
-//      // test get
-//      response = await dio.get(
-//        '/test',
-//        queryParameters: {'id': '12', 'name': 'wendu'},
-//      );
-//      expect(response.statusCode, 200);
-//      expect(response.isRedirect, false);
-//      expect(response.data['query'], equals('id=12&name=wendu'));
-//      expect(response.headers.value('single'), equals('value'));
+      // test get
+      response = await dio.get(
+        '/test',
+        queryParameters: {'id': '12', 'name': 'wendu'},
+      );
+      expect(response.statusCode, 200);
+      expect(response.isRedirect, false);
+      expect(response.data['query'], equals('id=12&name=wendu'));
+      expect(response.headers.value('single'), equals('value'));
 
       const map = {'content': 'I am playload'};
 
@@ -50,37 +50,37 @@ void main() {
       expect(response.data['method'], 'POST');
       expect(response.data['body'], jsonEncode(map));
 
-//      // test put
-//      response = await dio.put('/test', data: map);
-//      expect(response.data['method'], 'PUT');
-//      expect(response.data['body'], jsonEncode(map));
+      // test put
+      response = await dio.put('/test', data: map);
+      expect(response.data['method'], 'PUT');
+      expect(response.data['body'], jsonEncode(map));
 
-//      // test patch
-//      response = await dio.patch('/test', data: map);
-//      expect(response.data['method'], 'PATCH');
-//      expect(response.data['body'], jsonEncode(map));
-//
-//      // test head
-//      response = await dio.delete('/test', data: map);
-//      expect(response.data['method'], 'DELETE');
-//      expect(response.data['path'], '/test');
-//
-//      // error test
-//      expect(dio.get('/error').catchError((e) => throw e.response.statusCode),
-//          throwsA(equals(400)));
-//
-//      // redirect test
-//      response = await dio.get(
-//        '/redirect',
-//        onReceiveProgress: (received, total) {
-//          // ignore progress
-//        },
-//      );
-//      assert(response.isRedirect == true);
-//      assert(response.redirects.length == 1);
-//      var ri = response.redirects.first;
-//      assert(ri.statusCode == 302);
-//      assert(ri.method == 'GET');
+      // test patch
+      response = await dio.patch('/test', data: map);
+      expect(response.data['method'], 'PATCH');
+      expect(response.data['body'], jsonEncode(map));
+
+      // test head
+      response = await dio.delete('/test', data: map);
+      expect(response.data['method'], 'DELETE');
+      expect(response.data['path'], '/test');
+
+      // error test
+      expect(dio.get('/error').catchError((e) => throw e.response.statusCode),
+          throwsA(equals(400)));
+
+      // redirect test
+      response = await dio.get(
+        '/redirect',
+        onReceiveProgress: (received, total) {
+          // ignore progress
+        },
+      );
+      assert(response.isRedirect == true);
+      assert(response.redirects.length == 1);
+      var ri = response.redirects.first;
+      assert(ri.statusCode == 302);
+      assert(ri.method == 'GET');
     });
 
     test('#test request with URI', () async {

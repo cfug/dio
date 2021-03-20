@@ -463,7 +463,14 @@ abstract class DioMixin implements Dio {
       );
     }
 
-    if (cancelToken != null) cancelToken.requestOptions = requestOptions;
+    return fetch<T>(requestOptions);
+  }
+
+  @override
+  Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
+    if (requestOptions.cancelToken != null) {
+      requestOptions.cancelToken!.requestOptions = requestOptions;
+    }
 
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -474,11 +481,7 @@ abstract class DioMixin implements Dio {
         requestOptions.responseType = ResponseType.json;
       }
     }
-    return fetch<T>(requestOptions);
-  }
 
-  @override
-  Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr Function(dynamic) _requestInterceptorWrapper(
@@ -733,6 +736,7 @@ abstract class DioMixin implements Dio {
         handleData: (data, sink) {
           final cancelToken = options.cancelToken;
           if (cancelToken != null && cancelToken.isCancelled) {
+            cancelToken.requestOptions = options;
             sink
               ..addError(cancelToken.cancelError!)
               ..close();

@@ -229,4 +229,41 @@ void main() {
     assert(r4.requestOptions.headers[Headers.contentTypeHeader] ==
         Headers.jsonContentType);
   });
+
+  test('#test default content-type2', () async {
+    final dio = Dio();
+    dio.options.setRequestContentTypeWhenNoPayload = true;
+    Options(method: 'GET')
+        .compose(dio.options, '/test')
+        .copyWith(baseUrl: 'https://www.example.com');
+
+    var r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
+      headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
+    );
+    assert(
+        r1.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
+
+    var r2 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
+          contentType: Headers.textPlainContentType,
+        );
+    assert(
+        r2.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
+
+    try {
+      Options(method: 'GET').compose(dio.options, '/test').copyWith(
+        headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
+        contentType: Headers.formUrlEncodedContentType,
+      );
+      assert(false);
+    } catch (e) {
+      //
+    }
+
+    dio.options.setRequestContentTypeWhenNoPayload = false;
+
+    var r3 = Options(method: 'GET')
+        .compose(dio.options, '/test')
+        .copyWith(baseUrl: 'https://www.example.com');
+    assert(r3.headers[Headers.contentTypeHeader] == null);
+  });
 }

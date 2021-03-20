@@ -24,7 +24,7 @@ class CancelToken {
 
   late Completer<DioError> _completer;
 
-  late RequestOptions requestOptions;
+  RequestOptions? requestOptions;
 
   /// whether cancelled
   bool get isCancelled => _cancelError != null;
@@ -37,7 +37,7 @@ class CancelToken {
     _cancelError = DioError(
       type: DioErrorType.cancel,
       error: reason,
-      requestOptions: requestOptions,
+      requestOptions: requestOptions ?? RequestOptions(path: ''),
     );
     _cancelError!.stackTrace = StackTrace.current;
     _completer.complete(_cancelError);

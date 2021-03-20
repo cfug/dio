@@ -242,7 +242,8 @@ class Options {
     if (headers != null) {
       headers = caseInsensitiveKeyMap(headers);
       assert(
-        !(contentType != null && headers.containsKey('content-type')),
+        !(contentType != null &&
+            headers.containsKey(Headers.contentTypeHeader)),
         'You cannot set both contentType param and a content-type header',
       );
     }
@@ -286,13 +287,13 @@ class Options {
     query.addAll(baseOpt.queryParameters);
 
     var _headers = caseInsensitiveKeyMap(baseOpt.headers);
-    _headers.remove('content-type');
+    _headers.remove(Headers.contentTypeHeader);
 
     var _contentType;
 
     if (headers != null) {
       _headers.addAll(headers!);
-      _contentType = _headers['content-type'];
+      _contentType = _headers[Headers.contentTypeHeader];
     }
 
     var _extra = Map<String, dynamic>.from(baseOpt.extra);
@@ -319,6 +320,7 @@ class Options {
       queryParameters: query,
       requestEncoder: requestEncoder ?? baseOpt.requestEncoder,
       responseDecoder: responseDecoder ?? baseOpt.responseDecoder,
+      listFormat: listFormat?? baseOpt.listFormat,
     );
 
     requestOptions.onReceiveProgress = onReceiveProgress;
@@ -484,7 +486,17 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     ListFormat? listFormat,
     bool? setRequestContentTypeWhenNoPayload,
   }) {
-    return RequestOptions(
+    var contentTypeInHeader = headers != null &&
+        headers.keys
+            .map((e) => e.toLowerCase())
+            .contains(Headers.contentTypeHeader);
+
+    assert(
+      !(contentType != null && contentTypeInHeader),
+      'You cannot set both contentType param and a content-type header',
+    );
+
+    var ro = RequestOptions(
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
@@ -499,7 +511,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
       responseType: responseType ?? this.responseType,
-      contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
           receiveDataWhenStatusError ?? this.receiveDataWhenStatusError,
@@ -509,6 +520,15 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
     );
+
+    if (contentType != null) {
+      ro.headers.remove(Headers.contentTypeHeader);
+      ro.contentType = contentType;
+    } else if (!contentTypeInHeader) {
+      ro.contentType = this.contentType;
+    }
+
+    return ro;
   }
 
   /// generate uri
@@ -565,10 +585,10 @@ class _RequestConfig {
     this.requestEncoder,
     this.responseDecoder,
   }) {
-    // Case-insensitive Map, eg: content-type and Content-Type are regard as the same key.
-    this.headers = caseInsensitiveKeyMap(headers);
+    this.headers = headers;
 
-    var contentTypeInHeader = this.headers.containsKey('content-type');
+    var contentTypeInHeader =
+        this.headers.containsKey(Headers.contentTypeHeader);
     assert(
       !(contentType != null && contentTypeInHeader),
       'You cannot set both contentType param and a content-type header',
@@ -604,10 +624,11 @@ class _RequestConfig {
   Map<String, dynamic> get headers => _headers;
   late Map<String, dynamic> _headers;
 
-  set headers(Map<String, dynamic> headers) {
+  set headers(Map<String, dynamic>? headers) {
     _headers = caseInsensitiveKeyMap(headers);
-    if (_defaultContentType != null && !_headers.containsKey('content-type')) {
-      _headers['content-type'] = _defaultContentType;
+    if (_defaultContentType != null &&
+        !_headers.containsKey(Headers.contentTypeHeader)) {
+      _headers[Headers.contentTypeHeader] = _defaultContentType;
     }
   }
 
