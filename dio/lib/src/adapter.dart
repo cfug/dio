@@ -6,6 +6,9 @@ import 'redirect_record.dart';
 typedef CancelWrapper = Future Function(Future);
 typedef VoidCallback = dynamic Function();
 
+/// [HttpClientAdapter] can use platform spesific import.
+HttpClientAdapter createAdapter() => throw ('Not Implement Error');
+
 /// HttpAdapter is a bridge between Dio and HttpClient.
 ///
 /// Dio: Implements standard and friendly API for developer.
@@ -87,8 +90,7 @@ class ResponseBody {
     this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
-  }) : stream = Stream.fromIterable(
-            utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
+  }) : stream = Stream.fromIterable(utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
 
   ResponseBody.fromBytes(
     List<int> bytes,
@@ -96,6 +98,5 @@ class ResponseBody {
     this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
-  }) : stream = Stream.fromIterable(
-            bytes.map((e) => Uint8List.fromList([e])).toList());
+  }) : stream = Stream.fromIterable(bytes.map((e) => Uint8List.fromList([e])).toList());
 }
