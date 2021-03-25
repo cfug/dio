@@ -370,7 +370,7 @@ For each dio instance, We can add one or more interceptors, by which we can inte
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(options, handler){
      // Do something before request is sent
-     return hanlder.next(options); //continue
+     return handler.next(options); //continue
      // If you want to resolve the request with some custom data，
      // you can resolve a `Response` object eg: return `dio.resolve(response)`.
      // If you want to reject the request with a error message,
