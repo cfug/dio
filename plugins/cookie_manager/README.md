@@ -8,7 +8,7 @@ A  cookie manager for [Dio](https://github.com/flutterchina/dio).
 
 ```yaml
 dependencies:
-  dio_cookie_manager: ^1.0.0  #latest version
+  dio_cookie_manager: ^2.0.0  #latest version
 ```
 
 ### Usage
@@ -23,7 +23,8 @@ main() async {
   var cookieJar=CookieJar();
   dio.interceptors.add(CookieManager(cookieJar));
   // Print cookies
-  print(cookieJar.loadForRequest(Uri.parse("https://baidu.com/")));
+  var cookies = cookieJar.loadForRequest(Uri.parse("https://baidu.com/"));
+  print(cookies);
   // second request with the cookie
   await dio.get("https://baidu.com/");
   ... 
@@ -32,7 +33,7 @@ main() async {
 
 ## Cookie Manager
 
-CookieManager Interceptor can help us manage the request/response cookies automaticly. CookieManager depends on `cookieJar` package :
+CookieManager Interceptor can help us manage the request/response cookies automatically. CookieManager depends on `cookieJar` package :
 
 > The dio_cookie_manager  manage API is based on the withdrawn [cookie_jar](https://github.com/flutterchina/cookie_jar).
 

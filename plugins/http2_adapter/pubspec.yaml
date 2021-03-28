@@ -1,14 +1,14 @@
 name: dio_http2_adapter
 description: A Dio HttpClientAdapter which support Http/2.0(Support connection reuse, header compression, server pushing is not supported yet.)
-version: 2.0.0-prev1
+version: 2.0.0
 homepage: https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter
 
 environment:
-  sdk: '>=2.12.0-29.10.beta <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   http2: ^2.0.0
-  dio: ^4.0.0-prev1
+  dio: ^4.0.0
 #  dio:
 #    path: ../../dio
 
