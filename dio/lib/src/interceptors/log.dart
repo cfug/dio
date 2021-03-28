@@ -51,7 +51,8 @@ class LogInterceptor extends Interceptor {
   void Function(Object object) logPrint;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -63,7 +64,8 @@ class LogInterceptor extends Interceptor {
       _printKV('connectTimeout', options.connectTimeout);
       _printKV('sendTimeout', options.sendTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
-      _printKV('receiveDataWhenStatusError', options.receiveDataWhenStatusError);
+      _printKV(
+          'receiveDataWhenStatusError', options.receiveDataWhenStatusError);
       _printKV('extra', options.extra);
     }
     if (requestHeader) {
@@ -86,9 +88,8 @@ class LogInterceptor extends Interceptor {
     handler.next(response);
   }
 
-
   @override
-  void  onError(DioError err, ErrorInterceptorHandler handler) async {
+  void onError(DioError err, ErrorInterceptorHandler handler) async {
     if (error) {
       logPrint('*** DioError ***:');
       logPrint('uri: ${err.requestOptions.uri}');
@@ -101,7 +102,6 @@ class LogInterceptor extends Interceptor {
 
     handler.next(err);
   }
-
 
   void _printResponse(Response response) {
     _printKV('uri', response.requestOptions.uri);

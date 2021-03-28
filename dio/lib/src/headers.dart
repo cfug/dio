@@ -83,8 +83,7 @@ class Headers {
     _map.clear();
   }
 
-  bool get isEmpty=>_map.isEmpty;
-
+  bool get isEmpty => _map.isEmpty;
 
   /// Enumerates the headers, applying the function [f] to each
   /// header. The header name passed in [:name:] will be all lower

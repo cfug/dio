@@ -320,7 +320,7 @@ class Options {
       queryParameters: query,
       requestEncoder: requestEncoder ?? baseOpt.requestEncoder,
       responseDecoder: responseDecoder ?? baseOpt.responseDecoder,
-      listFormat: listFormat?? baseOpt.listFormat,
+      listFormat: listFormat ?? baseOpt.listFormat,
     );
 
     requestOptions.onReceiveProgress = onReceiveProgress;

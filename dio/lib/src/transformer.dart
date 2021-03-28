@@ -106,8 +106,8 @@ class DefaultTransformer extends Transformer {
         finalSize += chunk.length;
         chunks.add(chunk);
       },
-      onError: (e,stackTrace) {
-        completer.completeError(e,stackTrace);
+      onError: (e, stackTrace) {
+        completer.completeError(e, stackTrace);
       },
       onDone: () {
         completer.complete();

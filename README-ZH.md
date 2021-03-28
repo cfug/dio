@@ -15,7 +15,7 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^4.0.0-prev3 
+  dio: ^4.0.0 
 ```
 
 > 如果你是dio 3.x 用户，想了解4.0的变更，请参考 [4.x更新列表](./migration_to_4.x.md)!
@@ -342,7 +342,7 @@ print(response.statusCode);
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(options, handler){
      // Do something before request is sent
-     return hanlder.next(options); //continue
+     return handler.next(options); //continue
      // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`,如`dio.resolve(response)`。
      // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义response.
      //

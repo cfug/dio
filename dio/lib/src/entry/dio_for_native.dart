@@ -173,15 +173,12 @@ class DioForNative with DioMixin implements Dio {
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
-        }).catchError((err,stackTrace) async {
+        }).catchError((err, stackTrace) async {
           try {
             await subscription.cancel();
           } finally {
             completer.completeError(DioMixin.assureDioError(
-              err,
-              response.requestOptions,
-              stackTrace
-            ));
+                err, response.requestOptions, stackTrace));
           }
         });
       },

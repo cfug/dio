@@ -14,7 +14,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^4.0.0-prev3
+  dio: ^4.0.0
 ```
 > Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_to_4.x.md)!
 
@@ -370,7 +370,7 @@ For each dio instance, We can add one or more interceptors, by which we can inte
 dio.interceptors.add(InterceptorsWrapper(
     onRequest:(options, handler){
      // Do something before request is sent
-     return hanlder.next(options); //continue
+     return handler.next(options); //continue
      // If you want to resolve the request with some custom data，
      // you can resolve a `Response` object eg: return `dio.resolve(response)`.
      // If you want to reject the request with a error message,
