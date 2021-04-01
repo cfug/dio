@@ -23,7 +23,7 @@ main() async {
   var cookieJar=CookieJar();
   dio.interceptors.add(CookieManager(cookieJar));
   // Print cookies
-  var cookies = cookieJar.loadForRequest(Uri.parse("https://baidu.com/"));
+  var cookies = await cookieJar.loadForRequest(Uri.parse("https://baidu.com/"));
   print(cookies);
   // second request with the cookie
   await dio.get("https://baidu.com/");
