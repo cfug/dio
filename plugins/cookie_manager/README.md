@@ -22,10 +22,14 @@ main() async {
   var dio =  Dio();
   var cookieJar=CookieJar();
   dio.interceptors.add(CookieManager(cookieJar));
+  
+  // first request, and save cookies (CookieManager do it).
+  await dio.get("https://baidu.com/");
+  
   // Print cookies
-  var cookies = await cookieJar.loadForRequest(Uri.parse("https://baidu.com/"));
-  print(cookies);
-  // second request with the cookie
+  // print(await cookieJar.loadForRequest(Uri.parse("https://baidu.com/")));
+
+  // second request with the cookies
   await dio.get("https://baidu.com/");
   ... 
 }
@@ -52,7 +56,8 @@ In flutter:
 ```dart
 Directory appDocDir = await getApplicationDocumentsDirectory();
 String appDocPath = appDocDir.path;
-var cookieJar=PersistCookieJar(dir:appdocPath+"/.cookies/");
-dio.interceptors.add(CookieManager(cookieJar));
+
+var cj = PersistCookieJar(ignoreExpires: true, storage: FileStorage(appDocPath +"/.cookies/" ));
+dio.interceptors.add(CookieManager(cj));
 ...
 ```
