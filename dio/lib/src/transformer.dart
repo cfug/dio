@@ -38,10 +38,14 @@ abstract class Transformer {
     Map map, [
     ListFormat listFormat = ListFormat.multi,
   ]) {
-    return encodeMap(map, (key, value) {
-      if (value == null) return key;
-      return '$key=${Uri.encodeQueryComponent(value.toString())}';
-    }, listFormat: listFormat);
+    return encodeMap(
+      map,
+      (key, value) {
+        if (value == null) return key;
+        return '$key=${Uri.encodeQueryComponent(value.toString())}';
+      },
+      listFormat: listFormat,
+    );
   }
 }
 
@@ -146,7 +150,10 @@ class DefaultTransformer extends Transformer {
     String? responseBody;
     if (options.responseDecoder != null) {
       responseBody = options.responseDecoder!(
-          responseBytes, options, response..stream = Stream.empty());
+        responseBytes,
+        options,
+        response..stream = Stream.empty(),
+      );
     } else {
       responseBody = utf8.decode(responseBytes, allowMalformed: true);
     }
