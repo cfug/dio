@@ -56,7 +56,7 @@ class Http2Adapter extends HttpClientAdapter {
     // Add custom headers
     headers.addAll(
       options.headers.keys
-          .map((key) => Header.ascii(key, options.headers[key] ?? ''))
+          .map((key) => Header.ascii(key.toLowerCase(), options.headers[key] ?? ''))
           .toList(),
     );
 
@@ -106,7 +106,7 @@ class Http2Adapter extends HttpClientAdapter {
             statusCode = int.parse(status);
             responseHeaders.removeAll(':status');
 
-            needRedirect = list != null && _needRedirect(options, statusCode);
+            needRedirect = _needRedirect(options, statusCode);
 
             needResponse =
                 !needRedirect && options.validateStatus(statusCode) ||
@@ -147,7 +147,7 @@ class Http2Adapter extends HttpClientAdapter {
           RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')));
       return _fetch(
         options.copyWith(path: url, maxRedirects: --options.maxRedirects),
-        Stream.fromIterable(list),
+          list == null ? null : Stream.fromIterable(list),
         cancelFuture,
         redirects,
       );
