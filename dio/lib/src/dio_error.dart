@@ -41,7 +41,7 @@ class DioError implements Exception {
   DioErrorType type;
 
   /// The original error/exception object; It's usually not null when `type`
-  /// is DioErrorType.DEFAULT
+  /// is DioErrorType.other
   dynamic? error;
 
   StackTrace? _stackTrace;
