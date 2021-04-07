@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http2/http2.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/adapter.dart';
 
 part 'connection_manager.dart';
 
@@ -14,9 +15,11 @@ part 'connection_manager_imp.dart';
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter extends HttpClientAdapter {
   final ConnectionManager _connectionMgr;
+  late HttpClientAdapter _fallbackAdapter;
 
-  Http2Adapter(ConnectionManager? connectionManager)
-      : _connectionMgr = connectionManager ?? ConnectionManager();
+  Http2Adapter(ConnectionManager? connectionManager, {HttpClientAdapter? fallbackAdapter})
+      : _connectionMgr = connectionManager ?? ConnectionManager(),
+        _fallbackAdapter = fallbackAdapter ?? DefaultHttpClientAdapter();
 
   @override
   Future<ResponseBody> fetch(
@@ -24,13 +27,21 @@ class Http2Adapter extends HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
-    var redirects = <RedirectRecord>[];
-    return _fetch(
-      options,
-      requestStream,
-      cancelFuture,
-      redirects,
-    );
+    if (options.uri.isScheme('http')) {
+      return _fallbackAdapter.fetch(options, requestStream, cancelFuture);
+    } else {
+      try {
+        var redirects = <RedirectRecord>[];
+        return await _fetch(
+          options,
+          requestStream,
+          cancelFuture,
+          redirects,
+        );
+      } on FallbackException catch (e) {
+        return _fallbackAdapter.fetch(options, requestStream, cancelFuture);
+      }
+    }
   }
 
   Future<ResponseBody> _fetch(
@@ -51,6 +62,7 @@ class Http2Adapter extends HttpClientAdapter {
       Header.ascii(':path', path),
       Header.ascii(':scheme', uri.scheme),
       Header.ascii(':authority', uri.host),
+      Header.ascii('user-agent', 'Dart/h2'),
     ];
 
     // Add custom headers

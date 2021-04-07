@@ -1,5 +1,8 @@
 part of 'http2_adapter.dart';
 
+class FallbackException implements Exception {
+}
+
 /// Default implementation of ConnectionManager
 class _ConnectionManager implements ConnectionManager {
   /// Callback when socket created.
@@ -89,6 +92,13 @@ class _ConnectionManager implements ConnectionManager {
         }
       }
       rethrow;
+    }
+    if (socket.selectedProtocol != 'h2') {
+      // This isn't HTTP/2, fall back to HTTP/1.x
+      // Close the socket, because there's no way to convert an existing
+      // socket into an HttpClientRequest.
+      await socket.close();
+      throw FallbackException();
     }
     // Config a ClientTransportConnection and save it
     var transport = ClientTransportConnection.viaSocket(socket);
