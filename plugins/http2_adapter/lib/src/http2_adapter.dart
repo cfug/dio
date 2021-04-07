@@ -4,11 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http2/http2.dart';
 import 'package:dio/dio.dart';
-import 'entry_stub.dart'
-// ignore: uri_does_not_exist
-if (dart.library.html) 'package:dio/adapter.dart'
-// ignore: uri_does_not_exist
-if (dart.library.io) 'package:dio/adapter_browser.dart';
+import 'package:dio/adapter.dart';
 
 part 'connection_manager.dart';
 
@@ -23,7 +19,7 @@ class Http2Adapter extends HttpClientAdapter {
 
   Http2Adapter(ConnectionManager? connectionManager, {HttpClientAdapter? fallbackAdapter})
       : _connectionMgr = connectionManager ?? ConnectionManager(),
-        _fallbackAdapter = fallbackAdapter ?? createAdapter();
+        _fallbackAdapter = fallbackAdapter ?? DefaultHttpClientAdapter();
 
   @override
   Future<ResponseBody> fetch(
