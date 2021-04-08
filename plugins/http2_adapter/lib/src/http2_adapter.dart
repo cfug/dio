@@ -159,7 +159,7 @@ class Http2Adapter extends HttpClientAdapter {
           RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')));
       return _fetch(
         options.copyWith(path: url, maxRedirects: --options.maxRedirects),
-          list == null ? null : Stream.fromIterable(list),
+        list == null ? null : Stream.fromIterable(list),
         cancelFuture,
         redirects,
       );
