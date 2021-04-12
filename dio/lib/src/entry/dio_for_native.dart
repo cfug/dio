@@ -69,6 +69,7 @@ class DioForNative with DioMixin implements Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    bool shouldAppendFile = false,
     String lengthHeader = Headers.contentLengthHeader,
     data,
     Options? options,
@@ -126,7 +127,7 @@ class DioForNative with DioMixin implements Dio {
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
     // file with a very big size(up 1G), it will be expensive in memory.
-    var raf = file.openSync(mode: FileMode.write);
+    var raf = file.openSync(mode: shouldAppendFile ? FileMode.writeOnlyAppend : FileMode.write);
 
     //Create a Completer to notify the success/error state.
     var completer = Completer<Response>();
@@ -282,6 +283,7 @@ class DioForNative with DioMixin implements Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    bool shouldAppendFile = false,
     lengthHeader = Headers.contentLengthHeader,
     data,
     Options? options,
@@ -292,6 +294,7 @@ class DioForNative with DioMixin implements Dio {
       onReceiveProgress: onReceiveProgress,
       lengthHeader: lengthHeader,
       deleteOnError: deleteOnError,
+      shouldAppendFile: shouldAppendFile,
       cancelToken: cancelToken,
       data: data,
       options: options,
