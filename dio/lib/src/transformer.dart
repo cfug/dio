@@ -67,7 +67,7 @@ class DefaultTransformer extends Transformer {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map) {
-        options.contentType = Headers.formUrlEncodedContentType;
+        options.contentType = options.contentType ?? Headers.formUrlEncodedContentType;
         return Transformer.urlEncodeMap(data);
       }
     }
