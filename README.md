@@ -488,6 +488,61 @@ dio.interceptors.add(InterceptorsWrapper(
 ```
 
 For complete codes click [here](https://github.com/flutterchina/dio/blob/master/example/interceptor_lock.dart).
+### Replay a request
+Because sometimes the **response** can return an error due to expired token, you use the replay interceptor send the failed request after you refreshed the token (better from a different **dio client** dedicated for token refreshing).
+
+### Example
+```dart
+//dio_client_2 is a second client used to deal with token refresh
+//Function(RequestQueueAction.clear|RequestQueueAction.lock|RequestQueueAction.unlock) callback to handle the lock during token refresh
+var tokenMonitoringInterceptor = TokenMonitoring(client: dio_client_2);
+tokenMonitoringInterceptor.setCallback(lockHandlerCallback);
+...
+dio.interceptors.add(tokenMonitoringInterceptor
+      ..addLockHandlerCallback((action) {
+        if (action == RequestQueueAction.unlock &&
+            dio.interceptors.requestLock.locked) {
+          dio.unlock();
+        } else if (action == RequestQueueAction.lock &&
+            !dio.interceptors.requestLock.locked) {
+          dio.lock();
+        } else if (action == RequestQueueAction.clear) {
+          dio.clear();
+        }
+      }));
+
+...
+class TokenMonitoring extends ReplayInterceptor{
+  ...
+
+   @override
+    void onResponse(Response response,
+        ResponseInterceptorHandler responseInterceptorHandler) {
+      assert(preferencesApi != null);
+      String refreshToken = preferencesApi.getRefreshToken();
+      if (response.statusCode == 401) { //assuming server responds with 401 when token is expired
+        try {
+          lockUnlockCallback(RequestQueueAction.lock); // a callback to prevent queries to go forward before token is updated
+          tryRefreshToken(refreshToken).then((value) { //refresh token
+            if (value == null) {
+              lockUnlockCallback(RequestQueueAction.clear); //if token is not refresh clear the queue(maybe) and show auth screen
+            } else {
+              replay(response.requestOptions, responseInterceptorHandler); //if token refreshed retry the request
+            }
+          });
+        } catch (e) {
+          responseInterceptorHandler.next(response);
+        }
+      } else {
+        responseInterceptorHandler.next(response);
+      }
+    }
+
+}
+
+
+
+```
 
 ### Log
 
