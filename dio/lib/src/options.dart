@@ -333,6 +333,24 @@ class Options {
     return requestOptions;
   }
 
+  /// Create an [Options] object from [RequestOptions]. Useful to replay requests
+  Options.fromRequestOptions(RequestOptions requestOptions) {
+    method = requestOptions.method;
+    sendTimeout = requestOptions.sendTimeout;
+    receiveTimeout = requestOptions.receiveTimeout;
+    extra = requestOptions.extra;
+    headers = requestOptions.headers;
+    responseType = requestOptions.responseType;
+    contentType = requestOptions.contentType;
+    validateStatus = requestOptions.validateStatus;
+    receiveDataWhenStatusError = requestOptions.receiveDataWhenStatusError;
+    followRedirects = requestOptions.followRedirects;
+    maxRedirects = requestOptions.maxRedirects;
+    requestEncoder = requestOptions.requestEncoder;
+    responseDecoder = requestOptions.responseDecoder;
+    listFormat = requestOptions.listFormat;
+  }
+
   /// Http method.
   String? method;
 
