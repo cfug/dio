@@ -59,9 +59,10 @@ class Http2Adapter extends HttpClientAdapter {
           .map((key) => Header.ascii(key, options.headers[key] ?? ''))
           .toList(),
     );
+    var hasRequestData = requestStream != null;
 
     // Creates a new outgoing stream.
-    final stream = transport.makeRequest(headers);
+    final stream = transport.makeRequest(headers, endStream: !hasRequestData);
 
     // ignore: unawaited_futures
     cancelFuture?.whenComplete(() {
@@ -71,7 +72,7 @@ class Http2Adapter extends HttpClientAdapter {
     });
 
     var list;
-    var hasRequestData = requestStream != null;
+
     if (!excludeMethods.contains(options.method) && hasRequestData) {
       list = await requestStream!.toList();
       requestStream = Stream.fromIterable(list);
@@ -81,9 +82,8 @@ class Http2Adapter extends HttpClientAdapter {
       await requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
       }).asFuture();
+      await stream.outgoingMessages.close();
     }
-
-    await stream.outgoingMessages.close();
 
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
