@@ -111,9 +111,11 @@ void main() {
 
     var bo1 = BaseOptions(contentType: contentType);
     var bo2 = BaseOptions(headers: headers);
+    var bo3 = BaseOptions();
 
     assert(bo1.headers['content-type'] == contentType);
     assert(bo2.headers['content-type'] == contentType);
+    assert(bo3.headers['content-type'] == Headers.jsonContentType);
 
     try {
       bo1.copyWith(headers: headers);
@@ -128,6 +130,8 @@ void main() {
     } catch (e) {
       //
     }
+
+    bo3.copyWith();
 
     /// options
     try {
@@ -190,6 +194,9 @@ void main() {
     } catch (e) {
       //
     }
+
+    var ro3 = RequestOptions(path: '');
+    ro3.copyWith();
   });
 
   test('#test default content-type', () async {
