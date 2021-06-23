@@ -81,8 +81,6 @@ Welcome to submit Dio's third-party plugins and related libraries [here](https:/
 
 - [Features and bugs](#features-and-bugs)
 
-  
-
 ## Examples
 
 Performing a `GET` request:
@@ -189,8 +187,6 @@ await dio.post(
 
 …you can find all examples code [here](https://github.com/flutterchina/dio/tree/master/example).
 
-
-
 ## Dio APIs
 
 ### Creating an instance and set default configs.
@@ -248,7 +244,6 @@ For convenience aliases have been provided for all supported request methods.
 **Future<Response> download(...)**
 
 **Future<Response> fetch(RequestOptions)**  new*
-
 
 ## Request Options
 
@@ -382,7 +377,6 @@ dio.interceptors.add(InterceptorsWrapper(
      // you can resolve a `Response` object eg: `handler.resolve(response)`.  
     }
 ));
-
 ```
 
 Simple interceptor example:
@@ -407,7 +401,6 @@ class CustomInterceptors extends Interceptor {
   }
 }
 ```
-
 
 ### Resolve and reject the request
 
@@ -519,10 +512,10 @@ try {
   if (e.response) {
     print(e.response.data)
     print(e.response.headers)
-    print(e.response.request)
+    print(e.response.requestOptions)
   } else {
     // Something happened in setting up or sending the request that triggered an Error
-    print(e.request)
+    print(e.requestOptions)
     print(e.message)
   }
 }
@@ -571,8 +564,6 @@ enum DioErrorType {
   other,
 }
 ```
-
-
 
 ## Using application/x-www-form-urlencoded format
 
