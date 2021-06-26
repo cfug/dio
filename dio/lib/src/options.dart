@@ -283,8 +283,8 @@ class Options {
     ProgressCallback? onReceiveProgress,
   }) {
     var query = <String, dynamic>{};
-    if (queryParameters != null) query.addAll(queryParameters);
     query.addAll(baseOpt.queryParameters);
+    if (queryParameters != null) query.addAll(queryParameters);
 
     var _headers = caseInsensitiveKeyMap(baseOpt.headers);
     _headers.remove(Headers.contentTypeHeader);
