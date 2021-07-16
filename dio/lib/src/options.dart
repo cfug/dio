@@ -537,7 +537,9 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     if (!_url.startsWith(RegExp(r'https?:'))) {
       _url = baseUrl + _url;
       var s = _url.split(':/');
-      _url = s[0] + ':/' + s[1].replaceAll('//', '/');
+      if (s.length == 2) {
+        _url = s[0] + ':/' + s[1].replaceAll('//', '/');
+      }
     }
     var query = Transformer.urlEncodeMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
