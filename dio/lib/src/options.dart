@@ -372,7 +372,7 @@ class Options {
   ///
   /// If you want to receive the response data with String, use `plain`.
   ///
-  /// If you want to receive the response data with  original bytes,
+  /// If you want to receive the response data with original bytes,
   /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   ResponseType? responseType;
 
