@@ -22,7 +22,7 @@ class FormData {
   final _newlineRegExp = RegExp(r'\r\n|\r|\n');
 
   /// The form fields to send for this request.
-  final fields = <MapEntry<String, String>>[]; // todo (which will probably require a breaking change): support additional headers for fields
+  final fields = <MapEntry<String, String>>[];
 
   /// The [files].
   final files = <MapEntry<String, MultipartFile>>[];
@@ -89,7 +89,7 @@ class FormData {
     header = '$header\r\n'
         'content-type: ${file.contentType}';
     if (file.headers != null) { // append additional headers
-      file.headers?.forEach((key, values) {
+      file.headers!.forEach((key, values) {
         values.forEach((value) {
           header = '$header\r\n'
               '$key: $value';
