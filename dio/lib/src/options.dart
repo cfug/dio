@@ -554,7 +554,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   ///
   /// The value can be overridden per value by adding a [MultiParam]
   /// object wrapping the actual List value and the desired format.
-  dynamic? data;
+  dynamic data;
 
   /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.

@@ -42,7 +42,7 @@ class DioError implements Exception {
 
   /// The original error/exception object; It's usually not null when `type`
   /// is DioErrorType.DEFAULT
-  dynamic? error;
+  dynamic error;
 
   StackTrace? _stackTrace;
 
@@ -56,7 +56,7 @@ class DioError implements Exception {
   String toString() {
     var msg = 'DioError [$type]: $message';
     if (_stackTrace != null) {
-      msg += '\n${stackTrace}';
+      msg += '\n$stackTrace';
     }
     return msg;
   }

@@ -103,7 +103,7 @@ class DioForNative with DioMixin implements Dio {
       rethrow;
     }
 
-    response.headers = Headers.fromMap(response.data!.headers);
+    response.headers = Headers.fromMap(response.data.headers);
 
     File file;
     if (savePath is Function) {
@@ -134,7 +134,7 @@ class DioForNative with DioMixin implements Dio {
     var received = 0;
 
     // Stream<Uint8List>
-    var stream = response.data!.stream;
+    var stream = response.data.stream;
     var compressed = false;
     var total = 0;
     var contentEncoding = response.headers.value(Headers.contentEncodingHeader);

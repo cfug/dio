@@ -6,7 +6,7 @@ import 'redirect_record.dart';
 /// Response describes the http Response info.
 class Response<T> {
   Response({
-    this.data,
+    required this.data,
     Headers? headers,
     required this.requestOptions,
     this.isRedirect,
@@ -21,7 +21,7 @@ class Response<T> {
   }
 
   /// Response body. may have been transformed, please refer to [ResponseType].
-  T? data;
+  T data;
 
   /// Response headers.
   late Headers headers;

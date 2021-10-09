@@ -637,6 +637,7 @@ abstract class DioMixin implements Dio {
       responseBody.headers = responseBody.headers;
       var headers = Headers.fromMap(responseBody.headers);
       var ret = Response(
+        data: null,
         headers: headers,
         requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
@@ -828,7 +829,7 @@ abstract class DioMixin implements Dio {
         requestOptions: requestOptions ?? RequestOptions(path: ''),
       );
     } else if (response is! Response<T>) {
-      T? data = response.data;
+      T data = response.data;
       return Response<T>(
         data: data,
         headers: response.headers,
