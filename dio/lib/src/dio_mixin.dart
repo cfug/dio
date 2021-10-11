@@ -664,7 +664,7 @@ abstract class DioMixin implements Dio {
       }
       checkCancelled(cancelToken);
       if (statusOk) {
-        return checkIfNeedEnqueue(interceptors.responseLock, () => ret)
+        return await checkIfNeedEnqueue(interceptors.responseLock, () => ret)
             as Response<T>;
       } else {
         throw DioError(
