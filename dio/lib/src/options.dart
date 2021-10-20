@@ -590,8 +590,9 @@ class _RequestConfig {
     var contentTypeInHeader =
         this.headers.containsKey(Headers.contentTypeHeader);
     assert(
-      !(contentType != null && contentTypeInHeader),
-      'You cannot set both contentType param and a content-type header',
+      !(contentType != null && contentTypeInHeader) ||
+          this.headers[Headers.contentTypeHeader] == contentType,
+      'You cannot set different values for contentType param and a content-type header',
     );
 
     this.method = method ?? 'GET';
