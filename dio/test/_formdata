@@ -9,11 +9,13 @@ content-disposition: form-data; name="age"
 ----dio-boundary-3788753558
 content-disposition: form-data; name="file"
 content-type: text/plain; charset=utf-8
+test: a
 
 hello world.
 ----dio-boundary-3788753558
 content-disposition: form-data; name="files"; filename="1.txt"
 content-type: application/octet-stream
+test: b
 
 你好世界，
 我很好人类
@@ -22,6 +24,7 @@ content-type: application/octet-stream
 ----dio-boundary-3788753558
 content-disposition: form-data; name="files"; filename="2.txt"
 content-type: application/octet-stream
+test: c
 
 你好世界，
 我很好人类
