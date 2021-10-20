@@ -91,9 +91,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     if (requestStream != null) {
-      requestStream
-          .reduce((a, b) => Uint8List.fromList([...a, ...b]))
-          .then(xhr.send);
+      requestStream.toList().then((value) {
+        var length = value.fold<int>(
+            0, (previousValue, element) => previousValue + element.length);
+        var res = Uint8List(length);
+        var start = 0;
+        for (var list in value) {
+          res.setRange(start, start += list.length, list);
+        }
+        return res;
+      }).then(xhr.send);
     } else {
       xhr.send();
     }
