@@ -42,6 +42,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
+    void _throwReceivingTimeout() {
+      throw DioError(
+        requestOptions: options,
+        error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+        type: DioErrorType.receiveTimeout,
+      );
+    }
+
     late HttpClientRequest request;
     try {
       if (options.connectTimeout > 0) {
@@ -72,14 +80,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       await request.addStream(requestStream);
     }
     var future = request.close();
-    if (options.connectTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.connectTimeout));
+    if (options.receiveTimeout > 0) {
+      future = future.timeout(Duration(milliseconds: options.receiveTimeout));
     }
     late HttpClientResponse responseStream;
     try {
       responseStream = await future;
     } on TimeoutException {
-      _throwConnectingTimeout();
+      _throwReceivingTimeout();
     }
 
     var stream =
