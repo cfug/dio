@@ -636,7 +636,7 @@ abstract class DioMixin implements Dio {
       );
       responseBody.headers = responseBody.headers;
       var headers = Headers.fromMap(responseBody.headers);
-      var ret = Response(
+      var ret = Response<T>(
         headers: headers,
         requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
@@ -664,8 +664,7 @@ abstract class DioMixin implements Dio {
       }
       checkCancelled(cancelToken);
       if (statusOk) {
-        return checkIfNeedEnqueue(interceptors.responseLock, () => ret)
-            as Response<T>;
+        return checkIfNeedEnqueue(interceptors.responseLock, () => ret);
       } else {
         throw DioError(
           requestOptions: reqOpt,
@@ -787,9 +786,12 @@ abstract class DioMixin implements Dio {
     return options;
   }
 
-  static FutureOr checkIfNeedEnqueue(Lock lock, EnqueueCallback callback) {
+  static FutureOr<T> checkIfNeedEnqueue<T>(
+    Lock lock,
+    EnqueueCallback<T> callback,
+  ) {
     if (lock.locked) {
-      return lock.enqueue(callback);
+      return lock.enqueue(callback)!;
     } else {
       return callback();
     }

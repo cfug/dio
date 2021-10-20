@@ -56,7 +56,7 @@ class DioError implements Exception {
   String toString() {
     var msg = 'DioError [$type]: $message';
     if (_stackTrace != null) {
-      msg += '\n${stackTrace}';
+      msg += '\n$stackTrace';
     }
     return msg;
   }

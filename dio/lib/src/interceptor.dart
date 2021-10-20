@@ -5,7 +5,7 @@ import 'options.dart';
 import 'dio_error.dart';
 import 'response.dart';
 
-typedef EnqueueCallback = FutureOr Function();
+typedef EnqueueCallback<T> = FutureOr<T> Function();
 
 /// Add lock/unlock API for interceptors.
 class Lock {
@@ -49,7 +49,7 @@ class Lock {
   ///
   /// [callback] the function  will return a `Future`
   /// @nodoc
-  Future? enqueue(EnqueueCallback callback) {
+  Future<T>? enqueue<T>(EnqueueCallback<T> callback) {
     if (locked) {
       // we use a future as a queue
       return _lock!.then((d) => callback());
