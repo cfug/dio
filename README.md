@@ -517,7 +517,7 @@ try {
 } on DioError catch (e) {
   // The request was made and the server responded with a status code
   // that falls out of the range of 2xx and is also not 304.
-  if (e.response) {
+  if (e.response != null) {
     print(e.response.data)
     print(e.response.headers)
     print(e.response.requestOptions)
