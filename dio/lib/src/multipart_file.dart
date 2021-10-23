@@ -45,8 +45,9 @@ class MultipartFile {
     this.length, {
     this.filename,
     MediaType? contentType,
-    this.headers,
+    Map<String, List<String>>? headers,
   })  : _stream = stream,
+        headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
   /// Creates a new [MultipartFile] from a byte array.

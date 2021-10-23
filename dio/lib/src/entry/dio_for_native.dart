@@ -26,7 +26,7 @@ class DioForNative with DioMixin implements Dio {
   ///  [urlPath]: The file url.
   ///
   ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback:
+  ///  a callback [String Function(Headers)]:
   ///  1. A path with String type, eg "xs.jpg"
   ///  2. A callback `String Function(Headers)`; for example:
   ///  ```dart
@@ -93,7 +93,7 @@ class DioForNative with DioMixin implements Dio {
         if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
           var res = await transformer.transformResponse(
             e.response!.requestOptions..responseType = ResponseType.json,
-            e.response!.data,
+            e.response!.data as ResponseBody,
           );
           e.response!.data = res;
         } else {
@@ -115,7 +115,7 @@ class DioForNative with DioMixin implements Dio {
         ..add('redirects', response.redirects.length.toString())
         ..add('uri', response.realUri.toString());
 
-      file = File(savePath(response.headers));
+      file = File(savePath(response.headers) as String);
     } else {
       file = File(savePath.toString());
     }
@@ -166,19 +166,22 @@ class DioForNative with DioMixin implements Dio {
         asyncWrite = raf.writeFrom(data).then((_raf) {
           // Notify progress
           received += data.length;
-          if (onReceiveProgress != null) {
-            onReceiveProgress(received, total);
-          }
+
+          onReceiveProgress?.call(received, total);
+
           raf = _raf;
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
-        }).catchError((err, stackTrace) async {
+        }).catchError((err, StackTrace stackTrace) async {
           try {
             await subscription.cancel();
           } finally {
             completer.completeError(DioMixin.assureDioError(
-                err, response.requestOptions, stackTrace));
+              err,
+              response.requestOptions,
+              stackTrace,
+            ));
           }
         });
       },
@@ -218,7 +221,7 @@ class DioForNative with DioMixin implements Dio {
           .timeout(Duration(
         milliseconds: response.requestOptions.receiveTimeout,
       ))
-          .catchError((err) async {
+          .catchError((Object err) async {
         await subscription.cancel();
         await _closeAndDelete();
         if (err is TimeoutException) {

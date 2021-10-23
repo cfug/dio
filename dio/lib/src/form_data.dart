@@ -88,7 +88,8 @@ class FormData {
     }
     header = '$header\r\n'
         'content-type: ${file.contentType}';
-    if (file.headers != null) { // append additional headers
+    if (file.headers != null) {
+      // append additional headers
       file.headers!.forEach((key, values) {
         values.forEach((value) {
           header = '$header\r\n'

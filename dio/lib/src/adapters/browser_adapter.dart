@@ -28,16 +28,24 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     xhr
       ..open(options.method, options.uri.toString(), async: true)
-      ..responseType = 'blob'
-      ..withCredentials = options.extra['withCredentials'] ?? withCredentials;
+      ..responseType = 'blob';
+
+    var _withCredentials = options.extra['withCredentials'];
+
+    if (_withCredentials != null) {
+      xhr.withCredentials = _withCredentials == true;
+    } else {
+      xhr.withCredentials = withCredentials;
+    }
+
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
 
     var completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
-      // TODO: Set the response type to "arraybuffer" when issue 18542 is fixed.
-      var blob = xhr.response ?? Blob([]);
+      // TODO: Set the response type to "arraybuffer"() when issue 18542 is fixed.
+      Blob blob = xhr.response != null ? (xhr.response as Blob) : Blob([]);
       var reader = FileReader();
 
       reader.onLoad.first.then((_) {

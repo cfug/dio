@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 
-
 class EchoAdapter extends HttpClientAdapter {
   static const mockHost = 'mockserver';
   static const mockBase = 'http://$mockHost';

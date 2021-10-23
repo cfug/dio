@@ -41,7 +41,7 @@ class CancelToken {
     );
     _cancelError!.stackTrace = StackTrace.current;
 
-    if(!_completer.isCompleted){
+    if (!_completer.isCompleted) {
       _completer.complete(_cancelError);
     }
   }

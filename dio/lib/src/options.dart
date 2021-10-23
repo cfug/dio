@@ -289,11 +289,11 @@ class Options {
     var _headers = caseInsensitiveKeyMap(baseOpt.headers);
     _headers.remove(Headers.contentTypeHeader);
 
-    var _contentType;
+    String? _contentType;
 
     if (headers != null) {
       _headers.addAll(headers!);
-      _contentType = _headers[Headers.contentTypeHeader];
+      _contentType = _headers[Headers.contentTypeHeader] as String?;
     }
 
     var _extra = Map<String, dynamic>.from(baseOpt.extra);
@@ -556,7 +556,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   ///
   /// The value can be overridden per value by adding a [MultiParam]
   /// object wrapping the actual List value and the desired format.
-  dynamic? data;
+  dynamic data;
 
   /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
@@ -641,8 +641,9 @@ class _RequestConfig {
   late int sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
-  ///  [Dio] will throw the [DioError] with [DioErrorType.receiveTimeout] type
-  ///  when time out.
+  ///
+  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
+  ///  client has connected to the server, and the server starts to send data to the client.
   ///
   /// [0] meanings no timeout limit.
   late int receiveTimeout;
@@ -663,7 +664,7 @@ class _RequestConfig {
 
   String? _defaultContentType;
 
-  String? get contentType => _headers[Headers.contentTypeHeader];
+  String? get contentType => _headers[Headers.contentTypeHeader] as String?;
 
   /// [responseType] indicates the type of data that the server will respond with
   /// options which defined in [ResponseType] are `json`, `stream`, `plain`.

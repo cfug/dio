@@ -499,7 +499,7 @@ abstract class DioMixin implements Dio {
             Future(() {
               return checkIfNeedEnqueue(interceptors.requestLock, () {
                 var requestHandler = RequestInterceptorHandler();
-                interceptor(state.data, requestHandler);
+                interceptor(state.data as RequestOptions, requestHandler);
                 return requestHandler.future;
               });
             }),
@@ -585,7 +585,7 @@ abstract class DioMixin implements Dio {
       _dispatchRequest(reqOpt).then(
         (value) => handler.resolve(value, true),
         onError: (e) {
-          handler.reject(e, true);
+          handler.reject(e as DioError, true);
         },
       );
     }));
@@ -606,7 +606,7 @@ abstract class DioMixin implements Dio {
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((err, stackTrace) {
+    }).catchError((err, StackTrace stackTrace) {
       var isState = err is InterceptorState;
 
       if (isState) {
@@ -655,7 +655,8 @@ abstract class DioMixin implements Dio {
           contentType = headers.value(Headers.contentTypeHeader);
           headers.set(Headers.contentTypeHeader, Headers.jsonContentType);
         }
-        ret.data = await transformer.transformResponse(reqOpt, responseBody);
+        ret.data =
+            (await transformer.transformResponse(reqOpt, responseBody)) as T?;
         if (forceConvert) {
           headers.set(Headers.contentTypeHeader, contentType);
         }
@@ -780,7 +781,7 @@ abstract class DioMixin implements Dio {
     ]);
   }
 
-  static Options checkOptions(method, options) {
+  static Options checkOptions(String method, Options? options) {
     options ??= Options();
     options.method = method;
     return options;
@@ -809,9 +810,9 @@ abstract class DioMixin implements Dio {
       dioError = DioError(requestOptions: requestOptions, error: err);
     }
 
-    var errorStackTrace;
+    StackTrace? errorStackTrace;
     if (dioError.error is Error) {
-      errorStackTrace = dioError.error.stackTrace;
+      errorStackTrace = (dioError.error as Error).stackTrace;
     }
 
     dioError.stackTrace = stackTrace ??
@@ -826,11 +827,11 @@ abstract class DioMixin implements Dio {
       [RequestOptions? requestOptions]) {
     if (response is! Response) {
       return Response<T>(
-        data: response,
+        data: response as T,
         requestOptions: requestOptions ?? RequestOptions(path: ''),
       );
     } else if (response is! Response<T>) {
-      T? data = response.data;
+      T? data = response.data as T;
       return Response<T>(
         data: data,
         headers: response.headers,
@@ -839,6 +840,7 @@ abstract class DioMixin implements Dio {
         isRedirect: response.isRedirect,
         redirects: response.redirects,
         statusMessage: response.statusMessage,
+        extra: response.extra,
       );
     }
     return response;

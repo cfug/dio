@@ -165,27 +165,31 @@ void main() {
       assert(response.data == 100);
 
       expect(
-        dio.get('/reject').catchError((e) => throw e.error),
+        dio.get('/reject').catchError((e) => throw e.error as num),
         throwsA(3),
       );
 
       expect(
-        dio.get('/reject-next').catchError((e) => throw e.error),
+        dio.get('/reject-next').catchError((e) => throw e.error as num),
         throwsA(6),
       );
 
       expect(
-        dio.get('/reject-next/reject').catchError((e) => throw e.error),
+        dio.get('/reject-next/reject').catchError((e) => throw e.error as num),
         throwsA(5),
       );
 
       expect(
-        dio.get('/resolve-next/reject').catchError((e) => throw e.error),
+        dio
+            .get('/resolve-next/reject')
+            .catchError((e) => throw e.error as Object),
         throwsA('/resolve-next/reject'),
       );
 
       expect(
-        dio.get('/resolve-next/reject-next').catchError((e) => throw e.error),
+        dio
+            .get('/resolve-next/reject-next')
+            .catchError((e) => throw e.error as num),
         throwsA(2),
       );
     });
@@ -210,7 +214,7 @@ void main() {
       );
 
       expect(
-        dio.get('/error').catchError((e) => throw e.error),
+        dio.get('/error').catchError((e) => throw e.error as String),
         throwsA('unexpected error'),
       );
 
@@ -241,7 +245,7 @@ void main() {
             dio
                 .get('/test')
                 .then(handler.resolve)
-                .catchError((e) => handler.reject(e));
+                .catchError((e) => handler.reject(e as DioError));
             break;
           case '/fakepath3':
             handler.reject(DioError(
@@ -275,11 +279,11 @@ void main() {
       expect(response.data['errCode'], 0);
 
       expect(
-        dio.get('/fakepath3').catchError((e) => throw e.message),
+        dio.get('/fakepath3').catchError((e) => throw (e as DioError).message),
         throwsA('test error'),
       );
       expect(
-        dio.get('/fakepath4').catchError((e) => throw e.message),
+        dio.get('/fakepath4').catchError((e) => throw (e as DioError).message),
         throwsA('test error'),
       );
 
@@ -338,7 +342,9 @@ void main() {
       var response = await dio.get('/test');
       expect(response.data['path'], '/test');
       expect(
-        dio.get(URL_NOT_FIND).catchError((e) => throw e.response.statusCode),
+        dio
+            .get(URL_NOT_FIND)
+            .catchError((e) => throw (e as DioError).response!.statusCode!),
         throwsA(404),
       );
       response = await dio.get(URL_NOT_FIND + '1');
@@ -346,7 +352,9 @@ void main() {
       response = await dio.get(URL_NOT_FIND + '2');
       expect(response.data, 'fake data');
       expect(
-        dio.get(URL_NOT_FIND + '3').catchError((e) => throw e.message),
+        dio
+            .get(URL_NOT_FIND + '3')
+            .catchError((e) => throw (e as DioError).message),
         throwsA('custom error info [404]'),
       );
     });
@@ -397,10 +405,10 @@ void main() {
             tokenRequestCounts++;
             tokenDio.get('/token').then((d) {
               options.headers['csrfToken'] =
-                  csrfToken = d.data['data']['token'];
+                  csrfToken = d.data['data']['token'] as String;
               handler.next(options);
             }).catchError((e) {
-              handler.reject(e, true);
+              handler.reject(e as DioError, true);
             }).whenComplete(() {
               dio.unlock();
             }); // unlock the dio
@@ -456,7 +464,7 @@ void main() {
                 dio
                     .fetch(options)
                     .then(handler.resolve)
-                    .catchError((e) => handler.reject(e));
+                    .catchError((e) => handler.reject(e as DioError));
                 return;
               }
               // update token and repeat
@@ -468,7 +476,7 @@ void main() {
               tokenDio.get('/token').then((d) {
                 //update csrfToken
                 options.headers['csrfToken'] =
-                    csrfToken = d.data['data']['token'];
+                    csrfToken = d.data['data']['token'] as String;
               }).whenComplete(() {
                 dio.unlock();
                 dio.interceptors.responseLock.unlock();
@@ -478,7 +486,7 @@ void main() {
                 dio
                     .fetch(options)
                     .then(handler.resolve)
-                    .catchError((e) => handler.reject(e));
+                    .catchError((e) => handler.reject(e as DioError));
               });
             } else {
               handler.next(error);

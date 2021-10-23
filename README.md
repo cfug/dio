@@ -12,7 +12,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^4.0.0
+  dio: ^4.0.1
 ```
 > Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_to_4.x.md)!
 
@@ -351,7 +351,7 @@ When request is succeed, you will receive the response as follows:
 Response response = await dio.get('https://www.google.com');
 print(response.data);
 print(response.headers);
-print(response.request);
+print(response.requestOptions);
 print(response.statusCode);
 ```
 
@@ -397,12 +397,12 @@ class CustomInterceptors extends Interceptor {
   }
   @override
   Future onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('RESPONSE[${response.statusCode}] => PATH: ${response.request?.path}');
+    print('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
     return super.onResponse(response, handler);
   }
   @override
   Future onError(DioError err, ErrorInterceptorHandler handler) {
-    print('ERROR[${err.response?.statusCode}] => PATH: ${err.request.path}');
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
     return super.onError(err, handler);
   }
 }
@@ -519,10 +519,10 @@ try {
   if (e.response) {
     print(e.response.data)
     print(e.response.headers)
-    print(e.response.request)
+    print(e.response.requestOptions)
   } else {
     // Something happened in setting up or sending the request that triggered an Error
-    print(e.request)
+    print(e.requestOptions)
     print(e.message)
   }
 }

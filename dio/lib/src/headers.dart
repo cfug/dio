@@ -14,7 +14,8 @@ class Headers {
 
   // Header field value
   static const jsonContentType = 'application/json; charset=utf-8';
-  static const formUrlEncodedContentType = 'application/x-www-form-urlencoded';
+  static const formUrlEncodedContentType =
+      'application/x-www-form-urlencoded;charset=utf-8';
   static const textPlainContentType = 'text/plain';
 
   static final jsonMimeType = MediaType.parse(jsonContentType);
@@ -59,11 +60,12 @@ class Headers {
   /// Sets a header. The header named [name] will have all its values
   /// cleared before the value [value] is added as its value.
   void set(String name, dynamic value) {
+    if (value == null) return;
     name = name.trim().toLowerCase();
     if (value is List) {
       _map[name] = value.map<String>((e) => e.toString()).toList();
     } else {
-      _map[name] = [value.trim()];
+      _map[name] = ['$value'.trim()];
     }
   }
 

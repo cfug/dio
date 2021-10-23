@@ -32,7 +32,7 @@ Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
   return encoding ?? fallback;
 }
 
-typedef DioEncodeHandler = Function(String key, Object? value);
+typedef DioEncodeHandler = String? Function(String key, Object? value);
 
 String encodeMap(
   data,
@@ -79,9 +79,12 @@ String encodeMap(
     } else if (sub is Map) {
       sub.forEach((k, v) {
         if (path == '') {
-          urlEncode(v, '${encodeComponent(k)}');
+          urlEncode(v, '${encodeComponent(k as String)}');
         } else {
-          urlEncode(v, '$path$leftBracket${encodeComponent(k)}$rightBracket');
+          urlEncode(
+            v,
+            '$path$leftBracket${encodeComponent(k as String)}$rightBracket',
+          );
         }
       });
     } else {

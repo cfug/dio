@@ -66,7 +66,10 @@ void main() {
       expect(response.data['path'], '/test');
 
       // error test
-      expect(dio.get('/error').catchError((e) => throw e.response.statusCode),
+      expect(
+          dio
+              .get('/error')
+              .catchError((e) => throw (e as DioError).response!.statusCode!),
           throwsA(equals(400)));
 
       // redirect test
@@ -149,6 +152,5 @@ void main() {
       assert(response.data is List);
       expect(response.data[0], 1);
     });
-
   });
 }

@@ -14,7 +14,7 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^4.0.0 
+  dio: ^4.0.1
 ```
 
 > 如果你是dio 3.x 用户，想了解4.0的变更，请参考 [4.x更新列表](./migration_to_4.x.md)!
@@ -329,7 +329,7 @@ response = await dio.request(
 Response response = await dio.get('https://www.google.com');
 print(response.data);
 print(response.headers);
-print(response.request);
+print(response.requestOptions);
 print(response.statusCode);
 ```
 
@@ -375,12 +375,12 @@ class CustomInterceptors extends Interceptor {
   }
   @override
   Future onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('RESPONSE[${response.statusCode}] => PATH: ${response.request?.path}');
+    print('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions?.path}');
     return super.onResponse(response, handler);
   }
   @override
   Future onError(DioError err, ErrorInterceptorHandler handler) {
-    print('ERROR[${err.response?.statusCode}] => PATH: ${err.request.path}');
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions?.path}');
     return super.onError(err, handler);
   }
 }
@@ -500,10 +500,10 @@ try {
   if (e.response) {
     print(e.response.data)
     print(e.response.headers)
-    print(e.response.request)
+    print(e.response.requestOptions)
   } else {
     // Something happened in setting up or sending the request that triggered an Error
-    print(e.request)
+    print(e.requestOptions)
     print(e.message)
   }
 }

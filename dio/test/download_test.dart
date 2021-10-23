@@ -45,8 +45,9 @@ void main() {
     const savePath = '../_download_test.md';
     var dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
-    var r =
-        await dio.download('/error', savePath).catchError((e) => e.response);
+    var r = await dio
+        .download('/error', savePath)
+        .catchError((e) => (e as DioError).response!);
     assert(r.data == 'error');
     r = await dio
         .download(
@@ -54,7 +55,7 @@ void main() {
           savePath,
           options: Options(receiveDataWhenStatusError: false),
         )
-        .catchError((e) => e.response);
+        .catchError((e) => (e as DioError).response!);
     assert(r.data == null);
   });
 
@@ -64,7 +65,10 @@ void main() {
       receiveTimeout: 1,
       baseUrl: serverUrl.toString(),
     ));
-    expect(dio.download('/download', savePath).catchError((e) => throw e.type),
+    expect(
+        dio
+            .download('/download', savePath)
+            .catchError((e) => throw (e as DioError).type),
         throwsA(DioErrorType.receiveTimeout));
     //print(r);
   });
@@ -82,7 +86,7 @@ void main() {
             savePath,
             cancelToken: cancelToken,
           )
-          .catchError((e) => throw e.type),
+          .catchError((e) => throw (e as DioError).type),
       throwsA(DioErrorType.cancel),
     );
     //print(r);

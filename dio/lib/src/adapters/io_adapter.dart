@@ -6,7 +6,7 @@ import '../options.dart';
 import '../dio_error.dart';
 import '../redirect_record.dart';
 
-typedef OnHttpClientCreate = dynamic Function(HttpClient client);
+typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 
 HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
 
@@ -42,26 +42,21 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    void _throwReceivingTimeout() {
-      throw DioError(
-        requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}ms]',
-        type: DioErrorType.receiveTimeout,
-      );
-    }
-
     late HttpClientRequest request;
+    int timePassed = 0;
     try {
       if (options.connectTimeout > 0) {
+        var start = DateTime.now().millisecond;
         request = await reqFuture
             .timeout(Duration(milliseconds: options.connectTimeout));
+        timePassed = DateTime.now().millisecond - start;
       } else {
         request = await reqFuture;
       }
 
       //Set Headers
       options.headers.forEach((k, v) {
-        if (v != null) request.headers.set(k, v);
+        if (v != null) request.headers.set(k, '$v');
       });
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
@@ -79,15 +74,19 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       // Transform the request data
       await request.addStream(requestStream);
     }
+    // [receiveTimeout] represents a timeout during data transfer! That is to say the
+    // client has connected to the server, and the server starts to send data to the client.
+    // So, we should use connectTimeout.
+    int responseTimeout = options.connectTimeout - timePassed;
     var future = request.close();
-    if (options.receiveTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.receiveTimeout));
+    if (responseTimeout > 0) {
+      future = future.timeout(Duration(milliseconds: responseTimeout));
     }
     late HttpClientResponse responseStream;
     try {
       responseStream = await future;
     } on TimeoutException {
-      _throwReceivingTimeout();
+      _throwConnectingTimeout();
     }
 
     var stream =
