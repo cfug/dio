@@ -349,8 +349,9 @@ class Options {
   int? sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
-  ///  [Dio] will throw the [DioError] with [DioErrorType.receiveTimeout] type
-  ///  when time out.
+  ///
+  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
+  ///  client has connected to the server, and the server starts to send data to the client.
   ///
   /// [0] meanings no timeout limit.
   int? receiveTimeout;

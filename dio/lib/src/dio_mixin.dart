@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:math' as math;
@@ -9,10 +10,10 @@ import 'dio.dart';
 import 'dio_error.dart';
 import 'form_data.dart';
 import 'headers.dart';
-import 'interceptor.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
+part 'interceptor.dart';
 
 abstract class DioMixin implements Dio {
   /// Default Request config. More see [BaseOptions].
@@ -485,11 +486,7 @@ abstract class DioMixin implements Dio {
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr Function(dynamic) _requestInterceptorWrapper(
-      void Function(
-        RequestOptions options,
-        RequestInterceptorHandler handler,
-      )
-          interceptor,
+      InterceptorSendCallback interceptor,
     ) {
       return (dynamic _state) async {
         var state = _state as InterceptorState;
@@ -513,7 +510,8 @@ abstract class DioMixin implements Dio {
     // Convert the response interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic) _responseInterceptorWrapper(
-        interceptor) {
+      InterceptorSuccessCallback interceptor,
+    ) {
       return (_state) async {
         var state = _state as InterceptorState;
         if (state.type == InterceptorResultType.next ||
@@ -523,7 +521,7 @@ abstract class DioMixin implements Dio {
             Future(() {
               return checkIfNeedEnqueue(interceptors.responseLock, () {
                 var responseHandler = ResponseInterceptorHandler();
-                interceptor(state.data, responseHandler);
+                interceptor(state.data as Response, responseHandler);
                 return responseHandler.future;
               });
             }),
@@ -537,14 +535,16 @@ abstract class DioMixin implements Dio {
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic, StackTrace stackTrace)
-        _errorInterceptorWrapper(interceptor) {
+        _errorInterceptorWrapper(InterceptorErrorCallback interceptor) {
       return (err, stackTrace) {
         if (err is! InterceptorState) {
-          err = InterceptorState(assureDioError(
-            err,
-            requestOptions,
-            stackTrace,
-          ));
+          err = InterceptorState(
+            assureDioError(
+              err,
+              requestOptions,
+              stackTrace,
+            ),
+          );
         }
 
         if (err.type == InterceptorResultType.next ||
@@ -554,7 +554,7 @@ abstract class DioMixin implements Dio {
             Future(() {
               return checkIfNeedEnqueue(interceptors.errorLock, () {
                 var errorHandler = ErrorInterceptorHandler();
-                interceptor(err.data, errorHandler);
+                interceptor(err.data as DioError, errorHandler);
                 return errorHandler.future;
               });
             }),
@@ -573,7 +573,10 @@ abstract class DioMixin implements Dio {
 
     // Add request interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
-      future = future.then(_requestInterceptorWrapper(interceptor.onRequest));
+      var fun = interceptor is QueuedInterceptor
+          ? interceptor._handleRequest
+          : interceptor.onRequest;
+      future = future.then(_requestInterceptorWrapper(fun));
     });
 
     // Add dispatching callback to request flow
@@ -592,12 +595,18 @@ abstract class DioMixin implements Dio {
 
     // Add response interceptors to request flow
     interceptors.forEach((Interceptor interceptor) {
-      future = future.then(_responseInterceptorWrapper(interceptor.onResponse));
+      var fun = interceptor is QueuedInterceptor
+          ? interceptor._handleResponse
+          : interceptor.onResponse;
+      future = future.then(_responseInterceptorWrapper(fun));
     });
 
     // Add error handlers to request flow
     interceptors.forEach((Interceptor interceptor) {
-      future = future.catchError(_errorInterceptorWrapper(interceptor.onError));
+      var fun = interceptor is QueuedInterceptor
+          ? interceptor._handleError
+          : interceptor.onError;
+      future = future.catchError(_errorInterceptorWrapper(fun));
     });
 
     // Normalize errors, we convert error to the DioError
@@ -789,10 +798,10 @@ abstract class DioMixin implements Dio {
 
   static FutureOr<T> checkIfNeedEnqueue<T>(
     Lock lock,
-    EnqueueCallback<T> callback,
+    _WaitCallback<T> callback,
   ) {
     if (lock.locked) {
-      return lock.enqueue(callback)!;
+      return lock._wait(callback)!;
     } else {
       return callback();
     }

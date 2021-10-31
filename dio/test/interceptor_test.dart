@@ -387,8 +387,56 @@ void main() {
       expect(resp.data['extra_2'], 'extra');
     });
   });
-  group('Interceptor request lock', () {
-    test('test request lock', () async {
+  group('# test queued interceptors', () {
+    // test('test request lock', () async {
+    //   String? csrfToken;
+    //   final dio = Dio();
+    //   var tokenRequestCounts = 0;
+    //   // dio instance to request token
+    //   final tokenDio = Dio();
+    //   dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
+    //   dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
+    //   var myInter = MyInterceptor();
+    //   dio.interceptors.add(myInter);
+    //   dio.interceptors.add(InterceptorsWrapper(
+    //     onRequest: (options, handler) {
+    //       if (csrfToken == null) {
+    //         dio.lock();
+    //         tokenRequestCounts++;
+    //         tokenDio.get('/token').then((d) {
+    //           options.headers['csrfToken'] =
+    //               csrfToken = d.data['data']['token'] as String;
+    //           handler.next(options);
+    //         }).catchError((e) {
+    //           handler.reject(e as DioError, true);
+    //         }).whenComplete(() {
+    //           dio.unlock();
+    //         }); // unlock the dio
+    //       } else {
+    //         options.headers['csrfToken'] = csrfToken;
+    //         handler.next(options);
+    //       }
+    //     },
+    //   ));
+    //
+    //   var result = 0;
+    //   void _onResult(d) {
+    //     if (tokenRequestCounts > 0) ++result;
+    //   }
+    //
+    //   await Future.wait([
+    //     dio.get('/test?tag=1').then(_onResult),
+    //     dio.get('/test?tag=2').then(_onResult),
+    //     dio.get('/test?tag=3').then(_onResult)
+    //   ]);
+    //   expect(tokenRequestCounts, 1);
+    //   expect(result, 3);
+    //   assert(myInter.requestCount > 0);
+    //   dio.interceptors[0] = myInter;
+    //   dio.interceptors.clear();
+    //   assert(dio.interceptors.isEmpty == true);
+    // });
+    test('test queued interceptor for requests ', () async {
       String? csrfToken;
       final dio = Dio();
       var tokenRequestCounts = 0;
@@ -398,10 +446,9 @@ void main() {
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       var myInter = MyInterceptor();
       dio.interceptors.add(myInter);
-      dio.interceptors.add(InterceptorsWrapper(
+      dio.interceptors.add(QueuedInterceptorsWrapper(
         onRequest: (options, handler) {
           if (csrfToken == null) {
-            dio.lock();
             tokenRequestCounts++;
             tokenDio.get('/token').then((d) {
               options.headers['csrfToken'] =
@@ -409,8 +456,6 @@ void main() {
               handler.next(options);
             }).catchError((e) {
               handler.reject(e as DioError, true);
-            }).whenComplete(() {
-              dio.unlock();
             }); // unlock the dio
           } else {
             options.headers['csrfToken'] = csrfToken;
@@ -436,10 +481,8 @@ void main() {
       dio.interceptors.clear();
       assert(dio.interceptors.isEmpty == true);
     });
-  });
 
-  group('Interceptor error lock', () {
-    test('test error lock', () async {
+    test('test queued interceptors for error', () async {
       String? csrfToken;
       final dio = Dio();
       var tokenRequestCounts = 0;
@@ -448,7 +491,7 @@ void main() {
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       dio.interceptors.add(
-        InterceptorsWrapper(
+        QueuedInterceptorsWrapper(
           onRequest: (opt, handler) {
             opt.headers['csrfToken'] = csrfToken;
             handler.next(opt);
@@ -468,19 +511,11 @@ void main() {
                 return;
               }
               // update token and repeat
-              // Lock to block the incoming request until the token updated
-              dio.lock();
-              dio.interceptors.responseLock.lock();
-              dio.interceptors.errorLock.lock();
               tokenRequestCounts++;
               tokenDio.get('/token').then((d) {
                 //update csrfToken
                 options.headers['csrfToken'] =
                     csrfToken = d.data['data']['token'] as String;
-              }).whenComplete(() {
-                dio.unlock();
-                dio.interceptors.responseLock.unlock();
-                dio.interceptors.errorLock.unlock();
               }).then((e) {
                 //repeat
                 dio
@@ -508,5 +543,148 @@ void main() {
       expect(tokenRequestCounts, 1);
       expect(result, 3);
     });
+
   });
+
+  // group('test queued interceptors for error', () {
+  //   // test('test error lock', () async {
+  //   //   String? csrfToken;
+  //   //   final dio = Dio();
+  //   //   var tokenRequestCounts = 0;
+  //   //   // dio instance to request token
+  //   //   final tokenDio = Dio();
+  //   //   dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
+  //   //   dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
+  //   //   dio.interceptors.add(
+  //   //     InterceptorsWrapper(
+  //   //       onRequest: (opt, handler) {
+  //   //         opt.headers['csrfToken'] = csrfToken;
+  //   //         handler.next(opt);
+  //   //       },
+  //   //       onError: (error, handler) {
+  //   //         // Assume 401 stands for token expired
+  //   //         if (error.response?.statusCode == 401) {
+  //   //           final options = error.response!.requestOptions;
+  //   //           // If the token has been updated, repeat directly.
+  //   //           if (csrfToken != options.headers['csrfToken']) {
+  //   //             options.headers['csrfToken'] = csrfToken;
+  //   //             //repeat
+  //   //             dio
+  //   //                 .fetch(options)
+  //   //                 .then(handler.resolve)
+  //   //                 .catchError((e) => handler.reject(e as DioError));
+  //   //             return;
+  //   //           }
+  //   //           // update token and repeat
+  //   //           // Lock to block the incoming request until the token updated
+  //   //           dio.lock();
+  //   //           dio.interceptors.responseLock.lock();
+  //   //           dio.interceptors.errorLock.lock();
+  //   //           tokenRequestCounts++;
+  //   //           tokenDio.get('/token').then((d) {
+  //   //             //update csrfToken
+  //   //             options.headers['csrfToken'] =
+  //   //                 csrfToken = d.data['data']['token'] as String;
+  //   //           }).whenComplete(() {
+  //   //             dio.unlock();
+  //   //             dio.interceptors.responseLock.unlock();
+  //   //             dio.interceptors.errorLock.unlock();
+  //   //           }).then((e) {
+  //   //             //repeat
+  //   //             dio
+  //   //                 .fetch(options)
+  //   //                 .then(handler.resolve)
+  //   //                 .catchError((e) => handler.reject(e as DioError));
+  //   //           });
+  //   //         } else {
+  //   //           handler.next(error);
+  //   //         }
+  //   //       },
+  //   //     ),
+  //   //   );
+  //   //
+  //   //   var result = 0;
+  //   //   void _onResult(d) {
+  //   //     if (tokenRequestCounts > 0) ++result;
+  //   //   }
+  //   //
+  //   //   await Future.wait([
+  //   //     dio.get('/test-auth?tag=1').then(_onResult),
+  //   //     dio.get('/test-auth?tag=2').then(_onResult),
+  //   //     dio.get('/test-auth?tag=3').then(_onResult)
+  //   //   ]);
+  //   //   expect(tokenRequestCounts, 1);
+  //   //   expect(result, 3);
+  //   // });
+  //
+  //   test('test queued interceptors for error', () async {
+  //     String? csrfToken;
+  //     final dio = Dio();
+  //     var tokenRequestCounts = 0;
+  //     // dio instance to request token
+  //     final tokenDio = Dio();
+  //     dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
+  //     dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
+  //     dio.interceptors.add(
+  //       InterceptorsWrapper(
+  //         onRequest: (opt, handler) {
+  //           opt.headers['csrfToken'] = csrfToken;
+  //           handler.next(opt);
+  //         },
+  //         onError: (error, handler) {
+  //           // Assume 401 stands for token expired
+  //           if (error.response?.statusCode == 401) {
+  //             final options = error.response!.requestOptions;
+  //             // If the token has been updated, repeat directly.
+  //             if (csrfToken != options.headers['csrfToken']) {
+  //               options.headers['csrfToken'] = csrfToken;
+  //               //repeat
+  //               dio
+  //                   .fetch(options)
+  //                   .then(handler.resolve)
+  //                   .catchError((e) => handler.reject(e as DioError));
+  //               return;
+  //             }
+  //             // update token and repeat
+  //             // Lock to block the incoming request until the token updated
+  //             dio.lock();
+  //             dio.interceptors.responseLock.lock();
+  //             dio.interceptors.errorLock.lock();
+  //             tokenRequestCounts++;
+  //             tokenDio.get('/token').then((d) {
+  //               //update csrfToken
+  //               options.headers['csrfToken'] =
+  //                   csrfToken = d.data['data']['token'] as String;
+  //             }).whenComplete(() {
+  //               dio.unlock();
+  //               dio.interceptors.responseLock.unlock();
+  //               dio.interceptors.errorLock.unlock();
+  //             }).then((e) {
+  //               //repeat
+  //               dio
+  //                   .fetch(options)
+  //                   .then(handler.resolve)
+  //                   .catchError((e) => handler.reject(e as DioError));
+  //             });
+  //           } else {
+  //             handler.next(error);
+  //           }
+  //         },
+  //       ),
+  //     );
+  //
+  //     var result = 0;
+  //     void _onResult(d) {
+  //       if (tokenRequestCounts > 0) ++result;
+  //     }
+  //
+  //     await Future.wait([
+  //       dio.get('/test-auth?tag=1').then(_onResult),
+  //       dio.get('/test-auth?tag=2').then(_onResult),
+  //       dio.get('/test-auth?tag=3').then(_onResult)
+  //     ]);
+  //     expect(tokenRequestCounts, 1);
+  //     expect(result, 3);
+  //   });
+  // });
 }

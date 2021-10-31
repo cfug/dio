@@ -12,7 +12,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 
 ```yaml
 dependencies:
-  dio: ^4.0.1
+  dio: ^4.0.2-beta1
 ```
 > Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_to_4.x.md)!
 
@@ -423,71 +423,46 @@ Response response = await dio.get('/test');
 print(response.data);//'fake data'
 ```
 
-### Lock/unlock the interceptors
+### QueuedInterceptor
 
-You can lock/unlock the interceptors by calling their `lock()`/`unlock` method. Once the request/response interceptor is locked, the incoming request/response will be added to a queue before they enter the interceptor, they will not be continued until the interceptor is unlocked.
+`Interceptor` can be executed concurrently, that is, all of the requests enter the interceptor at once, rather than executing sequentially.  However, in some cases we expect that requests enter the interceptor sequentially like #590 。 Therefore, we need to provide a mechanism for sequential access（one by one） to interceptors  and `QueuedInterceptor` can solve this problem.
 
-```dart
-tokenDio = Dio(); //Create a new instance to request the token.
-tokenDio.options = dio.options.copyWith();
-dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(Options options, handler){
-    // If no token, request token firstly and lock this interceptor
-    // to prevent other request enter this interceptor.
-    dio.interceptors.requestLock.lock();
-    // We use a new Dio(to avoid dead lock) instance to request token.
-    tokenDio.get('/token').then((response){
-       //Set the token to headers
-       options.headers['token'] = response.data['data']['token'];
-       handler.next(options); //continue
-    }).catchError((error, stackTrace) {
-       handler.reject(error, true);
-    }).whenComplete(() => dio.interceptors.requestLock.unlock());
-  }
-));
-```
-
-You can clean the waiting queue by calling `clear()`;
-
-### aliases
-
-When the **request** interceptor is locked, the incoming request will pause, this is equivalent to we locked the current dio instance, Therefore, Dio provied the two aliases for the `lock/unlock` of **request** interceptors.
-
-**dio.lock() ==  dio.interceptors.requestLock.lock()**
-
-**dio.unlock() ==  dio.interceptors.requestLock.unlock()**
-
-**dio.clear() ==  dio.interceptors.requestLock.clear()**
-
-### Example
+#### Example
 
 Because of security reasons, we need all the requests to set up a csrfToken in the header, if csrfToken does not exist, we need to request a csrfToken first, and then perform the network request, because the request csrfToken progress is asynchronous, so we need to execute this async request in request interceptor. The code is as follows:
 
 ```dart
-dio.interceptors.add(InterceptorsWrapper(
-  onRequest: (Options options, handler) async {
-    print('send request：path:${options.path}，baseURL:${options.baseUrl}');
-    if (csrfToken == null) {
-      print('no token，request token firstly...');
-      //lock the dio.
-      dio.lock();
-      tokenDio.get('/token').then((d) {
-        options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
-        print('request token succeed, value: ' + d.data['data']['token']);
-        print( 'continue to perform request：path:${options.path}，baseURL:${options.path}');
-        handler.next(options);
-      }).catchError((error, stackTrace) {
-        handler.reject(error, true);
-      }) .whenComplete(() => dio.unlock()); // unlock the dio
-    } else {
-      options.headers['csrfToken'] = csrfToken;
-      handler.next(options);
-    }
-  }
-));
+  var dio = Dio();
+  //  dio instance to request token
+  var tokenDio = Dio();
+  String? csrfToken;
+  dio.options.baseUrl = 'http://www.dtworkroom.com/doris/1/2.0.0/';
+  tokenDio.options = dio.options;
+  dio.interceptors.add(QueuedInterceptorsWrapper(
+    onRequest: (options, handler) {
+      print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+      if (csrfToken == null) {
+        print('no token，request token firstly...');
+        tokenDio.get('/token').then((d) {
+          options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
+          print('request token succeed, value: ' + d.data['data']['token']);
+          print(
+              'continue to perform request：path:${options.path}，baseURL:${options.path}');
+          handler.next(options);
+        }).catchError((error, stackTrace) {
+          handler.reject(error, true);
+        });
+      } else {
+        options.headers['csrfToken'] = csrfToken;
+        return handler.next(options);
+      }
+    },
+   ); 
 ```
 
-For complete codes click [here](https://github.com/flutterchina/dio/blob/master/example/interceptor_lock.dart).
+You can clean the waiting queue by calling `clear()`;
+
+For complete codes click [here](https://github.com/flutterchina/dio/blob/develop/example/queued_interceptor_crsftoken.dart).
 
 ### Log
 
@@ -499,7 +474,7 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 ### Custom Interceptor
 
-You can custom interceptor by extending the `Interceptor` class. There is an example that implementing a simple cache policy: [custom cache interceptor](https://github.com/flutterchina/dio/blob/master/example/custom_cache_interceptor.dart).
+You can custom interceptor by extending the `Interceptor/QueuedInterceptor` class. There is an example that implementing a simple cache policy: [custom cache interceptor](https://github.com/flutterchina/dio/blob/master/example/custom_cache_interceptor.dart).
 
 ## Cookie Manager
 
