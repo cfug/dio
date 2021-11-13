@@ -96,6 +96,5 @@ class ResponseBody {
     this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
-  }) : stream = Stream.fromIterable(
-            bytes.map((e) => Uint8List.fromList([e])).toList());
+  }) : stream = Stream.value(Uint8List.fromList(bytes));
 }
