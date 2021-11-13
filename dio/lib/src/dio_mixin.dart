@@ -587,7 +587,10 @@ abstract class DioMixin implements Dio {
         onError: (e) {
           handler.reject(e as DioError, true);
         },
-      );
+      ).catchError((e) {
+        // fix for: then() method's onError not viewed by the debugger as a proper catch block for DioError
+        handler.reject(e as DioError, true);
+      });
     }));
 
     // Add response interceptors to request flow
