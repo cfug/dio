@@ -349,15 +349,15 @@ class Interceptors extends ListMixin<Interceptor> {
 
   @Deprecated(
       'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-          ' https://github.com/flutterchina/dio/issues/1308')
+      ' https://github.com/flutterchina/dio/issues/1308')
   Lock get requestLock => _requestLock;
   @Deprecated(
       'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-          ' https://github.com/flutterchina/dio/issues/1308')
+      ' https://github.com/flutterchina/dio/issues/1308')
   Lock get responseLock => _responseLock;
   @Deprecated(
       'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-          ' https://github.com/flutterchina/dio/issues/1308')
+      ' https://github.com/flutterchina/dio/issues/1308')
   Lock get errorLock => _errorLock;
 
   @override

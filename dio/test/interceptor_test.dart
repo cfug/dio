@@ -543,7 +543,6 @@ void main() {
       expect(tokenRequestCounts, 1);
       expect(result, 3);
     });
-
   });
 
   // group('test queued interceptors for error', () {
