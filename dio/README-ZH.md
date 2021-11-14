@@ -14,7 +14,7 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^4.0.2-beta1
+  dio: ^4.0.2
 ```
 
 > 如果你是dio 3.x 用户，想了解4.0的变更，请参考 [4.x更新列表](./migration_to_4.x.md)!
@@ -430,7 +430,7 @@ dio.interceptors.add(QueuedInterceptorsWrapper(
 ));
 ```
 
-完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/master/example/interceptor_lock.dart).
+完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/develop/example/queued_interceptor_crsftoken.dart).
 
 ### 日志
 
