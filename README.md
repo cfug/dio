@@ -40,6 +40,7 @@ void getHttp() async {
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A cookie manager for Dio                                     |
 | [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A Dio HttpClientAdapter which support Http/2.0               |
+| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry) | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg?style=flat-square)](https://pub.dev/packages/dio_smart_retry) | Flexible retry library for Dio               |
 
 ### Related Projects
 
@@ -491,7 +492,7 @@ try {
 } on DioError catch (e) {
   // The request was made and the server responded with a status code
   // that falls out of the range of 2xx and is also not 304.
-  if (e.response) {
+  if (e.response != null) {
     print(e.response.data)
     print(e.response.headers)
     print(e.response.requestOptions)

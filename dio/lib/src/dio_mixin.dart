@@ -469,6 +469,8 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
+    final stackTrace = StackTrace.current;
+
     if (requestOptions.cancelToken != null) {
       requestOptions.cancelToken!.requestOptions = requestOptions;
     }
@@ -614,7 +616,7 @@ abstract class DioMixin implements Dio {
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((err, StackTrace stackTrace) {
+    }).catchError((err, _) {
       var isState = err is InterceptorState;
 
       if (isState) {
