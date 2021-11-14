@@ -1,6 +1,6 @@
 name: dio
 description: A powerful Http client for Dart, which supports Interceptors, FormData, Request Cancellation, File Downloading, Timeout etc.
-version: 4.0.2-beta1
+version: 4.0.2
 homepage: https://github.com/flutterchina/dio
 
 environment:

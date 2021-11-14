@@ -585,12 +585,11 @@ abstract class DioMixin implements Dio {
       RequestInterceptorHandler handler,
     ) {
       requestOptions = reqOpt;
-      _dispatchRequest(reqOpt).then(
-        (value) => handler.resolve(value, true),
-        onError: (e) {
-          handler.reject(e as DioError, true);
-        },
-      );
+      _dispatchRequest(reqOpt)
+          .then((value) => handler.resolve(value, true))
+          .catchError((e) {
+        handler.reject(e as DioError, true);
+      });
     }));
 
     // Add response interceptors to request flow
