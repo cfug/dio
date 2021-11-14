@@ -1,4 +1,8 @@
-#4.0.2
+
+# 4.0.3
+- fix #1311
+
+# 4.0.2
 - Add QueuedInterceptor
 - merge #1316 #1317
 

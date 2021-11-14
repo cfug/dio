@@ -180,7 +180,6 @@ class DioForNative with DioMixin implements Dio {
             completer.completeError(DioMixin.assureDioError(
               err,
               response.requestOptions,
-              stackTrace,
             ));
           }
         });

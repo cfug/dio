@@ -13,6 +13,7 @@ import 'headers.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
+
 part 'interceptor.dart';
 
 abstract class DioMixin implements Dio {
@@ -536,15 +537,14 @@ abstract class DioMixin implements Dio {
 
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic, StackTrace stackTrace)
-        _errorInterceptorWrapper(InterceptorErrorCallback interceptor) {
+    FutureOr<dynamic> Function(dynamic, StackTrace) _errorInterceptorWrapper(
+        InterceptorErrorCallback interceptor) {
       return (err, stackTrace) {
         if (err is! InterceptorState) {
           err = InterceptorState(
             assureDioError(
               err,
               requestOptions,
-              stackTrace,
             ),
           );
         }
@@ -738,28 +738,39 @@ abstract class DioMixin implements Dio {
         }
         stream = Stream.fromIterable(group);
       }
-
       var complete = 0;
-      var byteStream =
-          stream.transform<Uint8List>(StreamTransformer.fromHandlers(
-        handleData: (data, sink) {
-          final cancelToken = options.cancelToken;
-          if (cancelToken != null && cancelToken.isCancelled) {
-            cancelToken.requestOptions = options;
-            sink
-              ..addError(cancelToken.cancelError!)
-              ..close();
-          } else {
-            sink.add(Uint8List.fromList(data));
-            if (length != null) {
-              complete += data.length;
-              if (options.onSendProgress != null) {
-                options.onSendProgress!(complete, length!);
+      transform<S extends List<int>>(Stream<S> stream) {
+        return StreamTransformer<S, Uint8List>.fromHandlers(
+          handleData: (S data, sink) {
+            final cancelToken = options.cancelToken;
+            if (cancelToken != null && cancelToken.isCancelled) {
+              cancelToken.requestOptions = options;
+              sink
+                ..addError(cancelToken.cancelError!)
+                ..close();
+            } else {
+              if (data is Uint8List) {
+                sink.add(data);
+              } else {
+                sink.add(Uint8List.fromList(data));
+              }
+              if (length != null) {
+                complete += data.length;
+                if (options.onSendProgress != null) {
+                  options.onSendProgress!(complete, length!);
+                }
               }
             }
-          }
-        },
-      ));
+          },
+        );
+      }
+
+      var streamTransformer = stream is Stream<Uint8List>
+          ? transform<Uint8List>(stream)
+          : transform<List<int>>(stream);
+
+      var byteStream = stream.transform<Uint8List>(streamTransformer);
+
       if (options.sendTimeout > 0) {
         byteStream.timeout(Duration(milliseconds: options.sendTimeout),
             onTimeout: (sink) {
@@ -811,7 +822,7 @@ abstract class DioMixin implements Dio {
   static DioError assureDioError(
     err,
     RequestOptions requestOptions, [
-    StackTrace? stackTrace,
+    StackTrace? sourceStackTrace,
   ]) {
     DioError dioError;
     if (err is DioError) {
@@ -820,15 +831,7 @@ abstract class DioMixin implements Dio {
       dioError = DioError(requestOptions: requestOptions, error: err);
     }
 
-    StackTrace? errorStackTrace;
-    if (dioError.error is Error) {
-      errorStackTrace = (dioError.error as Error).stackTrace;
-    }
-
-    dioError.stackTrace = stackTrace ??
-        dioError.stackTrace ??
-        errorStackTrace ??
-        StackTrace.current;
+    dioError.stackTrace = sourceStackTrace ?? dioError.stackTrace;
 
     return dioError;
   }
