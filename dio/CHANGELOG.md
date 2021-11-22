@@ -1,3 +1,5 @@
+# 4.0.4
+- Fix download performance on Flutter Web ([#1318](https://github.com/flutterchina/dio/pull/1318))
 
 # 4.0.3
 - fix #1311
