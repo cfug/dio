@@ -65,8 +65,10 @@ Future downloadWithChunks(
 
   var response = await downloadChunk(url, 0, firstChunkSize, 0);
   if (response.statusCode == 206) {
-    total = int.parse(
-        response.headers.value(HttpHeaders.contentRangeHeader)!.split('/').last);
+    total = int.parse(response.headers
+        .value(HttpHeaders.contentRangeHeader)!
+        .split('/')
+        .last);
     var reserved =
         total - int.parse(response.headers.value(Headers.contentLengthHeader)!);
     var chunk = (reserved / firstChunkSize).ceil() + 1;

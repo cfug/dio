@@ -4,6 +4,8 @@ on:
   workflow_run:
     workflows:
       - Integration
+      - Example
+      - Example App
     types:
       - completed
 

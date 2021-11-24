@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio:
-    path: ../../dio
+    path: ../dio
 
 
   # The following adds the Cupertino Icons font to your application.
