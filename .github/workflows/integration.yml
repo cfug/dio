@@ -39,7 +39,7 @@ jobs:
       - run: dart format --set-exit-if-changed .
 
   tests:
-    name: Unit tests
+    name: Run unit tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
