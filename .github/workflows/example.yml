@@ -56,4 +56,4 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: dio/build/reports/test-results.json
+          path: example/build/reports/test-results.json
