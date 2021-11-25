@@ -42,6 +42,7 @@ jobs:
     name: Run unit tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         sdk: [ stable, beta, dev, 2.12.0 ]
     defaults:
