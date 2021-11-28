@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:pedantic/pedantic.dart';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -16,7 +15,7 @@ Future<int> getUnusedPort() async {
     server = await HttpServer.bind('localhost', 0);
     return server.port;
   } finally {
-    unawaited(server?.close());
+    server?.close();
   }
 }
 
@@ -60,7 +59,7 @@ void main() {
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..connectTimeout = SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED - 1000;
+      ..receiveTimeout= SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED - 1000;
 
     DioError error;
 
@@ -72,7 +71,7 @@ void main() {
     }
 
     expect(error, isNotNull);
-    expect(error.type == DioErrorType.connectTimeout, isTrue);
+    expect(error.type == DioErrorType.receiveTimeout, isTrue);
   });
 
   test(

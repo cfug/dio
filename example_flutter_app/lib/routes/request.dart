@@ -31,18 +31,16 @@ class _RequestRouteState extends State<RequestRoute> {
           ),
           ElevatedButton(
             child: Text("post"),
-            onPressed: () async {
+            onPressed: () {
               var formData = FormData.fromMap({
-                'file': await MultipartFile.fromString('x' * 1024 * 1024),
+                'file': MultipartFile.fromString('x' * 1024 * 1024),
               });
-              showProgress(a, b) {
-                print('send ${a / b}');
-              }
 
               dio
                   .post(
                 "http://httpbin.org/post",
                 data: formData,
+                options: Options(sendTimeout: 2000, receiveTimeout: 0),
                 onSendProgress: (a, b) => print('send ${a / b}'),
                 onReceiveProgress: (a, b) => print('received ${a / b}'),
               )

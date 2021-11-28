@@ -119,21 +119,21 @@ class DefaultTransformer extends Transformer {
     options.cancelToken?.whenCancel.then((_) {
       return subscription.cancel();
     });
-    if (options.receiveTimeout > 0) {
-      try {
-        await completer.future
-            .timeout(Duration(milliseconds: options.receiveTimeout));
-      } on TimeoutException {
-        await subscription.cancel();
-        throw DioError(
-          requestOptions: options,
-          error: 'Receiving data timeout[${options.receiveTimeout}ms]',
-          type: DioErrorType.receiveTimeout,
-        );
-      }
-    } else {
-      await completer.future;
-    }
+    // if (options.receiveTimeout > 0) {
+    //   try {
+    //     await completer.future
+    //         .timeout(Duration(milliseconds: options.receiveTimeout));
+    //   } on TimeoutException {
+    //     await subscription.cancel();
+    //     throw DioError(
+    //       requestOptions: options,
+    //       error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+    //       type: DioErrorType.receiveTimeout,
+    //     );
+    //   }
+    // } else {
+    await completer.future;
+    //}
     // we create a final Uint8List and copy all chunks into it
     final responseBytes = Uint8List(finalSize);
     var chunkOffset = 0;

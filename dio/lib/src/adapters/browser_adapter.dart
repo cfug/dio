@@ -60,42 +60,79 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }));
 
-    bool isConnectTimeout = true;
+    bool haveSent = false;
 
-    if (options.onSendProgress != null) {
-      xhr.upload.onProgress.listen((event) {
-        if (event.loaded != null && event.total != null) {
-          options.onSendProgress!(event.loaded!, event.total!);
-        }
-      });
+    if (options.connectTimeout > 0) {
+      Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
+        (value) {
+          if (!haveSent) {
+            completer.completeError(
+              DioError(
+                requestOptions: options,
+                error: 'Connecting timed out [${options.connectTimeout}ms]',
+                type: DioErrorType.connectTimeout,
+              ),
+              StackTrace.current,
+            );
+            xhr.abort();
+          }
+        },
+      );
     }
 
+    int sendStart = 0;
+    xhr.upload.onProgress.listen((event) {
+      haveSent = true;
+      if (options.sendTimeout > 0) {
+        if (sendStart == 0) {
+          sendStart = DateTime.now().millisecondsSinceEpoch;
+        }
+        var t = DateTime.now().millisecondsSinceEpoch;
+        print(t - sendStart);
+        if (t - sendStart > options.sendTimeout) {
+          completer.completeError(
+            DioError(
+              requestOptions: options,
+              error: 'Sending timed out [${options.sendTimeout}ms]',
+              type: DioErrorType.sendTimeout,
+            ),
+            StackTrace.current,
+          );
+          xhr.abort();
+        }
+      }
+      if (options.onSendProgress != null &&
+          event.loaded != null &&
+          event.total != null) {
+        options.onSendProgress!(event.loaded!, event.total!);
+      }
+    });
+
+    int receiveStart = 0;
     xhr.onProgress.listen((event) {
-      isConnectTimeout = false;
+      if (options.receiveTimeout > 0) {
+        if (receiveStart == 0) {
+          receiveStart = DateTime.now().millisecondsSinceEpoch;
+        }
+        if (DateTime.now().millisecondsSinceEpoch - receiveStart >
+            options.receiveTimeout) {
+          completer.completeError(
+            DioError(
+              requestOptions: options,
+              error: 'Receiving timed out [${options.receiveTimeout}ms]',
+              type: DioErrorType.receiveTimeout,
+            ),
+            StackTrace.current,
+          );
+          xhr.abort();
+        }
+      }
       if (options.onReceiveProgress != null) {
         if (event.loaded != null && event.total != null) {
           options.onReceiveProgress!(event.loaded!, event.total!);
         }
       }
     });
-
-    unawaited(xhr.onTimeout.first.then((_) {
-      late DioError error;
-      if (isConnectTimeout) {
-        error = DioError(
-          requestOptions: options,
-          error: 'Connecting timed out [${options.connectTimeout}ms]',
-          type: DioErrorType.connectTimeout,
-        );
-      } else {
-        error = DioError(
-          requestOptions: options,
-          error: 'Receiving timed out [${options.receiveTimeout}ms]',
-          type: DioErrorType.receiveTimeout,
-        );
-      }
-      completer.completeError(error, StackTrace.current);
-    }));
 
     unawaited(xhr.onError.first.then((_) {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any

@@ -7,21 +7,7 @@ Stream<Uint8List> addProgress(
   var streamTransformer = stream is Stream<Uint8List>
       ? _transform<Uint8List>(stream, length, options)
       : _transform<List<int>>(stream, length, options);
-
-  var byteStream = stream.transform<Uint8List>(streamTransformer);
-
-  if (options.sendTimeout > 0) {
-    byteStream.timeout(Duration(milliseconds: options.sendTimeout),
-        onTimeout: (sink) {
-      sink.addError(DioError(
-        requestOptions: options,
-        error: 'Sending timeout[${options.connectTimeout}ms]',
-        type: DioErrorType.sendTimeout,
-      ));
-      sink.close();
-    });
-  }
-  return byteStream;
+  return stream.transform<Uint8List>(streamTransformer);
 }
 
 StreamTransformer<S, Uint8List> _transform<S extends List<int>>(
@@ -44,7 +30,7 @@ StreamTransformer<S, Uint8List> _transform<S extends List<int>>(
         if (length != null) {
           complete += data.length;
           if (options.onSendProgress != null) {
-            options.onSendProgress!(complete, length!);
+            options.onSendProgress!(complete, length);
           }
         }
       }
