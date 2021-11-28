@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import '../dio_error.dart';
 import '../options.dart';
@@ -10,7 +11,7 @@ HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// These are aborted if the client is closed.
-  final _xhrs = <HttpRequest>[];
+  final _xhrs = <HttpRequest>{};
 
   /// Whether to send credentials such as cookies or authorization headers for
   /// cross-site requests.
@@ -22,13 +23,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
   @override
   Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) {
+      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
     var xhr = HttpRequest();
     _xhrs.add(xhr);
-
     xhr
-      ..open(options.method, options.uri.toString(), async: true)
-      ..responseType = 'blob';
+      ..open(options.method, '${options.uri}')
+      ..responseType = 'arraybuffer';
 
     var _withCredentials = options.extra['withCredentials'];
 
@@ -41,41 +41,63 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
 
+    if (options.connectTimeout > 0 && options.receiveTimeout > 0) {
+      xhr.timeout = options.connectTimeout + options.receiveTimeout;
+    }
+
     var completer = Completer<ResponseBody>();
 
-    xhr.onLoad.first.then((_) {
-      // TODO: Set the response type to "arraybuffer"() when issue 18542 is fixed.
-      Blob blob = xhr.response != null ? (xhr.response as Blob) : Blob([]);
-      var reader = FileReader();
+    unawaited(xhr.onLoad.first.then((_) {
+      Uint8List body = (xhr.response as ByteBuffer).asUint8List();
+      completer.complete(
+        ResponseBody.fromBytes(
+          body,
+          xhr.status,
+          headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
+          statusMessage: xhr.statusText,
+          isRedirect: xhr.status == 302 || xhr.status == 301,
+        ),
+      );
+    }));
 
-      reader.onLoad.first.then((_) {
-        var body = reader.result as Uint8List;
-        completer.complete(
-          ResponseBody.fromBytes(
-            body,
-            xhr.status,
-            headers:
-                xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
-            statusMessage: xhr.statusText,
-            isRedirect: xhr.status == 302 || xhr.status == 301,
-          ),
-        );
-      });
+    bool isConnectTimeout = true;
 
-      reader.onError.first.then((error) {
-        completer.completeError(
-          DioError(
-            type: DioErrorType.response,
-            error: error,
-            requestOptions: options,
-          ),
-          StackTrace.current,
-        );
+    if (options.onSendProgress != null) {
+      xhr.upload.onProgress.listen((event) {
+        if (event.loaded != null && event.total != null) {
+          options.onSendProgress!(event.loaded!, event.total!);
+        }
       });
-      reader.readAsArrayBuffer(blob);
+    }
+
+    xhr.onProgress.listen((event) {
+      isConnectTimeout = false;
+      if (options.onReceiveProgress != null) {
+        if (event.loaded != null && event.total != null) {
+          options.onReceiveProgress!(event.loaded!, event.total!);
+        }
+      }
     });
 
-    xhr.onError.first.then((_) {
+    unawaited(xhr.onTimeout.first.then((_) {
+      late DioError error;
+      if (isConnectTimeout) {
+        error = DioError(
+          requestOptions: options,
+          error: 'Connecting timed out [${options.connectTimeout}ms]',
+          type: DioErrorType.connectTimeout,
+        );
+      } else {
+        error = DioError(
+          requestOptions: options,
+          error: 'Receiving timed out [${options.receiveTimeout}ms]',
+          type: DioErrorType.receiveTimeout,
+        );
+      }
+      completer.completeError(error, StackTrace.current);
+    }));
+
+    unawaited(xhr.onError.first.then((_) {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
       completer.completeError(
@@ -86,9 +108,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         ),
         StackTrace.current,
       );
-    });
+    }));
 
-    cancelFuture?.then((_) {
+    unawaited(cancelFuture?.then((_) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
         try {
           xhr.abort();
@@ -96,19 +118,20 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           // ignore
         }
       }
-    });
+    }));
 
     if (requestStream != null) {
-      requestStream.toList().then((value) {
-        var length = value.fold<int>(
-            0, (previousValue, element) => previousValue + element.length);
-        var res = Uint8List(length);
-        var start = 0;
-        for (var list in value) {
-          res.setRange(start, start += list.length, list);
-        }
-        return res;
-      }).then(xhr.send);
+      var _completer = Completer<Uint8List>();
+      var sink = ByteConversionSink.withCallback(
+          (bytes) => _completer.complete(Uint8List.fromList(bytes)));
+      requestStream.listen(
+        sink.add,
+        onError: _completer.completeError,
+        onDone: sink.close,
+        cancelOnError: true,
+      );
+      var bytes = await _completer.future;
+      xhr.send(bytes);
     } else {
       xhr.send();
     }

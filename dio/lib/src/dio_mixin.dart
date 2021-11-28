@@ -14,6 +14,12 @@ import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
 
+import 'progress_stream_stub.dart'
+// ignore: uri_does_not_exist
+    if (dart.library.html) 'progress_stream/browser_progress_stream.dart'
+// ignore: uri_does_not_exist
+    if (dart.library.io) 'progress_stream/io_progress_stream.dart';
+
 part 'interceptor.dart';
 
 abstract class DioMixin implements Dio {
@@ -738,51 +744,7 @@ abstract class DioMixin implements Dio {
         }
         stream = Stream.fromIterable(group);
       }
-      var complete = 0;
-      transform<S extends List<int>>(Stream<S> stream) {
-        return StreamTransformer<S, Uint8List>.fromHandlers(
-          handleData: (S data, sink) {
-            final cancelToken = options.cancelToken;
-            if (cancelToken != null && cancelToken.isCancelled) {
-              cancelToken.requestOptions = options;
-              sink
-                ..addError(cancelToken.cancelError!)
-                ..close();
-            } else {
-              if (data is Uint8List) {
-                sink.add(data);
-              } else {
-                sink.add(Uint8List.fromList(data));
-              }
-              if (length != null) {
-                complete += data.length;
-                if (options.onSendProgress != null) {
-                  options.onSendProgress!(complete, length!);
-                }
-              }
-            }
-          },
-        );
-      }
-
-      var streamTransformer = stream is Stream<Uint8List>
-          ? transform<Uint8List>(stream)
-          : transform<List<int>>(stream);
-
-      var byteStream = stream.transform<Uint8List>(streamTransformer);
-
-      if (options.sendTimeout > 0) {
-        byteStream.timeout(Duration(milliseconds: options.sendTimeout),
-            onTimeout: (sink) {
-          sink.addError(DioError(
-            requestOptions: options,
-            error: 'Sending timeout[${options.connectTimeout}ms]',
-            type: DioErrorType.sendTimeout,
-          ));
-          sink.close();
-        });
-      }
-      return byteStream;
+      return addProgress(stream, length, options);
     }
     return null;
   }
