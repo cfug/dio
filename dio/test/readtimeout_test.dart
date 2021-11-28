@@ -59,7 +59,7 @@ void main() {
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..receiveTimeout= SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED - 1000;
+      ..receiveTimeout = SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED - 1000;
 
     DioError error;
 

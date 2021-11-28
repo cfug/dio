@@ -4,6 +4,7 @@
 @TestOn('vm')
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -68,7 +69,8 @@ void main() {
 
   test('#status error', () async {
     var dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
-    expect(
+
+    await expectLater(
       dio.get('401').catchError((e) => throw e.response.statusCode as Object),
       throwsA(401),
     );

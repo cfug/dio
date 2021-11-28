@@ -1,11 +1,10 @@
-name: Test Report
+name: Publish Test Report
 
 on:
   workflow_run:
     workflows:
       - Integration
       - Example
-      - Example App
     types:
       - completed
 
