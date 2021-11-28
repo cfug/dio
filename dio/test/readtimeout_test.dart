@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:pedantic/pedantic.dart';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -16,7 +15,7 @@ Future<int> getUnusedPort() async {
     server = await HttpServer.bind('localhost', 0);
     return server.port;
   } finally {
-    unawaited(server?.close());
+    server?.close();
   }
 }
 

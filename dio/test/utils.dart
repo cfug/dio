@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:pedantic/pedantic.dart';
 import 'package:test/test.dart';
 
 /// The current server instance.
@@ -32,7 +31,7 @@ Future<void> startServer() async {
           ..statusCode = 400
           ..contentLength = content.length
           ..write(content);
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -43,7 +42,7 @@ Future<void> startServer() async {
           ..headers
               .set('location', serverUrl.resolve('/loop?${n + 1}').toString())
           ..contentLength = 0;
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -52,7 +51,7 @@ Future<void> startServer() async {
           ..statusCode = 302
           ..headers.set('location', serverUrl.resolve('/').toString())
           ..contentLength = 0;
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -61,7 +60,7 @@ Future<void> startServer() async {
           ..statusCode = 200
           ..contentLength = -1
           ..write('body');
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -71,7 +70,7 @@ Future<void> startServer() async {
           ..statusCode = 200
           ..contentLength = -1
           ..write('[1,2,3]');
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -129,7 +128,7 @@ Future<void> startServer() async {
       response
         ..contentLength = body.length
         ..write(body);
-      unawaited(response.close());
+      response.close();
     });
 }
 

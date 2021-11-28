@@ -1,0 +1,22 @@
+name: Test Report
+
+on:
+  workflow_run:
+    workflows:
+      - Integration
+      - Example
+      - Example App
+    types:
+      - completed
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish test reports
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test results
+          artifact: test-results
+          path: '**/*.json'
+          reporter: dart-json

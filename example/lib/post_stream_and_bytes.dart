@@ -28,9 +28,10 @@ void main() async {
 
   // Sending bytes with Stream(Just an example, you can send json(Map) directly in action)
   var postData = utf8.encode('{"userName":"wendux"}');
-  await dio.post('post',
+  await dio.post(
+    'post',
     data: Stream.fromIterable([postData]),
-    onSendProgress: (a,b)=>print(a),
+    onSendProgress: (a, b) => print(a),
     options: Options(
       headers: {
         HttpHeaders.contentLengthHeader: postData.length, // Set content-length

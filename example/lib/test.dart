@@ -20,8 +20,6 @@ import 'package:dio/dio.dart';
 //   getHttp();
 // }
 
-import 'package:dio/dio.dart';
-
 void main() async {
   final dio = Dio()..interceptors.add(ProblemInterceptor());
   await dio.get('https://baidu.com/');
