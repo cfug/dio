@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'adapter.dart';
 import 'cancel_token.dart';
@@ -806,7 +806,7 @@ abstract class DioMixin implements Dio {
         requestOptions: requestOptions ?? RequestOptions(path: ''),
       );
     } else if (response is! Response<T>) {
-      T? data = response.data as T;
+      T? data = response.data as T?;
       return Response<T>(
         data: data,
         headers: response.headers,

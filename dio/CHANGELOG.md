@@ -1,3 +1,5 @@
+# 4.0.4
+- Fix fetching null data in a response
 
 # 4.0.3
 - fix #1311
