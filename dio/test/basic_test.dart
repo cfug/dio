@@ -4,6 +4,7 @@
 @TestOn('vm')
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -40,12 +41,10 @@ void main() {
     assert(headers1.map.isEmpty == true);
   });
 
-  test('#send with an invalid URL', () {
-    expect(
-      Dio()
-          .get('http://http.invalid')
-          .catchError((e) => throw e.error as Object),
-      throwsA(const TypeMatcher<SocketException>()),
+  test('#send with an invalid URL', () async {
+    await expectLater(
+      Dio().get('http://http.invalid'),
+      throwsA((e) => e is DioError && e.error is SocketException),
     );
   });
 
@@ -58,19 +57,21 @@ void main() {
     });
 
     var url = 'https://accounts.google.com';
-    expect(
-      dio
-          .get(url, cancelToken: token)
-          .catchError((e) => throw CancelToken.isCancel(e as DioError)),
-      throwsA(isTrue),
+    await expectLater(
+      dio.get(url, cancelToken: token),
+      throwsA((e) => e is DioError && CancelToken.isCancel(e)),
     );
   });
 
   test('#status error', () async {
     var dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
-    expect(
-      dio.get('401').catchError((e) => throw e.response.statusCode as Object),
-      throwsA(401),
+
+    await expectLater(
+      dio.get('401'),
+      throwsA((e) =>
+          e is DioError &&
+          e.type == DioErrorType.response &&
+          e.response!.statusCode == 401),
     );
 
     var r = await dio.get(

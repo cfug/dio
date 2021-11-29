@@ -1,9 +1,10 @@
+# Unreleased
+- require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)  
 
 # 4.0.5-beta1
 - [Web] support send/receive progress in web platform
 - refactor timeout logic
 - use 'arraybuffer' instead of 'blob' for xhr requests in web platform
-
 
 # 4.0.4
 - Fix fetching null data in a response
