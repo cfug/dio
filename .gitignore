@@ -18,6 +18,7 @@ dio/.pub/
 dio/.idea/
 dio/.exampl
 dio/coverage
+dio/test/_download_test.md
 
 # plugins
 plugins/cookie_manager/.packages
