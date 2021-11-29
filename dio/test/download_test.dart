@@ -4,15 +4,17 @@
 
 @TestOn('vm')
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
+
 import 'utils.dart';
 
 void main() {
   setUp(startServer);
   tearDown(stopServer);
   test('#test download1', () async {
-    const savePath = '../_download_test.md';
+    const savePath = 'test/_download_test.md';
     var dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
     await dio.download(
@@ -28,7 +30,7 @@ void main() {
   });
 
   test('#test download2', () async {
-    const savePath = '../_download_test.md';
+    const savePath = 'test/_download_test.md';
     var dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
     await dio.downloadUri(
@@ -42,7 +44,7 @@ void main() {
   });
 
   test('#test download error', () async {
-    const savePath = '../_download_test.md';
+    const savePath = 'test/_download_test.md';
     var dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
     var r = await dio
@@ -60,7 +62,7 @@ void main() {
   });
 
   test('#test download timeout', () async {
-    const savePath = '../_download_test.md';
+    const savePath = 'test/_download_test.md';
     var dio = Dio(BaseOptions(
       receiveTimeout: 1,
       baseUrl: serverUrl.toString(),
@@ -74,7 +76,7 @@ void main() {
   });
 
   test('#test download cancellation', () async {
-    const savePath = '../_download_test.md';
+    const savePath = 'test/_download_test.md';
     var cancelToken = CancelToken();
     Future.delayed(Duration(milliseconds: 100), () {
       cancelToken.cancel();
