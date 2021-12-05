@@ -14,6 +14,7 @@ class Response<T> {
     this.statusMessage,
     List<RedirectRecord>? redirects,
     Map<String, dynamic>? extra,
+    this.responseTime,
   }) {
     this.headers = headers ?? Headers();
     this.extra = extra ?? {};
@@ -31,6 +32,10 @@ class Response<T> {
 
   /// Http status code.
   int? statusCode;
+
+  /// Returns the duration took the request
+  /// to complete.
+  Duration? responseTime;
 
   /// Returns the reason phrase associated with the status code.
   /// The reason phrase must be set before the body is written

@@ -21,8 +21,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   bool withCredentials = false;
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
+  ) {
+    final watch = Stopwatch();
+    watch.start();
     var xhr = HttpRequest();
     _xhrs.add(xhr);
 
@@ -50,6 +55,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
       reader.onLoad.first.then((_) {
         var body = reader.result as Uint8List;
+        watch.stop();
         completer.complete(
           ResponseBody.fromBytes(
             body,
@@ -58,6 +64,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
                 xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
             statusMessage: xhr.statusText,
             isRedirect: xhr.status == 302 || xhr.status == 301,
+            responseTime: Duration(milliseconds: watch.elapsedMilliseconds),
           ),
         );
       });
@@ -112,7 +119,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     } else {
       xhr.send();
     }
-
+   watch.stop();
     return completer.future.whenComplete(() {
       _xhrs.remove(xhr);
     });

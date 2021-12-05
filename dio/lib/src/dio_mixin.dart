@@ -653,6 +653,7 @@ abstract class DioMixin implements Dio {
         isRedirect: responseBody.isRedirect,
         statusCode: responseBody.statusCode,
         statusMessage: responseBody.statusMessage,
+        responseTime: responseBody.responseTime,
         extra: responseBody.extra,
       );
       var statusOk = reqOpt.validateStatus(responseBody.statusCode);
@@ -854,6 +855,7 @@ abstract class DioMixin implements Dio {
         redirects: response.redirects,
         statusMessage: response.statusMessage,
         extra: response.extra,
+        responseTime: response.responseTime,
       );
     }
     return response;

@@ -33,7 +33,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     }
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     var reqFuture = _httpClient.openUrl(options.method, options.uri);
-
     void _throwConnectingTimeout() {
       throw DioError(
         requestOptions: options,
@@ -44,9 +43,11 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     late HttpClientRequest request;
     int timePassed = 0;
+
     try {
       if (options.connectTimeout > 0) {
         var start = DateTime.now().millisecond;
+
         request = await reqFuture
             .timeout(Duration(milliseconds: options.connectTimeout));
         timePassed = DateTime.now().millisecond - start;
@@ -69,7 +70,8 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     request.followRedirects = options.followRedirects;
     request.maxRedirects = options.maxRedirects;
-
+    final watch = Stopwatch();
+    watch.start();
     if (requestStream != null) {
       // Transform the request data
       await request.addStream(requestStream);
@@ -86,6 +88,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     try {
       responseStream = await future;
     } on TimeoutException {
+      watch.stop();
       _throwConnectingTimeout();
     }
 
@@ -107,9 +110,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       isRedirect:
           responseStream.isRedirect || responseStream.redirects.isNotEmpty,
       redirects: responseStream.redirects
-          .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
+          .map(
+            (e) => RedirectRecord(e.statusCode, e.method, e.location),
+          )
           .toList(),
       statusMessage: responseStream.reasonPhrase,
+      responseTime: Duration(
+        milliseconds: watch.elapsedMilliseconds,
+      ),
     );
   }
 

@@ -55,6 +55,7 @@ class ResponseBody {
     this.statusMessage,
     this.isRedirect = false,
     this.redirects,
+    this.responseTime,
   });
 
   /// The response stream
@@ -62,6 +63,10 @@ class ResponseBody {
 
   /// the response headers
   late Map<String, List<String>> headers;
+
+  /// Returns the duration took the request
+  /// to complete.
+  Duration? responseTime;
 
   /// Http status code
   int? statusCode;
@@ -84,6 +89,7 @@ class ResponseBody {
     this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
+    this.responseTime,
   }) : stream = Stream.fromIterable(
             utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
 
@@ -93,6 +99,7 @@ class ResponseBody {
     this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
+    this.responseTime,
   }) : stream = Stream.fromIterable(
             bytes.map((e) => Uint8List.fromList([e])).toList());
 }

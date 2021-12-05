@@ -39,6 +39,8 @@ void main() {
         queryParameters: {'id': '12', 'name': 'wendu'},
       );
       expect(response.statusCode, 200);
+  
+      expect(response.responseTime, isNotNull);
       expect(response.isRedirect, false);
       expect(response.data['query'], equals('id=12&name=wendu'));
       expect(response.headers.value('single'), equals('value'));
