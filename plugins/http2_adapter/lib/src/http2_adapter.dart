@@ -2,13 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:http2/http2.dart';
-import 'package:dio/dio.dart';
 
-part 'connection_manager.dart';
+import 'package:dio/dio.dart';
+import 'package:http2/http2.dart';
 
 part 'client_setting.dart';
-
+part 'connection_manager.dart';
 part 'connection_manager_imp.dart';
 
 /// A Dio HttpAdapter which implements Http/2.0.
@@ -56,7 +55,8 @@ class Http2Adapter extends HttpClientAdapter {
     // Add custom headers
     headers.addAll(
       options.headers.keys
-          .map((key) => Header.ascii(key, options.headers[key] ?? ''))
+          .map(
+              (key) => Header.ascii(key, options.headers[key] as String? ?? ''))
           .toList(),
     );
 
@@ -70,7 +70,7 @@ class Http2Adapter extends HttpClientAdapter {
       });
     });
 
-    var list;
+    List<Uint8List>? list;
     var hasRequestData = requestStream != null;
     if (!excludeMethods.contains(options.method) && hasRequestData) {
       list = await requestStream!.toList();
@@ -88,7 +88,7 @@ class Http2Adapter extends HttpClientAdapter {
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
     var completer = Completer();
-    var statusCode;
+    late int statusCode;
     var needRedirect = false;
     late StreamSubscription subscription;
     var needResponse = false;
@@ -147,7 +147,7 @@ class Http2Adapter extends HttpClientAdapter {
           RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')));
       return _fetch(
         options.copyWith(path: url, maxRedirects: --options.maxRedirects),
-        Stream.fromIterable(list),
+        Stream.fromIterable(list!),
         cancelFuture,
         redirects,
       );
