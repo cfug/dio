@@ -3,8 +3,10 @@ name: Publish Test Report
 on:
   workflow_run:
     workflows:
-      - Integration
-      - Example
+      - 'Dio'
+      - 'Example'
+      - 'Cookie Manager'
+      - 'HTTP2 Adapter'
     types:
       - completed
 
@@ -15,7 +17,7 @@ jobs:
       - name: Publish test reports
         uses: dorny/test-reporter@v1
         with:
-          name: Test results
+          name: ${{ github.event.workflow_run.workflow.name }} Test results
           artifact: test-results
           path: '**/*.json'
           reporter: dart-json

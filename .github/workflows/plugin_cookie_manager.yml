@@ -1,4 +1,4 @@
-name: Example
+name: Cookie Manager
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: example
+        working-directory: plugins/cookie_manager
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: example
+        working-directory: plugins/cookie_manager
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
@@ -41,19 +41,23 @@ jobs:
   tests:
     name: Run unit tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ stable, beta, dev, 2.12.1 ]
     defaults:
       run:
-        working-directory: example
+        working-directory: plugins/cookie_manager
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
         with:
-          sdk: stable
+          sdk: ${{ matrix.sdk }}
       - run: pub get
       - run: dart test --chain-stack-traces
       - name: Upload test report
         uses: actions/upload-artifact@v2
-        if: always()
+        if: always() && matrix.sdk == 'stable'
         with:
           name: test-results
-          path: example/build/reports/test-results.json
+          path: plugins/cookie_manager/build/reports/test-results.json
