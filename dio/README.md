@@ -237,24 +237,25 @@ response = await dio.request(
 
 For convenience aliases have been provided for all supported request methods.
 
-**Future<Response> get(...)**
+```dart
+Future<Response> get(...)
 
-**Future<Response> post(...)**
+Future<Response> post(...)
 
-**Future<Response> put(...)**
+Future<Response> put(...)
 
-**Future<Response> delete(...)**
+Future<Response> delete(...)
 
-**Future<Response> head(...)**
+Future<Response> head(...)
 
-**Future<Response> put(...)**
+Future<Response> put(...)
 
-**Future<Response> path(...)**
+Future<Response> path(...)
 
-**Future<Response> download(...)**
+Future<Response> download(...)
 
-**Future<Response> fetch(RequestOptions)**  new*
-
+Future<Response> fetch(RequestOptions)
+```
 
 ## Request Options
 
