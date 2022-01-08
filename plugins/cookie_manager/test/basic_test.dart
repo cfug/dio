@@ -7,7 +7,9 @@ void main() {
   test('cookie-jar', () async {
     var dio = Dio();
     var cookieJar = CookieJar();
-    dio.interceptors..add(CookieManager(cookieJar))..add(LogInterceptor());
+    dio.interceptors
+      ..add(CookieManager(cookieJar))
+      ..add(LogInterceptor());
     await dio.get<String>('https://pub.dev/packages/dio');
     // Print cookies
     print(cookieJar.loadForRequest(Uri.parse('https://pub.dev/packages/dio')));
