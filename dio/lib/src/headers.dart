@@ -91,14 +91,16 @@ class Headers {
   /// header. The header name passed in [:name:] will be all lower
   /// case.
   void forEach(HeaderForEachCallback f) {
-    _map.keys.forEach((key) => f(key, this[key]!));
+    for (final key in _map.keys) {
+      f(key, this[key]!);
+    }
   }
 
   @override
   String toString() {
-    var stringBuffer = StringBuffer();
+    final stringBuffer = StringBuffer();
     _map.forEach((key, value) {
-      value.forEach((e) => stringBuffer.writeln('$key: $e'));
+      value.fold(stringBuffer, (StringBuffer sb, e) => sb..writeln('$key: $e'));
     });
     return stringBuffer.toString();
   }

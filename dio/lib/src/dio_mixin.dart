@@ -579,12 +579,12 @@ abstract class DioMixin implements Dio {
     var future = Future<dynamic>(() => InterceptorState(requestOptions));
 
     // Add request interceptors to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleRequest
           : interceptor.onRequest;
       future = future.then(_requestInterceptorWrapper(fun));
-    });
+    }
 
     // Add dispatching callback to request flow
     future = future.then(_requestInterceptorWrapper((
@@ -600,20 +600,20 @@ abstract class DioMixin implements Dio {
     }));
 
     // Add response interceptors to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleResponse
           : interceptor.onResponse;
       future = future.then(_responseInterceptorWrapper(fun));
-    });
+    }
 
     // Add error handlers to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleError
           : interceptor.onError;
       future = future.catchError(_errorInterceptorWrapper(fun));
-    });
+    }
 
     // Normalize errors, we convert error to the DioError
     return future.then<Response<T>>((data) {
