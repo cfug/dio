@@ -124,15 +124,17 @@ class Http2Adapter extends HttpClientAdapter {
         }
       },
       onDone: () => sc.close(),
-      onError: (e) {
+      onError: (Object e, StackTrace stackTrace) {
+        final stack =
+            stackTrace == StackTrace.empty ? StackTrace.current : stackTrace;
         // If connection is being forcefully terminated, remove the connection
         if (e is TransportConnectionException) {
           _connectionMgr.removeConnection(transport);
         }
         if (!completer.isCompleted) {
-          completer.completeError(e, StackTrace.current);
+          completer.completeError(e, stack);
         } else {
-          sc.addError(e);
+          sc.addError(e, stack);
         }
       },
       cancelOnError: true,
