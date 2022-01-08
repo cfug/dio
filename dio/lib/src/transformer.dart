@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
-import 'dio_error.dart';
 import 'headers.dart';
 import 'options.dart';
 import 'utils.dart';
