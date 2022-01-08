@@ -9,8 +9,8 @@ import 'utils.dart';
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 class FormData {
-  static const String _BOUNDARY_PRE_TAG = '--dio-boundary-';
-  static const _BOUNDARY_LENGTH = _BOUNDARY_PRE_TAG.length + 10;
+  static const String _boundaryPreTag = '--dio-boundary-';
+  static const _boundaryLength = _boundaryPreTag.length + 10;
 
   late String _boundary;
 
@@ -60,7 +60,7 @@ class FormData {
   void _init() {
     // Assure the boundary unpredictable and unique
     var random = Random();
-    _boundary = _BOUNDARY_PRE_TAG +
+    _boundary = _boundaryPreTag +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
@@ -119,7 +119,7 @@ class FormData {
     var length = 0;
     for (var entry in fields) {
       length += '--'.length +
-          _BOUNDARY_LENGTH +
+          _boundaryLength +
           '\r\n'.length +
           utf8.encode(_headerForField(entry.key, entry.value)).length +
           utf8.encode(entry.value).length +
@@ -128,14 +128,14 @@ class FormData {
 
     for (var file in files) {
       length += '--'.length +
-          _BOUNDARY_LENGTH +
+          _boundaryLength +
           '\r\n'.length +
           utf8.encode(_headerForFile(file)).length +
           file.value.length +
           '\r\n'.length;
     }
 
-    return length + '--'.length + _BOUNDARY_LENGTH + '--\r\n'.length;
+    return length + '--'.length + _boundaryLength + '--\r\n'.length;
   }
 
   Stream<List<int>> finalize() {

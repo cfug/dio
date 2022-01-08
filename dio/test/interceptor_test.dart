@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
-import 'mock_adapter.dart';
+
 import 'echo_adapter.dart';
+import 'mock_adapter.dart';
 
 class MyInterceptor extends Interceptor {
   int requestCount = 0;
@@ -297,10 +299,10 @@ void main() {
   group('#test response interceptor', () {
     Dio dio;
     test('#test Response Interceptor', () async {
-      const URL_NOT_FIND = '/404/';
-      const URL_NOT_FIND_1 = URL_NOT_FIND + '1';
-      const URL_NOT_FIND_2 = URL_NOT_FIND + '2';
-      const URL_NOT_FIND_3 = URL_NOT_FIND + '3';
+      const urlNotFound = '/404/';
+      const urlNotFound1 = urlNotFound + '1';
+      const urlNotFound2 = urlNotFound + '2';
+      const urlNotFound3 = urlNotFound + '3';
 
       dio = Dio();
       dio.httpClientAdapter = MockAdapter();
@@ -314,23 +316,23 @@ void main() {
         onError: (DioError e, ErrorInterceptorHandler handler) {
           if (e.response?.requestOptions != null) {
             switch (e.response!.requestOptions.path) {
-              case URL_NOT_FIND:
+              case urlNotFound:
                 return handler.next(e);
-              case URL_NOT_FIND_1:
+              case urlNotFound1:
                 return handler.resolve(
                   Response(
                     requestOptions: e.requestOptions,
                     data: 'fake data',
                   ),
                 );
-              case URL_NOT_FIND_2:
+              case urlNotFound2:
                 return handler.resolve(
                   Response(
                     data: 'fake data',
                     requestOptions: e.requestOptions,
                   ),
                 );
-              case URL_NOT_FIND_3:
+              case urlNotFound3:
                 return handler.next(
                   e..error = 'custom error info [${e.response!.statusCode}]',
                 );
@@ -343,17 +345,17 @@ void main() {
       expect(response.data['path'], '/test');
       expect(
         dio
-            .get(URL_NOT_FIND)
+            .get(urlNotFound)
             .catchError((e) => throw (e as DioError).response!.statusCode!),
         throwsA(404),
       );
-      response = await dio.get(URL_NOT_FIND + '1');
+      response = await dio.get(urlNotFound + '1');
       expect(response.data, 'fake data');
-      response = await dio.get(URL_NOT_FIND + '2');
+      response = await dio.get(urlNotFound + '2');
       expect(response.data, 'fake data');
       expect(
         dio
-            .get(URL_NOT_FIND + '3')
+            .get(urlNotFound + '3')
             .catchError((e) => throw (e as DioError).message),
         throwsA('custom error info [404]'),
       );
