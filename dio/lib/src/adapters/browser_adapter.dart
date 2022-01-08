@@ -53,7 +53,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       completer.complete(
         ResponseBody.fromBytes(
           body,
-          xhr.status,
+          xhr.status!,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
           isRedirect: xhr.status == 302 || xhr.status == 301,
