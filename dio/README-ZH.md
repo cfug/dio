@@ -260,23 +260,25 @@ response = await dio.request(
 
 为了方便使用，Dio提供了一些其它的Restful API, 这些API都是`request`的别名。
 
-**Future<Response> get(...)**
+```dart
+Future<Response> get(...)
 
-**Future<Response> post(...)**
+Future<Response> post(...)
 
-**Future<Response> put(...)**
+Future<Response> put(...)
 
-**Future<Response> delete(...)**
+Future<Response> delete(...)
 
-**Future<Response> head(...)**
+Future<Response> head(...)
 
-**Future<Response> put(...)**
+Future<Response> put(...)
 
-**Future<Response> path(...)**
+Future<Response> path(...)
 
-**Future<Response> download(...)**
+Future<Response> download(...)
 
-**Future<Response> fetch(RequestOptions)**      new*
+Future<Response> fetch(RequestOptions)
+```
 
 
 ## 请求配置
