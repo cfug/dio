@@ -80,14 +80,14 @@ class Http2Adapter extends HttpClientAdapter {
     if (hasRequestData) {
       await requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
-      }).asFuture();
+      }).asFuture<void>();
     }
 
     await stream.outgoingMessages.close();
 
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
-    var completer = Completer();
+    final completer = Completer<void>();
     late int statusCode;
     var needRedirect = false;
     late StreamSubscription subscription;

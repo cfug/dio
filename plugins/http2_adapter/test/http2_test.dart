@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:test/test.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('adds one to input values', () async {
     var dio = Dio()
-      ..options.baseUrl = 'https://www.ustc.edu.cn/'
+      ..options.baseUrl = 'https://pub.dev/packages/dio'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
@@ -15,7 +15,7 @@ void main() {
       );
 
     Response<String> response;
-    response = await dio.get('?xx=6');
+    response = await dio.get('/changelog');
     assert(response.statusCode == 200);
     response = await dio.get(
       'nkjnjknjn.html',
@@ -31,7 +31,7 @@ void main() {
         idleTimeout: 10,
       ));
 
-    final res = await dio.post('post', data: 'TEST');
-    assert(res.data['data'] == 'TEST');
+    final res = await dio.post<Map<String, Object?>>('post', data: 'TEST');
+    assert(res.data!['data'] == 'TEST');
   });
 }
