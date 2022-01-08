@@ -270,7 +270,7 @@ The Options class describes the http request information and configuration. Each
   String baseUrl;
 
   /// Http request headers.
-  Map<String, dynamic> headers;
+  Map<String, Object?> headers;
 
    /// Timeout in milliseconds for opening  url.
   int connectTimeout;
@@ -311,10 +311,10 @@ The Options class describes the http request information and configuration. Each
   ValidateStatus validateStatus;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the   [Response] object.
-  Map<String, dynamic> extra;
+  Map<String, Object?> extra;
   
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
+  Map<String, Object? /*String|Iterable<String>*/ > queryParameters;  
   
    /// [collectionFormat] indicates the format of collection data in request
   /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.

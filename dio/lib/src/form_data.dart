@@ -37,7 +37,7 @@ class FormData {
 
   /// Create FormData instance with a Map.
   FormData.fromMap(
-    Map<String, dynamic> map, [
+    Map<String, Object?> map, [
     ListFormat collectionFormat = ListFormat.multi,
   ]) {
     _init();

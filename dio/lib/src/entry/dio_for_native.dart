@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
 import '../adapter.dart';
+import '../adapters/io_adapter.dart';
 import '../cancel_token.dart';
-import '../dio_mixin.dart';
-import '../response.dart';
 import '../dio.dart';
+import '../dio_error.dart';
+import '../dio_mixin.dart';
 import '../headers.dart';
 import '../options.dart';
-import '../dio_error.dart';
-import '../adapters/io_adapter.dart';
+import '../response.dart';
 
 Dio createDio([BaseOptions? baseOptions]) => DioForNative(baseOptions);
 
@@ -66,7 +67,7 @@ class DioForNative with DioMixin implements Dio {
     String urlPath,
     savePath, {
     ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
