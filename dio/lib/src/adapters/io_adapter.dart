@@ -45,9 +45,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     late HttpClientRequest request;
     try {
-      if (options.connectTimeout > 0) {
-        request = await reqFuture
-            .timeout(Duration(milliseconds: options.connectTimeout));
+      final connectionTimeout = options.connectTimeout;
+      if (connectionTimeout != null) {
+        request = await reqFuture.timeout(connectionTimeout);
       } else {
         request = await reqFuture;
       }
@@ -71,8 +71,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     if (requestStream != null) {
       // Transform the request data
       var future = request.addStream(requestStream);
-      if (options.sendTimeout > 0) {
-        future = future.timeout(Duration(milliseconds: options.sendTimeout));
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        future = future.timeout(sendTimeout);
       }
       try {
         await future;
@@ -87,10 +88,11 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     // [receiveTimeout] represents a timeout during data transfer! That is to say the
     // client has connected to the server.
-    int receiveStart = DateTime.now().millisecondsSinceEpoch;
+    final receiveStart = DateTime.now();
     var future = request.close();
-    if (options.receiveTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.receiveTimeout));
+    final receiveTimeout = options.receiveTimeout;
+    if (receiveTimeout != null) {
+      future = future.timeout(receiveTimeout);
     }
     late HttpClientResponse responseStream;
     try {
@@ -98,7 +100,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     } on TimeoutException {
       throw DioError(
         requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+        error: 'Receiving data timeout[${options.receiveTimeout}]',
         type: DioErrorType.receiveTimeout,
       );
     }
@@ -106,13 +108,13 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
-        if (options.receiveTimeout > 0 &&
-            DateTime.now().millisecondsSinceEpoch - receiveStart >
-                options.receiveTimeout) {
+        final receiveTimeout = options.receiveTimeout;
+        final duration = DateTime.now().difference(receiveStart).abs();
+        if (receiveTimeout != null && duration > receiveTimeout) {
           sink.addError(
             DioError(
               requestOptions: options,
-              error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+              error: 'Receiving data timeout[${options.receiveTimeout}]',
               type: DioErrorType.receiveTimeout,
             ),
           );
@@ -141,10 +143,12 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(Future? cancelFuture, int connectionTimeout) {
-    var _connectionTimeout = connectionTimeout > 0
-        ? Duration(milliseconds: connectionTimeout)
-        : null;
+  HttpClient _configHttpClient(
+    Future? cancelFuture,
+    Duration? connectionTimeout,
+  ) {
+    var _connectionTimeout =
+        connectionTimeout == null ? connectionTimeout : null;
 
     if (cancelFuture != null) {
       var _httpClient = HttpClient();

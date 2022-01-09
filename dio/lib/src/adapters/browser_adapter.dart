@@ -45,8 +45,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
 
-    if (options.connectTimeout > 0 && options.receiveTimeout > 0) {
-      xhr.timeout = options.connectTimeout + options.receiveTimeout;
+    final connectTimeout = options.connectTimeout;
+    final receiveTimeout = options.receiveTimeout;
+    if (connectTimeout != null &&
+        receiveTimeout != null &&
+        receiveTimeout > Duration.zero) {
+      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
     }
 
     var completer = Completer<ResponseBody>();
@@ -66,8 +70,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     bool haveSent = false;
 
-    if (options.connectTimeout > 0) {
-      Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
+    final connectionTimeout = options.connectTimeout;
+    if (connectionTimeout != null) {
+      Future.delayed(connectionTimeout).then(
         (value) {
           if (!haveSent) {
             completer.completeError(
@@ -84,16 +89,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    int sendStart = 0;
+    DateTime? sendStart;
     xhr.upload.onProgress.listen((event) {
       haveSent = true;
-      if (options.sendTimeout > 0) {
-        if (sendStart == 0) {
-          sendStart = DateTime.now().millisecondsSinceEpoch;
-        }
-        var t = DateTime.now().millisecondsSinceEpoch;
-        print(t - sendStart);
-        if (t - sendStart > options.sendTimeout) {
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        sendStart ??= DateTime.now();
+        var t = DateTime.now();
+        if (t.difference(sendStart!) > sendTimeout) {
           completer.completeError(
             DioError(
               requestOptions: options,
@@ -112,14 +115,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    int receiveStart = 0;
+    DateTime? receiveStart;
     xhr.onProgress.listen((event) {
-      if (options.receiveTimeout > 0) {
-        if (receiveStart == 0) {
-          receiveStart = DateTime.now().millisecondsSinceEpoch;
-        }
-        if (DateTime.now().millisecondsSinceEpoch - receiveStart >
-            options.receiveTimeout) {
+      final reveiveTimeout = options.receiveTimeout;
+      if (reveiveTimeout != null) {
+        receiveStart ??= DateTime.now();
+        final duration = DateTime.now().difference(receiveStart!).abs();
+        if (duration > reveiveTimeout) {
           completer.completeError(
             DioError(
               requestOptions: options,
