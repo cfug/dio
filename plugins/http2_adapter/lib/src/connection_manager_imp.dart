@@ -11,7 +11,7 @@ class _ConnectionManager implements ConnectionManager {
   /// Sets the idle timeout(milliseconds) of non-active persistent
   /// connections. For the sake of socket reuse feature with http/2,
   /// the value should not be less than 1000 (1s).
-  final int _idleTimeout;
+  final Duration _idleTimeout;
 
   /// Saving the reusable connections
   final _transportsMap = <String, _ClientTransportConnectionState>{};
@@ -22,8 +22,8 @@ class _ConnectionManager implements ConnectionManager {
   bool _closed = false;
   bool _forceClosed = false;
 
-  _ConnectionManager({int? idleTimeout, this.onClientCreate})
-      : _idleTimeout = idleTimeout ?? 1000;
+  _ConnectionManager({Duration? idleTimeout, this.onClientCreate})
+      : _idleTimeout = idleTimeout ?? const Duration(milliseconds: 1000);
 
   @override
   Future<ClientTransportConnection> getConnection(
@@ -71,9 +71,7 @@ class _ConnectionManager implements ConnectionManager {
       socket = await SecureSocket.connect(
         uri.host,
         uri.port,
-        timeout: options.connectTimeout > 0
-            ? Duration(milliseconds: options.connectTimeout)
-            : null,
+        timeout: options.connectTimeout,
         context: clientConfig.context,
         onBadCertificate: clientConfig.onBadCertificate,
         supportedProtocols: ['h2'],
@@ -83,7 +81,7 @@ class _ConnectionManager implements ConnectionManager {
         if (e.message.contains('timed out')) {
           throw DioError(
             requestOptions: options,
-            error: 'Connecting timed out [${options.connectTimeout}ms]',
+            error: 'Connecting timed out [${options.connectTimeout}]',
             type: DioErrorType.connectTimeout,
           );
         }
@@ -96,13 +94,12 @@ class _ConnectionManager implements ConnectionManager {
     transport.onActiveStateChanged = (bool isActive) {
       _transportState.isActive = isActive;
       if (!isActive) {
-        _transportState.latestIdleTimeStamp =
-            DateTime.now().millisecondsSinceEpoch;
+        _transportState.latestIdleTimeStamp = DateTime.now();
       }
     };
     //
     _transportState.delayClose(
-      _closed ? 50 : _idleTimeout,
+      _closed ? Duration(milliseconds: 50) : _idleTimeout,
       () {
         _transportsMap.remove(domain);
         _transportState.transport.finish();
@@ -141,16 +138,17 @@ class _ClientTransportConnectionState {
 
   ClientTransportConnection get activeTransport {
     isActive = true;
-    latestIdleTimeStamp = DateTime.now().millisecondsSinceEpoch;
+    latestIdleTimeStamp = DateTime.now();
     return transport;
   }
 
   bool isActive = true;
-  late int latestIdleTimeStamp;
+  late DateTime latestIdleTimeStamp;
   Timer? _timer;
 
-  void delayClose(int idleTimeout, void Function() callback) {
-    idleTimeout = idleTimeout < 100 ? 100 : idleTimeout;
+  void delayClose(Duration idleTimeout, void Function() callback) {
+    const duration = Duration(milliseconds: 100);
+    idleTimeout = idleTimeout < duration ? duration : idleTimeout;
     _startTimer(callback, idleTimeout, idleTimeout);
   }
 
@@ -159,11 +157,11 @@ class _ClientTransportConnectionState {
     transport.finish();
   }
 
-  void _startTimer(void Function() callback, int duration, int idleTimeout) {
-    _timer = Timer(Duration(milliseconds: duration), () {
+  void _startTimer(
+      void Function() callback, Duration duration, Duration idleTimeout) {
+    _timer = Timer(duration, () {
       if (!isActive) {
-        var interval =
-            DateTime.now().millisecondsSinceEpoch - latestIdleTimeStamp;
+        var interval = DateTime.now().difference(latestIdleTimeStamp);
         if (interval >= duration) {
           return callback();
         }
