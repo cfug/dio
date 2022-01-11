@@ -294,7 +294,7 @@ Future<Response> fetch(RequestOptions)
   String baseUrl;
 
   /// Http请求头.
-  Map<String, dynamic> headers;
+  Map<String, Object?> headers;
 
   /// 连接服务器超时时间，单位是毫秒.
   int connectTimeout;
@@ -325,10 +325,10 @@ Future<Response> fetch(RequestOptions)
   ValidateStatus validateStatus;
 
   /// 用户自定义字段，可以在 [Interceptor]、[Transformer] 和 [Response] 中取到.
-  Map<String, dynamic> extra;
+  Map<String, Object?> extra;
 
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+  Map<String, Object? /*String|Iterable<String>*/ > queryParameters;
   
   /// 请求数据中数组的编码的方式，具体可以参考CollectionFormat的定义
   late CollectionFormat collectionFormat;

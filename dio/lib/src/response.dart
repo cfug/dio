@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'options.dart';
+
 import 'headers.dart';
+import 'options.dart';
 import 'redirect_record.dart';
 
 /// Response describes the http Response info.
@@ -13,7 +14,7 @@ class Response<T> {
     this.statusCode,
     this.statusMessage,
     List<RedirectRecord>? redirects,
-    Map<String, dynamic>? extra,
+    Map<String, Object?>? extra,
   }) {
     this.headers = headers ?? Headers();
     this.extra = extra ?? {};
@@ -38,7 +39,7 @@ class Response<T> {
   String? statusMessage;
 
   /// Custom field that you can retrieve it later in `then`.
-  late Map<String, dynamic> extra;
+  late Map<String, Object?> extra;
 
   /// Returns the series of redirects this connection has been through. The
   /// list will be empty if no redirects were followed. [redirects] will be

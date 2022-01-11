@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+
 import '../adapter.dart';
-import '../options.dart';
 import '../dio_error.dart';
+import '../options.dart';
 import '../redirect_record.dart';
 
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
@@ -25,7 +26,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   ) async {
     if (_closed) {
       throw Exception(

@@ -6,9 +6,9 @@ void main() async {
   var dio = Dio();
   var cookieJar = CookieJar();
   dio.interceptors.add(CookieManager(cookieJar));
-  await dio.get('https://baidu.com/');
+  await dio.get<String>('https://baidu.com/');
   // Print cookies
   print(cookieJar.loadForRequest(Uri.parse('https://baidu.com/')));
   // second request with the cookie
-  await dio.get('https://baidu.com/');
+  await dio.get<String>('https://baidu.com/');
 }

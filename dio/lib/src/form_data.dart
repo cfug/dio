@@ -9,8 +9,8 @@ import 'utils.dart';
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 class FormData {
-  static const String _BOUNDARY_PRE_TAG = '--dio-boundary-';
-  static const _BOUNDARY_LENGTH = _BOUNDARY_PRE_TAG.length + 10;
+  static const String _boundaryPreTag = '--dio-boundary-';
+  static const _boundaryLength = _boundaryPreTag.length + 10;
 
   late String _boundary;
 
@@ -37,7 +37,7 @@ class FormData {
 
   /// Create FormData instance with a Map.
   FormData.fromMap(
-    Map<String, dynamic> map, [
+    Map<String, Object?> map, [
     ListFormat collectionFormat = ListFormat.multi,
   ]) {
     _init();
@@ -60,7 +60,7 @@ class FormData {
   void _init() {
     // Assure the boundary unpredictable and unique
     var random = Random();
-    _boundary = _BOUNDARY_PRE_TAG +
+    _boundary = _boundaryPreTag +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
@@ -91,10 +91,10 @@ class FormData {
     if (file.headers != null) {
       // append additional headers
       file.headers!.forEach((key, values) {
-        values.forEach((value) {
+        for (var value in values) {
           header = '$header\r\n'
               '$key: $value';
-        });
+        }
       });
     }
     return '$header\r\n\r\n';
@@ -117,25 +117,25 @@ class FormData {
   /// [fields] and [files] and cannot be set manually.
   int get length {
     var length = 0;
-    fields.forEach((entry) {
+    for (var entry in fields) {
       length += '--'.length +
-          _BOUNDARY_LENGTH +
+          _boundaryLength +
           '\r\n'.length +
           utf8.encode(_headerForField(entry.key, entry.value)).length +
           utf8.encode(entry.value).length +
           '\r\n'.length;
-    });
+    }
 
     for (var file in files) {
       length += '--'.length +
-          _BOUNDARY_LENGTH +
+          _boundaryLength +
           '\r\n'.length +
           utf8.encode(_headerForFile(file)).length +
           file.value.length +
           '\r\n'.length;
     }
 
-    return length + '--'.length + _BOUNDARY_LENGTH + '--\r\n'.length;
+    return length + '--'.length + _boundaryLength + '--\r\n'.length;
   }
 
   Stream<List<int>> finalize() {
@@ -143,27 +143,28 @@ class FormData {
       throw StateError("Can't finalize a finalized MultipartFile.");
     }
     _isFinalized = true;
-    var controller = StreamController<List<int>>(sync: false);
-    void writeAscii(String string) {
-      controller.add(utf8.encode(string));
-    }
+    final controller = StreamController<List<int>>(sync: false);
 
+    void writeAscii(String string) => controller.add(utf8.encode(string));
     void writeUtf8(String string) => controller.add(utf8.encode(string));
     void writeLine() => controller.add([13, 10]); // \r\n
 
-    fields.forEach((entry) {
+    for (var entry in fields) {
       writeAscii('--$boundary\r\n');
       writeAscii(_headerForField(entry.key, entry.value));
       writeUtf8(entry.value);
       writeLine();
-    });
+    }
 
-    Future.forEach<MapEntry<String, MultipartFile>>(files, (file) {
-      writeAscii('--$boundary\r\n');
-      writeAscii(_headerForFile(file));
-      return writeStreamToSink(file.value.finalize(), controller)
-          .then((_) => writeLine());
-    }).then((_) {
+    Future.forEach<MapEntry<String, MultipartFile>>(
+      files,
+      (file) {
+        writeAscii('--$boundary\r\n');
+        writeAscii(_headerForFile(file));
+        return writeStreamToSink(file.value.finalize(), controller)
+            .then((_) => writeLine());
+      },
+    ).then((_) {
       writeAscii('--$boundary--\r\n');
       controller.close();
     });

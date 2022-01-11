@@ -86,9 +86,9 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     int? receiveTimeout,
     int? sendTimeout,
     String baseUrl = '',
-    Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? extra,
-    Map<String, dynamic>? headers,
+    Map<String, Object?>? queryParameters,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
     ResponseType? responseType = ResponseType.json,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -124,13 +124,13 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
   BaseOptions copyWith({
     String? method,
     String? baseUrl,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     String? path,
     int? connectTimeout,
     int? receiveTimeout,
     int? sendTimeout,
-    Map<String, dynamic>? extra,
-    Map<String, dynamic>? headers,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -190,7 +190,7 @@ mixin OptionsMixin {
   ///
   /// The value can be overridden per parameter by adding a [MultiParam]
   /// object wrapping the actual List value and the desired format.
-  late Map<String, dynamic> queryParameters;
+  late Map<String, Object?> queryParameters;
 
   /// Timeout in milliseconds for opening url.
   /// [Dio] will throw the [DioError] with [DioErrorType.connectTimeout] type
@@ -222,8 +222,8 @@ class Options {
     String? method,
     int? sendTimeout,
     int? receiveTimeout,
-    Map<String, dynamic>? extra,
-    Map<String, dynamic>? headers,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -234,7 +234,7 @@ class Options {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
   }) {
-    Map<String, dynamic>? _headers;
+    Map<String, Object?>? _headers;
     if (headers == null && this.headers != null) {
       _headers = caseInsensitiveKeyMap(this.headers!);
     }
@@ -248,7 +248,7 @@ class Options {
       );
     }
 
-    Map<String, dynamic>? _extra;
+    Map<String, Object?>? _extra;
     if (extra == null && this.extra != null) {
       _extra = Map.from(this.extra!);
     }
@@ -276,13 +276,13 @@ class Options {
     BaseOptions baseOpt,
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) {
-    var query = <String, dynamic>{};
+    var query = <String, Object?>{};
     query.addAll(baseOpt.queryParameters);
     if (queryParameters != null) query.addAll(queryParameters);
 
@@ -296,7 +296,7 @@ class Options {
       _contentType = _headers[Headers.contentTypeHeader] as String?;
     }
 
-    var _extra = Map<String, dynamic>.from(baseOpt.extra);
+    var _extra = Map<String, Object?>.from(baseOpt.extra);
     if (extra != null) {
       _extra.addAll(extra!);
     }
@@ -341,7 +341,7 @@ class Options {
   ///
   /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
   /// regard as the same key.
-  Map<String, dynamic>? headers;
+  Map<String, Object?>? headers;
 
   /// Timeout in milliseconds for sending data.
   /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
@@ -387,7 +387,7 @@ class Options {
   bool? receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
-  Map<String, dynamic>? extra;
+  Map<String, Object?>? extra;
 
   /// see [HttpClientRequest.followRedirects],
   /// The default value is true
@@ -423,13 +423,13 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     int? connectTimeout,
     this.data,
     required this.path,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     this.onReceiveProgress,
     this.onSendProgress,
     this.cancelToken,
     String? baseUrl,
-    Map<String, dynamic>? extra,
-    Map<String, dynamic>? headers,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -469,13 +469,13 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     int? connectTimeout,
     String? data,
     String? path,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     String? baseUrl,
     ProgressCallback? onReceiveProgress,
     ProgressCallback? onSendProgress,
     CancelToken? cancelToken,
-    Map<String, dynamic>? extra,
-    Map<String, dynamic>? headers,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -576,8 +576,8 @@ class _RequestConfig {
     int? receiveTimeout,
     int? sendTimeout,
     String? method,
-    Map<String, dynamic>? extra,
-    Map<String, dynamic>? headers,
+    Map<String, Object?>? extra,
+    Map<String, Object?>? headers,
     String? contentType,
     ListFormat? listFormat,
     bool? followRedirects,
@@ -625,10 +625,10 @@ class _RequestConfig {
   /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
   /// regard as the same key.
 
-  Map<String, dynamic> get headers => _headers;
-  late Map<String, dynamic> _headers;
+  Map<String, Object?> get headers => _headers;
+  late Map<String, Object?> _headers;
 
-  set headers(Map<String, dynamic>? headers) {
+  set headers(Map<String, Object?>? headers) {
     _headers = caseInsensitiveKeyMap(headers);
     if (_defaultContentType != null &&
         !_headers.containsKey(Headers.contentTypeHeader)) {
@@ -692,7 +692,7 @@ class _RequestConfig {
   late bool receiveDataWhenStatusError;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
-  late Map<String, dynamic> extra;
+  late Map<String, Object?> extra;
 
   /// see [HttpClientRequest.followRedirects],
   /// The default value is true

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'options.dart';
 import 'redirect_record.dart';
 
@@ -41,7 +42,7 @@ abstract class HttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   );
 
   void close({bool force = false});
@@ -76,7 +77,7 @@ class ResponseBody {
 
   List<RedirectRecord>? redirects;
 
-  Map<String, dynamic> extra = {};
+  Map<String, Object?> extra = {};
 
   ResponseBody.fromString(
     String text,
