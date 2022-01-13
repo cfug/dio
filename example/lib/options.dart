@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 void main() async {
   var dio = Dio(BaseOptions(
     baseUrl: 'http://httpbin.org/',
-    connectTimeout: 5000,
-    receiveTimeout: 100000,
+    connectTimeout: Duration(seconds: 5),
+    receiveTimeout: Duration(seconds: 10),
     // 5s
     headers: {
       HttpHeaders.userAgentHeader: 'dio',
