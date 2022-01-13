@@ -86,9 +86,10 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    // [receiveTimeout] represents a timeout during data transfer! That is to say the
+    // `stopwatch` represents a timeout during data transfer! That is to say the
     // client has connected to the server.
-    final receiveStart = DateTime.now();
+    final stopwatch = Stopwatch();
+    stopwatch.start();
     var future = request.close();
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {
@@ -108,8 +109,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
+        stopwatch.stop();
+        final duration = stopwatch.elapsed;
         final receiveTimeout = options.receiveTimeout;
-        final duration = DateTime.now().difference(receiveStart).abs();
         if (receiveTimeout != null && duration > receiveTimeout) {
           sink.addError(
             DioError(
@@ -147,9 +149,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     Future? cancelFuture,
     Duration? connectionTimeout,
   ) {
-    var _connectionTimeout =
-        connectionTimeout == null ? connectionTimeout : null;
-
     if (cancelFuture != null) {
       var _httpClient = HttpClient();
       _httpClient.userAgent = null;
@@ -167,7 +166,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
           }
         });
       });
-      return _httpClient..connectionTimeout = _connectionTimeout;
+      return _httpClient..connectionTimeout = connectionTimeout;
     }
     if (_defaultHttpClient == null) {
       _defaultHttpClient = HttpClient();
@@ -177,7 +176,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         _defaultHttpClient =
             onHttpClientCreate!(_defaultHttpClient!) ?? _defaultHttpClient;
       }
-      _defaultHttpClient!.connectionTimeout = _connectionTimeout;
+      _defaultHttpClient!.connectionTimeout = connectionTimeout;
     }
     return _defaultHttpClient!;
   }

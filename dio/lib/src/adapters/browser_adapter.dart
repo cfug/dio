@@ -89,14 +89,18 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    DateTime? sendStart;
+    final uploadStopwatch = Stopwatch();
     xhr.upload.onProgress.listen((event) {
       haveSent = true;
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
-        sendStart ??= DateTime.now();
-        var t = DateTime.now();
-        if (t.difference(sendStart!) > sendTimeout) {
+        if (!uploadStopwatch.isRunning) {
+          uploadStopwatch.start();
+        }
+
+        var t = uploadStopwatch.elapsed;
+        if (t > sendTimeout) {
+          uploadStopwatch.stop();
           completer.completeError(
             DioError(
               requestOptions: options,
@@ -115,13 +119,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    DateTime? receiveStart;
+    final downloadStopwatch = Stopwatch();
     xhr.onProgress.listen((event) {
       final reveiveTimeout = options.receiveTimeout;
       if (reveiveTimeout != null) {
-        receiveStart ??= DateTime.now();
-        final duration = DateTime.now().difference(receiveStart!).abs();
+        if (!uploadStopwatch.isRunning) {
+          uploadStopwatch.start();
+        }
+
+        final duration = downloadStopwatch.elapsed;
         if (duration > reveiveTimeout) {
+          downloadStopwatch.stop();
           completer.completeError(
             DioError(
               requestOptions: options,
