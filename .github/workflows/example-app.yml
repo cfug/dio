@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - develop
+      - develop*
   pull_request:
     branches:
       - main
-      - develop
+      - develop*
 
 jobs:
   analyze:
@@ -19,8 +19,9 @@ jobs:
         working-directory: example_flutter_app
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.1.0
         with:
+          cache: true
           channel: stable
       - run: flutter pub get
       - run: flutter analyze --fatal-infos
@@ -33,8 +34,9 @@ jobs:
         working-directory: example_flutter_app
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.1.0
         with:
+          cache: true
           channel: stable
       - run: flutter format --set-exit-if-changed .
 
@@ -46,8 +48,9 @@ jobs:
         working-directory: example_flutter_app
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.1.0
         with:
+          cache: true
           channel: stable
       - run: flutter pub get
       - run: flutter build apk
