@@ -82,9 +82,7 @@ typedef RequestEncoder = List<int> Function(
 class BaseOptions extends _RequestConfig with OptionsMixin {
   BaseOptions({
     String? method,
-    Duration? connectTimeout,
-    Duration? receiveTimeout,
-    Duration? sendTimeout,
+    Duration? connectionTimeout,
     String baseUrl = '',
     Map<String, Object?>? queryParameters,
     Map<String, Object?>? extra,
@@ -99,11 +97,9 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
     this.setRequestContentTypeWhenNoPayload = false,
-  })  : assert(connectTimeout == null || !connectTimeout.isNegative),
+  })  : assert(connectionTimeout == null || !connectionTimeout.isNegative),
         super(
           method: method,
-          receiveTimeout: receiveTimeout,
-          sendTimeout: sendTimeout,
           extra: extra,
           headers: headers,
           responseType: responseType,
@@ -118,7 +114,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
         ) {
     this.queryParameters = queryParameters ?? {};
     this.baseUrl = baseUrl;
-    this.connectTimeout = connectTimeout;
+    this.connectionTimeout = connectionTimeout;
   }
 
   /// Create a Option from current instance with merging attributes.
@@ -127,7 +123,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     String? baseUrl,
     Map<String, Object?>? queryParameters,
     String? path,
-    Duration? connectTimeout,
+    Duration? connectionTimeout,
     Duration? receiveTimeout,
     Duration? sendTimeout,
     Map<String, Object?>? extra,
@@ -147,9 +143,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       method: method ?? this.method,
       baseUrl: baseUrl ?? this.baseUrl,
       queryParameters: queryParameters ?? this.queryParameters,
-      connectTimeout: connectTimeout ?? this.connectTimeout,
-      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      sendTimeout: sendTimeout ?? this.sendTimeout,
+      connectionTimeout: connectionTimeout ?? this.connectionTimeout,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
       responseType: responseType ?? this.responseType,
@@ -194,26 +188,24 @@ mixin OptionsMixin {
   late Map<String, Object?> queryParameters;
 
   /// Timeout in milliseconds for opening url.
-  /// [Dio] will throw the [DioError] with [DioErrorType.connectTimeout] type
+  /// [Dio] will throw the [DioError] with [DioErrorType.connectionTimeout] type
   ///  when time out.
-  Duration? get connectTimeout => _connectTimeout;
+  Duration? get connectionTimeout => _connectionTimeout;
 
-  set connectTimeout(Duration? value) {
+  set connectionTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("connectTimeout should be positive");
+      throw StateError("connectionTimeout should be positive");
     }
-    _connectTimeout = value;
+    _connectionTimeout = value;
   }
 
-  Duration? _connectTimeout;
+  Duration? _connectionTimeout;
 }
 
 /// Every request can pass an [Options] object which will be merged with [Dio.options]
 class Options {
   Options({
     this.method,
-    Duration? sendTimeout,
-    Duration? receiveTimeout,
     this.extra,
     this.headers,
     this.responseType,
@@ -225,16 +217,11 @@ class Options {
     this.requestEncoder,
     this.responseDecoder,
     this.listFormat,
-  })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
-        _receiveTimeout = receiveTimeout,
-        assert(sendTimeout == null || !sendTimeout.isNegative),
-        _sendTimeout = sendTimeout;
+  });
 
   /// Create a Option from current instance with merging attributes.
   Options copyWith({
     String? method,
-    Duration? sendTimeout,
-    Duration? receiveTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
     ResponseType? responseType,
@@ -268,8 +255,6 @@ class Options {
 
     return Options(
       method: method ?? this.method,
-      sendTimeout: sendTimeout ?? this.sendTimeout,
-      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       extra: extra ?? _extra,
       headers: headers ?? _headers,
       responseType: responseType ?? this.responseType,
@@ -321,9 +306,7 @@ class Options {
       baseUrl: baseOpt.baseUrl,
       path: path,
       data: data,
-      connectTimeout: baseOpt.connectTimeout,
-      sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
-      receiveTimeout: receiveTimeout ?? baseOpt.receiveTimeout,
+      connectionTimeout: baseOpt.connectionTimeout,
       responseType: responseType ?? baseOpt.responseType,
       validateStatus: validateStatus ?? baseOpt.validateStatus,
       receiveDataWhenStatusError:
@@ -355,37 +338,6 @@ class Options {
   /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
   /// regard as the same key.
   Map<String, Object?>? headers;
-
-  /// Timeout in milliseconds for sending data.
-  /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
-  ///  when time out.
-  Duration? get sendTimeout => _sendTimeout;
-
-  set sendTimeout(Duration? value) {
-    if (value != null && value.isNegative) {
-      throw StateError("sendTimeout should be positive");
-    }
-    _sendTimeout = value;
-  }
-
-  Duration? _sendTimeout;
-
-  ///  Timeout in milliseconds for receiving data.
-  ///
-  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
-  ///  client has connected to the server, and the server starts to send data to the client.
-  ///
-  /// `null` meanings no timeout limit.
-  Duration? get receiveTimeout => _receiveTimeout;
-
-  set receiveTimeout(Duration? value) {
-    if (value != null && value.isNegative) {
-      throw StateError('receiveTimeout should be positive');
-    }
-    _receiveTimeout = value;
-  }
-
-  Duration? _receiveTimeout;
 
   /// The request Content-Type. The default value is [ContentType.json].
   /// If you want to encode request body with 'application/x-www-form-urlencoded',
@@ -449,9 +401,7 @@ class Options {
 class RequestOptions extends _RequestConfig with OptionsMixin {
   RequestOptions({
     String? method,
-    Duration? sendTimeout,
-    Duration? receiveTimeout,
-    Duration? connectTimeout,
+    Duration? connectionTimeout,
     this.data,
     required this.path,
     Map<String, Object?>? queryParameters,
@@ -471,11 +421,9 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
     bool? setRequestContentTypeWhenNoPayload,
-  })  : assert(connectTimeout == null || !connectTimeout.isNegative),
+  })  : assert(connectionTimeout == null || !connectionTimeout.isNegative),
         super(
           method: method,
-          sendTimeout: sendTimeout,
-          receiveTimeout: receiveTimeout,
           extra: extra,
           headers: headers,
           responseType: responseType,
@@ -490,15 +438,13 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
         ) {
     this.queryParameters = queryParameters ?? {};
     this.baseUrl = baseUrl ?? '';
-    this.connectTimeout = connectTimeout;
+    this.connectionTimeout = connectionTimeout;
   }
 
   /// Create a Option from current instance with merging attributes.
   RequestOptions copyWith({
     String? method,
-    Duration? sendTimeout,
-    Duration? receiveTimeout,
-    Duration? connectTimeout,
+    Duration? connectionTimeout,
     String? data,
     String? path,
     Map<String, Object?>? queryParameters,
@@ -528,12 +474,14 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       !(contentType != null && contentTypeInHeader),
       'You cannot set both contentType param and a content-type header',
     );
+    assert(
+      connectionTimeout == null || connectionTimeout.isNegative,
+      'connectionTimeout must be positive',
+    );
 
     var ro = RequestOptions(
       method: method ?? this.method,
-      sendTimeout: sendTimeout ?? this.sendTimeout,
-      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      connectTimeout: connectTimeout ?? this.connectTimeout,
+      connectionTimeout: connectionTimeout ?? this.connectionTimeout,
       data: data ?? this.data,
       path: path ?? this.path,
       baseUrl: baseUrl ?? this.baseUrl,
@@ -605,8 +553,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
 /// The [_RequestConfig] class describes the http request information and configuration.
 class _RequestConfig {
   _RequestConfig({
-    Duration? receiveTimeout,
-    Duration? sendTimeout,
     String? method,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
@@ -619,10 +565,7 @@ class _RequestConfig {
     ResponseType? responseType,
     this.requestEncoder,
     this.responseDecoder,
-  })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
-        _receiveTimeout = receiveTimeout,
-        assert(sendTimeout == null || !sendTimeout.isNegative),
-        _sendTimeout = sendTimeout {
+  }) {
     this.headers = headers;
 
     var contentTypeInHeader =
@@ -668,39 +611,6 @@ class _RequestConfig {
       _headers[Headers.contentTypeHeader] = _defaultContentType;
     }
   }
-
-  /// Timeout in milliseconds for sending data.
-  /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
-  ///  when time out.
-  ///
-  /// `null` meanings no timeout limit.
-  Duration? get sendTimeout => _sendTimeout;
-
-  set sendTimeout(Duration? value) {
-    if (value != null && value.isNegative) {
-      throw StateError("sendTimeout should be positive");
-    }
-    _sendTimeout = value;
-  }
-
-  Duration? _sendTimeout;
-
-  ///  Timeout in milliseconds for receiving data.
-  ///
-  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
-  ///  client has connected to the server, and the server starts to send data to the client.
-  ///
-  /// `null` meanings no timeout limit.
-  Duration? get receiveTimeout => _receiveTimeout;
-
-  set receiveTimeout(Duration? value) {
-    if (value != null && value.isNegative) {
-      throw StateError("reveiveTimeout should be positive");
-    }
-    _receiveTimeout = value;
-  }
-
-  Duration? _receiveTimeout;
 
   /// The request Content-Type. The default value is [ContentType.json].
   /// If you want to encode request body with 'application/x-www-form-urlencoded',

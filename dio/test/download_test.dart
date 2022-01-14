@@ -61,20 +61,6 @@ void main() {
     assert(r.data == null);
   });
 
-  test('#test download timeout', () async {
-    const savePath = 'test/_download_test.md';
-    var dio = Dio(BaseOptions(
-      receiveTimeout: Duration(milliseconds: 1),
-      baseUrl: serverUrl.toString(),
-    ));
-    expect(
-        dio
-            .download('/download', savePath)
-            .catchError((e) => throw (e as DioError).type),
-        throwsA(DioErrorType.receiveTimeout));
-    //print(r);
-  });
-
   test('#test download cancellation', () async {
     const savePath = 'test/_download_test.md';
     var cancelToken = CancelToken();

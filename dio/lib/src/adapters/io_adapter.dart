@@ -22,6 +22,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
   bool _closed = false;
 
+  void _throwConnectingTimeout(RequestOptions options) {
+    throw DioError(
+      requestOptions: options,
+      error: 'Connecting timed out [${options.connectionTimeout}]',
+      type: DioErrorType.connectTimeout,
+    );
+  }
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -30,22 +38,16 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   ) async {
     if (_closed) {
       throw Exception(
-          "Can't establish connection after [HttpClientAdapter] closed!");
-    }
-    var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
-    var reqFuture = _httpClient.openUrl(options.method, options.uri);
-
-    void _throwConnectingTimeout() {
-      throw DioError(
-        requestOptions: options,
-        error: 'Connecting timed out [${options.connectTimeout}ms]',
-        type: DioErrorType.connectTimeout,
+        "Can't establish connection after [HttpClientAdapter] closed!",
       );
     }
+    var _httpClient =
+        _configHttpClient(cancelFuture, options.connectionTimeout);
+    var reqFuture = _httpClient.openUrl(options.method, options.uri);
 
     late HttpClientRequest request;
     try {
-      final connectionTimeout = options.connectTimeout;
+      final connectionTimeout = options.connectionTimeout;
       if (connectionTimeout != null) {
         request = await reqFuture.timeout(connectionTimeout);
       } else {
@@ -58,11 +60,11 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       });
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
-        _throwConnectingTimeout();
+        _throwConnectingTimeout(options);
       }
       rethrow;
     } on TimeoutException {
-      _throwConnectingTimeout();
+      _throwConnectingTimeout(options);
     }
 
     request.followRedirects = options.followRedirects;
@@ -70,58 +72,15 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     if (requestStream != null) {
       // Transform the request data
-      var future = request.addStream(requestStream);
-      final sendTimeout = options.sendTimeout;
-      if (sendTimeout != null) {
-        future = future.timeout(sendTimeout);
-      }
-      try {
-        await future;
-      } on TimeoutException {
-        throw DioError(
-          requestOptions: options,
-          error: 'Sending timeout[${options.sendTimeout}ms]',
-          type: DioErrorType.sendTimeout,
-        );
-      }
+      await request.addStream(requestStream);
     }
 
-    final stopwatch = Stopwatch()..start();
-    var future = request.close();
-    final receiveTimeout = options.receiveTimeout;
-    if (receiveTimeout != null) {
-      future = future.timeout(receiveTimeout);
-    }
-    late HttpClientResponse responseStream;
-    try {
-      responseStream = await future;
-    } on TimeoutException {
-      throw DioError(
-        requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}]',
-        type: DioErrorType.receiveTimeout,
-      );
-    }
+    HttpClientResponse responseStream = await request.close();
 
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
-        stopwatch.stop();
-        final duration = stopwatch.elapsed;
-        final receiveTimeout = options.receiveTimeout;
-        if (receiveTimeout != null && duration > receiveTimeout) {
-          sink.addError(
-            DioError(
-              requestOptions: options,
-              error: 'Receiving data timeout[${options.receiveTimeout}]',
-              type: DioErrorType.receiveTimeout,
-            ),
-          );
-          //todo: to verify
-          responseStream.detachSocket().then((socket) => socket.close());
-        } else {
-          sink.add(Uint8List.fromList(data));
-        }
+        sink.add(Uint8List.fromList(data));
       },
     ));
 

@@ -45,13 +45,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
 
-    final connectTimeout = options.connectTimeout;
-    final receiveTimeout = options.receiveTimeout;
-    if (connectTimeout != null &&
-        receiveTimeout != null &&
-        receiveTimeout > Duration.zero) {
-      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
-    }
+    xhr.timeout = options.connectionTimeout?.inMilliseconds;
 
     var completer = Completer<ResponseBody>();
 
@@ -70,7 +64,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     bool haveSent = false;
 
-    final connectionTimeout = options.connectTimeout;
+    final connectionTimeout = options.connectionTimeout;
     if (connectionTimeout != null) {
       Future.delayed(connectionTimeout).then(
         (value) {
@@ -78,7 +72,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             completer.completeError(
               DioError(
                 requestOptions: options,
-                error: 'Connecting timed out [${options.connectTimeout}ms]',
+                error: 'Connecting timed out [${options.connectionTimeout}ms]',
                 type: DioErrorType.connectTimeout,
               ),
               StackTrace.current,
@@ -89,62 +83,19 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    final uploadStopwatch = Stopwatch();
     xhr.upload.onProgress.listen((event) {
-      haveSent = true;
-      final sendTimeout = options.sendTimeout;
-      if (sendTimeout != null) {
-        if (!uploadStopwatch.isRunning) {
-          uploadStopwatch.start();
-        }
-
-        var duration = uploadStopwatch.elapsed;
-        if (duration > sendTimeout) {
-          uploadStopwatch.stop();
-          completer.completeError(
-            DioError(
-              requestOptions: options,
-              error: 'Sending timed out [${options.sendTimeout}ms]',
-              type: DioErrorType.sendTimeout,
-            ),
-            StackTrace.current,
-          );
-          xhr.abort();
-        }
-      }
-      if (options.onSendProgress != null &&
-          event.loaded != null &&
-          event.total != null) {
-        options.onSendProgress!(event.loaded!, event.total!);
+      final loaded = event.loaded;
+      final total = event.total;
+      if (loaded != null && total != null) {
+        options.onSendProgress?.call(loaded, total);
       }
     });
 
-    final downloadStopwatch = Stopwatch();
     xhr.onProgress.listen((event) {
-      final reveiveTimeout = options.receiveTimeout;
-      if (reveiveTimeout != null) {
-        if (!uploadStopwatch.isRunning) {
-          uploadStopwatch.start();
-        }
-
-        final duration = downloadStopwatch.elapsed;
-        if (duration > reveiveTimeout) {
-          downloadStopwatch.stop();
-          completer.completeError(
-            DioError(
-              requestOptions: options,
-              error: 'Receiving timed out [${options.receiveTimeout}ms]',
-              type: DioErrorType.receiveTimeout,
-            ),
-            StackTrace.current,
-          );
-          xhr.abort();
-        }
-      }
-      if (options.onReceiveProgress != null) {
-        if (event.loaded != null && event.total != null) {
-          options.onReceiveProgress!(event.loaded!, event.total!);
-        }
+      final loaded = event.loaded;
+      final total = event.total;
+      if (loaded != null && total != null) {
+        options.onReceiveProgress?.call(loaded, total);
       }
     });
 

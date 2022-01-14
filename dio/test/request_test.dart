@@ -19,8 +19,7 @@ void main() {
       dio = Dio();
       dio.options
         ..baseUrl = serverUrl.toString()
-        ..connectTimeout = Duration(seconds: 1)
-        ..receiveTimeout = Duration(seconds: 5)
+        ..connectionTimeout = Duration(seconds: 1)
         ..headers = {'User-Agent': 'dartisan'};
       dio.interceptors.add(LogInterceptor(
         responseBody: true,

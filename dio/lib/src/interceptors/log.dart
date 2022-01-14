@@ -59,9 +59,7 @@ class LogInterceptor extends Interceptor {
       _printKV('method', options.method);
       _printKV('responseType', options.responseType.toString());
       _printKV('followRedirects', options.followRedirects);
-      _printKV('connectTimeout', options.connectTimeout);
-      _printKV('sendTimeout', options.sendTimeout);
-      _printKV('receiveTimeout', options.receiveTimeout);
+      _printKV('connectTimeout', options.connectionTimeout);
       _printKV(
           'receiveDataWhenStatusError', options.receiveDataWhenStatusError);
       _printKV('extra', options.extra);

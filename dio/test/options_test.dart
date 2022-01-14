@@ -12,9 +12,7 @@ void main() {
     var map = {'a': '5'};
     var mapOverride = {'b': '6'};
     var baseOptions = BaseOptions(
-      connectTimeout: Duration(seconds: 2),
-      receiveTimeout: Duration(seconds: 2),
-      sendTimeout: Duration(seconds: 2),
+      connectionTimeout: Duration(seconds: 2),
       baseUrl: 'http://localhost',
       queryParameters: map,
       extra: map,
@@ -32,8 +30,7 @@ void main() {
       contentType: 'text/html',
     );
     assert(opt1.method == 'post');
-    assert(opt1.receiveTimeout == Duration(seconds: 3));
-    assert(opt1.connectTimeout == Duration(seconds: 2));
+    assert(opt1.connectionTimeout == Duration(seconds: 2));
     assert(opt1.followRedirects == false);
     assert(opt1.baseUrl == 'https://flutterchina.club');
     assert(opt1.headers['b'] == '6');
@@ -43,8 +40,6 @@ void main() {
 
     var opt2 = Options(
       method: 'get',
-      receiveTimeout: Duration(seconds: 2),
-      sendTimeout: Duration(seconds: 2),
       extra: map,
       headers: map,
       contentType: 'application/json',
@@ -53,15 +48,12 @@ void main() {
 
     var opt3 = opt2.copyWith(
       method: 'post',
-      receiveTimeout: Duration(seconds: 3),
-      sendTimeout: Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
 
     assert(opt3.method == 'post');
-    assert(opt3.receiveTimeout == Duration(seconds: 3));
     assert(opt3.followRedirects == false);
     assert(opt3.headers!['b'] == '6');
     assert(opt3.extra!['b'] == '6');
@@ -69,13 +61,10 @@ void main() {
 
     var opt4 = RequestOptions(
       path: '/xxx',
-      sendTimeout: Duration(seconds: 2),
       followRedirects: false,
     );
     var opt5 = opt4.copyWith(
       method: 'post',
-      receiveTimeout: Duration(seconds: 3),
-      sendTimeout: Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       data: 'xx=5',
@@ -83,7 +72,6 @@ void main() {
       contentType: 'text/html',
     );
     assert(opt5.method == 'post');
-    assert(opt5.receiveTimeout == Duration(seconds: 3));
     assert(opt5.followRedirects == false);
     assert(opt5.contentType == 'text/html');
     assert(opt5.headers['b'] == '6');

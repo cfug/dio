@@ -216,22 +216,6 @@ class DioForNative with DioMixin implements Dio {
       await _closeAndDelete();
     });
 
-    final timeout = response.requestOptions.receiveTimeout;
-    if (timeout != null) {
-      future = future.timeout(timeout).catchError((Object err) async {
-        await subscription.cancel();
-        await _closeAndDelete();
-        if (err is TimeoutException) {
-          throw DioError(
-            requestOptions: response.requestOptions,
-            error: 'Receiving data timeout[$timeout]',
-            type: DioErrorType.receiveTimeout,
-          );
-        } else {
-          throw err;
-        }
-      });
-    }
     return DioMixin.listenCancelForAsyncTask(cancelToken, future);
   }
 
