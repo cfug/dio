@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
-const _sleepDurationAfterConnectionEstablished = 5000;
+const _sleepDurationAfterConnectionEstablished = Duration(seconds: 5);
 
 HttpServer? _server;
 
@@ -28,8 +28,7 @@ void startServer() async {
     const content = 'success';
     var response = request.response;
 
-    sleep(
-        const Duration(milliseconds: _sleepDurationAfterConnectionEstablished));
+    sleep(_sleepDurationAfterConnectionEstablished);
 
     response
       ..statusCode = 200
@@ -60,7 +59,8 @@ void main() {
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..receiveTimeout = _sleepDurationAfterConnectionEstablished - 1000;
+      ..receiveTimeout =
+          _sleepDurationAfterConnectionEstablished - Duration(seconds: 1);
 
     DioError error;
 
@@ -82,7 +82,8 @@ void main() {
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..connectTimeout = _sleepDurationAfterConnectionEstablished + 1000;
+      ..connectTimeout =
+          _sleepDurationAfterConnectionEstablished + Duration(seconds: 1);
 
     DioError? error;
 

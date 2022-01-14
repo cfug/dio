@@ -6,7 +6,7 @@ void main() async {
     ..options.baseUrl = 'https://pub.dev/packages/dio'
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
-      ConnectionManager(idleTimeout: 10000),
+      ConnectionManager(idleTimeout: Duration(seconds: 10)),
     );
 
   final response = await dio.get('/changelog');
