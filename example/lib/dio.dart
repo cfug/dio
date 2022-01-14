@@ -5,8 +5,6 @@ void main() async {
   var dio = Dio();
   dio.options
     ..baseUrl = 'http://httpbin.org/'
-    ..connectTimeout = Duration(seconds: 5)
-    ..receiveTimeout = Duration(seconds: 5)
     ..validateStatus = (int? status) {
       return status != null && status > 0;
     }

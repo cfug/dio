@@ -71,7 +71,7 @@ class _ConnectionManager implements ConnectionManager {
       socket = await SecureSocket.connect(
         uri.host,
         uri.port,
-        timeout: options.connectTimeout,
+        timeout: options.connectionTimeout,
         context: clientConfig.context,
         onBadCertificate: clientConfig.onBadCertificate,
         supportedProtocols: ['h2'],
@@ -81,7 +81,7 @@ class _ConnectionManager implements ConnectionManager {
         if (e.message.contains('timed out')) {
           throw DioError(
             requestOptions: options,
-            error: 'Connecting timed out [${options.connectTimeout}]',
+            error: 'Connecting timed out [${options.connectionTimeout}]',
             type: DioErrorType.connectTimeout,
           );
         }

@@ -40,9 +40,7 @@ class _RequestRouteState extends State<RequestRoute> {
                   .post(
                 "http://httpbin.org/post",
                 data: formData,
-                options: Options(
-                    sendTimeout: Duration(seconds: 2),
-                    receiveTimeout: Duration(seconds: 0)),
+                options: Options(),
                 onSendProgress: (a, b) => print('send ${a / b}'),
                 onReceiveProgress: (a, b) => print('received ${a / b}'),
               )
