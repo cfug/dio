@@ -86,10 +86,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    // `stopwatch` represents a timeout during data transfer! That is to say the
-    // client has connected to the server.
-    final stopwatch = Stopwatch();
-    stopwatch.start();
+    final stopwatch = Stopwatch()..start();
     var future = request.close();
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {

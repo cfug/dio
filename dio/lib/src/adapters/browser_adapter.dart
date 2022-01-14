@@ -98,8 +98,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           uploadStopwatch.start();
         }
 
-        var t = uploadStopwatch.elapsed;
-        if (t > sendTimeout) {
+        var duration = uploadStopwatch.elapsed;
+        if (duration > sendTimeout) {
           uploadStopwatch.stop();
           completer.completeError(
             DioError(
