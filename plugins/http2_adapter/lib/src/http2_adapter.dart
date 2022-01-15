@@ -11,7 +11,7 @@ part 'connection_manager.dart';
 part 'connection_manager_imp.dart';
 
 /// A Dio HttpAdapter which implements Http/2.0.
-class Http2Adapter extends HttpClientAdapter {
+class Http2Adapter implements HttpClientAdapter {
   final ConnectionManager _connectionMgr;
 
   Http2Adapter(ConnectionManager? connectionManager)

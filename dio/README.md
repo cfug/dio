@@ -650,12 +650,13 @@ HttpClientAdapter is a bridge between Dio and HttpClient.
 
 Dio implements standard and friendly API  for developer.
 
-HttpClient: It is the real object that makes Http requests.
+HttpClientAdapter: It is the real object that makes Http requests.
 
-We can use any HttpClient not just `dart:io:HttpClient` to make the Http request.  And  all we need is providing a `HttpClientAdapter`. The default HttpClientAdapter for Dio is `DefaultHttpClientAdapter`.
+If you want to customize the `HttpClientAdapter` you should instead use
+either `DefaultHttpClientAdapter` on `dart:io` platforms or `BrowserHttpClientAdapter` on `dart:html` platforms.
 
 ```dart
-dio.httpClientAdapter = new DefaultHttpClientAdapter();
+dio.httpClientAdapter = new HttpClientAdapter();
 ```
 
 [Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter. 
