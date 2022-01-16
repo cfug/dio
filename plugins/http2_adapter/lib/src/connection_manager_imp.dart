@@ -73,14 +73,20 @@ class _ConnectionManager implements ConnectionManager {
     late SecureSocket socket;
     try {
       // Create socket
-      socket = await SecureSocket.connect(
-        uri.host,
-        uri.port,
-        timeout: options.connectTimeout,
-        context: clientConfig.context,
-        onBadCertificate: clientConfig.onBadCertificate,
-        supportedProtocols: ['h2'],
-      );
+      if (clientConfig.proxy != null) {
+        socket = await _createSocketWithProxy(
+          uri,
+          options,
+          clientConfig,
+          clientConfig.proxy!,
+        );
+      } else {
+        socket = await _createSocket(
+          uri,
+          options,
+          clientConfig,
+        );
+      }
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
@@ -124,6 +130,75 @@ class _ConnectionManager implements ConnectionManager {
       },
     );
     return transportState;
+  }
+
+  Future<SecureSocket> _createSocket(
+    Uri target,
+    RequestOptions options,
+    ClientSetting clientConfig,
+  ) async {
+    final socket = await SecureSocket.connect(
+      target.host,
+      target.port,
+      timeout: options.connectTimeout,
+      context: clientConfig.context,
+      onBadCertificate: clientConfig.onBadCertificate,
+      supportedProtocols: ['h2'],
+    );
+
+    return socket;
+  }
+
+  Future<SecureSocket> _createSocketWithProxy(
+    Uri target,
+    RequestOptions options,
+    ClientSetting clientConfig,
+    Uri proxy,
+  ) async {
+    late Socket proxySocket;
+
+    proxySocket = await Socket.connect(
+      proxy.host,
+      proxy.port,
+      timeout: options.connectTimeout,
+    );
+
+    //Send proxy headers
+    const crlf = '\r\n';
+    proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
+    proxySocket.write(crlf);
+    proxySocket.write('Host: ${target.host}:${target.port}');
+    proxySocket.write(crlf);
+    proxySocket.write(crlf);
+
+    final completer = Completer<void>();
+
+    final sub = proxySocket.listen(
+      (event) {
+        final response = ascii.decode(event);
+        final lines = response.split(crlf);
+        final statusLine = lines.first;
+        if (statusLine.startsWith('HTTP/1.1 200')) {
+          completer.complete();
+        } else {
+          completer.completeError(statusLine);
+        }
+      },
+      onError: completer.completeError,
+    );
+    await completer.future;
+
+    final socket = await SecureSocket.secure(
+      proxySocket,
+      host: target.host,
+      context: clientConfig.context,
+      onBadCertificate: clientConfig.onBadCertificate,
+      supportedProtocols: ['h2'],
+    );
+
+    sub.cancel();
+
+    return socket;
   }
 
   @override

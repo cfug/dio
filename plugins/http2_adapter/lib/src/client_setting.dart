@@ -24,4 +24,5 @@ class ClientSetting {
   /// methods evaluate the root or intermediate certificate, while
   /// [validateCertificate] evaluates the leaf certificate.
   ValidateCertificate? validateCertificate;
+  Uri? proxy;
 }
