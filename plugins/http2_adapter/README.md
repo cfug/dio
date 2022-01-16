@@ -25,10 +25,12 @@ void main() async {
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
       ConnectionManager(
-        idleTimeout: 10000,
-        // Ignore bad certificate
-        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
-      ),
+          idleTimeout: 10000,
+          // Ignore bad certificate
+          onClientCreate: (_, config) =>
+              config..onBadCertificate = ((_) => true)
+          //..proxy = Uri.parse('http://192.168.0.1:8888'),
+          ),
     );
   final response = await dio.get('/?xx=something');
   print(response.data?.length);

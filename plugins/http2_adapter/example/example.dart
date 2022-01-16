@@ -13,7 +13,7 @@ void main() async {
 
   Response<String> response;
 
-  response = await dio.get('/?xx=6');
+  response = await dio.get('/');
   print(response.data?.length);
   print(response.redirects.length);
   print(response.data);
