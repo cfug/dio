@@ -54,7 +54,8 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
       - run: pub get
-      - run: dart test --chain-stack-traces
+      - run: dart test --chain-stack-traces --platform=vm
+      - run: dart test --chain-stack-traces --platform=chrome
       - name: Upload test report
         uses: actions/upload-artifact@v2
         if: always() && matrix.sdk == 'stable'

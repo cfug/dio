@@ -148,12 +148,19 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    cancelFuture?.then((_) {
+    cancelFuture?.then((err) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
         try {
           xhr.abort();
         } catch (e) {
           // ignore
+        }
+
+        // xhr.onError will not triggered when xhr.abort() called.
+        // so need to manual throw the cancel error to avoid Future hang ups.
+        // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
+        if (!completer.isCompleted) {
+          completer.completeError(err);
         }
       }
     });
