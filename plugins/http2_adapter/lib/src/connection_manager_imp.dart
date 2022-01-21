@@ -78,7 +78,6 @@ class _ConnectionManager implements ConnectionManager {
           uri,
           options,
           clientConfig,
-          clientConfig.proxy!,
         );
       } else {
         socket = await _createSocket(
@@ -153,21 +152,27 @@ class _ConnectionManager implements ConnectionManager {
     Uri target,
     RequestOptions options,
     ClientSetting clientConfig,
-    Uri proxy,
   ) async {
     late Socket proxySocket;
 
     proxySocket = await Socket.connect(
-      proxy.host,
-      proxy.port,
+      clientConfig.proxy!.host,
+      clientConfig.proxy!.port,
       timeout: options.connectTimeout,
     );
+
+    String credentials =
+        base64Encode(utf8.encode(clientConfig.proxy!.userInfo));
 
     //Send proxy headers
     const crlf = '\r\n';
     proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
     proxySocket.write(crlf);
     proxySocket.write('Host: ${target.host}:${target.port}');
+    if (credentials.isNotEmpty) {
+      proxySocket.write(crlf);
+      proxySocket.write('Proxy-Authorization: Basic $credentials');
+    }
     proxySocket.write(crlf);
     proxySocket.write(crlf);
 
@@ -186,6 +191,7 @@ class _ConnectionManager implements ConnectionManager {
         final response = ascii.decode(event);
         final lines = response.split(crlf);
         final statusLine = lines.first;
+        print(response);
         if (statusLine.startsWith('HTTP/1.1 200')) {
           completer.complete();
         } else {

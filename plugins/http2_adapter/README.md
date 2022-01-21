@@ -29,7 +29,7 @@ void main() async {
           // Ignore bad certificate
           onClientCreate: (_, config) =>
               config..onBadCertificate = ((_) => true)
-          //..proxy = Uri.parse('http://192.168.0.1:8888'),
+          //..proxy = Uri.parse('http://login:password@192.168.0.1:8888'),
           ),
     );
   final response = await dio.get('/?xx=something');
