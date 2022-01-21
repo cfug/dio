@@ -173,6 +173,14 @@ class _ConnectionManager implements ConnectionManager {
 
     final completer = Completer<void>();
 
+    completer.future.onError((error, stackTrace) => {
+          throw DioError(
+            requestOptions: options,
+            error: 'Proxy connection error: $error',
+            type: DioErrorType.other,
+          )
+        });
+
     final sub = proxySocket.listen(
       (event) {
         final response = ascii.decode(event);
@@ -186,6 +194,7 @@ class _ConnectionManager implements ConnectionManager {
       },
       onError: completer.completeError,
     );
+
     await completer.future;
 
     final socket = await SecureSocket.secure(
