@@ -11,14 +11,13 @@ import 'dio_error.dart';
 import 'form_data.dart';
 import 'headers.dart';
 import 'options.dart';
-import 'response.dart';
-import 'transformer.dart';
-
 import 'progress_stream_stub.dart'
 // ignore: uri_does_not_exist
     if (dart.library.html) 'progress_stream/browser_progress_stream.dart'
 // ignore: uri_does_not_exist
     if (dart.library.io) 'progress_stream/io_progress_stream.dart';
+import 'response.dart';
+import 'transformer.dart';
 
 part 'interceptor.dart';
 
@@ -53,7 +52,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> get<T>(
     String path, {
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
@@ -88,7 +87,7 @@ abstract class DioMixin implements Dio {
   Future<Response<T>> post<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -130,7 +129,7 @@ abstract class DioMixin implements Dio {
   Future<Response<T>> put<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -172,7 +171,7 @@ abstract class DioMixin implements Dio {
   Future<Response<T>> head<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   }) {
@@ -206,7 +205,7 @@ abstract class DioMixin implements Dio {
   Future<Response<T>> delete<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   }) {
@@ -240,7 +239,7 @@ abstract class DioMixin implements Dio {
   Future<Response<T>> patch<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -343,7 +342,7 @@ abstract class DioMixin implements Dio {
     String urlPath,
     savePath, {
     ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
@@ -444,7 +443,7 @@ abstract class DioMixin implements Dio {
   Future<Response<T>> request<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,
@@ -580,12 +579,12 @@ abstract class DioMixin implements Dio {
     var future = Future<dynamic>(() => InterceptorState(requestOptions));
 
     // Add request interceptors to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleRequest
           : interceptor.onRequest;
       future = future.then(_requestInterceptorWrapper(fun));
-    });
+    }
 
     // Add dispatching callback to request flow
     future = future.then(_requestInterceptorWrapper((
@@ -601,20 +600,20 @@ abstract class DioMixin implements Dio {
     }));
 
     // Add response interceptors to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleResponse
           : interceptor.onResponse;
       future = future.then(_responseInterceptorWrapper(fun));
-    });
+    }
 
     // Add error handlers to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleError
           : interceptor.onError;
       future = future.catchError(_errorInterceptorWrapper(fun));
-    });
+    }
 
     // Normalize errors, we convert error to the DioError
     return future.then<Response<T>>((data) {

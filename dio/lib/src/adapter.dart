@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/src/adapters/universal_adapter.dart';
 import 'options.dart';
 import 'redirect_record.dart';
 
@@ -13,12 +14,18 @@ import 'redirect_record.dart';
 /// We can use any HttpClient not just "dart:io:HttpClient" to
 /// make the Http request. All we need is providing a [HttpClientAdapter].
 ///
-/// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
+/// The default HttpClientAdapter for Dio is [HttpClientAdapter].
+///
+/// If you want to customize the `HttpClientAdapter` you should instead use
+/// either `DefaultHttpClientAdapter` on `dart:io` platforms
+/// or `BrowserHttpClientAdapter` on `dart:html` platforms.
 ///
 /// ```dart
-/// dio.httpClientAdapter = DefaultHttpClientAdapter();
+/// dio.httpClientAdapter = HttpClientAdapter();
 /// ```
 abstract class HttpClientAdapter {
+  factory HttpClientAdapter() => createAdapter();
+
   /// We should implement this method to make real http requests.
   ///
   /// [options]: The request options
@@ -41,7 +48,7 @@ abstract class HttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   );
 
   void close({bool force = false});
@@ -76,7 +83,7 @@ class ResponseBody {
 
   List<RedirectRecord>? redirects;
 
-  Map<String, dynamic> extra = {};
+  Map<String, Object?> extra = {};
 
   ResponseBody.fromString(
     String text,

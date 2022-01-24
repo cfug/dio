@@ -208,14 +208,14 @@ var dio = Dio(); // with default Options
 
 // Set default configs
 dio.options.baseUrl = 'https://www.xx.com/api';
-dio.options.connectTimeout = 5000; //5s
-dio.options.receiveTimeout = 3000;
+dio.options.connectTimeout = Duration(seconds: 5);
+dio.options.receiveTimeout = Duration(seconds: 3);
 
 // or new Dio with a BaseOptions instance.
 var options = BaseOptions(
   baseUrl: 'https://www.xx.com/api',
-  connectTimeout: 5000,
-  receiveTimeout: 3000,
+  connectTimeout: Duration(seconds: 5),
+  receiveTimeout: Duration(seconds: 3),
 );
 Dio dio = Dio(options);
 ```
@@ -270,15 +270,15 @@ The Options class describes the http request information and configuration. Each
   String baseUrl;
 
   /// Http request headers.
-  Map<String, dynamic> headers;
+  Map<String, Object?> headers;
 
-   /// Timeout in milliseconds for opening  url.
-  int connectTimeout;
+   /// Timeout for opening  url.
+  Duration? connectTimeout;
 
-   ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
+   ///  Whenever more than [receiveTimeout] passes between two events from response stream,
   ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
   ///  Note: This is not the receiving time limitation.
-  int receiveTimeout;
+  Duration? receiveTimeout;
 
   /// Request data, can be any type.
   T data;
@@ -311,10 +311,10 @@ The Options class describes the http request information and configuration. Each
   ValidateStatus validateStatus;
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the   [Response] object.
-  Map<String, dynamic> extra;
+  Map<String, Object?> extra;
   
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
+  Map<String, Object? /*String|Iterable<String>*/ > queryParameters;  
   
    /// [collectionFormat] indicates the format of collection data in request
   /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
@@ -650,12 +650,13 @@ HttpClientAdapter is a bridge between Dio and HttpClient.
 
 Dio implements standard and friendly API  for developer.
 
-HttpClient: It is the real object that makes Http requests.
+HttpClientAdapter: It is the real object that makes Http requests.
 
-We can use any HttpClient not just `dart:io:HttpClient` to make the Http request.  And  all we need is providing a `HttpClientAdapter`. The default HttpClientAdapter for Dio is `DefaultHttpClientAdapter`.
+If you want to customize the `HttpClientAdapter` you should instead use
+either `DefaultHttpClientAdapter` on `dart:io` platforms or `BrowserHttpClientAdapter` on `dart:html` platforms.
 
 ```dart
-dio.httpClientAdapter = new DefaultHttpClientAdapter();
+dio.httpClientAdapter = new HttpClientAdapter();
 ```
 
 [Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter. 

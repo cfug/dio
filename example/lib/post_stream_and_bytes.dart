@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 
 void main() async {
   var dio = Dio(BaseOptions(
-    connectTimeout: 5000,
+    connectTimeout: Duration(seconds: 5),
     baseUrl: 'http://httpbin.org/',
   ));
 

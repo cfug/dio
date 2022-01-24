@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
-import 'dio_error.dart';
 import 'headers.dart';
 import 'options.dart';
 import 'utils.dart';
@@ -32,10 +31,10 @@ abstract class Transformer {
   /// when the Options.responseType is [ResponseType.stream].
   Future transformResponse(RequestOptions options, ResponseBody response);
 
-  /// Deep encode the [Map<String, dynamic>] to percent-encoding.
+  /// Deep encode the [Map<String, Object?>] to percent-encoding.
   /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
-    Map map, [
+    Map<String, Object?> map, [
     ListFormat listFormat = ListFormat.multi,
   ]) {
     return encodeMap(
@@ -66,7 +65,7 @@ class DefaultTransformer extends Transformer {
     if (data is! String) {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
-      } else if (data is Map) {
+      } else if (data is Map<String, Object?>) {
         options.contentType =
             options.contentType ?? Headers.formUrlEncodedContentType;
         return Transformer.urlEncodeMap(data);

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:dio/src/parameter.dart';
 import 'package:test/test.dart';
 
 void main() {

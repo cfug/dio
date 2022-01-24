@@ -42,7 +42,7 @@ Future download2(Dio dio, String url, String savePath) async {
       options: Options(
         responseType: ResponseType.bytes,
         followRedirects: false,
-        receiveTimeout: 0,
+        receiveTimeout: Duration.zero,
       ),
     );
     print(response.headers);

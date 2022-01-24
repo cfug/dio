@@ -23,7 +23,7 @@ jobs:
         with:
           sdk: stable
       - run: pub get
-      - run: dart analyze
+      - run: dart analyze --fatal-infos
 
   format:
     name: Check formatting

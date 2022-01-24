@@ -11,7 +11,7 @@ part 'connection_manager.dart';
 part 'connection_manager_imp.dart';
 
 /// A Dio HttpAdapter which implements Http/2.0.
-class Http2Adapter extends HttpClientAdapter {
+class Http2Adapter implements HttpClientAdapter {
   final ConnectionManager _connectionMgr;
 
   Http2Adapter(ConnectionManager? connectionManager)
@@ -80,14 +80,14 @@ class Http2Adapter extends HttpClientAdapter {
     if (hasRequestData) {
       await requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
-      }).asFuture();
+      }).asFuture<void>();
     }
 
     await stream.outgoingMessages.close();
 
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
-    var completer = Completer();
+    final completer = Completer<void>();
     late int statusCode;
     var needRedirect = false;
     late StreamSubscription subscription;
@@ -124,15 +124,17 @@ class Http2Adapter extends HttpClientAdapter {
         }
       },
       onDone: () => sc.close(),
-      onError: (e) {
+      onError: (Object e, StackTrace stackTrace) {
+        final stack =
+            stackTrace == StackTrace.empty ? StackTrace.current : stackTrace;
         // If connection is being forcefully terminated, remove the connection
         if (e is TransportConnectionException) {
           _connectionMgr.removeConnection(transport);
         }
         if (!completer.isCompleted) {
-          completer.completeError(e, StackTrace.current);
+          completer.completeError(e, stack);
         } else {
-          sc.addError(e);
+          sc.addError(e, stack);
         }
       },
       cancelOnError: true,

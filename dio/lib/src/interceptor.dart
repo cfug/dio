@@ -315,11 +315,11 @@ mixin _InterceptorWrapperMixin on Interceptor {
 ///  - [QueuedInterceptor] Serialize the request/response/error before they enter the interceptor.
 ///  - [QueuedInterceptorsWrapper]  A helper class to create QueuedInterceptor(s).
 class InterceptorsWrapper extends Interceptor with _InterceptorWrapperMixin {
-  InterceptorSendCallback? __onRequest;
+  final InterceptorSendCallback? __onRequest;
 
-  InterceptorSuccessCallback? __onResponse;
+  final InterceptorSuccessCallback? __onResponse;
 
-  InterceptorErrorCallback? __onError;
+  final InterceptorErrorCallback? __onError;
 
   InterceptorsWrapper({
     InterceptorSendCallback? onRequest,
@@ -397,9 +397,9 @@ class _TaskQueue {
 /// after that request is processed by the interceptor, the next request will enter
 /// the interceptor.
 class QueuedInterceptor extends Interceptor {
-  _TaskQueue _requestQueue = _TaskQueue();
-  _TaskQueue _responseQueue = _TaskQueue();
-  _TaskQueue _errorQueue = _TaskQueue();
+  final _TaskQueue _requestQueue = _TaskQueue();
+  final _TaskQueue _responseQueue = _TaskQueue();
+  final _TaskQueue _errorQueue = _TaskQueue();
 
   void _handleRequest(
       RequestOptions options, RequestInterceptorHandler handler) {
@@ -456,11 +456,11 @@ void Function() _processNextTaskInQueueCallback(_TaskQueue taskQueue, cb) {
 ///  - [QueuedInterceptors]
 class QueuedInterceptorsWrapper extends QueuedInterceptor
     with _InterceptorWrapperMixin {
-  InterceptorSendCallback? __onRequest;
+  final InterceptorSendCallback? __onRequest;
 
-  InterceptorSuccessCallback? __onResponse;
+  final InterceptorSuccessCallback? __onResponse;
 
-  InterceptorErrorCallback? __onError;
+  final InterceptorErrorCallback? __onError;
 
   QueuedInterceptorsWrapper({
     InterceptorSendCallback? onRequest,

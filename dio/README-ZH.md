@@ -229,14 +229,14 @@ var dio = Dio(); // with default Options
 
 // Set default configs
 dio.options.baseUrl = 'https://www.xx.com/api';
-dio.options.connectTimeout = 5000; //5s
-dio.options.receiveTimeout = 3000;
+dio.options.connectTimeout = Duration(seconds: 5);
+dio.options.receiveTimeout = Duration(seconds: 3);
 
 // or new Dio with a BaseOptions instance.
 var options = BaseOptions(
   baseUrl: 'https://www.xx.com/api',
-  connectTimeout: 5000,
-  receiveTimeout: 3000,
+  connectTimeout: Duration(seconds: 5),
+  receiveTimeout: Duration(seconds: 3),
 );
 Dio dio = Dio(options);
 ```
@@ -294,12 +294,12 @@ Future<Response> fetch(RequestOptions)
   String baseUrl;
 
   /// Http请求头.
-  Map<String, dynamic> headers;
+  Map<String, Object?> headers;
 
   /// 连接服务器超时时间，单位是毫秒.
-  int connectTimeout;
+  Duration? connectTimeout;
   /// 2.x中为接收数据的最长时限.
-  int receiveTimeout;
+  Duration? receiveTimeout;
 
   /// 请求路径，如果 `path` 以 "http(s)"开始, 则 `baseURL` 会被忽略； 否则,
   /// 将会和baseUrl拼接出完整的的url.
@@ -325,10 +325,10 @@ Future<Response> fetch(RequestOptions)
   ValidateStatus validateStatus;
 
   /// 用户自定义字段，可以在 [Interceptor]、[Transformer] 和 [Response] 中取到.
-  Map<String, dynamic> extra;
+  Map<String, Object?> extra;
 
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+  Map<String, Object? /*String|Iterable<String>*/ > queryParameters;
   
   /// 请求数据中数组的编码的方式，具体可以参考CollectionFormat的定义
   late CollectionFormat collectionFormat;

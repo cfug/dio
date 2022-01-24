@@ -1,16 +1,17 @@
 import 'dart:async';
+
 import 'adapter.dart';
-import 'dio_mixin.dart';
-import 'options.dart';
-import 'headers.dart';
 import 'cancel_token.dart';
-import 'transformer.dart';
-import 'response.dart';
+import 'dio_mixin.dart';
 import 'entry_stub.dart'
 // ignore: uri_does_not_exist
     if (dart.library.html) 'entry/dio_for_browser.dart'
 // ignore: uri_does_not_exist
     if (dart.library.io) 'entry/dio_for_native.dart';
+import 'headers.dart';
+import 'options.dart';
+import 'response.dart';
+import 'transformer.dart';
 
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
@@ -64,7 +65,7 @@ abstract class Dio {
   /// Handy method to make http GET request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> get<T>(
     String path, {
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
@@ -82,7 +83,7 @@ abstract class Dio {
   Future<Response<T>> post<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -103,7 +104,7 @@ abstract class Dio {
   Future<Response<T>> put<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -124,7 +125,7 @@ abstract class Dio {
   Future<Response<T>> head<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   });
@@ -141,7 +142,7 @@ abstract class Dio {
   Future<Response<T>> delete<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   });
@@ -158,7 +159,7 @@ abstract class Dio {
   Future<Response<T>> patch<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -237,7 +238,7 @@ abstract class Dio {
     String urlPath,
     savePath, {
     ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
@@ -303,7 +304,7 @@ abstract class Dio {
   Future<Response<T>> request<T>(
     String path, {
     data,
-    Map<String, dynamic>? queryParameters,
+    Map<String, Object?>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,

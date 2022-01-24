@@ -24,7 +24,7 @@ jobs:
           cache: true
           channel: stable
       - run: flutter pub get
-      - run: flutter analyze
+      - run: flutter analyze --fatal-infos
 
   format:
     name: Check formatting

@@ -10,10 +10,10 @@ void main() {
     dio.interceptors
       ..add(CookieManager(cookieJar))
       ..add(LogInterceptor());
-    await dio.get('https://google.com/');
+    await dio.get<String>('https://pub.dev/packages/dio');
     // Print cookies
-    print(cookieJar.loadForRequest(Uri.parse('https://google.com/')));
+    print(cookieJar.loadForRequest(Uri.parse('https://pub.dev/packages/dio')));
     // second request with the cookie
-    await dio.get('https://google.com/');
+    await dio.get<String>('https://pub.dev/packages/dio');
   });
 }

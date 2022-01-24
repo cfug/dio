@@ -23,8 +23,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   bool withCredentials = false;
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     var xhr = HttpRequest();
     _xhrs.add(xhr);
     xhr
@@ -42,8 +45,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
 
-    if (options.connectTimeout > 0 && options.receiveTimeout > 0) {
-      xhr.timeout = options.connectTimeout + options.receiveTimeout;
+    final connectTimeout = options.connectTimeout;
+    final receiveTimeout = options.receiveTimeout;
+    if (connectTimeout != null &&
+        receiveTimeout != null &&
+        receiveTimeout > Duration.zero) {
+      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
     }
 
     var completer = Completer<ResponseBody>();
@@ -63,8 +70,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     bool haveSent = false;
 
-    if (options.connectTimeout > 0) {
-      Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
+    final connectionTimeout = options.connectTimeout;
+    if (connectionTimeout != null) {
+      Future.delayed(connectionTimeout).then(
         (value) {
           if (!haveSent) {
             completer.completeError(
@@ -81,16 +89,18 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    int sendStart = 0;
+    final uploadStopwatch = Stopwatch();
     xhr.upload.onProgress.listen((event) {
       haveSent = true;
-      if (options.sendTimeout > 0) {
-        if (sendStart == 0) {
-          sendStart = DateTime.now().millisecondsSinceEpoch;
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        if (!uploadStopwatch.isRunning) {
+          uploadStopwatch.start();
         }
-        var t = DateTime.now().millisecondsSinceEpoch;
-        print(t - sendStart);
-        if (t - sendStart > options.sendTimeout) {
+
+        var duration = uploadStopwatch.elapsed;
+        if (duration > sendTimeout) {
+          uploadStopwatch.stop();
           completer.completeError(
             DioError(
               requestOptions: options,
@@ -109,14 +119,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    int receiveStart = 0;
+    final downloadStopwatch = Stopwatch();
     xhr.onProgress.listen((event) {
-      if (options.receiveTimeout > 0) {
-        if (receiveStart == 0) {
-          receiveStart = DateTime.now().millisecondsSinceEpoch;
+      final reveiveTimeout = options.receiveTimeout;
+      if (reveiveTimeout != null) {
+        if (!uploadStopwatch.isRunning) {
+          uploadStopwatch.start();
         }
-        if (DateTime.now().millisecondsSinceEpoch - receiveStart >
-            options.receiveTimeout) {
+
+        final duration = downloadStopwatch.elapsed;
+        if (duration > reveiveTimeout) {
+          downloadStopwatch.stop();
           completer.completeError(
             DioError(
               requestOptions: options,

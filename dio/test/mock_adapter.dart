@@ -2,17 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
 
-class MockAdapter extends HttpClientAdapter {
+import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
+
+class MockAdapter implements HttpClientAdapter {
   static const mockHost = 'mockserver';
   static const mockBase = 'http://$mockHost';
   final _adapter = DefaultHttpClientAdapter();
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     final uri = options.uri;
     if (uri.host == mockHost) {
       switch (uri.path) {

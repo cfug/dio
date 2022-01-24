@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
-const SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED = 5000;
+const _sleepDurationAfterConnectionEstablished = Duration(seconds: 5);
 
 HttpServer? _server;
 
@@ -27,8 +28,7 @@ void startServer() async {
     const content = 'success';
     var response = request.response;
 
-    sleep(const Duration(
-        milliseconds: SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED));
+    sleep(_sleepDurationAfterConnectionEstablished);
 
     response
       ..statusCode = 200
@@ -53,13 +53,14 @@ void main() {
   tearDown(stopServer);
 
   test(
-      '#read_timeout - catch DioError when receiveTimeout < $SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED',
+      '#read_timeout - catch DioError when receiveTimeout < $_sleepDurationAfterConnectionEstablished',
       () async {
     var dio = Dio();
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..receiveTimeout = SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED - 1000;
+      ..receiveTimeout =
+          _sleepDurationAfterConnectionEstablished - Duration(seconds: 1);
 
     DioError error;
 
@@ -75,13 +76,14 @@ void main() {
   });
 
   test(
-      '#read_timeout - no DioError when receiveTimeout > $SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED',
+      '#read_timeout - no DioError when receiveTimeout > $_sleepDurationAfterConnectionEstablished',
       () async {
     var dio = Dio();
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..connectTimeout = SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED + 1000;
+      ..connectTimeout =
+          _sleepDurationAfterConnectionEstablished + Duration(seconds: 1);
 
     DioError? error;
 

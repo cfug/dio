@@ -3,6 +3,9 @@
 - `ResponseBody.statusCode` is now non-nullable
 - Only delete file if it exists when downloading.
 
+# Unreleased 5.0
+- add option to instantiate a `HttpClientAdapter`, which is platform independent
+
 # 4.0.5-beta1
 - [Web] support send/receive progress in web platform
 - refactor timeout logic

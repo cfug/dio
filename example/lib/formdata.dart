@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:dio/dio.dart';
+
 import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
 
 void showProgress(received, total) {
   if (total != -1) {
@@ -9,7 +10,7 @@ void showProgress(received, total) {
   }
 }
 
-Future<FormData> FormData1() async {
+Future<FormData> createFormData1() async {
   return FormData.fromMap({
     'name': 'wendux',
     'age': 25,
@@ -30,7 +31,7 @@ Future<FormData> FormData1() async {
   });
 }
 
-Future<FormData> FormData2() async {
+Future<FormData> createFormData2() async {
   var formData = FormData();
 
   formData.fields
@@ -70,7 +71,7 @@ Future<FormData> FormData2() async {
   return formData;
 }
 
-Future<FormData> FormData3() async {
+Future<FormData> createFormData3() async {
   return FormData.fromMap({
     'file': await MultipartFile.fromFile(
       './example/upload.txt',
@@ -97,19 +98,19 @@ void main() async {
   };
   Response response;
 
-  var formData1 = await FormData1();
-  var formData2 = await FormData2();
+  var formData1 = await createFormData1();
+  var formData2 = await createFormData2();
   var bytes1 = await formData1.readAsBytes();
   var bytes2 = await formData2.readAsBytes();
   assert(bytes1.length == bytes2.length);
 
-  var t = await FormData3();
+  var t = await createFormData3();
   print(utf8.decode(await t.readAsBytes()));
 
   response = await dio.post(
     //"/upload",
     'http://localhost:3000/upload',
-    data: await FormData3(),
+    data: await createFormData3(),
     onSendProgress: (received, total) {
       if (total != -1) {
         print((received / total * 100).toStringAsFixed(0) + '%');
