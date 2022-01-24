@@ -1,6 +1,9 @@
 # Unreleased
 - require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)  
 - `ResponseBody.statusCode` is now non-nullable
+- Only delete file if it exists when downloading.
+
+# Unreleased 5.0
 - add option to instantiate a `HttpClientAdapter`, which is platform independent
 
 # 4.0.5-beta1
