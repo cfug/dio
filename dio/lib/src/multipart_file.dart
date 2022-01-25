@@ -21,6 +21,9 @@ class MultipartFile {
   /// The basename of the file. May be null.
   final String? filename;
 
+  /// The additional headers the file has. May be null.
+  final Map<String, List<String>>? headers;
+
   /// The content-type of the file. Defaults to `application/octet-stream`.
   final MediaType? contentType;
 
@@ -42,7 +45,9 @@ class MultipartFile {
     this.length, {
     this.filename,
     MediaType? contentType,
+    Map<String, List<String>>? headers,
   })  : _stream = stream,
+        headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
   /// Creates a new [MultipartFile] from a byte array.
@@ -53,6 +58,7 @@ class MultipartFile {
     List<int> value, {
     String? filename,
     MediaType? contentType,
+    final Map<String, List<String>>? headers,
   }) {
     var stream = Stream.fromIterable([value]);
     return MultipartFile(
@@ -60,6 +66,7 @@ class MultipartFile {
       value.length,
       filename: filename,
       contentType: contentType,
+      headers: headers,
     );
   }
 
@@ -73,6 +80,7 @@ class MultipartFile {
     String value, {
     String? filename,
     MediaType? contentType,
+    final Map<String, List<String>>? headers,
   }) {
     contentType ??= MediaType('text', 'plain');
     var encoding = encodingForCharset(contentType.parameters['charset'], utf8);
@@ -82,6 +90,7 @@ class MultipartFile {
       encoding.encode(value),
       filename: filename,
       contentType: contentType,
+      headers: headers,
     );
   }
 
@@ -97,22 +106,26 @@ class MultipartFile {
     String filePath, {
     String? filename,
     MediaType? contentType,
+    final Map<String, List<String>>? headers,
   }) =>
       multipartFileFromPath(
         filePath,
         filename: filename,
         contentType: contentType,
+        headers: headers,
       );
 
   static MultipartFile fromFileSync(
     String filePath, {
     String? filename,
     MediaType? contentType,
+    final Map<String, List<String>>? headers,
   }) =>
       multipartFileFromPathSync(
         filePath,
         filename: filename,
         contentType: contentType,
+        headers: headers,
       );
 
   Stream<List<int>> finalize() {

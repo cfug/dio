@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   test('#test headers', () {
     var headers = Headers.fromMap({
       'set-cookie': ['k=v', 'k1=v1'],
@@ -43,7 +42,9 @@ void main() {
 
   test('#send with an invalid URL', () {
     expect(
-      Dio().get('http://http.invalid').catchError((e) => throw e.error),
+      Dio()
+          .get('http://http.invalid')
+          .catchError((e) => throw e.error as Object),
       throwsA(const TypeMatcher<SocketException>()),
     );
   });
@@ -60,16 +61,15 @@ void main() {
     expect(
       dio
           .get(url, cancelToken: token)
-          .catchError((e) => throw CancelToken.isCancel(e)),
+          .catchError((e) => throw CancelToken.isCancel(e as DioError)),
       throwsA(isTrue),
     );
   });
 
   test('#status error', () async {
     var dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
-
     expect(
-      dio.get('401').catchError((e) => throw e.response.statusCode),
+      dio.get('401').catchError((e) => throw e.response.statusCode as Object),
       throwsA(401),
     );
 

@@ -283,17 +283,17 @@ class Options {
     ProgressCallback? onReceiveProgress,
   }) {
     var query = <String, dynamic>{};
-    if (queryParameters != null) query.addAll(queryParameters);
     query.addAll(baseOpt.queryParameters);
+    if (queryParameters != null) query.addAll(queryParameters);
 
     var _headers = caseInsensitiveKeyMap(baseOpt.headers);
     _headers.remove(Headers.contentTypeHeader);
 
-    var _contentType;
+    String? _contentType;
 
     if (headers != null) {
       _headers.addAll(headers!);
-      _contentType = _headers[Headers.contentTypeHeader];
+      _contentType = _headers[Headers.contentTypeHeader] as String?;
     }
 
     var _extra = Map<String, dynamic>.from(baseOpt.extra);
@@ -349,8 +349,9 @@ class Options {
   int? sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
-  ///  [Dio] will throw the [DioError] with [DioErrorType.receiveTimeout] type
-  ///  when time out.
+  ///
+  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
+  ///  client has connected to the server, and the server starts to send data to the client.
   ///
   /// [0] meanings no timeout limit.
   int? receiveTimeout;
@@ -372,7 +373,7 @@ class Options {
   ///
   /// If you want to receive the response data with String, use `plain`.
   ///
-  /// If you want to receive the response data with  original bytes,
+  /// If you want to receive the response data with original bytes,
   /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   ResponseType? responseType;
 
@@ -537,7 +538,9 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     if (!_url.startsWith(RegExp(r'https?:'))) {
       _url = baseUrl + _url;
       var s = _url.split(':/');
-      _url = s[0] + ':/' + s[1].replaceAll('//', '/');
+      if (s.length == 2) {
+        _url = s[0] + ':/' + s[1].replaceAll('//', '/');
+      }
     }
     var query = Transformer.urlEncodeMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
@@ -554,7 +557,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   ///
   /// The value can be overridden per value by adding a [MultiParam]
   /// object wrapping the actual List value and the desired format.
-  dynamic? data;
+  dynamic data;
 
   /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
   /// it will be combined and then resolved with the baseUrl.
@@ -590,8 +593,9 @@ class _RequestConfig {
     var contentTypeInHeader =
         this.headers.containsKey(Headers.contentTypeHeader);
     assert(
-      !(contentType != null && contentTypeInHeader),
-      'You cannot set both contentType param and a content-type header',
+      !(contentType != null && contentTypeInHeader) ||
+          this.headers[Headers.contentTypeHeader] == contentType,
+      'You cannot set different values for contentType param and a content-type header',
     );
 
     this.method = method ?? 'GET';
@@ -638,8 +642,9 @@ class _RequestConfig {
   late int sendTimeout;
 
   ///  Timeout in milliseconds for receiving data.
-  ///  [Dio] will throw the [DioError] with [DioErrorType.receiveTimeout] type
-  ///  when time out.
+  ///
+  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
+  ///  client has connected to the server, and the server starts to send data to the client.
   ///
   /// [0] meanings no timeout limit.
   late int receiveTimeout;
@@ -660,7 +665,7 @@ class _RequestConfig {
 
   String? _defaultContentType;
 
-  String? get contentType => _headers[Headers.contentTypeHeader];
+  String? get contentType => _headers[Headers.contentTypeHeader] as String?;
 
   /// [responseType] indicates the type of data that the server will respond with
   /// options which defined in [ResponseType] are `json`, `stream`, `plain`.

@@ -8,6 +8,7 @@ Future<MultipartFile> multipartFileFromPath(
   String filePath, {
   String? filename,
   MediaType? contentType,
+  final Map<String, List<String>>? headers,
 }) async {
   filename ??= p.basename(filePath);
   var file = File(filePath);
@@ -18,6 +19,7 @@ Future<MultipartFile> multipartFileFromPath(
     length,
     filename: filename,
     contentType: contentType,
+    headers: headers,
   );
 }
 
@@ -25,6 +27,7 @@ MultipartFile multipartFileFromPathSync(
   String filePath, {
   String? filename,
   MediaType? contentType,
+  final Map<String, List<String>>? headers,
 }) {
   filename ??= p.basename(filePath);
   var file = File(filePath);
@@ -35,5 +38,6 @@ MultipartFile multipartFileFromPathSync(
     length,
     filename: filename,
     contentType: contentType,
+    headers: headers,
   );
 }

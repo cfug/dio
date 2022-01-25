@@ -3,9 +3,6 @@ import 'dart:typed_data';
 import 'options.dart';
 import 'redirect_record.dart';
 
-typedef CancelWrapper = Future Function(Future);
-typedef VoidCallback = dynamic Function();
-
 /// HttpAdapter is a bridge between Dio and HttpClient.
 ///
 /// Dio: Implements standard and friendly API for developer.

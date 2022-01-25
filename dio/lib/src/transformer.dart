@@ -67,7 +67,8 @@ class DefaultTransformer extends Transformer {
       if (_isJsonMime(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map) {
-        options.contentType = Headers.formUrlEncodedContentType;
+        options.contentType =
+            options.contentType ?? Headers.formUrlEncodedContentType;
         return Transformer.urlEncodeMap(data);
       }
     }
@@ -96,9 +97,7 @@ class DefaultTransformer extends Transformer {
         sink.add(data);
         if (showDownloadProgress) {
           received += data.length;
-          if (options.onReceiveProgress != null) {
-            options.onReceiveProgress!(received, length);
-          }
+          options.onReceiveProgress?.call(received, length);
         }
       },
     ));
@@ -110,12 +109,10 @@ class DefaultTransformer extends Transformer {
         finalSize += chunk.length;
         chunks.add(chunk);
       },
-      onError: (e, stackTrace) {
-        completer.completeError(e, stackTrace);
+      onError: (Object error, StackTrace stackTrace) {
+        completer.completeError(error, stackTrace);
       },
-      onDone: () {
-        completer.complete();
-      },
+      onDone: () => completer.complete(),
       cancelOnError: true,
     );
     // ignore: unawaited_futures

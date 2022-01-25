@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'adapter.dart';
+import 'dio_mixin.dart';
 import 'options.dart';
-import 'interceptor.dart';
 import 'headers.dart';
 import 'cancel_token.dart';
 import 'transformer.dart';

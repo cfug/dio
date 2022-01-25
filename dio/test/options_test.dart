@@ -111,9 +111,11 @@ void main() {
 
     var bo1 = BaseOptions(contentType: contentType);
     var bo2 = BaseOptions(headers: headers);
+    var bo3 = BaseOptions();
 
     assert(bo1.headers['content-type'] == contentType);
     assert(bo2.headers['content-type'] == contentType);
+    assert(bo3.headers['content-type'] == Headers.jsonContentType);
 
     try {
       bo1.copyWith(headers: headers);
@@ -128,6 +130,8 @@ void main() {
     } catch (e) {
       //
     }
+
+    bo3.copyWith();
 
     /// options
     try {
@@ -190,6 +194,9 @@ void main() {
     } catch (e) {
       //
     }
+
+    var ro3 = RequestOptions(path: '');
+    ro3.copyWith();
   });
 
   test('#test default content-type', () async {
@@ -233,9 +240,7 @@ void main() {
   test('#test default content-type2', () async {
     final dio = Dio();
     dio.options.setRequestContentTypeWhenNoPayload = true;
-    Options(method: 'GET')
-        .compose(dio.options, '/test')
-        .copyWith(baseUrl: 'https://www.example.com');
+    dio.options.baseUrl = 'https://www.example.com';
 
     var r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
       headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
@@ -261,9 +266,8 @@ void main() {
 
     dio.options.setRequestContentTypeWhenNoPayload = false;
 
-    var r3 = Options(method: 'GET')
-        .compose(dio.options, '/test')
-        .copyWith(baseUrl: 'https://www.example.com');
+    var r3 = Options(method: 'GET').compose(dio.options, '/test');
+    assert(r3.uri.toString() == 'https://www.example.com/test');
     assert(r3.headers[Headers.contentTypeHeader] == null);
   });
 }

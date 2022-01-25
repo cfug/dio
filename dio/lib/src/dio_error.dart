@@ -41,8 +41,8 @@ class DioError implements Exception {
   DioErrorType type;
 
   /// The original error/exception object; It's usually not null when `type`
-  /// is DioErrorType.DEFAULT
-  dynamic? error;
+  /// is DioErrorType.other
+  dynamic error;
 
   StackTrace? _stackTrace;
 
@@ -55,8 +55,11 @@ class DioError implements Exception {
   @override
   String toString() {
     var msg = 'DioError [$type]: $message';
+    if (error is Error) {
+      msg += '\n${(error as Error).stackTrace}';
+    }
     if (_stackTrace != null) {
-      msg += '\n${stackTrace}';
+      msg += '\nSource stack:\n$stackTrace';
     }
     return msg;
   }

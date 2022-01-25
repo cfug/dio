@@ -40,4 +40,20 @@ void main() {
     var img = base64Encode(f.readAsBytesSync());
     expect(r.data['data'], 'data:application/octet-stream;base64,' + img);
   });
+
+  test('file stream<Uint8List>', () async {
+    var f = File('../dio/test/test.jpg');
+    var r = await dio.put(
+      '/put',
+      data: f.readAsBytes().asStream(),
+      options: Options(
+        contentType: 'image/jpeg',
+        headers: {
+          Headers.contentLengthHeader: f.lengthSync(), // set content-length
+        },
+      ),
+    );
+    var img = base64Encode(f.readAsBytesSync());
+    expect(r.data['data'], 'data:application/octet-stream;base64,' + img);
+  });
 }

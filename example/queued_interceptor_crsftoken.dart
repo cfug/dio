@@ -9,13 +9,11 @@ void main() async {
   String? csrfToken;
   dio.options.baseUrl = 'http://www.dtworkroom.com/doris/1/2.0.0/';
   tokenDio.options = dio.options;
-  dio.interceptors.add(InterceptorsWrapper(
+  dio.interceptors.add(QueuedInterceptorsWrapper(
     onRequest: (options, handler) {
       print('send request：path:${options.path}，baseURL:${options.baseUrl}');
       if (csrfToken == null) {
         print('no token，request token firstly...');
-        dio.lock();
-        //print(dio.interceptors.requestLock.locked);
         tokenDio.get('/token').then((d) {
           options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
           print('request token succeed, value: ' + d.data['data']['token']);
@@ -24,7 +22,7 @@ void main() async {
           handler.next(options);
         }).catchError((error, stackTrace) {
           handler.reject(error, true);
-        }).whenComplete(() => dio.unlock()); // unlock the dio
+        });
       } else {
         options.headers['csrfToken'] = csrfToken;
         return handler.next(options);
@@ -47,18 +45,9 @@ void main() async {
           );
           return;
         }
-        // update token and repeat
-        // Lock to block the incoming request until the token updated
-        dio.lock();
-        dio.interceptors.responseLock.lock();
-        dio.interceptors.errorLock.lock();
         tokenDio.get('/token').then((d) {
           //update csrfToken
           options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
-        }).whenComplete(() {
-          dio.unlock();
-          dio.interceptors.responseLock.unlock();
-          dio.interceptors.errorLock.unlock();
         }).then((e) {
           //repeat
           dio.fetch(options).then(

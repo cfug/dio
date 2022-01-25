@@ -6,7 +6,7 @@ import '../options.dart';
 import '../dio_error.dart';
 import '../redirect_record.dart';
 
-typedef OnHttpClientCreate = dynamic Function(HttpClient client);
+typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 
 HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
 
@@ -43,16 +43,21 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     }
 
     late HttpClientRequest request;
+    int timePassed = 0;
     try {
       if (options.connectTimeout > 0) {
+        var start = DateTime.now().millisecond;
         request = await reqFuture
             .timeout(Duration(milliseconds: options.connectTimeout));
+        timePassed = DateTime.now().millisecond - start;
       } else {
         request = await reqFuture;
       }
 
       //Set Headers
-      options.headers.forEach((k, v) => request.headers.set(k, v));
+      options.headers.forEach((k, v) {
+        if (v != null) request.headers.set(k, '$v');
+      });
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
         _throwConnectingTimeout();
@@ -69,9 +74,13 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       // Transform the request data
       await request.addStream(requestStream);
     }
+    // [receiveTimeout] represents a timeout during data transfer! That is to say the
+    // client has connected to the server, and the server starts to send data to the client.
+    // So, we should use connectTimeout.
+    int responseTimeout = options.connectTimeout - timePassed;
     var future = request.close();
-    if (options.connectTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.connectTimeout));
+    if (responseTimeout > 0) {
+      future = future.timeout(Duration(milliseconds: responseTimeout));
     }
     late HttpClientResponse responseStream;
     try {

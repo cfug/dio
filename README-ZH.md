@@ -14,7 +14,7 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^4.0.0 
+  dio: ^4.0.3
 ```
 
 > 如果你是dio 3.x 用户，想了解4.0的变更，请参考 [4.x更新列表](./migration_to_4.x.md)!
@@ -329,7 +329,7 @@ response = await dio.request(
 Response response = await dio.get('https://www.google.com');
 print(response.data);
 print(response.headers);
-print(response.request);
+print(response.requestOptions);
 print(response.statusCode);
 ```
 
@@ -375,12 +375,12 @@ class CustomInterceptors extends Interceptor {
   }
   @override
   Future onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('RESPONSE[${response.statusCode}] => PATH: ${response.request?.path}');
+    print('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions?.path}');
     return super.onResponse(response, handler);
   }
   @override
   Future onError(DioError err, ErrorInterceptorHandler handler) {
-    print('ERROR[${err.response?.statusCode}] => PATH: ${err.request.path}');
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions?.path}');
     return super.onError(err, handler);
   }
 }
@@ -400,56 +400,20 @@ Response response = await dio.get('/test');
 print(response.data);//'fake data'
 ```
 
-### Lock/unlock 拦截器
+### QueuedInterceptor
 
-你可以通过调用拦截器的 `lock()`/`unlock` 方法来锁定/解锁拦截器。一旦请求/响应拦截器被锁定，接下来的请求/响应将会在进入请求/响应拦截器之前排队等待，直到解锁后，这些入队的请求才会继续执行(进入拦截器)。这在一些需要串行化请求/响应的场景中非常实用，后面我们将给出一个示例。
+如果同时发起多个网络请求，则它们是可以同时进入`Interceptor` 的（并行的），而 `QueuedInterceptor` 提供了一种串行机制：它可以保证请求进入拦截器时是串行的（前面的执行完后后面的才会进入拦截器）。
 
-```dart
-tokenDio = Dio(); //Create a new instance to request the token.
-tokenDio.options = dio.options.copyWith();
-dio.interceptors.add(InterceptorsWrapper(
-  onRequest:(Options options, handler){
-    // If no token, request token firstly and lock this interceptor
-    // to prevent other request enter this interceptor.
-    dio.interceptors.requestLock.lock();
-    // We use a new Dio(to avoid dead lock) instance to request token.
-    tokenDio.get('/token').then((response){
-       //Set the token to headers
-       options.headers['token'] = response.data['data']['token'];
-       handler.next(options); //continue
-    }).catchError((error, stackTrace) {
-       handler.reject(error, true);
-    }).whenComplete(() => dio.interceptors.requestLock.unlock());
-  }
-));
-```
+#### 例子
 
-**Clear()**
-
-你也可以调用拦截器的`clear()`方法来清空等待队列。
-
-### 别名
-
-当**请求**拦截器被锁定时，接下来的请求将会暂停，这等价于锁住了dio实例，因此，Dio示例上提供了**请求**拦截器`lock/unlock`的别名方法：
-
-**dio.lock() ==  dio.interceptors.requestLock.lock()**
-
-**dio.unlock() ==  dio.interceptors.requestLock.unlock()**
-
-**dio.clear() ==  dio.interceptors.requestLock.clear()**
-
-### 示例
-
-假设这么一个场景：出于安全原因，我们需要给所有的请求头中添加一个csrfToken，如果csrfToken不存在，我们先去请求csrfToken，获取到csrfToken后，再发起后续请求。 由于请求csrfToken的过程是异步的，我们需要在请求过程中锁定后续请求（因为它们需要csrfToken), 直到csrfToken请求成功后，再解锁，代码如下：
+假设这么一个场景：出于安全原因，我们需要给所有的请求头中添加一个csrfToken，如果csrfToken不存在，我们先去请求csrfToken，获取到csrfToken后再重试。假设刚开始的时候 csrfToken 为 null ，如果允许请求并发，则这些并发请求并行进入拦截器时 csrfToken 都为null，所以它们都需要去请求 csrfToken，这会导致 csrfToken 被请求多次，为了避免不必要的重复请求，可以使用 QueuedInterceptor，这样只需要第一个请求请求一次即可，示例代码如下：
 
 ```dart
-dio.interceptors.add(InterceptorsWrapper(
-  onRequest: (Options options, handler) async {
+dio.interceptors.add(QueuedInterceptorsWrapper(
+  onRequest: (options, handler) async {
     print('send request：path:${options.path}，baseURL:${options.baseUrl}');
     if (csrfToken == null) {
       print('no token，request token firstly...');
-      //lock the dio.
-      dio.lock();
       tokenDio.get('/token').then((d) {
         options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
         print('request token succeed, value: ' + d.data['data']['token']);
@@ -457,7 +421,7 @@ dio.interceptors.add(InterceptorsWrapper(
         handler.next(options);
       }).catchError((error, stackTrace) {
         handler.reject(error, true);
-      }) .whenComplete(() => dio.unlock()); // unlock the dio
+      });
     } else {
       options.headers['csrfToken'] = csrfToken;
       handler.next(options);
@@ -466,7 +430,7 @@ dio.interceptors.add(InterceptorsWrapper(
 ));
 ```
 
-完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/master/example/interceptor_lock.dart).
+完整的示例代码请点击 [这里](https://github.com/flutterchina/dio/blob/develop/example/queued_interceptor_crsftoken.dart).
 
 ### 日志
 
@@ -484,7 +448,7 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
 
 ### 自定义拦截器
 
-开发者可以通过继承`Interceptor` 类来实现自定义拦截器，这是一个简单的[缓存示例拦截器](https://github.com/flutterchina/dio/blob/master/example/custom_cache_interceptor.dart)。
+开发者可以通过继承`Interceptor/QueuedInterceptor` 类来实现自定义拦截器，这是一个简单的[缓存示例拦截器](https://github.com/flutterchina/dio/blob/master/example/custom_cache_interceptor.dart)。
 
 ## 错误处理
 
@@ -500,10 +464,10 @@ try {
   if (e.response) {
     print(e.response.data)
     print(e.response.headers)
-    print(e.response.request)
+    print(e.response.requestOptions)
   } else {
     // Something happened in setting up or sending the request that triggered an Error
-    print(e.request)
+    print(e.requestOptions)
     print(e.message)
   }
 }

@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:collection';
+part of 'dio_mixin.dart';
 
-import 'options.dart';
-import 'dio_error.dart';
-import 'response.dart';
-
-typedef EnqueueCallback = FutureOr Function();
+typedef _WaitCallback<T> = FutureOr<T> Function();
 
 /// Add lock/unlock API for interceptors.
 class Lock {
@@ -18,9 +13,8 @@ class Lock {
 
   /// Lock the interceptor.
   ///
-  /// Once the request/response interceptor is locked, the incoming request/response
-  /// will be added to a queue  before they enter the interceptor, they will not be
-  /// continued until the interceptor is unlocked.
+  /// Once the request/response/error interceptor is locked, the incoming request/response/error
+  /// will wait before entering the interceptor until the interceptor is unlocked.
   void lock() {
     if (!locked) {
       _completer = Completer();
@@ -44,12 +38,12 @@ class Lock {
     }
   }
 
-  /// If the interceptor is locked, the incoming request/response task
-  /// will enter a queue.
+  /// If the interceptor is locked, the incoming request/response/error task
+  /// will wait before entering the interceptor until the interceptor is unlocked
   ///
   /// [callback] the function  will return a `Future`
   /// @nodoc
-  Future? enqueue(EnqueueCallback callback) {
+  Future<T>? _wait<T>(_WaitCallback<T> callback) {
     if (locked) {
       // we use a future as a queue
       return _lock!.then((d) => callback());
@@ -79,6 +73,7 @@ class InterceptorState<T> {
 
 class _BaseHandler {
   final _completer = Completer<InterceptorState>();
+  void Function()? _processNextInQueue;
 
   Future<InterceptorState> get future => _completer.future;
 
@@ -90,6 +85,7 @@ class RequestInterceptorHandler extends _BaseHandler {
   /// Continue to call the next request interceptor.
   void next(RequestOptions requestOptions) {
     _completer.complete(InterceptorState<RequestOptions>(requestOptions));
+    _processNextInQueue?.call();
   }
 
   /// Return the response directly! Other request interceptor(s) will not be executed,
@@ -108,6 +104,7 @@ class RequestInterceptorHandler extends _BaseHandler {
             : InterceptorResultType.resolve,
       ),
     );
+    _processNextInQueue?.call();
   }
 
   /// Complete the request with an error! Other request/response interceptor(s) will not
@@ -126,6 +123,7 @@ class RequestInterceptorHandler extends _BaseHandler {
       ),
       error.stackTrace,
     );
+    _processNextInQueue?.call();
   }
 }
 
@@ -136,6 +134,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
     _completer.complete(
       InterceptorState<Response>(response),
     );
+    _processNextInQueue?.call();
   }
 
   /// Return the response directly! Other response interceptor(s) will not be executed.
@@ -147,6 +146,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
         InterceptorResultType.resolve,
       ),
     );
+    _processNextInQueue?.call();
   }
 
   /// Complete the request with an error! Other response interceptor(s) will not
@@ -165,6 +165,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
       ),
       error.stackTrace,
     );
+    _processNextInQueue?.call();
   }
 }
 
@@ -176,6 +177,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
       InterceptorState<DioError>(err),
       err.stackTrace,
     );
+    _processNextInQueue?.call();
   }
 
   /// Complete the request with Response object and other error interceptor(s) will not be executed.
@@ -187,6 +189,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
       response,
       InterceptorResultType.resolve,
     ));
+    _processNextInQueue?.call();
   }
 
   /// Complete the request with a error directly! Other error interceptor(s) will not be executed.
@@ -198,11 +201,16 @@ class ErrorInterceptorHandler extends _BaseHandler {
       ),
       error.stackTrace,
     );
+    _processNextInQueue?.call();
   }
 }
 
 ///  Dio instance may have interceptor(s) by which you can intercept
 ///  requests/responses/errors before they are handled by `then` or `catchError`.
+///  See also:
+///   - [InterceptorsWrapper]  A helper class to create Interceptor(s).
+///   - [QueuedInterceptor] Serialize the request/response/error before they enter the interceptor.
+///   - [QueuedInterceptorsWrapper]  A helper class to create QueuedInterceptor(s).
 class Interceptor {
   /// The callback will be executed before the request is initiated.
   ///
@@ -263,32 +271,17 @@ typedef InterceptorSuccessCallback = void Function(
 );
 
 typedef InterceptorErrorCallback = void Function(
-  DioError e,
-  ErrorInterceptorHandler handler,
-);
+    DioError e, ErrorInterceptorHandler handler);
 
-/// [InterceptorsWrapper] is a helper class, which is used to conveniently
-/// create interceptor(s). More details see [Interceptor].
-class InterceptorsWrapper extends Interceptor {
-  final InterceptorSendCallback? _onRequest;
+mixin _InterceptorWrapperMixin on Interceptor {
+  InterceptorSendCallback? _onRequest;
 
-  final InterceptorSuccessCallback? _onResponse;
+  InterceptorSuccessCallback? _onResponse;
 
-  final InterceptorErrorCallback? _onError;
-
-  InterceptorsWrapper({
-    InterceptorSendCallback? onRequest,
-    InterceptorSuccessCallback? onResponse,
-    InterceptorErrorCallback? onError,
-  })  : _onRequest = onRequest,
-        _onResponse = onResponse,
-        _onError = onError;
+  InterceptorErrorCallback? _onError;
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (_onRequest != null) {
       _onRequest!(options, handler);
     } else {
@@ -297,10 +290,7 @@ class InterceptorsWrapper extends Interceptor {
   }
 
   @override
-  void onResponse(
-    Response response,
-    ResponseInterceptorHandler handler,
-  ) {
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (_onResponse != null) {
       _onResponse!(response, handler);
     } else {
@@ -309,16 +299,44 @@ class InterceptorsWrapper extends Interceptor {
   }
 
   @override
-  void onError(
-    DioError err,
-    ErrorInterceptorHandler handler,
-  ) {
+  void onError(DioError err, ErrorInterceptorHandler handler) {
     if (_onError != null) {
       _onError!(err, handler);
     } else {
       handler.next(err);
     }
   }
+}
+
+/// [InterceptorsWrapper] is a helper class, which is used to conveniently
+/// create interceptor(s).
+/// See also:
+///  - [Interceptor]
+///  - [QueuedInterceptor] Serialize the request/response/error before they enter the interceptor.
+///  - [QueuedInterceptorsWrapper]  A helper class to create QueuedInterceptor(s).
+class InterceptorsWrapper extends Interceptor with _InterceptorWrapperMixin {
+  InterceptorSendCallback? __onRequest;
+
+  InterceptorSuccessCallback? __onResponse;
+
+  InterceptorErrorCallback? __onError;
+
+  InterceptorsWrapper({
+    InterceptorSendCallback? onRequest,
+    InterceptorSuccessCallback? onResponse,
+    InterceptorErrorCallback? onError,
+  })  : __onRequest = onRequest,
+        __onResponse = onResponse,
+        __onError = onError;
+
+  @override
+  InterceptorErrorCallback? get _onError => __onError;
+
+  @override
+  InterceptorSendCallback? get _onRequest => __onRequest;
+
+  @override
+  InterceptorSuccessCallback? get _onResponse => __onResponse;
 }
 
 /// Interceptors are a queue, and you can add any number of interceptors,
@@ -329,10 +347,17 @@ class Interceptors extends ListMixin<Interceptor> {
   final Lock _responseLock = Lock();
   final Lock _errorLock = Lock();
 
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   Lock get requestLock => _requestLock;
-
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   Lock get responseLock => _responseLock;
-
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   Lock get errorLock => _errorLock;
 
   @override
@@ -351,4 +376,106 @@ class Interceptors extends ListMixin<Interceptor> {
       _list[index] = value;
     }
   }
+}
+
+class _InterceptorParams<T, V> {
+  _InterceptorParams(this.data, this.handler);
+
+  T data;
+  V handler;
+}
+
+class _TaskQueue {
+  final queue = Queue<_InterceptorParams>();
+  bool processing = false;
+}
+
+/// Serialize the request/response/error before they enter the interceptor.
+///
+/// If there are multiple concurrent requests, the request is added to a queue before
+/// entering the interceptor. Only one request at a time enters the interceptor, and
+/// after that request is processed by the interceptor, the next request will enter
+/// the interceptor.
+class QueuedInterceptor extends Interceptor {
+  _TaskQueue _requestQueue = _TaskQueue();
+  _TaskQueue _responseQueue = _TaskQueue();
+  _TaskQueue _errorQueue = _TaskQueue();
+
+  void _handleRequest(
+      RequestOptions options, RequestInterceptorHandler handler) {
+    _handleQueue(_requestQueue, options, handler, onRequest);
+  }
+
+  void _handleResponse(Response response, ResponseInterceptorHandler handler) {
+    _handleQueue(_responseQueue, response, handler, onResponse);
+  }
+
+  void _handleError(DioError err, ErrorInterceptorHandler handler) {
+    _handleQueue(_errorQueue, err, handler, onError);
+  }
+
+  void _handleQueue<T, V extends _BaseHandler>(
+    _TaskQueue taskQueue,
+    T data,
+    V handler,
+    callback,
+  ) {
+    var task = _InterceptorParams<T, V>(data, handler);
+    task.handler._processNextInQueue =
+        _processNextTaskInQueueCallback(taskQueue, callback);
+    taskQueue.queue.add(task);
+    if (!taskQueue.processing) {
+      taskQueue.processing = true;
+      final _task = taskQueue.queue.removeFirst();
+      try {
+        callback(_task.data, _task.handler);
+      } catch (e) {
+        _task.handler._processNextInQueue();
+      }
+    }
+  }
+}
+
+void Function() _processNextTaskInQueueCallback(_TaskQueue taskQueue, cb) {
+  return () {
+    if (taskQueue.queue.isNotEmpty) {
+      final next = taskQueue.queue.removeFirst();
+      assert(next.handler._processNextInQueue != null);
+      cb(next.data, next.handler);
+    } else {
+      taskQueue.processing = false;
+    }
+  };
+}
+
+/// [QueuedInterceptorsWrapper] is a helper class, which is used to conveniently
+/// create QueuedInterceptor(s).
+/// See also:
+///  - [Interceptor]
+///  - [InterceptorsWrapper]
+///  - [QueuedInterceptors]
+class QueuedInterceptorsWrapper extends QueuedInterceptor
+    with _InterceptorWrapperMixin {
+  InterceptorSendCallback? __onRequest;
+
+  InterceptorSuccessCallback? __onResponse;
+
+  InterceptorErrorCallback? __onError;
+
+  QueuedInterceptorsWrapper({
+    InterceptorSendCallback? onRequest,
+    InterceptorSuccessCallback? onResponse,
+    InterceptorErrorCallback? onError,
+  })  : __onRequest = onRequest,
+        __onResponse = onResponse,
+        __onError = onError;
+
+  @override
+  InterceptorErrorCallback? get _onError => __onError;
+
+  @override
+  InterceptorSendCallback? get _onRequest => __onRequest;
+
+  @override
+  InterceptorSuccessCallback? get _onResponse => __onResponse;
 }

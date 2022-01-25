@@ -1,7 +1,5 @@
-import 'dart:async';
-
 import '../dio_error.dart';
-import '../interceptor.dart';
+import '../dio_mixin.dart';
 import '../options.dart';
 import '../response.dart';
 

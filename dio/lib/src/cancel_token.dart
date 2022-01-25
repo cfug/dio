@@ -40,6 +40,9 @@ class CancelToken {
       requestOptions: requestOptions ?? RequestOptions(path: ''),
     );
     _cancelError!.stackTrace = StackTrace.current;
-    _completer.complete(_cancelError);
+
+    if (!_completer.isCompleted) {
+      _completer.complete(_cancelError);
+    }
   }
 }
