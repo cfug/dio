@@ -475,8 +475,6 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-    final stackTrace = StackTrace.current;
-
     if (requestOptions.cancelToken != null) {
       requestOptions.cancelToken!.requestOptions = requestOptions;
     }
@@ -550,6 +548,7 @@ abstract class DioMixin implements Dio {
             assureDioError(
               err,
               requestOptions,
+              stackTrace,
             ),
           );
         }
@@ -621,13 +620,18 @@ abstract class DioMixin implements Dio {
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((err, _) {
+    }).catchError((err, maybeStackTrace) {
       var isState = err is InterceptorState;
 
       if (isState) {
         if ((err as InterceptorState).type == InterceptorResultType.resolve) {
           return assureResponse<T>(err.data, requestOptions);
         }
+      }
+
+      StackTrace? stackTrace;
+      if (maybeStackTrace is StackTrace?) {
+        stackTrace = maybeStackTrace;
       }
 
       throw assureDioError(
@@ -689,8 +693,8 @@ abstract class DioMixin implements Dio {
           type: DioErrorType.response,
         );
       }
-    } catch (e) {
-      throw assureDioError(e, reqOpt);
+    } catch (e, stackTrace) {
+      throw assureDioError(e, reqOpt, stackTrace);
     }
   }
 
@@ -782,9 +786,9 @@ abstract class DioMixin implements Dio {
 
   static DioError assureDioError(
     err,
-    RequestOptions requestOptions, [
+    RequestOptions requestOptions,
     StackTrace? sourceStackTrace,
-  ]) {
+  ) {
     DioError dioError;
     if (err is DioError) {
       dioError = err;

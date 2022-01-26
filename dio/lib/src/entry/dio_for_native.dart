@@ -183,6 +183,7 @@ class DioForNative with DioMixin implements Dio {
             completer.completeError(DioMixin.assureDioError(
               err,
               response.requestOptions,
+              stackTrace,
             ));
           }
         });
@@ -193,20 +194,22 @@ class DioForNative with DioMixin implements Dio {
           closed = true;
           await raf.close();
           completer.complete(response);
-        } catch (e) {
+        } catch (e, stackTrace) {
           completer.completeError(DioMixin.assureDioError(
             e,
             response.requestOptions,
+            stackTrace,
           ));
         }
       },
-      onError: (e) async {
+      onError: (e, stackTrace) async {
         try {
           await _closeAndDelete();
         } finally {
           completer.completeError(DioMixin.assureDioError(
             e,
             response.requestOptions,
+            stackTrace as StackTrace?,
           ));
         }
       },
