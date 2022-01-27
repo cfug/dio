@@ -152,7 +152,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       completer.completeError(
         DioError.connectionError(
           requestOptions: options,
-          reason: 'XMLHttpRequest error.',
+          reason: 'The XMLHttpRequest onError callback was called. '
+              'This typically indicates an error on the network layer.',
         ),
         StackTrace.current,
       );

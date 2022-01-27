@@ -26,6 +26,27 @@ enum DioErrorType {
   unknown,
 }
 
+extension _DioErrorTypeExtension on DioErrorType {
+  String toPrettyDescription() {
+    switch (this) {
+      case DioErrorType.connectionTimeout:
+        return 'connection timeout';
+      case DioErrorType.sendTimeout:
+        return 'send timeout';
+      case DioErrorType.receiveTimeout:
+        return 'receive timeout';
+      case DioErrorType.badResponse:
+        return 'bad response';
+      case DioErrorType.requestCancelled:
+        return 'request cancelled';
+      case DioErrorType.connectionError:
+        return 'connection error';
+      case DioErrorType.unknown:
+        return 'unknown';
+    }
+  }
+}
+
 /// DioError describes the exception info when a request failed.
 class DioError implements Exception {
   /// Prefer using one of the other constructors.
@@ -102,12 +123,15 @@ class DioError implements Exception {
 
   @override
   String toString() {
-    var msg = 'DioError [$type]: $message';
+    var msg = 'DioError [${type.toPrettyDescription()}]: $message';
+    if (error != null) {
+      msg += '\nError: $error';
+    }
     if (error is Error) {
-      msg += '\n${(error as Error).stackTrace}';
+      msg += '\nInner error stacktrace:\n${(error as Error).stackTrace}';
     }
     if (stackTrace != null) {
-      msg += '\nSource stack:\n$stackTrace';
+      msg += '\nInner stacktrace:\n$stackTrace';
     }
     return msg;
   }
