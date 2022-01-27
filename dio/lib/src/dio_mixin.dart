@@ -464,9 +464,9 @@ abstract class DioMixin implements Dio {
     requestOptions.cancelToken = cancelToken;
 
     if (_closed) {
-      throw DioError(
+      throw DioError.connectionError(
+        reason: "Dio can't establish a new connection after it was closed.",
         requestOptions: requestOptions,
-        error: "Dio can't establish new connection after closed.",
       );
     }
 
@@ -475,9 +475,7 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-    if (requestOptions.cancelToken != null) {
-      requestOptions.cancelToken!.requestOptions = requestOptions;
-    }
+    requestOptions.cancelToken?.requestOptions = requestOptions;
 
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -686,11 +684,10 @@ abstract class DioMixin implements Dio {
       if (statusOk) {
         return checkIfNeedEnqueue(interceptors.responseLock, () => ret);
       } else {
-        throw DioError(
+        throw DioError.badResponse(
+          statusCode: responseBody.statusCode,
           requestOptions: reqOpt,
           response: ret,
-          error: 'Http status error [${responseBody.statusCode}]',
-          type: DioErrorType.response,
         );
       }
     } catch (e, stackTrace) {
@@ -792,17 +789,21 @@ abstract class DioMixin implements Dio {
     DioError dioError;
     if (err is DioError) {
       dioError = err;
+      dioError.stackTrace ??= sourceStackTrace;
+      return dioError;
     } else {
-      dioError = DioError(requestOptions: requestOptions, error: err);
+      return DioError(
+        requestOptions: requestOptions,
+        error: err,
+        stackTrace: sourceStackTrace,
+      );
     }
-
-    dioError.stackTrace = sourceStackTrace ?? dioError.stackTrace;
-
-    return dioError;
   }
 
-  static Response<T> assureResponse<T>(response,
-      [RequestOptions? requestOptions]) {
+  static Response<T> assureResponse<T>(
+    response, [
+    RequestOptions? requestOptions,
+  ]) {
     if (response is! Response) {
       return Response<T>(
         data: response as T,

@@ -76,10 +76,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         (value) {
           if (!haveSent) {
             completer.completeError(
-              DioError(
+              DioError.connectionTimeout(
                 requestOptions: options,
-                error: 'Connecting timed out [${options.connectTimeout}ms]',
-                type: DioErrorType.connectTimeout,
+                timeout: options.connectTimeout!,
               ),
               StackTrace.current,
             );
@@ -102,10 +101,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         if (duration > sendTimeout) {
           uploadStopwatch.stop();
           completer.completeError(
-            DioError(
+            DioError.sendTimeout(
+              timeout: options.sendTimeout!,
               requestOptions: options,
-              error: 'Sending timed out [${options.sendTimeout}ms]',
-              type: DioErrorType.sendTimeout,
             ),
             StackTrace.current,
           );
@@ -131,10 +129,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         if (duration > reveiveTimeout) {
           downloadStopwatch.stop();
           completer.completeError(
-            DioError(
+            DioError.receiveTimeout(
+              timeout: options.receiveTimeout!,
               requestOptions: options,
-              error: 'Receiving timed out [${options.receiveTimeout}ms]',
-              type: DioErrorType.receiveTimeout,
             ),
             StackTrace.current,
           );
@@ -151,11 +148,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     xhr.onError.first.then((_) {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
+      // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
       completer.completeError(
-        DioError(
-          type: DioErrorType.response,
-          error: 'XMLHttpRequest error.',
+        DioError.connectionError(
           requestOptions: options,
+          reason: 'XMLHttpRequest error.',
         ),
         StackTrace.current,
       );

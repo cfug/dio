@@ -90,7 +90,7 @@ class DioForNative with DioMixin implements Dio {
         cancelToken: cancelToken ?? CancelToken(),
       );
     } on DioError catch (e) {
-      if (e.type == DioErrorType.response) {
+      if (e.type == DioErrorType.badResponse) {
         if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
           var res = await transformer.transformResponse(
             e.response!.requestOptions..responseType = ResponseType.json,
@@ -227,10 +227,9 @@ class DioForNative with DioMixin implements Dio {
         await subscription.cancel();
         await _closeAndDelete();
         if (err is TimeoutException) {
-          throw DioError(
+          throw DioError.receiveTimeout(
+            timeout: timeout,
             requestOptions: response.requestOptions,
-            error: 'Receiving data timeout[$timeout]',
-            type: DioErrorType.receiveTimeout,
           );
         } else {
           throw err;

@@ -13,7 +13,7 @@ class CancelToken {
 
   /// Whether is throw by [cancel]
   static bool isCancel(DioError e) {
-    return e.type == DioErrorType.cancel;
+    return e.type == DioErrorType.requestCancelled;
   }
 
   /// If request have been canceled, save the cancel Error.
@@ -33,11 +33,10 @@ class CancelToken {
   Future<DioError> get whenCancel => _completer.future;
 
   /// Cancel the request
-  void cancel([dynamic reason]) {
-    _cancelError = DioError(
-      type: DioErrorType.cancel,
-      error: reason,
+  void cancel([Object? reason]) {
+    _cancelError = DioError.requestCancelled(
       requestOptions: requestOptions ?? RequestOptions(path: ''),
+      reason: reason,
     );
     _cancelError!.stackTrace = StackTrace.current;
 

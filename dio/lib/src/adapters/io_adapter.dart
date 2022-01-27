@@ -36,10 +36,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     var reqFuture = _httpClient.openUrl(options.method, options.uri);
 
     void _throwConnectingTimeout() {
-      throw DioError(
+      throw DioError.connectionTimeout(
         requestOptions: options,
-        error: 'Connecting timed out [${options.connectTimeout}ms]',
-        type: DioErrorType.connectTimeout,
+        timeout: options.connectTimeout!,
       );
     }
 
@@ -78,10 +77,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       try {
         await future;
       } on TimeoutException {
-        throw DioError(
+        throw DioError.sendTimeout(
+          timeout: options.sendTimeout!,
           requestOptions: options,
-          error: 'Sending timeout[${options.sendTimeout}ms]',
-          type: DioErrorType.sendTimeout,
         );
       }
     }
@@ -96,10 +94,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     try {
       responseStream = await future;
     } on TimeoutException {
-      throw DioError(
+      throw DioError.receiveTimeout(
+        timeout: options.receiveTimeout!,
         requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}]',
-        type: DioErrorType.receiveTimeout,
       );
     }
 
@@ -111,10 +108,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         final receiveTimeout = options.receiveTimeout;
         if (receiveTimeout != null && duration > receiveTimeout) {
           sink.addError(
-            DioError(
+            DioError.receiveTimeout(
+              timeout: options.receiveTimeout!,
               requestOptions: options,
-              error: 'Receiving data timeout[${options.receiveTimeout}]',
-              type: DioErrorType.receiveTimeout,
             ),
           );
           //todo: to verify

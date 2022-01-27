@@ -89,7 +89,7 @@ void main() {
             cancelToken: cancelToken,
           )
           .catchError((e) => throw (e as DioError).type),
-      throwsA(DioErrorType.cancel),
+      throwsA(DioErrorType.requestCancelled),
     );
     //print(r);
   });

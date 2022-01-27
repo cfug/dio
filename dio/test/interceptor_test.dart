@@ -285,12 +285,12 @@ void main() {
       expect(response.data['errCode'], 0);
 
       expect(
-        dio.get('/fakepath3').catchError((e) => throw (e as DioError).message),
-        throwsA('test error'),
+        dio.get('/fakepath3').catchError((e) => throw (e as DioError)),
+        throwsA(isA<DioError>()),
       );
       expect(
-        dio.get('/fakepath4').catchError((e) => throw (e as DioError).message),
-        throwsA('test error'),
+        dio.get('/fakepath4').catchError((e) => throw (e as DioError)),
+        throwsA(isA<DioError>()),
       );
 
       response = await dio.get('/test');
@@ -358,10 +358,8 @@ void main() {
       response = await dio.get(urlNotFound + '2');
       expect(response.data, 'fake data');
       expect(
-        dio
-            .get(urlNotFound + '3')
-            .catchError((e) => throw (e as DioError).message),
-        throwsA('custom error info [404]'),
+        dio.get(urlNotFound + '3').catchError((e) => throw (e as DioError)),
+        throwsA(isA<DioError>()),
       );
     });
     test('multi response interceptor', () async {

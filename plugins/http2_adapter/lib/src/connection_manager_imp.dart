@@ -79,10 +79,9 @@ class _ConnectionManager implements ConnectionManager {
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
-          throw DioError(
+          throw DioError.connectionTimeout(
+            timeout: options.connectTimeout!,
             requestOptions: options,
-            error: 'Connecting timed out [${options.connectTimeout}]',
-            type: DioErrorType.connectTimeout,
           );
         }
       }
