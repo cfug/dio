@@ -786,18 +786,15 @@ abstract class DioMixin implements Dio {
     RequestOptions requestOptions,
     StackTrace? sourceStackTrace,
   ) {
-    DioError dioError;
     if (err is DioError) {
-      dioError = err;
-      dioError.stackTrace ??= sourceStackTrace;
-      return dioError;
-    } else {
-      return DioError(
-        requestOptions: requestOptions,
-        error: err,
-        stackTrace: sourceStackTrace,
-      );
+      // nothing to be done
+      return err;
     }
+    return DioError(
+      requestOptions: requestOptions,
+      error: err,
+      stackTrace: sourceStackTrace,
+    );
   }
 
   static Response<T> assureResponse<T>(
