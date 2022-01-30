@@ -35,18 +35,19 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     var reqFuture = _httpClient.openUrl(options.method, options.uri);
 
-    void _throwConnectingTimeout() {
-      throw DioError.connectionTimeout(
-        requestOptions: options,
-        timeout: options.connectTimeout!,
-      );
-    }
-
     late HttpClientRequest request;
     try {
       final connectionTimeout = options.connectTimeout;
       if (connectionTimeout != null) {
-        request = await reqFuture.timeout(connectionTimeout);
+        request = await reqFuture.timeout(
+          connectionTimeout,
+          onTimeout: () {
+            throw DioError.connectionTimeout(
+              requestOptions: options,
+              timeout: options.connectTimeout!,
+            );
+          },
+        );
       } else {
         request = await reqFuture;
       }
@@ -55,13 +56,18 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       options.headers.forEach((k, v) {
         if (v != null) request.headers.set(k, '$v');
       });
-    } on SocketException catch (e) {
+    } on SocketException catch (e, stackTrace) {
       if (e.message.contains('timed out')) {
-        _throwConnectingTimeout();
+        throw DioError.connectionTimeout(
+          requestOptions: options,
+          timeout: options.connectTimeout ??
+              _httpClient.connectionTimeout ??
+              Duration(),
+          error: e,
+          stackTrace: stackTrace,
+        );
       }
       rethrow;
-    } on TimeoutException {
-      _throwConnectingTimeout();
     }
 
     request.followRedirects = options.followRedirects;
@@ -72,33 +78,36 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       var future = request.addStream(requestStream);
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
-        future = future.timeout(sendTimeout);
-      }
-      try {
-        await future;
-      } on TimeoutException {
-        throw DioError.sendTimeout(
-          timeout: options.sendTimeout!,
-          requestOptions: options,
+        future = future.timeout(
+          sendTimeout,
+          onTimeout: () {
+            throw DioError.sendTimeout(
+              timeout: options.sendTimeout!,
+              requestOptions: options,
+            );
+          },
         );
       }
+
+      await future;
     }
 
     final stopwatch = Stopwatch()..start();
     var future = request.close();
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {
-      future = future.timeout(receiveTimeout);
-    }
-    late HttpClientResponse responseStream;
-    try {
-      responseStream = await future;
-    } on TimeoutException {
-      throw DioError.receiveTimeout(
-        timeout: options.receiveTimeout!,
-        requestOptions: options,
+      future = future.timeout(
+        receiveTimeout,
+        onTimeout: () {
+          throw DioError.receiveTimeout(
+            timeout: options.receiveTimeout!,
+            requestOptions: options,
+          );
+        },
       );
     }
+
+    final responseStream = await future;
 
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(

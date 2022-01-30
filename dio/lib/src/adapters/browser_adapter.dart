@@ -74,16 +74,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (connectionTimeout != null) {
       Future.delayed(connectionTimeout).then(
         (value) {
-          if (!haveSent) {
-            completer.completeError(
-              DioError.connectionTimeout(
-                requestOptions: options,
-                timeout: options.connectTimeout!,
-              ),
-              StackTrace.current,
-            );
-            xhr.abort();
+          if (haveSent) {
+            return;
           }
+          completer.completeError(
+            DioError.connectionTimeout(
+              requestOptions: options,
+              timeout: options.connectTimeout!,
+            ),
+            StackTrace.current,
+          );
+          xhr.abort();
         },
       );
     }

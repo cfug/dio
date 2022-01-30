@@ -71,6 +71,8 @@ class DioError implements Exception {
   DioError.connectionTimeout({
     required Duration timeout,
     required this.requestOptions,
+    this.error,
+    this.stackTrace,
   })  : type = DioErrorType.connectionTimeout,
         message = 'The request connection took '
             'longer than $timeout. It was aborted.';
@@ -92,6 +94,7 @@ class DioError implements Exception {
   DioError.requestCancelled({
     required this.requestOptions,
     required Object? reason,
+    this.stackTrace,
   })  : type = DioErrorType.requestCancelled,
         message = 'The request was cancelled.',
         error = reason;

@@ -37,8 +37,8 @@ class CancelToken {
     _cancelError = DioError.requestCancelled(
       requestOptions: requestOptions ?? RequestOptions(path: ''),
       reason: reason,
+      stackTrace: StackTrace.current,
     );
-    _cancelError!.stackTrace = StackTrace.current;
 
     if (!_completer.isCompleted) {
       _completer.complete(_cancelError);
