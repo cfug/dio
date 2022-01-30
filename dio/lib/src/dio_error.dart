@@ -127,11 +127,12 @@ class DioError implements Exception {
   @override
   String toString() {
     var msg = 'DioError [${type.toPrettyDescription()}]: $message';
+    final error = this.error;
     if (error != null) {
       msg += '\nError: $error';
     }
-    if (error is Error) {
-      msg += '\nInner error stacktrace:\n${(error as Error).stackTrace}';
+    if (error is Error && error.stackTrace != stackTrace) {
+      msg += '\nInner error stacktrace:\n${error.stackTrace}';
     }
     if (stackTrace != null) {
       msg += '\nInner stacktrace:\n$stackTrace';
