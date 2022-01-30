@@ -57,17 +57,17 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         if (v != null) request.headers.set(k, '$v');
       });
     } on SocketException catch (e, stackTrace) {
-      if (e.message.contains('timed out')) {
-        throw DioError.connectionTimeout(
-          requestOptions: options,
-          timeout: options.connectTimeout ??
-              _httpClient.connectionTimeout ??
-              Duration(),
-          error: e,
-          stackTrace: stackTrace,
-        );
+      if (!e.message.contains('timed out')) {
+        rethrow;
       }
-      rethrow;
+      throw DioError.connectionTimeout(
+        requestOptions: options,
+        timeout: options.connectTimeout ??
+            _httpClient.connectionTimeout ??
+            Duration(),
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
 
     request.followRedirects = options.followRedirects;
