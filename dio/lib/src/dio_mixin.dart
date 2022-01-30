@@ -751,8 +751,9 @@ abstract class DioMixin implements Dio {
 
   // If the request has been cancelled, stop request and throw error.
   static void checkCancelled(CancelToken? cancelToken) {
-    if (cancelToken != null && cancelToken.cancelError != null) {
-      throw cancelToken.cancelError!;
+    final error = cancelToken?.cancelError;
+    if (error != null) {
+      throw error;
     }
   }
 
