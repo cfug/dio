@@ -123,7 +123,8 @@ void main() {
                 handler.reject(err);
               } else {
                 var count = (err.error as int);
-                err.error = count++;
+                count++;
+                err.error = count;
                 handler.next(err);
               }
             }
@@ -145,12 +146,13 @@ void main() {
           onError: (err, handler) {
             if (err.requestOptions.path == '/resolve-next/reject-next') {
               var count = (err.error as int);
-              err.error = count++;
-
+              count++;
+              err.error = count;
               handler.next(err);
             } else {
               var count = (err.error as int);
-              err.error = count++;
+              count++;
+              err.error = count;
               handler.next(err);
             }
           },

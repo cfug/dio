@@ -76,6 +76,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     if (requestStream != null) {
       // Transform the request data
       var future = request.addStream(requestStream);
+
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
         future = future.timeout(
