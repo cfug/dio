@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ stable, beta, dev, 2.12.1 ]
+        sdk: [ stable, beta, 2.12.1 ]
     defaults:
       run:
         working-directory: plugins/http2_adapter
