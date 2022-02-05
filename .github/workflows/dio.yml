@@ -45,6 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         sdk: [ stable, beta, 2.12.1 ]
+        platform: [ vm, chrome ]
     defaults:
       run:
         working-directory: dio
@@ -54,13 +55,12 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
       - run: pub get
-      - run: dart test --chain-stack-traces --platform=vm
-      - run: dart test --chain-stack-traces --platform=chrome
+      - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
       - name: Upload test report
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: test-results-${{ matrix.sdk }}
+          name: test-results-${{ matrix.sdk }}-${{ matrix.platform }}
           path: dio/build/reports/test-results.json
 
   publish-dry-run:

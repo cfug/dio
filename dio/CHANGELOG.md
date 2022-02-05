@@ -1,6 +1,7 @@
 # Unreleased
 - require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)  
 - Only delete file if it exists when downloading.
+- Fix `BrowserHttpClientAdapter` canceled hangs
 
 # 4.0.5-beta1
 - [Web] support send/receive progress in web platform
