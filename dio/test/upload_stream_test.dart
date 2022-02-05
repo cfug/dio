@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 void main() {
   var dio = Dio();
-  dio.options.baseUrl = 'http://httpbin.org/';
+  dio.options.baseUrl = 'https://httpbin.org/';
   test('stream', () async {
     Response r;
     const str = 'hello 😌';
