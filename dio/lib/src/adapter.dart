@@ -61,10 +61,10 @@ class ResponseBody {
   Stream<Uint8List> stream;
 
   /// the response headers
-  Map<String, List<String>> headers;
+  late Map<String, List<String>> headers;
 
   /// Http status code
-  int statusCode;
+  int? statusCode;
 
   /// Returns the reason phrase associated with the status code.
   /// The reason phrase must be set before the body is written
