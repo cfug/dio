@@ -57,7 +57,7 @@ jobs:
       - run: dart test --chain-stack-traces
       - name: Upload test report
         uses: actions/upload-artifact@v2
-        if: always() && matrix.sdk == 'stable'
+        if: always()
         with:
-          name: test-results
+          name: test-results-${{ matrix.sdk }}
           path: plugins/cookie_manager/build/reports/test-results.json
