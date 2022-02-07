@@ -71,4 +71,37 @@ void main() async {
     ));
     assert(fmStr.length == fm1.length);
   });
+
+  test("formData multiCompatible", () {
+    final map = {
+      "unnested": ["a", "b", "c"],
+      "nested": [
+        {"id": "idA", "name": "nameA"},
+        {"id": "idB"},
+        {"id": "idC", "name": "nameC"}
+        ],
+      "list": [
+        ["a", "b", "c"],
+        ["d", "e"]
+      ]
+        };
+
+    final formData = FormData.fromMap(map, ListFormat.multiCompatible);
+    final expected = [
+      MapEntry("unnested[]", "a"),
+      MapEntry("unnested[]", "b"),
+      MapEntry("unnested[]", "c"),
+      MapEntry("nested[][id]", "idA"),
+      MapEntry("nested[][name]", "nameA"),
+      MapEntry("nested[][id]", "idB"),
+      MapEntry("nested[][id]", "idC"),
+      MapEntry("nested[][name]", "nameC"),
+      MapEntry("list[0][]", "a"),
+      MapEntry("list[0][]", "b"),
+      MapEntry("list[0][]", "c"),
+      MapEntry("list[1][]", "d"),
+      MapEntry("list[1][]", "e")
+    ];
+    assert(formData.fields.toString() == expected.toString());
+  });
 }

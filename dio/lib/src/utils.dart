@@ -58,9 +58,10 @@ String encodeMap(
     if (sub is List) {
       if (format == ListFormat.multi || format == ListFormat.multiCompatible) {
         for (var i = 0; i < sub.length; i++) {
+          final isListType = sub[i] is List || sub[i] is ListParam;
           if (listFormat == ListFormat.multi) {
             final isCollection =
-                sub[i] is Map || sub[i] is List || sub[i] is ListParam;
+                sub[i] is Map || isListType;
             urlEncode(
               sub[i],
               '$path${isCollection ? leftBracket + '$i' + rightBracket : ''}',
@@ -69,7 +70,7 @@ String encodeMap(
             // Forward compatibility
             urlEncode(
               sub[i],
-              '$path$leftBracket$rightBracket',
+              '$path$leftBracket${isListType ? i : ''}$rightBracket',
             );
           }
         }
