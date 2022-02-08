@@ -2,6 +2,29 @@
 - require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)  
 - Only delete file if it exists when downloading.
 - Fix `BrowserHttpClientAdapter` canceled hangs
+- Fix encoding map using ListFormat.multiCompatible when formatting list of maps.
+  ```
+    FormData.fromMap({"nested": [
+        {"id": "idA", "name": "nameA"},
+        {"id": "idB"},
+      ]}, ListFormat.multiCompatible)
+  ```
+  previously:
+  ```
+    #=>
+    nested[0][id]=idA
+    nested[0][name]=nameA
+    nested[1][id]=idB
+  ```
+  current:
+  ```
+    #=>
+    nested[][id]=idA
+    nested[][name]=nameA
+    nested[][id]=idB
+  ```
+
+
 
 # 4.0.5-beta1
 - [Web] support send/receive progress in web platform
