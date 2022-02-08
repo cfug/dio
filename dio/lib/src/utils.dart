@@ -60,8 +60,7 @@ String encodeMap(
         for (var i = 0; i < sub.length; i++) {
           final isListType = sub[i] is List || sub[i] is ListParam;
           if (listFormat == ListFormat.multi) {
-            final isCollection =
-                sub[i] is Map || isListType;
+            final isCollection = sub[i] is Map || isListType;
             urlEncode(
               sub[i],
               '$path${isCollection ? leftBracket + '$i' + rightBracket : ''}',

@@ -79,12 +79,12 @@ void main() async {
         {"id": "idA", "name": "nameA"},
         {"id": "idB"},
         {"id": "idC", "name": "nameC"}
-        ],
+      ],
       "list": [
         ["a", "b", "c"],
         ["d", "e"]
       ]
-        };
+    };
 
     final formData = FormData.fromMap(map, ListFormat.multiCompatible);
     final expected = [
