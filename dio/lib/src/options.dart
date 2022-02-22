@@ -467,7 +467,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     int? sendTimeout,
     int? receiveTimeout,
     int? connectTimeout,
-    String? data,
+    dynamic data,
     String? path,
     Map<String, dynamic>? queryParameters,
     String? baseUrl,
