@@ -123,9 +123,13 @@ class _MockAdapter extends HttpClientAdapter {
       case 'test':
         final tag = options.uri.queryParameters['tag'];
         final isTag2 = tag == '2';
-        // The first two calls to `test?tag=2` will return 401.
-        if (isTag2 && _tag2InvokeCount++ < 2) {
-          return ResponseBody.fromString('', 401);
+        if (isTag2) {
+          switch (++_tag2InvokeCount) {
+            case 1:
+              return ResponseBody.fromString('', 401);
+            case 2:
+              return ResponseBody.fromString('', 500);
+          }
         }
         return jsonBody({
           'data': {
