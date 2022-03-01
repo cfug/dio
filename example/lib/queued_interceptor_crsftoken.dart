@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
@@ -6,7 +9,6 @@ void main() async {
   var dio = Dio();
   //  dio instance to request token
   var tokenDio = Dio();
-  String? csrfToken;
   dio.options.baseUrl = 'http://www.dtworkroom.com/doris/1/2.0.0/';
   tokenDio.options = dio.options;
   dio.interceptors.add(QueuedInterceptorsWrapper(
@@ -20,9 +22,12 @@ void main() async {
           print(
               'continue to perform request：path:${options.path}，baseURL:${options.path}');
           handler.next(options);
-        }).catchError((error, stackTrace) {
-          handler.reject(error, true);
-        });
+        }).catchError(
+          (error, stackTrace) {
+            handler.reject(error, true);
+          },
+          test: (e) => e is DioError,
+        );
       } else {
         options.headers['csrfToken'] = csrfToken;
         return handler.next(options);
@@ -38,7 +43,9 @@ void main() async {
           options.headers['csrfToken'] = csrfToken;
           //repeat
           dio.fetch(options).then(
-            (r) => handler.resolve(r),
+            (r) {
+              handler.resolve(r);
+            },
             onError: (e) {
               handler.reject(e);
             },
@@ -51,7 +58,9 @@ void main() async {
         }).then((e) {
           //repeat
           dio.fetch(options).then(
-            (r) => handler.resolve(r),
+            (r) {
+              handler.resolve(r);
+            },
             onError: (e) {
               handler.reject(e);
             },
@@ -64,12 +73,70 @@ void main() async {
   ));
 
   FutureOr<void> _onResult(d) {
-    print('request ok!');
+    print('request ok!: $d');
   }
 
+  dio.httpClientAdapter = tokenDio.httpClientAdapter = _MockAdapter();
+
   await Future.wait([
-    dio.get('/test?tag=1').then(_onResult),
-    dio.get('/test?tag=2').then(_onResult),
-    dio.get('/test?tag=3').then(_onResult)
+    dio.get('test?tag=1').then(_onResult),
+    dio.get('test?tag=2').then(_onResult),
+    dio.get('test?tag=3').then(_onResult),
   ]);
+}
+
+String? csrfToken;
+
+final _kRandom = Random(0);
+
+var _tag2InvokeCount = 0;
+
+class _MockAdapter extends HttpClientAdapter {
+  ResponseBody jsonBody(Object? obj) {
+    return ResponseBody.fromString(
+      jsonEncode(obj),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  Future<ResponseBody> fetch(RequestOptions options,
+      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
+    final relativePath =
+        options.uri.path.substring(Uri.parse(options.baseUrl).path.length);
+    print([
+      '[mock]',
+      'uri: ${options.uri},',
+      'path: $relativePath,',
+    ].join(' '));
+
+    await Future.delayed(Duration(milliseconds: _kRandom.nextInt(1000)));
+
+    switch (relativePath) {
+      case 'token':
+        return jsonBody({
+          'data': {'token': 'mock-token'}
+        });
+      case 'test':
+        final tag = options.uri.queryParameters['tag'];
+        final isTag2 = tag == '2';
+        // The first two calls to `test?tag=2` will return 401.
+        if (isTag2 && _tag2InvokeCount++ < 2) {
+          return ResponseBody.fromString('', 401);
+        }
+        return jsonBody({
+          'data': {
+            'tag': tag,
+            if (isTag2) 'count': _tag2InvokeCount,
+          }
+        });
+    }
+    return ResponseBody.fromString('text', 404);
+  }
+
+  @override
+  void close({bool force = false}) {}
 }
