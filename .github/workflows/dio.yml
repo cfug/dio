@@ -18,7 +18,7 @@ jobs:
       run:
         working-directory: dio
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
@@ -32,7 +32,7 @@ jobs:
       run:
         working-directory: dio
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
@@ -50,7 +50,7 @@ jobs:
       run:
         working-directory: dio
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
@@ -70,7 +70,7 @@ jobs:
       run:
         working-directory: dio
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
