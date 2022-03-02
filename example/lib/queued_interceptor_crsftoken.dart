@@ -5,17 +5,21 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
+const _useLock = false;
+
 void main() async {
   var dio = Dio();
   //  dio instance to request token
   var tokenDio = Dio();
   dio.options.baseUrl = 'http://www.dtworkroom.com/doris/1/2.0.0/';
   tokenDio.options = dio.options;
-  dio.interceptors.add(QueuedInterceptorsWrapper(
+  dio.interceptors
+      .add((_useLock ? InterceptorsWrapper.new : QueuedInterceptorsWrapper.new)(
     onRequest: (options, handler) {
       print('send request：path:${options.path}，baseURL:${options.baseUrl}');
       if (csrfToken == null) {
         print('no token，request token firstly...');
+        if (_useLock) dio.lock();
         tokenDio.get('/token').then((d) {
           options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
           print('request token succeed, value: ' + d.data['data']['token']);
@@ -27,7 +31,9 @@ void main() async {
             handler.reject(error, true);
           },
           test: (e) => e is DioError,
-        );
+        ).whenComplete(() {
+          if (_useLock) dio.unlock();
+        });
       } else {
         options.headers['csrfToken'] = csrfToken;
         return handler.next(options);
@@ -52,9 +58,20 @@ void main() async {
           );
           return;
         }
+        if (_useLock) {
+          dio.lock();
+          dio.interceptors.responseLock.lock();
+          dio.interceptors.errorLock.lock();
+        }
         tokenDio.get('/token').then((d) {
           //update csrfToken
           options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
+        }).whenComplete(() {
+          if (_useLock) {
+            dio.unlock();
+            dio.interceptors.responseLock.unlock();
+            dio.interceptors.errorLock.unlock();
+          }
         }).then((e) {
           //repeat
           dio.fetch(options).then(
