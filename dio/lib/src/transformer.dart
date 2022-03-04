@@ -169,7 +169,8 @@ class DefaultTransformer extends Transformer {
 
   bool _isJsonMime(String? contentType) {
     if (contentType == null) return false;
-    return MediaType.parse(contentType).mimeType ==
-        Headers.jsonMimeType.mimeType;
+    final mediaType = MediaType.parse(contentType);
+    return mediaType.type == "application" &&
+        mediaType.subtype.contains("json");
   }
 }
