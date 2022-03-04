@@ -56,7 +56,11 @@ class Http2Adapter extends HttpClientAdapter {
     headers.addAll(
       options.headers.keys
           .map(
-              (key) => Header.ascii(key, options.headers[key] as String? ?? ''))
+            (key) => Header.ascii(
+              key.toLowerCase(),
+              options.headers[key] as String? ?? '',
+            ),
+          )
           .toList(),
     );
 
