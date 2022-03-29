@@ -1,13 +1,11 @@
-# Unreleased
+# 4.0.5
 - require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)
 - Only delete file if it exists when downloading.
 - Fix `BrowserHttpClientAdapter` canceled hangs
-
-# 4.0.5
+- Correct JSON MIME Type detection
 - [Web] support send/receive progress in web platform
 - refactor timeout logic
 - use 'arraybuffer' instead of 'blob' for xhr requests in web platform
--
 
 
 # 4.0.4
