@@ -1,0 +1,2 @@
+file_reporters:
+  json: build/reports/test-results.json

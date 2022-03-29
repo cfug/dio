@@ -39,8 +39,8 @@ void getHttp() async {
 
 | Plugins                                                      | Status                                                       | Description                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A cookie manager for Dio                                     |
-| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A Dio HttpClientAdapter which support Http/2.0               |
+| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A cookie manager for Dio                                     |
+| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A Dio HttpClientAdapter which support Http/2.0               |
 | [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry) | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg?style=flat-square)](https://pub.dev/packages/dio_smart_retry) | Flexible retry library for Dio               |
 | [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning) | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg?style=flat-square)](https://pub.dev/packages/http_certificate_pinning) | Https Certificate pinning for Flutter             |
 | [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor) | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg?style=flat-square)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.             |
@@ -261,23 +261,25 @@ response = await dio.request(
 
 为了方便使用，Dio提供了一些其它的Restful API, 这些API都是`request`的别名。
 
-**Future<Response> get(...)**
+```dart
+Future<Response> get(...)
 
-**Future<Response> post(...)**
+Future<Response> post(...)
 
-**Future<Response> put(...)**
+Future<Response> put(...)
 
-**Future<Response> delete(...)**
+Future<Response> delete(...)
 
-**Future<Response> head(...)**
+Future<Response> head(...)
 
-**Future<Response> put(...)**
+Future<Response> put(...)
 
-**Future<Response> path(...)**
+Future<Response> path(...)
 
-**Future<Response> download(...)**
+Future<Response> download(...)
 
-**Future<Response> fetch(RequestOptions)**      new*
+Future<Response> fetch(RequestOptions)
+```
 
 
 ## 请求配置

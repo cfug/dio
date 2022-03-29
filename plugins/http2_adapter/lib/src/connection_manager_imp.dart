@@ -65,7 +65,7 @@ class _ConnectionManager implements ConnectionManager {
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);
     }
-    var socket;
+    late SecureSocket socket;
     try {
       // Create socket
       socket = await SecureSocket.connect(

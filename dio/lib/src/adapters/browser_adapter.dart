@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
-import '../dio_error.dart';
-import '../options.dart';
-import '../adapter.dart';
 import 'dart:html';
+import 'dart:typed_data';
+
+import '../adapter.dart';
+import '../dio_error.dart';
 import '../headers.dart';
+import '../options.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -47,7 +48,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     var completer = Completer<ResponseBody>();
 
-    unawaited(xhr.onLoad.first.then((_) {
+    xhr.onLoad.first.then((_) {
       Uint8List body = (xhr.response as ByteBuffer).asUint8List();
       completer.complete(
         ResponseBody.fromBytes(
@@ -58,7 +59,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           isRedirect: xhr.status == 302 || xhr.status == 301,
         ),
       );
-    }));
+    });
 
     bool haveSent = false;
 
@@ -134,7 +135,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    unawaited(xhr.onError.first.then((_) {
+    xhr.onError.first.then((_) {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
       completer.completeError(
@@ -145,17 +146,24 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         ),
         StackTrace.current,
       );
-    }));
+    });
 
-    unawaited(cancelFuture?.then((_) {
+    cancelFuture?.then((err) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
         try {
           xhr.abort();
         } catch (e) {
           // ignore
         }
+
+        // xhr.onError will not triggered when xhr.abort() called.
+        // so need to manual throw the cancel error to avoid Future hang ups.
+        // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
+        if (!completer.isCompleted) {
+          completer.completeError(err);
+        }
       }
-    }));
+    });
 
     if (requestStream != null) {
       var _completer = Completer<Uint8List>();

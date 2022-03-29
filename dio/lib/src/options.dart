@@ -373,7 +373,7 @@ class Options {
   ///
   /// If you want to receive the response data with String, use `plain`.
   ///
-  /// If you want to receive the response data with  original bytes,
+  /// If you want to receive the response data with original bytes,
   /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   ResponseType? responseType;
 
@@ -467,7 +467,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     int? sendTimeout,
     int? receiveTimeout,
     int? connectTimeout,
-    String? data,
+    dynamic data,
     String? path,
     Map<String, dynamic>? queryParameters,
     String? baseUrl,
