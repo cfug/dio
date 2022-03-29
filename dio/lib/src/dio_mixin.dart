@@ -281,6 +281,9 @@ abstract class DioMixin implements Dio {
   ///
   /// Dio will enqueue the incoming request tasks instead
   /// send them directly when [interceptor.requestOptions] is locked.
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   @override
   void lock() {
     interceptors.requestLock.lock();
@@ -289,12 +292,18 @@ abstract class DioMixin implements Dio {
   /// Unlock the current Dio instance.
   ///
   /// Dio instance dequeue the request task。
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   @override
   void unlock() {
     interceptors.requestLock.unlock();
   }
 
   ///Clear the current Dio instance waiting queue.
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   @override
   void clear() {
     interceptors.requestLock.clear();

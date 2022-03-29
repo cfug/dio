@@ -1,9 +1,9 @@
 
-# 4.0.5-beta1
+# 4.0.5
 - [Web] support send/receive progress in web platform
 - refactor timeout logic
 - use 'arraybuffer' instead of 'blob' for xhr requests in web platform
-
+- 
 
 # 4.0.4
 - Fix fetching null data in a response
