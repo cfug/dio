@@ -11,6 +11,7 @@ void main() {
   });
 
   test('JSON MimeType "application/vnd.example.com+json" ', () {
-    expect(Transformer.isJsonMimeType("application/vnd.example.com+json"), isTrue);
+    expect(
+        Transformer.isJsonMimeType("application/vnd.example.com+json"), isTrue);
   });
 }
