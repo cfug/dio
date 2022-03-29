@@ -52,9 +52,9 @@ abstract class Transformer {
   static bool isJsonMimeType(String? contentType) {
     if (contentType == null) return false;
     final mediaType = MediaType.parse(contentType);
-    if (mediaType.mimeType == 'application/json') return true;
-    if (mediaType.mimeType == 'text/json') return true;
-    return mediaType.subtype.endsWith('+json');
+    return mediaType.mimeType == 'application/json' ||
+        mediaType.mimeType == 'text/json' ||
+        mediaType.subtype.endsWith('+json');
   }
 }
 

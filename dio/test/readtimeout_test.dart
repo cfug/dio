@@ -73,6 +73,7 @@ void main() {
     }
 
     expect(error, isNotNull);
+    //print(error);
     expect(error.type == DioErrorType.receiveTimeout, isTrue);
   });
 

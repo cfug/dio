@@ -97,11 +97,15 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     try {
       responseStream = await future;
     } on TimeoutException {
-      throw DioError(
-        requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}ms]',
-        type: DioErrorType.receiveTimeout,
-      );
+      try {
+        await responseStream.detachSocket();
+      } finally {
+        throw DioError(
+          requestOptions: options,
+          error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+          type: DioErrorType.receiveTimeout,
+        );
+      }
     }
 
     var stream =
@@ -117,7 +121,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
               type: DioErrorType.receiveTimeout,
             ),
           );
-          //todo: to verify
           responseStream.detachSocket().then((socket) => socket.destroy());
         } else {
           sink.add(Uint8List.fromList(data));
