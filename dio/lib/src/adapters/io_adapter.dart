@@ -61,6 +61,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       }
       rethrow;
     } on TimeoutException {
+      request.abort();
       _throwConnectingTimeout();
     }
 
@@ -76,6 +77,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       try {
         await future;
       } on TimeoutException {
+        request.abort();
         throw DioError(
           requestOptions: options,
           error: 'Sending timeout[${options.sendTimeout}ms]',
@@ -116,7 +118,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
             ),
           );
           //todo: to verify
-          responseStream.detachSocket().then((socket) => socket.close());
+          responseStream.detachSocket().then((socket) => socket.destroy());
         } else {
           sink.add(Uint8List.fromList(data));
         }
