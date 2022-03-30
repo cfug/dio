@@ -471,7 +471,7 @@ Because of security reasons, we need all the requests to set up a csrfToken in t
 
 You can clean the waiting queue by calling `clear()`;
 
-For complete codes click [here](https://github.com/flutterchina/dio/blob/develop/example/queued_interceptor_crsftoken.dart).
+For complete codes click [here](https://github.com/flutterchina/dio/blob/develop/example/lib/queued_interceptor_crsftoken.dart).
 
 ### Log
 
