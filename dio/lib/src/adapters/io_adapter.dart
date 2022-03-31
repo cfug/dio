@@ -44,6 +44,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     late HttpClientRequest request;
     try {
+      request = await reqFuture;
       if (options.connectTimeout > 0) {
         request = await reqFuture
             .timeout(Duration(milliseconds: options.connectTimeout));
@@ -61,7 +62,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       }
       rethrow;
     } on TimeoutException {
-      request.abort();
       _throwConnectingTimeout();
     }
 
@@ -97,15 +97,11 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     try {
       responseStream = await future;
     } on TimeoutException {
-      try {
-        await responseStream.detachSocket();
-      } finally {
-        throw DioError(
-          requestOptions: options,
-          error: 'Receiving data timeout[${options.receiveTimeout}ms]',
-          type: DioErrorType.receiveTimeout,
-        );
-      }
+      throw DioError(
+        requestOptions: options,
+        error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+        type: DioErrorType.receiveTimeout,
+      );
     }
 
     var stream =

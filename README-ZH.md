@@ -13,7 +13,7 @@ dio是一个强大的Dart Http请求库，支持Restful API、FormData、拦截�
 
 ```yaml
 dependencies:
-  dio: ^4.0.5
+  dio: ^4.0.6
 ```
 
 > 如果你是dio 3.x 用户，想了解4.0的变更，请参考 [4.x更新列表](./migration_to_4.x.md)!
