@@ -72,7 +72,7 @@ enum ListFormat {
 
 typedef ValidateStatus = bool Function(int? status);
 
-typedef ResponseDecoder = String Function(
+typedef ResponseDecoder = String? Function(
     List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
 typedef RequestEncoder = List<int> Function(
     String request, RequestOptions options);
