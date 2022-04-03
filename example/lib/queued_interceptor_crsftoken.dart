@@ -120,12 +120,33 @@ class LockTokenInterceptor extends Interceptor {
 }
 
 class QueueTokenInterceptor extends QueuedInterceptor {
-  QueueTokenInterceptor(Dio dio) {
+  QueueTokenInterceptor(
+    Dio dio, {
+    this.repeatDeep = 3,
+  }) {
     tokenDio = Dio()
       ..options = dio.options
       ..httpClientAdapter = dio.httpClientAdapter;
   }
   late final Dio tokenDio;
+  final int repeatDeep;
+
+  Dio? _repeatDio;
+  Dio get repeatDio {
+    if (repeatDeep <= 1) {
+      // tokenDio does not contain a token interceptor. It does not handle 401 errors.
+      return tokenDio;
+    }
+    if (_repeatDio == null) {
+      _repeatDio = Dio()
+        ..options = tokenDio.options
+        ..httpClientAdapter = tokenDio.httpClientAdapter;
+      // repeatDio has a token interceptor, which refreshes the token if the request reports a 401 error.
+      _repeatDio!.interceptors
+          .add(QueueTokenInterceptor(_repeatDio!, repeatDeep: repeatDeep - 1));
+    }
+    return _repeatDio!;
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -160,7 +181,7 @@ class QueueTokenInterceptor extends QueuedInterceptor {
       if (csrfToken != options.headers['csrfToken']) {
         options.headers['csrfToken'] = csrfToken;
         //repeat
-        tokenDio.fetch(options).then(
+        repeatDio.fetch(options).then(
           (r) {
             handler.resolve(r);
           },
@@ -176,7 +197,7 @@ class QueueTokenInterceptor extends QueuedInterceptor {
         options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
       }).then((e) {
         //repeat, The current dio has been blocked and needs to be re-requested using another instance.
-        tokenDio.fetch(options).then(
+        repeatDio.fetch(options).then(
           (r) {
             handler.resolve(r);
           },
