@@ -14,19 +14,27 @@ void main() async {
       ? LockTokenInterceptor(dio)
       : QueueTokenInterceptor(dio));
 
-  FutureOr<void> _onResult(d) {
-    print('request ok!: $d');
-  }
-
   await Future.wait([
-    dio.get('test?tag=1').then(_onResult),
-    dio.get('test?tag=2').then(_onResult),
-    dio.get('test?tag=3').then(_onResult),
+    _log(dio.get('test?tag=1')),
+    _log(dio.get('test?tag=2')),
+    _log(dio.get('test?tag=3')),
   ]);
+}
+
+Future<void> _log<T>(Future<T> future) {
+  return future.then<T?>((value) {
+    print('request ok!: $value');
+    return value;
+  }).catchError((e, st) {
+    print('request error: $e');
+  });
 }
 
 String? csrfToken;
 
+/// @see [Interceptors.requestLock]
+/// @see [QueueTokenInterceptor]
+@Deprecated('use QueueTokenInterceptor instead.')
 class LockTokenInterceptor extends Interceptor {
   LockTokenInterceptor(this.dio) {
     tokenDio = Dio()
@@ -112,12 +120,11 @@ class LockTokenInterceptor extends Interceptor {
 }
 
 class QueueTokenInterceptor extends QueuedInterceptor {
-  QueueTokenInterceptor(this.dio) {
+  QueueTokenInterceptor(Dio dio) {
     tokenDio = Dio()
       ..options = dio.options
       ..httpClientAdapter = dio.httpClientAdapter;
   }
-  final Dio dio;
   late final Dio tokenDio;
 
   @override
@@ -153,7 +160,7 @@ class QueueTokenInterceptor extends QueuedInterceptor {
       if (csrfToken != options.headers['csrfToken']) {
         options.headers['csrfToken'] = csrfToken;
         //repeat
-        dio.fetch(options).then(
+        tokenDio.fetch(options).then(
           (r) {
             handler.resolve(r);
           },
@@ -168,8 +175,8 @@ class QueueTokenInterceptor extends QueuedInterceptor {
         //update csrfToken
         options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
       }).then((e) {
-        //repeat
-        dio.fetch(options).then(
+        //repeat, The current dio has been blocked and needs to be re-requested using another instance.
+        tokenDio.fetch(options).then(
           (r) {
             handler.resolve(r);
           },
