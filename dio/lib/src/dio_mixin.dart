@@ -291,7 +291,7 @@ abstract class DioMixin implements Dio {
 
   /// Unlock the current Dio instance.
   ///
-  /// Dio instance dequeue the request task。
+  /// Dio instance dequeue the request task.
   @Deprecated(
       'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
       ' https://github.com/flutterchina/dio/issues/1308')

@@ -433,7 +433,7 @@ print(response.data);//'fake data'
 
 ### QueuedInterceptor
 
-`Interceptor` can be executed concurrently, that is, all of the requests enter the interceptor at once, rather than executing sequentially.  However, in some cases we expect that requests enter the interceptor sequentially like #590 。 Therefore, we need to provide a mechanism for sequential access（one by one） to interceptors  and `QueuedInterceptor` can solve this problem.
+`Interceptor` can be executed concurrently, that is, all of the requests enter the interceptor at once, rather than executing sequentially.  However, in some cases we expect that requests enter the interceptor sequentially like #590. Therefore, we need to provide a mechanism for sequential access（one by one） to interceptors  and `QueuedInterceptor` can solve this problem.
 
 #### Example
 
@@ -589,7 +589,7 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ### Multiple files upload
 
-There are two ways to add multiple files to ` FormData`， the only difference is that upload keys are different for array types。
+There are two ways to add multiple files to `FormData`， the only difference is that upload keys are different for array types.
 
 ```dart
 FormData.fromMap({

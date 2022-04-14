@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 
 /// Don't use this class in Browser environment
 class CookieManager extends Interceptor {
-  /// Cookie manager for http requests。Learn more details about
+  /// Cookie manager for http requests. Learn more details about
   /// CookieJar please refer to [cookie_jar](https://github.com/flutterchina/cookie_jar)
   final CookieJar cookieJar;
 
