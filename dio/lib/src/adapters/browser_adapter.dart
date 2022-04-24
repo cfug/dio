@@ -63,11 +63,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    connectTO ??= _handleConnectTimeOut(xhr, options, completer);
+    connectTO ??= _initConnectTimeOut(xhr, options, completer);
 
     xhr.upload.onProgress.listen((event) {
       _completeTimeOuts([connectTO]);
-      sendTO ??= _handleSendTimeOut(xhr, options, completer);
+      sendTO ??= _initSendTimeOut(xhr, options, completer);
 
       if (options.onSendProgress != null &&
           event.loaded != null &&
@@ -78,7 +78,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     xhr.onProgress.listen((event) {
       _completeTimeOuts([connectTO, sendTO]);
-      receiveTO ??= _handleReceiveTimeOut(xhr, options, completer);
+      receiveTO ??= _initReceiveTimeOut(xhr, options, completer);
 
       if (options.onReceiveProgress != null &&
           event.loaded != null &&
@@ -90,14 +90,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     xhr.onError.first.then((_) {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
-      completer.completeError(
-        DioError(
-          type: DioErrorType.response,
-          error: 'XMLHttpRequest error.',
-          requestOptions: options,
-        ),
-        StackTrace.current,
-      );
+      if (!completer.isCompleted) {
+        completer.completeError(
+          DioError(
+            type: DioErrorType.response,
+            error: 'XMLHttpRequest error.',
+            requestOptions: options,
+          ),
+          StackTrace.current,
+        );
+      }
     });
 
     cancelFuture?.then((err) {
@@ -155,7 +157,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     _xhrs.clear();
   }
 
-  Completer<void>? _handleConnectTimeOut(
+  Completer<void>? _initConnectTimeOut(
     HttpRequest xhr,
     RequestOptions options,
     Completer<ResponseBody> completer,
@@ -180,7 +182,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
   }
 
-  Completer<void>? _handleSendTimeOut(
+  Completer<void>? _initSendTimeOut(
     HttpRequest xhr,
     RequestOptions options,
     Completer<ResponseBody> completer,
@@ -205,7 +207,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
   }
 
-  Completer<void>? _handleReceiveTimeOut(
+  Completer<void>? _initReceiveTimeOut(
     HttpRequest xhr,
     RequestOptions options,
     Completer<ResponseBody> completer,
@@ -230,10 +232,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
   }
 
-  void _completeTimeOuts(List<Completer<void>?> completers) {
-    for (var completer in completers) {
-      if (completer != null && !completer.isCompleted) {
-        completer.complete();
+  void _completeTimeOuts(List<Completer<void>?> toCompleters) {
+    for (var toCompleter in toCompleters) {
+      if (toCompleter != null && !toCompleter.isCompleted) {
+        toCompleter.complete();
       }
     }
   }
