@@ -36,12 +36,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       ..responseType = 'arraybuffer';
 
     final _withCredentials = options.extra['withCredentials'];
-
-    if (_withCredentials != null) {
-      xhr.withCredentials = _withCredentials == true;
-    } else {
-      xhr.withCredentials = withCredentials;
-    }
+    xhr.withCredentials = _withCredentials == true ? true : withCredentials;
 
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
@@ -165,8 +160,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (options.connectTimeout <= 0) return null;
 
     return Completer<void>()
-      ..future.timeout(Duration(milliseconds: options.connectTimeout)).then(
-        (value) {
+      ..future.timeout(
+        Duration(milliseconds: options.connectTimeout),
+        onTimeout: () {
           if (!completer.isCompleted) {
             completer.completeError(
               DioError(
@@ -190,8 +186,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (options.sendTimeout <= 0) return null;
 
     return Completer<void>()
-      ..future.timeout(Duration(milliseconds: options.sendTimeout)).then(
-        (value) {
+      ..future.timeout(
+        Duration(milliseconds: options.sendTimeout),
+        onTimeout: () {
           if (!completer.isCompleted) {
             completer.completeError(
               DioError(
@@ -215,8 +212,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (options.receiveTimeout <= 0) return null;
 
     return Completer<void>()
-      ..future.timeout(Duration(milliseconds: options.receiveTimeout)).then(
-        (value) {
+      ..future.timeout(
+        Duration(milliseconds: options.receiveTimeout),
+        onTimeout: () {
           if (!completer.isCompleted) {
             completer.completeError(
               DioError(
