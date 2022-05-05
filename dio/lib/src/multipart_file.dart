@@ -135,4 +135,10 @@ class MultipartFile {
     _isFinalized = true;
     return _stream;
   }
+
+  @override
+  String toString() {
+    return 'MultipartFile(filename: $filename, contentType: $contentType, '
+        'length: $length, isFinalized: $_isFinalized)';
+  }
 }

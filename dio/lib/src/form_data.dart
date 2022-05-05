@@ -174,4 +174,9 @@ class FormData {
   Future<List<int>> readAsBytes() {
     return Future(() => finalize().reduce((a, b) => [...a, ...b]));
   }
+
+  @override
+  String toString() {
+    return 'FormData(fields: ${fields.toString()}, files: ${files.toString()})';
+  }
 }
