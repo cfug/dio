@@ -66,7 +66,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (options.connectTimeout > 0) {
       Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
         (value) {
-          if (!haveSent) {
+          if (!completer.isCompleted && !haveSent) {
             completer.completeError(
               DioError(
                 requestOptions: options,
