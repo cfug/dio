@@ -554,7 +554,7 @@ abstract class DioMixin implements Dio {
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic, StackTrace) _errorInterceptorWrapper(
         InterceptorErrorCallback interceptor) {
-      return (err, stackTrace) {
+      return (err, _) {
         if (err is! InterceptorState) {
           err = InterceptorState(
             assureDioError(
@@ -571,7 +571,8 @@ abstract class DioMixin implements Dio {
             Future(() {
               return checkIfNeedEnqueue(interceptors.errorLock, () {
                 var errorHandler = ErrorInterceptorHandler();
-                interceptor(err.data as DioError, errorHandler);
+                var dioError = (err.data as DioError)..stackTrace = stackTrace;
+                interceptor(dioError, errorHandler);
                 return errorHandler.future;
               });
             }),
