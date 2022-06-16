@@ -8,15 +8,15 @@ import '../response.dart';
 /// otherwise the changes made in the interceptor behind A will not be printed out.
 /// This is because the execution of interceptors is in the order of addition.
 class LogInterceptor extends Interceptor {
-  LogInterceptor({
-    this.request = true,
-    this.requestHeader = true,
-    this.requestBody = false,
-    this.responseHeader = true,
-    this.responseBody = false,
-    this.error = true,
-    this.logPrint = print,
-  });
+  LogInterceptor(
+      {this.request = true,
+      this.requestHeader = true,
+      this.requestBody = false,
+      this.responseHeader = true,
+      this.responseBody = false,
+      this.error = true,
+      this.logPrint = print,
+      this.isDebugMode = true});
 
   /// Print request [Options]
   bool request;
@@ -35,6 +35,9 @@ class LogInterceptor extends Interceptor {
 
   /// Print error message
   bool error;
+
+  ///control the print statement while in release mode
+  bool isDebugMode;
 
   /// Log printer; defaults print log to console.
   /// In flutter, you'd better use debugPrint.
@@ -120,10 +123,14 @@ class LogInterceptor extends Interceptor {
   }
 
   void _printKV(String key, Object? v) {
-    logPrint('$key: $v');
+    if (isDebugMode) {
+      logPrint('$key: $v');
+    }
   }
 
   void _printAll(msg) {
-    msg.toString().split('\n').forEach(logPrint);
+    if (isDebugMode) {
+      msg.toString().split('\n').forEach(logPrint);
+    }
   }
 }
