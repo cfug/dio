@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -96,5 +97,36 @@ void main() {
     }
 
     expect(error, isNull);
+  });
+
+  test('#read_timeout - change connectTimeout in run time ', () async {
+
+    var dio = Dio();
+    final adapter = DefaultHttpClientAdapter();
+    final http = HttpClient();
+
+    adapter.onHttpClientCreate = (_) => http;
+    dio.httpClientAdapter = adapter;
+
+    dio.options
+      ..baseUrl = serverUrl.toString()
+      ..connectTimeout = 200;
+
+    try {
+      await dio.get('/');
+    } on DioError catch (e) {
+      //ignore
+    }
+
+    expect(http.connectionTimeout?.inMilliseconds == 200, isTrue);
+
+    try {
+      dio.options.connectTimeout = 1000;
+      await dio.get('/');
+    } on DioError catch (e) {
+      //ignore
+    }
+    expect(http.connectionTimeout?.inMilliseconds == 1000, isTrue);
+
   });
 }
