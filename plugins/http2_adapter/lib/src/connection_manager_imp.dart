@@ -70,22 +70,14 @@ class _ConnectionManager implements ConnectionManager {
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);
     }
-    late SecureSocket socket;
+
+    late final SecureSocket socket;
+
     try {
       // Create socket
-      if (clientConfig.proxy != null) {
-        socket = await _createSocketWithProxy(
-          uri,
-          options,
-          clientConfig,
-        );
-      } else {
-        socket = await _createSocket(
-          uri,
-          options,
-          clientConfig,
-        );
-      }
+      socket = clientConfig.proxy == null
+          ? await _createSocket(uri, options, clientConfig)
+          : await _createSocketWithProxy(uri, options, clientConfig);
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
@@ -120,6 +112,7 @@ class _ConnectionManager implements ConnectionManager {
         transportState.latestIdleTimeStamp = DateTime.now();
       }
     };
+
     //
     transportState.delayClose(
       _closed ? Duration(milliseconds: 50) : _idleTimeout,
@@ -153,55 +146,58 @@ class _ConnectionManager implements ConnectionManager {
     RequestOptions options,
     ClientSetting clientConfig,
   ) async {
-    late Socket proxySocket;
-
-    proxySocket = await Socket.connect(
+    final proxySocket = await Socket.connect(
       clientConfig.proxy!.host,
       clientConfig.proxy!.port,
       timeout: options.connectTimeout,
     );
 
-    String credentials =
+    final String credentialsProxy =
         base64Encode(utf8.encode(clientConfig.proxy!.userInfo));
 
     //Send proxy headers
     const crlf = '\r\n';
+
     proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
     proxySocket.write(crlf);
     proxySocket.write('Host: ${target.host}:${target.port}');
-    if (credentials.isNotEmpty) {
+
+    if (credentialsProxy.isNotEmpty) {
       proxySocket.write(crlf);
-      proxySocket.write('Proxy-Authorization: Basic $credentials');
+      proxySocket.write('Proxy-Authorization: Basic $credentialsProxy');
     }
+
     proxySocket.write(crlf);
     proxySocket.write(crlf);
 
-    final completer = Completer<void>();
+    final completerProxyInitialization = Completer<void>();
 
-    completer.future.onError((error, stackTrace) => {
+    completerProxyInitialization.future.onError((error, stackTrace) => {
           throw DioError(
             requestOptions: options,
-            error: 'Proxy connection error: $error',
-            type: DioErrorType.other,
+            error: error,
+            type: DioErrorType.connectionError,
           )
         });
 
-    final sub = proxySocket.listen(
+    final proxySubscription = proxySocket.listen(
       (event) {
         final response = ascii.decode(event);
         final lines = response.split(crlf);
         final statusLine = lines.first;
-        print(response);
+
         if (statusLine.startsWith('HTTP/1.1 200')) {
-          completer.complete();
+          completerProxyInitialization.complete();
         } else {
-          completer.completeError(statusLine);
+          completerProxyInitialization.completeError(
+            SocketException('Proxy cannot be initialized'),
+          );
         }
       },
-      onError: completer.completeError,
+      onError: completerProxyInitialization.completeError,
     );
 
-    await completer.future;
+    await completerProxyInitialization.future;
 
     final socket = await SecureSocket.secure(
       proxySocket,
@@ -211,7 +207,7 @@ class _ConnectionManager implements ConnectionManager {
       supportedProtocols: ['h2'],
     );
 
-    sub.cancel();
+    proxySubscription.cancel();
 
     return socket;
   }
