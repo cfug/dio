@@ -18,11 +18,11 @@ jobs:
       run:
         working-directory: plugins/http2_adapter
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
-      - run: pub get
+      - run: dart pub get
       - run: dart analyze
 
   format:
@@ -32,7 +32,7 @@ jobs:
       run:
         working-directory: plugins/http2_adapter
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
@@ -49,14 +49,14 @@ jobs:
       run:
         working-directory: plugins/http2_adapter
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - run: pub get
+      - run: dart pub get
       - run: dart test --chain-stack-traces
       - name: Upload test report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: test-results-${{ matrix.sdk }}
