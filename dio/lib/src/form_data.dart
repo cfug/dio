@@ -30,6 +30,7 @@ class FormData {
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
   bool _isFinalized = false;
+  bool camelCaseContentDisposition = false;
 
   FormData() {
     _init();
@@ -41,6 +42,11 @@ class FormData {
     ListFormat collectionFormat = ListFormat.multi,
   ]) {
     _init();
+
+    if (map.containsKey("camelCaseContentDisposition")) {
+      camelCaseContentDisposition = map['camelCaseContentDisposition'];
+    }
+
     encodeMap(
       map,
       (key, value) {
@@ -68,7 +74,7 @@ class FormData {
   /// contain only ASCII characters.
   String _headerForField(String name, String value) {
     var header =
-        'content-disposition: form-data; name="${_browserEncode(name)}"';
+        '${camelCaseContentDisposition ? 'Content-Disposition': 'content-disposition'}: form-data; name="${_browserEncode(entry.key)}"';
     if (!isPlainAscii(value)) {
       header = '$header\r\n'
           'content-type: text/plain; charset=utf-8\r\n'
@@ -82,7 +88,7 @@ class FormData {
   String _headerForFile(MapEntry<String, MultipartFile> entry) {
     var file = entry.value;
     var header =
-        'content-disposition: form-data; name="${_browserEncode(entry.key)}"';
+        '${camelCaseContentDisposition ? 'Content-Disposition': 'content-disposition'}: form-data; name="${_browserEncode(entry.key)}"';
     if (file.filename != null) {
       header = '$header; filename="${_browserEncode(file.filename)}"';
     }
