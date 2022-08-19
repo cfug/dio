@@ -274,7 +274,7 @@ Future<Response> head(...)
 
 Future<Response> put(...)
 
-Future<Response> path(...)
+Future<Response> patch(...)
 
 Future<Response> download(...)
 
