@@ -20,6 +20,8 @@ dio/.exampl
 dio/coverage
 dio/test/_download_test.md
 dio/test/_pinning.txt
+dio/test/_good_pinning.txt
+dio/test/_bad_pinning.txt
 
 # plugins
 plugins/cookie_manager/.packages

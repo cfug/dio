@@ -20,6 +20,11 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   OnHttpClientCreate? onHttpClientCreate;
 
   /// Allows the user to decide if the response certificate is good.
+  /// If this function is missing, then the certificate is allowed.
+  /// This method is called only if both the [SecurityContext] and
+  /// [badCertificateCallback] accept the certificate chain. Those
+  /// methods evaluate the root or intermediate certificate, while
+  /// [responseCertApprover] evaluates the leaf certificate.
   ResponseCertApprover? responseCertApprover;
 
   HttpClient? _defaultHttpClient;
