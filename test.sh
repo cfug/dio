@@ -1,4 +1,8 @@
 cd dio
+openssl s_client \
+  -servername mozilla-intermediate.badssl.com \
+  -connect mozilla-intermediate.badssl.com:443 < /dev/null 2>/dev/null \
+  | openssl x509 -noout -fingerprint -sha256 > test/_pinning.txt 2>/dev/null
 dart test --coverage=coverage .
 pub run coverage:format_coverage --packages=.packages -i coverage -o coverage/lcov.info --lcov
 genhtml -o coverage coverage/lcov.info

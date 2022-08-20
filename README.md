@@ -1,10 +1,11 @@
 Language: [English](README.md) | [中文简体](README-ZH.md)
 
 # dio
+
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
 [![support](https://img.shields.io/badge/platform-flutter%7Cflutter%20web%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
 
-A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc. 
+A powerful Http client for Dart, which supports Interceptors, Global configuration, FormData, Request Cancellation, File downloading, Timeout etc.
 
 ## Get started
 
@@ -14,6 +15,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 dependencies:
   dio: ^4.0.6
 ```
+
 > Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_to_4.x.md)!
 
 ### Super simple to use
@@ -36,17 +38,16 @@ void getHttp() async {
 
 ### Plugins (support 4.x)
 
-| Plugins                                                      | Status                                                       | Description                                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A cookie manager for Dio                                     |
-| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A Dio HttpClientAdapter which support Http/2.0               |
-| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry) | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg?style=flat-square)](https://pub.dev/packages/dio_smart_retry) | Flexible retry library for Dio               |
-| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning) | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg?style=flat-square)](https://pub.dev/packages/http_certificate_pinning) | Https Certificate pinning for Flutter             |
-| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor) | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg?style=flat-square)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.             |
-| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor) | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg?style=flat-square)](https://pub.dev/packages/dio_cache_interceptor) | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)             |
-| [dio_http_cache](https://github.com/hurshi/dio-http-cache) | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dev/packages/dio_http_cache) | A simple cache library for Dio like Rxcache in Android             |
-| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger) | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg?style=flat-square)](https://pub.dev/packages/pretty_dio_logger) | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.            |
-
+| Plugins                                                                                      | Status                                                                                                                                         | Description                                                                                      |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager)          | A cookie manager for Dio                                                                         |
+| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter)   | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter)            | A Dio HttpClientAdapter which support Http/2.0                                                   |
+| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                               | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg?style=flat-square)](https://pub.dev/packages/dio_smart_retry)                         | Flexible retry library for Dio                                                                   |
+| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)           | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg?style=flat-square)](https://pub.dev/packages/http_certificate_pinning)       | Https Certificate pinning for Flutter                                                            |
+| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)         | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg?style=flat-square)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.                                                        |
+| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)                  | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg?style=flat-square)](https://pub.dev/packages/dio_cache_interceptor)             | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)              |
+| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                                   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dev/packages/dio_http_cache)                           | A simple cache library for Dio like Rxcache in Android                                           |
+| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                       | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg?style=flat-square)](https://pub.dev/packages/pretty_dio_logger)                     | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format. |
 
 ### Related Projects
 
@@ -78,17 +79,15 @@ Welcome to submit Dio's third-party plugins and related libraries [here](https:/
 
 - [Https certificate verification](#https-certificate-verification)
 
-- [HttpClientAdapter](#httpclientadapter )
+- [HttpClientAdapter](#httpclientadapter)
 
 - [Cancellation](#cancellation)
 
 - [Extends Dio class](#extends-dio-class)
 
-- [Http2 support](#http2-support )
+- [Http2 support](#http2-support)
 
 - [Features and bugs](#features-and-bugs)
-
-  
 
 ## Examples
 
@@ -135,7 +134,7 @@ print(rs.data.stream); //response stream
 Get response with bytes:
 
 ```dart
-Response<List<int>> rs 
+Response<List<int>> rs
 rs = await Dio().get<List<int>>(url,
  options: Options(responseType: ResponseType.bytes), // set responseType to `bytes`
 );
@@ -178,6 +177,7 @@ response = await dio.post(
   },
 );
 ```
+
 Post binary data by Stream:
 
 ```dart
@@ -195,8 +195,6 @@ await dio.post(
 ```
 
 …you can find all examples code [here](https://github.com/flutterchina/dio/tree/master/example).
-
-
 
 ## Dio APIs
 
@@ -224,7 +222,7 @@ Dio dio = Dio(options);
 The core API in Dio instance is:
 
 **Future<Response> request(String path, {data,Map queryParameters, Options options,CancelToken cancelToken, ProgressCallback onSendProgress,
-    ProgressCallback onReceiveProgress)**
+ProgressCallback onReceiveProgress)**
 
 ```dart
 response = await dio.request(
@@ -258,10 +256,9 @@ Future<Response> download(...)
 Future<Response> fetch(RequestOptions)
 ```
 
-
 ## Request Options
 
-The Options class describes the http request information and configuration. Each Dio instance has a base config for all requests maked by itself, and we can override the base config with [Options] when make a single request.  The  [BaseOptions] declaration as follows:
+The Options class describes the http request information and configuration. Each Dio instance has a base config for all requests maked by itself, and we can override the base config with [Options] when make a single request. The [BaseOptions] declaration as follows:
 
 ```dart
 {
@@ -314,10 +311,10 @@ The Options class describes the http request information and configuration. Each
 
   /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the   [Response] object.
   Map<String, dynamic> extra;
-  
+
   /// Common query parameters
-  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;  
-  
+  Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
+
    /// [collectionFormat] indicates the format of collection data in request
   /// options which defined in [CollectionFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`,`multiCompatible`.
   /// The default value is `multiCompatible`
@@ -343,12 +340,12 @@ The response for a request contains the following information.
   /// Http status code.
   int? statusCode;
   String? statusMessage;
-  /// Whether redirect 
-  bool? isRedirect;  
-  /// redirect info    
+  /// Whether redirect
+  bool? isRedirect;
+  /// redirect info
   List<RedirectInfo> redirects ;
-  /// Returns the final real request uri (maybe redirect). 
-  Uri realUri;    
+  /// Returns the final real request uri (maybe redirect).
+  Uri realUri;
   /// Custom field that you can retrieve it later in `then`.
   Map<String, dynamic> extra;
 }
@@ -382,13 +379,13 @@ dio.interceptors.add(InterceptorsWrapper(
      // Do something with response data
      return handler.next(response); // continue
      // If you want to reject the request with a error message,
-     // you can reject a `DioError` object eg: `handler.reject(dioError)` 
+     // you can reject a `DioError` object eg: `handler.reject(dioError)`
     },
     onError: (DioError e, handler) {
      // Do something with response error
      return  handler.next(e);//continue
      // If you want to resolve the request with some custom data，
-     // you can resolve a `Response` object eg: `handler.resolve(response)`.  
+     // you can resolve a `Response` object eg: `handler.resolve(response)`.
     }
 ));
 
@@ -417,10 +414,9 @@ class CustomInterceptors extends Interceptor {
 }
 ```
 
-
 ### Resolve and reject the request
 
-In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can call `handler.resolve(Response)`.  If you want to reject the request/response with a error message, you can call `handler.reject(dioError)` .
+In all interceptors, you can interfere with their execution flow. If you want to resolve the request/response with some custom data，you can call `handler.resolve(Response)`. If you want to reject the request/response with a error message, you can call `handler.reject(dioError)` .
 
 ```dart
 dio.interceptors.add(InterceptorsWrapper(
@@ -434,7 +430,7 @@ print(response.data);//'fake data'
 
 ### QueuedInterceptor
 
-`Interceptor` can be executed concurrently, that is, all of the requests enter the interceptor at once, rather than executing sequentially.  However, in some cases we expect that requests enter the interceptor sequentially like #590 。 Therefore, we need to provide a mechanism for sequential access（one by one） to interceptors  and `QueuedInterceptor` can solve this problem.
+`Interceptor` can be executed concurrently, that is, all of the requests enter the interceptor at once, rather than executing sequentially. However, in some cases we expect that requests enter the interceptor sequentially like #590 。 Therefore, we need to provide a mechanism for sequential access（one by one） to interceptors and `QueuedInterceptor` can solve this problem.
 
 #### Example
 
@@ -466,7 +462,7 @@ Because of security reasons, we need all the requests to set up a csrfToken in t
         return handler.next(options);
       }
     },
-   ); 
+   );
 ```
 
 You can clean the waiting queue by calling `clear()`;
@@ -475,7 +471,7 @@ For complete codes click [here](https://github.com/flutterchina/dio/blob/develop
 
 ### Log
 
-You can set  `LogInterceptor` to  print request/response log automaticlly, for example:
+You can set `LogInterceptor` to print request/response log automaticlly, for example:
 
 ```dart
 dio.interceptors.add(LogInterceptor(responseBody: false)); //开启请求日志
@@ -487,7 +483,7 @@ You can custom interceptor by extending the `Interceptor/QueuedInterceptor` clas
 
 ## Cookie Manager
 
-[dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) package is a cookie manager for Dio.  
+[dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) package is a cookie manager for Dio.
 
 ## Handling Errors
 
@@ -556,8 +552,6 @@ enum DioErrorType {
 }
 ```
 
-
-
 ## Using application/x-www-form-urlencoded format
 
 By default, Dio serializes request data(except String type) to `JSON`. To send data in the `application/x-www-form-urlencoded` format instead, you can :
@@ -621,7 +615,7 @@ formData.files.addAll([
 
 ### In flutter
 
-If you use dio in flutter development, you'd better to decode json   in background with [compute] function.
+If you use dio in flutter development, you'd better to decode json in background with [compute] function.
 
 ```dart
 
@@ -650,17 +644,17 @@ There is an example for [customizing Transformer](https://github.com/flutterchin
 
 HttpClientAdapter is a bridge between Dio and HttpClient.
 
-Dio implements standard and friendly API  for developer.
+Dio implements standard and friendly API for developer.
 
 HttpClient: It is the real object that makes Http requests.
 
-We can use any HttpClient not just `dart:io:HttpClient` to make the Http request.  And  all we need is providing a `HttpClientAdapter`. The default HttpClientAdapter for Dio is `DefaultHttpClientAdapter`.
+We can use any HttpClient not just `dart:io:HttpClient` to make the Http request. And all we need is providing a `HttpClientAdapter`. The default HttpClientAdapter for Dio is `DefaultHttpClientAdapter`.
 
 ```dart
 dio.httpClientAdapter = new DefaultHttpClientAdapter();
 ```
 
-[Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter. 
+[Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter.
 
 ### Using proxy
 
@@ -685,13 +679,39 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ### Https certificate verification
 
-There are two ways  to verify the https certificate. Suppose the certificate format is PEM, the code like:
+HTTPS certificate verification (or public key pinning) refers to the process of ensuring that the certificates protecting the TLS connection to the server are the ones you expect them to be. The intention is to reduce the chance of a man-in-the-middle attack. The theory is covered by [OWASP](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning).
+
+_Server Response Certificate_
+
+Unlike other methods, this one works with the certificate of the server itself.
 
 ```dart
-String PEM='XXXXX'; // certificate content
+String fingerprint = 'ada6403f6c1b9bd35b1699970f0abe792cd7c5353348aedb15b925bcf67562c3';
+(dio.httpClientAdapter as DefaultHttpClientAdapter).responseCertApprover =
+    (cert, host) => fingerprint == sha256.convert(cert!.der).toString();
+```
+
+You can use openssl to read the SHA256 value of a certificate:
+
+```sh
+openssl s_client -servername mozilla-intermediate.badssl.com -connect mozilla-intermediate.badssl.com:443 < /dev/null 2>/dev/null \
+  | openssl x509 -noout -fingerprint -sha256
+
+# SHA256 Fingerprint=EE:5C:E1:DF:A7:A5:36:57:C5:45:C6:2B:65:80:2E:42:72:87:8D:AB:D6:5C:0A:AD:CF:85:78:3E:BB:0B:4D:5C
+# (remove the formatting, keep only lower case hex characters to match the `sha256` above)
+```
+
+_Certificate Authority Verification_
+
+These methods work well when your server has a self-signed certificate, but they don't work for certificates issued by a 3rd party like AWS or Let's Encrypt.
+
+There are two ways to verify the root of the https certificate chain provided by the server. Suppose the certificate format is PEM, the code like:
+
+```dart
+String PEM='XXXXX'; // root certificate content
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
   client.badCertificateCallback=(X509Certificate cert, String host, int port){
-    if(cert.pem==PEM){ // Verify the certificate
+    if(cert.pem==PEM){ // Verify the root certificate
       return true;
     }
     return false;
@@ -704,14 +724,14 @@ Another way is creating a `SecurityContext` when create the `HttpClient`:
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
   SecurityContext sc = SecurityContext();
-  //file is the path of certificate
+  //file is the path of root certificate
   sc.setTrustedCertificates(file);
   HttpClient httpClient = HttpClient(context: sc);
   return httpClient;
 };
 ```
 
-In this way,  the format of certificate must be PEM or PKCS12.
+In this way, the format of certificate must be PEM or PKCS12.
 
 ## Http2 support
 
@@ -719,7 +739,7 @@ In this way,  the format of certificate must be PEM or PKCS12.
 
 ## Cancellation
 
-You can cancel a request using a *cancel token*. One token can be shared with multiple requests. When a token's  `cancel` method invoked, all requests with this token will be cancelled.
+You can cancel a request using a _cancel token_. One token can be shared with multiple requests. When a token's `cancel` method invoked, all requests with this token will be cancelled.
 
 ```dart
 CancelToken token = CancelToken();
@@ -739,7 +759,7 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ## Extends Dio class
 
-`Dio` is a abstract class with factory constructor，so we don't extend `Dio` class directy. For this purpose,  we can extend `DioForNative` or `DioForBrowser` instead, for example:
+`Dio` is a abstract class with factory constructor，so we don't extend `Dio` class directy. For this purpose, we can extend `DioForNative` or `DioForBrowser` instead, for example:
 
 ```dart
 import 'package:dio/dio.dart';

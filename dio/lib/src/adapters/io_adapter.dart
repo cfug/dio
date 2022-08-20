@@ -7,6 +7,8 @@ import '../dio_error.dart';
 import '../redirect_record.dart';
 
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
+typedef ResponseCertApprover = bool Function(
+    X509Certificate? certificate, String host, int port);
 
 HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
 
@@ -16,6 +18,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
   /// If [onHttpClientCreate] is provided, [Dio] will call
   /// it when a HttpClient created.
   OnHttpClientCreate? onHttpClientCreate;
+
+  /// Allows the user to decide if the response certificate is good.
+  ResponseCertApprover? responseCertApprover;
 
   HttpClient? _defaultHttpClient;
 
@@ -102,6 +107,20 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         error: 'Receiving data timeout[${options.receiveTimeout}ms]',
         type: DioErrorType.receiveTimeout,
       );
+    }
+
+    if (responseCertApprover != null) {
+      final host = options.uri.host;
+      final port = options.uri.port;
+      final isCertApproved =
+          responseCertApprover!(responseStream.certificate, host, port);
+      if (!isCertApproved) {
+        throw DioError(
+          requestOptions: options,
+          error: 'Response certificate NOT approved.',
+          type: DioErrorType.response,
+        );
+      }
     }
 
     var stream =
