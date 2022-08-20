@@ -686,15 +686,30 @@ _Server Response Certificate_
 Unlike other methods, this one works with the certificate of the server itself.
 
 ```dart
-String fingerprint = 'ada6403f6c1b9bd35b1699970f0abe792cd7c5353348aedb15b925bcf67562c3';
+String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+    (_) {
+      // Don't trust any certificate just because their root cert is trusted
+      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+      // You can test the intermediate / root cert here. We just ignore it.
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    };
+// Check that the cert fingerprint matches the one we expect
 (dio.httpClientAdapter as DefaultHttpClientAdapter).responseCertApprover =
-    (cert, host) => fingerprint == sha256.convert(cert!.der).toString();
+    (cert, host, port) {
+      // We definitely require _some_ certificate
+      if (cert == null) return false;
+      // Validate it any way you want. Here we only check that
+      // the fingerprint matches the OpenSSL SHA256.
+      return fingerprint == sha256.convert(cert.der).toString();
+    };
 ```
 
 You can use openssl to read the SHA256 value of a certificate:
 
 ```sh
-openssl s_client -servername mozilla-intermediate.badssl.com -connect mozilla-intermediate.badssl.com:443 < /dev/null 2>/dev/null \
+openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badssl.com:443 < /dev/null 2>/dev/null \
   | openssl x509 -noout -fingerprint -sha256
 
 # SHA256 Fingerprint=EE:5C:E1:DF:A7:A5:36:57:C5:45:C6:2B:65:80:2E:42:72:87:8D:AB:D6:5C:0A:AD:CF:85:78:3E:BB:0B:4D:5C

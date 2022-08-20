@@ -9,14 +9,11 @@ void main() {
   final untrustedCertUrl = 'https://wrong.host.badssl.com/';
 
   // OpenSSL output like: SHA256 Fingerprint=EE:5C:E1:DF:A7:A4...
-  final trustedLines = File('test/_pinning.txt').readAsLinesSync();
-  final trustedFingerprint =
-      trustedLines.first.split('=').last.toLowerCase().replaceAll(':', '');
-
-  // OpenSSL output like: SHA256 Fingerprint=EE:5C:E1:DF:A7:A4...
-  final untrustedLines = File('test/_pinning.txt').readAsLinesSync();
-  final untrustedFingerprint =
-      untrustedLines.first.split('=').last.toLowerCase().replaceAll(':', '');
+  // All badssl.com hosts have the same cert, they just have TLS
+  // setting or other differences (like host name) that make them bad.
+  final lines = File('test/_pinning.txt').readAsLinesSync();
+  final fingerprint =
+      lines.first.split('=').last.toLowerCase().replaceAll(':', '');
 
   test('catch DioError', () async {
     dynamic error;
@@ -59,9 +56,23 @@ void main() {
     expect(error is Exception, isTrue);
   });
 
-  test('pinning: valid host allowed with no approver', () async {
+  test('pinning: trusted host allowed with no approver', () async {
     await Dio().get(trustedCertUrl);
   });
+
+  test('pinning: untrusted host rejected with no approver', () async {
+    dynamic error;
+
+    try {
+      var dio = Dio();
+      await dio.get(untrustedCertUrl);
+      fail('did not throw');
+    } on DioError catch (e) {
+      error = e;
+    }
+    expect(error, isNotNull);
+    expect(error is Exception, isTrue);
+  }, testOn: "!browser");
 
   test('pinning: every certificate tested and rejected', () async {
     dynamic error;
@@ -84,7 +95,7 @@ void main() {
     // badCertificateCallback never called for trusted certificate
     (dio.httpClientAdapter as DefaultHttpClientAdapter).responseCertApprover =
         (cert, host, port) =>
-            trustedFingerprint == sha256.convert(cert!.der).toString();
+            fingerprint == sha256.convert(cert!.der).toString();
     final response = await dio.get(trustedCertUrl,
         options: Options(validateStatus: (status) => true));
     expect(response, isNotNull);
@@ -99,7 +110,7 @@ void main() {
     };
     (dio.httpClientAdapter as DefaultHttpClientAdapter).responseCertApprover =
         (cert, host, port) =>
-            trustedFingerprint == sha256.convert(cert!.der).toString();
+            fingerprint == sha256.convert(cert!.der).toString();
     final response = await dio.get(untrustedCertUrl,
         options: Options(validateStatus: (status) => true));
     expect(response, isNotNull);
@@ -134,9 +145,11 @@ void main() {
           (HttpClient client) {
         final effectiveClient =
             HttpClient(context: SecurityContext(withTrustedRoots: false));
+        // Comparison fails because fingerprint is for leaf cert, but
+        // this cert is from Let's Encrypt.
         effectiveClient.badCertificateCallback =
             (X509Certificate cert, String host, int port) =>
-                trustedFingerprint == sha256.convert(cert.der).toString();
+                fingerprint == sha256.convert(cert.der).toString();
         return effectiveClient;
       };
       await dio.get(trustedCertUrl,
