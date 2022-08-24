@@ -74,7 +74,7 @@ class FormData {
   /// contain only ASCII characters.
   String _headerForField(String name, String value) {
     var header =
-        '${camelCaseContentDisposition ? 'Content-Disposition': 'content-disposition'}: form-data; name="${_browserEncode(entry.key)}"';
+        '${camelCaseContentDisposition ? 'Content-Disposition': 'content-disposition'}: form-data; name="${_browserEncode(name)}"';
     if (!isPlainAscii(value)) {
       header = '$header\r\n'
           'content-type: text/plain; charset=utf-8\r\n'
