@@ -46,6 +46,7 @@ void getHttp() async {
 | [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor) | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg?style=flat-square)](https://pub.dev/packages/dio_cache_interceptor) | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)             |
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache) | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dev/packages/dio_http_cache) | A simple cache library for Dio like Rxcache in Android             |
 | [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger) | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg?style=flat-square)](https://pub.dev/packages/pretty_dio_logger) | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.            |
+| [dio_response_validator](https://github.com/Rexios80/dio_response_validator) | [![Pub](https://img.shields.io/pub/v/dio_response_validator.svg?style=flat-square)](https://pub.dev/packages/dio_response_validator) | Validates Dio responses and provides easy response data transformation.     |
 
 
 ### Related Projects
