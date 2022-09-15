@@ -47,8 +47,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     var completer = Completer<ResponseBody>();
-
+    bool haveSent = false;
     xhr.onLoad.first.then((_) {
+      haveSent = true;
       Uint8List body = (xhr.response as ByteBuffer).asUint8List();
       completer.complete(
         ResponseBody.fromBytes(
@@ -60,8 +61,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         ),
       );
     });
-
-    bool haveSent = false;
 
     if (options.connectTimeout > 0) {
       Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
