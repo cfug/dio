@@ -318,6 +318,7 @@ class DioForNative with DioMixin implements Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    bool resumeDownload = false,
     lengthHeader = Headers.contentLengthHeader,
     data,
     Options? options,

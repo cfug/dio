@@ -355,6 +355,7 @@ abstract class DioMixin implements Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    bool resumeDownload = false,
     String lengthHeader = Headers.contentLengthHeader,
     data,
     Options? options,
@@ -403,6 +404,7 @@ abstract class DioMixin implements Dio {
     savePath, {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
+    bool resumeDownload = false,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
     data,
