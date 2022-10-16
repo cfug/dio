@@ -68,6 +68,7 @@ class DioForNative with DioMixin implements Dio {
     ProgressCallback? onReceiveProgress,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
+    bool resumeDownload = false,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
     data,
@@ -120,18 +121,40 @@ class DioForNative with DioMixin implements Dio {
       file = File(savePath.toString());
     }
 
+    // For the file resumption option.
+    // Its 0 for a new file.
+    int fileLength = 0;
+
+     if (resumeDownload) {
+      bool fileExists = await file.exists();
+
+      if (!fileExists) {
+        //For a resume uploads operation, the file must exist in the given directory.
+        //It it doesnt exist, throw an error.
+        throw DioError(
+            requestOptions: response.requestOptions,
+            error:
+                'File not found in path ${file.path}. Please set resumeDownloads to false if its a new download.',
+            type: DioErrorType.other,
+          );
+      }
+
+      fileLength = file.lengthSync();
+    }
+
     //If directory (or file) doesn't exist yet, the entire method fails
+    //Existing files are left untouched by createSync
     file.createSync(recursive: true);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
     // file with a very big size(up 1G), it will be expensive in memory.
-    var raf = file.openSync(mode: FileMode.write);
+    var raf = file.openSync(mode: resumeDownload ? FileMode.append : FileMode.write);
 
     //Create a Completer to notify the success/error state.
     var completer = Completer<Response>();
     var future = completer.future;
-    var received = 0;
+    var received = resumeDownload ? fileLength : 0; // Set the recieved to the file length if the download is to be resumed
 
     // Stream<Uint8List>
     var stream = response.data!.stream;
@@ -144,7 +167,7 @@ class DioForNative with DioMixin implements Dio {
     if (lengthHeader == Headers.contentLengthHeader && compressed) {
       total = -1;
     } else {
-      total = int.parse(response.headers.value(lengthHeader) ?? '-1');
+      total = int.parse(response.headers.value(lengthHeader) ?? '-1') + fileLength;
     }
 
     late StreamSubscription subscription;
@@ -262,6 +285,15 @@ class DioForNative with DioMixin implements Dio {
   ///
   ///  [onReceiveProgress]: The callback to listen downloading progress.
   ///  please refer to [ProgressCallback].
+  ///  [resumeDownload]: a boolean. Set to true if the download is to be resumed. Make sure
+  ///  to set the range key in the header passed in [Options]. A simple example is
+  /// 
+  ///  ``` dart
+  ///     headers = {....}
+  /// 
+  ///     File fileToBeResumed = File(path)
+  ///     headers['range'] = 'bytes=${fileTobeResumed.lengthSync()}-';
+  ///  ```
   ///
   ///  [lengthHeader] : The real size of original file (not compressed).
   ///  When file is compressed:
