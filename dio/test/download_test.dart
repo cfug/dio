@@ -93,4 +93,20 @@ void main() {
     );
     //print(r);
   });
+
+  test('#test download error when download is to be resumed and file is not found', () async {
+    const savePath = 'test/_download_test.md';
+
+    expect(
+      Dio()
+          .download(
+            serverUrl.toString() + '/download',
+            '$savePath/error_file_1',
+            resumeDownload: true
+          )
+          .catchError((e) => throw (e as DioError).type),
+      throwsA(DioErrorType.other),
+    );
+
+  });
 }
