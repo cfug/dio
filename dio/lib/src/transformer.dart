@@ -89,7 +89,7 @@ class DefaultTransformer extends Transformer {
   @override
   Future transformResponse(
       RequestOptions options, ResponseBody response) async {
-    if (options.responseType == ResponseType.stream) {
+    if (options.responseType == ResponseType.stream || response.statusCode==204) {
       return response;
     }
     var length = 0;
