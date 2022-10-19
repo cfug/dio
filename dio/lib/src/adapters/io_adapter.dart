@@ -64,7 +64,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         requestOptions: options,
         timeout: options.connectTimeout ??
             _httpClient.connectionTimeout ??
-            Duration(),
+            Duration.zero,
         error: e,
         stackTrace: stackTrace,
       );
