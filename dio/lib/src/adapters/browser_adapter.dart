@@ -149,7 +149,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     xhr.onError.first.then((_) {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
-      // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
+      // See also: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
       completer.completeError(
         DioError.connectionError(
           requestOptions: options,
