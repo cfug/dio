@@ -444,28 +444,41 @@ Because of security reasons, we need all the requests to set up a csrfToken in t
   //  dio instance to request token
   var tokenDio = Dio();
   String? csrfToken;
-  dio.options.baseUrl = 'http://www.dtworkroom.com/doris/1/2.0.0/';
+  dio.options.baseUrl = 'https://seunghwanlytest.mocklab.io/';
   tokenDio.options = dio.options;
   dio.interceptors.add(QueuedInterceptorsWrapper(
-    onRequest: (options, handler) {
+    onRequest: (options, handler) async {
       print('send request：path:${options.path}，baseURL:${options.baseUrl}');
+
       if (csrfToken == null) {
         print('no token，request token firstly...');
-        tokenDio.get('/token').then((d) {
-          options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
-          print('request token succeed, value: ' + d.data['data']['token']);
-          print(
-              'continue to perform request：path:${options.path}，baseURL:${options.path}');
-          handler.next(options);
-        }).catchError((error, stackTrace) {
-          handler.reject(error, true);
-        });
-      } else {
-        options.headers['csrfToken'] = csrfToken;
-        return handler.next(options);
+
+        final result = await tokenDio.get('/token');
+
+        if (result.hasSucceed) {
+          /// assume `token` is in response body
+          final body = jsonDecode(result.data) as Map<String, dynamic>?;
+
+          if (body != null && body.containsKey('data')) {
+            options.headers['csrfToken'] = csrfToken = body['data']['token'];
+            print('request token succeed, value: $csrfToken');
+            print(
+              'continue to perform request：path:${options.path}，baseURL:${options.path}',
+            );
+            return handler.next(options);
+          }
+        }
+
+        return handler.reject(
+          DioError(requestOptions: result.requestOptions),
+          true,
+        );
       }
+
+      options.headers['csrfToken'] = csrfToken;
+      return handler.next(options);
     },
-   ); 
+  );
 ```
 
 You can clean the waiting queue by calling `clear()`;
