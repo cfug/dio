@@ -78,7 +78,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             );
             xhr.abort();
           } else {
-            // connectTimeout is triggered after fetch has completed.
+            // connectTimeout is triggered after the fetch has been completed.
           }
         },
       );
