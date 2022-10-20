@@ -160,10 +160,11 @@ class DefaultTransformer extends Transformer {
         options,
         response..stream = Stream.empty(),
       );
-    } else {
+    } else if (responseBytes.isNotEmpty) {
       responseBody = utf8.decode(responseBytes, allowMalformed: true);
     }
-    if (responseBody !=null && responseBody.isNotEmpty &&
+    if (responseBody != null &&
+        responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
         Transformer.isJsonMimeType(
             response.headers[Headers.contentTypeHeader]?.first)) {

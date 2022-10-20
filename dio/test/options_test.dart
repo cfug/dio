@@ -270,4 +270,15 @@ void main() {
     assert(r3.uri.toString() == 'https://www.example.com/test');
     assert(r3.headers[Headers.contentTypeHeader] == null);
   });
+
+  test("#test responseDecoder return null", () async {
+    final dio = Dio();
+    dio.options.responseDecoder = (_,__,___) => null;
+    dio.options.baseUrl = EchoAdapter.mockBase;
+    dio.httpClientAdapter = EchoAdapter();
+
+    final Response response = await dio.get("");
+
+    expect(response.data, null);
+  });
 }
