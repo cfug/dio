@@ -32,16 +32,6 @@ class Response<T> {
   /// Http status code.
   int? statusCode;
 
-  /// Returns if the response has an error
-  ///
-  /// `hasError` is true when status code is not between 200 and 299
-  bool get hasError => statusCode != null && statusCode! ~/ 100 != 2;
-
-  /// Returns if the response has succeed
-  ///
-  /// `hasSucceed` is true when status code is between 200 and 299
-  bool get hasSucceed => !hasError;
-
   /// Returns the reason phrase associated with the status code.
   /// The reason phrase must be set before the body is written
   /// to. Setting the reason phrase after writing to the body.
