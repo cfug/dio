@@ -61,12 +61,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    bool haveSent = false;
+    Timer? connectTimeoutTimer;
 
     if (options.connectTimeout > 0) {
-      Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
-        (value) {
-          if (!haveSent) {
+      connectTimeoutTimer = Timer(
+        Duration(milliseconds: options.connectTimeout),
+        () {
+          if (!completer.isCompleted) {
             completer.completeError(
               DioError(
                 requestOptions: options,
@@ -76,6 +77,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
               StackTrace.current,
             );
             xhr.abort();
+          } else {
+            // connectTimeout is triggered after the fetch has been completed.
           }
         },
       );
@@ -83,13 +86,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     int sendStart = 0;
     xhr.upload.onProgress.listen((event) {
-      haveSent = true;
+      // This event will only be triggered if a request body exists.
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer!.cancel();
+        connectTimeoutTimer = null;
+      }
+
       if (options.sendTimeout > 0) {
         if (sendStart == 0) {
           sendStart = DateTime.now().millisecondsSinceEpoch;
         }
-        var t = DateTime.now().millisecondsSinceEpoch;
-        print(t - sendStart);
+        final t = DateTime.now().millisecondsSinceEpoch;
         if (t - sendStart > options.sendTimeout) {
           completer.completeError(
             DioError(
@@ -111,6 +118,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     int receiveStart = 0;
     xhr.onProgress.listen((event) {
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer!.cancel();
+        connectTimeoutTimer = null;
+      }
+
       if (options.receiveTimeout > 0) {
         if (receiveStart == 0) {
           receiveStart = DateTime.now().millisecondsSinceEpoch;
@@ -136,6 +148,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     xhr.onError.first.then((_) {
+      connectTimeoutTimer?.cancel();
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
       completer.completeError(
@@ -150,6 +163,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     cancelFuture?.then((err) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
+        connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
         } catch (e) {
