@@ -47,7 +47,7 @@ void getHttp() async {
 | [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor) | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg?style=flat-square)](https://pub.dev/packages/dio_cache_interceptor) | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)             |
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache) | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dev/packages/dio_http_cache) | A simple cache library for Dio like Rxcache in Android             |
 | [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger) | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg?style=flat-square)](https://pub.dev/packages/pretty_dio_logger) | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.            |
-| [native_dio_client](https://github.com/ueman/native-dio-client) | [![Pub](https://img.shields.io/pub/v/native_dio_client.svg?style=flat-square)](https://pub.dev/packages/native_dio_client) | An adapter for Dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform. |
+| [native_dio_client](https://github.com/ueman/native-dio-client) | [![Pub](https://img.shields.io/pub/v/native_dio_client.svg?style=flat-square)](https://pub.dev/packages/native_dio_client) | 使用 cupertino_http 和 cronet_http 以 Dio 适配器代理实现的原生网络请求功能。 |
 
 
 如果您也想提供第三方组件，请移步 [here](https://github.com/flutterchina/dio/issues/347) .
