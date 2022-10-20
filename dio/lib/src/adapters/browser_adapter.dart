@@ -78,8 +78,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             );
             xhr.abort();
           } else {
-            print(
-                'Warn: connectTimeout is triggered after fetch has completed.');
+            // connectTimeout is triggered after fetch has completed.
           }
         },
       );
@@ -97,8 +96,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         if (sendStart == 0) {
           sendStart = DateTime.now().millisecondsSinceEpoch;
         }
-        var t = DateTime.now().millisecondsSinceEpoch;
-        print(t - sendStart);
+        final t = DateTime.now().millisecondsSinceEpoch;
         if (t - sendStart > options.sendTimeout) {
           completer.completeError(
             DioError(
