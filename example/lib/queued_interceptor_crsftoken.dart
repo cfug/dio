@@ -19,7 +19,7 @@ void main() async {
 
         final result = await tokenDio.get('/token');
 
-        if (result.hasSucceed) {
+        if (result.statusCode != null && result.statusCode! ~/ 100 == 2) {
           /// assume `token` is in response body
           final body = jsonDecode(result.data) as Map<String, dynamic>?;
 
@@ -64,7 +64,7 @@ void main() async {
           /// since the api has no state, force to pass the 401 error
           /// by adding query parameter
           final originResult = await dio.fetch(options..path += '&pass=true');
-          if (originResult.hasSucceed) {
+          if (originResult.statusCode != null && originResult.statusCode! ~/ 100 == 2) {
             return handler.resolve(originResult);
           }
         }
