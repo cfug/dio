@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
-import 'dio_error.dart';
 import 'headers.dart';
 import 'options.dart';
 import 'utils.dart';
@@ -33,7 +32,7 @@ abstract class Transformer {
   Future transformResponse(RequestOptions options, ResponseBody response);
 
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
-  /// It is mostly used with  the "application/x-www-form-urlencoded" content-type.
+  /// It is mostly used with the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
     Map map, [
     ListFormat listFormat = ListFormat.multi,
@@ -58,9 +57,11 @@ abstract class Transformer {
   }
 }
 
-/// The default [Transformer] for [Dio]. If you want to custom the transformation of
-/// request/response data, you can provide a [Transformer] by your self, and
-/// replace the [DefaultTransformer] by setting the [dio.Transformer].
+/// The default [Transformer] for [Dio].
+///
+/// If you want to custom the transformation of request/response data,
+/// you can provide a [Transformer] by your self, and replace
+/// the [DefaultTransformer] by setting the [dio.transformer].
 
 typedef JsonDecodeCallback = dynamic Function(String);
 
@@ -71,7 +72,7 @@ class DefaultTransformer extends Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
-    var data = options.data ?? '';
+    final data = options.data ?? '';
     if (data is! String) {
       if (Transformer.isJsonMimeType(options.contentType)) {
         return json.encode(options.data);
@@ -88,32 +89,36 @@ class DefaultTransformer extends Transformer {
   /// Options.responseType is [ResponseType.stream].
   @override
   Future transformResponse(
-      RequestOptions options, ResponseBody response) async {
+    RequestOptions options,
+    ResponseBody response,
+  ) async {
     if (options.responseType == ResponseType.stream) {
       return response;
     }
-    var length = 0;
-    var received = 0;
-    var showDownloadProgress = options.onReceiveProgress != null;
+    int length = 0;
+    int received = 0;
+    final showDownloadProgress = options.onReceiveProgress != null;
     if (showDownloadProgress) {
       length = int.parse(
-          response.headers[Headers.contentLengthHeader]?.first ?? '-1');
+        response.headers[Headers.contentLengthHeader]?.first ?? '-1',
+      );
     }
-    var completer = Completer();
-    var stream =
-        response.stream.transform<Uint8List>(StreamTransformer.fromHandlers(
-      handleData: (data, sink) {
-        sink.add(data);
-        if (showDownloadProgress) {
-          received += data.length;
-          options.onReceiveProgress?.call(received, length);
-        }
-      },
-    ));
+    final completer = Completer();
+    final stream = response.stream.transform<Uint8List>(
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          sink.add(data);
+          if (showDownloadProgress) {
+            received += data.length;
+            options.onReceiveProgress?.call(received, length);
+          }
+        },
+      ),
+    );
     // let's keep references to the data chunks and concatenate them later
     final chunks = <Uint8List>[];
-    var finalSize = 0;
-    StreamSubscription subscription = stream.listen(
+    int finalSize = 0;
+    final StreamSubscription subscription = stream.listen(
       (chunk) {
         finalSize += chunk.length;
         chunks.add(chunk);
@@ -145,25 +150,30 @@ class DefaultTransformer extends Transformer {
     //}
     // we create a final Uint8List and copy all chunks into it
     final responseBytes = Uint8List(finalSize);
-    var chunkOffset = 0;
-    for (var chunk in chunks) {
+    int chunkOffset = 0;
+    for (final chunk in chunks) {
       responseBytes.setAll(chunkOffset, chunk);
       chunkOffset += chunk.length;
     }
 
-    if (options.responseType == ResponseType.bytes) return responseBytes;
+    if (options.responseType == ResponseType.bytes) {
+      return responseBytes;
+    }
 
-    String? responseBody;
+    final String? responseBody;
     if (options.responseDecoder != null) {
       responseBody = options.responseDecoder!(
         responseBytes,
         options,
         response..stream = Stream.empty(),
       );
-    } else {
+    } else if (responseBytes.isNotEmpty) {
       responseBody = utf8.decode(responseBytes, allowMalformed: true);
+    } else {
+      responseBody = null;
     }
-    if (responseBody.isNotEmpty &&
+    if (responseBody != null &&
+        responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
         Transformer.isJsonMimeType(
             response.headers[Headers.contentTypeHeader]?.first)) {
