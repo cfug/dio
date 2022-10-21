@@ -694,7 +694,7 @@ abstract class DioMixin implements Dio {
         return checkIfNeedEnqueue(interceptors.responseLock, () => ret);
       } else {
         throw DioError.badResponse(
-          statusCode: responseBody.statusCode,
+          statusCode: responseBody.statusCode!,
           requestOptions: reqOpt,
           response: ret,
         );

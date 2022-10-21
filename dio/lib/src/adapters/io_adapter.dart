@@ -84,7 +84,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
           onTimeout: () {
             request.abort();
             throw DioError.sendTimeout(
-              timeout: options.sendTimeout!,
+              timeout: sendTimeout,
               requestOptions: options,
             );
           },
@@ -102,7 +102,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         receiveTimeout,
         onTimeout: () {
           throw DioError.receiveTimeout(
-            timeout: options.receiveTimeout!,
+            timeout: receiveTimeout,
             requestOptions: options,
           );
         },
@@ -120,7 +120,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         if (receiveTimeout != null && duration > receiveTimeout) {
           sink.addError(
             DioError.receiveTimeout(
-              timeout: options.receiveTimeout!,
+              timeout: receiveTimeout,
               requestOptions: options,
             ),
           );
