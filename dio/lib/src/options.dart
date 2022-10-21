@@ -99,7 +99,8 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
     this.setRequestContentTypeWhenNoPayload = false,
-  }) : super(
+  })  : assert(baseUrl.isEmpty || Uri.parse(baseUrl).host.isNotEmpty),
+        super(
           method: method,
           receiveTimeout: receiveTimeout,
           sendTimeout: sendTimeout,

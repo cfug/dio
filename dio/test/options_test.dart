@@ -270,4 +270,19 @@ void main() {
     assert(r3.uri.toString() == 'https://www.example.com/test');
     assert(r3.headers[Headers.contentTypeHeader] == null);
   });
+
+  test('#test option invalid base url', () {
+    final opt = 'blob:http://localhost/xyz123';
+    final opt1 = 'https://flutterchina.club';
+    final opt2 = 'https://';
+    final opt3 = 'https://loremipsum/';
+    final opt4 = '';
+    final opt5 = 'google.com';
+    expect(Uri.parse(opt).host.isNotEmpty, false);
+    expect(Uri.parse(opt1).host.isNotEmpty, true);
+    expect(Uri.parse(opt2).host.isNotEmpty, false);
+    expect(Uri.parse(opt3).host.isNotEmpty, true);
+    expect(Uri.parse(opt4).host.isNotEmpty, false);
+    expect(Uri.parse(opt5).host.isNotEmpty, false);
+  });
 }
