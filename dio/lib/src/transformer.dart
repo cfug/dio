@@ -46,6 +46,15 @@ abstract class Transformer {
       listFormat: listFormat,
     );
   }
+
+  /// Following: https://mimesniff.spec.whatwg.org/#json-mime-type
+  static bool isJsonMimeType(String? contentType) {
+    if (contentType == null) return false;
+    final mediaType = MediaType.parse(contentType);
+    return mediaType.mimeType == 'application/json' ||
+        mediaType.mimeType == 'text/json' ||
+        mediaType.subtype.endsWith('+json');
+  }
 }
 
 /// The default [Transformer] for [Dio]. If you want to custom the transformation of
@@ -63,7 +72,7 @@ class DefaultTransformer extends Transformer {
   Future<String> transformRequest(RequestOptions options) async {
     var data = options.data ?? '';
     if (data is! String) {
-      if (_isJsonMime(options.contentType)) {
+      if (Transformer.isJsonMimeType(options.contentType)) {
         return json.encode(options.data);
       } else if (data is Map<String, Object?>) {
         options.contentType =
@@ -155,7 +164,8 @@ class DefaultTransformer extends Transformer {
     }
     if (responseBody.isNotEmpty &&
         options.responseType == ResponseType.json &&
-        _isJsonMime(response.headers[Headers.contentTypeHeader]?.first)) {
+        Transformer.isJsonMimeType(
+            response.headers[Headers.contentTypeHeader]?.first)) {
       final callback = jsonDecodeCallback;
       if (callback != null) {
         return callback(responseBody);
@@ -164,11 +174,5 @@ class DefaultTransformer extends Transformer {
       }
     }
     return responseBody;
-  }
-
-  bool _isJsonMime(String? contentType) {
-    if (contentType == null) return false;
-    return MediaType.parse(contentType).mimeType ==
-        Headers.jsonMimeType.mimeType;
   }
 }

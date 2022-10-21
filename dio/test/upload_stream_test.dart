@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 void main() {
   var dio = Dio();
-  dio.options.baseUrl = 'http://httpbin.org/';
+  dio.options.baseUrl = 'https://httpbin.org/';
   test('stream', () async {
     Response r;
     const str = 'hello 😌';
@@ -39,7 +39,7 @@ void main() {
     );
     var img = base64Encode(f.readAsBytesSync());
     expect(r.data['data'], 'data:application/octet-stream;base64,' + img);
-  });
+  }, testOn: "vm");
 
   test('file stream<Uint8List>', () async {
     var f = File('../dio/test/test.jpg');
@@ -55,5 +55,5 @@ void main() {
     );
     var img = base64Encode(f.readAsBytesSync());
     expect(r.data['data'], 'data:application/octet-stream;base64,' + img);
-  });
+  }, testOn: "vm");
 }

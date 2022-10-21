@@ -82,6 +82,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         future = future.timeout(
           sendTimeout,
           onTimeout: () {
+            request.abort();
             throw DioError.sendTimeout(
               timeout: options.sendTimeout!,
               requestOptions: options,
@@ -123,8 +124,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
               requestOptions: options,
             ),
           );
-          //todo: to verify
-          responseStream.detachSocket().then((socket) => socket.close());
+          responseStream.detachSocket().then((socket) => socket.destroy());
         } else {
           sink.add(Uint8List.fromList(data));
         }

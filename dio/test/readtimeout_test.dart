@@ -1,3 +1,4 @@
+@TestOn("vm")
 import 'dart:async';
 import 'dart:io';
 
@@ -72,6 +73,7 @@ void main() {
     }
 
     expect(error, isNotNull);
+    //print(error);
     expect(error.type == DioErrorType.receiveTimeout, isTrue);
   });
 

@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ stable, beta, dev, 2.12.1 ]
+        sdk: [ stable, beta, 2.12.1 ]
     defaults:
       run:
         working-directory: plugins/cookie_manager
@@ -57,7 +57,7 @@ jobs:
       - run: dart test --chain-stack-traces
       - name: Upload test report
         uses: actions/upload-artifact@v2
-        if: always() && matrix.sdk == 'stable'
+        if: always()
         with:
-          name: test-results
+          name: test-results-${{ matrix.sdk }}
           path: plugins/cookie_manager/build/reports/test-results.json

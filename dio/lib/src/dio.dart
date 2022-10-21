@@ -180,16 +180,23 @@ abstract class Dio {
   ///
   /// Dio will enqueue the incoming request tasks instead
   /// send them directly when [interceptor.requestOptions] is locked.
-
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   void lock();
 
   /// Unlock the current Dio instance.
   ///
   /// Dio instance dequeue the request task。
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   void unlock();
 
   ///Clear the current Dio instance waiting queue.
-
+  @Deprecated(
+      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
+      ' https://github.com/flutterchina/dio/issues/1308')
   void clear();
 
   ///  Download the file and save it in local. The default http method is "GET",

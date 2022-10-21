@@ -1,15 +1,15 @@
-# Unreleased
-- require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)  
-- `ResponseBody.statusCode` is now non-nullable
+# 4.0.6
+- fix #1452
+
+# 4.0.5
+- require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)
 - Only delete file if it exists when downloading.
-
-# Unreleased 5.0
-- add option to instantiate a `HttpClientAdapter`, which is platform independent
-
-# 4.0.5-beta1
+- Fix `BrowserHttpClientAdapter` canceled hangs
+- Correct JSON MIME Type detection
 - [Web] support send/receive progress in web platform
 - refactor timeout logic
 - use 'arraybuffer' instead of 'blob' for xhr requests in web platform
+
 
 # 4.0.4
 - Fix fetching null data in a response
