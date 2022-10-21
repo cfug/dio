@@ -602,7 +602,7 @@ abstract class DioMixin implements Dio {
       RequestInterceptorHandler handler,
     ) {
       requestOptions = reqOpt;
-      _dispatchRequest(reqOpt)
+      _dispatchRequest<T>(reqOpt)
           .then((value) => handler.resolve(value, true))
           .catchError((e) {
         handler.reject(e as DioError, true);
@@ -649,7 +649,7 @@ abstract class DioMixin implements Dio {
   }
 
   // Initiate Http requests
-  Future<Response<T>> _dispatchRequest<T>(RequestOptions reqOpt) async {
+  Future<Response<dynamic>> _dispatchRequest<T>(RequestOptions reqOpt) async {
     var cancelToken = reqOpt.cancelToken;
     ResponseBody responseBody;
     try {
@@ -659,9 +659,10 @@ abstract class DioMixin implements Dio {
         stream,
         cancelToken?.whenCancel,
       );
-      responseBody.headers = responseBody.headers;
       var headers = Headers.fromMap(responseBody.headers);
-      var ret = Response<T>(
+      // Make sure headers and responseBody.headers point to a same Map
+      responseBody.headers = headers.map;
+      var ret = Response<dynamic>(
         headers: headers,
         requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
@@ -680,8 +681,7 @@ abstract class DioMixin implements Dio {
           contentType = headers.value(Headers.contentTypeHeader);
           headers.set(Headers.contentTypeHeader, Headers.jsonContentType);
         }
-        ret.data =
-            (await transformer.transformResponse(reqOpt, responseBody)) as T?;
+        ret.data = await transformer.transformResponse(reqOpt, responseBody);
         if (forceConvert) {
           headers.set(Headers.contentTypeHeader, contentType);
         }

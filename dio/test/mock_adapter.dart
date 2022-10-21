@@ -81,6 +81,8 @@ class MockAdapter extends HttpClientAdapter {
               },
             );
           }
+        case '/test-force-convert':
+          return ResponseBody.fromString('{"code":0,"result":"ok"}', 200);
         default:
           return ResponseBody.fromString('', 404);
       }

@@ -2,10 +2,13 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 @TestOn('vm')
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 import 'echo_adapter.dart';
+import 'mock_adapter.dart';
 
 void main() {
   test('#test options', () {
@@ -280,5 +283,22 @@ void main() {
     final Response response = await dio.get("");
 
     expect(response.data, null);
+  });
+
+  test('#test forceConvert responseType', () async {
+    final dio = Dio(BaseOptions(
+      baseUrl: MockAdapter.mockBase,
+    )) //
+      ..httpClientAdapter = MockAdapter();
+    final expectedResponseData = <String, dynamic>{"code": 0, "result": "ok"};
+
+    final response = await dio.get<Map<String, dynamic>>('/test-force-convert');
+    expect(response.data, expectedResponseData);
+
+    final textResponse = await dio.get<dynamic>('/test-force-convert');
+    expect(textResponse.data, json.encode(expectedResponseData));
+
+    final textResponse2 = await dio.get<String>('/test-force-convert');
+    expect(textResponse2.data, json.encode(expectedResponseData));
   });
 }
