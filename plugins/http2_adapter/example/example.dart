@@ -8,8 +8,6 @@ void main() async {
     ..httpClientAdapter = Http2Adapter(
       ConnectionManager(
         idleTimeout: 10000,
-        // Ignore bad certificate
-        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
       ),
     );
 
