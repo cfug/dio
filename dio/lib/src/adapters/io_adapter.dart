@@ -44,7 +44,6 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     late HttpClientRequest request;
     try {
-      request = await reqFuture;
       if (options.connectTimeout > 0) {
         request = await reqFuture
             .timeout(Duration(milliseconds: options.connectTimeout));
