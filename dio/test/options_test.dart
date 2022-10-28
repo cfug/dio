@@ -21,6 +21,7 @@ void main() {
       headers: map,
       contentType: 'application/json',
       followRedirects: false,
+      persistentConnection: false,
     );
     var opt1 = baseOptions.copyWith(
       method: 'post',
@@ -35,6 +36,7 @@ void main() {
     assert(opt1.receiveTimeout == 3000);
     assert(opt1.connectTimeout == 2000);
     assert(opt1.followRedirects == false);
+    assert(opt1.persistentConnection == false);
     assert(opt1.baseUrl == 'https://flutterchina.club');
     assert(opt1.headers['b'] == '6');
     assert(opt1.extra['b'] == '6');
@@ -49,6 +51,7 @@ void main() {
       headers: map,
       contentType: 'application/json',
       followRedirects: false,
+      persistentConnection: false,
     );
 
     var opt3 = opt2.copyWith(
@@ -63,6 +66,7 @@ void main() {
     assert(opt3.method == 'post');
     assert(opt3.receiveTimeout == 3000);
     assert(opt3.followRedirects == false);
+    assert(opt3.persistentConnection == false);
     assert(opt3.headers!['b'] == '6');
     assert(opt3.extra!['b'] == '6');
     assert(opt3.contentType == 'text/html');
@@ -71,6 +75,7 @@ void main() {
       path: '/xxx',
       sendTimeout: 2000,
       followRedirects: false,
+      persistentConnection: false,
     );
     var opt5 = opt4.copyWith(
       method: 'post',
@@ -85,6 +90,7 @@ void main() {
     assert(opt5.method == 'post');
     assert(opt5.receiveTimeout == 3000);
     assert(opt5.followRedirects == false);
+    assert(opt5.persistentConnection == false);
     assert(opt5.contentType == 'text/html');
     assert(opt5.headers['b'] == '6');
     assert(opt5.extra['b'] == '6');
