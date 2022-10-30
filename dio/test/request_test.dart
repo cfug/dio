@@ -88,11 +88,9 @@ void main() {
 
 
     test('#test multi value headers', () async {
-      Iterable<String> multiValue = ['value1', 'value2'];
-
       Response response = await dio.get(
         '/multi-value-header',
-         options: Options(headers: {'x-multi-value-request-header': multiValue})
+         options: Options(headers: {'x-multi-value-request-header': ['value1', 'value2']})
       );
       expect(response.statusCode, 200);
       expect(response.headers.value("x-multi-value-request-header-echo"), equals('value1, value2'));
