@@ -74,6 +74,17 @@ Future<void> startServer() async {
         return;
       }
 
+      if (path == '/multi-value-header') {
+        response.headers.contentType = ContentType('application', 'json');
+        response.headers.add("x-multi-value-request-header-echo", request.headers.value("x-multi-value-request-header").toString());
+        response
+          ..statusCode = 200
+          ..contentLength = -1
+          ..write('');
+        response.close();
+        return;
+      }
+
       if (path == '/download') {
         const content = 'I am a text file';
         response.headers.set('content-encoding', 'plain');
