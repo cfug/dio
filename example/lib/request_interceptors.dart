@@ -38,14 +38,13 @@ void main() async {
   try {
     response = await dio.get('/fakepath3');
   } on DioError catch (e) {
-    print(1);
     assert(e.message == 'test error');
     assert(e.response == null);
   }
   response = await dio.get('/get');
   assert(response.data['headers'] is Map);
   try {
-    await dio.get('xsddddd');
+    await dio.get('/status/404');
   } on DioError catch (e) {
     assert(e.response!.statusCode == 404);
   }
