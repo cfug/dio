@@ -68,6 +68,22 @@ class FormData {
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
+  void addField(String key, String value) {
+    fields.add(MapEntry(key, value));
+  }
+
+  void addMultipartFile(String key, MultipartFile file) {
+    files.add(MapEntry(key, file));
+  }
+
+  void removeField(String key) {
+    fields.removeWhere((e) => e.key == key);
+  }
+
+  void removeMultipartFiles(String key) {
+    files.removeWhere((entry) => entry.key == key);
+  }
+
   /// Returns the header string for a field. The return value is guaranteed to
   /// contain only ASCII characters.
   String _headerForField(String name, String value) {
