@@ -47,6 +47,10 @@ class FormData {
         if (value == null) return null;
         if (value is MultipartFile) {
           files.add(MapEntry(key, value));
+        } else if (value is List<MultipartFile>) {
+          value.forEach((file) {
+            files.add(MapEntry(key, file));
+          });
         } else {
           fields.add(MapEntry(key, value.toString()));
         }
