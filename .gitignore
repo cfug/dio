@@ -34,3 +34,6 @@ plugins/http2_adapter/.idea/
 plugins/http2_adapter/.exampl
 
 .vscode/
+
+# Miscellaneous
+.DS_Store
