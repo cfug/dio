@@ -15,9 +15,9 @@ void main() {
     var map = {'a': '5'};
     var mapOverride = {'b': '6'};
     var baseOptions = BaseOptions(
-      connectTimeout: 2000,
-      receiveTimeout: 2000,
-      sendTimeout: 2000,
+      connectTimeout: Duration(seconds: 2),
+      receiveTimeout: Duration(seconds: 2),
+      sendTimeout: Duration(seconds: 2),
       baseUrl: 'http://localhost',
       queryParameters: map,
       extra: map,
@@ -27,16 +27,16 @@ void main() {
     );
     var opt1 = baseOptions.copyWith(
       method: 'post',
-      receiveTimeout: 3000,
-      sendTimeout: 3000,
+      receiveTimeout: Duration(seconds: 3),
+      sendTimeout: Duration(seconds: 3),
       baseUrl: 'https://flutterchina.club',
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
     assert(opt1.method == 'post');
-    assert(opt1.receiveTimeout == 3000);
-    assert(opt1.connectTimeout == 2000);
+    assert(opt1.receiveTimeout == Duration(seconds: 3));
+    assert(opt1.connectTimeout == Duration(seconds: 2));
     assert(opt1.followRedirects == false);
     assert(opt1.baseUrl == 'https://flutterchina.club');
     assert(opt1.headers['b'] == '6');
@@ -46,8 +46,8 @@ void main() {
 
     var opt2 = Options(
       method: 'get',
-      receiveTimeout: 2000,
-      sendTimeout: 2000,
+      receiveTimeout: Duration(seconds: 2),
+      sendTimeout: Duration(seconds: 2),
       extra: map,
       headers: map,
       contentType: 'application/json',
@@ -56,15 +56,15 @@ void main() {
 
     var opt3 = opt2.copyWith(
       method: 'post',
-      receiveTimeout: 3000,
-      sendTimeout: 3000,
+      receiveTimeout: Duration(seconds: 3),
+      sendTimeout: Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
 
     assert(opt3.method == 'post');
-    assert(opt3.receiveTimeout == 3000);
+    assert(opt3.receiveTimeout == Duration(seconds: 3));
     assert(opt3.followRedirects == false);
     assert(opt3.headers!['b'] == '6');
     assert(opt3.extra!['b'] == '6');
@@ -72,13 +72,13 @@ void main() {
 
     var opt4 = RequestOptions(
       path: '/xxx',
-      sendTimeout: 2000,
+      sendTimeout: Duration(seconds: 2),
       followRedirects: false,
     );
     var opt5 = opt4.copyWith(
       method: 'post',
-      receiveTimeout: 3000,
-      sendTimeout: 3000,
+      receiveTimeout: Duration(seconds: 3),
+      sendTimeout: Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       data: 'xx=5',
@@ -86,7 +86,7 @@ void main() {
       contentType: 'text/html',
     );
     assert(opt5.method == 'post');
-    assert(opt5.receiveTimeout == 3000);
+    assert(opt5.receiveTimeout == Duration(seconds: 3));
     assert(opt5.followRedirects == false);
     assert(opt5.contentType == 'text/html');
     assert(opt5.headers['b'] == '6');

@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 void main() async {
   var dio = Dio();
   dio.options.baseUrl = 'http://httpbin.org/';
-  dio.options.connectTimeout = 5000;
+  dio.options.connectTimeout = Duration(seconds: 5);
   dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
     switch (options.path) {
       case '/fakepath1':

@@ -6,7 +6,7 @@ void main() async {
     ..options.baseUrl = 'https://google.com'
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
-      ConnectionManager(idleTimeout: 10000),
+      ConnectionManager(idleTimeout: Duration(seconds: 10)),
     );
 
   Response<String> response;

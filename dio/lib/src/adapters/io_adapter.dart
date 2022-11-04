@@ -44,10 +44,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
 
     late HttpClientRequest request;
     try {
-      if (options.connectTimeout > 0) {
-        request = await reqFuture.timeout(
-          Duration(milliseconds: options.connectTimeout),
-        );
+      final connectionTimeout = options.connectTimeout;
+      if (connectionTimeout != null) {
+        request = await reqFuture.timeout(connectionTimeout);
       } else {
         request = await reqFuture;
       }
@@ -71,8 +70,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     if (requestStream != null) {
       // Transform the request data
       var future = request.addStream(requestStream);
-      if (options.sendTimeout > 0) {
-        future = future.timeout(Duration(milliseconds: options.sendTimeout));
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        future = future.timeout(sendTimeout);
       }
       try {
         await future;
@@ -86,12 +86,11 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    // [receiveTimeout] represents a timeout during data transfer! That is to say the
-    // client has connected to the server.
-    int receiveStart = DateTime.now().millisecondsSinceEpoch;
+    final stopwatch = Stopwatch()..start();
     var future = request.close();
-    if (options.receiveTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.receiveTimeout));
+    final receiveTimeout = options.receiveTimeout;
+    if (receiveTimeout != null) {
+      future = future.timeout(receiveTimeout);
     }
     late HttpClientResponse responseStream;
     try {
@@ -99,7 +98,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     } on TimeoutException {
       throw DioError(
         requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+        error: 'Receiving data timeout[${options.receiveTimeout}]',
         type: DioErrorType.receiveTimeout,
       );
     }
@@ -107,13 +106,14 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
-        if (options.receiveTimeout > 0 &&
-            DateTime.now().millisecondsSinceEpoch - receiveStart >
-                options.receiveTimeout) {
+        stopwatch.stop();
+        final duration = stopwatch.elapsed;
+        final receiveTimeout = options.receiveTimeout;
+        if (receiveTimeout != null && duration > receiveTimeout) {
           sink.addError(
             DioError(
               requestOptions: options,
-              error: 'Receiving data timeout[${options.receiveTimeout}ms]',
+              error: 'Receiving data timeout[${options.receiveTimeout}]',
               type: DioErrorType.receiveTimeout,
             ),
           );
@@ -141,11 +141,10 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(Future? cancelFuture, int connectionTimeout) {
-    var _connectionTimeout = connectionTimeout > 0
-        ? Duration(milliseconds: connectionTimeout)
-        : null;
-
+  HttpClient _configHttpClient(
+    Future? cancelFuture,
+    Duration? connectionTimeout,
+  ) {
     if (cancelFuture != null) {
       var _httpClient = HttpClient();
       _httpClient.userAgent = null;
@@ -163,7 +162,7 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
           }
         });
       });
-      return _httpClient..connectionTimeout = _connectionTimeout;
+      return _httpClient..connectionTimeout = connectionTimeout;
     }
     if (_defaultHttpClient == null) {
       _defaultHttpClient = HttpClient();
@@ -173,8 +172,9 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
         _defaultHttpClient =
             onHttpClientCreate!(_defaultHttpClient!) ?? _defaultHttpClient;
       }
+      _defaultHttpClient!.connectionTimeout = connectionTimeout;
     }
-    return _defaultHttpClient!..connectionTimeout = _connectionTimeout;
+    return _defaultHttpClient!..connectionTimeout = connectionTimeout;
   }
 
   @override

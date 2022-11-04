@@ -7,7 +7,7 @@ void main() async {
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
       ConnectionManager(
-        idleTimeout: 10000,
+        idleTimeout: Duration(seconds: 10),
       ),
     );
 

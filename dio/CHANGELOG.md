@@ -1,3 +1,9 @@
+# 5.0.0-dev.1
+
+## Breaking Changes
+
+- Previously `options.connectTimeout` and `options.receiveTimeout` were `int`s. They're now `Duration`s. To migrate change `options.connectTimeout = 1000;` to `options.connectTimeout = Duration(seconds: 1);`. The same applies to `receiveTimeout`. Setting the timeouts to `null` indicates that the system default timeouts should be used.
+
 # 4.0.6
 - fix #1452
 

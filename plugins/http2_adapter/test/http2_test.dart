@@ -9,7 +9,7 @@ void main() {
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
-          idleTimeout: 10,
+          idleTimeout: Duration(milliseconds: 10),
           onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
         ),
       );
@@ -28,7 +28,7 @@ void main() {
     final dio = Dio()
       ..options.baseUrl = 'https://postman-echo.com/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: 10,
+        idleTimeout: Duration(milliseconds: 10),
       ));
 
     final res = await dio.post('post', data: 'TEST');

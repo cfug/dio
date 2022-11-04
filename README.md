@@ -209,14 +209,14 @@ var dio = Dio(); // with default Options
 
 // Set default configs
 dio.options.baseUrl = 'https://www.xx.com/api';
-dio.options.connectTimeout = 5000; //5s
-dio.options.receiveTimeout = 3000;
+dio.options.connectTimeout = Duration(seconds: 5);
+dio.options.receiveTimeout = Duration(seconds: 3);
 
 // or new Dio with a BaseOptions instance.
 var options = BaseOptions(
   baseUrl: 'https://www.xx.com/api',
-  connectTimeout: 5000,
-  receiveTimeout: 3000,
+  connectTimeout: Duration(seconds: 5),
+  receiveTimeout: Duration(seconds: 3),
 );
 Dio dio = Dio(options);
 ```
@@ -274,13 +274,13 @@ The Options class describes the http request information and configuration. Each
   /// Http request headers.
   Map<String, dynamic> headers;
 
-   /// Timeout in milliseconds for opening  url.
-  int connectTimeout;
+  /// Timeout for opening  url.
+  Duration? connectTimeout;
 
-   ///  Whenever more than [receiveTimeout] (in milliseconds) passes between two events from response stream,
+  ///  Whenever more than [receiveTimeout] passes between two events from response stream,
   ///  [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
   ///  Note: This is not the receiving time limitation.
-  int receiveTimeout;
+  Duration? receiveTimeout;
 
   /// Request data, can be any type.
   T data;
