@@ -301,4 +301,24 @@ void main() {
     final textResponse2 = await dio.get<String>('/test-force-convert');
     expect(textResponse2.data, json.encode(expectedResponseData));
   });
+
+  test('Throws when using invalid methods', () async {
+    final dio = Dio();
+    void testInvalidArgumentException(String method) async {
+      await expectLater(
+        dio.fetch(RequestOptions(path: 'http://127.0.0.1', method: method)),
+        throwsA((e) => e is DioError && e.error is ArgumentError),
+      );
+    }
+
+    const String separators = "\t\n\r()<>@,;:\\/[]?={}";
+    for (int i = 0; i < separators.length; i++) {
+      String separator = separators.substring(i, i + 1);
+      testInvalidArgumentException(separator);
+      testInvalidArgumentException(separator + "CONNECT");
+      testInvalidArgumentException("CONN" + separator + "ECT");
+      testInvalidArgumentException("CONN" + separator + separator + "ECT");
+      testInvalidArgumentException("CONNECT" + separator);
+    }
+  });
 }

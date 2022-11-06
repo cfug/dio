@@ -704,7 +704,34 @@ abstract class DioMixin implements Dio {
     }
   }
 
+  bool _isValidToken(String token) {
+    _checkNotNullable(token, "token");
+    // from https://www.rfc-editor.org/rfc/rfc2616#page-15
+    //
+    // CTL            = <any US-ASCII control character
+    //                  (octets 0 - 31) and DEL (127)>
+    // separators     = "(" | ")" | "<" | ">" | "@"
+    //                | "," | ";" | ":" | "\" | <">
+    //                | "/" | "[" | "]" | "?" | "="
+    //                | "{" | "}" | SP | HT
+    // token          = 1*<any CHAR except CTLs or separators>
+    const _validChars = r"                                "
+        r" ! #$%&'  *+ -. 0123456789      "
+        r" ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_"
+        r"`abcdefghijklmnopqrstuvwxyz | ~ ";
+    for (int codeUnit in token.codeUnits) {
+      if (codeUnit >= _validChars.length ||
+          _validChars.codeUnitAt(codeUnit) == 0x20) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   Future<Stream<Uint8List>?> _transformData(RequestOptions options) async {
+    if (!_isValidToken(options.method)) {
+      throw ArgumentError.value(options.method, "method");
+    }
     var data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
@@ -829,4 +856,31 @@ abstract class DioMixin implements Dio {
     }
     return response;
   }
+}
+
+/// A null-check function for function parameters in Null Safety enabled code.
+///
+/// Because Dart does not have full null safety
+/// until all legacy code has been removed from a program,
+/// a non-nullable parameter can still end up with a `null` value.
+/// This function can be used to guard those functions against null arguments.
+/// It throws a [TypeError] because we are really seeing the failure to
+/// assign `null` to a non-nullable type.
+///
+/// See http://dartbug.com/40614 for context.
+T _checkNotNullable<T extends Object>(T value, String name) {
+  if ((value as dynamic) == null) {
+    throw NotNullableError<T>(name);
+  }
+  return value;
+}
+
+/// A [TypeError] thrown by [_checkNotNullable].
+class NotNullableError<T> extends Error implements TypeError {
+  NotNullableError(this._name);
+
+  final String _name;
+
+  @override
+  String toString() => "Null is not a valid value for '$_name' of type '$T'";
 }
