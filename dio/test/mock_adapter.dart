@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:dio/io.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
 
 class MockAdapter extends HttpClientAdapter {
   static const mockHost = 'mockserver';

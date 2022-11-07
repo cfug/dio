@@ -4,7 +4,7 @@ version: 5.0.0-dev.1
 homepage: https://github.com/flutterchina/dio
 
 environment:
-  sdk: '>=2.12.1 <3.0.0'
+  sdk: '>=2.13.0 <3.0.0'
 
 dependencies:
   http_parser: ^4.0.0

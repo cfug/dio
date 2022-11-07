@@ -6,12 +6,15 @@ import '../options.dart';
 import '../dio_error.dart';
 import '../redirect_record.dart';
 
+@Deprecated('Use IOHttpClientAdapter instead')
+typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
+
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 
-HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
+HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
 /// The default HttpClientAdapter for Dio.
-class DefaultHttpClientAdapter implements HttpClientAdapter {
+class IOHttpClientAdapter implements HttpClientAdapter {
   /// [Dio] will create HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
   /// it when a HttpClient created.
