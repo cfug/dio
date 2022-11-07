@@ -1,7 +1,10 @@
 # 5.0.0-dev.1
 
+- A platform independend `HttpClientAdapter` can now be instantiated by doing `dio.httpClientAdapter = HttpClientAdapter();`.
+
 ## Breaking Changes
 
+- `HttpClientAdapter` must now be implemented instead of extended.
 - Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`. Classes specific to web can be imported via `import 'package:dio/web.dart';`
   - `DefaultHttpClientAdapter` was renamed to `IOHttpClientAdapter`
   - `package:dio/io.dart` contains `IOHttpClientAdapter`
