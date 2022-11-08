@@ -100,6 +100,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     ListFormat? listFormat,
     this.setRequestContentTypeWhenNoPayload = false,
   })  : assert(connectTimeout == null || !connectTimeout.isNegative),
+        assert(baseUrl.isEmpty || Uri.parse(baseUrl).host.isNotEmpty),
         super(
           method: method,
           receiveTimeout: receiveTimeout,

@@ -302,6 +302,21 @@ void main() {
     expect(textResponse2.data, json.encode(expectedResponseData));
   });
 
+  test('#test option invalid base url', () {
+    final opt1 = 'blob:http://localhost/xyz123';
+    final opt2 = 'https://flutterchina.club';
+    final opt3 = 'https://';
+    final opt4 = 'https://loremipsum/';
+    final opt5 = '';
+    final opt6 = 'google.com';
+    expect(Uri.parse(opt1).host.isNotEmpty, false);
+    expect(Uri.parse(opt2).host.isNotEmpty, true);
+    expect(Uri.parse(opt3).host.isNotEmpty, false);
+    expect(Uri.parse(opt4).host.isNotEmpty, true);
+    expect(Uri.parse(opt5).host.isNotEmpty, false);
+    expect(Uri.parse(opt6).host.isNotEmpty, false);
+  });
+
   test('Throws when using invalid methods', () async {
     final dio = Dio();
     void testInvalidArgumentException(String method) async {
