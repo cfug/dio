@@ -474,9 +474,9 @@ abstract class DioMixin implements Dio {
     requestOptions.cancelToken = cancelToken;
 
     if (_closed) {
-      throw DioError(
+      throw DioError.connectionError(
+        reason: "Dio can't establish a new connection after it was closed.",
         requestOptions: requestOptions,
-        error: "Dio can't establish new connection after closed.",
       );
     }
 
@@ -485,11 +485,7 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-    final stackTrace = StackTrace.current;
-
-    if (requestOptions.cancelToken != null) {
-      requestOptions.cancelToken!.requestOptions = requestOptions;
-    }
+    requestOptions.cancelToken?.requestOptions = requestOptions;
 
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -553,13 +549,15 @@ abstract class DioMixin implements Dio {
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic, StackTrace) _errorInterceptorWrapper(
-        InterceptorErrorCallback interceptor) {
+      InterceptorErrorCallback interceptor,
+    ) {
       return (err, stackTrace) {
         if (err is! InterceptorState) {
           err = InterceptorState(
             assureDioError(
               err,
               requestOptions,
+              stackTrace,
             ),
           );
         }
@@ -631,7 +629,7 @@ abstract class DioMixin implements Dio {
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((err, _) {
+    }).catchError((err, StackTrace stackTrace) {
       var isState = err is InterceptorState;
 
       if (isState) {
@@ -692,15 +690,14 @@ abstract class DioMixin implements Dio {
       if (statusOk) {
         return checkIfNeedEnqueue(interceptors.responseLock, () => ret);
       } else {
-        throw DioError(
+        throw DioError.badResponse(
+          statusCode: responseBody.statusCode!,
           requestOptions: reqOpt,
           response: ret,
-          error: 'Http status error [${responseBody.statusCode}]',
-          type: DioErrorType.response,
         );
       }
-    } catch (e) {
-      throw assureDioError(e, reqOpt);
+    } catch (e, stackTrace) {
+      throw assureDioError(e, reqOpt, stackTrace);
     }
   }
 
@@ -787,8 +784,9 @@ abstract class DioMixin implements Dio {
 
   // If the request has been cancelled, stop request and throw error.
   static void checkCancelled(CancelToken? cancelToken) {
-    if (cancelToken != null && cancelToken.cancelError != null) {
-      throw cancelToken.cancelError!;
+    final error = cancelToken?.cancelError;
+    if (error != null) {
+      throw error;
     }
   }
 
@@ -819,23 +817,24 @@ abstract class DioMixin implements Dio {
 
   static DioError assureDioError(
     err,
-    RequestOptions requestOptions, [
+    RequestOptions requestOptions,
     StackTrace? sourceStackTrace,
-  ]) {
-    DioError dioError;
+  ) {
     if (err is DioError) {
-      dioError = err;
-    } else {
-      dioError = DioError(requestOptions: requestOptions, error: err);
+      // nothing to be done
+      return err;
     }
-
-    dioError.stackTrace = sourceStackTrace ?? dioError.stackTrace;
-
-    return dioError;
+    return DioError(
+      requestOptions: requestOptions,
+      error: err,
+      stackTrace: sourceStackTrace,
+    );
   }
 
-  static Response<T> assureResponse<T>(response,
-      [RequestOptions? requestOptions]) {
+  static Response<T> assureResponse<T>(
+    response, [
+    RequestOptions? requestOptions,
+  ]) {
     if (response is! Response) {
       return Response<T>(
         data: response as T,

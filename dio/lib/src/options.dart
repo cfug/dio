@@ -194,7 +194,7 @@ mixin OptionsMixin {
   late Map<String, dynamic> queryParameters;
 
   /// Timeout in milliseconds for opening url.
-  /// [Dio] will throw the [DioError] with [DioErrorType.connectTimeout] type
+  /// [Dio] will throw the [DioError] with [DioErrorType.connectionTimeout] type
   ///  when time out.
   Duration? get connectTimeout => _connectTimeout;
 

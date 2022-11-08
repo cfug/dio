@@ -37,19 +37,19 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     var reqFuture = _httpClient.openUrl(options.method, options.uri);
 
-    void _throwConnectingTimeout() {
-      throw DioError(
-        requestOptions: options,
-        error: 'Connecting timed out [${options.connectTimeout}ms]',
-        type: DioErrorType.connectTimeout,
-      );
-    }
-
     late HttpClientRequest request;
     try {
       final connectionTimeout = options.connectTimeout;
       if (connectionTimeout != null) {
-        request = await reqFuture.timeout(connectionTimeout);
+        request = await reqFuture.timeout(
+          connectionTimeout,
+          onTimeout: () {
+            throw DioError.connectionTimeout(
+              requestOptions: options,
+              timeout: connectionTimeout,
+            );
+          },
+        );
       } else {
         request = await reqFuture;
       }
@@ -58,13 +58,18 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       options.headers.forEach((k, v) {
         if (v != null) request.headers.set(k, '$v');
       });
-    } on SocketException catch (e) {
-      if (e.message.contains('timed out')) {
-        _throwConnectingTimeout();
+    } on SocketException catch (e, stackTrace) {
+      if (!e.message.contains('timed out')) {
+        rethrow;
       }
-      rethrow;
-    } on TimeoutException {
-      _throwConnectingTimeout();
+      throw DioError.connectionTimeout(
+        requestOptions: options,
+        timeout: options.connectTimeout ??
+            _httpClient.connectionTimeout ??
+            Duration.zero,
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
 
     request.followRedirects = options.followRedirects;
@@ -75,36 +80,37 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       var future = request.addStream(requestStream);
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
-        future = future.timeout(sendTimeout);
-      }
-      try {
-        await future;
-      } on TimeoutException {
-        request.abort();
-        throw DioError(
-          requestOptions: options,
-          error: 'Sending timeout[${options.sendTimeout}ms]',
-          type: DioErrorType.sendTimeout,
+        future = future.timeout(
+          sendTimeout,
+          onTimeout: () {
+            request.abort();
+            throw DioError.sendTimeout(
+              timeout: sendTimeout,
+              requestOptions: options,
+            );
+          },
         );
       }
+
+      await future;
     }
 
     final stopwatch = Stopwatch()..start();
     var future = request.close();
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {
-      future = future.timeout(receiveTimeout);
-    }
-    late HttpClientResponse responseStream;
-    try {
-      responseStream = await future;
-    } on TimeoutException {
-      throw DioError(
-        requestOptions: options,
-        error: 'Receiving data timeout[${options.receiveTimeout}]',
-        type: DioErrorType.receiveTimeout,
+      future = future.timeout(
+        receiveTimeout,
+        onTimeout: () {
+          throw DioError.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          );
+        },
       );
     }
+
+    final responseStream = await future;
 
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
@@ -114,10 +120,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         final receiveTimeout = options.receiveTimeout;
         if (receiveTimeout != null && duration > receiveTimeout) {
           sink.addError(
-            DioError(
+            DioError.receiveTimeout(
+              timeout: receiveTimeout,
               requestOptions: options,
-              error: 'Receiving data timeout[${options.receiveTimeout}]',
-              type: DioErrorType.receiveTimeout,
             ),
           );
           responseStream.detachSocket().then((socket) => socket.destroy());

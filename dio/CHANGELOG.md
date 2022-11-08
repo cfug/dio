@@ -4,6 +4,12 @@
 
 ## Breaking Changes
 
+- Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied. 
+  - `DioErrorType.connectTimeout` was changed to `DioErrorType.connectionTimeout`
+  - `DioErrorType.response` was changed to `DioErrorType.badResponse`
+  - `DioErrorType.other` was changed to `DioErrorType.unknown`
+  - `DioError` has now multiple constructors for specific error cases. Since `DioError` is only thrown internal to the libary, you shouldn't need to adapt any code.
+  - Catching `DioError`s still works the same way as before.
 - `HttpClientAdapter` must now be implemented instead of extended.
 - Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`. Classes specific to web can be imported via `import 'package:dio/web.dart';`
   - `DefaultHttpClientAdapter` was renamed to `IOHttpClientAdapter`

@@ -120,7 +120,9 @@ void main() {
               if (err.requestOptions.path == '/reject-next/reject') {
                 handler.reject(err);
               } else {
-                err.error++;
+                var count = (err.error as int);
+                count++;
+                err.error = count;
                 handler.next(err);
               }
             }
@@ -141,10 +143,14 @@ void main() {
           },
           onError: (err, handler) {
             if (err.requestOptions.path == '/resolve-next/reject-next') {
-              err.error++;
+              var count = (err.error as int);
+              count++;
+              err.error = count;
               handler.next(err);
             } else {
-              err.error++;
+              var count = (err.error as int);
+              count++;
+              err.error = count;
               handler.next(err);
             }
           },
@@ -279,12 +285,20 @@ void main() {
       expect(response.data['errCode'], 0);
 
       expect(
-        dio.get('/fakepath3').catchError((e) => throw (e as DioError).message),
-        throwsA('test error'),
+        dio.get('/fakepath3'),
+        throwsA(
+          isA<DioError>()
+              .having((e) => e.message, 'message', null)
+              .having((e) => e.type, 'error type', DioErrorType.unknown),
+        ),
       );
       expect(
-        dio.get('/fakepath4').catchError((e) => throw (e as DioError).message),
-        throwsA('test error'),
+        dio.get('/fakepath4'),
+        throwsA(
+          isA<DioError>()
+              .having((e) => e.message, 'message', null)
+              .having((e) => e.type, 'error type', DioErrorType.unknown),
+        ),
       );
 
       response = await dio.get('/test');
@@ -352,10 +366,8 @@ void main() {
       response = await dio.get(URL_NOT_FIND + '2');
       expect(response.data, 'fake data');
       expect(
-        dio
-            .get(URL_NOT_FIND + '3')
-            .catchError((e) => throw (e as DioError).message),
-        throwsA('custom error info [404]'),
+        dio.get(URL_NOT_FIND + '3').catchError((e) => throw (e as DioError)),
+        throwsA(isA<DioError>()),
       );
     });
     test('multi response interceptor', () async {

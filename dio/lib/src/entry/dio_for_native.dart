@@ -89,7 +89,7 @@ class DioForNative with DioMixin implements Dio {
         cancelToken: cancelToken ?? CancelToken(),
       );
     } on DioError catch (e) {
-      if (e.type == DioErrorType.response) {
+      if (e.type == DioErrorType.badResponse) {
         if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
           var res = await transformer.transformResponse(
             e.response!.requestOptions..responseType = ResponseType.json,
@@ -182,6 +182,7 @@ class DioForNative with DioMixin implements Dio {
             completer.completeError(DioMixin.assureDioError(
               err,
               response.requestOptions,
+              stackTrace,
             ));
           }
         });
@@ -192,20 +193,22 @@ class DioForNative with DioMixin implements Dio {
           closed = true;
           await raf.close();
           completer.complete(response);
-        } catch (e) {
+        } catch (e, stackTrace) {
           completer.completeError(DioMixin.assureDioError(
             e,
             response.requestOptions,
+            stackTrace,
           ));
         }
       },
-      onError: (e) async {
+      onError: (e, stackTrace) async {
         try {
           await _closeAndDelete();
         } finally {
           completer.completeError(DioMixin.assureDioError(
             e,
             response.requestOptions,
+            stackTrace as StackTrace?,
           ));
         }
       },
@@ -223,10 +226,9 @@ class DioForNative with DioMixin implements Dio {
         await subscription.cancel();
         await _closeAndDelete();
         if (err is TimeoutException) {
-          throw DioError(
+          throw DioError.receiveTimeout(
+            timeout: timeout,
             requestOptions: response.requestOptions,
-            error: 'Receiving data timeout[$timeout]',
-            type: DioErrorType.receiveTimeout,
           );
         } else {
           throw err;

@@ -69,7 +69,7 @@ void main() {
       dio.get('401'),
       throwsA((e) =>
           e is DioError &&
-          e.type == DioErrorType.response &&
+          e.type == DioErrorType.badResponse &&
           e.response!.statusCode == 401),
     );
 

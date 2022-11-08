@@ -33,13 +33,12 @@ class CancelToken {
   Future<DioError> get whenCancel => _completer.future;
 
   /// Cancel the request
-  void cancel([dynamic reason]) {
-    _cancelError = DioError(
-      type: DioErrorType.cancel,
-      error: reason,
+  void cancel([Object? reason]) {
+    _cancelError = DioError.requestCancelled(
       requestOptions: requestOptions ?? RequestOptions(path: ''),
+      reason: reason,
+      stackTrace: StackTrace.current,
     );
-    _cancelError!.stackTrace = StackTrace.current;
 
     if (!_completer.isCompleted) {
       _completer.complete(_cancelError);
