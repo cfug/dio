@@ -89,7 +89,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           sendStart = DateTime.now().millisecondsSinceEpoch;
         }
         var t = DateTime.now().millisecondsSinceEpoch;
-        /// print(t - sendStart);
         if (t - sendStart > options.sendTimeout) {
           completer.completeError(
             DioError(
