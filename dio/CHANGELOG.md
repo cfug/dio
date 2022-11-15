@@ -1,6 +1,7 @@
 # 5.0.0-dev.1
 
 - A platform independend `HttpClientAdapter` can now be instantiated by doing `dio.httpClientAdapter = HttpClientAdapter();`.
+- Add `ValidateCertificate` to handle certificate pinning better.
 
 ## Breaking Changes
 

@@ -14,3 +14,4 @@ dev_dependencies:
   lints: ^1.0.1
   test: ^1.5.1
   coverage: ^1.0.3
+  crypto: ^3.0.2

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import 'package:dio/io.dart';
@@ -48,9 +47,8 @@ void main() {
   test('allow badssl', () async {
     var dio = Dio();
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+        (client) {
+      return client..badCertificateCallback = (cert, host, port) => true;
     };
     var response = await dio.get('https://wrong.host.badssl.com/');
     expect(response.statusCode, 200);

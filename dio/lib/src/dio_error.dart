@@ -11,6 +11,9 @@ enum DioErrorType {
   ///It occurs when receiving timeout.
   receiveTimeout,
 
+  /// Caused by an incorrect certificate as configured by [ValidateCertificate].
+  badCertificate,
+
   /// The [DioError] was caused by an incorrect status code as configured by
   /// [ValidateStatus].
   badResponse,
@@ -35,6 +38,8 @@ extension _DioErrorTypeExtension on DioErrorType {
         return 'send timeout';
       case DioErrorType.receiveTimeout:
         return 'receive timeout';
+      case DioErrorType.badCertificate:
+        return 'bad certificate';
       case DioErrorType.badResponse:
         return 'bad response';
       case DioErrorType.cancel:

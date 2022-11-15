@@ -87,6 +87,20 @@ class _ConnectionManager implements ConnectionManager {
       }
       rethrow;
     }
+
+    if (clientConfig.validateCertificate != null) {
+      final isCertApproved = clientConfig.validateCertificate!(
+          socket.peerCertificate, uri.host, uri.port);
+      if (!isCertApproved) {
+        throw DioError(
+          requestOptions: options,
+          type: DioErrorType.badCertificate,
+          error: socket.peerCertificate,
+          message: 'The certificate of the response is not approved.',
+        );
+      }
+    }
+
     // Config a ClientTransportConnection and save it
     var transport = ClientTransportConnection.viaSocket(socket);
     var _transportState = _ClientTransportConnectionState(transport);

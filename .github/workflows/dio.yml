@@ -46,22 +46,17 @@ jobs:
       matrix:
         sdk: [ stable, beta ]
         platform: [ vm, chrome ]
-    defaults:
-      run:
-        working-directory: dio
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - run: dart pub get
-      - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
-      - name: Upload test report
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: test-results-${{ matrix.sdk }}-${{ matrix.platform }}
-          path: dio/build/reports/test-results.json
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+        shell: bash
+      - run: cd dio && dart pub get
+      - run: cd dio && dart test --chain-stack-traces --platform=${{ matrix.platform }}
 
   publish-dry-run:
     name: Publish dry-run

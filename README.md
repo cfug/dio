@@ -686,13 +686,54 @@ There is a complete example [here](https://github.com/flutterchina/dio/blob/mast
 
 ### Https certificate verification
 
-There are two ways  to verify the https certificate. Suppose the certificate format is PEM, the code like:
+HTTPS certificate verification (or public key pinning) refers to the process of ensuring that the certificates protecting the TLS connection to the server are the ones you expect them to be. The intention is to reduce the chance of a man-in-the-middle attack. The theory is covered by [OWASP](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning).
+
+_Server Response Certificate_
+
+Unlike other methods, this one works with the certificate of the server itself.
 
 ```dart
-String PEM='XXXXX'; // certificate content
+String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
+(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+    (_) {
+      // Don't trust any certificate just because their root cert is trusted
+      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+      // You can test the intermediate / root cert here. We just ignore it.
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    };
+// Check that the cert fingerprint matches the one we expect
+(dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
+    (cert, host, port) {
+      // We definitely require _some_ certificate
+      if (cert == null) return false;
+      // Validate it any way you want. Here we only check that
+      // the fingerprint matches the OpenSSL SHA256.
+      return fingerprint == sha256.convert(cert.der).toString();
+    };
+```
+
+You can use openssl to read the SHA256 value of a certificate:
+
+```sh
+openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badssl.com:443 < /dev/null 2>/dev/null \
+  | openssl x509 -noout -fingerprint -sha256
+
+# SHA256 Fingerprint=EE:5C:E1:DF:A7:A5:36:57:C5:45:C6:2B:65:80:2E:42:72:87:8D:AB:D6:5C:0A:AD:CF:85:78:3E:BB:0B:4D:5C
+# (remove the formatting, keep only lower case hex characters to match the `sha256` above)
+```
+
+_Certificate Authority Verification_
+
+These methods work well when your server has a self-signed certificate, but they don't work for certificates issued by a 3rd party like AWS or Let's Encrypt.
+
+There are two ways to verify the root of the https certificate chain provided by the server. Suppose the certificate format is PEM, the code like:
+
+```dart
+String PEM='XXXXX'; // root certificate content
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
   client.badCertificateCallback=(X509Certificate cert, String host, int port){
-    if(cert.pem==PEM){ // Verify the certificate
+    if(cert.pem==PEM){ // Verify the root certificate
       return true;
     }
     return false;
@@ -705,14 +746,14 @@ Another way is creating a `SecurityContext` when create the `HttpClient`:
 ```dart
 (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
   SecurityContext sc = SecurityContext();
-  //file is the path of certificate
+  //file is the path of root certificate
   sc.setTrustedCertificates(file);
   HttpClient httpClient = HttpClient(context: sc);
   return httpClient;
 };
 ```
 
-In this way,  the format of certificate must be PEM or PKCS12.
+In this way, the format of certificate must be PEM or PKCS12.
 
 ## Http2 support
 

@@ -1,3 +1,6 @@
+## NEXT
+
+* Add `validateCertificate` for `ClientSetting`.
 
 ## [2.0.0]
 

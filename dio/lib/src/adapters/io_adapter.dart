@@ -6,10 +6,12 @@ import '../options.dart';
 import '../dio_error.dart';
 import '../redirect_record.dart';
 
-@Deprecated('Use IOHttpClientAdapter instead')
+@Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
 typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
 
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
+typedef ValidateCertificate = bool Function(
+    X509Certificate? certificate, String host, int port);
 
 HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
@@ -19,6 +21,14 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// If [onHttpClientCreate] is provided, [Dio] will call
   /// it when a HttpClient created.
   OnHttpClientCreate? onHttpClientCreate;
+
+  /// Allows the user to decide if the response certificate is good.
+  /// If this function is missing, then the certificate is allowed.
+  /// This method is called only if both the [SecurityContext] and
+  /// [badCertificateCallback] accept the certificate chain. Those
+  /// methods evaluate the root or intermediate certificate, while
+  /// [validateCertificate] evaluates the leaf certificate.
+  ValidateCertificate? validateCertificate;
 
   HttpClient? _defaultHttpClient;
 
@@ -112,6 +122,21 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     final responseStream = await future;
+
+    if (validateCertificate != null) {
+      final host = options.uri.host;
+      final port = options.uri.port;
+      final isCertApproved =
+          validateCertificate!(responseStream.certificate, host, port);
+      if (!isCertApproved) {
+        throw DioError(
+          requestOptions: options,
+          type: DioErrorType.badCertificate,
+          error: responseStream.certificate,
+          message: 'The certificate of the response is not approved.',
+        );
+      }
+    }
 
     var stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(

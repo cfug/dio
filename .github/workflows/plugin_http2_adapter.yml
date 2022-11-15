@@ -45,19 +45,13 @@ jobs:
       fail-fast: false
       matrix:
         sdk: [ stable, beta ]
-    defaults:
-      run:
-        working-directory: plugins/http2_adapter
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - run: dart pub get
-      - run: dart test --chain-stack-traces
-      - name: Upload test report
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: test-results-${{ matrix.sdk }}
-          path: plugins/http2_adapter/build/reports/test-results.json
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+      - run: cd plugins/http2_adapter && dart pub get
+      - run: cd plugins/http2_adapter && dart test --chain-stack-traces

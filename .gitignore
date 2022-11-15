@@ -19,6 +19,7 @@ dio/.idea/
 dio/.exampl
 dio/coverage
 dio/test/_download_test.md
+dio/test/*_pinning.txt
 
 # plugins
 plugins/cookie_manager/.packages
@@ -32,6 +33,7 @@ plugins/http2_adapter/.dart_tool/
 plugins/http2_adapter/.pub/
 plugins/http2_adapter/.idea/
 plugins/http2_adapter/.exampl
+plugins/http2_adapter/test/*_pinning.txt
 
 .vscode/
 
