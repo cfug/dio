@@ -30,26 +30,23 @@ class FormData {
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
   bool _isFinalized = false;
-  bool camelCaseContentDisposition = false;
+  final bool _camelCaseContentDisposition;
 
-  FormData() {
+  FormData({bool camelCaseContentDisposition = false}) {
+    _camelCaseContentDisposition = camelCaseContentDisposition;
     _init();
   }
 
   /// Create FormData instance with a Map.
-  FormData.fromMap(
-    Map<String, dynamic> map, [
+  FormData.fromMap(Map<String, dynamic> map, [
     ListFormat collectionFormat = ListFormat.multi,
+  {bool camelCaseContentDisposition = false}
   ]) {
     _init();
-
-    if (map.containsKey("camelCaseContentDisposition")) {
-      camelCaseContentDisposition = map['camelCaseContentDisposition'];
-    }
-
+    _camelCaseContentDisposition = camelCaseContentDisposition;
     encodeMap(
       map,
-      (key, value) {
+          (key, value) {
         if (value == null) return null;
         if (value is MultipartFile) {
           files.add(MapEntry(key, value));
@@ -74,7 +71,9 @@ class FormData {
   /// contain only ASCII characters.
   String _headerForField(String name, String value) {
     var header =
-        '${camelCaseContentDisposition ? 'Content-Disposition': 'content-disposition'}: form-data; name="${_browserEncode(name)}"';
+        '${camelCaseContentDisposition
+        ? 'Content-Disposition'
+        : 'content-disposition'}: form-data; name="${_browserEncode(name)}"';
     if (!isPlainAscii(value)) {
       header = '$header\r\n'
           'content-type: text/plain; charset=utf-8\r\n'
@@ -88,7 +87,10 @@ class FormData {
   String _headerForFile(MapEntry<String, MultipartFile> entry) {
     var file = entry.value;
     var header =
-        '${camelCaseContentDisposition ? 'Content-Disposition': 'content-disposition'}: form-data; name="${_browserEncode(entry.key)}"';
+        '${camelCaseContentDisposition
+        ? 'Content-Disposition'
+        : 'content-disposition'}: form-data; name="${_browserEncode(
+        entry.key)}"';
     if (file.filename != null) {
       header = '$header; filename="${_browserEncode(file.filename)}"';
     }
@@ -127,8 +129,12 @@ class FormData {
       length += '--'.length +
           _BOUNDARY_LENGTH +
           '\r\n'.length +
-          utf8.encode(_headerForField(entry.key, entry.value)).length +
-          utf8.encode(entry.value).length +
+          utf8
+              .encode(_headerForField(entry.key, entry.value))
+              .length +
+          utf8
+              .encode(entry.value)
+              .length +
           '\r\n'.length;
     });
 
@@ -136,7 +142,9 @@ class FormData {
       length += '--'.length +
           _BOUNDARY_LENGTH +
           '\r\n'.length +
-          utf8.encode(_headerForFile(file)).length +
+          utf8
+              .encode(_headerForFile(file))
+              .length +
           file.value.length +
           '\r\n'.length;
     }
