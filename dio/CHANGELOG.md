@@ -1,7 +1,8 @@
 # 5.0.0-dev.1
 
-- A platform independend `HttpClientAdapter` can now be instantiated by doing `dio.httpClientAdapter = HttpClientAdapter();`.
+- A platform independent `HttpClientAdapter` can now be instantiated by doing `dio.httpClientAdapter = HttpClientAdapter();`.
 - Add `ValidateCertificate` to handle certificate pinning better.
+- Support `Content-Disposition` header case sensitivity.
 
 ## Breaking Changes
 
@@ -9,14 +10,20 @@
   - `DioErrorType.connectTimeout` was changed to `DioErrorType.connectionTimeout`
   - `DioErrorType.response` was changed to `DioErrorType.badResponse`
   - `DioErrorType.other` was changed to `DioErrorType.unknown`
-  - `DioError` has now multiple constructors for specific error cases. Since `DioError` is only thrown internal to the libary, you shouldn't need to adapt any code.
+  - `DioError` has now multiple constructors for specific error cases.
+    Since `DioError` is only thrown internal to the library, you shouldn't need to adapt any code.
   - Catching `DioError`s still works the same way as before.
 - `HttpClientAdapter` must now be implemented instead of extended.
-- Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`. Classes specific to web can be imported via `import 'package:dio/web.dart';`
+- Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`.
+  Classes specific to web can be imported via `import 'package:dio/web.dart';`.
   - `DefaultHttpClientAdapter` was renamed to `IOHttpClientAdapter`
   - `package:dio/io.dart` contains `IOHttpClientAdapter`
   - `package:dio/web.dart` contains `BrowserHttpClientAdapter`
-- Previously `options.connectTimeout` and `options.receiveTimeout` were `int`s. They're now `Duration`s. To migrate change `options.connectTimeout = 1000;` to `options.connectTimeout = Duration(seconds: 1);`. The same applies to `receiveTimeout`. Setting the timeouts to `null` indicates that the system default timeouts should be used.
+- Previously `options.connectTimeout` and `options.receiveTimeout` were `int`s.
+  They're now `Duration`s. To migrate change `options.connectTimeout = 1000;` to
+  `options.connectTimeout = Duration(seconds: 1);`.
+  The same applies to `receiveTimeout`.
+  Setting the timeouts to `null` indicates that the system default timeouts should be used.
 
 # 4.0.6
 - fix #1452
