@@ -9,7 +9,7 @@ import 'utils.dart';
 /// [count] is the length of the bytes have been sent/received.
 ///
 /// [total] is the content length of the response/request body.
-/// 1.When receiving data:
+/// 1.When sending data:
 ///   [total] is the request body length.
 /// 2.When receiving data:
 ///   [total] will be -1 if the size of the response body is not known in advance,
