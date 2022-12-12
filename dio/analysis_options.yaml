@@ -4,3 +4,9 @@ analyzer:
   errors:
     deprecated_member_use_from_same_package: ignore
     todo: ignore
+linter:
+  rules:
+    - prefer_final_fields: true
+    - prefer_final_locals: true
+    - prefer_final_in_for_each: true
+    - unnecessary_parenthesis: true

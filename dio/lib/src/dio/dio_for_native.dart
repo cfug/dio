@@ -17,7 +17,7 @@ class DioForNative with DioMixin implements Dio {
   /// It is recommended that an application use only the same DIO singleton.
   DioForNative([BaseOptions? baseOptions]) {
     options = baseOptions ?? BaseOptions();
-    httpClientAdapter = DefaultHttpClientAdapter();
+    httpClientAdapter = IOHttpClientAdapter();
   }
 
   ///  Download the file and save it in local. The default http method is "GET",
@@ -91,7 +91,7 @@ class DioForNative with DioMixin implements Dio {
     } on DioError catch (e) {
       if (e.type == DioErrorType.badResponse) {
         if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
-          var res = await transformer.transformResponse(
+          final res = await transformer.transformResponse(
             e.response!.requestOptions..responseType = ResponseType.json,
             e.response!.data as ResponseBody,
           );
@@ -126,18 +126,19 @@ class DioForNative with DioMixin implements Dio {
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the
     // file with a very big size(up 1G), it will be expensive in memory.
-    var raf = file.openSync(mode: FileMode.write);
+    RandomAccessFile raf = file.openSync(mode: FileMode.write);
 
     //Create a Completer to notify the success/error state.
-    var completer = Completer<Response>();
-    var future = completer.future;
-    var received = 0;
+    final completer = Completer<Response>();
+    Future<Response> future = completer.future;
+    int received = 0;
 
     // Stream<Uint8List>
-    var stream = response.data!.stream;
-    var compressed = false;
-    var total = 0;
-    var contentEncoding = response.headers.value(Headers.contentEncodingHeader);
+    final stream = response.data!.stream;
+    bool compressed = false;
+    int total = 0;
+    final contentEncoding =
+        response.headers.value(Headers.contentEncodingHeader);
     if (contentEncoding != null) {
       compressed = ['gzip', 'deflate', 'compress'].contains(contentEncoding);
     }
@@ -149,8 +150,8 @@ class DioForNative with DioMixin implements Dio {
 
     late StreamSubscription subscription;
     Future? asyncWrite;
-    var closed = false;
-    Future _closeAndDelete() async {
+    bool closed = false;
+    Future closeAndDelete() async {
       if (!closed) {
         closed = true;
         await asyncWrite;
@@ -165,25 +166,21 @@ class DioForNative with DioMixin implements Dio {
       (data) {
         subscription.pause();
         // Write file asynchronously
-        asyncWrite = raf.writeFrom(data).then((_raf) {
+        asyncWrite = raf.writeFrom(data).then((result) {
           // Notify progress
           received += data.length;
-
           onReceiveProgress?.call(received, total);
-
-          raf = _raf;
+          raf = result;
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
-        }).catchError((err, StackTrace stackTrace) async {
+        }).catchError((dynamic e, StackTrace s) async {
           try {
             await subscription.cancel();
           } finally {
-            completer.completeError(DioMixin.assureDioError(
-              err,
-              response.requestOptions,
-              stackTrace,
-            ));
+            completer.completeError(
+              DioMixin.assureDioError(e, response.requestOptions, s),
+            );
           }
         });
       },
@@ -193,47 +190,45 @@ class DioForNative with DioMixin implements Dio {
           closed = true;
           await raf.close();
           completer.complete(response);
-        } catch (e, stackTrace) {
-          completer.completeError(DioMixin.assureDioError(
-            e,
-            response.requestOptions,
-            stackTrace,
-          ));
+        } catch (e, s) {
+          completer.completeError(
+            DioMixin.assureDioError(e, response.requestOptions, s),
+          );
         }
       },
-      onError: (e, stackTrace) async {
+      onError: (e, s) async {
         try {
-          await _closeAndDelete();
+          await closeAndDelete();
         } finally {
-          completer.completeError(DioMixin.assureDioError(
-            e,
-            response.requestOptions,
-            stackTrace as StackTrace?,
-          ));
+          completer.completeError(
+            DioMixin.assureDioError(e, response.requestOptions, s),
+          );
         }
       },
       cancelOnError: true,
     );
-    // ignore: unawaited_futures
     cancelToken?.whenCancel.then((_) async {
       await subscription.cancel();
-      await _closeAndDelete();
+      await closeAndDelete();
     });
 
     final timeout = response.requestOptions.receiveTimeout;
     if (timeout != null) {
-      future = future.timeout(timeout).catchError((Object err) async {
-        await subscription.cancel();
-        await _closeAndDelete();
-        if (err is TimeoutException) {
-          throw DioError.receiveTimeout(
-            timeout: timeout,
-            requestOptions: response.requestOptions,
-          );
-        } else {
-          throw err;
-        }
-      });
+      future = future.timeout(timeout).catchError(
+        (dynamic e, StackTrace s) async {
+          await subscription.cancel();
+          await closeAndDelete();
+          if (e is TimeoutException) {
+            throw DioError.receiveTimeout(
+              timeout: timeout,
+              requestOptions: response.requestOptions,
+              stackTrace: s,
+            );
+          } else {
+            throw e;
+          }
+        },
+      );
     }
     return DioMixin.listenCancelForAsyncTask(cancelToken, future);
   }

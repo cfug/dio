@@ -6,9 +6,12 @@ class MyAdapter implements HttpClientAdapter {
   final HttpClientAdapter _adapter = HttpClientAdapter();
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
-    var uri = options.uri;
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final uri = options.uri;
     // hook requests to  google.com
     if (uri.host == 'google.com') {
       return ResponseBody.fromString('Too young too simple!', 200);
@@ -23,9 +26,9 @@ class MyAdapter implements HttpClientAdapter {
 }
 
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   dio.httpClientAdapter = MyAdapter();
-  var response = await dio.get('https://google.com');
+  Response response = await dio.get('https://google.com');
   print(response);
   response = await dio.get('https://baidu.com');
   print(response);

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   dio.options.baseUrl = 'http://httpbin.org/status/';
   dio.interceptors.add(
     InterceptorsWrapper(

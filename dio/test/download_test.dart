@@ -15,7 +15,7 @@ void main() {
   tearDown(stopServer);
   test('#test download1', () async {
     const savePath = 'test/_download_test.md';
-    var dio = Dio();
+    final dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
     await dio.download(
       '/download', savePath, // disable gzip
@@ -24,46 +24,46 @@ void main() {
       },
     );
 
-    var f = File(savePath);
+    final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
     f.deleteSync(recursive: false);
   });
 
   test('#test download2', () async {
     const savePath = 'test/_download_test.md';
-    var dio = Dio();
+    final dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
     await dio.downloadUri(
       serverUrl.replace(path: '/download'),
       (header) => savePath, // disable gzip
     );
 
-    var f = File(savePath);
+    final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
     f.deleteSync(recursive: false);
   });
 
   test('#test download error', () async {
     const savePath = 'test/_download_test.md';
-    var dio = Dio();
+    final dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
-    var r = await dio
+    Response response = await dio
         .download('/error', savePath)
         .catchError((e) => (e as DioError).response!);
-    assert(r.data == 'error');
-    r = await dio
+    assert(response.data == 'error');
+    response = await dio
         .download(
           '/error',
           savePath,
           options: Options(receiveDataWhenStatusError: false),
         )
         .catchError((e) => (e as DioError).response!);
-    assert(r.data == null);
+    assert(response.data == null);
   });
 
   test('#test download timeout', () async {
     const savePath = 'test/_download_test.md';
-    var dio = Dio(BaseOptions(
+    final dio = Dio(BaseOptions(
       receiveTimeout: Duration(milliseconds: 1),
       baseUrl: serverUrl.toString(),
     ));
@@ -77,14 +77,14 @@ void main() {
 
   test('#test download cancellation', () async {
     const savePath = 'test/_download_test.md';
-    var cancelToken = CancelToken();
+    final cancelToken = CancelToken();
     Future.delayed(Duration(milliseconds: 100), () {
       cancelToken.cancel();
     });
     expect(
       Dio()
           .download(
-            serverUrl.toString() + '/download',
+            '$serverUrl/download',
             savePath,
             cancelToken: cancelToken,
           )

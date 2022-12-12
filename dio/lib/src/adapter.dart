@@ -1,34 +1,34 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:dio/src/adapters/universal_adapter.dart';
+
 import 'options.dart';
 import 'redirect_record.dart';
 
-/// HttpAdapter is a bridge between Dio and HttpClient.
+import 'adapters/io_adapter.dart'
+    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
+
+/// [HttpAdapter] is a bridge between [Dio] and [HttpClient].
 ///
-/// Dio: Implements standard and friendly API for developer.
-///
-/// HttpClient: It is the real object that makes Http
+/// [Dio] implements standard and friendly API for developer.
+/// [HttpClient] is the real object that makes Http
 /// requests.
 ///
-/// We can use any HttpClient not just "dart:io:HttpClient" to
-/// make the Http request. All we need is providing a [HttpClientAdapter].
+/// We can use any [HttpClient]s not just "dart:io:HttpClient" to
+/// make the HTTP request. All we need is to provide a [HttpClientAdapter].
 ///
-/// The default HttpClientAdapter for Dio is [HttpClientAdapter].
-///
-/// If you want to customize the `HttpClientAdapter` you should instead use
-/// either `DefaultHttpClientAdapter` on `dart:io` platforms
-/// or `BrowserHttpClientAdapter` on `dart:html` platforms.
+/// If you want to customize the [HttpClientAdapter] you should instead use
+/// either [IOHttpClientAdapter] on `dart:io` platforms
+/// or [BrowserHttpClientAdapter] on `dart:html` platforms.
 ///
 /// ```dart
 /// dio.httpClientAdapter = HttpClientAdapter();
 /// ```
 abstract class HttpClientAdapter {
-  factory HttpClientAdapter() => createAdapter();
+  factory HttpClientAdapter() => adapter.createAdapter();
 
   /// We should implement this method to make real http requests.
   ///
-  /// [options]: The request options
+  /// [options] are the request options.
   ///
   /// [requestStream] The request stream, It will not be null
   /// only when http method is one of "POST","PUT","PATCH"
@@ -37,18 +37,17 @@ abstract class HttpClientAdapter {
   /// We should give priority to using requestStream(not options.data) as request data.
   /// because supporting stream ensures the `onSendProgress` works.
   ///
-  /// [cancelFuture]: When  cancelled the request, [cancelFuture] will be resolved!
+  /// When cancelled the request, [cancelFuture] will be resolved!
   /// you can listen cancel event by it, for example:
   ///
   /// ```dart
   ///  cancelFuture?.then((_)=>print("request cancelled!"))
   /// ```
-  /// [cancelFuture]: will be null when the request is not set [CancelToken].
-
+  /// [cancelFuture] will be null when the request is not set [CancelToken].
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   );
 
   void close({bool force = false});
@@ -71,7 +70,7 @@ class ResponseBody {
   late Map<String, List<String>> headers;
 
   /// Http status code
-  int? statusCode;
+  int statusCode;
 
   /// Returns the reason phrase associated with the status code.
   /// The reason phrase must be set before the body is written

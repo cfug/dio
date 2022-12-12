@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 void main() async {
-  var url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';
-  var savePath = './example/HBuilder.9.0.2.macosx_64.dmg';
+  final url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';
+  final savePath = './example/HBuilder.9.0.2.macosx_64.dmg';
 
-//  var url = "https://www.baidu.com/img/bdlogo.gif";
-//  var savePath = "./example/bg.gif";
+//  final url = "https://www.baidu.com/img/bdlogo.gif";
+//  final savePath = "./example/bg.gif";
 
   await downloadWithChunks(url, savePath, onReceiveProgress: (received, total) {
     if (total != -1) {
@@ -25,9 +25,9 @@ Future downloadWithChunks(
   const firstChunkSize = 102;
   const maxChunk = 3;
 
-  var total = 0;
-  var dio = Dio();
-  var progress = <int>[];
+  int total = 0;
+  final dio = Dio();
+  final progress = <int>[];
 
   void Function(int, int) createCallback(no) {
     return (int received, int _) {
@@ -52,10 +52,10 @@ Future downloadWithChunks(
   }
 
   Future mergeTempFiles(chunk) async {
-    var f = File(savePath + 'temp0');
-    var ioSink = f.openWrite(mode: FileMode.writeOnlyAppend);
-    for (var i = 1; i < chunk; ++i) {
-      var _f = File(savePath + 'temp$i');
+    final f = File(savePath + 'temp0');
+    final ioSink = f.openWrite(mode: FileMode.writeOnlyAppend);
+    for (int i = 1; i < chunk; ++i) {
+      final _f = File(savePath + 'temp$i');
       await ioSink.addStream(_f.openRead());
       await _f.delete();
     }
@@ -63,24 +63,24 @@ Future downloadWithChunks(
     await f.rename(savePath);
   }
 
-  var response = await downloadChunk(url, 0, firstChunkSize, 0);
+  final response = await downloadChunk(url, 0, firstChunkSize, 0);
   if (response.statusCode == 206) {
     total = int.parse(response.headers
         .value(HttpHeaders.contentRangeHeader)!
         .split('/')
         .last);
-    var reserved =
+    final reserved =
         total - int.parse(response.headers.value(Headers.contentLengthHeader)!);
-    var chunk = (reserved / firstChunkSize).ceil() + 1;
+    int chunk = (reserved / firstChunkSize).ceil() + 1;
     if (chunk > 1) {
-      var chunkSize = firstChunkSize;
+      int chunkSize = firstChunkSize;
       if (chunk > maxChunk + 1) {
         chunk = maxChunk + 1;
         chunkSize = (reserved / maxChunk).ceil();
       }
-      var futures = <Future>[];
-      for (var i = 0; i < maxChunk; ++i) {
-        var start = firstChunkSize + i * chunkSize;
+      final futures = <Future>[];
+      for (int i = 0; i < maxChunk; ++i) {
+        final start = firstChunkSize + i * chunkSize;
         futures.add(downloadChunk(url, start, start + chunkSize, i + 1));
       }
       await Future.wait(futures);

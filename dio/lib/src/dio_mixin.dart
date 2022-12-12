@@ -14,11 +14,8 @@ import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
 
-import 'progress_stream_stub.dart'
-// ignore: uri_does_not_exist
-    if (dart.library.html) 'progress_stream/browser_progress_stream.dart'
-// ignore: uri_does_not_exist
-    if (dart.library.io) 'progress_stream/io_progress_stream.dart';
+import 'progress_stream/io_progress_stream.dart'
+    if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
 
 part 'interceptor.dart';
 
@@ -277,38 +274,6 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  /// Lock the current Dio instance.
-  ///
-  /// Dio will enqueue the incoming request tasks instead
-  /// send them directly when [interceptor.requestOptions] is locked.
-  @Deprecated(
-      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-      ' https://github.com/flutterchina/dio/issues/1308')
-  @override
-  void lock() {
-    interceptors.requestLock.lock();
-  }
-
-  /// Unlock the current Dio instance.
-  ///
-  /// Dio instance dequeue the request task。
-  @Deprecated(
-      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-      ' https://github.com/flutterchina/dio/issues/1308')
-  @override
-  void unlock() {
-    interceptors.requestLock.unlock();
-  }
-
-  ///Clear the current Dio instance waiting queue.
-  @Deprecated(
-      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-      ' https://github.com/flutterchina/dio/issues/1308')
-  @override
-  void clear() {
-    interceptors.requestLock.clear();
-  }
-
   ///  Download the file and save it in local. The default http method is 'GET',
   ///  you can custom it by [Options.method].
   ///
@@ -460,7 +425,7 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onReceiveProgress,
   }) async {
     options ??= Options();
-    var requestOptions = options.compose(
+    final requestOptions = options.compose(
       this.options,
       path,
       data: data,
@@ -499,20 +464,18 @@ abstract class DioMixin implements Dio {
 
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr Function(dynamic) _requestInterceptorWrapper(
+    FutureOr Function(dynamic) requestInterceptorWrapper(
       InterceptorSendCallback interceptor,
     ) {
-      return (dynamic _state) async {
-        var state = _state as InterceptorState;
+      return (dynamic incomingState) async {
+        final state = incomingState as InterceptorState;
         if (state.type == InterceptorResultType.next) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() {
-              return checkIfNeedEnqueue(interceptors.requestLock, () {
-                var requestHandler = RequestInterceptorHandler();
-                interceptor(state.data as RequestOptions, requestHandler);
-                return requestHandler.future;
-              });
+              final requestHandler = RequestInterceptorHandler();
+              interceptor(state.data as RequestOptions, requestHandler);
+              return requestHandler.future;
             }),
           );
         } else {
@@ -523,21 +486,19 @@ abstract class DioMixin implements Dio {
 
     // Convert the response interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic) _responseInterceptorWrapper(
+    FutureOr<dynamic> Function(dynamic) responseInterceptorWrapper(
       InterceptorSuccessCallback interceptor,
     ) {
-      return (_state) async {
-        var state = _state as InterceptorState;
+      return (dynamic incomingState) async {
+        final state = incomingState as InterceptorState;
         if (state.type == InterceptorResultType.next ||
             state.type == InterceptorResultType.resolveCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() {
-              return checkIfNeedEnqueue(interceptors.responseLock, () {
-                var responseHandler = ResponseInterceptorHandler();
-                interceptor(state.data as Response, responseHandler);
-                return responseHandler.future;
-              });
+              final responseHandler = ResponseInterceptorHandler();
+              interceptor(state.data as Response, responseHandler);
+              return responseHandler.future;
             }),
           );
         } else {
@@ -548,7 +509,7 @@ abstract class DioMixin implements Dio {
 
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic, StackTrace) _errorInterceptorWrapper(
+    FutureOr<dynamic> Function(dynamic, StackTrace) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
       return (err, stackTrace) {
@@ -567,11 +528,9 @@ abstract class DioMixin implements Dio {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() {
-              return checkIfNeedEnqueue(interceptors.errorLock, () {
-                var errorHandler = ErrorInterceptorHandler();
-                interceptor(err.data as DioError, errorHandler);
-                return errorHandler.future;
-              });
+              final errorHandler = ErrorInterceptorHandler();
+              interceptor(err.data as DioError, errorHandler);
+              return errorHandler.future;
             }),
           );
         } else {
@@ -584,18 +543,19 @@ abstract class DioMixin implements Dio {
     // execute in FIFO order.
 
     // Start the request flow
-    var future = Future<dynamic>(() => InterceptorState(requestOptions));
+    Future<dynamic> future =
+        Future<dynamic>(() => InterceptorState(requestOptions));
 
     // Add request interceptors to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleRequest
           : interceptor.onRequest;
-      future = future.then(_requestInterceptorWrapper(fun));
-    });
+      future = future.then(requestInterceptorWrapper(fun));
+    }
 
     // Add dispatching callback to request flow
-    future = future.then(_requestInterceptorWrapper((
+    future = future.then(requestInterceptorWrapper((
       RequestOptions reqOpt,
       RequestInterceptorHandler handler,
     ) {
@@ -608,59 +568,52 @@ abstract class DioMixin implements Dio {
     }));
 
     // Add response interceptors to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleResponse
           : interceptor.onResponse;
-      future = future.then(_responseInterceptorWrapper(fun));
-    });
+      future = future.then(responseInterceptorWrapper(fun));
+    }
 
     // Add error handlers to request flow
-    interceptors.forEach((Interceptor interceptor) {
-      var fun = interceptor is QueuedInterceptor
+    for (final interceptor in interceptors) {
+      final fun = interceptor is QueuedInterceptor
           ? interceptor._handleError
           : interceptor.onError;
-      future = future.catchError(_errorInterceptorWrapper(fun));
-    });
-
-    // Normalize errors, we convert error to the DioError
+      future = future.catchError(errorInterceptorWrapper(fun));
+    }
+    // Normalize errors, we convert error to the DioError.
     return future.then<Response<T>>((data) {
       return assureResponse<T>(
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((err, StackTrace stackTrace) {
-      var isState = err is InterceptorState;
-
+    }).catchError((dynamic e, StackTrace s) {
+      final isState = e is InterceptorState;
       if (isState) {
-        if ((err as InterceptorState).type == InterceptorResultType.resolve) {
-          return assureResponse<T>(err.data, requestOptions);
+        if ((e as InterceptorState).type == InterceptorResultType.resolve) {
+          return assureResponse<T>(e.data, requestOptions);
         }
       }
-
-      throw assureDioError(
-        isState ? err.data : err,
-        requestOptions,
-        stackTrace,
-      );
+      throw assureDioError(isState ? e.data : e, requestOptions, s);
     });
   }
 
   // Initiate Http requests
   Future<Response<dynamic>> _dispatchRequest<T>(RequestOptions reqOpt) async {
-    var cancelToken = reqOpt.cancelToken;
+    final cancelToken = reqOpt.cancelToken;
     ResponseBody responseBody;
     try {
-      var stream = await _transformData(reqOpt);
+      final stream = await _transformData(reqOpt);
       responseBody = await httpClientAdapter.fetch(
         reqOpt,
         stream,
         cancelToken?.whenCancel,
       );
-      var headers = Headers.fromMap(responseBody.headers);
+      final headers = Headers.fromMap(responseBody.headers);
       // Make sure headers and responseBody.headers point to a same Map
       responseBody.headers = headers.map;
-      var ret = Response<dynamic>(
+      final ret = Response<dynamic>(
         headers: headers,
         requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
@@ -669,9 +622,9 @@ abstract class DioMixin implements Dio {
         statusMessage: responseBody.statusMessage,
         extra: responseBody.extra,
       );
-      var statusOk = reqOpt.validateStatus(responseBody.statusCode);
+      final statusOk = reqOpt.validateStatus(responseBody.statusCode);
       if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
-        var forceConvert = !(T == dynamic || T == String) &&
+        final forceConvert = !(T == dynamic || T == String) &&
             !(reqOpt.responseType == ResponseType.bytes ||
                 reqOpt.responseType == ResponseType.stream);
         String? contentType;
@@ -688,10 +641,10 @@ abstract class DioMixin implements Dio {
       }
       checkCancelled(cancelToken);
       if (statusOk) {
-        return checkIfNeedEnqueue(interceptors.responseLock, () => ret);
+        return ret;
       } else {
         throw DioError.badResponse(
-          statusCode: responseBody.statusCode!,
+          statusCode: responseBody.statusCode,
           requestOptions: reqOpt,
           response: ret,
         );
@@ -712,13 +665,13 @@ abstract class DioMixin implements Dio {
     //                | "/" | "[" | "]" | "?" | "="
     //                | "{" | "}" | SP | HT
     // token          = 1*<any CHAR except CTLs or separators>
-    const _validChars = r"                                "
+    const validChars = r"                                "
         r" ! #$%&'  *+ -. 0123456789      "
         r" ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_"
         r"`abcdefghijklmnopqrstuvwxyz | ~ ";
     for (int codeUnit in token.codeUnits) {
-      if (codeUnit >= _validChars.length ||
-          _validChars.codeUnitAt(codeUnit) == 0x20) {
+      if (codeUnit >= validChars.length ||
+          validChars.codeUnitAt(codeUnit) == 0x20) {
         return false;
       }
     }
@@ -729,7 +682,7 @@ abstract class DioMixin implements Dio {
     if (!_isValidToken(options.method)) {
       throw ArgumentError.value(options.method, "method");
     }
-    var data = options.data;
+    final data = options.data;
     List<int> bytes;
     Stream<List<int>> stream;
     const allowPayloadMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
@@ -756,23 +709,22 @@ abstract class DioMixin implements Dio {
         options.headers[Headers.contentLengthHeader] = length.toString();
       } else {
         // Call request transformer.
-        var _data = await transformer.transformRequest(options);
-
+        final data = await transformer.transformRequest(options);
         if (options.requestEncoder != null) {
-          bytes = options.requestEncoder!(_data, options);
+          bytes = options.requestEncoder!(data, options);
         } else {
           //Default convert to utf8
-          bytes = utf8.encode(_data);
+          bytes = utf8.encode(data);
         }
         // support data sending progress
         length = bytes.length;
         options.headers[Headers.contentLengthHeader] = length.toString();
 
-        var group = <List<int>>[];
+        final group = <List<int>>[];
         const size = 1024;
-        var groupCount = (bytes.length / size).ceil();
-        for (var i = 0; i < groupCount; ++i) {
-          var start = i * size;
+        final groupCount = (bytes.length / size).ceil();
+        for (int i = 0; i < groupCount; ++i) {
+          final start = i * size;
           group.add(bytes.sublist(start, math.min(start + size, bytes.length)));
         }
         stream = Stream.fromIterable(group);
@@ -802,17 +754,6 @@ abstract class DioMixin implements Dio {
     options ??= Options();
     options.method = method;
     return options;
-  }
-
-  static FutureOr<T> checkIfNeedEnqueue<T>(
-    Lock lock,
-    _WaitCallback<T> callback,
-  ) {
-    if (lock.locked) {
-      return lock._wait(callback)!;
-    } else {
-      return callback();
-    }
   }
 
   static DioError assureDioError(

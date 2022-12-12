@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 void main() async {
-  var dio = Dio();
-  var cookieJar = CookieJar();
+  final dio = Dio();
+  final cookieJar = CookieJar();
   dio.interceptors.add(CookieManager(cookieJar));
   await dio.get('https://baidu.com/');
   // Print cookies

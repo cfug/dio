@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   //  dio instance to request token
-  var tokenDio = Dio();
+  final tokenDio = Dio();
   String? csrfToken;
   dio.options.baseUrl = 'https://seunghwanlytest.mocklab.io/';
   tokenDio.options = dio.options;

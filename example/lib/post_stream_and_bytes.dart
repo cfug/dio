@@ -5,14 +5,14 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio(BaseOptions(
+  final dio = Dio(BaseOptions(
     connectTimeout: Duration(seconds: 5),
     baseUrl: 'http://httpbin.org/',
   ));
 
   dio.interceptors.add(LogInterceptor(responseBody: true));
 
-  // var file = File('./example/bee.mp4');
+  // final file = File('./example/bee.mp4');
   //
   // // Sending stream
   // await dio.post('post',
@@ -27,7 +27,7 @@ void main() async {
   // );
 
   // Sending bytes with Stream(Just an example, you can send json(Map) directly in action)
-  var postData = utf8.encode('{"userName":"wendux"}');
+  final postData = utf8.encode('{"userName":"wendux"}');
   await dio.post(
     'post',
     data: Stream.fromIterable([postData]),

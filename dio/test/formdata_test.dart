@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 void main() async {
   test('#test FormData', () async {
-    var fm = FormData.fromMap({
+    final fm = FormData.fromMap({
       'name': 'wendux',
       'age': 25,
       'file': MultipartFile.fromString('hello world.', headers: {
@@ -32,11 +32,11 @@ void main() async {
         ),
       ]
     });
-    var fmStr = await fm.readAsBytes();
-    var f = File('../dio/test/_formdata');
-    var content = f.readAsStringSync();
+    final fmStr = await fm.readAsBytes();
+    final f = File('../dio/test/_formdata');
+    String content = f.readAsStringSync();
     content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
-    var actual = utf8.decode(fmStr, allowMalformed: true);
+    String actual = utf8.decode(fmStr, allowMalformed: true);
 
     actual = actual.replaceAll('\r\n', '\n');
     content = content.replaceAll('\r\n', '\n');
@@ -44,7 +44,7 @@ void main() async {
     expect(actual, content);
     expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
-    var fm1 = FormData();
+    final fm1 = FormData();
     fm1.fields.add(MapEntry('name', 'wendux'));
     fm1.fields.add(MapEntry('age', '25'));
     fm1.files.add(MapEntry(

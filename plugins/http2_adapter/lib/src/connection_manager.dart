@@ -5,7 +5,7 @@ part of 'http2_adapter.dart';
 /// strategy for http2.
 abstract class ConnectionManager {
   factory ConnectionManager({
-    Duration idleTimeout = const Duration(milliseconds: 15000),
+    Duration idleTimeout = const Duration(seconds: 15),
     void Function(Uri uri, ClientSetting)? onClientCreate,
   }) =>
       _ConnectionManager(

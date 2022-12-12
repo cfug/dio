@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('#test headers', () {
-    var headers = Headers.fromMap({
+    final headers = Headers.fromMap({
       'set-cookie': ['k=v', 'k1=v1'],
       'content-length': ['200'],
       'test': ['1', '2'],
@@ -22,7 +22,7 @@ void main() {
     assert(headers['set-cookie']?.length == 2);
     headers.removeAll('set-cookie');
     assert(headers['set-cookie'] == null);
-    var ls = [];
+    final ls = [];
     headers.forEach((k, list) {
       ls.addAll(list);
     });
@@ -33,7 +33,7 @@ void main() {
     headers.set('content-length', ['400']);
     assert(headers.value('content-length') == '400');
 
-    var headers1 = Headers();
+    final headers1 = Headers();
     headers1.set('xx', 'v');
     assert(headers1.value('xx') == 'v');
     headers1.clear();
@@ -48,14 +48,14 @@ void main() {
   }, testOn: "vm");
 
   test('#cancellation', () async {
-    var dio = Dio();
+    final dio = Dio();
     final token = CancelToken();
     Timer(Duration(milliseconds: 10), () {
       token.cancel('cancelled');
       dio.httpClientAdapter.close(force: true);
     });
 
-    var url = 'https://accounts.google.com';
+    final url = 'https://accounts.google.com';
     await expectLater(
       dio.get(url, cancelToken: token),
       throwsA((e) => e is DioError && CancelToken.isCancel(e)),
@@ -63,7 +63,7 @@ void main() {
   });
 
   test('#status error', () async {
-    var dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
+    final dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
 
     await expectLater(
       dio.get('401'),
@@ -73,7 +73,7 @@ void main() {
           e.response!.statusCode == 401),
     );
 
-    var r = await dio.get(
+    final r = await dio.get(
       '401',
       options: Options(validateStatus: (status) => true),
     );

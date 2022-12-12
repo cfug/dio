@@ -9,11 +9,14 @@ import 'package:dio/dio.dart';
 class MockAdapter implements HttpClientAdapter {
   static const mockHost = 'mockserver';
   static const mockBase = 'http://$mockHost';
-  final _adapter = DefaultHttpClientAdapter();
+  final _adapter = IOHttpClientAdapter();
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     final uri = options.uri;
     if (uri.host == mockHost) {
       switch (uri.path) {
@@ -70,7 +73,7 @@ class MockAdapter implements HttpClientAdapter {
 
         case '/token':
           {
-            var t = 'ABCDEFGHIJKLMN'.split('')..shuffle();
+            final t = 'ABCDEFGHIJKLMN'.split('')..shuffle();
             return ResponseBody.fromBytes(
               utf8.encode(jsonEncode({
                 'errCode': 0,

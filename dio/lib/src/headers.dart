@@ -42,7 +42,7 @@ class Headers {
   /// returned. If the header has more than one value an exception is
   /// thrown.
   String? value(String name) {
-    var arr = this[name];
+    final arr = this[name];
     if (arr == null) return null;
     if (arr.length == 1) return arr.first;
     throw Exception(
@@ -52,7 +52,7 @@ class Headers {
   /// Adds a header value. The header named [name] will have the value
   /// [value] added to its list of values.
   void add(String name, String value) {
-    var arr = this[name];
+    final arr = this[name];
     if (arr == null) return set(name, value);
     arr.add(value);
   }
@@ -71,7 +71,7 @@ class Headers {
 
   /// Removes a specific value for a header name.
   void remove(String name, String value) {
-    var arr = this[name];
+    final arr = this[name];
     if (arr == null) return;
     arr.removeWhere((v) => v == value);
   }
@@ -91,14 +91,18 @@ class Headers {
   /// header. The header name passed in [:name:] will be all lower
   /// case.
   void forEach(HeaderForEachCallback f) {
-    _map.keys.forEach((key) => f(key, this[key]!));
+    for (final key in _map.keys) {
+      f(key, this[key]!);
+    }
   }
 
   @override
   String toString() {
-    var stringBuffer = StringBuffer();
+    final stringBuffer = StringBuffer();
     _map.forEach((key, value) {
-      value.forEach((e) => stringBuffer.writeln('$key: $e'));
+      for (final e in value) {
+        stringBuffer.writeln('$key: $e');
+      }
     });
     return stringBuffer.toString();
   }

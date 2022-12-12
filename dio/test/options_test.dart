@@ -12,9 +12,9 @@ import 'mock_adapter.dart';
 
 void main() {
   test('#test options', () {
-    var map = {'a': '5'};
-    var mapOverride = {'b': '6'};
-    var baseOptions = BaseOptions(
+    final map = {'a': '5'};
+    final mapOverride = {'b': '6'};
+    final baseOptions = BaseOptions(
       connectTimeout: Duration(seconds: 2),
       receiveTimeout: Duration(seconds: 2),
       sendTimeout: Duration(seconds: 2),
@@ -26,7 +26,7 @@ void main() {
       followRedirects: false,
       persistentConnection: false,
     );
-    var opt1 = baseOptions.copyWith(
+    final opt1 = baseOptions.copyWith(
       method: 'post',
       receiveTimeout: Duration(seconds: 3),
       sendTimeout: Duration(seconds: 3),
@@ -46,7 +46,7 @@ void main() {
     assert(opt1.queryParameters['b'] == null);
     assert(opt1.contentType == 'text/html');
 
-    var opt2 = Options(
+    final opt2 = Options(
       method: 'get',
       receiveTimeout: Duration(seconds: 2),
       sendTimeout: Duration(seconds: 2),
@@ -57,7 +57,7 @@ void main() {
       persistentConnection: false,
     );
 
-    var opt3 = opt2.copyWith(
+    final opt3 = opt2.copyWith(
       method: 'post',
       receiveTimeout: Duration(seconds: 3),
       sendTimeout: Duration(seconds: 3),
@@ -74,13 +74,13 @@ void main() {
     assert(opt3.extra!['b'] == '6');
     assert(opt3.contentType == 'text/html');
 
-    var opt4 = RequestOptions(
+    final opt4 = RequestOptions(
       path: '/xxx',
       sendTimeout: Duration(seconds: 2),
       followRedirects: false,
       persistentConnection: false,
     );
-    var opt5 = opt4.copyWith(
+    final opt5 = opt4.copyWith(
       method: 'post',
       receiveTimeout: Duration(seconds: 3),
       sendTimeout: Duration(seconds: 3),
@@ -108,8 +108,8 @@ void main() {
   test('#test options content-type', () {
     const contentType = 'text/html';
     const contentTypeJson = 'appliction/json';
-    var headers = {'content-type': contentType};
-    var jsonHeaders = {'content-type': contentTypeJson};
+    final headers = {'content-type': contentType};
+    final jsonHeaders = {'content-type': contentTypeJson};
 
     try {
       BaseOptions(contentType: contentType, headers: headers);
@@ -118,9 +118,9 @@ void main() {
       //
     }
 
-    var bo1 = BaseOptions(contentType: contentType);
-    var bo2 = BaseOptions(headers: headers);
-    var bo3 = BaseOptions();
+    final bo1 = BaseOptions(contentType: contentType);
+    final bo2 = BaseOptions(headers: headers);
+    final bo3 = BaseOptions();
 
     assert(bo1.headers['content-type'] == contentType);
     assert(bo2.headers['content-type'] == contentType);
@@ -150,8 +150,8 @@ void main() {
       //
     }
 
-    var o1 = Options(contentType: contentType);
-    var o2 = Options(headers: headers);
+    final o1 = Options(contentType: contentType);
+    final o2 = Options(headers: headers);
 
     try {
       o1.copyWith(headers: headers);
@@ -187,8 +187,8 @@ void main() {
       //
     }
 
-    var ro1 = RequestOptions(path: '', contentType: contentType);
-    var ro2 = RequestOptions(path: '', headers: headers);
+    final ro1 = RequestOptions(path: '', contentType: contentType);
+    final ro2 = RequestOptions(path: '', headers: headers);
 
     try {
       ro1.copyWith(headers: headers);
@@ -204,46 +204,54 @@ void main() {
       //
     }
 
-    var ro3 = RequestOptions(path: '');
+    final ro3 = RequestOptions(path: '');
     ro3.copyWith();
   });
 
   test('#test default content-type', () async {
-    var dio = Dio();
+    final dio = Dio();
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
 
-    var r1 = await dio.get('');
+    Response r1 = await dio.get('');
     assert(r1.requestOptions.headers[Headers.contentTypeHeader] == null);
 
     dio.options.setRequestContentTypeWhenNoPayload = true;
 
     r1 = await dio.get('');
-    assert(r1.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
+    assert(
+      r1.requestOptions.headers[Headers.contentTypeHeader] ==
+          Headers.jsonContentType,
+    );
 
     dio.options.setRequestContentTypeWhenNoPayload = false;
 
-    var r2 = await dio.get(
+    final r2 = await dio.get(
       '',
       options: Options(contentType: Headers.jsonContentType),
     );
 
-    assert(r2.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
+    assert(
+      r2.requestOptions.headers[Headers.contentTypeHeader] ==
+          Headers.jsonContentType,
+    );
 
-    var r3 = await dio.get(
+    final r3 = await dio.get(
       '',
       options: Options(headers: {
         Headers.contentTypeHeader: Headers.jsonContentType,
       }),
     );
-    assert(r3.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
+    assert(
+      r3.requestOptions.headers[Headers.contentTypeHeader] ==
+          Headers.jsonContentType,
+    );
 
-    var r4 = await dio.post('', data: '');
-    assert(r4.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
+    final r4 = await dio.post('', data: '');
+    assert(
+      r4.requestOptions.headers[Headers.contentTypeHeader] ==
+          Headers.jsonContentType,
+    );
   });
 
   test('#test default content-type2', () async {
@@ -251,13 +259,13 @@ void main() {
     dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
 
-    var r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
+    final r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
       headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
     );
     assert(
         r1.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
 
-    var r2 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
+    final r2 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
           contentType: Headers.textPlainContentType,
         );
     assert(
@@ -275,7 +283,7 @@ void main() {
 
     dio.options.setRequestContentTypeWhenNoPayload = false;
 
-    var r3 = Options(method: 'GET').compose(dio.options, '/test');
+    final r3 = Options(method: 'GET').compose(dio.options, '/test');
     assert(r3.uri.toString() == 'https://www.example.com/test');
     assert(r3.headers[Headers.contentTypeHeader] == null);
   });
@@ -336,10 +344,10 @@ void main() {
     for (int i = 0; i < separators.length; i++) {
       String separator = separators.substring(i, i + 1);
       testInvalidArgumentException(separator);
-      testInvalidArgumentException(separator + "CONNECT");
-      testInvalidArgumentException("CONN" + separator + "ECT");
-      testInvalidArgumentException("CONN" + separator + separator + "ECT");
-      testInvalidArgumentException("CONNECT" + separator);
+      testInvalidArgumentException("${separator}CONNECT");
+      testInvalidArgumentException("CONN${separator}ECT");
+      testInvalidArgumentException("CONN$separator${separator}ECT");
+      testInvalidArgumentException("CONNECT$separator");
     }
   });
 }

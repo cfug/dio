@@ -23,18 +23,20 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   bool withCredentials = false;
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
-    var xhr = HttpRequest();
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final xhr = HttpRequest();
     _xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
       ..responseType = 'arraybuffer';
 
-    var _withCredentials = options.extra['withCredentials'];
-
-    if (_withCredentials != null) {
-      xhr.withCredentials = _withCredentials == true;
+    final withCredentials = options.extra['withCredentials'];
+    if (withCredentials != null) {
+      xhr.withCredentials = withCredentials == true;
     } else {
       xhr.withCredentials = withCredentials;
     }
@@ -50,14 +52,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
     }
 
-    var completer = Completer<ResponseBody>();
+    final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
       Uint8List body = (xhr.response as ByteBuffer).asUint8List();
       completer.complete(
         ResponseBody.fromBytes(
           body,
-          xhr.status,
+          xhr.status!,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
           isRedirect: xhr.status == 302 || xhr.status == 301,
@@ -111,7 +113,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           uploadStopwatch.start();
         }
 
-        var duration = uploadStopwatch.elapsed;
+        final duration = uploadStopwatch.elapsed;
         if (duration > sendTimeout) {
           uploadStopwatch.stop();
           completer.completeError(
@@ -138,14 +140,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         connectTimeoutTimer = null;
       }
 
-      final reveiveTimeout = options.receiveTimeout;
-      if (reveiveTimeout != null) {
+      final receiveTimeout = options.receiveTimeout;
+      if (receiveTimeout != null) {
         if (!uploadStopwatch.isRunning) {
           uploadStopwatch.start();
         }
 
         final duration = downloadStopwatch.elapsed;
-        if (duration > reveiveTimeout) {
+        if (duration > receiveTimeout) {
           downloadStopwatch.stop();
           completer.completeError(
             DioError.receiveTimeout(
@@ -179,7 +181,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    cancelFuture?.then((err) {
+    cancelFuture?.then((_) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
         connectTimeoutTimer?.cancel();
         try {
@@ -192,27 +194,32 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         // so need to manual throw the cancel error to avoid Future hang ups.
         // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
-          completer.completeError(err);
+          completer.completeError(
+            DioError.requestCancelled(
+              requestOptions: options,
+              reason: 'The XMLHttpRequest was aborted.',
+            ),
+          );
         }
       }
     });
 
     if (requestStream != null) {
-      var _completer = Completer<Uint8List>();
-      var sink = ByteConversionSink.withCallback(
-          (bytes) => _completer.complete(Uint8List.fromList(bytes)));
+      final completer = Completer<Uint8List>();
+      final sink = ByteConversionSink.withCallback(
+        (bytes) => completer.complete(Uint8List.fromList(bytes)),
+      );
       requestStream.listen(
         sink.add,
-        onError: _completer.completeError,
+        onError: (Object e, StackTrace s) => completer.completeError(e, s),
         onDone: sink.close,
         cancelOnError: true,
       );
-      var bytes = await _completer.future;
+      final bytes = await completer.future;
       xhr.send(bytes);
     } else {
       xhr.send();
     }
-
     return completer.future.whenComplete(() {
       _xhrs.remove(xhr);
     });
@@ -224,7 +231,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     if (force) {
-      for (var xhr in _xhrs) {
+      for (final xhr in _xhrs) {
         xhr.abort();
       }
     }

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 
 void main() async {
-  var dio = Dio()
+  final dio = Dio()
     ..options.baseUrl = 'https://google.com'
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(

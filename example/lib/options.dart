@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio(BaseOptions(
+  final dio = Dio(BaseOptions(
     baseUrl: 'http://httpbin.org/',
     connectTimeout: Duration(seconds: 5),
     receiveTimeout: Duration(seconds: 10),
@@ -22,7 +22,7 @@ void main() async {
   response = await dio.get('/get');
   print(response.data);
 
-  var responseMap = await dio.get(
+  final responseMap = await dio.get(
     '/get',
     // Transform response data to Json Map
     options: Options(responseType: ResponseType.json),

@@ -14,7 +14,7 @@ class HttpService extends DioForNative {
 }
 
 void main() async {
-  var httpService = HttpService();
-  var res = await httpService.echo('hello server!');
+  final httpService = HttpService();
+  final res = await httpService.echo('hello server!');
   print(res);
 }

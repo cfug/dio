@@ -17,7 +17,7 @@ bool isPlainAscii(String string) => _asciiOnly.hasMatch(string);
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is
 /// done.
 Future writeStreamToSink(Stream stream, EventSink sink) {
-  var completer = Completer();
+  final completer = Completer();
   stream.listen(sink.add,
       onError: sink.addError, onDone: () => completer.complete());
   return completer.future;
@@ -28,7 +28,7 @@ Future writeStreamToSink(Stream stream, EventSink sink) {
 /// [charset].
 Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
   if (charset == null) return fallback;
-  var encoding = Encoding.getByName(charset);
+  final encoding = Encoding.getByName(charset);
   return encoding ?? fallback;
 }
 
@@ -40,13 +40,13 @@ String encodeMap(
   bool encode = true,
   ListFormat listFormat = ListFormat.multi,
 }) {
-  var urlData = StringBuffer('');
-  var first = true;
-  var leftBracket = encode ? '%5B' : '[';
-  var rightBracket = encode ? '%5D' : ']';
-  var encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
+  final urlData = StringBuffer('');
+  bool first = true;
+  final leftBracket = encode ? '%5B' : '[';
+  final rightBracket = encode ? '%5D' : ']';
+  final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   void urlEncode(dynamic sub, String path) {
-    // detect if the list format for this parameter derivates from default
+    // Detect if the list format for this parameter derivatives from default.
     final format = sub is ListParam ? sub.format : listFormat;
     final separatorChar = _getSeparatorChar(format);
 
@@ -57,13 +57,13 @@ String encodeMap(
 
     if (sub is List) {
       if (format == ListFormat.multi || format == ListFormat.multiCompatible) {
-        for (var i = 0; i < sub.length; i++) {
+        for (int i = 0; i < sub.length; i++) {
           final isCollection =
               sub[i] is Map || sub[i] is List || sub[i] is ListParam;
           if (listFormat == ListFormat.multi) {
             urlEncode(
               sub[i],
-              '$path${isCollection ? leftBracket + '$i' + rightBracket : ''}',
+              '$path${isCollection ? '$leftBracket$i$rightBracket' : ''}',
             );
           } else {
             // Forward compatibility
@@ -88,8 +88,8 @@ String encodeMap(
         }
       });
     } else {
-      var str = handler(path, sub);
-      var isNotEmpty = str != null && str.trim().isNotEmpty;
+      final str = handler(path, sub);
+      final isNotEmpty = str != null && str.trim().isNotEmpty;
       if (!first && isNotEmpty) {
         urlData.write('&');
       }

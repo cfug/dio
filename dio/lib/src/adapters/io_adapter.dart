@@ -38,14 +38,14 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   ) async {
     if (_closed) {
       throw Exception(
           "Can't establish connection after [HttpClientAdapter] closed!");
     }
-    var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
-    var reqFuture = _httpClient.openUrl(options.method, options.uri);
+    final httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
+    final reqFuture = httpClient.openUrl(options.method, options.uri);
 
     late HttpClientRequest request;
     try {
@@ -75,7 +75,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       throw DioError.connectionTimeout(
         requestOptions: options,
         timeout: options.connectTimeout ??
-            _httpClient.connectionTimeout ??
+            httpClient.connectionTimeout ??
             Duration.zero,
         error: e,
         stackTrace: stackTrace,
@@ -87,8 +87,8 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     request.persistentConnection = options.persistentConnection;
 
     if (requestStream != null) {
-      // Transform the request data
-      var future = request.addStream(requestStream);
+      // Transform the request data.
+      Future<dynamic> future = request.addStream(requestStream);
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
         future = future.timeout(
@@ -107,7 +107,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     final stopwatch = Stopwatch()..start();
-    var future = request.close();
+    Future<HttpClientResponse> future = request.close();
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {
       future = future.timeout(
@@ -138,7 +138,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    var stream =
+    final stream =
         responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         stopwatch.stop();
@@ -158,7 +158,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       },
     ));
 
-    var headers = <String, List<String>>{};
+    final headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {
       headers[key] = values;
     });
@@ -176,37 +176,23 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   }
 
   HttpClient _configHttpClient(
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
     Duration? connectionTimeout,
   ) {
+    HttpClient client = onHttpClientCreate?.call(HttpClient()) ?? HttpClient();
     if (cancelFuture != null) {
-      var _httpClient = HttpClient();
-      _httpClient.userAgent = null;
-      if (onHttpClientCreate != null) {
-        //user can return a HttpClient instance
-        _httpClient = onHttpClientCreate!(_httpClient) ?? _httpClient;
-      }
-      _httpClient.idleTimeout = Duration(seconds: 0);
-      cancelFuture.whenComplete(() {
-        Future.delayed(Duration(seconds: 0)).then((e) {
-          try {
-            _httpClient.close(force: true);
-          } catch (e) {
-            //...
-          }
-        });
-      });
-      return _httpClient..connectionTimeout = connectionTimeout;
+      client.userAgent = null;
+      client.idleTimeout = Duration(seconds: 0);
+      cancelFuture.whenComplete(() => client.close(force: true));
+      return client..connectionTimeout = connectionTimeout;
     }
     if (_defaultHttpClient == null) {
-      _defaultHttpClient = HttpClient();
-      _defaultHttpClient!.idleTimeout = Duration(seconds: 3);
-      if (onHttpClientCreate != null) {
-        //user can return a HttpClient instance
-        _defaultHttpClient =
-            onHttpClientCreate!(_defaultHttpClient!) ?? _defaultHttpClient;
+      client.idleTimeout = Duration(seconds: 3);
+      if (onHttpClientCreate?.call(client) != null) {
+        client = onHttpClientCreate!(client)!;
       }
-      _defaultHttpClient!.connectionTimeout = connectionTimeout;
+      client.connectionTimeout = connectionTimeout;
+      _defaultHttpClient = client;
     }
     return _defaultHttpClient!..connectionTimeout = connectionTimeout;
   }

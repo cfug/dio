@@ -7,11 +7,14 @@ import 'package:dio/dio.dart';
 class EchoAdapter implements HttpClientAdapter {
   static const mockHost = 'mockserver';
   static const mockBase = 'http://$mockHost';
-  final _adapter = DefaultHttpClientAdapter();
+  final _adapter = IOHttpClientAdapter();
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
     final uri = options.uri;
 
     if (uri.host == mockHost) {

@@ -14,7 +14,7 @@ A powerful Http client for Dart, which supports Interceptors, Global configurati
 dependencies:
   dio: ^4.0.6
 ```
-> Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_to_4.x.md)!
+> Already know Dio 3 and just want to learn about what's new in Dio 4? Check out the [Migration Guide](./migration_guide.md)!
 
 ### Super simple to use
 
@@ -22,7 +22,7 @@ dependencies:
 import 'package:dio/dio.dart';
 void getHttp() async {
   try {
-    var response = await Dio().get('http://www.google.com');
+    var response = await Dio().get('https://www.google.com');
     print(response);
   } catch (e) {
     print(e);
@@ -36,18 +36,17 @@ void getHttp() async {
 
 ### Plugins (support 4.x)
 
-| Plugins                                                      | Status                                                       | Description                                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager) | A cookie manager for Dio                                     |
-| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter) | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter) | A Dio HttpClientAdapter which support Http/2.0               |
-| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry) | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg?style=flat-square)](https://pub.dev/packages/dio_smart_retry) | Flexible retry library for Dio               |
-| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning) | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg?style=flat-square)](https://pub.dev/packages/http_certificate_pinning) | Https Certificate pinning for Flutter             |
-| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor) | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg?style=flat-square)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.             |
-| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor) | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg?style=flat-square)](https://pub.dev/packages/dio_cache_interceptor) | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)             |
-| [dio_http_cache](https://github.com/hurshi/dio-http-cache) | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dev/packages/dio_http_cache) | A simple cache library for Dio like Rxcache in Android             |
-| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger) | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg?style=flat-square)](https://pub.dev/packages/pretty_dio_logger) | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.            |
-| [native_dio_client](https://github.com/ueman/native-dio-client) | [![Pub](https://img.shields.io/pub/v/native_dio_client.svg?style=flat-square)](https://pub.dev/packages/native_dio_client) | An adapter for Dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform. |
-
+| Plugins                                                                                      | Status                                                                                                                                         | Description                                                                                                            |
+|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [dio_cookie_manager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_cookie_manager)          | A cookie manager for Dio                                                                                               |
+| [dio_http2_adapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter)   | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dartlang.org/packages/dio_http2_adapter)            | A Dio HttpClientAdapter which support Http/2.0                                                                         |
+| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                               | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg?style=flat-square)](https://pub.dev/packages/dio_smart_retry)                         | Flexible retry library for Dio                                                                                         |
+| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)           | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg?style=flat-square)](https://pub.dev/packages/http_certificate_pinning)       | Https Certificate pinning for Flutter                                                                                  |
+| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)         | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg?style=flat-square)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.                                                                              |
+| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)                  | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg?style=flat-square)](https://pub.dev/packages/dio_cache_interceptor)             | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)                                    |
+| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                                   | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg?style=flat-square)](https://pub.dev/packages/dio_http_cache)                           | A simple cache library for Dio like Rxcache in Android                                                                 |
+| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                       | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg?style=flat-square)](https://pub.dev/packages/pretty_dio_logger)                     | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.                       |
+| [native_dio_client](https://github.com/ueman/native-dio-client)                              | [![Pub](https://img.shields.io/pub/v/native_dio_client.svg?style=flat-square)](https://pub.dev/packages/native_dio_client)                     | An adapter for Dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform. |
 
 ### Related Projects
 
@@ -442,32 +441,41 @@ print(response.data);//'fake data'
 Because of security reasons, we need all the requests to set up a csrfToken in the header, if csrfToken does not exist, we need to request a csrfToken first, and then perform the network request, because the request csrfToken progress is asynchronous, so we need to execute this async request in request interceptor. The code is as follows:
 
 ```dart
+void request() {
   var dio = Dio();
   //  dio instance to request token
   var tokenDio = Dio();
   String? csrfToken;
-  dio.options.baseUrl = 'http://www.dtworkroom.com/doris/1/2.0.0/';
+  dio.options.baseUrl = 'https://seunghwanlytest.mocklab.io/';
   tokenDio.options = dio.options;
   dio.interceptors.add(QueuedInterceptorsWrapper(
-    onRequest: (options, handler) {
+    onRequest: (options, handler) async {
       print('send request：path:${options.path}，baseURL:${options.baseUrl}');
       if (csrfToken == null) {
         print('no token，request token firstly...');
-        tokenDio.get('/token').then((d) {
-          options.headers['csrfToken'] = csrfToken = d.data['data']['token'];
-          print('request token succeed, value: ' + d.data['data']['token']);
-          print(
-              'continue to perform request：path:${options.path}，baseURL:${options.path}');
-          handler.next(options);
-        }).catchError((error, stackTrace) {
-          handler.reject(error, true);
-        });
-      } else {
-        options.headers['csrfToken'] = csrfToken;
-        return handler.next(options);
+        final result = await tokenDio.get('/token');
+        if (result.statusCode != null && result.statusCode! ~/ 100 == 2) {
+          /// assume `token` is in response body
+          final body = jsonDecode(result.data) as Map<String, dynamic>?;
+          if (body != null && body.containsKey('data')) {
+            options.headers['csrfToken'] = csrfToken = body['data']['token'];
+            print('request token succeed, value: $csrfToken');
+            print(
+              'continue to perform request：path:${options.path}，baseURL:${options.path}',
+            );
+            return handler.next(options);
+          }
+        }
+        return handler.reject(
+          DioError(requestOptions: result.requestOptions),
+          true,
+        );
       }
+      options.headers['csrfToken'] = csrfToken;
+      return handler.next(options);
     },
-   ); 
+  ));
+}
 ```
 
 You can clean the waiting queue by calling `clear()`;
@@ -655,62 +663,70 @@ Dio implements standard and friendly API  for developer.
 
 HttpClient: It is the real object that makes Http requests.
 
-We can use any HttpClient not just `dart:io:HttpClient` to make the Http request.  And  all we need is providing a `HttpClientAdapter`. The default HttpClientAdapter for Dio is `DefaultHttpClientAdapter`.
+We can use any HttpClient not just `dart:io:HttpClient` to make the Http request.
+And all we need is providing a `HttpClientAdapter`.
+The default HttpClientAdapter for Dio is `IOHttpClientAdapter` on native platforms,
+and `BrowserClientAdapter` on the Web platform.
+They can be initiated by calling the `HttpClientAdapter()`.
 
 ```dart
-dio.httpClientAdapter = new DefaultHttpClientAdapter();
+dio.httpClientAdapter = HttpClientAdapter();
 ```
 
-[Here](https://github.com/flutterchina/dio/blob/master/example/adapter.dart) is a simple example to custom adapter. 
+[Here](example/lib/adapter.dart) is a simple example to custom adapter. 
 
 ### Using proxy
 
-`DefaultHttpClientAdapter` provide a callback to set proxy to `dart:io:HttpClient`, for example:
+`IOHttpClientAdapter` provide a callback to set proxy to `dart:io:HttpClient`, for example:
 
 ```dart
-import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
-...
-(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-  // config the http client
-  client.findProxy = (uri) {
-    //proxy all request to localhost:8888
-    return 'PROXY localhost:8888';
+void initAdapter() {
+  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
+    // Config the client.
+    client.findProxy = (uri) {
+      // Forward all request to proxy "localhost:8888".
+      return 'PROXY localhost:8888';
+    };
+    // You can also create a new HttpClient for Dio instead of returning,
+    // but a client must being returned here.
+    return client;
   };
-  // you can also create a new HttpClient to dio
-  // return HttpClient();
-};
+}
 ```
 
 There is a complete example [here](https://github.com/flutterchina/dio/blob/master/example/proxy.dart).
 
 ### Https certificate verification
 
-HTTPS certificate verification (or public key pinning) refers to the process of ensuring that the certificates protecting the TLS connection to the server are the ones you expect them to be. The intention is to reduce the chance of a man-in-the-middle attack. The theory is covered by [OWASP](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning).
+HTTPS certificate verification (or public key pinning) refers to the process of ensuring that
+the certificates protecting the TLS connection to the server are the ones you expect them to be.
+The intention is to reduce the chance of a man-in-the-middle attack.
+The theory is covered by [OWASP](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning).
 
 _Server Response Certificate_
 
 Unlike other methods, this one works with the certificate of the server itself.
 
 ```dart
-String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
-(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-    (_) {
-      // Don't trust any certificate just because their root cert is trusted
-      final client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-      // You can test the intermediate / root cert here. We just ignore it.
-      client.badCertificateCallback = (cert, host, port) => true;
-      return client;
-    };
-// Check that the cert fingerprint matches the one we expect
-(dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
-    (cert, host, port) {
-      // We definitely require _some_ certificate
-      if (cert == null) return false;
-      // Validate it any way you want. Here we only check that
-      // the fingerprint matches the OpenSSL SHA256.
-      return fingerprint == sha256.convert(cert.der).toString();
-    };
+void initAdapter() {
+  const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
+  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (_) {
+    // Don't trust any certificate just because their root cert is trusted.
+    final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+    // You can test the intermediate / root cert here. We just ignore it.
+    client.badCertificateCallback = (cert, host, port) => true;
+    return client;
+  }..validateCertificate = (cert, host, port) {
+    // Check that the cert fingerprint matches the one we expect.
+    // We definitely require _some_ certificate.
+    if (cert == null) {
+      return false;
+    }
+    // Validate it any way you want. Here we only check that
+    // the fingerprint matches the OpenSSL SHA256.
+    return fingerprint == sha256.convert(cert.der).toString();
+  };
+}
 ```
 
 You can use openssl to read the SHA256 value of a certificate:
@@ -725,32 +741,35 @@ openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badss
 
 _Certificate Authority Verification_
 
-These methods work well when your server has a self-signed certificate, but they don't work for certificates issued by a 3rd party like AWS or Let's Encrypt.
+These methods work well when your server has a self-signed certificate,
+but they don't work for certificates issued by a 3rd party like AWS or Let's Encrypt.
 
 There are two ways to verify the root of the https certificate chain provided by the server. Suppose the certificate format is PEM, the code like:
 
 ```dart
-String PEM='XXXXX'; // root certificate content
-(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-  client.badCertificateCallback=(X509Certificate cert, String host, int port){
-    if(cert.pem==PEM){ // Verify the root certificate
-      return true;
-    }
-    return false;
+void initAdapter() {
+  String PEM = 'XXXXX'; // root certificate content
+  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
+    client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+      return cert.pem == PEM; // Verify the certificate.
+    };
+    return client;
   };
-};
+}
 ```
 
 Another way is creating a `SecurityContext` when create the `HttpClient`:
 
 ```dart
-(dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate  = (client) {
-  SecurityContext sc = SecurityContext();
-  //file is the path of root certificate
-  sc.setTrustedCertificates(file);
-  HttpClient httpClient = HttpClient(context: sc);
-  return httpClient;
-};
+void initAdapter() {
+  String PEM = 'XXXXX'; // root certificate content
+  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (_) {
+    final SecurityContext sc = SecurityContext();
+    sc.setTrustedCertificates(File(pathToTheCertificate));
+    final HttpClient client = HttpClient(context: sc);
+    return client;
+  };
+}
 ```
 
 In this way, the format of certificate must be PEM or PKCS12.

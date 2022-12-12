@@ -32,7 +32,7 @@ class _RequestRouteState extends State<RequestRoute> {
           ElevatedButton(
             child: Text("post"),
             onPressed: () {
-              var formData = FormData.fromMap({
+              final formData = FormData.fromMap({
                 'file': MultipartFile.fromString('x' * 1024 * 1024),
               });
 

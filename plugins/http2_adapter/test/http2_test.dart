@@ -16,7 +16,7 @@ void main() {
       lines.first.split('=').last.toLowerCase().replaceAll(':', '');
 
   test('adds one to input values', () async {
-    var dio = Dio()
+    final dio = Dio()
       ..options.baseUrl = 'https://www.ustc.edu.cn/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
@@ -77,7 +77,7 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is Exception, isTrue);
+    expect(error is DioError, isTrue);
   });
 
   test('pinning: trusted certificate tested and allowed', () async {

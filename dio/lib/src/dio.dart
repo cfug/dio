@@ -6,11 +6,8 @@ import 'headers.dart';
 import 'cancel_token.dart';
 import 'transformer.dart';
 import 'response.dart';
-import 'entry_stub.dart'
-// ignore: uri_does_not_exist
-    if (dart.library.html) 'entry/dio_for_browser.dart'
-// ignore: uri_does_not_exist
-    if (dart.library.io) 'entry/dio_for_native.dart';
+import 'dio/dio_for_native.dart'
+    if (dart.library.html) 'dio/dio_for_browser.dart';
 
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
@@ -20,19 +17,19 @@ import 'entry_stub.dart'
 /// 1. create first , then config it
 ///
 ///   ```dart
-///    var dio = Dio();
+///    final dio = Dio();
 ///    dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
-///    dio.options.connectTimeout = 5000; //5s
-///    dio.options.receiveTimeout = 5000;
+///    dio.options.connectTimeout = const Duration(seconds: 5);
+///    dio.options.receiveTimeout = const Duration(seconds: 5);
 ///    dio.options.headers = {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'};
 ///   ```
 /// 2. create and config it:
 ///
 /// ```dart
-///   var dio = Dio(BaseOptions(
+///   final dio = Dio(BaseOptions(
 ///    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
-///    connectTimeout: 5000,
-///    receiveTimeout: 5000,
+///    connectTimeout: const Duration(seconds: 5),
+///    receiveTimeout: const Duration(seconds: 5),
 ///    headers: {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'},
 ///   ));
 ///  ```
@@ -174,29 +171,6 @@ abstract class Dio {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   });
-
-  /// Lock the current Dio instance.
-  ///
-  /// Dio will enqueue the incoming request tasks instead
-  /// send them directly when [interceptor.requestOptions] is locked.
-  @Deprecated(
-      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-      ' https://github.com/flutterchina/dio/issues/1308')
-  void lock();
-
-  /// Unlock the current Dio instance.
-  ///
-  /// Dio instance dequeue the request task。
-  @Deprecated(
-      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-      ' https://github.com/flutterchina/dio/issues/1308')
-  void unlock();
-
-  ///Clear the current Dio instance waiting queue.
-  @Deprecated(
-      'Will delete in v5.0. Use `QueuedInterceptor` instead, more detail see'
-      ' https://github.com/flutterchina/dio/issues/1308')
-  void clear();
 
   ///  Download the file and save it in local. The default http method is "GET",
   ///  you can custom it by [Options.method].

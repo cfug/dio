@@ -5,8 +5,8 @@ import 'package:test/test.dart';
 
 void main() {
   test('cookie-jar', () async {
-    var dio = Dio();
-    var cookieJar = CookieJar();
+    final dio = Dio();
+    final cookieJar = CookieJar();
     dio.interceptors
       ..add(CookieManager(cookieJar))
       ..add(LogInterceptor());

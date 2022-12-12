@@ -254,9 +254,9 @@ class Options {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
   }) {
-    Map<String, dynamic>? _headers;
+    Map<String, dynamic>? effectiveHeaders;
     if (headers == null && this.headers != null) {
-      _headers = caseInsensitiveKeyMap(this.headers!);
+      effectiveHeaders = caseInsensitiveKeyMap(this.headers!);
     }
 
     if (headers != null) {
@@ -268,17 +268,17 @@ class Options {
       );
     }
 
-    Map<String, dynamic>? _extra;
+    Map<String, dynamic>? effectiveExtra;
     if (extra == null && this.extra != null) {
-      _extra = Map.from(this.extra!);
+      effectiveExtra = Map.from(this.extra!);
     }
 
     return Options(
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      extra: extra ?? _extra,
-      headers: headers ?? _headers,
+      extra: extra ?? effectiveExtra,
+      headers: headers ?? effectiveHeaders,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -303,29 +303,25 @@ class Options {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) {
-    var query = <String, dynamic>{};
+    final query = <String, dynamic>{};
     query.addAll(baseOpt.queryParameters);
     if (queryParameters != null) query.addAll(queryParameters);
 
-    var _headers = caseInsensitiveKeyMap(baseOpt.headers);
-    _headers.remove(Headers.contentTypeHeader);
-
-    String? _contentType;
-
-    if (headers != null) {
-      _headers.addAll(headers!);
-      _contentType = _headers[Headers.contentTypeHeader] as String?;
+    final headers = caseInsensitiveKeyMap(baseOpt.headers);
+    headers.remove(Headers.contentTypeHeader);
+    if (this.headers != null) {
+      headers.addAll(this.headers!);
     }
-
-    var _extra = Map<String, dynamic>.from(baseOpt.extra);
-    if (extra != null) {
-      _extra.addAll(extra!);
+    String? contentType = this.headers?[Headers.contentTypeHeader];
+    final extra = Map<String, dynamic>.from(baseOpt.extra);
+    if (this.extra != null) {
+      extra.addAll(this.extra!);
     }
-    var _method = (method ?? baseOpt.method).toUpperCase();
-    var requestOptions = RequestOptions(
-      method: _method,
-      headers: _headers,
-      extra: _extra,
+    final method = (this.method ?? baseOpt.method).toUpperCase();
+    final requestOptions = RequestOptions(
+      method: method,
+      headers: headers,
+      extra: extra,
       baseUrl: baseOpt.baseUrl,
       path: path,
       data: data,
@@ -350,9 +346,9 @@ class Options {
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
 
-    requestOptions.contentType = _contentType ??
-        contentType ??
-        baseOpt.contentTypeWithRequestBody(_method);
+    requestOptions.contentType = contentType ??
+        this.contentType ??
+        baseOpt.contentTypeWithRequestBody(method);
     return requestOptions;
   }
 
@@ -536,7 +532,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     ListFormat? listFormat,
     bool? setRequestContentTypeWhenNoPayload,
   }) {
-    var contentTypeInHeader = headers != null &&
+    final contentTypeInHeader = headers != null &&
         headers.keys
             .map((e) => e.toLowerCase())
             .contains(Headers.contentTypeHeader);
@@ -546,7 +542,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       'You cannot set both contentType param and a content-type header',
     );
 
-    var ro = RequestOptions(
+    final ro = RequestOptions(
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
@@ -584,20 +580,20 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
 
   /// generate uri
   Uri get uri {
-    var _url = path;
-    if (!_url.startsWith(RegExp(r'https?:'))) {
-      _url = baseUrl + _url;
-      var s = _url.split(':/');
+    String url = path;
+    if (!url.startsWith(RegExp(r'https?:'))) {
+      url = baseUrl + url;
+      final s = url.split(':/');
       if (s.length == 2) {
-        _url = s[0] + ':/' + s[1].replaceAll('//', '/');
+        url = '${s[0]}:/${s[1].replaceAll('//', '/')}';
       }
     }
-    var query = Transformer.urlEncodeMap(queryParameters, listFormat);
+    final query = Transformer.urlEncodeMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
-      _url += (_url.contains('?') ? '&' : '?') + query;
+      url += (url.contains('?') ? '&' : '?') + query;
     }
     // Normalize the url.
-    return Uri.parse(_url).normalizePath();
+    return Uri.parse(url).normalizePath();
   }
 
   /// Request data, can be any type.
@@ -644,7 +640,7 @@ class _RequestConfig {
         _sendTimeout = sendTimeout {
     this.headers = headers;
 
-    var contentTypeInHeader =
+    final contentTypeInHeader =
         this.headers.containsKey(Headers.contentTypeHeader);
     assert(
       !(contentType != null && contentTypeInHeader) ||

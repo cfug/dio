@@ -2,6 +2,11 @@ part of 'http2_adapter.dart';
 
 /// Default implementation of ConnectionManager
 class _ConnectionManager implements ConnectionManager {
+  _ConnectionManager({
+    Duration? idleTimeout,
+    this.onClientCreate,
+  }) : _idleTimeout = idleTimeout ?? const Duration(seconds: 1);
+
   /// Callback when socket created.
   ///
   /// We can set trusted certificates and handler
@@ -10,7 +15,7 @@ class _ConnectionManager implements ConnectionManager {
 
   /// Sets the idle timeout(milliseconds) of non-active persistent
   /// connections. For the sake of socket reuse feature with http/2,
-  /// the value should not be less than 1000 (1s).
+  /// the value should not be less than 1 second.
   final Duration _idleTimeout;
 
   /// Saving the reusable connections
@@ -22,21 +27,20 @@ class _ConnectionManager implements ConnectionManager {
   bool _closed = false;
   bool _forceClosed = false;
 
-  _ConnectionManager({Duration? idleTimeout, this.onClientCreate})
-      : _idleTimeout = idleTimeout ?? const Duration(milliseconds: 1000);
-
   @override
   Future<ClientTransportConnection> getConnection(
-      RequestOptions options) async {
+    RequestOptions options,
+  ) async {
     if (_closed) {
       throw Exception(
           "Can't establish connection after [ConnectionManager] closed!");
     }
-    var uri = options.uri;
-    var domain = '${uri.host}:${uri.port}';
-    var transportState = _transportsMap[domain];
+    final uri = options.uri;
+    final domain = '${uri.host}:${uri.port}';
+    _ClientTransportConnectionState? transportState = _transportsMap[domain];
     if (transportState == null) {
-      var _initFuture = _connectFutures[domain];
+      Future<_ClientTransportConnectionState>? _initFuture =
+          _connectFutures[domain];
       if (_initFuture == null) {
         _connectFutures[domain] = _initFuture = _connect(options);
       }
@@ -45,7 +49,7 @@ class _ConnectionManager implements ConnectionManager {
         transportState.dispose();
       } else {
         _transportsMap[domain] = transportState;
-        var _ = _connectFutures.remove(domain);
+        final _ = _connectFutures.remove(domain);
       }
     } else {
       // Check whether the connection is terminated, if it is, reconnecting.
@@ -58,10 +62,11 @@ class _ConnectionManager implements ConnectionManager {
   }
 
   Future<_ClientTransportConnectionState> _connect(
-      RequestOptions options) async {
-    var uri = options.uri;
-    var domain = '${uri.host}:${uri.port}';
-    var clientConfig = ClientSetting();
+    RequestOptions options,
+  ) async {
+    final uri = options.uri;
+    final domain = '${uri.host}:${uri.port}';
+    final clientConfig = ClientSetting();
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);
     }
@@ -102,8 +107,8 @@ class _ConnectionManager implements ConnectionManager {
     }
 
     // Config a ClientTransportConnection and save it
-    var transport = ClientTransportConnection.viaSocket(socket);
-    var _transportState = _ClientTransportConnectionState(transport);
+    final transport = ClientTransportConnection.viaSocket(socket);
+    final _transportState = _ClientTransportConnectionState(transport);
     transport.onActiveStateChanged = (bool isActive) {
       _transportState.isActive = isActive;
       if (!isActive) {
@@ -171,10 +176,13 @@ class _ClientTransportConnectionState {
   }
 
   void _startTimer(
-      void Function() callback, Duration duration, Duration idleTimeout) {
+    void Function() callback,
+    Duration duration,
+    Duration idleTimeout,
+  ) {
     _timer = Timer(duration, () {
       if (!isActive) {
-        var interval = DateTime.now().difference(latestIdleTimeStamp);
+        final interval = DateTime.now().difference(latestIdleTimeStamp);
         if (interval >= duration) {
           return callback();
         }

@@ -11,7 +11,7 @@ dependencies:
   path: ^1.8.0
 
 dev_dependencies:
-  lints: ^1.0.1
+  lints: any
   test: ^1.5.1
   coverage: ^1.0.3
   crypto: ^3.0.2

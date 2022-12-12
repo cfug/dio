@@ -2,19 +2,19 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   dio.interceptors.add(LogInterceptor());
   // Token can be shared with different requests.
-  var token = CancelToken();
+  final token = CancelToken();
   // In one minute, we cancel!
   Timer(Duration(milliseconds: 500), () {
     token.cancel('cancelled');
   });
 
   // The follow three requests with the same token.
-  var url1 = 'https://www.google.com';
-  var url2 = 'https://www.facebook.com';
-  var url3 = 'https://www.baidu.com';
+  final url1 = 'https://www.google.com';
+  final url2 = 'https://www.facebook.com';
+  final url3 = 'https://www.baidu.com';
 
   await Future.wait([
     dio

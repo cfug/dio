@@ -7,7 +7,7 @@ class CacheInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    var response = _cache[options.uri];
+    final response = _cache[options.uri];
     if (options.extra['refresh'] == true) {
       print('${options.uri}: force refresh, ignore cache! \n');
       return handler.next(options);
@@ -32,7 +32,7 @@ class CacheInterceptor extends Interceptor {
 }
 
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   dio.options.baseUrl = 'https://baidu.com';
   dio.interceptors
     ..add(CacheInterceptor())

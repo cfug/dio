@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-//import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+
 import 'http.dart'; // make dio as global top-level variable
 import 'routes/request.dart';
 
@@ -17,18 +17,7 @@ parseJson(String text) {
 }
 
 void main() {
-  // add interceptors
-  //dio.interceptors.add(CookieManager(CookieJar()));
   dio.interceptors.add(LogInterceptor());
-  //(dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
-  //dio.options.receiveTimeout = 15000;
-//  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-//      (client) {
-//    client.findProxy = (uri) {
-//      //proxy to my PC(charles)
-//      return "PROXY 10.1.10.250:8888";
-//    };
-//  };
   runApp(MyApp());
 }
 

@@ -81,7 +81,7 @@ void main() {
       );
       assert(response.isRedirect == true);
       assert(response.redirects.length == 1);
-      var ri = response.redirects.first;
+      final ri = response.redirects.first;
       assert(ri.statusCode == 302);
       assert(ri.method == 'GET');
     });
@@ -142,7 +142,7 @@ void main() {
       response = await dio.get('/redirect');
       assert(response.isRedirect == true);
       assert(response.redirects.length == 1);
-      var ri = response.redirects.first;
+      final ri = response.redirects.first;
       assert(ri.statusCode == 302);
       assert(ri.method == 'GET');
       assert(ri.location.path == '/');

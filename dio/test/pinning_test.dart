@@ -24,57 +24,59 @@ void main() {
 
   test('pinning: untrusted host rejected with no approver', () async {
     dynamic error;
-
     try {
-      var dio = Dio();
+      final dio = Dio();
       await dio.get(untrustedCertUrl);
       fail('did not throw');
     } on DioError catch (e) {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is Exception, isTrue);
+    expect(error is DioError, isTrue);
   });
 
   test('pinning: every certificate tested and rejected', () async {
     dynamic error;
 
     try {
-      var dio = Dio();
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
-          (certificate, host, port) => false;
+      final dio = Dio();
+      dio.httpClientAdapter = IOHttpClientAdapter()
+        ..validateCertificate = (certificate, host, port) => false;
       await dio.get(trustedCertUrl);
       fail('did not throw');
     } on DioError catch (e) {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is Exception, isTrue);
+    expect(error is DioError, isTrue);
   });
 
   test('pinning: trusted certificate tested and allowed', () async {
-    var dio = Dio();
+    final dio = Dio();
     // badCertificateCallback never called for trusted certificate
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
-        (cert, host, port) =>
-            fingerprint == sha256.convert(cert!.der).toString();
-    final response = await dio.get(trustedCertUrl,
-        options: Options(validateStatus: (status) => true));
+    dio.httpClientAdapter = IOHttpClientAdapter()
+      ..validateCertificate = (cert, host, port) =>
+          fingerprint == sha256.convert(cert!.der).toString();
+    final response = await dio.get(
+      trustedCertUrl,
+      options: Options(validateStatus: (status) => true),
+    );
     expect(response, isNotNull);
   });
 
   test('pinning: untrusted certificate tested and allowed', () async {
-    var dio = Dio();
+    final dio = Dio();
     // badCertificateCallback must allow the untrusted certificate through
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
-      return client..badCertificateCallback = (cert, host, port) => true;
-    };
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
-        (cert, host, port) =>
-            fingerprint == sha256.convert(cert!.der).toString();
-    final response = await dio.get(untrustedCertUrl,
-        options: Options(validateStatus: (status) => true));
+    dio.httpClientAdapter = IOHttpClientAdapter()
+      ..onHttpClientCreate = (client) {
+        return client..badCertificateCallback = (cert, host, port) => true;
+      }
+      ..validateCertificate = (cert, host, port) =>
+          fingerprint == sha256.convert(cert!.der).toString();
+    final response = await dio.get(
+      untrustedCertUrl,
+      options: Options(validateStatus: (status) => true),
+    );
     expect(response, isNotNull);
   });
 
@@ -83,11 +85,13 @@ void main() {
     dynamic error;
 
     try {
-      var dio = Dio();
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (_) => HttpClient(context: SecurityContext(withTrustedRoots: false));
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
-          (cert, host, port) => fail('Should not be evaluated');
+      final dio = Dio();
+      dio.httpClientAdapter = IOHttpClientAdapter()
+        ..onHttpClientCreate = (_) {
+          return HttpClient(context: SecurityContext(withTrustedRoots: false));
+        }
+        ..validateCertificate =
+            (cert, host, port) => fail('Should not be evaluated');
       await dio.get(untrustedCertUrl,
           options: Options(validateStatus: (status) => true));
       fail('did not throw');
@@ -95,49 +99,55 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is Exception, isTrue);
+    expect(error is DioError, isTrue);
   });
 
   test('bad pinning: badCertCallback does not use leaf certificate', () async {
     dynamic error;
 
     try {
-      var dio = Dio();
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
-        final effectiveClient =
-            HttpClient(context: SecurityContext(withTrustedRoots: false));
-        // Comparison fails because fingerprint is for leaf cert, but
-        // this cert is from Let's Encrypt.
-        effectiveClient.badCertificateCallback =
-            (X509Certificate cert, String host, int port) =>
-                fingerprint == sha256.convert(cert.der).toString();
-        return effectiveClient;
-      };
-      await dio.get(trustedCertUrl,
-          options: Options(validateStatus: (status) => true));
+      final dio = Dio();
+      dio.httpClientAdapter = IOHttpClientAdapter()
+        ..onHttpClientCreate = (HttpClient client) {
+          final effectiveClient = HttpClient(
+            context: SecurityContext(withTrustedRoots: false),
+          );
+          // Comparison fails because fingerprint is for leaf cert, but
+          // this cert is from Let's Encrypt.
+          effectiveClient.badCertificateCallback = (cert, host, port) =>
+              fingerprint == sha256.convert(cert.der).toString();
+          return effectiveClient;
+        };
+      await dio.get(
+        trustedCertUrl,
+        options: Options(validateStatus: (status) => true),
+      );
       fail('did not throw');
     } on DioError catch (e) {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is Exception, isTrue);
+    expect(error is DioError, isTrue);
   });
 
   test('pinning: 2 requests == 2 approvals', () async {
     int approvalCount = 0;
-    var dio = Dio();
+    final dio = Dio();
     // badCertificateCallback never called for trusted certificate
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).validateCertificate =
-        (cert, host, port) {
-      approvalCount++;
-      return fingerprint == sha256.convert(cert!.der).toString();
-    };
-    Response response = await dio.get(trustedCertUrl,
-        options: Options(validateStatus: (status) => true));
+    dio.httpClientAdapter = IOHttpClientAdapter()
+      ..validateCertificate = (cert, host, port) {
+        approvalCount++;
+        return fingerprint == sha256.convert(cert!.der).toString();
+      };
+    Response response = await dio.get(
+      trustedCertUrl,
+      options: Options(validateStatus: (status) => true),
+    );
     expect(response.data, isNotNull);
-    response = await dio.get(trustedCertUrl,
-        options: Options(validateStatus: (status) => true));
+    response = await dio.get(
+      trustedCertUrl,
+      options: Options(validateStatus: (status) => true),
+    );
     expect(response.data, isNotNull);
     expect(approvalCount, 2);
   });
