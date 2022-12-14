@@ -22,7 +22,7 @@ class _RequestRouteState extends State<RequestRoute> {
           ElevatedButton(
             child: Text("get"),
             onPressed: () {
-              dio.get<String>("http://httpbin.org/get").then((r) {
+              dio.get<String>("https://httpbin.org/get").then((r) {
                 setState(() {
                   _text = r.data!;
                 });
@@ -38,7 +38,7 @@ class _RequestRouteState extends State<RequestRoute> {
 
               dio
                   .post(
-                "http://httpbin.org/post",
+                "https://httpbin.org/post",
                 data: formData,
                 options: Options(
                     sendTimeout: Duration(seconds: 2),

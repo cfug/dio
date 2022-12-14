@@ -254,7 +254,7 @@ void main() {
     );
   });
 
-  test('#test default content-type2', () async {
+  test('#test default content-type 2', () async {
     final dio = Dio();
     dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
@@ -263,13 +263,15 @@ void main() {
       headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
     );
     assert(
-        r1.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
+      r1.headers[Headers.contentTypeHeader] == Headers.textPlainContentType,
+    );
 
-    final r2 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
-          contentType: Headers.textPlainContentType,
-        );
+    final r2 = Options(method: 'GET')
+        .compose(dio.options, '/test')
+        .copyWith(contentType: Headers.textPlainContentType);
     assert(
-        r2.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
+      r2.headers[Headers.contentTypeHeader] == Headers.textPlainContentType,
+    );
 
     try {
       Options(method: 'GET').compose(dio.options, '/test').copyWith(
@@ -277,10 +279,7 @@ void main() {
         contentType: Headers.formUrlEncodedContentType,
       );
       assert(false);
-    } catch (e) {
-      //
-    }
-
+    } catch (_) {}
     dio.options.setRequestContentTypeWhenNoPayload = false;
 
     final r3 = Options(method: 'GET').compose(dio.options, '/test');
@@ -322,7 +321,7 @@ void main() {
     final opt3 = 'https://';
     final opt4 = 'https://loremipsum/';
     final opt5 = '';
-    final opt6 = 'google.com';
+    final opt6 = 'pub.dev';
     expect(Uri.parse(opt1).host.isNotEmpty, false);
     expect(Uri.parse(opt2).host.isNotEmpty, true);
     expect(Uri.parse(opt3).host.isNotEmpty, false);

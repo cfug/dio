@@ -22,8 +22,9 @@ When new content need to be added to the migration guide, make sure they're foll
 - Adapters that extends `HttpClientAdapter` must now `implements` instead of `extends`.
 - `DioError` has separate constructors and all fields are annotated as final.
 - `DioErrorType` has different values.
-- Imports are split into new libraries, which means users should import
-  `dio/io.dart` for natives specific classes, and import `dio/web.dart` for web specific classes.
+- Imports are split into new libraries:
+  - `dio/io.dart` is for natives specific classes;
+  - `dio/browser.dart` is for web specific classes.
 - `connectTimeout`, `sendTimeout`, and `receiveTimeout` are now `Duration` instead of `int`.
 
 ### Details

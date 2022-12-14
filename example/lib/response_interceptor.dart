@@ -8,7 +8,7 @@ void main() async {
   const urlNotFound2 = '${urlNotFound}2';
   const urlNotFound3 = '${urlNotFound}3';
   final dio = Dio();
-  dio.options.baseUrl = 'http://httpbin.org/';
+  dio.options.baseUrl = 'https://httpbin.org/';
   dio.interceptors.add(InterceptorsWrapper(
     onResponse: (response, handler) {
       response.data = json.decode(response.data['data']);

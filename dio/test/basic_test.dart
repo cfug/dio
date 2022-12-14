@@ -55,7 +55,7 @@ void main() {
       dio.httpClientAdapter.close(force: true);
     });
 
-    final url = 'https://accounts.google.com';
+    final url = 'https://pub.dev';
     await expectLater(
       dio.get(url, cancelToken: token),
       throwsA((e) => e is DioError && CancelToken.isCancel(e)),
@@ -63,8 +63,7 @@ void main() {
   });
 
   test('#status error', () async {
-    final dio = Dio()..options.baseUrl = 'http://httpbin.org/status/';
-
+    final dio = Dio()..options.baseUrl = 'https://httpbin.org/status/';
     await expectLater(
       dio.get('401'),
       throwsA((e) =>
@@ -72,7 +71,6 @@ void main() {
           e.type == DioErrorType.badResponse &&
           e.response!.statusCode == 401),
     );
-
     final r = await dio.get(
       '401',
       options: Options(validateStatus: (status) => true),

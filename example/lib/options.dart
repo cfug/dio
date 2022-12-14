@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 
 void main() async {
   final dio = Dio(BaseOptions(
-    baseUrl: 'http://httpbin.org/',
+    baseUrl: 'https://httpbin.org/',
     connectTimeout: Duration(seconds: 5),
     receiveTimeout: Duration(seconds: 10),
     // 5s

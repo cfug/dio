@@ -12,9 +12,9 @@ void main() async {
   });
 
   // The follow three requests with the same token.
-  final url1 = 'https://www.google.com';
-  final url2 = 'https://www.facebook.com';
-  final url3 = 'https://www.baidu.com';
+  final url1 = 'https://pub.dev';
+  final url2 = 'https://dart.dev';
+  final url3 = 'https://flutter.dev';
 
   await Future.wait([
     dio

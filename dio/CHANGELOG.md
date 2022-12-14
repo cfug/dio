@@ -1,35 +1,27 @@
-# 5.0.0-dev.1
+# CHANGELOG
 
-- A platform independent `HttpClientAdapter` can now be instantiated by doing `dio.httpClientAdapter = HttpClientAdapter();`.
+## 5.0.0-dev.1
+
+- A platform independent `HttpClientAdapter` can now be instantiated by doing
+  `dio.httpClientAdapter = HttpClientAdapter();`.
 - Add `ValidateCertificate` to handle certificate pinning better.
 - Support `Content-Disposition` header case sensitivity.
 
-## Breaking Changes
+### Breaking Changes
 
-- Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied. 
-  - `DioErrorType.connectTimeout` was changed to `DioErrorType.connectionTimeout`
-  - `DioErrorType.response` was changed to `DioErrorType.badResponse`
-  - `DioErrorType.other` was changed to `DioErrorType.unknown`
-  - `DioError` has now multiple constructors for specific error cases.
-    Since `DioError` is only thrown internal to the library, you shouldn't need to adapt any code.
-  - Catching `DioError`s still works the same way as before.
+- Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.
 - `HttpClientAdapter` must now be implemented instead of extended.
 - Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`.
-  Classes specific to web can be imported via `import 'package:dio/web.dart';`.
-  - `DefaultHttpClientAdapter` was renamed to `IOHttpClientAdapter`
-  - `package:dio/io.dart` contains `IOHttpClientAdapter`
-  - `package:dio/web.dart` contains `BrowserHttpClientAdapter`
-- Previously `options.connectTimeout` and `options.receiveTimeout` were `int`s.
-  They're now `Duration`s. To migrate change `options.connectTimeout = 1000;` to
-  `options.connectTimeout = Duration(seconds: 1);`.
-  The same applies to `receiveTimeout`.
-  Setting the timeouts to `null` indicates that the system default timeouts should be used.
+  Classes specific to web can be imported via `import 'package:dio/browser.dart';`.
+- `connectTimeout`, `sendTimeout`, and `receiveTimeout` are now `Duration`s.
 
-# 4.0.6
+## 4.0.6
+
 - fix #1452
 
-# 4.0.5
-- require Dart `2.12.1` which fixes exception handling for secure socket connections (https://github.com/dart-lang/sdk/issues/45214)
+## 4.0.5
+
+- require Dart `2.12.1` which fixes exception handling for secure socket connections (#45214)
 - Only delete file if it exists when downloading.
 - Fix `BrowserHttpClientAdapter` canceled hangs
 - Correct JSON MIME Type detection
@@ -38,58 +30,64 @@
 - use 'arraybuffer' instead of 'blob' for xhr requests in web platform
 
 
-# 4.0.4
+## 4.0.4
+
 - Fix fetching null data in a response
 
-# 4.0.3
+## 4.0.3
+
 - fix #1311
 
-# 4.0.2
+## 4.0.2
+
 - Add QueuedInterceptor
 - merge #1316 #1317
 
-# 4.0.1
+## 4.0.1
+
 - merge pr #1177 #1196 #1205 #1224 #1225 #1227 #1256 #1263 #1291
 - fix #1257
 
-# 4.0.0
+## 4.0.0
 
 stable version
 
-# 4.0.0-prev3
+## 4.0.0-prev3
+
 - fix #1091 , #1089 , #1087 
 
-# 4.0.0-prev2
+## 4.0.0-prev2
 
 - fix #1082 and # 1076
 
-# 4.0.0-prev1
+## 4.0.0-prev1
 
- **Interceptors:** Add  `handler` for Interceptor APIs which can specify the subsequent interceptors processing logic more finely（whether to skip them or not)
+**Interceptors:** Add `handler` for Interceptor APIs which can specify
+the subsequent interceptors processing logic more finely (whether to skip them or not).
 
-# 4.0.0-beta7
+## 4.0.0-beta7
 
 - fix #1074
 
-# 4.0.0-beta6
+## 4.0.0-beta6
 
 - fix #1070
 
-# 4.0.0-beta5
+## 4.0.0-beta5
 
 - support ListParam
 
-# 4.0.0-beta4
+## 4.0.0-beta4
 
 - fix #1060
 
-# 4.0.0-beta3
+## 4.0.0-beta3
 
 - rename CollectionFormat to ListFormat
 - change default value of Options.listFormat from `mutiComptible` to `multi`
 - add upload_stream_test.dart
 
-# 4.0.0-beta2
+## 4.0.0-beta2
 
 - support null-safety
 - add `CollectionFormat` configuration in Options
@@ -97,61 +95,61 @@ stable version
 - rename DioErrorType enums from uppercase to camel style
 - rename 'Options.merge' to 'Options.copyWith'
 
-# 3.0.10 2020.8.7
+## 3.0.10 2020.8.7
 
 1. fix #877 'dio.interceptors.errorLock.lock()'
 2. fix #851
 3. fix #641
 
 
-# 3.0.9 2020.2.24
+## 3.0.9 2020.2.24
 
 - Add test cases
 
-# 3.0.8 2019.12.29
+## 3.0.8 2019.12.29
 
 - Code style improvement
 
-# 3.0.7 2019.11.25
+## 3.0.7 2019.11.25
 
 - Merge #574 : fix upload image header error, support both oss and other server
 
-# 3.0.6 2019.11.22
+## 3.0.6 2019.11.22
 
 - revert #562, and fixed #566
 
-# 3.0.5 2019.11.19
+## 3.0.5 2019.11.19
 
 - merge #557 #531
 
-# 3.0.4 2019.10.29
+## 3.0.4 2019.10.29
 
 - fix #502 #515 #523
 
-# 3.0.3  2019.10.1
+## 3.0.3 2019.10.1
 
 - fix encode bug
 
-# 3.0.2  2019.9.26
+## 3.0.2 2019.9.26
 
 - fix #474 #480
 
-# 3.0.2-dev.1 2019.9.20
+## 3.0.2-dev.1 2019.9.20
 
 - fix #470 #471
 
-# 3.0.1 2019.9.20
+## 3.0.1 2019.9.20
 
 - Fix #467
 - Export `DioForNative` and `DioForBrowser` classes.
 
-# 3.0.0
+## 3.0.0
 
 ### New features
 
 - Support Flutter Web.
-- Extract [CookieManager](https://github.com/flutterchina/dio/tree/master/plugins/cookie_manager) into a separate package（No need for Flutter Web）.
-- Provides a [HTTP/2.0 HttpClientAdapter](https://github.com/flutterchina/dio/tree/master/plugins/http2_adapter).
+- Extract [CookieManager](/plugins/cookie_manager) into a separate package（No need for Flutter Web）.
+- Provides [HTTP/2.0 HttpClientAdapter](/plugins/http2_adapter).
 
 ### Change List
 
@@ -159,79 +157,71 @@ stable version
 
 - ~~Options.connectionTimeout~~ ；We should config connection timed out  in `BaseOptions`.  For keep-alive reasons, not every request requires a separate connection。
 
-- `Options.followRedirects`、`Options.maxRedirects`、`Response.redirects`  don't make sense in Flutter Web，because redirection  can be automatically handled by browsers.
-
+- `Options.followRedirects`、`Options.maxRedirects`、`Response.redirects` don't make sense in Flutter Web，because redirection  can be automatically handled by browsers.
 - ~~FormData.from~~，use `FormData.fromMap` instead.
-
 - Delete ~~Formdata.asBytes()~~、~~Formdata.asBytesAsync()~~ , use `Formdata.readAsBytes()` instead.
-
 - Delete ~~`UploadFileInfo`~~ class， `MultipartFile` instead.
+- The return type of Interceptor's callback changes from `FutureOr<dynamic>` to `Future`.
+  The reason is [here](https://dart.dev/guides/language/effective-dart/design#avoid-using-futureort-as-a-return-type).
+- The type of `Response.headers` changes from `HttpHeaders` to `Headers`,
+  because `HttpHeaders` is in "dart:io" library which is not supported in Flutter Web.
 
-- The return type of Interceptor's callback changes from `FutureOr<dynamic>` to `Future`. The reason is [here](https://dart.dev/guides/language/effective-dart/design#avoid-using-futureort-as-a-return-type) .
-
-- The type of `Response.headers` changes from `HttpHeaders` to `Headers`, because `HttpHeaders` is in "dart:io" library which is not supported in Flutter Web.
-
-  
-
-
-
-
-# 2.1.16
+## 2.1.16
 
 Add `deleteOnError` parameter to `downloadUri`
 
-# 2.1.14
+## 2.1.14
 
 - fix #402 #385 #422
 
-# 2.1.13
+## 2.1.13
 
 - fix #369
 
-# 2.1.12
+## 2.1.12
 
 - fix #367 #365
 
-# 2.1.10
+## 2.1.10
 
 - fix #360
 
-# 2.1.9
+## 2.1.9
 
 - support flutter version>=1.8 (fix #357)
 
 
-# 2.1.8
+## 2.1.8
 
 - fix #354 #312
 - Allow "delete" method with request body(#223)
 
-# 2.1.7
+## 2.1.7
 
 - fix #321 #318
 
-# 2.1.6
+## 2.1.6
 
-- fix https://github.com/flutterchina/dio/issues/316
+- fix #316
 
-# 2.1.5
+## 2.1.5
 
-- fix https://github.com/flutterchina/dio/issues/309
+- fix #309
 
-# 2.1.4
+## 2.1.4
 
 - Add `options.responseDecoder`
 - Make DioError catchable by implementing Exception instead of Error
 
-# 2.1.3
+## 2.1.3
 
 Add `statusMessage` attribute for `Response` and `ResponseBody`
 
-# 2.1.2
+## 2.1.2
 
 First Stable version for 2.x
 
-# 2.0
+## 2.0
 
 **Refactor the Interceptors**
 - Support add Multiple Interceptors.

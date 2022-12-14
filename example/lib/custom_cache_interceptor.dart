@@ -33,7 +33,7 @@ class CacheInterceptor extends Interceptor {
 
 void main() async {
   final dio = Dio();
-  dio.options.baseUrl = 'https://baidu.com';
+  dio.options.baseUrl = 'https://pub.dev';
   dio.interceptors
     ..add(CacheInterceptor())
     ..add(LogInterceptor(requestHeader: false, responseHeader: false));

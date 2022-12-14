@@ -17,7 +17,7 @@ void main() {
 
   test('adds one to input values', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://www.ustc.edu.cn/'
+      ..options.baseUrl = 'https://pub.dev/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(

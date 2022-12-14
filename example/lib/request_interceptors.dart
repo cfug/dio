@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 void main() async {
   final dio = Dio();
-  dio.options.baseUrl = 'http://httpbin.org/';
+  dio.options.baseUrl = 'https://httpbin.org/';
   dio.options.connectTimeout = Duration(seconds: 5);
   dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
     switch (options.path) {

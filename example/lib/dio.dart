@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 void main() async {
   final dio = Dio();
   dio.options
-    ..baseUrl = 'http://httpbin.org/'
+    ..baseUrl = 'https://httpbin.org/'
     ..connectTimeout = Duration(seconds: 5)
     ..receiveTimeout = Duration(seconds: 5)
     ..validateStatus = (int? status) {
@@ -35,11 +35,11 @@ void main() async {
     ))
     ..add(LogInterceptor(responseBody: false)); //Open log;
 
-  Response response = await dio.get('https://www.google.com/');
+  Response response = await dio.get('https://pub.dev/');
 
   // Download a file
   response = await dio.download(
-    'https://www.google.com/',
+    'https://pub.dev/',
     './example/xx.html',
     queryParameters: {'a': 1},
     onReceiveProgress: (received, total) {

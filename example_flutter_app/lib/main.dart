@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
               try {
                 await dio
-                    .get<String>("http://httpbin.org/status/404")
+                    .get<String>("https://httpbin.org/status/404")
                     .then((r) {
                   setState(() {
                     print(r.data);

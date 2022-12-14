@@ -12,9 +12,9 @@ class MyAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     final uri = options.uri;
-    // hook requests to  google.com
-    if (uri.host == 'google.com') {
-      return ResponseBody.fromString('Too young too simple!', 200);
+    // Hook requests to pub.dev
+    if (uri.host == 'pub.dev') {
+      return ResponseBody.fromString('Welcome to pub.dev', 200);
     }
     return _adapter.fetch(options, requestStream, cancelFuture);
   }
@@ -26,10 +26,9 @@ class MyAdapter implements HttpClientAdapter {
 }
 
 void main() async {
-  final dio = Dio();
-  dio.httpClientAdapter = MyAdapter();
-  Response response = await dio.get('https://google.com');
+  final dio = Dio()..httpClientAdapter = MyAdapter();
+  Response response = await dio.get('https://pub.dev/');
   print(response);
-  response = await dio.get('https://baidu.com');
+  response = await dio.get('https://dart.dev/');
   print(response);
 }
