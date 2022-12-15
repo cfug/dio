@@ -199,7 +199,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {
-    _closed = _closed;
+    _closed = true;
     _defaultHttpClient?.close(force: force);
   }
 }
