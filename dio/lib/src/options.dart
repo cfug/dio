@@ -99,7 +99,6 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
-    this.setRequestContentTypeWhenNoPayload = false,
   })  : assert(connectTimeout == null || !connectTimeout.isNegative),
         assert(baseUrl.isEmpty || Uri.parse(baseUrl).host.isNotEmpty),
         super(
@@ -145,7 +144,6 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
-    bool? setRequestContentTypeWhenNoPayload,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -167,22 +165,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
-      setRequestContentTypeWhenNoPayload: setRequestContentTypeWhenNoPayload ??
-          this.setRequestContentTypeWhenNoPayload,
     );
-  }
-
-  static const _allowPayloadMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-
-  /// if false, content-type in request header will be deleted when method is not on of `_allowPayloadMethods`
-  bool setRequestContentTypeWhenNoPayload;
-
-  String? contentTypeWithRequestBody(String method) {
-    if (setRequestContentTypeWhenNoPayload) {
-      return contentType;
-    } else {
-      return _allowPayloadMethods.contains(method) ? contentType : null;
-    }
   }
 }
 
@@ -312,7 +295,7 @@ class Options {
     if (this.headers != null) {
       headers.addAll(this.headers!);
     }
-    String? contentType = this.headers?[Headers.contentTypeHeader];
+    final String? contentType = this.headers?[Headers.contentTypeHeader];
     final extra = Map<String, dynamic>.from(baseOpt.extra);
     if (this.extra != null) {
       extra.addAll(this.extra!);
@@ -341,14 +324,11 @@ class Options {
       responseDecoder: responseDecoder ?? baseOpt.responseDecoder,
       listFormat: listFormat ?? baseOpt.listFormat,
     );
-
     requestOptions.onReceiveProgress = onReceiveProgress;
     requestOptions.onSendProgress = onSendProgress;
     requestOptions.cancelToken = cancelToken;
-
-    requestOptions.contentType = contentType ??
-        this.contentType ??
-        baseOpt.contentTypeWithRequestBody(method);
+    requestOptions.contentType =
+        contentType ?? this.contentType ?? baseOpt.contentType;
     return requestOptions;
   }
 
@@ -661,7 +641,7 @@ class _RequestConfig {
         };
     this.responseType = responseType ?? ResponseType.json;
     if (!contentTypeInHeader) {
-      this.contentType = contentType ?? Headers.jsonContentType;
+      this.contentType = contentType;
     }
   }
 

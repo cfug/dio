@@ -124,7 +124,7 @@ void main() {
 
     assert(bo1.headers['content-type'] == contentType);
     assert(bo2.headers['content-type'] == contentType);
-    assert(bo3.headers['content-type'] == Headers.jsonContentType);
+    assert(bo3.headers['content-type'] == null);
 
     try {
       bo1.copyWith(headers: headers);
@@ -213,27 +213,19 @@ void main() {
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
 
-    Response r1 = await dio.get('');
-    assert(r1.requestOptions.headers[Headers.contentTypeHeader] == null);
-
-    dio.options.setRequestContentTypeWhenNoPayload = true;
-
-    r1 = await dio.get('');
-    assert(
-      r1.requestOptions.headers[Headers.contentTypeHeader] ==
-          Headers.jsonContentType,
+    final r1 = await dio.get('');
+    expect(
+      r1.requestOptions.headers[Headers.contentTypeHeader],
+      null,
     );
-
-    dio.options.setRequestContentTypeWhenNoPayload = false;
 
     final r2 = await dio.get(
       '',
       options: Options(contentType: Headers.jsonContentType),
     );
-
-    assert(
-      r2.requestOptions.headers[Headers.contentTypeHeader] ==
-          Headers.jsonContentType,
+    expect(
+      r2.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
     );
 
     final r3 = await dio.get(
@@ -242,21 +234,20 @@ void main() {
         Headers.contentTypeHeader: Headers.jsonContentType,
       }),
     );
-    assert(
-      r3.requestOptions.headers[Headers.contentTypeHeader] ==
-          Headers.jsonContentType,
+    expect(
+      r3.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
     );
 
     final r4 = await dio.post('', data: '');
-    assert(
-      r4.requestOptions.headers[Headers.contentTypeHeader] ==
-          Headers.jsonContentType,
+    expect(
+      r4.requestOptions.headers[Headers.contentTypeHeader],
+      null,
     );
   });
 
   test('#test default content-type 2', () async {
     final dio = Dio();
-    dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
 
     final r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
@@ -280,7 +271,6 @@ void main() {
       );
       assert(false);
     } catch (_) {}
-    dio.options.setRequestContentTypeWhenNoPayload = false;
 
     final r3 = Options(method: 'GET').compose(dio.options, '/test');
     assert(r3.uri.toString() == 'https://www.example.com/test');
@@ -347,6 +337,31 @@ void main() {
       testInvalidArgumentException("CONN${separator}ECT");
       testInvalidArgumentException("CONN$separator${separator}ECT");
       testInvalidArgumentException("CONNECT$separator");
+    }
+  });
+
+  test('Transform data correctly with requests', () async {
+    final dio = Dio()
+      ..httpClientAdapter = EchoAdapter()
+      ..options.baseUrl = EchoAdapter.mockBase;
+    const methods = [
+      'CONNECT',
+      'HEAD',
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'DELETE',
+      'OPTIONS',
+      'TRACE',
+    ];
+    for (final method in methods) {
+      final response = await dio.request(
+        '/test',
+        data: 'test',
+        options: Options(method: method),
+      );
+      expect(response.data, 'test');
     }
   });
 }

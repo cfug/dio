@@ -61,6 +61,7 @@ abstract class Dio {
   /// Handy method to make http GET request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> get<T>(
     String path, {
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -70,6 +71,7 @@ abstract class Dio {
   /// Handy method to make http GET request, which is a alias of [dio.fetch(RequestOptions)].
   Future<Response<T>> getUri<T>(
     Uri uri, {
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,

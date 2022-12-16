@@ -50,7 +50,7 @@ class Http2Adapter implements HttpClientAdapter {
       path = '/' + path;
     }
     if (uri.query.trim().isNotEmpty) {
-      path += ('?' + uri.query);
+      path += '?' + uri.query;
     }
     final headers = [
       Header.ascii(':method', options.method),
