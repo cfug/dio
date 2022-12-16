@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/io.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 class MockAdapter implements HttpClientAdapter {
   static const mockHost = 'mockserver';
-  static const mockBase = 'http://$mockHost';
+  static const mockBase = 'https://$mockHost';
   final _adapter = IOHttpClientAdapter();
 
   @override
@@ -89,6 +89,37 @@ class MockAdapter implements HttpClientAdapter {
           return ResponseBody.fromString('{"code":0,"result":"ok"}', 200);
         default:
           return ResponseBody.fromString('', 404);
+      }
+    }
+    return _adapter.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) {
+    _adapter.close(force: force);
+  }
+}
+
+/// [EchoAdapter] will return the data as-is
+/// if the host is [EchoAdapter.mockHost].
+class EchoAdapter implements HttpClientAdapter {
+  static const String mockHost = 'mockserver';
+  static const String mockBase = 'https://$mockHost';
+
+  final HttpClientAdapter _adapter = IOHttpClientAdapter();
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final Uri uri = options.uri;
+    if (uri.host == mockHost) {
+      if (requestStream != null) {
+        return ResponseBody(requestStream, 200);
+      } else {
+        return ResponseBody.fromString(uri.path, 200);
       }
     }
     return _adapter.fetch(options, requestStream, cancelFuture);

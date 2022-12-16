@@ -13,13 +13,13 @@ enum InterceptorResultType {
 /// Internal class, It is used to pass state between current and next interceptors.
 /// @nodoc
 class InterceptorState<T> {
-  InterceptorState(this.data, [this.type = InterceptorResultType.next]);
+  const InterceptorState(this.data, [this.type = InterceptorResultType.next]);
 
-  T data;
-  InterceptorResultType type;
+  final T data;
+  final InterceptorResultType type;
 }
 
-class _BaseHandler {
+abstract class _BaseHandler {
   final _completer = Completer<InterceptorState>();
   void Function()? _processNextInQueue;
 
@@ -42,8 +42,10 @@ class RequestInterceptorHandler extends _BaseHandler {
   ///
   /// [response]: Response object to return.
   /// [callFollowingResponseInterceptor]: Whether to call the response interceptor(s).
-  void resolve(Response response,
-      [bool callFollowingResponseInterceptor = false]) {
+  void resolve(
+    Response response, [
+    bool callFollowingResponseInterceptor = false,
+  ]) {
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -85,8 +87,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
     _processNextInQueue?.call();
   }
 
-  /// Return the response directly! Other response interceptor(s) will not be executed.
-  /// [response]: Response object to return.
+  /// Return the response directly! Other response i02
   void resolve(Response response) {
     _completer.complete(
       InterceptorState<Response>(
@@ -153,12 +154,12 @@ class ErrorInterceptorHandler extends _BaseHandler {
   }
 }
 
-///  Dio instance may have interceptor(s) by which you can intercept
-///  requests/responses/errors before they are handled by `then` or `catchError`.
-///  See also:
-///   - [InterceptorsWrapper]  A helper class to create Interceptor(s).
-///   - [QueuedInterceptor] Serialize the request/response/error before they enter the interceptor.
-///   - [QueuedInterceptorsWrapper]  A helper class to create QueuedInterceptor(s).
+/// Dio instance may have interceptor(s) by which you can intercept
+/// requests/responses/errors before they are handled by `then` or `catchError`.
+/// See also:
+///  - [InterceptorsWrapper]  A helper class to create Interceptor(s).
+///  - [QueuedInterceptor] Serialize the request/response/error before they enter the interceptor.
+///  - [QueuedInterceptorsWrapper]  A helper class to create QueuedInterceptor(s).
 class Interceptor {
   const Interceptor();
 
@@ -174,8 +175,9 @@ class Interceptor {
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
-  ) =>
-      handler.next(options);
+  ) {
+    handler.next(options);
+  }
 
   /// The callback will be executed on success.
   /// If you want to continue the response, call [handler.next].
@@ -189,8 +191,9 @@ class Interceptor {
   void onResponse(
     Response response,
     ResponseInterceptorHandler handler,
-  ) =>
-      handler.next(response);
+  ) {
+    handler.next(response);
+  }
 
   /// The callback will be executed on error.
   ///
@@ -206,8 +209,9 @@ class Interceptor {
   void onError(
     DioError err,
     ErrorInterceptorHandler handler,
-  ) =>
-      handler.next(err);
+  ) {
+    handler.next(err);
+  }
 }
 
 typedef InterceptorSendCallback = void Function(
@@ -216,22 +220,25 @@ typedef InterceptorSendCallback = void Function(
 );
 
 typedef InterceptorSuccessCallback = void Function(
-  Response e,
+  Response<dynamic> e,
   ResponseInterceptorHandler handler,
 );
 
 typedef InterceptorErrorCallback = void Function(
-    DioError e, ErrorInterceptorHandler handler);
+  DioError e,
+  ErrorInterceptorHandler handler,
+);
 
 mixin _InterceptorWrapperMixin on Interceptor {
   InterceptorSendCallback? _onRequest;
-
   InterceptorSuccessCallback? _onResponse;
-
   InterceptorErrorCallback? _onError;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) {
     if (_onRequest != null) {
       _onRequest!(options, handler);
     } else {
@@ -240,7 +247,10 @@ mixin _InterceptorWrapperMixin on Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     if (_onResponse != null) {
       _onResponse!(response, handler);
     } else {
@@ -249,7 +259,10 @@ mixin _InterceptorWrapperMixin on Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(
+    DioError err,
+    ErrorInterceptorHandler handler,
+  ) {
     if (_onError != null) {
       _onError!(err, handler);
     } else {
@@ -298,7 +311,7 @@ class Interceptors extends ListMixin<Interceptor> {
   Interceptor operator [](int index) => _list[index];
 
   @override
-  void operator []=(int index, value) {
+  void operator []=(int index, Interceptor value) {
     if (_list.length == index) {
       _list.add(value);
     } else {
@@ -337,11 +350,17 @@ class QueuedInterceptor extends Interceptor {
     _handleQueue(_requestQueue, options, handler, onRequest);
   }
 
-  void _handleResponse(Response response, ResponseInterceptorHandler handler) {
+  void _handleResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     _handleQueue(_responseQueue, response, handler, onResponse);
   }
 
-  void _handleError(DioError err, ErrorInterceptorHandler handler) {
+  void _handleError(
+    DioError err,
+    ErrorInterceptorHandler handler,
+  ) {
     _handleQueue(_errorQueue, err, handler, onError);
   }
 
@@ -382,7 +401,8 @@ void Function() _processNextTaskInQueueCallback(_TaskQueue taskQueue, cb) {
 }
 
 /// [QueuedInterceptorsWrapper] is a helper class, which is used to conveniently
-/// create QueuedInterceptor(s).
+/// create [QueuedInterceptor]s.
+///
 /// See also:
 ///  - [Interceptor]
 ///  - [InterceptorsWrapper]

@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
-import 'mock_adapter.dart';
-import 'echo_adapter.dart';
+
+import 'mock/adapters.dart';
 
 class MyInterceptor extends Interceptor {
   int requestCount = 0;
@@ -363,7 +364,7 @@ void main() {
       response = await dio.get('${urlNotFound}2');
       expect(response.data, 'fake data');
       expect(
-        dio.get('${urlNotFound}3').catchError((e) => throw (e as DioError)),
+        dio.get('${urlNotFound}3').catchError((e) => throw e as DioError),
         throwsA(isA<DioError>()),
       );
     });

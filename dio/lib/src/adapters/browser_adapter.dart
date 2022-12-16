@@ -10,6 +10,7 @@ import '../options.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
+/// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// These are aborted if the client is closed.
   final _xhrs = <HttpRequest>{};
@@ -55,7 +56,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
-      Uint8List body = (xhr.response as ByteBuffer).asUint8List();
+      final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
       completer.complete(
         ResponseBody.fromBytes(
           body,
@@ -117,10 +118,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         if (duration > sendTimeout) {
           uploadStopwatch.stop();
           completer.completeError(
-            DioError.sendTimeout(
-              timeout: sendTimeout,
-              requestOptions: options,
-            ),
+            DioError.sendTimeout(timeout: sendTimeout, requestOptions: options),
             StackTrace.current,
           );
           xhr.abort();
@@ -186,10 +184,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
-        } catch (e) {
-          // ignore
-        }
-
+        } catch (_) {}
         // xhr.onError will not triggered when xhr.abort() called.
         // so need to manual throw the cancel error to avoid Future hang ups.
         // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111

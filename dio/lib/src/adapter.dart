@@ -63,13 +63,13 @@ class ResponseBody {
     this.redirects,
   });
 
-  /// The response stream
+  /// The response stream.
   Stream<Uint8List> stream;
 
-  /// the response headers
-  late Map<String, List<String>> headers;
+  /// The response headers.
+  Map<String, List<String>> headers;
 
-  /// Http status code
+  /// HTTP status code.
   int statusCode;
 
   /// Returns the reason phrase associated with the status code.

@@ -7,8 +7,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
-import 'echo_adapter.dart';
-import 'mock_adapter.dart';
+import 'mock/adapters.dart';
 
 void main() {
   test('#test options', () {
@@ -331,7 +330,7 @@ void main() {
 
     const String separators = "\t\n\r()<>@,;:\\/[]?={}";
     for (int i = 0; i < separators.length; i++) {
-      String separator = separators.substring(i, i + 1);
+      final String separator = separators.substring(i, i + 1);
       testInvalidArgumentException(separator);
       testInvalidArgumentException("${separator}CONNECT");
       testInvalidArgumentException("CONN${separator}ECT");

@@ -17,14 +17,14 @@ void main() async {
       }),
       'files': [
         await MultipartFile.fromFile(
-          '../dio/test/_testfile',
+          'test/mock/_testfile',
           filename: '1.txt',
           headers: {
             'test': <String>['b']
           },
         ),
         MultipartFile.fromFileSync(
-          '../dio/test/_testfile',
+          'test/mock/_testfile',
           filename: '2.txt',
           headers: {
             'test': <String>['c']
@@ -33,7 +33,7 @@ void main() async {
       ]
     });
     final fmStr = await fm.readAsBytes();
-    final f = File('../dio/test/_formdata');
+    final f = File('test/mock/_formdata');
     String content = f.readAsStringSync();
     content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
     String actual = utf8.decode(fmStr, allowMalformed: true);
@@ -55,7 +55,7 @@ void main() async {
     ));
     fm1.files.add(MapEntry(
       'files',
-      await MultipartFile.fromFile('../dio/test/_testfile',
+      await MultipartFile.fromFile('test/mock/_testfile',
           filename: '1.txt',
           headers: {
             'test': <String>['b']
@@ -63,7 +63,7 @@ void main() async {
     ));
     fm1.files.add(MapEntry(
       'files',
-      await MultipartFile.fromFile('../dio/test/_testfile',
+      await MultipartFile.fromFile('test/mock/_testfile',
           filename: '2.txt',
           headers: {
             'test': <String>['c']

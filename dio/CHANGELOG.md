@@ -149,8 +149,8 @@ the subsequent interceptors processing logic more finely (whether to skip them o
 ### New features
 
 - Support Flutter Web.
-- Extract [CookieManager](/plugins/cookie_manager) into a separate package（No need for Flutter Web）.
-- Provides [HTTP/2.0 HttpClientAdapter](/plugins/http2_adapter).
+- Extract [CookieManager](../plugins/cookie_manager) into a separate package（No need for Flutter Web）.
+- Provides [HTTP/2.0 HttpClientAdapter](../plugins/http2_adapter).
 
 ### Change List
 

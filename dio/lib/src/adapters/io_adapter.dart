@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+
 import '../adapter.dart';
-import '../options.dart';
 import '../dio_error.dart';
+import '../options.dart';
 import '../redirect_record.dart';
 
 @Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
@@ -11,11 +12,14 @@ typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
 
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 typedef ValidateCertificate = bool Function(
-    X509Certificate? certificate, String host, int port);
+  X509Certificate? certificate,
+  String host,
+  int port,
+);
 
 HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
-/// The default HttpClientAdapter for Dio.
+/// The default [HttpClientAdapter] for native platforms.
 class IOHttpClientAdapter implements HttpClientAdapter {
   /// [Dio] will create HttpClient when it is needed.
   /// If [onHttpClientCreate] is provided, [Dio] will call
@@ -41,8 +45,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     if (_closed) {
-      throw Exception(
-          "Can't establish connection after [HttpClientAdapter] closed!");
+      throw StateError(
+        "Can't establish connection after the adapter was closed!",
+      );
     }
     final httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     final reqFuture = httpClient.openUrl(options.method, options.uri);
@@ -64,7 +69,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      //Set Headers
+      // Set Headers
       options.headers.forEach((k, v) {
         if (v != null) request.headers.set(k, v);
       });
@@ -102,7 +107,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           },
         );
       }
-
       await future;
     }
 
@@ -126,8 +130,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     if (validateCertificate != null) {
       final host = options.uri.host;
       final port = options.uri.port;
-      final isCertApproved =
-          validateCertificate!(responseStream.certificate, host, port);
+      final bool isCertApproved = validateCertificate!(
+        responseStream.certificate,
+        host,
+        port,
+      );
       if (!isCertApproved) {
         throw DioError(
           requestOptions: options,
@@ -138,9 +145,8 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    final stream =
-        responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
-      handleData: (data, sink) {
+    final stream = responseStream.transform<Uint8List>(
+      StreamTransformer.fromHandlers(handleData: (data, sink) {
         stopwatch.stop();
         final duration = stopwatch.elapsed;
         final receiveTimeout = options.receiveTimeout;
@@ -155,8 +161,8 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         } else {
           sink.add(Uint8List.fromList(data));
         }
-      },
-    ));
+      }),
+    );
 
     final headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {

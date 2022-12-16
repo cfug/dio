@@ -88,7 +88,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> post<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -110,7 +110,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> postUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -130,7 +130,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> put<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -152,7 +152,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> putUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -172,7 +172,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> head<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -190,7 +190,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> headUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
   }) {
@@ -206,7 +206,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> delete<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -224,7 +224,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> deleteUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
   }) {
@@ -240,7 +240,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> patch<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -262,7 +262,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> patchUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -278,103 +278,15 @@ abstract class DioMixin implements Dio {
     );
   }
 
-  ///  Download the file and save it in local. The default http method is 'GET',
-  ///  you can custom it by [Options.method].
-  ///
-  ///  [urlPath]: The file url.
-  ///
-  ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback:
-  ///  1. A path with String type, eg 'xs.jpg'
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
-  ///  ```dart
-  ///   await dio.download(url,(HttpHeaders responseHeaders){
-  ///      ...
-  ///      return '...';
-  ///    });
-  ///  ```
-  ///
-  ///  [onReceiveProgress]: The callback to listen downloading progress.
-  ///  please refer to [ProgressCallback].
-  ///
-  /// [deleteOnError] Whether delete the file when error occurs. The default value is [true].
-  ///
-  ///  [lengthHeader] : The real size of original file (not compressed).
-  ///  When file is compressed:
-  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
-  ///  file size , the `total` argument of `onProgress` will be this header value.
-  ///
-  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
-  ///
-  ///     await dio.download(url, './example/flutter.svg',
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
-  ///     onProgress: (received, total) {
-  ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + '%');
-  ///       }
-  ///     });
-
-  @override
-  Future<Response> download(
-    String urlPath,
-    savePath, {
-    ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    String lengthHeader = Headers.contentLengthHeader,
-    data,
-    Options? options,
-  }) async {
-    throw UnsupportedError('Unsupport download API in browser');
-  }
-
-  ///  Download the file and save it in local. The default http method is 'GET',
-  ///  you can custom it by [Options.method].
-  ///
-  ///  [uri]: The file url.
-  ///
-  ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback:
-  ///  1. A path with String type, eg 'xs.jpg'
-  ///  2. A callback `String Function(HttpHeaders responseHeaders)`; for example:
-  ///  ```dart
-  ///   await dio.downloadUri(uri,(HttpHeaders responseHeaders){
-  ///      ...
-  ///      return '...';
-  ///    });
-  ///  ```
-  ///
-  ///  [onReceiveProgress]: The callback to listen downloading progress.
-  ///  please refer to [ProgressCallback].
-  ///
-  ///  [lengthHeader] : The real size of original file (not compressed).
-  ///  When file is compressed:
-  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
-  ///  file size , the `total` argument of `onProgress` will be this header value.
-  ///
-  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
-  ///
-  ///     await dio.downloadUri(uri, './example/flutter.svg',
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: '*'}),  // disable gzip
-  ///     onProgress: (received, total) {
-  ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + '%');
-  ///       }
-  ///     });
   @override
   Future<Response> downloadUri(
     Uri uri,
-    savePath, {
+    dynamic savePath, {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    data,
+    Object? data,
     Options? options,
   }) {
     return download(
@@ -389,6 +301,23 @@ abstract class DioMixin implements Dio {
     );
   }
 
+  @override
+  Future<Response> download(
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  }) {
+    throw UnsupportedError(
+      'download() is not available in the current environment.',
+    );
+  }
+
   /// Make http request with options.
   ///
   /// [uri] The uri.
@@ -397,7 +326,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> requestUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,
@@ -421,7 +350,7 @@ abstract class DioMixin implements Dio {
   @override
   Future<Response<T>> request<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
@@ -519,11 +448,7 @@ abstract class DioMixin implements Dio {
       return (err, stackTrace) {
         if (err is! InterceptorState) {
           err = InterceptorState(
-            assureDioError(
-              err,
-              requestOptions,
-              stackTrace,
-            ),
+            assureDioError(err, requestOptions, stackTrace),
           );
         }
 
@@ -547,8 +472,9 @@ abstract class DioMixin implements Dio {
     // execute in FIFO order.
 
     // Start the request flow
-    Future<dynamic> future =
-        Future<dynamic>(() => InterceptorState(requestOptions));
+    Future<dynamic> future = Future<dynamic>(
+      () => InterceptorState(requestOptions),
+    );
 
     // Add request interceptors to request flow
     for (final interceptor in interceptors) {
@@ -669,11 +595,11 @@ abstract class DioMixin implements Dio {
     //                | "/" | "[" | "]" | "?" | "="
     //                | "{" | "}" | SP | HT
     // token          = 1*<any CHAR except CTLs or separators>
-    const validChars = r"                                "
+    const String validChars = r"                                "
         r" ! #$%&'  *+ -. 0123456789      "
         r" ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_"
         r"`abcdefghijklmnopqrstuvwxyz | ~ ";
-    for (int codeUnit in token.codeUnits) {
+    for (final int codeUnit in token.codeUnits) {
       if (codeUnit >= validChars.length ||
           validChars.codeUnitAt(codeUnit) == 0x20) {
         return false;
@@ -751,7 +677,9 @@ abstract class DioMixin implements Dio {
   }
 
   static Future<T> listenCancelForAsyncTask<T>(
-      CancelToken? cancelToken, Future<T> future) {
+    CancelToken? cancelToken,
+    Future<T> future,
+  ) {
     return Future.any([
       if (cancelToken != null) cancelToken.whenCancel.then((e) => throw e),
       future,
@@ -765,7 +693,7 @@ abstract class DioMixin implements Dio {
   }
 
   static DioError assureDioError(
-    err,
+    Object err,
     RequestOptions requestOptions,
     StackTrace? sourceStackTrace,
   ) {
@@ -781,7 +709,7 @@ abstract class DioMixin implements Dio {
   }
 
   static Response<T> assureResponse<T>(
-    response, [
+    Object response, [
     RequestOptions? requestOptions,
   ]) {
     if (response is! Response) {

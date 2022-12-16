@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import '../adapter.dart';
 import '../cancel_token.dart';
 import '../dio_mixin.dart';
@@ -20,57 +21,17 @@ class DioForNative with DioMixin implements Dio {
     httpClientAdapter = IOHttpClientAdapter();
   }
 
-  ///  Download the file and save it in local. The default http method is "GET",
-  ///  you can custom it by [Options.method].
-  ///
-  ///  [urlPath]: The file url.
-  ///
-  ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback [String Function(Headers)]:
-  ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(Headers)`; for example:
-  ///  ```dart
-  ///   await dio.download(url,(Headers headers){
-  ///        // Extra info: redirect counts
-  ///        print(headers.value('redirects'));
-  ///        // Extra info: real uri
-  ///        print(headers.value('uri'));
-  ///      ...
-  ///      return "...";
-  ///    });
-  ///  ```
-  ///
-  ///  [onReceiveProgress]: The callback to listen downloading progress.
-  ///  please refer to [ProgressCallback].
-  ///
-  /// [deleteOnError] Whether delete the file when error occurs. The default value is [true].
-  ///
-  ///  [lengthHeader] : The real size of original file (not compressed).
-  ///  When file is compressed:
-  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
-  ///  file size , the `total` argument of `onProgress` will be this header value.
-  ///
-  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
-  ///
-  ///     await dio.download(url, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
-  ///     onProgress: (received, total) {
-  ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
-  ///       }
-  ///     });
+  /// {@macro dio.Dio.download}
   @override
   Future<Response> download(
     String urlPath,
-    savePath, {
+    dynamic savePath, {
     ProgressCallback? onReceiveProgress,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    data,
+    Object? data,
     Options? options,
   }) async {
     // We set the `responseType` to [ResponseType.STREAM] to retrieve the
@@ -102,33 +63,32 @@ class DioForNative with DioMixin implements Dio {
       }
       rethrow;
     }
-
-    response.headers = Headers.fromMap(response.data!.headers);
-
-    File file;
-    if (savePath is Function) {
-      assert(savePath is String Function(Headers),
-          'savePath callback type must be `String Function(HttpHeaders)`');
-
-      // Add real uri and redirect information to headers
+    final File file;
+    if (savePath is String Function(Headers)) {
+      // Add real Uri and redirect information to headers.
       response.headers
         ..add('redirects', response.redirects.length.toString())
         ..add('uri', response.realUri.toString());
-
-      file = File(savePath(response.headers) as String);
+      file = File(savePath(response.headers));
+    } else if (savePath is String) {
+      file = File(savePath);
     } else {
-      file = File(savePath.toString());
+      throw ArgumentError.value(
+        savePath.runtimeType,
+        'savePath',
+        'The type must be `String` or `String Function(Headers)`.',
+      );
     }
 
-    //If directory (or file) doesn't exist yet, the entire method fails
+    // If the directory (or file) doesn't exist yet, the entire method fails.
     file.createSync(recursive: true);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
-    // because it can write all bytes by once. Consider that the
-    // file with a very big size(up 1G), it will be expensive in memory.
+    // because it can write all bytes by once. Consider that the file is
+    // a very big size (up to 1 Gigabytes), it will be expensive in memory.
     RandomAccessFile raf = file.openSync(mode: FileMode.write);
 
-    //Create a Completer to notify the success/error state.
+    // Create a Completer to notify the success/error state.
     final completer = Completer<Response>();
     Future<Response> future = completer.future;
     int received = 0;
@@ -137,8 +97,9 @@ class DioForNative with DioMixin implements Dio {
     final stream = response.data!.stream;
     bool compressed = false;
     int total = 0;
-    final contentEncoding =
-        response.headers.value(Headers.contentEncodingHeader);
+    final contentEncoding = response.headers.value(
+      Headers.contentEncodingHeader,
+    );
     if (contentEncoding != null) {
       compressed = ['gzip', 'deflate', 'compress'].contains(contentEncoding);
     }
@@ -148,10 +109,9 @@ class DioForNative with DioMixin implements Dio {
       total = int.parse(response.headers.value(lengthHeader) ?? '-1');
     }
 
-    late StreamSubscription subscription;
-    Future? asyncWrite;
+    Future<void>? asyncWrite;
     bool closed = false;
-    Future closeAndDelete() async {
+    Future<void> closeAndDelete() async {
       if (!closed) {
         closed = true;
         await asyncWrite;
@@ -162,6 +122,7 @@ class DioForNative with DioMixin implements Dio {
       }
     }
 
+    late StreamSubscription subscription;
     subscription = stream.listen(
       (data) {
         subscription.pause();
@@ -231,67 +192,5 @@ class DioForNative with DioMixin implements Dio {
       );
     }
     return DioMixin.listenCancelForAsyncTask(cancelToken, future);
-  }
-
-  ///  Download the file and save it in local. The default http method is "GET",
-  ///  you can custom it by [Options.method].
-  ///
-  ///  [uri]: The file url.
-  ///
-  ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback:
-  ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(Headers)`; for example:
-  ///  ```dart
-  ///   await dio.downloadUri(uri,(Headers headers){
-  ///        // Extra info: redirect counts
-  ///        print(headers.value('redirects'));
-  ///        // Extra info: real uri
-  ///        print(headers.value('uri'));
-  ///      ...
-  ///      return "...";
-  ///    });
-  ///  ```
-  ///
-  ///  [onReceiveProgress]: The callback to listen downloading progress.
-  ///  please refer to [ProgressCallback].
-  ///
-  ///  [lengthHeader] : The real size of original file (not compressed).
-  ///  When file is compressed:
-  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
-  ///  file size , the `total` argument of `onProgress` will be this header value.
-  ///
-  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
-  ///
-  ///     await dio.downloadUri(uri, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
-  ///     onProgress: (received, total) {
-  ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
-  ///       }
-  ///     });
-  @override
-  Future<Response> downloadUri(
-    Uri uri,
-    savePath, {
-    ProgressCallback? onReceiveProgress,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    lengthHeader = Headers.contentLengthHeader,
-    data,
-    Options? options,
-  }) {
-    return download(
-      uri.toString(),
-      savePath,
-      onReceiveProgress: onReceiveProgress,
-      lengthHeader: lengthHeader,
-      deleteOnError: deleteOnError,
-      cancelToken: cancelToken,
-      data: data,
-      options: options,
-    );
   }
 }

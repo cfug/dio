@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'adapter.dart';
 import 'dio_mixin.dart';
 import 'options.dart';
@@ -6,6 +7,7 @@ import 'headers.dart';
 import 'cancel_token.dart';
 import 'transformer.dart';
 import 'response.dart';
+
 import 'dio/dio_for_native.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
 
@@ -80,7 +82,7 @@ abstract class Dio {
   /// Handy method to make http POST request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> post<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -91,7 +93,7 @@ abstract class Dio {
   /// Handy method to make http POST request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> postUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -101,7 +103,7 @@ abstract class Dio {
   /// Handy method to make http PUT request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> put<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -112,7 +114,7 @@ abstract class Dio {
   /// Handy method to make http PUT request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> putUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -122,7 +124,7 @@ abstract class Dio {
   /// Handy method to make http HEAD request, which is a alias of [dio.fetch(RequestOptions)].
   Future<Response<T>> head<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -131,7 +133,7 @@ abstract class Dio {
   /// Handy method to make http HEAD request, which is a alias of [dio.fetch(RequestOptions)].
   Future<Response<T>> headUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
   });
@@ -139,7 +141,7 @@ abstract class Dio {
   /// Handy method to make http DELETE request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> delete<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -148,7 +150,7 @@ abstract class Dio {
   /// Handy method to make http DELETE request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> deleteUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
   });
@@ -156,7 +158,7 @@ abstract class Dio {
   /// Handy method to make http PATCH request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> patch<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -167,116 +169,102 @@ abstract class Dio {
   /// Handy method to make http PATCH request, which is a alias of  [dio.fetch(RequestOptions)].
   Future<Response<T>> patchUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   });
 
-  ///  Download the file and save it in local. The default http method is "GET",
-  ///  you can custom it by [Options.method].
+  /// {@template dio.Dio.download}
+  /// Download the file and save it in local. The default http method is "GET",
+  /// you can custom it by [Options.method].
   ///
-  ///  [urlPath]: The file url.
+  /// [urlPath] is the file url.
   ///
-  ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback:
-  ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(Headers headers)`; for example:
-  ///  ```dart
-  ///   await dio.download(url,(Headers headers){
-  ///        // Extra info: redirect counts
-  ///        print(headers.value('redirects'));
-  ///        // Extra info: real uri
-  ///        print(headers.value('uri'));
-  ///      ...
-  ///      return "...";
-  ///    });
-  ///  ```
+  /// [savePath] is the path to save the downloading file later. it can be a String or
+  /// a callback:
+  /// 1. A path with String type, eg "xs.jpg"
+  /// 2. A callback `String Function(Headers headers)`; for example:
+  /// ```dart
+  /// await dio.download(
+  ///   url,
+  ///   (Headers headers) {
+  ///     // Extra info: redirect counts
+  ///     print(headers.value('redirects'));
+  ///     // Extra info: real uri
+  ///     print(headers.value('uri'));
+  ///     // ...
+  ///     return (await getTemporaryDirectory()).path + 'file_name';
+  ///   },
+  /// );
+  /// ```
   ///
-  ///  [onReceiveProgress]: The callback to listen downloading progress.
-  ///  please refer to [ProgressCallback].
+  /// [onReceiveProgress] is the callback to listen downloading progress.
+  /// Please refer to [ProgressCallback].
   ///
-  /// [deleteOnError] Whether delete the file when error occurs. The default value is [true].
+  /// [deleteOnError] whether delete the file when error occurs.
+  /// The default value is [true].
   ///
-  ///  [lengthHeader] : The real size of original file (not compressed).
-  ///  When file is compressed:
-  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
-  ///  file size , the `total` argument of `onProgress` will be this header value.
+  /// [lengthHeader] : The real size of original file (not compressed).
+  /// When file is compressed:
+  /// 1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
+  /// 2. If this value is not 'content-length', maybe a custom header indicates the original
+  /// file size , the `total` argument of `onProgress` will be this header value.
   ///
-  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
+  /// You can also disable the compression by specifying
+  /// the 'accept-encoding' header value as '*' to assure the value of
+  /// `total` argument of `onProgress` is not -1. for example:
   ///
-  ///     await dio.download(url, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
-  ///     onProgress: (received, total) {
-  ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
-  ///       }
-  ///     });
-
+  /// ```dart
+  /// await dio.download(
+  ///   url,
+  ///   (await getTemporaryDirectory()).path + 'flutter.svg',
+  ///   options: Options(
+  ///     headers: {HttpHeaders.acceptEncodingHeader: "*"}, // Disable gzip
+  ///   ),
+  ///   onProgress: (received, total) {
+  ///     if (total != -1) {
+  ///       print((received / total * 100).toStringAsFixed(0) + "%");
+  ///     }
+  ///   },
+  /// );
+  /// ```
+  /// {@endtemplate}
   Future<Response> download(
     String urlPath,
-    savePath, {
+    dynamic savePath, {
     ProgressCallback? onReceiveProgress,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    data,
+    Object? data,
     Options? options,
   });
 
-  ///  Download the file and save it in local. The default http method is "GET",
-  ///  you can custom it by [Options.method].
-  ///
-  ///  [uri]: The file url.
-  ///
-  ///  [savePath]: The path to save the downloading file later. it can be a String or
-  ///  a callback:
-  ///  1. A path with String type, eg "xs.jpg"
-  ///  2. A callback `String Function(Headers)`; for example:
-  ///  ```dart
-  ///   await dio.downloadUri(uri,(Headers headers){
-  ///        // Extra info: redirect counts
-  ///        print(headers.value('redirects'));
-  ///        // Extra info: real uri
-  ///        print(headers.value('uri'));
-  ///       ...
-  ///       return "...";
-  ///    });
-  ///  ```
-  ///
-  ///  [onReceiveProgress]: The callback to listen downloading progress.
-  ///  please refer to [ProgressCallback].
-  ///
-  ///  [lengthHeader] : The real size of original file (not compressed).
-  ///  When file is compressed:
-  ///  1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
-  ///  2. If this value is not 'content-length', maybe a custom header indicates the original
-  ///  file size , the `total` argument of `onProgress` will be this header value.
-  ///
-  ///  you can also disable the compression by specifying the 'accept-encoding' header value as '*'
-  ///  to assure the value of `total` argument of `onProgress` is not -1. for example:
-  ///
-  ///     await dio.downloadUri(uri, "./example/flutter.svg",
-  ///     options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),  // disable gzip
-  ///     onProgress: (received, total) {
-  ///       if (total != -1) {
-  ///        print((received / total * 100).toStringAsFixed(0) + "%");
-  ///       }
-  ///     });
+  /// {@macro dio.Dio.download}
   Future<Response> downloadUri(
     Uri uri,
-    savePath, {
+    dynamic savePath, {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
     String lengthHeader = Headers.contentLengthHeader,
-    data,
+    Object? data,
     Options? options,
-  });
+  }) {
+    return download(
+      uri.toString(),
+      savePath,
+      onReceiveProgress: onReceiveProgress,
+      lengthHeader: lengthHeader,
+      deleteOnError: deleteOnError,
+      cancelToken: cancelToken,
+      data: data,
+      options: options,
+    );
+  }
 
   /// Make http request with options.
   ///
@@ -285,7 +273,7 @@ abstract class Dio {
   /// [options] The request options.
   Future<Response<T>> request<T>(
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
@@ -300,7 +288,7 @@ abstract class Dio {
   /// [options] The request options.
   Future<Response<T>> requestUri<T>(
     Uri uri, {
-    data,
+    Object? data,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,

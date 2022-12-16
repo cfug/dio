@@ -170,7 +170,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
 }
 
 mixin OptionsMixin {
-  /// Request base url, it can contain sub path, like: "https://www.google.com/api/".
+  /// Request base url, it can contain sub paths like: https://pub.dev/api/.
   late String baseUrl;
 
   /// Common query parameters.
@@ -279,7 +279,7 @@ class Options {
   RequestOptions compose(
     BaseOptions baseOpt,
     String path, {
-    data,
+    Object? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
@@ -438,16 +438,16 @@ class Options {
 
 class RequestOptions extends _RequestConfig with OptionsMixin {
   RequestOptions({
+    this.path = '',
+    this.data,
+    this.onReceiveProgress,
+    this.onSendProgress,
+    this.cancelToken,
     String? method,
     Duration? sendTimeout,
     Duration? receiveTimeout,
     Duration? connectTimeout,
-    this.data,
-    required this.path,
     Map<String, dynamic>? queryParameters,
-    this.onReceiveProgress,
-    this.onSendProgress,
-    this.cancelToken,
     String? baseUrl,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
@@ -585,8 +585,8 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   /// object wrapping the actual List value and the desired format.
   dynamic data;
 
-  /// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
-  /// it will be combined and then resolved with the baseUrl.
+  /// If the `path` starts with 'http(s)', the `baseURL` will be ignored,
+  /// otherwise, it will be combined and then resolved with the baseUrl.
   String path;
 
   CancelToken? cancelToken;

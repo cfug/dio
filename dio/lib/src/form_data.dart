@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'multipart_file.dart';
 import 'options.dart';
@@ -63,7 +63,7 @@ class FormData {
 
   void _init() {
     // Assure the boundary unpredictable and unique
-    final random = Random();
+    final random = math.Random();
     _boundary = _boundaryPrefix +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
@@ -146,7 +146,7 @@ class FormData {
 
   Stream<List<int>> finalize() {
     if (isFinalized) {
-      throw StateError("Can't finalize a finalized MultipartFile.");
+      throw StateError('Already finalized.');
     }
     _isFinalized = true;
     final controller = StreamController<List<int>>(sync: false);
@@ -167,8 +167,10 @@ class FormData {
     Future.forEach<MapEntry<String, MultipartFile>>(files, (file) {
       writeAscii('--$boundary\r\n');
       writeAscii(_headerForFile(file));
-      return writeStreamToSink(file.value.finalize(), controller)
-          .then((_) => writeLine());
+      return writeStreamToSink(
+        file.value.finalize(),
+        controller,
+      ).then((_) => writeLine());
     }).then((_) {
       writeAscii('--$boundary--\r\n');
       controller.close();
@@ -176,7 +178,7 @@ class FormData {
     return controller.stream;
   }
 
-  ///Transform the entire FormData contents as a list of bytes asynchronously.
+  /// Transform the entire FormData contents as a list of bytes asynchronously.
   Future<List<int>> readAsBytes() {
     return Future(() => finalize().reduce((a, b) => [...a, ...b]));
   }

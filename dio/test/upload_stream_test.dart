@@ -26,7 +26,7 @@ void main() {
   });
 
   test('file stream', () async {
-    final f = File('../dio/test/test.jpg');
+    final f = File('test/mock/test.jpg');
     final r = await dio.put(
       '/put',
       data: f.openRead(),
@@ -42,7 +42,7 @@ void main() {
   }, testOn: "vm");
 
   test('file stream<Uint8List>', () async {
-    final f = File('../dio/test/test.jpg');
+    final f = File('test/mock/test.jpg');
     final r = await dio.put(
       '/put',
       data: f.readAsBytes().asStream(),
