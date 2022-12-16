@@ -64,19 +64,19 @@ class DioForNative with DioMixin implements Dio {
       rethrow;
     }
     final File file;
-    if (savePath is String Function(Headers)) {
+    if (savePath is FutureOr<String> Function(Headers)) {
       // Add real Uri and redirect information to headers.
       response.headers
         ..add('redirects', response.redirects.length.toString())
         ..add('uri', response.realUri.toString());
-      file = File(savePath(response.headers));
+      file = File(await savePath(response.headers));
     } else if (savePath is String) {
       file = File(savePath);
     } else {
       throw ArgumentError.value(
         savePath.runtimeType,
         'savePath',
-        'The type must be `String` or `String Function(Headers)`.',
+        'The type must be `String` or `FutureOr<String> Function(Headers)`.',
       );
     }
 

@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
+import 'mock/adapters.dart';
 import 'utils.dart';
 
 void main() {
@@ -92,5 +93,20 @@ void main() {
       throwsA(DioErrorType.cancel),
     );
     //print(r);
+  });
+
+  test('Test `savePath` types', () async {
+    Object? error;
+    final dio = Dio()
+      ..options.baseUrl = EchoAdapter.mockBase
+      ..httpClientAdapter = EchoAdapter();
+    try {
+      await dio.download('/test', 'testPath');
+      await dio.download('/test', (headers) => 'testPath');
+      await dio.download('/test', (headers) async => 'testPath');
+    } catch (e) {
+      error = e;
+    }
+    expect(error, null);
   });
 }

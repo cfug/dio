@@ -2,6 +2,7 @@
 
 ## 5.0.0-dev.1
 
+- Allow asynchronized method with `savePath`.
 - Allow `data` in all request methods.
 - A platform independent `HttpClientAdapter` can now be instantiated by doing
   `dio.httpClientAdapter = HttpClientAdapter();`.
