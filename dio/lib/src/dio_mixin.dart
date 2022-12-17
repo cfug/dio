@@ -718,10 +718,16 @@ abstract class DioMixin implements Dio {
         requestOptions: requestOptions ?? RequestOptions(path: ''),
       );
     } else if (response is! Response<T>) {
-      T? data = response.data as T?;
+      final T? data = response.data as T?;
+      final Headers headers;
+      if (data is ResponseBody) {
+        headers = Headers.fromMap(data.headers);
+      } else {
+        headers = response.headers;
+      }
       return Response<T>(
         data: data,
-        headers: response.headers,
+        headers: headers,
         requestOptions: response.requestOptions,
         statusCode: response.statusCode,
         isRedirect: response.isRedirect,
