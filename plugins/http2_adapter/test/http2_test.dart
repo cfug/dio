@@ -192,7 +192,7 @@ void main() {
     expect(approvalCount, 1);
     expect(res.data, isNotNull);
     expect(res.data.toString(), contains('Host: httpbin.org'));
-    await Future.delayed(Duration(milliseconds: 900));
+    await Future.delayed(Duration(seconds: 1));
     res = await dio.get('get');
     final secondTime = res.headers['date'];
     expect(approvalCount, 1);
