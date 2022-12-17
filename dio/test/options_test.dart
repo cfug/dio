@@ -29,7 +29,7 @@ void main() {
       method: 'post',
       receiveTimeout: Duration(seconds: 3),
       sendTimeout: Duration(seconds: 3),
-      baseUrl: 'https://flutterchina.club',
+      baseUrl: 'https://pub.dev',
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
@@ -39,7 +39,7 @@ void main() {
     assert(opt1.connectTimeout == Duration(seconds: 2));
     assert(opt1.followRedirects == false);
     assert(opt1.persistentConnection == false);
-    assert(opt1.baseUrl == 'https://flutterchina.club');
+    assert(opt1.baseUrl == 'https://pub.dev');
     assert(opt1.headers['b'] == '6');
     assert(opt1.extra['b'] == '6');
     assert(opt1.queryParameters['b'] == null);
@@ -306,7 +306,7 @@ void main() {
 
   test('#test option invalid base url', () {
     final opt1 = 'blob:http://localhost/xyz123';
-    final opt2 = 'https://flutterchina.club';
+    final opt2 = 'https://pub.dev';
     final opt3 = 'https://';
     final opt4 = 'https://loremipsum/';
     final opt5 = '';

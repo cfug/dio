@@ -8,10 +8,7 @@ const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
     ? bool.fromEnvironment('dart.library.js_util')
     : identical(0, 0.0);
 
-/// Cookie manager for http requests.
-///
-/// You can learn more details about [CookieJar] in
-/// [cookie_jar](https://github.com/flutterchina/cookie_jar).
+/// Cookie manager for HTTP requests based on [CookieJar].
 class CookieManager extends Interceptor {
   const CookieManager(
     this.cookieJar,

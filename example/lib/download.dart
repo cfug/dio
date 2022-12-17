@@ -6,16 +6,10 @@ import 'package:dio/dio.dart';
 void main() async {
   final dio = Dio();
   dio.interceptors.add(LogInterceptor());
-  // This is big file(about 200M)
-  //   final url = "http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg";
-
-  final url =
-      'https://cdn.jsdelivr.net/gh/flutterchina/flutter-in-action@1.0/docs/imgs/book.jpg';
-
-  // final url = "https://www.baidu.com/img/bdlogo.gif";
-  await download1(dio, url, './example/book.jpg');
-  await download1(dio, url, (Headers headers) => './example/book1.jpg');
-  await download2(dio, url, './example/book2.jpg');
+  final url = 'https://pub.dev/static/hash-rhob5slb/img/pub-dev-logo.svg';
+  await download1(dio, url, './example/pub-dev-logo.svg');
+  await download1(dio, url, (headers) => './example/pub-dev-logo-1.svg');
+  await download1(dio, url, (headers) async => './example/pub-dev-logo-2.svg');
 }
 
 Future download1(Dio dio, String url, savePath) async {
