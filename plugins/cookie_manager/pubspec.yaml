@@ -3,6 +3,7 @@ description: A cookie manager for Dio, which supports persistent cookies in RAM 
 version: 2.1.0-dev.1
 homepage: https://github.com/cfug/diox
 repository: https://github.com/cfug/diox/blob/main/plugins/cookie_manager
+issue_tracker: https://github.com/cfug/diox/issues
 
 environment:
   sdk: '>=2.12.1 <3.0.0'

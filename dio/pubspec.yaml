@@ -3,6 +3,7 @@ description: A powerful Http client for Dart, which supports Interceptors, FormD
 version: 5.0.0-dev.1
 homepage: https://github.com/cfug/diox
 repository: https://github.com/cfug/diox/blob/main/dio
+issue_tracker: https://github.com/cfug/diox/issues
 
 environment:
   sdk: '>=2.13.0 <3.0.0'
