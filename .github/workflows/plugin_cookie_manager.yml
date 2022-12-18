@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - develop*
   pull_request:
     branches:
       - main
-      - develop*
 
 jobs:
   analyze:
@@ -61,3 +59,17 @@ jobs:
         with:
           name: test-results-${{ matrix.sdk }}
           path: plugins/cookie_manager/build/reports/test-results.json
+
+  publish-dry-run:
+    name: Publish dry-run
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugins/cookie_manager
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - run: dart pub get
+      - run: dart pub publish --dry-run

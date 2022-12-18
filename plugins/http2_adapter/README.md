@@ -16,8 +16,8 @@ dependencies:
 ### Usage
 
 ```dart
-import 'package:diox/dio.dart';
-import 'package:diox_http2_adapter/dio_http2_adapter.dart';
+import 'package:diox/diox.dart';
+import 'package:diox_http2_adapter/diox_http2_adapter.dart';
 
 void main() async {
   final dio = Dio()

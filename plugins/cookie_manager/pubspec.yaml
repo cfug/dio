@@ -1,6 +1,6 @@
 name: diox_cookie_manager
 description: A cookie manager for Dio, which supports persistent cookies in RAM and file.
-version: 2.0.0
+version: 2.1.0-dev.1
 homepage: https://github.com/cfug/diox
 repository: https://github.com/cfug/diox/blob/main/plugins/cookie_manager
 
@@ -11,10 +11,10 @@ dependencies:
   cookie_jar: ^3.0.0
   diox: ^5.0.0-dev.1
 
-dependency_overrides:
-  diox:
-    path: ../../dio
-
 dev_dependencies:
-  lints: ^1.0.1
+  lints: any
   test: ^1.16.4
+
+#dependency_overrides:
+#  diox:
+#    path: ../../dio

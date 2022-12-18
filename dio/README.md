@@ -78,7 +78,7 @@ dependency_overrides:
 ### Super simple to use
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 final dio = Dio();
 
@@ -116,7 +116,7 @@ in [here](https://github.com/flutterchina/dio/issues/347).
 Performing a `GET` request:
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 final dio = Dio();
 
@@ -436,7 +436,7 @@ dio.interceptors.add(
 Simple interceptor example:
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 class CustomInterceptors extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -829,7 +829,7 @@ so we don't extend `Dio` class direct.
 We can extend `DioForNative` or `DioForBrowser` instead, for example:
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:diox/io.dart';
 // If in browser, import 'package:diox/browser.dart'.
 

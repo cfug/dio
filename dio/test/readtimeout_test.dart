@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:diox/io.dart';
 import 'package:test/test.dart';
 

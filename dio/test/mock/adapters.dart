@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:diox/io.dart';
 
 class MockAdapter implements HttpClientAdapter {

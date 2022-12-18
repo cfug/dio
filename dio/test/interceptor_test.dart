@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';

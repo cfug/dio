@@ -1,4 +1,4 @@
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 /// More examples see https://github.com/cfug/diox/blob/main/example
 void main() async {

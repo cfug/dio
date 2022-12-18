@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 Stream<Uint8List> addProgress(
   Stream<List<int>> stream,

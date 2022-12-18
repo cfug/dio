@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 /// If the request data is a `List` type, the [DefaultTransformer] will send data
 /// by calling its `toString()` method. However, normally the List object is

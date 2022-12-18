@@ -74,7 +74,7 @@ dependency_overrides:
 ## 一个极简的示例
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 final dio = Dio();
 
@@ -112,7 +112,7 @@ void getHttp() async {
 发起一个 `GET` 请求 :
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 
 final dio = Dio();
 
@@ -409,7 +409,7 @@ dio.interceptors.add(
 一个简单的自定义拦截器示例:
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 class CustomInterceptors extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -783,7 +783,7 @@ token.cancel('cancelled');
 但是可以继承 `DioForNative` 或 `DioForBrowser`： 
 
 ```dart
-import 'package:diox/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:diox/io.dart';
 // 在浏览器中，导入 'package:diox/browser.dart'。
 
