@@ -1,7 +1,7 @@
-# dio
+# diox
 
-[![Pub](https://img.shields.io/pub/v/dio.svg)](https://pub.dev/packages/dio)
-[![Dev](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
+[![Pub](https://img.shields.io/pub/v/diox.svg)](https://pub.dev/packages/diox)
+[![Dev](https://img.shields.io/pub/v/diox.svg?label=dev&include_prereleases)](https://pub.dev/packages/diox)
 
 Language: English | [简体中文](README-ZH.md)
 
@@ -13,7 +13,7 @@ timeout, and custom adapters etc.
   <summary>Table of content</summary>
 
 <!-- TOC -->
-* [dio](#dio)
+* [diox](#diox)
   * [Get started](#get-started)
     * [Add dependency](#add-dependency)
     * [Super simple to use](#super-simple-to-use)
@@ -58,11 +58,22 @@ timeout, and custom adapters etc.
 
 ```yaml
 dependencies:
-  dio: ^replace-with-latest-version
+  diox: ^replace-with-latest-version
 ```
 
-The latest version is: ![Pub](https://img.shields.io/pub/v/dio.svg)
-The latest version including pre-releases is: ![Pub](ttps://img.shields.io/pub/v/dio?include_prereleases)
+The latest version is: ![Pub](https://img.shields.io/pub/v/diox.svg)
+The latest version including pre-releases is: ![Pub](ttps://img.shields.io/pub/v/diox?include_prereleases)
+
+To use `diox` as a `dio`'s fork, use `dependency_overrides` in your `pubspec.yaml`:
+
+```yaml
+dependency_overrides:
+  dio:
+    git:
+      url: https://github.com/cfug/diox
+      path: dio/
+      ref: dio
+```
 
 ### Super simple to use
 

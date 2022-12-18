@@ -1,18 +1,18 @@
-# dio
+# diox
 
-[![Pub](https://img.shields.io/pub/v/dio.svg)](https://pub.flutter-io.cn/packages/dio)
-[![Dev](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio)
+[![Pub](https://img.shields.io/pub/v/diox.svg)](https://pub.flutter-io.cn/packages/diox)
+[![Dev](https://img.shields.io/pub/v/diox.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/diox)
 
 文档语言： 简体中文 | [English](README.md)
 
-dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、FormData、拦截器、
+diox 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、FormData、拦截器、
 请求取消、Cookie 管理、文件上传/下载、超时以及自定义适配器等。
 
 <details>
   <summary>内容列表</summary>
 
 <!-- TOC -->
-* [dio](#dio)
+* [diox](#diox)
   * [开始使用](#开始使用)
   * [一个极简的示例](#一个极简的示例)
   * [Awesome dio](#awesome-dio)
@@ -54,11 +54,22 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
 
 ```yaml
 dependencies:
-  dio: ^替换为最新版本
+  diox: ^替换为最新版本
 ```
 
 最新稳定版本为：![Pub](https://img.shields.io/pub/v/dio.svg)
 最新包含开发版的版本为：![Pub](ttps://img.shields.io/pub/v/dio?include_prereleases)
+
+想要将 `diox` 作为 `dio` 的一个分叉进行使用，请在 `pubspec.yaml` 中配置 `dependency_overrides`：
+
+```yaml
+dependency_overrides:
+  dio:
+    git:
+      url: https://github.com/cfug/diox
+      path: dio/
+      ref: dio
+```
 
 ## 一个极简的示例
 
@@ -773,8 +784,8 @@ token.cancel('cancelled');
 
 ```dart
 import 'package:diox/dio.dart';
-import 'package:diox/native_imp.dart';
-// 在浏览器中，导入 'package:dio/browser.dart'。
+import 'package:diox/io.dart';
+// 在浏览器中，导入 'package:diox/browser.dart'。
 
 class Http extends DioForNative {
   Http([BaseOptions options]) : super(options) {

@@ -5,6 +5,20 @@ Language: English | [简体中文](README-ZH.md)
 This is the base repo of the **diox** project.
 Please move specific paths for projects instructions.
 
+To use below packages as a corresponding package to `dio`,
+use `dependency_overrides` in your `pubspec.yaml`:
+
+```yaml
+dependency_overrides:
+  dio:
+    git:
+      url: https://github.com/cfug/diox
+      path: dio/
+      ref: dio
+```
+
+### diox (dio)
+
 - diox: [link](dio)
   [![Pub](https://img.shields.io/pub/v/diox.svg?label=dev&include_prereleases)](https://pub.dev/packages/diox)
 
