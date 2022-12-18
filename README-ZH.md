@@ -1,18 +1,18 @@
-# dio
+# diox
 
 Language: [English](README.md) | 简体中文
 
-此处是 dio 项目的基础仓库。请前往项目各自的路径查看指引。
+此处是 **diox** 项目的基础仓库。请前往项目各自的路径查看指引。
 
-- dio: [链接](dio)
-  [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio)
+- diox: [链接](dio)
+  [![Pub](https://img.shields.io/pub/v/diox.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/diox)
 
 ### 插件
 
 - cookie_manager: [链接](plugins/cookie_manager)
-  [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_cookie_manager)
+  [![Pub](https://img.shields.io/pub/v/diox_cookie_manager.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/diox_cookie_manager)
 - http2_adapter: [链接](plugins/http2_adapter)
-  [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_http2_adapter)
+  [![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/diox_http2_adapter)
 
 ### 示例
 

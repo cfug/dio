@@ -2,8 +2,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dio/io.dart';
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
+import 'package:diox/io.dart';
 import 'package:test/test.dart';
 
 const _sleepDurationAfterConnectionEstablished = Duration(seconds: 5);

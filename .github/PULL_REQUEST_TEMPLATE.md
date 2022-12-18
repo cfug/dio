@@ -1,15 +1,14 @@
+<!-- Write down your pull request descriptions. -->
+
 ### New Pull Request Checklist
 
-- [ ] I have read the [Documentation](https://pub.dartlang.org/packages/dio)
-- [ ] I have searched for a similar pull request in the [project](https://github.com/flutterchina/dio/pulls) and found none
-- [ ] I have updated this branch with the latest `develop` to avoid conflicts (via merge from master or rebase)
-- [ ] I have added the required tests to prove the fix/feature I am adding
+- [ ] I have read the [Documentation](https://pub.dev/documentation/diox/latest/)
+- [ ] I have searched for a similar pull request in the [project](https://github.com/cfug/diox/pulls) and found none
+- [ ] I have updated this branch with the latest `main` branch to avoid conflicts (via merge from master or rebase)
+- [ ] I have added the required tests to prove the fix/feature I'm adding
 - [ ] I have updated the documentation (if necessary)
-- [ ] I have run the tests and they pass
+- [ ] I have run the tests without failures
 
-This merge request fixes / refers to the following issues: ...
+### Additional context and info (if any)
 
-### Pull Request Description
-
-...
-
+<!-- Provide more context and info about the PR. -->

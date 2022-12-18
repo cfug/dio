@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
+import 'package:diox/io.dart';
 import 'package:test/test.dart';
-import 'package:dio/io.dart';
 
 void main() {
   test('catch DioError', () async {

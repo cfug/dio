@@ -1,8 +1,8 @@
-# dio_http2_adapter
+# diox_http2_adapter
 
-[![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?style=flat-square)](https://pub.dev/packages/dio_http2_adapter)
+[![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg)](https://pub.dev/packages/diox_http2_adapter)
 
-An HTTP/2 adapter for [Dio](https://github.com/flutterchina/dio).
+An HTTP/2 adapter for [diox](https://github.com/cfug/diox).
 
 ## Getting Started
 
@@ -10,14 +10,14 @@ An HTTP/2 adapter for [Dio](https://github.com/flutterchina/dio).
 
 ```yaml
 dependencies:
-  dio_http2_adapter: ^2.0.0 # latest version
+  diox_http2_adapter: ^2.0.0 # latest version
 ```
 
 ### Usage
 
 ```dart
-import 'package:dio/dio.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:diox/dio.dart';
+import 'package:diox_http2_adapter/dio_http2_adapter.dart';
 
 void main() async {
   final dio = Dio()

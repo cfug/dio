@@ -1,6 +1,7 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
+
+import 'package:diox/dio.dart';
+import 'package:diox/io.dart';
 
 void main() async {
   final dio = Dio();

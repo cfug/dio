@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
+import 'package:diox/dio.dart';
+import 'package:diox/io.dart';
 
 class MockAdapter implements HttpClientAdapter {
   static const mockHost = 'mockserver';

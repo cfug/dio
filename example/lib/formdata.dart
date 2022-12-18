@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:dio/io.dart';
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
+import 'package:diox/io.dart';
 
 void showProgress(received, total) {
   if (total != -1) {

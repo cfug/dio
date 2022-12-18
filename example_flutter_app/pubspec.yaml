@@ -23,7 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio:
+  diox:
     path: ../dio
 
 

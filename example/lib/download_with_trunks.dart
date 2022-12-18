@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:dio/dio.dart';
+
+import 'package:diox/dio.dart';
 
 void main() async {
   final url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';

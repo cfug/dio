@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:diox/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 
 import 'http.dart'; // make dio as global top-level variable
 import 'routes/request.dart';

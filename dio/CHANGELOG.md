@@ -13,8 +13,8 @@
 
 - Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.
 - `HttpClientAdapter` must now be implemented instead of extended.
-- Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`.
-  Classes specific to web can be imported via `import 'package:dio/browser.dart';`.
+- Any classes specific to `dart:io` platforms can now be imported via `import 'package:diox/io.dart';`.
+  Classes specific to web can be imported via `import 'package:diox/browser.dart';`.
 - `connectTimeout`, `sendTimeout`, and `receiveTimeout` are now `Duration`s.
 
 ## 4.0.6

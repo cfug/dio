@@ -1,4 +1,4 @@
-name: dio_example
+name: diox_example
 description: The example snippets for Dio.
 version: 0.0.1
 publish_to: "none"
@@ -7,14 +7,16 @@ environment:
   sdk: ">=2.12.1 <3.0.0"
 
 dependencies:
-  dio:
-  dio_cookie_manager:
+  cookie_jar:
+  crypto:
+  diox:
+  diox_cookie_manager:
     path: ../plugins/cookie_manager
-  dio_http2_adapter:
+  diox_http2_adapter:
     path: ../plugins/http2_adapter
 
 dependency_overrides:
-  dio:
+  diox:
     path: ../dio
 
 dev_dependencies:

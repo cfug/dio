@@ -1,6 +1,6 @@
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:diox/dio.dart';
+import 'package:diox_cookie_manager/dio_cookie_manager.dart';
 
 void main() async {
   final dio = Dio();

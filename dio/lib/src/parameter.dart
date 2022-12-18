@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
 
 class ListParam<T> {
   final ListFormat format;

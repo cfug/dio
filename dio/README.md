@@ -67,7 +67,7 @@ The latest version including pre-releases is: ![Pub](ttps://img.shields.io/pub/v
 ### Super simple to use
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
 
 final dio = Dio();
 
@@ -85,8 +85,8 @@ void getHttp() async {
 
 | Repository                                                                           | Status                                                                                                                       | Description                                                                                                            |
 |--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| [dio_cookie_manager](../plugins/cookie_manager)                                      | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.dev/packages/dio_cookie_manager)                   | A cookie manager for Dio                                                                                               |
-| [dio_http2_adapter](../plugins/http2_adapter)                                        | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.dev/packages/dio_http2_adapter)                     | A Dio HttpClientAdapter which support Http/2.0                                                                         |
+| [diox_cookie_manager](../plugins/cookie_manager)                                     | [![Pub](https://img.shields.io/pub/v/diox_cookie_manager.svg)](https://pub.dev/packages/diox_cookie_manager)                 | A cookie manager for Dio                                                                                               |
+| [diox_http2_adapter](../plugins/http2_adapter)                                       | [![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg)](https://pub.dev/packages/diox_http2_adapter)                   | A Dio HttpClientAdapter which support Http/2.0                                                                         |
 | [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                       | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.dev/packages/dio_smart_retry)                         | Flexible retry library for Dio                                                                                         |
 | [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)   | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.dev/packages/http_certificate_pinning)       | Https Certificate pinning for Flutter                                                                                  |
 | [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor) | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.                                                                              |
@@ -105,7 +105,7 @@ in [here](https://github.com/flutterchina/dio/issues/347).
 Performing a `GET` request:
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
 
 final dio = Dio();
 
@@ -425,7 +425,7 @@ dio.interceptors.add(
 Simple interceptor example:
 
 ```dart
-import 'package:dio/dio.dart';
+import 'package:diox/dio.dart';
 class CustomInterceptors extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -787,7 +787,7 @@ so it's not recommended to use in common cases.
 
 ## HTTP/2 support
 
-[dio_http2_adapter](../plugins/http2_adapter) is a Dio `HttpClientAdapter`
+[diox_http2_adapter](../plugins/http2_adapter) is a Dio `HttpClientAdapter`
 which supports HTTP/2.
 
 ## Cancellation
@@ -818,9 +818,9 @@ so we don't extend `Dio` class direct.
 We can extend `DioForNative` or `DioForBrowser` instead, for example:
 
 ```dart
-import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
-// If in browser, import 'package:dio/browser.dart'.
+import 'package:diox/dio.dart';
+import 'package:diox/io.dart';
+// If in browser, import 'package:diox/browser.dart'.
 
 class Http extends DioForNative {
   Http([BaseOptions options]) : super(options) {
