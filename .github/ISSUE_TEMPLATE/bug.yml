@@ -2,16 +2,16 @@ name: 🐞 Bug Report
 description: Tell us about something that's not working the way we (probably) intend.
 labels: ["s: bug", "h: need triage"]
 body:
-- type: markdown
-  attributes:
-    value: |
-      🧐 **Guidelines:**
+  - type: markdown
+    attributes:
+      value: |
+        🧐 **Guidelines:**
 
-      - Search through [existing issues](https://github.com/cfug/diox/issues) first to ensure that this bug has not been reported before.
-      - Write a descriptive title for your issue. Avoid generic or vague titles such as "Something's not working" or "A couple of problems".
-      - Keep your issue focused on one single problem. If you have multiple bug reports, please create separate issues for each of them.
-      - Provide as much context as possible in the fields below. Include screenshots, screen recordings, links, references, or anything else you may consider relevant.
-      - If you want to ask a question instead of reporting a bug, please use [discussions](https://github.com/cfug/diox/discussions/new) instead.
+        - Search through [existing issues](https://github.com/cfug/diox/issues) first to ensure that this bug has not been reported before.
+        - Write a descriptive title for your issue. Avoid generic or vague titles such as "Something's not working" or "A couple of problems".
+        - Keep your issue focused on one single problem. If you have multiple bug reports, please create separate issues for each of them.
+        - Provide as much context as possible in the fields below. Include screenshots, screen recordings, links, references, or anything else you may consider relevant.
+        - If you want to ask a question instead of reporting a bug, please use [discussions](https://github.com/cfug/diox/discussions/new) instead.
   - type: dropdown
     id: package
     attributes:
