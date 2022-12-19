@@ -101,6 +101,7 @@ void getHttp() async {
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache)                           | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.flutter-io.cn/packages/dio_http_cache)                           | 类似 Android 中的 RxCache 的缓存管理                        |
 | [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)               | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.flutter-io.cn/packages/pretty_dio_logger)                     | 基于拦截器的简明易读的请求日志打印                                  |
 | [native_dio_client](https://github.com/ueman/native-dio-client)                      | [![Pub](https://img.shields.io/pub/v/native_dio_client.svg)](https://pub.flutter-io.cn/packages/native_dio_client)                     | 使用 cupertino_http 和 cronet_http 以适配器代理实现的原生网络请求功能。 |
+| [dio_image_provider](https://github.com/ueman/image_provider)                        | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.dev/packages/dio_image_provider)                             | 基于 Dio 的图片加载 |
 
 ### 相关的项目
 
