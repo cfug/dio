@@ -39,12 +39,12 @@ class _ConnectionManager implements ConnectionManager {
     final domain = '${uri.host}:${uri.port}';
     _ClientTransportConnectionState? transportState = _transportsMap[domain];
     if (transportState == null) {
-      Future<_ClientTransportConnectionState>? _initFuture =
+      Future<_ClientTransportConnectionState>? initFuture =
           _connectFutures[domain];
-      if (_initFuture == null) {
-        _connectFutures[domain] = _initFuture = _connect(options);
+      if (initFuture == null) {
+        _connectFutures[domain] = initFuture = _connect(options);
       }
-      transportState = await _initFuture;
+      transportState = await initFuture;
       if (_forceClosed) {
         transportState.dispose();
       } else {
@@ -108,35 +108,35 @@ class _ConnectionManager implements ConnectionManager {
 
     // Config a ClientTransportConnection and save it
     final transport = ClientTransportConnection.viaSocket(socket);
-    final _transportState = _ClientTransportConnectionState(transport);
+    final transportState = _ClientTransportConnectionState(transport);
     transport.onActiveStateChanged = (bool isActive) {
-      _transportState.isActive = isActive;
+      transportState.isActive = isActive;
       if (!isActive) {
-        _transportState.latestIdleTimeStamp = DateTime.now();
+        transportState.latestIdleTimeStamp = DateTime.now();
       }
     };
     //
-    _transportState.delayClose(
+    transportState.delayClose(
       _closed ? Duration(milliseconds: 50) : _idleTimeout,
       () {
         _transportsMap.remove(domain);
-        _transportState.transport.finish();
+        transportState.transport.finish();
       },
     );
-    return _transportState;
+    return transportState;
   }
 
   @override
   void removeConnection(ClientTransportConnection transport) {
-    _ClientTransportConnectionState? _transportState;
+    _ClientTransportConnectionState? transportState;
     _transportsMap.removeWhere((_, state) {
       if (state.transport == transport) {
-        _transportState = state;
+        transportState = state;
         return true;
       }
       return false;
     });
-    _transportState?.dispose();
+    transportState?.dispose();
   }
 
   @override

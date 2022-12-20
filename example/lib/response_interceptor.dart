@@ -58,12 +58,12 @@ void main() async {
   } on DioError catch (e) {
     assert(e.response!.statusCode == 404);
   }
-  response = await dio.get(urlNotFound + '1');
+  response = await dio.get('${urlNotFound}1');
   assert(response.data == 'fake data');
-  response = await dio.get(urlNotFound + '2');
+  response = await dio.get('${urlNotFound}2');
   assert(response.data == 'fake data');
   try {
-    await dio.get(urlNotFound + '3');
+    await dio.get('${urlNotFound}3');
   } on DioError catch (e) {
     assert(e.message == 'custom error info [404]');
   }

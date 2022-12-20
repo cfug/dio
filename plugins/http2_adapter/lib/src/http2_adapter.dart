@@ -47,10 +47,10 @@ class Http2Adapter implements HttpClientAdapter {
     const excludeMethods = ['PUT', 'POST', 'PATCH'];
 
     if (path.isEmpty || !path.startsWith('/')) {
-      path = '/' + path;
+      path = '/$path';
     }
     if (uri.query.trim().isNotEmpty) {
-      path += '?' + uri.query;
+      path += '?${uri.query}';
     }
     final headers = [
       Header.ascii(':method', options.method),

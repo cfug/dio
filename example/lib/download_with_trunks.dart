@@ -56,9 +56,9 @@ Future downloadWithChunks(
     final f = File(savePath + 'temp0');
     final ioSink = f.openWrite(mode: FileMode.writeOnlyAppend);
     for (int i = 1; i < chunk; ++i) {
-      final _f = File(savePath + 'temp$i');
-      await ioSink.addStream(_f.openRead());
-      await _f.delete();
+      final file = File(savePath + 'temp$i');
+      await ioSink.addStream(file.openRead());
+      await file.delete();
     }
     await ioSink.close();
     await f.rename(savePath);

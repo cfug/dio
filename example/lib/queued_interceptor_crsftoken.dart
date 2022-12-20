@@ -78,13 +78,13 @@ void main() async {
     },
   ));
 
-  FutureOr<void> _onResult(d) {
+  FutureOr<void> onResult(d) {
     print('request ok!');
   }
 
   /// assume `/test?tag=2` path occurs the authorization error (401)
   /// and token to be updated
-  await dio.get('/test?tag=1').then(_onResult);
-  await dio.get('/test?tag=2').then(_onResult);
-  await dio.get('/test?tag=3').then(_onResult);
+  await dio.get('/test?tag=1').then(onResult);
+  await dio.get('/test?tag=2').then(onResult);
+  await dio.get('/test?tag=3').then(onResult);
 }
