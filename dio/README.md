@@ -106,6 +106,7 @@ void getHttp() async {
 | [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)               | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.dev/packages/pretty_dio_logger)                     | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.                       |
 | [native_dio_client](https://github.com/ueman/native-dio-client)                      | [![Pub](https://img.shields.io/pub/v/native_dio_client.svg)](https://pub.dev/packages/native_dio_client)                     | An adapter for Dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform. |
 | [dio_image_provider](https://github.com/ueman/image_provider)                        | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.flutter-io.cn/packages/dio_image_provider)         | An image provider which makes use of package:dio to instead of dart:io                                                 |
+| [diox_flutter_transformer](https://github.com/arklabsnz/diox_flutter_transformer)    | [![Pub](https://img.shields.io/pub/v/diox_flutter_transformer.svg)](https://pub.dev/packages/diox_flutter_transformer)       | A diox transformer for Flutter, which uses the compute function for json decoding |
 
 
 ### Related Projects
