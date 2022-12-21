@@ -1,6 +1,6 @@
 name: diox
 description: A powerful Http client for Dart, which supports Interceptors, FormData, Request Cancellation, File Downloading, Timeout etc.
-version: 5.0.0-dev.1
+version: 5.0.0-dev.2
 homepage: https://github.com/cfug/diox
 repository: https://github.com/cfug/diox/blob/main/dio
 issue_tracker: https://github.com/cfug/diox/issues

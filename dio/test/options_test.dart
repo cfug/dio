@@ -163,17 +163,30 @@ void main() {
       //
     }
 
-    assert(Options(contentType: contentTypeJson).compose(bo1, '').contentType ==
-        contentTypeJson);
-
-    assert(Options(contentType: contentTypeJson).compose(bo2, '').contentType ==
-        contentTypeJson);
-
-    assert(Options(headers: jsonHeaders).compose(bo1, '').contentType ==
-        contentTypeJson);
-
-    assert(Options(headers: jsonHeaders).compose(bo2, '').contentType ==
-        contentTypeJson);
+    expect(
+      Options(contentType: contentTypeJson).compose(bo1, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(contentType: contentTypeJson).compose(bo2, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(contentType: contentTypeJson).compose(bo3, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(headers: jsonHeaders).compose(bo1, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(headers: jsonHeaders).compose(bo2, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(headers: jsonHeaders).compose(bo3, '').contentType,
+      contentTypeJson,
+    );
 
     /// RequestOptions
     try {
@@ -226,9 +239,9 @@ void main() {
 
     final r3 = await dio.get(
       '',
-      options: Options(headers: {
-        Headers.contentTypeHeader: Headers.jsonContentType,
-      }),
+      options: Options(
+        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+      ),
     );
     expect(
       r3.requestOptions.headers[Headers.contentTypeHeader],
@@ -238,12 +251,13 @@ void main() {
     final r4 = await dio.post('', data: '');
     expect(
       r4.requestOptions.headers[Headers.contentTypeHeader],
-      null,
+      Headers.jsonContentType,
     );
   });
 
   test('#test default content-type 2', () async {
     final dio = Dio();
+    dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
 
     final r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
@@ -267,6 +281,7 @@ void main() {
       );
       assert(false);
     } catch (_) {}
+    dio.options.setRequestContentTypeWhenNoPayload = false;
 
     final r3 = Options(method: 'GET').compose(dio.options, '/test');
     assert(r3.uri.toString() == 'https://www.example.com/test');

@@ -17,7 +17,6 @@ void main() {
       dio = Dio();
       dio.options
         ..baseUrl = serverUrl.toString()
-        ..contentType = Headers.jsonContentType
         ..connectTimeout = Duration(seconds: 1)
         ..receiveTimeout = Duration(seconds: 5)
         ..headers = {'User-Agent': 'dartisan'};

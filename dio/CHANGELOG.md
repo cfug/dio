@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 5.0.0-dev.2
+
+- Revert the removal of `setRequestContentTypeWhenNoPayload`
+  and provide better conditions for the default `content-type` header.
+
 ## 5.0.0-dev.1
 
 - Allow asynchronized method with `savePath`.
@@ -11,6 +16,7 @@
 
 ### Breaking Changes
 
+- Remove `BaseOptions.setRequestContentTypeWhenNoPayload`.
 - Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.
 - `HttpClientAdapter` must now be implemented instead of extended.
 - Any classes specific to `dart:io` platforms can now be imported via `import 'package:diox/io.dart';`.

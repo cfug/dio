@@ -99,6 +99,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    this.setRequestContentTypeWhenNoPayload = false,
   })  : assert(connectTimeout == null || !connectTimeout.isNegative),
         assert(baseUrl.isEmpty || Uri.parse(baseUrl).host.isNotEmpty),
         super(
@@ -144,6 +145,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    bool? setRequestContentTypeWhenNoPayload,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -165,8 +167,19 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
+      setRequestContentTypeWhenNoPayload: setRequestContentTypeWhenNoPayload ??
+          this.setRequestContentTypeWhenNoPayload,
     );
   }
+
+  /// The option will try to imply the default `content-type` header value
+  /// if there is a payload in requests and if the header value not set.
+  ///
+  /// The `content-type` header value will be implied to
+  /// [Headers.jsonContentType] when:
+  /// - [RequestOptions.data] is null and the option is true.
+  /// - [RequestOptions.data] is not null.
+  bool setRequestContentTypeWhenNoPayload;
 }
 
 mixin OptionsMixin {
@@ -292,10 +305,14 @@ class Options {
 
     final headers = caseInsensitiveKeyMap(baseOpt.headers);
     headers.remove(Headers.contentTypeHeader);
-    if (this.headers != null) {
-      headers.addAll(this.headers!);
+    headers.addAll(this.headers ?? {});
+    // Imply the default content type if capable.
+    if (data != null ||
+        baseOpt.setRequestContentTypeWhenNoPayload && data == null) {
+      headers[Headers.contentTypeHeader] ??= Headers.jsonContentType;
     }
-    final String? contentType = this.headers?[Headers.contentTypeHeader];
+    final String? contentType =
+        headers[Headers.contentTypeHeader] ?? this.contentType;
     final extra = Map<String, dynamic>.from(baseOpt.extra);
     if (this.extra != null) {
       extra.addAll(this.extra!);
@@ -323,12 +340,11 @@ class Options {
       requestEncoder: requestEncoder ?? baseOpt.requestEncoder,
       responseDecoder: responseDecoder ?? baseOpt.responseDecoder,
       listFormat: listFormat ?? baseOpt.listFormat,
+      onReceiveProgress: onReceiveProgress,
+      onSendProgress: onSendProgress,
+      cancelToken: cancelToken,
+      contentType: contentType ?? this.contentType ?? baseOpt.contentType,
     );
-    requestOptions.onReceiveProgress = onReceiveProgress;
-    requestOptions.onSendProgress = onSendProgress;
-    requestOptions.cancelToken = cancelToken;
-    requestOptions.contentType =
-        contentType ?? this.contentType ?? baseOpt.contentType;
     return requestOptions;
   }
 
@@ -659,8 +675,8 @@ class _RequestConfig {
 
   set headers(Map<String, dynamic>? headers) {
     _headers = caseInsensitiveKeyMap(headers);
-    if (_defaultContentType != null &&
-        !_headers.containsKey(Headers.contentTypeHeader)) {
+    if (!_headers.containsKey(Headers.contentTypeHeader) &&
+        _defaultContentType != null) {
       _headers[Headers.contentTypeHeader] = _defaultContentType;
     }
   }
@@ -698,23 +714,24 @@ class _RequestConfig {
 
   Duration? _receiveTimeout;
 
-  /// The request Content-Type. The default value is [ContentType.json].
+  /// The request Content-Type. Defaults to [ContentType.json] if capable.
+  ///
   /// If you want to encode request body with 'application/x-www-form-urlencoded',
-  /// you can set `ContentType.parse('application/x-www-form-urlencoded')`, and [Dio]
-  /// will automatically encode the request body.
+  /// you can set `ContentType.parse('application/x-www-form-urlencoded')`,
+  /// and [Dio] will automatically encode the request body.
+  String? get contentType => _headers[Headers.contentTypeHeader] as String?;
+
   set contentType(String? contentType) {
-    if (contentType != null) {
-      _headers[Headers.contentTypeHeader] =
-          _defaultContentType = contentType.trim();
+    final newContentType = contentType?.trim();
+    _defaultContentType = newContentType;
+    if (newContentType != null) {
+      _headers[Headers.contentTypeHeader] = newContentType;
     } else {
-      _defaultContentType = null;
       _headers.remove(Headers.contentTypeHeader);
     }
   }
 
   String? _defaultContentType;
-
-  String? get contentType => _headers[Headers.contentTypeHeader] as String?;
 
   /// [responseType] indicates the type of data that the server will respond with
   /// options which defined in [ResponseType] are `json`, `stream`, `plain`.

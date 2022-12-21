@@ -17,8 +17,6 @@ When new content need to be added to the migration guide, make sure they're foll
 
 ### Summary
 
-- `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed,
-  which will not imply `Content-Type` by default, and requests should explicitly define their content type.
 - `get` and `getUri` in `Dio` has different signature.
 - `DefaultHttpClientAdapter` is now named `IOHttpClientAdapter`,
   and the platform independent adapter can be initiated by `HttpClientAdapter()` which is a factory method.
