@@ -554,11 +554,11 @@ Response? response;
 DioErrorType type;
 
 /// The original error/exception object;
-/// It's usually not null when `type` is [DioErrorType.other].
+/// It's usually not null when `type` is [DioErrorType.unknown].
 Object? error;
 
 /// The stacktrace of the original error/exception object;
-/// It's usually not null when `type` is [DioErrorType.other].
+/// It's usually not null when `type` is [DioErrorType.unknown].
 StackTrace? stackTrace;
 
 /// The error message that throws a [DioError].

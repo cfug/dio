@@ -139,11 +139,11 @@ class DioError {
   final DioErrorType type;
 
   /// The original error/exception object;
-  /// It's usually not null when `type` is [DioErrorType.other].
+  /// It's usually not null when `type` is [DioErrorType.unknown].
   final Object? error;
 
   /// The stacktrace of the original error/exception object;
-  /// It's usually not null when `type` is [DioErrorType.other].
+  /// It's usually not null when `type` is [DioErrorType.unknown].
   final StackTrace? stackTrace;
 
   /// The error message that throws a [DioError].
