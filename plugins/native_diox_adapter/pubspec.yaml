@@ -1,0 +1,27 @@
+name: native_diox_adapter
+description: A client for diox which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform.
+version: 0.0.1-dev.1
+homepage: https://github.com/cfug/diox
+repository: https://github.com/cfug/diox/blob/main/plugins/native_diox_adapter
+issue_tracker: https://github.com/cfug/diox/issues
+
+environment:
+  sdk: '>=2.18.0 <3.0.0'
+  flutter: ">=3.0.0"
+
+dependencies:
+  diox: ^5.0.0-0
+  cupertino_http: ^0.0.9
+  cronet_http: ^0.0.3
+  http: ^0.13.4
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.16.0
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:

@@ -21,6 +21,7 @@ body:
         - diox
         - cookie_manager
         - http2_adapter
+        - native_diox_adapter
     validations:
       required: true
   - type: input

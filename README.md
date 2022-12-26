@@ -28,6 +28,8 @@ dependency_overrides:
   [![Pub](https://img.shields.io/pub/v/diox_cookie_manager.svg?label=dev&include_prereleases)](https://pub.dev/packages/diox_cookie_manager)
 - http2_adapter: [link](plugins/http2_adapter)
   [![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/diox_http2_adapter)
+- native_diox_adapter: [link](plugins/native_diox_adapter)
+  [![Pub](https://img.shields.io/pub/v/native_diox_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/native_diox_adapter)
 
 ### Examples
 
