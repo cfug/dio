@@ -253,6 +253,61 @@ void main() {
       r4.requestOptions.headers[Headers.contentTypeHeader],
       Headers.jsonContentType,
     );
+
+    final r5 = await dio.get(
+      '',
+      options: Options(
+        // Final result should respect this.
+        contentType: Headers.textPlainContentType,
+        // Rather than this.
+        headers: {Headers.contentTypeHeader: Headers.formUrlEncodedContentType},
+      ),
+    );
+    expect(
+      r5.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
+    );
+
+    final r6 = await dio.get(
+      '',
+      data: '',
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+      ),
+    );
+    expect(
+      r6.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.formUrlEncodedContentType,
+    );
+
+    // Update the base option.
+    dio.options.contentType = Headers.textPlainContentType;
+    final r7 = await dio.get('');
+    expect(
+      r7.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
+    );
+
+    final r8 = await dio.get(
+      '',
+      options: Options(contentType: Headers.jsonContentType),
+    );
+    expect(
+      r8.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
+    );
+
+    final r9 = await dio.get(
+      '',
+      options: Options(
+        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+      ),
+    );
+    expect(
+      r9.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
+    );
   });
 
   test('#test default content-type 2', () async {

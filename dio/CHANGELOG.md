@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 5.0.0-dev.3
+
+- Inherit `content-type` from `Options` first.
+
 ## 5.0.0-dev.2
 
 - Revert the removal of `setRequestContentTypeWhenNoPayload`

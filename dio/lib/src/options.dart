@@ -304,15 +304,19 @@ class Options {
     if (queryParameters != null) query.addAll(queryParameters);
 
     final headers = caseInsensitiveKeyMap(baseOpt.headers);
-    headers.remove(Headers.contentTypeHeader);
-    headers.addAll(this.headers ?? {});
+    if (this.headers != null) {
+      headers.addAll(this.headers!);
+    }
+    if (this.contentType != null) {
+      headers[Headers.contentTypeHeader] = this.contentType;
+    }
     // Imply the default content type if capable.
-    if (data != null ||
-        baseOpt.setRequestContentTypeWhenNoPayload && data == null) {
+    // This is a historical issue that dio used to imply the json type, it'll be
+    // too breaking to let user apply a base content type at the moment.
+    if (data != null || baseOpt.setRequestContentTypeWhenNoPayload) {
       headers[Headers.contentTypeHeader] ??= Headers.jsonContentType;
     }
-    final String? contentType =
-        headers[Headers.contentTypeHeader] ?? this.contentType;
+    final String? contentType = headers[Headers.contentTypeHeader];
     final extra = Map<String, dynamic>.from(baseOpt.extra);
     if (this.extra != null) {
       extra.addAll(this.extra!);
