@@ -1,0 +1,155 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  format:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: [
+          "dio",
+          "example",
+          "example_flutter_app",
+          "plugins/cookie_manager",
+          "plugins/http2_adapter",
+          "plugins/native_diox_adapter"
+        ]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: stable
+      - run: dart format --set-exit-if-changed .
+
+  analyze:
+    needs: format
+    name: Analyze Dart-only libraries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["dio", "example", "plugins/cookie_manager", "plugins/http2_adapter"]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Dart SDK
+        uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: stable
+      - name: Analyze
+        run: dart pub get && dart analyze
+
+  analyze_flutter:
+    needs: format
+    name: Analyze Flutter libraries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["example_flutter_app", "plugins/native_diox_adapter"]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Flutter SDK
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          cache: true
+          channel: stable
+      - name: Analyze
+        run: flutter pub get && flutter analyze
+
+  test_diox:
+    needs: [analyze, analyze_flutter]
+    name: Run unit tests with diox
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ stable, beta ]
+        platform: [ vm, chrome ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: ${{ matrix.sdk }}
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+        shell: bash
+      - run: cd "dio" && dart pub get
+      - run: cd "dio" && dart test --chain-stack-traces --platform=${{ matrix.platform }}
+
+  test_plugins:
+    needs: [analyze, analyze_flutter]
+    name: Run unit tests with plugins
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ stable, beta ]
+        directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: ${{ matrix.sdk }}
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+        shell: bash
+      - run: cd ${{ matrix.directory }} && dart pub get
+      - run: cd ${{ matrix.directory }} && dart test --chain-stack-traces
+
+  test_flutter_plugins:
+    needs: [analyze, analyze_flutter]
+    name: Run unit tests with Flutter plugins
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [ stable, beta ]
+        directory: ["plugins/native_diox_adapter"]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Flutter SDK
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          cache: true
+          channel: ${{ matrix.channel }}
+      - run: flutter test
+
+  build_example_android:
+    needs: [test_diox, test_plugins, test_flutter_plugins]
+    name: Build Android example
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example_flutter_app
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          cache: true
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build apk

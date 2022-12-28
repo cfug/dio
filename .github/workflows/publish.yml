@@ -9,7 +9,12 @@ jobs:
   publish:
     strategy:
       matrix:
-        package: ["dio", "plugins/cookie_manager", "plugins/http2_adapter"]
+        package: [
+          "dio",
+          "plugins/cookie_manager",
+          "plugins/http2_adapter",
+          "plugins/native_diox_adapter"
+        ]
     defaults:
       run:
         working-directory: dio
