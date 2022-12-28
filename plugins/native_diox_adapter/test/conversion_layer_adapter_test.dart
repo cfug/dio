@@ -24,11 +24,11 @@ void main() {
     expect(mock.closeWasCalled, true);
   });
 
-  test('headers', () {
+  test('headers', () async {
     final mock = ClientMock()..response = StreamedResponse(Stream.empty(), 200);
     final cla = ConversionLayerAdapter(mock);
 
-    cla.fetch(
+    await cla.fetch(
       RequestOptions(path: '', headers: {'foo': 'bar'}),
       Stream.empty(),
       null,
