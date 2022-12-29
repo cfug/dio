@@ -2,6 +2,12 @@
 .dart_tool/
 .packages
 
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
 # Conventional directory for build outputs.
 build/
 
