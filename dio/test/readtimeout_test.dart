@@ -55,7 +55,7 @@ void main() {
   tearDown(stopServer);
 
   test(
-      '#read_timeout - catch DioError when receiveTimeout < $_sleepDurationAfterConnectionEstablished',
+      'catch DioError when receiveTimeout < $_sleepDurationAfterConnectionEstablished',
       () async {
     final dio = Dio();
 
@@ -79,7 +79,7 @@ void main() {
   });
 
   test(
-      '#read_timeout - no DioError when receiveTimeout > $_sleepDurationAfterConnectionEstablished',
+      'no DioError when receiveTimeout > $_sleepDurationAfterConnectionEstablished',
       () async {
     final dio = Dio();
 
@@ -100,7 +100,7 @@ void main() {
     expect(error, isNull);
   });
 
-  test('#read_timeout - change connectTimeout in run time ', () async {
+  test('change connectTimeout in run time ', () async {
     final dio = Dio();
     final adapter = IOHttpClientAdapter();
     final http = HttpClient();

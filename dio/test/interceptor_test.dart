@@ -16,11 +16,9 @@ class MyInterceptor extends Interceptor {
 }
 
 void main() {
-  group('#test Request Interceptor', () {
-    Dio dio;
-
-    test('#test interceptor chain', () async {
-      dio = Dio();
+  group('Request Interceptor', () {
+    test('interceptor chain', () async {
+      final dio = Dio();
       dio.options.baseUrl = EchoAdapter.mockBase;
       dio.httpClientAdapter = EchoAdapter();
       dio.interceptors
@@ -153,19 +151,19 @@ void main() {
           },
         ));
       Response response = await dio.get('/resolve');
-      assert(response.data == 1);
+      expect(response.data, 1);
       response = await dio.get('/resolve-next');
 
-      assert(response.data == 3);
+      expect(response.data, 3);
 
       response = await dio.get('/resolve-next/always');
-      assert(response.data == 4);
+      expect(response.data, 4);
 
       response = await dio.post('/post', data: 'xxx');
-      assert(response.data == 'xxx');
+      expect(response.data, 'xxx');
 
       response = await dio.get('/reject-next-response');
-      assert(response.data == 100);
+      expect(response.data, 100);
 
       expect(
         dio.get('/reject').catchError((e) => throw e.error as num),
@@ -226,8 +224,8 @@ void main() {
       );
     });
 
-    test('#test request interceptor', () async {
-      dio = Dio();
+    test('request interceptor', () async {
+      final dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
       dio.interceptors.add(InterceptorsWrapper(onRequest: (
@@ -304,9 +302,9 @@ void main() {
     });
   });
 
-  group('#test response interceptor', () {
+  group('response interceptor', () {
     Dio dio;
-    test('#test Response Interceptor', () async {
+    test('Response Interceptor', () async {
       const urlNotFound = '/404/';
       const urlNotFound1 = '${urlNotFound}1';
       const urlNotFound2 = '${urlNotFound}2';
@@ -397,8 +395,9 @@ void main() {
       expect(resp.data['extra_2'], 'extra');
     });
   });
-  group('# test queued interceptors', () {
-    test('test queued interceptor for requests ', () async {
+
+  group('QueuedInterceptor', () {
+    test('requests ', () async {
       String? csrfToken;
       final dio = Dio();
       int tokenRequestCounts = 0;
@@ -438,13 +437,13 @@ void main() {
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);
-      assert(myInter.requestCount > 0);
+      expect(myInter.requestCount, predicate((int e) => e > 0));
       dio.interceptors[0] = myInter;
       dio.interceptors.clear();
-      assert(dio.interceptors.isEmpty == true);
+      expect(dio.interceptors.isEmpty, true);
     });
 
-    test('test queued interceptors for error', () async {
+    test('error', () async {
       String? csrfToken;
       final dio = Dio();
       int tokenRequestCounts = 0;

@@ -10,7 +10,7 @@ import 'utils.dart';
 void main() {
   setUp(startServer);
   tearDown(stopServer);
-  test('#test download1', () async {
+  test('download1', () async {
     const savePath = 'test/_download_test.md';
     final dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
@@ -26,7 +26,7 @@ void main() {
     f.deleteSync(recursive: false);
   });
 
-  test('#test download2', () async {
+  test('download2', () async {
     const savePath = 'test/_download_test.md';
     final dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
@@ -40,14 +40,14 @@ void main() {
     f.deleteSync(recursive: false);
   });
 
-  test('#test download error', () async {
+  test('download error', () async {
     const savePath = 'test/_download_test.md';
     final dio = Dio();
     dio.options.baseUrl = serverUrl.toString();
     Response response = await dio
         .download('/error', savePath)
         .catchError((e) => (e as DioError).response!);
-    assert(response.data == 'error');
+    expect(response.data, 'error');
     response = await dio
         .download(
           '/error',
@@ -55,10 +55,10 @@ void main() {
           options: Options(receiveDataWhenStatusError: false),
         )
         .catchError((e) => (e as DioError).response!);
-    assert(response.data == null);
+    expect(response.data, null);
   });
 
-  test('#test download timeout', () async {
+  test('download timeout', () async {
     const savePath = 'test/_download_test.md';
     final dio = Dio(BaseOptions(
       receiveTimeout: Duration(milliseconds: 1),
@@ -72,7 +72,7 @@ void main() {
     //print(r);
   });
 
-  test('#test download cancellation', () async {
+  test('download cancellation', () async {
     const savePath = 'test/_download_test.md';
     final cancelToken = CancelToken();
     Future.delayed(Duration(milliseconds: 100), () {
@@ -91,7 +91,7 @@ void main() {
     //print(r);
   });
 
-  test('Test `savePath` types', () async {
+  test('`savePath` types', () async {
     Object? error;
     final dio = Dio()
       ..options.baseUrl = EchoAdapter.mockBase

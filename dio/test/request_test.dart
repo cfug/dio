@@ -11,7 +11,7 @@ void main() {
 
   tearDown(stopServer);
 
-  group('#test requests', () {
+  group('requests', () {
     late Dio dio;
     setUp(() {
       dio = Dio();
@@ -28,7 +28,7 @@ void main() {
         },
       ));
     });
-    test('#test restful APIs', () async {
+    test('restful APIs', () async {
       Response response;
       // test get
       response = await dio.get(
@@ -79,14 +79,14 @@ void main() {
           // ignore progress
         },
       );
-      assert(response.isRedirect == true);
-      assert(response.redirects.length == 1);
+      expect(response.isRedirect, true);
+      expect(response.redirects.length, 1);
       final ri = response.redirects.first;
-      assert(ri.statusCode == 302);
-      assert(ri.method == 'GET');
+      expect(ri.statusCode, 302);
+      expect(ri.method, 'GET');
     });
 
-    test('#test multi value headers', () async {
+    test('multi value headers', () async {
       final Response response = await dio.get(
         '/multi-value-header',
         options: Options(
@@ -102,7 +102,7 @@ void main() {
       );
     });
 
-    test('#test request with URI', () async {
+    test('request with URI', () async {
       Response response;
 
       // test get
@@ -137,35 +137,35 @@ void main() {
       expect(response.data['path'], '/test');
     });
 
-    test('#test redirect', () async {
+    test('redirect', () async {
       Response response;
       response = await dio.get('/redirect');
-      assert(response.isRedirect == true);
-      assert(response.redirects.length == 1);
+      expect(response.isRedirect, true);
+      expect(response.redirects.length, 1);
       final ri = response.redirects.first;
-      assert(ri.statusCode == 302);
-      assert(ri.method == 'GET');
-      assert(ri.location.path == '/');
+      expect(ri.statusCode, 302);
+      expect(ri.method, 'GET');
+      expect(ri.location.path, '/');
     });
 
-    test('#test generic parameters', () async {
+    test('generic parameters', () async {
       Response response;
 
       // default is "Map"
       response = await dio.get('/test');
-      assert(response.data is Map);
+      expect(response.data, isA<Map>());
 
       // get response as `string`
       response = await dio.get<String>('/test');
-      assert(response.data is String);
+      expect(response.data, isA<String>());
 
       // get response as `Map`
       response = await dio.get<Map>('/test');
-      assert(response.data is Map);
+      expect(response.data, isA<Map>());
 
       // get response as `List`
       response = await dio.get<List>('/list');
-      assert(response.data is List);
+      expect(response.data, isA<List>());
       expect(response.data[0], 1);
     });
   });

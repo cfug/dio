@@ -131,7 +131,7 @@ class Http2Adapter implements HttpClientAdapter {
         }
       },
       onDone: () => sc.close(),
-      onError: (dynamic error, StackTrace stackTrace) {
+      onError: (Object error, StackTrace stackTrace) {
         // If connection is being forcefully terminated, remove the connection
         if (error is TransportConnectionException) {
           _connectionMgr.removeConnection(transport);

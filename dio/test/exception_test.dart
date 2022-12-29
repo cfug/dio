@@ -1,39 +1,35 @@
+@TestOn('vm')
+import 'dart:io';
+
 import 'package:diox/diox.dart';
 import 'package:diox/io.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('catch DioError', () async {
-    dynamic error;
-
+    DioError? error;
     try {
       await Dio().get('https://does.not.exist');
       fail('did not throw');
     } on DioError catch (e) {
       error = e;
     }
-
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
   });
 
   test('catch DioError as Exception', () async {
-    dynamic error;
-
+    DioError? error;
     try {
       await Dio().get('https://does.not.exist');
       fail('did not throw');
     } on DioError catch (e) {
       error = e;
     }
-
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
   });
 
-  test('catch sslerror: hostname mismatch', () async {
-    dynamic error;
-
+  test('catch DioError: hostname mismatch', () async {
+    DioError? error;
     try {
       await Dio().get('https://wrong.host.badssl.com/');
       fail('did not throw');
@@ -41,7 +37,12 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
+    expect(error.error, isA<HandshakeException>());
+    expect((error.error as HandshakeException).osError, isNotNull);
+    expect(
+      ((error.error as HandshakeException).osError as OSError).message,
+      contains('Hostname mismatch'),
+    );
   });
 
   test('allow badssl', () async {

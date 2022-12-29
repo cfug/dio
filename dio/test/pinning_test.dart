@@ -23,7 +23,7 @@ void main() {
   });
 
   test('pinning: untrusted host rejected with no approver', () async {
-    dynamic error;
+    DioError? error;
     try {
       final dio = Dio();
       await dio.get(untrustedCertUrl);
@@ -32,12 +32,10 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
   });
 
   test('pinning: every certificate tested and rejected', () async {
-    dynamic error;
-
+    DioError? error;
     try {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter()
@@ -48,7 +46,6 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
   });
 
   test('pinning: trusted certificate tested and allowed', () async {
@@ -82,7 +79,7 @@ void main() {
 
   test('pinning: untrusted certificate rejected before validateCertificate',
       () async {
-    dynamic error;
+    DioError? error;
 
     try {
       final dio = Dio();
@@ -99,12 +96,10 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
   });
 
   test('bad pinning: badCertCallback does not use leaf certificate', () async {
-    dynamic error;
-
+    DioError? error;
     try {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter()
@@ -127,7 +122,6 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error is DioError, isTrue);
   });
 
   test('pinning: 2 requests == 2 approvals', () async {

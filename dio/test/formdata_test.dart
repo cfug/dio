@@ -6,7 +6,7 @@ import 'package:diox/diox.dart';
 import 'package:test/test.dart';
 
 void main() async {
-  test('#test FormData', () async {
+  test('FormData', () async {
     final fm = FormData.fromMap({
       'name': 'wendux',
       'age': 25,
@@ -67,6 +67,6 @@ void main() async {
             'test': <String>['c']
           }),
     ));
-    assert(fmStr.length == fm1.length);
+    expect(fmStr.length, fm1.length);
   });
 }

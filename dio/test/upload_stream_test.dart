@@ -5,8 +5,18 @@ import 'package:diox/diox.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final dio = Dio();
-  dio.options.baseUrl = 'https://httpbin.org/';
+  final dio = Dio()
+    ..options.baseUrl = 'https://httpbin.org/'
+    ..interceptors.add(
+      QueuedInterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // Delay 1 second before requests to avoid request too frequently.
+          await Future.delayed(const Duration(seconds: 1));
+          handler.next(options);
+        },
+      ),
+    );
+
   test('stream', () async {
     Response r;
     const str = 'hello 😌';

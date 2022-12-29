@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 import 'mock/adapters.dart';
 
 void main() {
-  test('#test options', () {
+  test('options', () {
     final map = {'a': '5'};
     final mapOverride = {'b': '6'};
     final baseOptions = BaseOptions(
@@ -31,16 +31,16 @@ void main() {
       headers: mapOverride,
       contentType: 'text/html',
     );
-    assert(opt1.method == 'post');
-    assert(opt1.receiveTimeout == Duration(seconds: 3));
-    assert(opt1.connectTimeout == Duration(seconds: 2));
-    assert(opt1.followRedirects == false);
-    assert(opt1.persistentConnection == false);
-    assert(opt1.baseUrl == 'https://pub.dev');
-    assert(opt1.headers['b'] == '6');
-    assert(opt1.extra['b'] == '6');
-    assert(opt1.queryParameters['b'] == null);
-    assert(opt1.contentType == 'text/html');
+    expect(opt1.method, 'post');
+    expect(opt1.receiveTimeout, Duration(seconds: 3));
+    expect(opt1.connectTimeout, Duration(seconds: 2));
+    expect(opt1.followRedirects, false);
+    expect(opt1.persistentConnection, false);
+    expect(opt1.baseUrl, 'https://pub.dev');
+    expect(opt1.headers['b'], '6');
+    expect(opt1.extra['b'], '6');
+    expect(opt1.queryParameters['b'], null);
+    expect(opt1.contentType, 'text/html');
 
     final opt2 = Options(
       method: 'get',
@@ -62,13 +62,13 @@ void main() {
       contentType: 'text/html',
     );
 
-    assert(opt3.method == 'post');
-    assert(opt3.receiveTimeout == Duration(seconds: 3));
-    assert(opt3.followRedirects == false);
-    assert(opt3.persistentConnection == false);
-    assert(opt3.headers!['b'] == '6');
-    assert(opt3.extra!['b'] == '6');
-    assert(opt3.contentType == 'text/html');
+    expect(opt3.method, 'post');
+    expect(opt3.receiveTimeout, Duration(seconds: 3));
+    expect(opt3.followRedirects, false);
+    expect(opt3.persistentConnection, false);
+    expect(opt3.headers!['b'], '6');
+    expect(opt3.extra!['b'], '6');
+    expect(opt3.contentType, 'text/html');
 
     final opt4 = RequestOptions(
       path: '/xxx',
@@ -86,22 +86,22 @@ void main() {
       path: '/',
       contentType: 'text/html',
     );
-    assert(opt5.method == 'post');
-    assert(opt5.receiveTimeout == Duration(seconds: 3));
-    assert(opt5.followRedirects == false);
-    assert(opt5.persistentConnection == false);
-    assert(opt5.contentType == 'text/html');
-    assert(opt5.headers['b'] == '6');
-    assert(opt5.extra['b'] == '6');
-    assert(opt5.data == 'xx=5');
-    assert(opt5.path == '/');
+    expect(opt5.method, 'post');
+    expect(opt5.receiveTimeout, Duration(seconds: 3));
+    expect(opt5.followRedirects, false);
+    expect(opt5.persistentConnection, false);
+    expect(opt5.contentType, 'text/html');
+    expect(opt5.headers['b'], '6');
+    expect(opt5.extra['b'], '6');
+    expect(opt5.data, 'xx=5');
+    expect(opt5.path, '/');
 
     // Keys of header are case-insensitive
     expect(opt5.headers['B'], '6');
     opt5.headers['B'] = 9;
-    assert(opt5.headers['b'] == 9);
+    expect(opt5.headers['b'], 9);
   });
-  test('#test options content-type', () {
+  test('options content-type', () {
     const contentType = 'text/html';
     const contentTypeJson = 'appliction/json';
     final headers = {'content-type': contentType};
@@ -109,7 +109,7 @@ void main() {
 
     try {
       BaseOptions(contentType: contentType, headers: headers);
-      assert(false, 'baseOptions1');
+      expect(false, 'baseOptions1');
     } catch (e) {
       //
     }
@@ -118,20 +118,20 @@ void main() {
     final bo2 = BaseOptions(headers: headers);
     final bo3 = BaseOptions();
 
-    assert(bo1.headers['content-type'] == contentType);
-    assert(bo2.headers['content-type'] == contentType);
-    assert(bo3.headers['content-type'] == null);
+    expect(bo1.headers['content-type'], contentType);
+    expect(bo2.headers['content-type'], contentType);
+    expect(bo3.headers['content-type'], null);
 
     try {
       bo1.copyWith(headers: headers);
-      assert(false, 'baseOptions copyWith 1');
+      expect(false, 'baseOptions copyWith 1');
     } catch (e) {
       //
     }
 
     try {
       bo2.copyWith(contentType: contentType);
-      assert(false, 'baseOptions copyWith 2');
+      expect(false, 'baseOptions copyWith 2');
     } catch (e) {
       //
     }
@@ -141,7 +141,7 @@ void main() {
     /// options
     try {
       Options(contentType: contentType, headers: headers);
-      assert(false, 'Options1');
+      expect(false, 'Options1');
     } catch (e) {
       //
     }
@@ -151,14 +151,14 @@ void main() {
 
     try {
       o1.copyWith(headers: headers);
-      assert(false, 'Options copyWith 1');
+      expect(false, 'Options copyWith 1');
     } catch (e) {
       //
     }
 
     try {
       o2.copyWith(contentType: contentType);
-      assert(false, 'Options copyWith 2');
+      expect(false, 'Options copyWith 2');
     } catch (e) {
       //
     }
@@ -191,7 +191,7 @@ void main() {
     /// RequestOptions
     try {
       RequestOptions(path: '', contentType: contentType, headers: headers);
-      assert(false, 'Options1');
+      expect(false, 'Options1');
     } catch (e) {
       //
     }
@@ -201,14 +201,14 @@ void main() {
 
     try {
       ro1.copyWith(headers: headers);
-      assert(false, 'RequestOptions copyWith 1');
+      expect(false, 'RequestOptions copyWith 1');
     } catch (e) {
       //
     }
 
     try {
       ro2.copyWith(contentType: contentType);
-      assert(false, 'RequestOptions copyWith 2');
+      expect(false, 'RequestOptions copyWith 2');
     } catch (e) {
       //
     }
@@ -217,7 +217,7 @@ void main() {
     ro3.copyWith();
   });
 
-  test('#test default content-type', () async {
+  test('default content-type', () async {
     final dio = Dio();
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
@@ -310,7 +310,7 @@ void main() {
     );
   });
 
-  test('#test default content-type 2', () async {
+  test('default content-type 2', () async {
     final dio = Dio();
     dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
@@ -318,15 +318,17 @@ void main() {
     final r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
       headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
     );
-    assert(
-      r1.headers[Headers.contentTypeHeader] == Headers.textPlainContentType,
+    expect(
+      r1.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
     );
 
     final r2 = Options(method: 'GET')
         .compose(dio.options, '/test')
         .copyWith(contentType: Headers.textPlainContentType);
-    assert(
-      r2.headers[Headers.contentTypeHeader] == Headers.textPlainContentType,
+    expect(
+      r2.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
     );
 
     try {
@@ -334,16 +336,15 @@ void main() {
         headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
         contentType: Headers.formUrlEncodedContentType,
       );
-      assert(false);
     } catch (_) {}
     dio.options.setRequestContentTypeWhenNoPayload = false;
 
     final r3 = Options(method: 'GET').compose(dio.options, '/test');
-    assert(r3.uri.toString() == 'https://www.example.com/test');
-    assert(r3.headers[Headers.contentTypeHeader] == null);
+    expect(r3.uri.toString(), 'https://www.example.com/test');
+    expect(r3.headers[Headers.contentTypeHeader], null);
   });
 
-  test("#test responseDecoder return null", () async {
+  test("responseDecoder return null", () async {
     final dio = Dio();
     dio.options.responseDecoder = (_, __, ___) => null;
     dio.options.baseUrl = EchoAdapter.mockBase;
@@ -354,7 +355,7 @@ void main() {
     expect(response.data, null);
   });
 
-  test('#test forceConvert responseType', () async {
+  test('forceConvert responseType', () async {
     final dio = Dio(BaseOptions(
       baseUrl: MockAdapter.mockBase,
     )) //
@@ -371,7 +372,7 @@ void main() {
     expect(textResponse2.data, json.encode(expectedResponseData));
   });
 
-  test('#test option invalid base url', () {
+  test('option invalid base url', () {
     final opt1 = 'blob:http://localhost/xyz123';
     final opt2 = 'https://pub.dev';
     final opt3 = 'https://';
