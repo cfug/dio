@@ -10,6 +10,7 @@ void main() async {
     final fm = FormData.fromMap({
       'name': 'wendux',
       'age': 25,
+      'path': '/图片空间/地址',
       'file': MultipartFile.fromString('hello world.', headers: {
         'test': <String>['a']
       }),
@@ -45,6 +46,7 @@ void main() async {
     final fm1 = FormData();
     fm1.fields.add(MapEntry('name', 'wendux'));
     fm1.fields.add(MapEntry('age', '25'));
+    fm1.fields.add(MapEntry('path', '/图片空间/地址'));
     fm1.files.add(MapEntry(
       'file',
       MultipartFile.fromString('hello world.', headers: {
@@ -53,19 +55,23 @@ void main() async {
     ));
     fm1.files.add(MapEntry(
       'files',
-      await MultipartFile.fromFile('test/mock/_testfile',
-          filename: '1.txt',
-          headers: {
-            'test': <String>['b']
-          }),
+      await MultipartFile.fromFile(
+        'test/mock/_testfile',
+        filename: '1.txt',
+        headers: {
+          'test': <String>['b'],
+        },
+      ),
     ));
     fm1.files.add(MapEntry(
       'files',
-      await MultipartFile.fromFile('test/mock/_testfile',
-          filename: '2.txt',
-          headers: {
-            'test': <String>['c']
-          }),
+      await MultipartFile.fromFile(
+        'test/mock/_testfile',
+        filename: '2.txt',
+        headers: {
+          'test': <String>['c'],
+        },
+      ),
     ));
     expect(fmStr.length, fm1.length);
   });

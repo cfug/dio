@@ -68,18 +68,11 @@ class FormData {
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
-  /// Returns the header string for a field. The return value is guaranteed to
-  /// contain only ASCII characters.
+  /// Returns the header string for a field.
   String _headerForField(String name, String value) {
-    String header =
-        '${camelCaseContentDisposition ? 'Content-Disposition' : 'content-disposition'}'
-        ': form-data; name="${_browserEncode(name)}"';
-    if (!isPlainAscii(value)) {
-      header = '$header\r\n'
-          'content-type: text/plain; charset=utf-8\r\n'
-          'content-transfer-encoding: binary';
-    }
-    return '$header\r\n\r\n';
+    return '${camelCaseContentDisposition ? 'Content-Disposition' : 'content-disposition'}'
+        ': form-data; name="${_browserEncode(name)}"'
+        '\r\n\r\n';
   }
 
   /// Returns the header string for a file. The return value is guaranteed to

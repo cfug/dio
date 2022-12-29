@@ -2,6 +2,7 @@
 
 ## 5.0.0-dev.3
 
+- Remove plain ASCII check in `FormData`.
 - Inherit `content-type` from `Options` first.
 
 ## 5.0.0-dev.2

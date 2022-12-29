@@ -7,6 +7,10 @@ content-disposition: form-data; name="age"
 
 25
 ----dio-boundary-3788753558
+content-disposition: form-data; name="path"
+
+/图片空间/地址
+----dio-boundary-3788753558
 content-disposition: form-data; name="file"
 content-type: text/plain; charset=utf-8
 test: a
