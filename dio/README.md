@@ -56,6 +56,14 @@ timeout, and custom adapters etc.
 
 ### Add dependency
 
+You can use the command to add diox as a dependency with the latest stable version:
+
+```console
+$ dart pub add diox
+```
+
+Or you can manually add diox into the dependencies section in your pubspec.yaml:
+
 ```yaml
 dependencies:
   diox: ^replace-with-latest-version
