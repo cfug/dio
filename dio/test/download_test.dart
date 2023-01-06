@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:diox/diox.dart';
+import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
@@ -88,21 +89,26 @@ void main() {
           .catchError((e) => throw (e as DioError).type),
       throwsA(DioErrorType.cancel),
     );
-    //print(r);
   });
 
   test('`savePath` types', () async {
-    Object? error;
+    final testPath = p.join(Directory.systemTemp.path, 'dio', 'testPath');
+
     final dio = Dio()
       ..options.baseUrl = EchoAdapter.mockBase
       ..httpClientAdapter = EchoAdapter();
-    try {
-      await dio.download('/test', 'testPath');
-      await dio.download('/test', (headers) => 'testPath');
-      await dio.download('/test', (headers) async => 'testPath');
-    } catch (e) {
-      error = e;
-    }
-    expect(error, null);
+
+    await expectLater(
+      dio.download('/test', testPath),
+      completes,
+    );
+    await expectLater(
+      dio.download('/test', (headers) => testPath),
+      completes,
+    );
+    await expectLater(
+      dio.download('/test', (headers) async => testPath),
+      completes,
+    );
   });
 }
