@@ -1,0 +1,10 @@
+description: basic skynet
+contact: "#dart-lang"
+image: drydock.workiva.net/workiva/skynet-images:bash_curl_alpinelatest-latest
+size: small
+timeout: short
+run:
+  on-tag: true
+  on-pull-request: true
+scripts:
+  - echo "tests run in build"

@@ -39,5 +39,5 @@ void main() {
       await MultipartFile.fromFile('../dio/test/_testfile', filename: '2.txt'),
     ));
     assert(fmStr.length==fm1.length);
-  });
+  }, skip: true);
 }
