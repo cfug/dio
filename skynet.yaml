@@ -1,0 +1,34 @@
+name: quality_checks
+description: Runs Dart analysis and unit tests
+contact: 'Frontend Architecture / #support-frontend-architecture'
+
+image: drydock-prod.workiva.net/workiva/dart2_base_image:1
+size: medium
+timeout: 300 # 5 minutes
+
+artifacts:
+  - /testing/artifacts
+
+scripts:
+  - merge_branch.sh master
+  - cd dio
+  - timeout 2m dart pub get
+  - dart analyze
+  - dart test -p vm
+
+---
+
+name: semver_audit
+description: Runs semver audit on the root package
+contact: 'Frontend Architecture / #support-frontend-architecture'
+
+image: drydock.workiva.net/workiva/dart2_base_image:1
+size: small
+timeout: 300 # 5 minutes
+
+scripts:
+  - merge_branch.sh master
+  - cd dio
+  - timeout 2m dart pub get
+  - dart pub global activate --hosted-url https://pub.workiva.org semver_audit ^2.2.18
+  - semver_audit report
