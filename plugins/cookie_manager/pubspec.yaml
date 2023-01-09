@@ -15,7 +15,3 @@ dependencies:
 dev_dependencies:
   lints: any
   test: ^1.16.4
-
-#dependency_overrides:
-#  diox:
-#    path: ../../dio

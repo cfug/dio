@@ -1,0 +1,3 @@
+dependency_overrides:
+  diox:
+    path: ../../dio

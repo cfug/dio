@@ -93,8 +93,10 @@ jobs:
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
         shell: bash
-      - run: cd "dio" && dart pub get
-      - run: cd "dio" && dart test --chain-stack-traces --platform=${{ matrix.platform }}
+      - run: dart pub get
+        working-directory: dio
+      - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
+        working-directory: dio
 
   test_plugins:
     needs: [analyze, analyze_flutter]
@@ -114,8 +116,10 @@ jobs:
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
         shell: bash
-      - run: cd ${{ matrix.directory }} && dart pub get
-      - run: cd ${{ matrix.directory }} && dart test --chain-stack-traces
+      - run: dart pub get
+        working-directory: ${{ matrix.directory }}
+      - run: dart test --chain-stack-traces
+        working-directory: ${{ matrix.directory }}
 
   test_flutter_plugins:
     needs: [analyze, analyze_flutter]
