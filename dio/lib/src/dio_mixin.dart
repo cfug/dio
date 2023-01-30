@@ -277,6 +277,48 @@ abstract class DioMixin implements Dio {
     );
   }
 
+  /// Handy method to make http OPTION request, which is a alias of  [BaseDio.requestOptions].
+  @override
+  Future<Response<T>> option<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) {
+    return request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: checkOptions('OPTIONS', options),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  /// Handy method to make http OPTION request, which is a alias of  [BaseDio.requestOptions].
+  @override
+  Future<Response<T>> optionUri<T>(
+    Uri uri, {
+    data,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) {
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: checkOptions('OPTIONS', options),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
   /// Lock the current Dio instance.
   ///
   /// Dio will enqueue the incoming request tasks instead

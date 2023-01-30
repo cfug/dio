@@ -65,6 +65,11 @@ void main() {
       expect(response.data['method'], 'DELETE');
       expect(response.data['path'], '/test');
 
+      // test options
+      response = await dio.option('/test', data: map);
+      expect(response.data['method'], 'OPTIONS');
+      expect(response.data['path'], '/test');
+
       // error test
       expect(
           dio

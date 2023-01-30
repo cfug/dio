@@ -175,6 +175,27 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
+  /// Handy method to make http OPTION request, which is a alias of  [dio.fetch(RequestOptions)].
+  Future<Response<T>> option<T>(
+    String path, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  /// Handy method to make http OPTION request, which is a alias of  [dio.fetch(RequestOptions)].
+  Future<Response<T>> optionUri<T>(
+    Uri uri, {
+    data,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
   /// Lock the current Dio instance.
   ///
   /// Dio will enqueue the incoming request tasks instead
