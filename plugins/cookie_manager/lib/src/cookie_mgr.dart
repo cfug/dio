@@ -54,12 +54,12 @@ class CookieManager extends Interceptor {
     if (err.response != null) {
       _saveCookies(err.response!).then((_) => handler.next(err)).catchError(
         (dynamic e, StackTrace s) {
-          final _err = DioError(
+          final error = DioError(
             requestOptions: err.response!.requestOptions,
             error: e,
             stackTrace: s,
           );
-          handler.next(_err);
+          handler.next(error);
         },
       );
     } else {
