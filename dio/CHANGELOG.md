@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## UNRELEASED
+
+- Change `Dio.transformer` from `DefaultTransformer` to `BackgroundTransformer`.
+
 ## 5.0.0-dev.3
 
 - Remove plain ASCII check in `FormData`.

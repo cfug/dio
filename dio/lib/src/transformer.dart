@@ -1,11 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
-import 'headers.dart';
 import 'options.dart';
 import 'utils.dart';
 
@@ -16,7 +12,6 @@ import 'utils.dart';
 /// [Transformer]. If you want to custom the transformation of
 /// request/response data, you can provide a [Transformer] by your self, and
 /// replace the [DefaultTransformer] by setting the [dio.Transformer].
-
 abstract class Transformer {
   /// `transformRequest` allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
@@ -54,136 +49,5 @@ abstract class Transformer {
     return mediaType.mimeType == 'application/json' ||
         mediaType.mimeType == 'text/json' ||
         mediaType.subtype.endsWith('+json');
-  }
-}
-
-/// The default [Transformer] for [Dio].
-///
-/// If you want to custom the transformation of request/response data,
-/// you can provide a [Transformer] by your self, and replace
-/// the [DefaultTransformer] by setting the [dio.transformer].
-
-typedef JsonDecodeCallback = dynamic Function(String);
-
-class DefaultTransformer extends Transformer {
-  DefaultTransformer({this.jsonDecodeCallback});
-
-  JsonDecodeCallback? jsonDecodeCallback;
-
-  @override
-  Future<String> transformRequest(RequestOptions options) async {
-    final data = options.data ?? '';
-    if (data is! String) {
-      if (Transformer.isJsonMimeType(options.contentType)) {
-        return json.encode(options.data);
-      } else if (data is Map) {
-        options.contentType =
-            options.contentType ?? Headers.formUrlEncodedContentType;
-        return Transformer.urlEncodeMap(data);
-      }
-    }
-    return data.toString();
-  }
-
-  /// As an agreement, we return the [response] when the
-  /// Options.responseType is [ResponseType.stream].
-  @override
-  Future transformResponse(
-    RequestOptions options,
-    ResponseBody response,
-  ) async {
-    if (options.responseType == ResponseType.stream) {
-      return response;
-    }
-    int length = 0;
-    int received = 0;
-    final showDownloadProgress = options.onReceiveProgress != null;
-    if (showDownloadProgress) {
-      length = int.parse(
-        response.headers[Headers.contentLengthHeader]?.first ?? '-1',
-      );
-    }
-    final completer = Completer();
-    final stream = response.stream.transform<Uint8List>(
-      StreamTransformer.fromHandlers(
-        handleData: (data, sink) {
-          sink.add(data);
-          if (showDownloadProgress) {
-            received += data.length;
-            options.onReceiveProgress?.call(received, length);
-          }
-        },
-      ),
-    );
-    // let's keep references to the data chunks and concatenate them later
-    final chunks = <Uint8List>[];
-    int finalSize = 0;
-    final StreamSubscription subscription = stream.listen(
-      (chunk) {
-        finalSize += chunk.length;
-        chunks.add(chunk);
-      },
-      onError: (Object error, StackTrace stackTrace) {
-        completer.completeError(error, stackTrace);
-      },
-      onDone: () => completer.complete(),
-      cancelOnError: true,
-    );
-    // ignore: unawaited_futures
-    options.cancelToken?.whenCancel.then((_) {
-      return subscription.cancel();
-    });
-    // if (options.receiveTimeout > 0) {
-    //   try {
-    //     await completer.future
-    //         .timeout(Duration(milliseconds: options.receiveTimeout));
-    //   } on TimeoutException {
-    //     await subscription.cancel();
-    //     throw DioError(
-    //       requestOptions: options,
-    //       error: 'Receiving data timeout[${options.receiveTimeout}ms]',
-    //       type: DioErrorType.receiveTimeout,
-    //     );
-    //   }
-    // } else {
-    await completer.future;
-    //}
-    // we create a final Uint8List and copy all chunks into it
-    final responseBytes = Uint8List(finalSize);
-    int chunkOffset = 0;
-    for (final chunk in chunks) {
-      responseBytes.setAll(chunkOffset, chunk);
-      chunkOffset += chunk.length;
-    }
-
-    if (options.responseType == ResponseType.bytes) {
-      return responseBytes;
-    }
-
-    final String? responseBody;
-    if (options.responseDecoder != null) {
-      responseBody = options.responseDecoder!(
-        responseBytes,
-        options,
-        response..stream = Stream.empty(),
-      );
-    } else if (responseBytes.isNotEmpty) {
-      responseBody = utf8.decode(responseBytes, allowMalformed: true);
-    } else {
-      responseBody = null;
-    }
-    if (responseBody != null &&
-        responseBody.isNotEmpty &&
-        options.responseType == ResponseType.json &&
-        Transformer.isJsonMimeType(
-            response.headers[Headers.contentTypeHeader]?.first)) {
-      final callback = jsonDecodeCallback;
-      if (callback != null) {
-        return callback(responseBody);
-      } else {
-        return json.decode(responseBody);
-      }
-    }
-    return responseBody;
   }
 }

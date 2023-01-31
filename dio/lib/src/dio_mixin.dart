@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:diox/src/transformers/background_transformer.dart';
+
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
@@ -36,7 +38,7 @@ abstract class DioMixin implements Dio {
   late HttpClientAdapter httpClientAdapter;
 
   @override
-  Transformer transformer = DefaultTransformer();
+  Transformer transformer = BackgroundTransformer();
 
   bool _closed = false;
 
