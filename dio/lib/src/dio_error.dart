@@ -53,7 +53,7 @@ extension _DioErrorTypeExtension on DioErrorType {
 }
 
 /// [DioError] describes the exception info when a request failed.
-class DioError {
+class DioError implements Exception {
   /// Prefer using one of the other constructors.
   /// They're most likely better fitting.
   const DioError({

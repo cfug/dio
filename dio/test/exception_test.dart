@@ -6,6 +6,12 @@ import 'package:diox/io.dart';
 import 'package:test/test.dart';
 
 void main() {
+  /// https://github.com/cfug/diox/issues/66
+  test('Ensure DioError is an Exception', () {
+    final error = DioError(requestOptions: RequestOptions());
+    expect(error, isA<Exception>());
+  });
+
   test('catch DioError', () async {
     DioError? error;
     try {
