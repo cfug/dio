@@ -9,7 +9,7 @@ is also considered experimental.
 
 If you encounter bugs, consider fixing it by opening a PR or at least contribute a failing test case.
 
-A client for [Dixy](https://pub.dev/packages/diox) which makes use of [`cupertino_http`](https://pub.dev/packages/cupertino_http) and [`cronet_http`](https://pub.dev/packages/cronet_http) to delegate HTTP requests to the native platform instead of the `dart:io` platforms.
+A client for [Diox](https://pub.dev/packages/diox) which makes use of [`cupertino_http`](https://pub.dev/packages/cupertino_http) and [`cronet_http`](https://pub.dev/packages/cronet_http) to delegate HTTP requests to the native platform instead of the `dart:io` platforms.
 
 Inspired by the [Dart 2.18 release blog](https://medium.com/dartlang/dart-2-18-f4b3101f146c).
 
