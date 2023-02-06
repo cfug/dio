@@ -6,16 +6,38 @@ This is the base repo of the **diox** project.
 Please move specific paths for projects instructions.
 
 To use below packages as a corresponding package to `dio`,
-use `dependency_overrides` in your `pubspec.yaml`:
+see the details below.
 
-```yaml
-dependency_overrides:
-  dio:
-    git:
-      url: https://github.com/cfug/diox
-      path: dio/
-      ref: dio
-```
+<details>
+<summary>Expand to see fork details...</summary>
+
+`diox` is developed based on the code base of `dio`
+([@ac78e61](https://github.com/flutterchina/dio/commit/ac78e6151e1736f945cb9b215bbcfac230e19cf1)),
+it can be used as a fork of `dio` theoretically with the `dio` branch.
+However, our goal is not to role as a fork,
+and `diox` also includes breaking changes during the development.
+You'll need a few steps to migrate to whether the new fork and the new `diox`.
+
+If you use it as a fork:
+1. Use `dependency_overrides` in your `pubspec.yaml`:
+   ```yaml
+   dependency_overrides:
+     dio: # Change to other names if you're using plugins.
+       git:
+         url: https://github.com/cfug/diox
+         path: dio/ # Change to other paths if you're using plugins.
+         ref: dio
+   ```
+2. Migrate the breaking changes according to [the migration guide](dio/migration_guide.md).
+3. Now you can continue to `import 'package:dio/dio.dart';`.
+
+Still, we prefer to use `diox` directly since the fork will
+**only maintain for the first 6 months** according to our announcement,
+then it will be deprecated.
+
+The dio branch will be synced (cherry-pick commits) before every release of packages.
+
+</details>
 
 ### diox (dio)
 
