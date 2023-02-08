@@ -9,7 +9,7 @@ environment:
 dependencies:
   http_parser: ">=0.0.1 <5.0.0"
   path: ^1.6.4
-  meta: '>=1.4.0 <1.7.0'
+  meta: ^1.6.0
 
 dev_dependencies:
   test: ^1.5.1
