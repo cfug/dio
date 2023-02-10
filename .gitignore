@@ -2,7 +2,6 @@
 .packages
 .dart_tool/
 .pub/
-.idea/
 .example/flutter.png
 build/
 # Remove the following pattern if you wish to check in your lock file
@@ -39,3 +38,8 @@ plugins/http2_adapter/test/*_pinning.txt
 
 # Miscellaneous
 .DS_Store
+
+# IDEA configurations
+/.idea/*
+!/.idea/diox.iml
+!/.idea/modules.xml
