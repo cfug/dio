@@ -57,8 +57,8 @@ dependencies:
   diox: ^替换为最新版本
 ```
 
-最新稳定版本为：![Pub](https://img.shields.io/pub/v/dio.svg)
-最新包含开发版的版本为：![Pub](https://img.shields.io/pub/v/dio?include_prereleases)
+最新稳定版本为：![Pub](https://img.shields.io/pub/v/diox.svg)
+最新包含开发版的版本为：![Pub](https://img.shields.io/pub/v/diox?include_prereleases)
 
 想要将 `diox` 作为 `dio` 的一个分叉进行使用，请在 `pubspec.yaml` 中配置 `dependency_overrides`：
 
