@@ -1,6 +1,6 @@
 name: diox_http2_adapter
 description: A Dio HttpClientAdapter which support Http/2.0(Support connection reuse, header compression, server pushing is not supported yet.)
-version: 2.1.0-dev.1
+version: 2.1.0
 homepage: https://github.com/cfug/diox
 repository: https://github.com/cfug/diox/blob/main/plugins/http2_adapter
 issue_tracker: https://github.com/cfug/diox/issues
@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   http2: ^2.0.0
-  diox: ^5.0.0-dev.1
+  diox: ^5.0.0
 
 dev_dependencies:
   crypto: ^3.0.2

@@ -1,28 +1,9 @@
 # CHANGELOG
 
-## UNRELEASED
+## 5.0.0
 
 - Change `Dio.transformer` from `DefaultTransformer` to `BackgroundTransformer`.
-
-### Breaking Changes
-
-- Content type with `application/json` and `application/x-www-form-urlencoded`
-  will not be implied anymore in the transformer and the request option.
-- The default charset `utf-8` in `Headers` content type constants has been removed.
-- `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed.
-
-## 5.0.0-dev.3
-
 - Remove plain ASCII check in `FormData`.
-- Inherit `content-type` from `Options` first.
-
-## 5.0.0-dev.2
-
-- Revert the removal of `setRequestContentTypeWhenNoPayload`
-  and provide better conditions for the default `content-type` header.
-
-## 5.0.0-dev.1
-
 - Allow asynchronized method with `savePath`.
 - Allow `data` in all request methods.
 - A platform independent `HttpClientAdapter` can now be instantiated by doing
@@ -32,6 +13,10 @@
 
 ### Breaking Changes
 
+- Content type with `application/json` and `application/x-www-form-urlencoded`
+  will not be implied anymore in the transformer and the request option.
+- The default charset `utf-8` in `Headers` content type constants has been removed.
+- `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed.
 - Remove `BaseOptions.setRequestContentTypeWhenNoPayload`.
 - Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.
 - `HttpClientAdapter` must now be implemented instead of extended.

@@ -9,7 +9,7 @@ description: |
 homepage: https://github.com/cfug/diox
 repository: https://github.com/cfug/diox/blob/main/dio
 issue_tracker: https://github.com/cfug/diox/issues
-version: 5.0.0-dev.3
+version: 5.0.0
 
 environment:
   sdk: '>=2.13.0 <3.0.0'

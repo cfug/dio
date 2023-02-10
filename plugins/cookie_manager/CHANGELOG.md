@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## 2.1.0-dev.1
+## 2.1.0
 
-* Prepare for the `diox`'s release.
+* For the `diox`'s release.
 
 ## 2.0.0
 
