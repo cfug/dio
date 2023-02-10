@@ -17,6 +17,7 @@ When new content need to be added to the migration guide, make sure they're foll
 
 ### Summary
 
+- All request will not imply the default content type by default, leave to users to handle.
 - `get` and `getUri` in `Dio` has different signature.
 - `DefaultHttpClientAdapter` is now named `IOHttpClientAdapter`,
   and the platform independent adapter can be initiated by `HttpClientAdapter()` which is a factory method.
@@ -29,6 +30,46 @@ When new content need to be added to the migration guide, make sure they're foll
 - `connectTimeout`, `sendTimeout`, and `receiveTimeout` are now `Duration` instead of `int`.
 
 ### Details
+
+#### Set `content-type` manually
+
+Now you'll need to specify the content type in the `BaseOptions`
+or in every requests' `Options` or headers. To do so:
+
+- In `BaseOptions`:
+  ```dart
+  dio.options.contentType = Headers.jsonContentType;
+  ```
+- In `Options`:
+  ```dart
+  dio.get('some/path', options: Options(contentType: Headers.jsonContentType));
+  ```
+- In headers:
+  ```dart
+  dio.get(
+    'some/path',
+    options: Options(
+      headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+    ),
+  );
+  ```
+
+If you have your own request method that wraps `diox`:
+```dart
+void request(
+  Uri uri, {
+  Map<String, String?>? queryParameters,
+  Object? body,
+  Map<String, dynamic>? headers,
+  Options? options,
+  ResponseType? responseType = ResponseType.json,
+}) {
+  if (body != null) {
+    // If you have `content-type` in `headers`, it will be use first.
+    options.contentType ??= Headers.jsonContentType;
+  }
+}
+```
 
 #### `get` and `getUri`
 

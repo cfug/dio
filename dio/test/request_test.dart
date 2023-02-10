@@ -51,12 +51,20 @@ void main() {
       expect(response.data['body'], jsonEncode(map));
 
       // test put
-      response = await dio.put('/test', data: map);
+      response = await dio.put(
+        '/test',
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PUT');
       expect(response.data['body'], jsonEncode(map));
 
       // test patch
-      response = await dio.patch('/test', data: map);
+      response = await dio.patch(
+        '/test',
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PATCH');
       expect(response.data['body'], jsonEncode(map));
 
@@ -117,17 +125,29 @@ void main() {
       const map = {'content': 'I am playload'};
 
       // test post
-      response = await dio.postUri(Uri(path: '/test'), data: map);
+      response = await dio.postUri(
+        Uri(path: '/test'),
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'POST');
       expect(response.data['body'], jsonEncode(map));
 
       // test put
-      response = await dio.putUri(Uri(path: '/test'), data: map);
+      response = await dio.putUri(
+        Uri(path: '/test'),
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PUT');
       expect(response.data['body'], jsonEncode(map));
 
       // test patch
-      response = await dio.patchUri(Uri(path: '/test'), data: map);
+      response = await dio.patchUri(
+        Uri(path: '/test'),
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PATCH');
       expect(response.data['body'], jsonEncode(map));
 

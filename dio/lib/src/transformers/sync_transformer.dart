@@ -32,17 +32,14 @@ class SyncTransformer extends Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
-    final data = options.data ?? '';
-    if (data is! String) {
-      if (Transformer.isJsonMimeType(options.contentType)) {
-        return jsonEncodeCallback(options.data);
-      } else if (data is Map) {
-        options.contentType =
-            options.contentType ?? Headers.formUrlEncodedContentType;
-        return Transformer.urlEncodeMap(data);
-      }
+    final dynamic data = options.data ?? '';
+    if (data is! String && Transformer.isJsonMimeType(options.contentType)) {
+      return jsonEncodeCallback(data);
+    } else if (data is Map) {
+      return Transformer.urlEncodeMap(data);
+    } else {
+      return data.toString();
     }
-    return data.toString();
   }
 
   /// As an agreement, we return the [response] when the

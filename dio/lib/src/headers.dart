@@ -13,9 +13,8 @@ class Headers {
   static const wwwAuthenticateHeader = 'www-authenticate';
 
   // Header field value
-  static const jsonContentType = 'application/json; charset=utf-8';
-  static const formUrlEncodedContentType =
-      'application/x-www-form-urlencoded;charset=utf-8';
+  static const jsonContentType = 'application/json';
+  static const formUrlEncodedContentType = 'application/x-www-form-urlencoded';
   static const textPlainContentType = 'text/plain';
 
   static final jsonMimeType = MediaType.parse(jsonContentType);

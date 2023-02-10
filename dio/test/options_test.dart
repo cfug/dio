@@ -251,7 +251,7 @@ void main() {
     final r4 = await dio.post('', data: '');
     expect(
       r4.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.jsonContentType,
+      null,
     );
 
     final r5 = await dio.get(
@@ -312,7 +312,6 @@ void main() {
 
   test('default content-type 2', () async {
     final dio = Dio();
-    dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
 
     final r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
@@ -337,7 +336,6 @@ void main() {
         contentType: Headers.formUrlEncodedContentType,
       );
     } catch (_) {}
-    dio.options.setRequestContentTypeWhenNoPayload = false;
 
     final r3 = Options(method: 'GET').compose(dio.options, '/test');
     expect(r3.uri.toString(), 'https://www.example.com/test');

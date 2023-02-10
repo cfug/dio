@@ -111,12 +111,11 @@ Future<void> startServer() async {
       dynamic requestBody;
       if (requestBodyBytes.isEmpty) {
         requestBody = null;
-      } else if (request.headers.contentType?.charset != null) {
-        final encoding =
-            requiredEncodingForCharset(request.headers.contentType!.charset!);
-        requestBody = encoding.decode(requestBodyBytes);
       } else {
-        requestBody = requestBodyBytes;
+        final encoding = requiredEncodingForCharset(
+          request.headers.contentType?.charset ?? 'utf-8',
+        );
+        requestBody = encoding.decode(requestBodyBytes);
       }
 
       final content = <String, dynamic>{

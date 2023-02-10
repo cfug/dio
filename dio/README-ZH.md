@@ -310,7 +310,7 @@ dynamic data;
 /// 否则将会和 [baseUrl] 拼接出完整的地址。
 String path = '';
 
-/// 请求的 Content-Type，默认值是 `application/json; charset=utf-8`.
+/// 请求的 Content-Type。
 /// 如果你想以 `application/x-www-form-urlencoded` 格式编码请求数据,
 /// 可以设置此选项为 `Headers.formUrlEncodedContentType`,
 /// [Dio] 会自动编码请求体。

@@ -4,6 +4,13 @@
 
 - Change `Dio.transformer` from `DefaultTransformer` to `BackgroundTransformer`.
 
+### Breaking Changes
+
+- Content type with `application/json` and `application/x-www-form-urlencoded`
+  will not be implied anymore in the transformer and the request option.
+- The default charset `utf-8` in `Headers` content type constants has been removed.
+- `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed.
+
 ## 5.0.0-dev.3
 
 - Remove plain ASCII check in `FormData`.

@@ -323,7 +323,7 @@ dynamic data;
 /// it will be combined and then resolved with the baseUrl.
 String path;
 
-/// The request Content-Type. The default value is 'application/json; charset=utf-8'.
+/// The request Content-Type.
 /// If you want to encode request body with 'application/x-www-form-urlencoded',
 /// you can set [Headers.formUrlEncodedContentType], and [Dio]
 /// will automatically encode the request body.
