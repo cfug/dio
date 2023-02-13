@@ -1,6 +1,4 @@
-> 重要提醒：很遗憾的跟大家宣布一件事：**后续我(@wendux)将不能继续维护dio库**。我明白dio作为一个广受欢迎的Http请求库，拥有有大量的用户，且基于dio已经形成了一定规模的插件生态，但由于dart/flutter的更新速度较快加之我个人精力实在有限，放弃维护对我来说是一个不得已的决定，所幸dio经过4个大版本的迭代，整个核心和架构已经相对稳定，二次开发的难度不大，大家可以在最新版源码基础上进行fork后进行定制开发。
-
-文档语言: [English](https://github.com/flutterchina/dio) 
+文档语言: [English](https://github.com/flutterchina/dio)
 
 # dio
 

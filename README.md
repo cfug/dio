@@ -1,7 +1,3 @@
-> Important note: I'm sorry to announce one thing to you:  **I (*@ wendux*) will not be able to continue to maintain the dio library** . I understand that as a popular Http request library, dio has a large number of users, and has formed a plug-in ecosystem of a certain scale based on dio. However, due to the fast update speed of dart/flutter and my limited personal energy, it is an unavoidable decision for me to give up maintenance. 
->
-> Fortunately, after the iteration of four major versions, the whole core and architecture of dio has been relatively stable, and the secondary development is not difficult. You can make customized development after forking on the basis of the latest version of source code.
-
 # dio  [中文简体](README-ZH.md)
 [![Pub](https://img.shields.io/pub/v/dio.svg?style=flat-square)](https://pub.dartlang.org/packages/dio)
 [![support](https://img.shields.io/badge/platform-flutter%7Cflutter%20web%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/flutterchina/dio)
