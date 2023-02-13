@@ -84,7 +84,7 @@ class Http2Adapter implements HttpClientAdapter {
     List<Uint8List>? list;
     final hasRequestData = requestStream != null;
     if (!excludeMethods.contains(options.method) && hasRequestData) {
-      list = await requestStream!.toList();
+      list = await requestStream.toList();
       requestStream = Stream.fromIterable(list);
     }
 

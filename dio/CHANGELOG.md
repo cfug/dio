@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- Raise the min Dart SDK version to 2.15.0 to support `BackgroundTransformer`.
+
 ## 5.0.0
 
 - Change `Dio.transformer` from `DefaultTransformer` to `BackgroundTransformer`.

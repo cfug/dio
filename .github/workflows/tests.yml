@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ stable, beta ]
+        sdk: [ 2.15.0, stable, beta ]
         platform: [ vm, chrome ]
     steps:
       - uses: actions/checkout@v3
@@ -105,7 +105,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ stable, beta ]
+        sdk: [ 2.15.0, stable, beta ]
         directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
     steps:
       - uses: actions/checkout@v3
@@ -128,7 +128,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        channel: [ stable, beta ]
+        channel: [ min, stable, beta ]
         directory: ["plugins/native_diox_adapter"]
     defaults:
       run:
@@ -139,7 +139,8 @@ jobs:
         uses: subosito/flutter-action@v2.8.0
         with:
           cache: true
-          channel: ${{ matrix.channel }}
+          flutter-version: ${{ matrix.channel == 'min' && '3.3.0' || '' }}
+          channel: ${{ matrix.channel == 'min' && 'stable' || matrix.channel }}
       - run: flutter test
 
   build_example_android:

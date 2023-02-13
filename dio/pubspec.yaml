@@ -12,7 +12,7 @@ issue_tracker: https://github.com/cfug/diox/issues
 version: 5.0.0
 
 environment:
-  sdk: '>=2.13.0 <3.0.0'
+  sdk: '>=2.15.0 <3.0.0'
 
 dependencies:
   http_parser: ^4.0.0
