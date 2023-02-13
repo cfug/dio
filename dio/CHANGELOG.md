@@ -21,7 +21,6 @@
   will not be implied anymore in the transformer and the request option.
 - The default charset `utf-8` in `Headers` content type constants has been removed.
 - `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed.
-- Remove `BaseOptions.setRequestContentTypeWhenNoPayload`.
 - Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.
 - `HttpClientAdapter` must now be implemented instead of extended.
 - Any classes specific to `dart:io` platforms can now be imported via `import 'package:dio/io.dart';`.
