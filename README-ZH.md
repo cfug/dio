@@ -1,5 +1,8 @@
 # diox
 
+> diox 已合并回原始的 dio。请前往 dio 仓库查看更多内容。
+> https://github.com/cfug/dio
+
 Language: [English](README.md) | 简体中文
 
 此处是 **diox** 项目的基础仓库。请前往项目各自的路径查看指引。
