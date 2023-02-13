@@ -107,7 +107,7 @@ void getHttp() async {
 ### Related Projects
 
 Welcome to submit third-party plugins and related libraries
-in [here](https://github.com/flutterchina/dio/issues/347).
+in [here](https://github.com/cfug/dio/issues/347).
 
 ## Examples
 
@@ -853,6 +853,6 @@ The project is originally authored by
 with the organization
 [@flutterchina](https://github.com/flutterchina),
 started to maintained by
-[@cfug](https://github.com/cfug) in 2023.
+[@cfug](https://github.com/cfug) since 2023.
 
 The project consents [the MIT license](LICENSE).

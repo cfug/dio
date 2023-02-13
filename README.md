@@ -31,6 +31,6 @@ The project is originally authored by
 with the organization
 [@flutterchina](https://github.com/flutterchina),
 started to maintained by
-[@cfug](https://github.com/cfug) in 2023.
+[@cfug](https://github.com/cfug) since 2023.
 
 The project consents [the MIT license](LICENSE).
