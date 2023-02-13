@@ -2,6 +2,11 @@ part of 'http2_adapter.dart';
 
 /// Default implementation of ConnectionManager
 class _ConnectionManager implements ConnectionManager {
+  _ConnectionManager({
+    Duration? idleTimeout,
+    this.onClientCreate,
+  }) : _idleTimeout = idleTimeout ?? const Duration(seconds: 1);
+
   /// Callback when socket created.
   ///
   /// We can set trusted certificates and handler
@@ -10,8 +15,8 @@ class _ConnectionManager implements ConnectionManager {
 
   /// Sets the idle timeout(milliseconds) of non-active persistent
   /// connections. For the sake of socket reuse feature with http/2,
-  /// the value should not be less than 1000 (1s).
-  final int _idleTimeout;
+  /// the value should not be less than 1 second.
+  final Duration _idleTimeout;
 
   /// Saving the reusable connections
   final _transportsMap = <String, _ClientTransportConnectionState>{};
@@ -22,30 +27,29 @@ class _ConnectionManager implements ConnectionManager {
   bool _closed = false;
   bool _forceClosed = false;
 
-  _ConnectionManager({int? idleTimeout, this.onClientCreate})
-      : _idleTimeout = idleTimeout ?? 1000;
-
   @override
   Future<ClientTransportConnection> getConnection(
-      RequestOptions options) async {
+    RequestOptions options,
+  ) async {
     if (_closed) {
       throw Exception(
           "Can't establish connection after [ConnectionManager] closed!");
     }
-    var uri = options.uri;
-    var domain = '${uri.host}:${uri.port}';
-    var transportState = _transportsMap[domain];
+    final uri = options.uri;
+    final domain = '${uri.host}:${uri.port}';
+    _ClientTransportConnectionState? transportState = _transportsMap[domain];
     if (transportState == null) {
-      var _initFuture = _connectFutures[domain];
-      if (_initFuture == null) {
-        _connectFutures[domain] = _initFuture = _connect(options);
+      Future<_ClientTransportConnectionState>? initFuture =
+          _connectFutures[domain];
+      if (initFuture == null) {
+        _connectFutures[domain] = initFuture = _connect(options);
       }
-      transportState = await _initFuture;
+      transportState = await initFuture;
       if (_forceClosed) {
         transportState.dispose();
       } else {
         _transportsMap[domain] = transportState;
-        var _ = _connectFutures.remove(domain);
+        final _ = _connectFutures.remove(domain);
       }
     } else {
       // Check whether the connection is terminated, if it is, reconnecting.
@@ -58,10 +62,11 @@ class _ConnectionManager implements ConnectionManager {
   }
 
   Future<_ClientTransportConnectionState> _connect(
-      RequestOptions options) async {
-    var uri = options.uri;
-    var domain = '${uri.host}:${uri.port}';
-    var clientConfig = ClientSetting();
+    RequestOptions options,
+  ) async {
+    final uri = options.uri;
+    final domain = '${uri.host}:${uri.port}';
+    final clientConfig = ClientSetting();
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);
     }
@@ -71,9 +76,7 @@ class _ConnectionManager implements ConnectionManager {
       socket = await SecureSocket.connect(
         uri.host,
         uri.port,
-        timeout: options.connectTimeout > 0
-            ? Duration(milliseconds: options.connectTimeout)
-            : null,
+        timeout: options.connectTimeout,
         context: clientConfig.context,
         onBadCertificate: clientConfig.onBadCertificate,
         supportedProtocols: ['h2'],
@@ -81,47 +84,59 @@ class _ConnectionManager implements ConnectionManager {
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
-          throw DioError(
+          throw DioError.connectionTimeout(
+            timeout: options.connectTimeout!,
             requestOptions: options,
-            error: 'Connecting timed out [${options.connectTimeout}ms]',
-            type: DioErrorType.connectTimeout,
           );
         }
       }
       rethrow;
     }
+
+    if (clientConfig.validateCertificate != null) {
+      final isCertApproved = clientConfig.validateCertificate!(
+          socket.peerCertificate, uri.host, uri.port);
+      if (!isCertApproved) {
+        throw DioError(
+          requestOptions: options,
+          type: DioErrorType.badCertificate,
+          error: socket.peerCertificate,
+          message: 'The certificate of the response is not approved.',
+        );
+      }
+    }
+
     // Config a ClientTransportConnection and save it
-    var transport = ClientTransportConnection.viaSocket(socket);
-    var _transportState = _ClientTransportConnectionState(transport);
+    final transport = ClientTransportConnection.viaSocket(socket);
+    final transportState = _ClientTransportConnectionState(transport);
     transport.onActiveStateChanged = (bool isActive) {
-      _transportState.isActive = isActive;
+      transportState.isActive = isActive;
       if (!isActive) {
-        _transportState.latestIdleTimeStamp =
-            DateTime.now().millisecondsSinceEpoch;
+        transportState.latestIdleTimeStamp = DateTime.now();
       }
     };
     //
-    _transportState.delayClose(
-      _closed ? 50 : _idleTimeout,
+    transportState.delayClose(
+      _closed ? Duration(milliseconds: 50) : _idleTimeout,
       () {
         _transportsMap.remove(domain);
-        _transportState.transport.finish();
+        transportState.transport.finish();
       },
     );
-    return _transportState;
+    return transportState;
   }
 
   @override
   void removeConnection(ClientTransportConnection transport) {
-    _ClientTransportConnectionState? _transportState;
+    _ClientTransportConnectionState? transportState;
     _transportsMap.removeWhere((_, state) {
       if (state.transport == transport) {
-        _transportState = state;
+        transportState = state;
         return true;
       }
       return false;
     });
-    _transportState?.dispose();
+    transportState?.dispose();
   }
 
   @override
@@ -141,16 +156,17 @@ class _ClientTransportConnectionState {
 
   ClientTransportConnection get activeTransport {
     isActive = true;
-    latestIdleTimeStamp = DateTime.now().millisecondsSinceEpoch;
+    latestIdleTimeStamp = DateTime.now();
     return transport;
   }
 
   bool isActive = true;
-  late int latestIdleTimeStamp;
+  late DateTime latestIdleTimeStamp;
   Timer? _timer;
 
-  void delayClose(int idleTimeout, void Function() callback) {
-    idleTimeout = idleTimeout < 100 ? 100 : idleTimeout;
+  void delayClose(Duration idleTimeout, void Function() callback) {
+    const duration = Duration(milliseconds: 100);
+    idleTimeout = idleTimeout < duration ? duration : idleTimeout;
     _startTimer(callback, idleTimeout, idleTimeout);
   }
 
@@ -159,11 +175,14 @@ class _ClientTransportConnectionState {
     transport.finish();
   }
 
-  void _startTimer(void Function() callback, int duration, int idleTimeout) {
-    _timer = Timer(Duration(milliseconds: duration), () {
+  void _startTimer(
+    void Function() callback,
+    Duration duration,
+    Duration idleTimeout,
+  ) {
+    _timer = Timer(duration, () {
       if (!isActive) {
-        var interval =
-            DateTime.now().millisecondsSinceEpoch - latestIdleTimeStamp;
+        final interval = DateTime.now().difference(latestIdleTimeStamp);
         if (interval >= duration) {
           return callback();
         }

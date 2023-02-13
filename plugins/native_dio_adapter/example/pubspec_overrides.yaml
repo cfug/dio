@@ -1,0 +1,3 @@
+dependency_overrides:
+  dio:
+    path: ../../../dio

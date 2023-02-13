@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-/// More examples see https://github.com/flutterchina/dio/tree/master/example
+/// More examples see https://github.com/cfug/dio/blob/main/example
 void main() async {
-  var dio = Dio();
-  final response = await dio.get('https://google.com');
+  final dio = Dio();
+  final response = await dio.get('https://pub.dev');
   print(response.data);
 }

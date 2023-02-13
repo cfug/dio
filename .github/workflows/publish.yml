@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    strategy:
+      matrix:
+        package: [
+          "dio",
+          "plugins/cookie_manager",
+          "plugins/http2_adapter",
+          "plugins/native_dio_adapter"
+        ]
+    defaults:
+      run:
+        working-directory: dio
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Publish
+        uses: k-paxian/dart-package-publisher@master
+        with:
+          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
+          relativePath: ${{ matrix.package }}
+          skipTests: true

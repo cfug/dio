@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'multipart_file.dart';
 import 'options.dart';
@@ -9,8 +9,8 @@ import 'utils.dart';
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 class FormData {
-  static const String _BOUNDARY_PRE_TAG = '--dio-boundary-';
-  static const _BOUNDARY_LENGTH = _BOUNDARY_PRE_TAG.length + 10;
+  static const String _boundaryPrefix = '--dio-boundary-';
+  static const int _boundaryLength = _boundaryPrefix.length + 10;
 
   late String _boundary;
 
@@ -30,8 +30,11 @@ class FormData {
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
   bool _isFinalized = false;
+  final bool camelCaseContentDisposition;
 
-  FormData() {
+  FormData({
+    this.camelCaseContentDisposition = false,
+  }) {
     _init();
   }
 
@@ -39,6 +42,7 @@ class FormData {
   FormData.fromMap(
     Map<String, dynamic> map, [
     ListFormat collectionFormat = ListFormat.multi,
+    this.camelCaseContentDisposition = false,
   ]) {
     _init();
     encodeMap(
@@ -59,30 +63,25 @@ class FormData {
 
   void _init() {
     // Assure the boundary unpredictable and unique
-    var random = Random();
-    _boundary = _BOUNDARY_PRE_TAG +
+    final random = math.Random();
+    _boundary = _boundaryPrefix +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
 
-  /// Returns the header string for a field. The return value is guaranteed to
-  /// contain only ASCII characters.
+  /// Returns the header string for a field.
   String _headerForField(String name, String value) {
-    var header =
-        'content-disposition: form-data; name="${_browserEncode(name)}"';
-    if (!isPlainAscii(value)) {
-      header = '$header\r\n'
-          'content-type: text/plain; charset=utf-8\r\n'
-          'content-transfer-encoding: binary';
-    }
-    return '$header\r\n\r\n';
+    return '${camelCaseContentDisposition ? 'Content-Disposition' : 'content-disposition'}'
+        ': form-data; name="${_browserEncode(name)}"'
+        '\r\n\r\n';
   }
 
   /// Returns the header string for a file. The return value is guaranteed to
   /// contain only ASCII characters.
   String _headerForFile(MapEntry<String, MultipartFile> entry) {
-    var file = entry.value;
-    var header =
-        'content-disposition: form-data; name="${_browserEncode(entry.key)}"';
+    final file = entry.value;
+    String header =
+        '${camelCaseContentDisposition ? 'Content-Disposition' : 'content-disposition'}'
+        ': form-data; name="${_browserEncode(entry.key)}"';
     if (file.filename != null) {
       header = '$header; filename="${_browserEncode(file.filename)}"';
     }
@@ -91,10 +90,10 @@ class FormData {
     if (file.headers != null) {
       // append additional headers
       file.headers!.forEach((key, values) {
-        values.forEach((value) {
+        for (final value in values) {
           header = '$header\r\n'
               '$key: $value';
-        });
+        }
       });
     }
     return '$header\r\n\r\n';
@@ -116,34 +115,34 @@ class FormData {
   /// The total length of the request body, in bytes. This is calculated from
   /// [fields] and [files] and cannot be set manually.
   int get length {
-    var length = 0;
-    fields.forEach((entry) {
+    int length = 0;
+    for (final entry in fields) {
       length += '--'.length +
-          _BOUNDARY_LENGTH +
+          _boundaryLength +
           '\r\n'.length +
           utf8.encode(_headerForField(entry.key, entry.value)).length +
           utf8.encode(entry.value).length +
           '\r\n'.length;
-    });
+    }
 
-    for (var file in files) {
+    for (final file in files) {
       length += '--'.length +
-          _BOUNDARY_LENGTH +
+          _boundaryLength +
           '\r\n'.length +
           utf8.encode(_headerForFile(file)).length +
           file.value.length +
           '\r\n'.length;
     }
 
-    return length + '--'.length + _BOUNDARY_LENGTH + '--\r\n'.length;
+    return length + '--'.length + _boundaryLength + '--\r\n'.length;
   }
 
   Stream<List<int>> finalize() {
     if (isFinalized) {
-      throw StateError("Can't finalize a finalized MultipartFile.");
+      throw StateError('Already finalized.');
     }
     _isFinalized = true;
-    var controller = StreamController<List<int>>(sync: false);
+    final controller = StreamController<List<int>>(sync: false);
     void writeAscii(String string) {
       controller.add(utf8.encode(string));
     }
@@ -151,18 +150,20 @@ class FormData {
     void writeUtf8(String string) => controller.add(utf8.encode(string));
     void writeLine() => controller.add([13, 10]); // \r\n
 
-    fields.forEach((entry) {
+    for (final entry in fields) {
       writeAscii('--$boundary\r\n');
       writeAscii(_headerForField(entry.key, entry.value));
       writeUtf8(entry.value);
       writeLine();
-    });
+    }
 
     Future.forEach<MapEntry<String, MultipartFile>>(files, (file) {
       writeAscii('--$boundary\r\n');
       writeAscii(_headerForFile(file));
-      return writeStreamToSink(file.value.finalize(), controller)
-          .then((_) => writeLine());
+      return writeStreamToSink(
+        file.value.finalize(),
+        controller,
+      ).then((_) => writeLine());
     }).then((_) {
       writeAscii('--$boundary--\r\n');
       controller.close();
@@ -170,7 +171,7 @@ class FormData {
     return controller.stream;
   }
 
-  ///Transform the entire FormData contents as a list of bytes asynchronously.
+  /// Transform the entire FormData contents as a list of bytes asynchronously.
   Future<List<int>> readAsBytes() {
     return Future(() => finalize().reduce((a, b) => [...a, ...b]));
   }

@@ -1,0 +1,72 @@
+name: 🐞 Bug Report
+description: Tell us about something that's not working the way we (probably) intend.
+labels: ["s: bug", "h: need triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🧐 **Guidelines:**
+
+        - Search through [existing issues](https://github.com/cfug/dio/issues) first to ensure that this bug has not been reported before.
+        - Write a descriptive title for your issue. Avoid generic or vague titles such as "Something's not working" or "A couple of problems".
+        - Keep your issue focused on one single problem. If you have multiple bug reports, please create separate issues for each of them.
+        - Provide as much context as possible in the fields below. Include screenshots, screen recordings, links, references, or anything else you may consider relevant.
+        - If you want to ask a question instead of reporting a bug, please use [discussions](https://github.com/cfug/dio/discussions/new) instead.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package has a problem?
+      options:
+        - dio
+        - cookie_manager
+        - http2_adapter
+        - native_dio_adapter
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 1.2.3
+      description: Which version of that package do you use?
+    validations:
+      required: true
+  - type: textarea
+    id: flutter_info
+    attributes:
+      label: Output of `flutter doctor -v`
+      description: Required when used with Flutter. The input is automatically formatted in code fences
+      render: shell
+  - type: input
+    id: dart_version
+    attributes:
+      label: Dart Version
+      placeholder: 1.2.3
+      description: Which version of Dart do you use?
+    validations:
+      required: false
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: How can we see what you're seeing? Specific is terrific.
+      placeholder: |-
+        1. foo
+        2. bar
+        3. baz
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result
+      description: Logs? Screenshots? Yes, please.
+    validations:
+      required: true

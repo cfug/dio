@@ -1,18 +1,25 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 Stream<Uint8List> addProgress(
-    Stream<List<int>> stream, int? length, RequestOptions options) {
-  var streamTransformer = stream is Stream<Uint8List>
+  Stream<List<int>> stream,
+  int? length,
+  RequestOptions options,
+) {
+  final streamTransformer = stream is Stream<Uint8List>
       ? _transform<Uint8List>(stream, length, options)
       : _transform<List<int>>(stream, length, options);
   return stream.transform<Uint8List>(streamTransformer);
 }
 
 StreamTransformer<S, Uint8List> _transform<S extends List<int>>(
-    Stream<S> stream, int? length, RequestOptions options) {
-  var complete = 0;
+  Stream<S> stream,
+  int? length,
+  RequestOptions options,
+) {
+  int complete = 0;
   return StreamTransformer<S, Uint8List>.fromHandlers(
     handleData: (S data, sink) {
       final cancelToken = options.cancelToken;

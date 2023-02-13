@@ -1,18 +1,21 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
 
-class MyAdapter extends HttpClientAdapter {
-  final DefaultHttpClientAdapter _adapter = DefaultHttpClientAdapter();
+import 'package:dio/dio.dart';
+
+class MyAdapter implements HttpClientAdapter {
+  final HttpClientAdapter _adapter = HttpClientAdapter();
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
-    var uri = options.uri;
-    // hook requests to  google.com
-    if (uri.host == 'google.com') {
-      return ResponseBody.fromString('Too young too simple!', 200);
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final uri = options.uri;
+    // Hook requests to pub.dev
+    if (uri.host == 'pub.dev') {
+      return ResponseBody.fromString('Welcome to pub.dev', 200);
     }
     return _adapter.fetch(options, requestStream, cancelFuture);
   }
@@ -24,10 +27,9 @@ class MyAdapter extends HttpClientAdapter {
 }
 
 void main() async {
-  var dio = Dio();
-  dio.httpClientAdapter = MyAdapter();
-  var response = await dio.get('https://google.com');
+  final dio = Dio()..httpClientAdapter = MyAdapter();
+  Response response = await dio.get('https://pub.dev/');
   print(response);
-  response = await dio.get('https://baidu.com');
+  response = await dio.get('https://dart.dev/');
   print(response);
 }

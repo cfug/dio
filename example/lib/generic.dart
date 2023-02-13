@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio(
+  final dio = Dio(
     BaseOptions(
-      baseUrl: 'http://httpbin.org/',
+      baseUrl: 'https://httpbin.org/',
       method: 'GET',
     ),
   );
@@ -41,6 +41,6 @@ void main() async {
   response = await dio.get<String>('https://baidu.com');
 
   // This is the recommended way.
-  var r = await dio.get<String>('https://baidu.com');
+  final r = await dio.get<String>('https://baidu.com');
   print(r.data?.length);
 }

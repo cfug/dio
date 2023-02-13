@@ -3,10 +3,8 @@ import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
 import 'utils.dart';
 
-// ignore: uri_does_not_exist
-import 'multipart_file_stub.dart'
-// ignore: uri_does_not_exist
-    if (dart.library.io) 'multipart_file_io.dart';
+import 'multipart_file/io_multipart_file.dart'
+    if (dart.library.html) 'multipart_file/browser_multipart_file.dart';
 
 /// A file to be uploaded as part of a [MultipartRequest]. This doesn't need to
 /// correspond to a physical file.
@@ -60,7 +58,7 @@ class MultipartFile {
     MediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
-    var stream = Stream.fromIterable([value]);
+    final stream = Stream.fromIterable([value]);
     return MultipartFile(
       stream,
       value.length,
@@ -83,7 +81,10 @@ class MultipartFile {
     final Map<String, List<String>>? headers,
   }) {
     contentType ??= MediaType('text', 'plain');
-    var encoding = encodingForCharset(contentType.parameters['charset'], utf8);
+    final encoding = encodingForCharset(
+      contentType.parameters['charset'],
+      utf8,
+    );
     contentType = contentType.change(parameters: {'charset': encoding.name});
 
     return MultipartFile.fromBytes(

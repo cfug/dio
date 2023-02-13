@@ -1,8 +1,6 @@
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
 /// very easy to use.
-///
-/// A open source project authorized by [https://flutterchina.club](https://flutterchina.club).
 library dio;
 
 export 'src/adapter.dart';
@@ -19,3 +17,5 @@ export 'src/parameter.dart';
 export 'src/redirect_record.dart';
 export 'src/response.dart';
 export 'src/transformer.dart';
+export 'src/transformers/background_transformer.dart';
+export 'src/transformers/sync_transformer.dart';

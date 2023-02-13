@@ -1,46 +1,41 @@
 import 'dart:async';
+
 import 'dio_error.dart';
 import 'options.dart';
 
-/// You can cancel a request by using a cancel token.
+/// An instance which controls cancellation of [Dio]'s requests,
+/// build from [Completer].
+///
+/// You can cancel requests by using a [CancelToken].
 /// One token can be shared with different requests.
-/// when a token's [cancel] method invoked, all requests
-/// with this token will be cancelled.
+/// When [cancel] is invoked, all requests using this token will be cancelled.
 class CancelToken {
-  CancelToken() {
-    _completer = Completer<DioError>();
-  }
+  CancelToken();
 
-  /// Whether is throw by [cancel]
-  static bool isCancel(DioError e) {
-    return e.type == DioErrorType.cancel;
-  }
+  final Completer<DioError> _completer = Completer<DioError>();
 
-  /// If request have been canceled, save the cancel Error.
-  DioError? _cancelError;
+  /// Whether the [error] is thrown by [cancel].
+  static bool isCancel(DioError error) => error.type == DioErrorType.cancel;
 
-  /// If request have been canceled, save the cancel Error.
+  /// If request have been canceled, save the cancel error.
   DioError? get cancelError => _cancelError;
-
-  late Completer<DioError> _completer;
+  DioError? _cancelError;
 
   RequestOptions? requestOptions;
 
-  /// whether cancelled
+  /// Whether the token is cancelled.
   bool get isCancelled => _cancelError != null;
 
   /// When cancelled, this future will be resolved.
   Future<DioError> get whenCancel => _completer.future;
 
-  /// Cancel the request
-  void cancel([dynamic reason]) {
-    _cancelError = DioError(
-      type: DioErrorType.cancel,
-      error: reason,
-      requestOptions: requestOptions ?? RequestOptions(path: ''),
+  /// Cancel the request with the given [reason].
+  void cancel([Object? reason]) {
+    _cancelError = DioError.requestCancelled(
+      requestOptions: requestOptions ?? RequestOptions(),
+      reason: reason,
+      stackTrace: StackTrace.current,
     );
-    _cancelError!.stackTrace = StackTrace.current;
-
     if (!_completer.isCompleted) {
       _completer.complete(_cancelError);
     }

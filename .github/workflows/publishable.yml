@@ -1,0 +1,34 @@
+name: Publishable
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**.md"
+      - "**.yaml"
+      - "**.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**.md"
+      - "**.yaml"
+      - "**.yml"
+
+jobs:
+  publish-dry-run:
+    name: Publish dry-run with packages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_dio_adapter"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Publish dry run
+        uses: k-paxian/dart-package-publisher@master
+        with:
+          credentialJson: 'MockCredentialJson'
+          dryRunOnly: true
+          relativePath: ${{ matrix.directory }}
+          skipTests: true

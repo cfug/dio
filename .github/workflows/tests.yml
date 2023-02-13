@@ -1,0 +1,160 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  format:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: [
+          "dio",
+          "example",
+          "example_flutter_app",
+          "plugins/cookie_manager",
+          "plugins/http2_adapter",
+          "plugins/native_dio_adapter"
+        ]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: stable
+      - run: dart format --set-exit-if-changed .
+
+  analyze:
+    needs: format
+    name: Analyze Dart-only libraries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["dio", "example", "plugins/cookie_manager", "plugins/http2_adapter"]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Dart SDK
+        uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: stable
+      - name: Analyze
+        run: dart pub get && dart analyze
+
+  analyze_flutter:
+    needs: format
+    name: Analyze Flutter libraries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["example_flutter_app", "plugins/native_dio_adapter"]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Flutter SDK
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          cache: true
+          channel: stable
+      - name: Analyze
+        run: flutter pub get && flutter analyze
+
+  test_dio:
+    needs: [analyze, analyze_flutter]
+    name: Run unit tests with dio
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ 2.15.0, stable, beta ]
+        platform: [ vm, chrome ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: ${{ matrix.sdk }}
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+        shell: bash
+      - run: dart pub get
+        working-directory: dio
+      - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
+        working-directory: dio
+
+  test_plugins:
+    needs: [analyze, analyze_flutter]
+    name: Run unit tests with plugins
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ 2.15.0, stable, beta ]
+        directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+        with:
+          sdk: ${{ matrix.sdk }}
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+        shell: bash
+      - run: dart pub get
+        working-directory: ${{ matrix.directory }}
+      - run: dart test --chain-stack-traces
+        working-directory: ${{ matrix.directory }}
+
+  test_flutter_plugins:
+    needs: [analyze, analyze_flutter]
+    name: Run unit tests with Flutter plugins
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [ min, stable, beta ]
+        directory: ["plugins/native_dio_adapter"]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare Flutter SDK
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          cache: true
+          flutter-version: ${{ matrix.channel == 'min' && '3.3.0' || '' }}
+          channel: ${{ matrix.channel == 'min' && 'stable' || matrix.channel }}
+      - run: flutter test
+
+  build_example_android:
+    needs: [test_dio, test_plugins, test_flutter_plugins]
+    name: Build Android example
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example_flutter_app
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2.8.0
+        with:
+          cache: true
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build apk

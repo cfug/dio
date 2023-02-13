@@ -7,23 +7,26 @@ import 'package:dio/dio.dart';
 import 'package:http2/http2.dart';
 
 part 'client_setting.dart';
+
 part 'connection_manager.dart';
+
 part 'connection_manager_imp.dart';
 
 /// A Dio HttpAdapter which implements Http/2.0.
-class Http2Adapter extends HttpClientAdapter {
-  final ConnectionManager _connectionMgr;
+class Http2Adapter implements HttpClientAdapter {
+  Http2Adapter(
+    ConnectionManager? connectionManager,
+  ) : _connectionMgr = connectionManager ?? ConnectionManager();
 
-  Http2Adapter(ConnectionManager? connectionManager)
-      : _connectionMgr = connectionManager ?? ConnectionManager();
+  final ConnectionManager _connectionMgr;
 
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   ) async {
-    var redirects = <RedirectRecord>[];
+    final redirects = <RedirectRecord>[];
     return _fetch(
       options,
       requestStream,
@@ -35,17 +38,21 @@ class Http2Adapter extends HttpClientAdapter {
   Future<ResponseBody> _fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
     List<RedirectRecord> redirects,
   ) async {
     final transport = await _connectionMgr.getConnection(options);
     final uri = options.uri;
-    var path = uri.path;
+    String path = uri.path;
     const excludeMethods = ['PUT', 'POST', 'PATCH'];
 
-    if (path.isEmpty || !path.startsWith('/')) path = '/' + path;
-    if (uri.query.trim().isNotEmpty) path += ('?' + uri.query);
-    var headers = [
+    if (path.isEmpty || !path.startsWith('/')) {
+      path = '/$path';
+    }
+    if (uri.query.trim().isNotEmpty) {
+      path += '?${uri.query}';
+    }
+    final headers = [
       Header.ascii(':method', options.method),
       Header.ascii(':path', path),
       Header.ascii(':scheme', uri.scheme),
@@ -56,7 +63,11 @@ class Http2Adapter extends HttpClientAdapter {
     headers.addAll(
       options.headers.keys
           .map(
-              (key) => Header.ascii(key, options.headers[key] as String? ?? ''))
+            (key) => Header.ascii(
+              key.toLowerCase(),
+              options.headers[key] as String? ?? '',
+            ),
+          )
           .toList(),
     );
 
@@ -71,9 +82,9 @@ class Http2Adapter extends HttpClientAdapter {
     });
 
     List<Uint8List>? list;
-    var hasRequestData = requestStream != null;
+    final hasRequestData = requestStream != null;
     if (!excludeMethods.contains(options.method) && hasRequestData) {
-      list = await requestStream!.toList();
+      list = await requestStream.toList();
       requestStream = Stream.fromIterable(list);
     }
 
@@ -87,52 +98,48 @@ class Http2Adapter extends HttpClientAdapter {
 
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
-    var completer = Completer();
+    final completer = Completer();
     late int statusCode;
-    var needRedirect = false;
+    bool needRedirect = false;
     late StreamSubscription subscription;
-    var needResponse = false;
+    bool needResponse = false;
     subscription = stream.incomingMessages.listen(
       (message) async {
         if (message is HeadersStreamMessage) {
-          for (var header in message.headers) {
-            var name = utf8.decode(header.name);
-            var value = utf8.decode(header.value);
+          for (final header in message.headers) {
+            final name = utf8.decode(header.name);
+            final value = utf8.decode(header.value);
             responseHeaders.add(name, value);
           }
 
-          var status = responseHeaders.value(':status');
+          final status = responseHeaders.value(':status');
           if (status != null) {
             statusCode = int.parse(status);
             responseHeaders.removeAll(':status');
-
             needRedirect = list != null && _needRedirect(options, statusCode);
-
             needResponse =
                 !needRedirect && options.validateStatus(statusCode) ||
                     options.receiveDataWhenStatusError;
-
             completer.complete();
           }
         } else if (message is DataStreamMessage) {
           if (needResponse) {
             sc.add(Uint8List.fromList(message.bytes));
           } else {
-            // ignore: unawaited_futures
             subscription.cancel().whenComplete(() => sc.close());
           }
         }
       },
       onDone: () => sc.close(),
-      onError: (e) {
+      onError: (Object error, StackTrace stackTrace) {
         // If connection is being forcefully terminated, remove the connection
-        if (e is TransportConnectionException) {
+        if (error is TransportConnectionException) {
           _connectionMgr.removeConnection(transport);
         }
         if (!completer.isCompleted) {
-          completer.completeError(e, StackTrace.current);
+          completer.completeError(error, stackTrace);
         } else {
-          sc.addError(e);
+          sc.addError(error, stackTrace);
         }
       },
       cancelOnError: true,
@@ -142,9 +149,10 @@ class Http2Adapter extends HttpClientAdapter {
 
     // Handle redirection
     if (needRedirect) {
-      var url = responseHeaders.value('location');
+      final url = responseHeaders.value('location');
       redirects.add(
-          RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')));
+        RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')),
+      );
       return _fetch(
         options.copyWith(path: url, maxRedirects: --options.maxRedirects),
         Stream.fromIterable(list!),

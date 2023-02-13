@@ -1,12 +1,13 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   dio.options
-    ..baseUrl = 'http://httpbin.org/'
-    ..connectTimeout = 5000 //5s
-    ..receiveTimeout = 5000
+    ..baseUrl = 'https://httpbin.org/'
+    ..connectTimeout = Duration(seconds: 5)
+    ..receiveTimeout = Duration(seconds: 5)
     ..validateStatus = (int? status) {
       return status != null && status > 0;
     }
@@ -16,10 +17,10 @@ void main() async {
     };
 
   // Or you can create dio instance and config it as follow:
-  //  var dio = Dio(BaseOptions(
+  //  final dio = Dio(BaseOptions(
   //    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
-  //    connectTimeout: 5000,
-  //    receiveTimeout: 5000,
+  //    connectTimeout: const Duration(seconds: 5),
+  //    receiveTimeout: const Duration(seconds: 5),
   //    headers: {
   //      HttpHeaders.userAgentHeader: 'dio',
   //      'common-header': 'xx',
@@ -35,11 +36,11 @@ void main() async {
     ))
     ..add(LogInterceptor(responseBody: false)); //Open log;
 
-  var response = await dio.get('https://www.google.com/');
+  Response response = await dio.get('https://pub.dev/');
 
   // Download a file
   response = await dio.download(
-    'https://www.google.com/',
+    'https://pub.dev/',
     './example/xx.html',
     queryParameters: {'a': 1},
     onReceiveProgress: (received, total) {
@@ -50,7 +51,7 @@ void main() async {
   );
 
   // Create a FormData
-  var formData = FormData.fromMap({
+  final formData = FormData.fromMap({
     'age': 25,
     'file': await MultipartFile.fromFile(
       './example/upload.txt',

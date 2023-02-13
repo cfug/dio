@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
 
 void showProgress(received, total) {
   if (total != -1) {
@@ -9,7 +9,7 @@ void showProgress(received, total) {
   }
 }
 
-Future<FormData> FormData1() async {
+Future<FormData> formData1() async {
   return FormData.fromMap({
     'name': 'wendux',
     'age': 25,
@@ -30,8 +30,8 @@ Future<FormData> FormData1() async {
   });
 }
 
-Future<FormData> FormData2() async {
-  var formData = FormData();
+Future<FormData> formData2() async {
+  final formData = FormData();
 
   formData.fields
     ..add(MapEntry(
@@ -70,7 +70,7 @@ Future<FormData> FormData2() async {
   return formData;
 }
 
-Future<FormData> FormData3() async {
+Future<FormData> formData3() async {
   return FormData.fromMap({
     'file': await MultipartFile.fromFile(
       './example/upload.txt',
@@ -82,37 +82,37 @@ Future<FormData> FormData3() async {
 /// FormData will create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 void main() async {
-  var dio = Dio();
+  final dio = Dio();
   dio.options.baseUrl = 'http://localhost:3000/';
   dio.interceptors.add(LogInterceptor());
-  //dio.interceptors.add(LogInterceptor(requestBody: true));
-  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.findProxy = (uri) {
-      //proxy all request to localhost:8888
-      return 'PROXY localhost:8888';
+  // dio.interceptors.add(LogInterceptor(requestBody: true));
+  dio.httpClientAdapter = IOHttpClientAdapter()
+    ..onHttpClientCreate = (client) {
+      client.findProxy = (uri) {
+        // Proxy all request to localhost:8888
+        return 'PROXY localhost:8888';
+      };
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
     };
-    client.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
-  };
   Response response;
 
-  var formData1 = await FormData1();
-  var formData2 = await FormData2();
-  var bytes1 = await formData1.readAsBytes();
-  var bytes2 = await formData2.readAsBytes();
+  final data1 = await formData1();
+  final data2 = await formData2();
+  final bytes1 = await data1.readAsBytes();
+  final bytes2 = await data2.readAsBytes();
   assert(bytes1.length == bytes2.length);
 
-  var t = await FormData3();
-  print(utf8.decode(await t.readAsBytes()));
+  final data3 = await formData3();
+  print(utf8.decode(await data3.readAsBytes()));
 
   response = await dio.post(
     //"/upload",
     'http://localhost:3000/upload',
-    data: await FormData3(),
+    data: data3,
     onSendProgress: (received, total) {
       if (total != -1) {
-        print((received / total * 100).toStringAsFixed(0) + '%');
+        print('${(received / total * 100).toStringAsFixed(0)}%');
       }
     },
   );

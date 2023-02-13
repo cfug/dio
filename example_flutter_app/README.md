@@ -1,6 +1,6 @@
 # flutter_app
 
-A new Flutter application for dio test
+A new Flutter application for dio test.
 
 ## Getting Started
 

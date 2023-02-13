@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
-import 'mock_adapter.dart';
-import 'echo_adapter.dart';
+
+import 'mock/adapters.dart';
 
 class MyInterceptor extends Interceptor {
   int requestCount = 0;
@@ -15,11 +16,9 @@ class MyInterceptor extends Interceptor {
 }
 
 void main() {
-  group('#test Request Interceptor', () {
-    Dio dio;
-
-    test('#test interceptor chain', () async {
-      dio = Dio();
+  group('Request Interceptor', () {
+    test('interceptor chain', () async {
+      final dio = Dio();
       dio.options.baseUrl = EchoAdapter.mockBase;
       dio.httpClientAdapter = EchoAdapter();
       dio.interceptors
@@ -79,7 +78,7 @@ void main() {
             }
           },
           onResponse: (response, ResponseInterceptorHandler handler) {
-            var options = response.requestOptions;
+            final options = response.requestOptions;
             switch (options.path) {
               case '/resolve':
                 throw 'unexpected1';
@@ -114,14 +113,14 @@ void main() {
                 data: 100,
               ));
             } else if (err.requestOptions.path == '/resolve-next/reject-next') {
-              err.error = 1;
-              handler.next(err);
+              handler.next(err.copyWith(error: 1));
             } else {
               if (err.requestOptions.path == '/reject-next/reject') {
                 handler.reject(err);
               } else {
-                err.error++;
-                handler.next(err);
+                int count = err.error as int;
+                count++;
+                handler.next(err.copyWith(error: count));
               }
             }
           },
@@ -129,7 +128,7 @@ void main() {
         ..add(InterceptorsWrapper(
           onRequest: (options, handler) => handler.next(options),
           onResponse: (response, handler) {
-            var options = response.requestOptions;
+            final options = response.requestOptions;
             switch (options.path) {
               case '/resolve-next/always':
                 response.data++;
@@ -141,28 +140,30 @@ void main() {
           },
           onError: (err, handler) {
             if (err.requestOptions.path == '/resolve-next/reject-next') {
-              err.error++;
-              handler.next(err);
+              int count = err.error as int;
+              count++;
+              handler.next(err.copyWith(error: count));
             } else {
-              err.error++;
-              handler.next(err);
+              int count = err.error as int;
+              count++;
+              handler.next(err.copyWith(error: count));
             }
           },
         ));
-      var response = await dio.get('/resolve');
-      assert(response.data == 1);
+      Response response = await dio.get('/resolve');
+      expect(response.data, 1);
       response = await dio.get('/resolve-next');
 
-      assert(response.data == 3);
+      expect(response.data, 3);
 
       response = await dio.get('/resolve-next/always');
-      assert(response.data == 4);
+      expect(response.data, 4);
 
       response = await dio.post('/post', data: 'xxx');
-      assert(response.data == 'xxx');
+      expect(response.data, 'xxx');
 
       response = await dio.get('/reject-next-response');
-      assert(response.data == 100);
+      expect(response.data, 100);
 
       expect(
         dio.get('/reject').catchError((e) => throw e.error as num),
@@ -195,7 +196,7 @@ void main() {
     });
 
     test('unexpected error', () async {
-      var dio = Dio();
+      final dio = Dio();
       dio.options.baseUrl = EchoAdapter.mockBase;
       dio.httpClientAdapter = EchoAdapter();
       dio.interceptors.add(
@@ -207,8 +208,7 @@ void main() {
             handler.next(reqOpt.copyWith(path: '/xxx'));
           },
           onError: (err, handler) {
-            err.error = 'unexpected error';
-            handler.next(err);
+            handler.next(err.copyWith(error: 'unexpected error'));
           },
         ),
       );
@@ -224,8 +224,8 @@ void main() {
       );
     });
 
-    test('#test request interceptor', () async {
-      dio = Dio();
+    test('request interceptor', () async {
+      final dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
       dio.interceptors.add(InterceptorsWrapper(onRequest: (
@@ -272,19 +272,27 @@ void main() {
         }
       }));
 
-      var response = await dio.get('/fakepath1');
+      Response response = await dio.get('/fakepath1');
       expect(response.data, 'fake data');
 
       response = await dio.get('/fakepath2');
       expect(response.data['errCode'], 0);
 
       expect(
-        dio.get('/fakepath3').catchError((e) => throw (e as DioError).message),
-        throwsA('test error'),
+        dio.get('/fakepath3'),
+        throwsA(
+          isA<DioError>()
+              .having((e) => e.message, 'message', null)
+              .having((e) => e.type, 'error type', DioErrorType.unknown),
+        ),
       );
       expect(
-        dio.get('/fakepath4').catchError((e) => throw (e as DioError).message),
-        throwsA('test error'),
+        dio.get('/fakepath4'),
+        throwsA(
+          isA<DioError>()
+              .having((e) => e.message, 'message', null)
+              .having((e) => e.type, 'error type', DioErrorType.unknown),
+        ),
       );
 
       response = await dio.get('/test');
@@ -294,13 +302,13 @@ void main() {
     });
   });
 
-  group('#test response interceptor', () {
+  group('response interceptor', () {
     Dio dio;
-    test('#test Response Interceptor', () async {
-      const URL_NOT_FIND = '/404/';
-      const URL_NOT_FIND_1 = URL_NOT_FIND + '1';
-      const URL_NOT_FIND_2 = URL_NOT_FIND + '2';
-      const URL_NOT_FIND_3 = URL_NOT_FIND + '3';
+    test('Response Interceptor', () async {
+      const urlNotFound = '/404/';
+      const urlNotFound1 = '${urlNotFound}1';
+      const urlNotFound2 = '${urlNotFound}2';
+      const urlNotFound3 = '${urlNotFound}3';
 
       dio = Dio();
       dio.httpClientAdapter = MockAdapter();
@@ -314,48 +322,48 @@ void main() {
         onError: (DioError e, ErrorInterceptorHandler handler) {
           if (e.response?.requestOptions != null) {
             switch (e.response!.requestOptions.path) {
-              case URL_NOT_FIND:
+              case urlNotFound:
                 return handler.next(e);
-              case URL_NOT_FIND_1:
+              case urlNotFound1:
                 return handler.resolve(
                   Response(
                     requestOptions: e.requestOptions,
                     data: 'fake data',
                   ),
                 );
-              case URL_NOT_FIND_2:
+              case urlNotFound2:
                 return handler.resolve(
                   Response(
                     data: 'fake data',
                     requestOptions: e.requestOptions,
                   ),
                 );
-              case URL_NOT_FIND_3:
+              case urlNotFound3:
                 return handler.next(
-                  e..error = 'custom error info [${e.response!.statusCode}]',
+                  e.copyWith(
+                    error: 'custom error info [${e.response!.statusCode}]',
+                  ),
                 );
             }
           }
           handler.next(e);
         },
       ));
-      var response = await dio.get('/test');
+      Response response = await dio.get('/test');
       expect(response.data['path'], '/test');
       expect(
         dio
-            .get(URL_NOT_FIND)
+            .get(urlNotFound)
             .catchError((e) => throw (e as DioError).response!.statusCode!),
         throwsA(404),
       );
-      response = await dio.get(URL_NOT_FIND + '1');
+      response = await dio.get('${urlNotFound}1');
       expect(response.data, 'fake data');
-      response = await dio.get(URL_NOT_FIND + '2');
+      response = await dio.get('${urlNotFound}2');
       expect(response.data, 'fake data');
       expect(
-        dio
-            .get(URL_NOT_FIND + '3')
-            .catchError((e) => throw (e as DioError).message),
-        throwsA('custom error info [404]'),
+        dio.get('${urlNotFound}3').catchError((e) => throw e as DioError),
+        throwsA(isA<DioError>()),
       );
     });
     test('multi response interceptor', () async {
@@ -387,64 +395,17 @@ void main() {
       expect(resp.data['extra_2'], 'extra');
     });
   });
-  group('# test queued interceptors', () {
-    // test('test request lock', () async {
-    //   String? csrfToken;
-    //   final dio = Dio();
-    //   var tokenRequestCounts = 0;
-    //   // dio instance to request token
-    //   final tokenDio = Dio();
-    //   dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
-    //   dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
-    //   var myInter = MyInterceptor();
-    //   dio.interceptors.add(myInter);
-    //   dio.interceptors.add(InterceptorsWrapper(
-    //     onRequest: (options, handler) {
-    //       if (csrfToken == null) {
-    //         dio.lock();
-    //         tokenRequestCounts++;
-    //         tokenDio.get('/token').then((d) {
-    //           options.headers['csrfToken'] =
-    //               csrfToken = d.data['data']['token'] as String;
-    //           handler.next(options);
-    //         }).catchError((e) {
-    //           handler.reject(e as DioError, true);
-    //         }).whenComplete(() {
-    //           dio.unlock();
-    //         }); // unlock the dio
-    //       } else {
-    //         options.headers['csrfToken'] = csrfToken;
-    //         handler.next(options);
-    //       }
-    //     },
-    //   ));
-    //
-    //   var result = 0;
-    //   void _onResult(d) {
-    //     if (tokenRequestCounts > 0) ++result;
-    //   }
-    //
-    //   await Future.wait([
-    //     dio.get('/test?tag=1').then(_onResult),
-    //     dio.get('/test?tag=2').then(_onResult),
-    //     dio.get('/test?tag=3').then(_onResult)
-    //   ]);
-    //   expect(tokenRequestCounts, 1);
-    //   expect(result, 3);
-    //   assert(myInter.requestCount > 0);
-    //   dio.interceptors[0] = myInter;
-    //   dio.interceptors.clear();
-    //   assert(dio.interceptors.isEmpty == true);
-    // });
-    test('test queued interceptor for requests ', () async {
+
+  group('QueuedInterceptor', () {
+    test('requests ', () async {
       String? csrfToken;
       final dio = Dio();
-      var tokenRequestCounts = 0;
+      int tokenRequestCounts = 0;
       // dio instance to request token
       final tokenDio = Dio();
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
-      var myInter = MyInterceptor();
+      final myInter = MyInterceptor();
       dio.interceptors.add(myInter);
       dio.interceptors.add(QueuedInterceptorsWrapper(
         onRequest: (options, handler) {
@@ -456,7 +417,7 @@ void main() {
               handler.next(options);
             }).catchError((e) {
               handler.reject(e as DioError, true);
-            }); // unlock the dio
+            });
           } else {
             options.headers['csrfToken'] = csrfToken;
             handler.next(options);
@@ -464,28 +425,28 @@ void main() {
         },
       ));
 
-      var result = 0;
-      void _onResult(d) {
+      int result = 0;
+      void onResult(d) {
         if (tokenRequestCounts > 0) ++result;
       }
 
       await Future.wait([
-        dio.get('/test?tag=1').then(_onResult),
-        dio.get('/test?tag=2').then(_onResult),
-        dio.get('/test?tag=3').then(_onResult)
+        dio.get('/test?tag=1').then(onResult),
+        dio.get('/test?tag=2').then(onResult),
+        dio.get('/test?tag=3').then(onResult)
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);
-      assert(myInter.requestCount > 0);
+      expect(myInter.requestCount, predicate((int e) => e > 0));
       dio.interceptors[0] = myInter;
       dio.interceptors.clear();
-      assert(dio.interceptors.isEmpty == true);
+      expect(dio.interceptors.isEmpty, true);
     });
 
-    test('test queued interceptors for error', () async {
+    test('error', () async {
       String? csrfToken;
       final dio = Dio();
-      var tokenRequestCounts = 0;
+      int tokenRequestCounts = 0;
       // dio instance to request token
       final tokenDio = Dio();
       dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
@@ -530,160 +491,18 @@ void main() {
         ),
       );
 
-      var result = 0;
-      void _onResult(d) {
+      int result = 0;
+      void onResult(d) {
         if (tokenRequestCounts > 0) ++result;
       }
 
       await Future.wait([
-        dio.get('/test-auth?tag=1').then(_onResult),
-        dio.get('/test-auth?tag=2').then(_onResult),
-        dio.get('/test-auth?tag=3').then(_onResult)
+        dio.get('/test-auth?tag=1').then(onResult),
+        dio.get('/test-auth?tag=2').then(onResult),
+        dio.get('/test-auth?tag=3').then(onResult)
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);
     });
   });
-
-  // group('test queued interceptors for error', () {
-  //   // test('test error lock', () async {
-  //   //   String? csrfToken;
-  //   //   final dio = Dio();
-  //   //   var tokenRequestCounts = 0;
-  //   //   // dio instance to request token
-  //   //   final tokenDio = Dio();
-  //   //   dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
-  //   //   dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
-  //   //   dio.interceptors.add(
-  //   //     InterceptorsWrapper(
-  //   //       onRequest: (opt, handler) {
-  //   //         opt.headers['csrfToken'] = csrfToken;
-  //   //         handler.next(opt);
-  //   //       },
-  //   //       onError: (error, handler) {
-  //   //         // Assume 401 stands for token expired
-  //   //         if (error.response?.statusCode == 401) {
-  //   //           final options = error.response!.requestOptions;
-  //   //           // If the token has been updated, repeat directly.
-  //   //           if (csrfToken != options.headers['csrfToken']) {
-  //   //             options.headers['csrfToken'] = csrfToken;
-  //   //             //repeat
-  //   //             dio
-  //   //                 .fetch(options)
-  //   //                 .then(handler.resolve)
-  //   //                 .catchError((e) => handler.reject(e as DioError));
-  //   //             return;
-  //   //           }
-  //   //           // update token and repeat
-  //   //           // Lock to block the incoming request until the token updated
-  //   //           dio.lock();
-  //   //           dio.interceptors.responseLock.lock();
-  //   //           dio.interceptors.errorLock.lock();
-  //   //           tokenRequestCounts++;
-  //   //           tokenDio.get('/token').then((d) {
-  //   //             //update csrfToken
-  //   //             options.headers['csrfToken'] =
-  //   //                 csrfToken = d.data['data']['token'] as String;
-  //   //           }).whenComplete(() {
-  //   //             dio.unlock();
-  //   //             dio.interceptors.responseLock.unlock();
-  //   //             dio.interceptors.errorLock.unlock();
-  //   //           }).then((e) {
-  //   //             //repeat
-  //   //             dio
-  //   //                 .fetch(options)
-  //   //                 .then(handler.resolve)
-  //   //                 .catchError((e) => handler.reject(e as DioError));
-  //   //           });
-  //   //         } else {
-  //   //           handler.next(error);
-  //   //         }
-  //   //       },
-  //   //     ),
-  //   //   );
-  //   //
-  //   //   var result = 0;
-  //   //   void _onResult(d) {
-  //   //     if (tokenRequestCounts > 0) ++result;
-  //   //   }
-  //   //
-  //   //   await Future.wait([
-  //   //     dio.get('/test-auth?tag=1').then(_onResult),
-  //   //     dio.get('/test-auth?tag=2').then(_onResult),
-  //   //     dio.get('/test-auth?tag=3').then(_onResult)
-  //   //   ]);
-  //   //   expect(tokenRequestCounts, 1);
-  //   //   expect(result, 3);
-  //   // });
-  //
-  //   test('test queued interceptors for error', () async {
-  //     String? csrfToken;
-  //     final dio = Dio();
-  //     var tokenRequestCounts = 0;
-  //     // dio instance to request token
-  //     final tokenDio = Dio();
-  //     dio.options.baseUrl = tokenDio.options.baseUrl = MockAdapter.mockBase;
-  //     dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
-  //     dio.interceptors.add(
-  //       InterceptorsWrapper(
-  //         onRequest: (opt, handler) {
-  //           opt.headers['csrfToken'] = csrfToken;
-  //           handler.next(opt);
-  //         },
-  //         onError: (error, handler) {
-  //           // Assume 401 stands for token expired
-  //           if (error.response?.statusCode == 401) {
-  //             final options = error.response!.requestOptions;
-  //             // If the token has been updated, repeat directly.
-  //             if (csrfToken != options.headers['csrfToken']) {
-  //               options.headers['csrfToken'] = csrfToken;
-  //               //repeat
-  //               dio
-  //                   .fetch(options)
-  //                   .then(handler.resolve)
-  //                   .catchError((e) => handler.reject(e as DioError));
-  //               return;
-  //             }
-  //             // update token and repeat
-  //             // Lock to block the incoming request until the token updated
-  //             dio.lock();
-  //             dio.interceptors.responseLock.lock();
-  //             dio.interceptors.errorLock.lock();
-  //             tokenRequestCounts++;
-  //             tokenDio.get('/token').then((d) {
-  //               //update csrfToken
-  //               options.headers['csrfToken'] =
-  //                   csrfToken = d.data['data']['token'] as String;
-  //             }).whenComplete(() {
-  //               dio.unlock();
-  //               dio.interceptors.responseLock.unlock();
-  //               dio.interceptors.errorLock.unlock();
-  //             }).then((e) {
-  //               //repeat
-  //               dio
-  //                   .fetch(options)
-  //                   .then(handler.resolve)
-  //                   .catchError((e) => handler.reject(e as DioError));
-  //             });
-  //           } else {
-  //             handler.next(error);
-  //           }
-  //         },
-  //       ),
-  //     );
-  //
-  //     var result = 0;
-  //     void _onResult(d) {
-  //       if (tokenRequestCounts > 0) ++result;
-  //     }
-  //
-  //     await Future.wait([
-  //       dio.get('/test-auth?tag=1').then(_onResult),
-  //       dio.get('/test-auth?tag=2').then(_onResult),
-  //       dio.get('/test-auth?tag=3').then(_onResult)
-  //     ]);
-  //     expect(tokenRequestCounts, 1);
-  //     expect(result, 3);
-  //   });
-  // });
 }
