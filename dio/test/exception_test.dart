@@ -6,7 +6,7 @@ import 'package:dio/io.dart';
 import 'package:test/test.dart';
 
 void main() {
-  /// https://github.com/cfug/diox/issues/66
+  /// https://github.com/cfug/dio/issues/66
   test('Ensure DioError is an Exception', () {
     final error = DioError(requestOptions: RequestOptions());
     expect(error, isA<Exception>());
