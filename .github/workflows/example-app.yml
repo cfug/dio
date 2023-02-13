@@ -19,7 +19,7 @@ jobs:
         working-directory: example_flutter_app
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2.3.0
+      - uses: subosito/flutter-action@v2.8.0
         with:
           cache: true
           channel: stable
@@ -34,7 +34,7 @@ jobs:
         working-directory: example_flutter_app
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2.3.0
+      - uses: subosito/flutter-action@v2.8.0
         with:
           cache: true
           channel: stable
@@ -48,7 +48,7 @@ jobs:
         working-directory: example_flutter_app
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2.3.0
+      - uses: subosito/flutter-action@v2.8.0
         with:
           cache: true
           channel: stable
