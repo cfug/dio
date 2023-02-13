@@ -1,10 +1,11 @@
-import 'package:dio/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:flutter/material.dart';
+
 import '../http.dart';
 
 class RequestRoute extends StatefulWidget {
   @override
-  _RequestRouteState createState() => _RequestRouteState();
+  State<RequestRoute> createState() => _RequestRouteState();
 }
 
 class _RequestRouteState extends State<RequestRoute> {
@@ -22,7 +23,7 @@ class _RequestRouteState extends State<RequestRoute> {
           ElevatedButton(
             child: Text("get"),
             onPressed: () {
-              dio.get<String>("http://httpbin.org/get").then((r) {
+              dio.get<String>("https://httpbin.org/get").then((r) {
                 setState(() {
                   _text = r.data!;
                 });
@@ -32,15 +33,17 @@ class _RequestRouteState extends State<RequestRoute> {
           ElevatedButton(
             child: Text("post"),
             onPressed: () {
-              var formData = FormData.fromMap({
+              final formData = FormData.fromMap({
                 'file': MultipartFile.fromString('x' * 1024 * 1024),
               });
 
               dio
                   .post(
-                "http://httpbin.org/post",
+                "https://httpbin.org/post",
                 data: formData,
-                options: Options(sendTimeout: 2000, receiveTimeout: 0),
+                options: Options(
+                    sendTimeout: Duration(seconds: 2),
+                    receiveTimeout: Duration(seconds: 0)),
                 onSendProgress: (a, b) => print('send ${a / b}'),
                 onReceiveProgress: (a, b) => print('received ${a / b}'),
               )

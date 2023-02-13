@@ -1,15 +1,15 @@
-import 'package:dio/dio.dart';
+import 'package:diox/diox.dart';
+import 'package:diox_http2_adapter/diox_http2_adapter.dart';
 import 'package:test/test.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 
 void main() {
   test('adds one to input values', () async {
-    var dio = Dio()
-      ..options.baseUrl = 'https://www.ustc.edu.cn/'
+    final dio = Dio()
+      ..options.baseUrl = 'https://pub.dev/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
-          idleTimeout: 10,
+          idleTimeout: Duration(milliseconds: 10),
           onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
         ),
       );
@@ -26,12 +26,12 @@ void main() {
 
   test('request with payload', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://postman-echo.com/'
+      ..options.baseUrl = 'https://httpbin.org/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: 10,
+        idleTimeout: Duration(milliseconds: 10),
       ));
 
     final res = await dio.post('post', data: 'TEST');
-    assert(res.data['data'] == 'TEST');
+    expect(res.data.toString(), contains('TEST'));
   });
 }

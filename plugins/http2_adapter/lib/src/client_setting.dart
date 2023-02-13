@@ -1,5 +1,8 @@
 part of 'http2_adapter.dart';
 
+typedef ValidateCertificate = bool Function(
+    X509Certificate? certificate, String host, int port);
+
 class ClientSetting {
   /// The certificate provided by the server is checked
   /// using the trusted certificates set in the SecurityContext object.
@@ -13,4 +16,12 @@ class ClientSetting {
   /// the connection or not.  The handler should return true
   /// to continue the [SecureSocket] connection.
   bool Function(X509Certificate certificate)? onBadCertificate;
+
+  /// Allows the user to decide if the response certificate is good.
+  /// If this function is missing, then the certificate is allowed.
+  /// This method is called only if both the [SecurityContext] and
+  /// [badCertificateCallback] accept the certificate chain. Those
+  /// methods evaluate the root or intermediate certificate, while
+  /// [validateCertificate] evaluates the leaf certificate.
+  ValidateCertificate? validateCertificate;
 }

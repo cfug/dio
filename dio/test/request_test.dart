@@ -1,11 +1,9 @@
-// Copyright (c) 2014, the Dart project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 @TestOn('vm')
 import 'dart:convert';
-import 'package:dio/dio.dart';
+
+import 'package:diox/diox.dart';
 import 'package:test/test.dart';
+
 import 'utils.dart';
 
 void main() {
@@ -13,14 +11,14 @@ void main() {
 
   tearDown(stopServer);
 
-  group('#test requests', () {
+  group('requests', () {
     late Dio dio;
     setUp(() {
       dio = Dio();
       dio.options
         ..baseUrl = serverUrl.toString()
-        ..connectTimeout = 1000
-        ..receiveTimeout = 5000
+        ..connectTimeout = Duration(seconds: 1)
+        ..receiveTimeout = Duration(seconds: 5)
         ..headers = {'User-Agent': 'dartisan'};
       dio.interceptors.add(LogInterceptor(
         responseBody: true,
@@ -30,9 +28,8 @@ void main() {
         },
       ));
     });
-    test('#test restful APIs', () async {
+    test('restful APIs', () async {
       Response response;
-
       // test get
       response = await dio.get(
         '/test',
@@ -44,19 +41,30 @@ void main() {
       expect(response.headers.value('single'), equals('value'));
 
       const map = {'content': 'I am playload'};
-
       // test post
-      response = await dio.post('/test', data: map);
+      response = await dio.post(
+        '/test',
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'POST');
       expect(response.data['body'], jsonEncode(map));
 
       // test put
-      response = await dio.put('/test', data: map);
+      response = await dio.put(
+        '/test',
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PUT');
       expect(response.data['body'], jsonEncode(map));
 
       // test patch
-      response = await dio.patch('/test', data: map);
+      response = await dio.patch(
+        '/test',
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PATCH');
       expect(response.data['body'], jsonEncode(map));
 
@@ -79,14 +87,30 @@ void main() {
           // ignore progress
         },
       );
-      assert(response.isRedirect == true);
-      assert(response.redirects.length == 1);
-      var ri = response.redirects.first;
-      assert(ri.statusCode == 302);
-      assert(ri.method == 'GET');
+      expect(response.isRedirect, true);
+      expect(response.redirects.length, 1);
+      final ri = response.redirects.first;
+      expect(ri.statusCode, 302);
+      expect(ri.method, 'GET');
     });
 
-    test('#test request with URI', () async {
+    test('multi value headers', () async {
+      final Response response = await dio.get(
+        '/multi-value-header',
+        options: Options(
+          headers: {
+            'x-multi-value-request-header': ['value1', 'value2'],
+          },
+        ),
+      );
+      expect(response.statusCode, 200);
+      expect(
+        response.headers.value('x-multi-value-request-header-echo'),
+        equals('value1, value2'),
+      );
+    });
+
+    test('request with URI', () async {
       Response response;
 
       // test get
@@ -101,17 +125,29 @@ void main() {
       const map = {'content': 'I am playload'};
 
       // test post
-      response = await dio.postUri(Uri(path: '/test'), data: map);
+      response = await dio.postUri(
+        Uri(path: '/test'),
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'POST');
       expect(response.data['body'], jsonEncode(map));
 
       // test put
-      response = await dio.putUri(Uri(path: '/test'), data: map);
+      response = await dio.putUri(
+        Uri(path: '/test'),
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PUT');
       expect(response.data['body'], jsonEncode(map));
 
       // test patch
-      response = await dio.patchUri(Uri(path: '/test'), data: map);
+      response = await dio.patchUri(
+        Uri(path: '/test'),
+        data: map,
+        options: Options(contentType: Headers.jsonContentType),
+      );
       expect(response.data['method'], 'PATCH');
       expect(response.data['body'], jsonEncode(map));
 
@@ -121,35 +157,35 @@ void main() {
       expect(response.data['path'], '/test');
     });
 
-    test('#test redirect', () async {
+    test('redirect', () async {
       Response response;
       response = await dio.get('/redirect');
-      assert(response.isRedirect == true);
-      assert(response.redirects.length == 1);
-      var ri = response.redirects.first;
-      assert(ri.statusCode == 302);
-      assert(ri.method == 'GET');
-      assert(ri.location.path == '/');
+      expect(response.isRedirect, true);
+      expect(response.redirects.length, 1);
+      final ri = response.redirects.first;
+      expect(ri.statusCode, 302);
+      expect(ri.method, 'GET');
+      expect(ri.location.path, '/');
     });
 
-    test('#test generic parameters', () async {
+    test('generic parameters', () async {
       Response response;
 
       // default is "Map"
       response = await dio.get('/test');
-      assert(response.data is Map);
+      expect(response.data, isA<Map>());
 
       // get response as `string`
       response = await dio.get<String>('/test');
-      assert(response.data is String);
+      expect(response.data, isA<String>());
 
       // get response as `Map`
       response = await dio.get<Map>('/test');
-      assert(response.data is Map);
+      expect(response.data, isA<Map>());
 
       // get response as `List`
       response = await dio.get<List>('/list');
-      assert(response.data is List);
+      expect(response.data, isA<List>());
       expect(response.data[0], 1);
     });
   });

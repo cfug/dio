@@ -1,132 +1,137 @@
-// Copyright (c) 2014, the Dart project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
 @TestOn('vm')
-import 'package:dio/dio.dart';
+import 'dart:convert';
+
+import 'package:diox/diox.dart';
 import 'package:test/test.dart';
 
-import 'echo_adapter.dart';
+import 'mock/adapters.dart';
 
 void main() {
-  test('#test options', () {
-    var map = {'a': '5'};
-    var mapOverride = {'b': '6'};
-    var baseOptions = BaseOptions(
-      connectTimeout: 2000,
-      receiveTimeout: 2000,
-      sendTimeout: 2000,
+  test('options', () {
+    final map = {'a': '5'};
+    final mapOverride = {'b': '6'};
+    final baseOptions = BaseOptions(
+      connectTimeout: Duration(seconds: 2),
+      receiveTimeout: Duration(seconds: 2),
+      sendTimeout: Duration(seconds: 2),
       baseUrl: 'http://localhost',
       queryParameters: map,
       extra: map,
       headers: map,
       contentType: 'application/json',
       followRedirects: false,
+      persistentConnection: false,
     );
-    var opt1 = baseOptions.copyWith(
+    final opt1 = baseOptions.copyWith(
       method: 'post',
-      receiveTimeout: 3000,
-      sendTimeout: 3000,
-      baseUrl: 'https://flutterchina.club',
+      receiveTimeout: Duration(seconds: 3),
+      sendTimeout: Duration(seconds: 3),
+      baseUrl: 'https://pub.dev',
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
-    assert(opt1.method == 'post');
-    assert(opt1.receiveTimeout == 3000);
-    assert(opt1.connectTimeout == 2000);
-    assert(opt1.followRedirects == false);
-    assert(opt1.baseUrl == 'https://flutterchina.club');
-    assert(opt1.headers['b'] == '6');
-    assert(opt1.extra['b'] == '6');
-    assert(opt1.queryParameters['b'] == null);
-    assert(opt1.contentType == 'text/html');
+    expect(opt1.method, 'post');
+    expect(opt1.receiveTimeout, Duration(seconds: 3));
+    expect(opt1.connectTimeout, Duration(seconds: 2));
+    expect(opt1.followRedirects, false);
+    expect(opt1.persistentConnection, false);
+    expect(opt1.baseUrl, 'https://pub.dev');
+    expect(opt1.headers['b'], '6');
+    expect(opt1.extra['b'], '6');
+    expect(opt1.queryParameters['b'], null);
+    expect(opt1.contentType, 'text/html');
 
-    var opt2 = Options(
+    final opt2 = Options(
       method: 'get',
-      receiveTimeout: 2000,
-      sendTimeout: 2000,
+      receiveTimeout: Duration(seconds: 2),
+      sendTimeout: Duration(seconds: 2),
       extra: map,
       headers: map,
       contentType: 'application/json',
       followRedirects: false,
+      persistentConnection: false,
     );
 
-    var opt3 = opt2.copyWith(
+    final opt3 = opt2.copyWith(
       method: 'post',
-      receiveTimeout: 3000,
-      sendTimeout: 3000,
+      receiveTimeout: Duration(seconds: 3),
+      sendTimeout: Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
 
-    assert(opt3.method == 'post');
-    assert(opt3.receiveTimeout == 3000);
-    assert(opt3.followRedirects == false);
-    assert(opt3.headers!['b'] == '6');
-    assert(opt3.extra!['b'] == '6');
-    assert(opt3.contentType == 'text/html');
+    expect(opt3.method, 'post');
+    expect(opt3.receiveTimeout, Duration(seconds: 3));
+    expect(opt3.followRedirects, false);
+    expect(opt3.persistentConnection, false);
+    expect(opt3.headers!['b'], '6');
+    expect(opt3.extra!['b'], '6');
+    expect(opt3.contentType, 'text/html');
 
-    var opt4 = RequestOptions(
+    final opt4 = RequestOptions(
       path: '/xxx',
-      sendTimeout: 2000,
+      sendTimeout: Duration(seconds: 2),
       followRedirects: false,
+      persistentConnection: false,
     );
-    var opt5 = opt4.copyWith(
+    final opt5 = opt4.copyWith(
       method: 'post',
-      receiveTimeout: 3000,
-      sendTimeout: 3000,
+      receiveTimeout: Duration(seconds: 3),
+      sendTimeout: Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       data: 'xx=5',
       path: '/',
       contentType: 'text/html',
     );
-    assert(opt5.method == 'post');
-    assert(opt5.receiveTimeout == 3000);
-    assert(opt5.followRedirects == false);
-    assert(opt5.contentType == 'text/html');
-    assert(opt5.headers['b'] == '6');
-    assert(opt5.extra['b'] == '6');
-    assert(opt5.data == 'xx=5');
-    assert(opt5.path == '/');
+    expect(opt5.method, 'post');
+    expect(opt5.receiveTimeout, Duration(seconds: 3));
+    expect(opt5.followRedirects, false);
+    expect(opt5.persistentConnection, false);
+    expect(opt5.contentType, 'text/html');
+    expect(opt5.headers['b'], '6');
+    expect(opt5.extra['b'], '6');
+    expect(opt5.data, 'xx=5');
+    expect(opt5.path, '/');
 
     // Keys of header are case-insensitive
     expect(opt5.headers['B'], '6');
     opt5.headers['B'] = 9;
-    assert(opt5.headers['b'] == 9);
+    expect(opt5.headers['b'], 9);
   });
-  test('#test options content-type', () {
+  test('options content-type', () {
     const contentType = 'text/html';
     const contentTypeJson = 'appliction/json';
-    var headers = {'content-type': contentType};
-    var jsonHeaders = {'content-type': contentTypeJson};
+    final headers = {'content-type': contentType};
+    final jsonHeaders = {'content-type': contentTypeJson};
 
     try {
       BaseOptions(contentType: contentType, headers: headers);
-      assert(false, 'baseOptions1');
+      expect(false, 'baseOptions1');
     } catch (e) {
       //
     }
 
-    var bo1 = BaseOptions(contentType: contentType);
-    var bo2 = BaseOptions(headers: headers);
-    var bo3 = BaseOptions();
+    final bo1 = BaseOptions(contentType: contentType);
+    final bo2 = BaseOptions(headers: headers);
+    final bo3 = BaseOptions();
 
-    assert(bo1.headers['content-type'] == contentType);
-    assert(bo2.headers['content-type'] == contentType);
-    assert(bo3.headers['content-type'] == Headers.jsonContentType);
+    expect(bo1.headers['content-type'], contentType);
+    expect(bo2.headers['content-type'], contentType);
+    expect(bo3.headers['content-type'], null);
 
     try {
       bo1.copyWith(headers: headers);
-      assert(false, 'baseOptions copyWith 1');
+      expect(false, 'baseOptions copyWith 1');
     } catch (e) {
       //
     }
 
     try {
       bo2.copyWith(contentType: contentType);
-      assert(false, 'baseOptions copyWith 2');
+      expect(false, 'baseOptions copyWith 2');
     } catch (e) {
       //
     }
@@ -136,138 +141,292 @@ void main() {
     /// options
     try {
       Options(contentType: contentType, headers: headers);
-      assert(false, 'Options1');
+      expect(false, 'Options1');
     } catch (e) {
       //
     }
 
-    var o1 = Options(contentType: contentType);
-    var o2 = Options(headers: headers);
+    final o1 = Options(contentType: contentType);
+    final o2 = Options(headers: headers);
 
     try {
       o1.copyWith(headers: headers);
-      assert(false, 'Options copyWith 1');
+      expect(false, 'Options copyWith 1');
     } catch (e) {
       //
     }
 
     try {
       o2.copyWith(contentType: contentType);
-      assert(false, 'Options copyWith 2');
+      expect(false, 'Options copyWith 2');
     } catch (e) {
       //
     }
 
-    assert(Options(contentType: contentTypeJson).compose(bo1, '').contentType ==
-        contentTypeJson);
-
-    assert(Options(contentType: contentTypeJson).compose(bo2, '').contentType ==
-        contentTypeJson);
-
-    assert(Options(headers: jsonHeaders).compose(bo1, '').contentType ==
-        contentTypeJson);
-
-    assert(Options(headers: jsonHeaders).compose(bo2, '').contentType ==
-        contentTypeJson);
+    expect(
+      Options(contentType: contentTypeJson).compose(bo1, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(contentType: contentTypeJson).compose(bo2, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(contentType: contentTypeJson).compose(bo3, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(headers: jsonHeaders).compose(bo1, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(headers: jsonHeaders).compose(bo2, '').contentType,
+      contentTypeJson,
+    );
+    expect(
+      Options(headers: jsonHeaders).compose(bo3, '').contentType,
+      contentTypeJson,
+    );
 
     /// RequestOptions
     try {
       RequestOptions(path: '', contentType: contentType, headers: headers);
-      assert(false, 'Options1');
+      expect(false, 'Options1');
     } catch (e) {
       //
     }
 
-    var ro1 = RequestOptions(path: '', contentType: contentType);
-    var ro2 = RequestOptions(path: '', headers: headers);
+    final ro1 = RequestOptions(path: '', contentType: contentType);
+    final ro2 = RequestOptions(path: '', headers: headers);
 
     try {
       ro1.copyWith(headers: headers);
-      assert(false, 'RequestOptions copyWith 1');
+      expect(false, 'RequestOptions copyWith 1');
     } catch (e) {
       //
     }
 
     try {
       ro2.copyWith(contentType: contentType);
-      assert(false, 'RequestOptions copyWith 2');
+      expect(false, 'RequestOptions copyWith 2');
     } catch (e) {
       //
     }
 
-    var ro3 = RequestOptions(path: '');
+    final ro3 = RequestOptions(path: '');
     ro3.copyWith();
   });
 
-  test('#test default content-type', () async {
-    var dio = Dio();
+  test('default content-type', () async {
+    final dio = Dio();
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
 
-    var r1 = await dio.get('');
-    assert(r1.requestOptions.headers[Headers.contentTypeHeader] == null);
+    final r1 = await dio.get('');
+    expect(
+      r1.requestOptions.headers[Headers.contentTypeHeader],
+      null,
+    );
 
-    dio.options.setRequestContentTypeWhenNoPayload = true;
-
-    r1 = await dio.get('');
-    assert(r1.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
-
-    dio.options.setRequestContentTypeWhenNoPayload = false;
-
-    var r2 = await dio.get(
+    final r2 = await dio.get(
       '',
       options: Options(contentType: Headers.jsonContentType),
     );
-
-    assert(r2.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
-
-    var r3 = await dio.get(
-      '',
-      options: Options(headers: {
-        Headers.contentTypeHeader: Headers.jsonContentType,
-      }),
+    expect(
+      r2.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
     );
-    assert(r3.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
 
-    var r4 = await dio.post('', data: '');
-    assert(r4.requestOptions.headers[Headers.contentTypeHeader] ==
-        Headers.jsonContentType);
+    final r3 = await dio.get(
+      '',
+      options: Options(
+        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+      ),
+    );
+    expect(
+      r3.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
+    );
+
+    final r4 = await dio.post('', data: '');
+    expect(
+      r4.requestOptions.headers[Headers.contentTypeHeader],
+      null,
+    );
+
+    final r5 = await dio.get(
+      '',
+      options: Options(
+        // Final result should respect this.
+        contentType: Headers.textPlainContentType,
+        // Rather than this.
+        headers: {Headers.contentTypeHeader: Headers.formUrlEncodedContentType},
+      ),
+    );
+    expect(
+      r5.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
+    );
+
+    final r6 = await dio.get(
+      '',
+      data: '',
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+      ),
+    );
+    expect(
+      r6.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.formUrlEncodedContentType,
+    );
+
+    // Update the base option.
+    dio.options.contentType = Headers.textPlainContentType;
+    final r7 = await dio.get('');
+    expect(
+      r7.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
+    );
+
+    final r8 = await dio.get(
+      '',
+      options: Options(contentType: Headers.jsonContentType),
+    );
+    expect(
+      r8.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
+    );
+
+    final r9 = await dio.get(
+      '',
+      options: Options(
+        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
+      ),
+    );
+    expect(
+      r9.requestOptions.headers[Headers.contentTypeHeader],
+      Headers.jsonContentType,
+    );
   });
 
-  test('#test default content-type2', () async {
+  test('default content-type 2', () async {
     final dio = Dio();
-    dio.options.setRequestContentTypeWhenNoPayload = true;
     dio.options.baseUrl = 'https://www.example.com';
 
-    var r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
+    final r1 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
       headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
     );
-    assert(
-        r1.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
+    expect(
+      r1.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
+    );
 
-    var r2 = Options(method: 'GET').compose(dio.options, '/test').copyWith(
-          contentType: Headers.textPlainContentType,
-        );
-    assert(
-        r2.headers[Headers.contentTypeHeader] == Headers.textPlainContentType);
+    final r2 = Options(method: 'GET')
+        .compose(dio.options, '/test')
+        .copyWith(contentType: Headers.textPlainContentType);
+    expect(
+      r2.headers[Headers.contentTypeHeader],
+      Headers.textPlainContentType,
+    );
 
     try {
       Options(method: 'GET').compose(dio.options, '/test').copyWith(
         headers: {Headers.contentTypeHeader: Headers.textPlainContentType},
         contentType: Headers.formUrlEncodedContentType,
       );
-      assert(false);
-    } catch (e) {
-      //
+    } catch (_) {}
+
+    final r3 = Options(method: 'GET').compose(dio.options, '/test');
+    expect(r3.uri.toString(), 'https://www.example.com/test');
+    expect(r3.headers[Headers.contentTypeHeader], null);
+  });
+
+  test("responseDecoder return null", () async {
+    final dio = Dio();
+    dio.options.responseDecoder = (_, __, ___) => null;
+    dio.options.baseUrl = EchoAdapter.mockBase;
+    dio.httpClientAdapter = EchoAdapter();
+
+    final Response response = await dio.get("");
+
+    expect(response.data, null);
+  });
+
+  test('forceConvert responseType', () async {
+    final dio = Dio(BaseOptions(
+      baseUrl: MockAdapter.mockBase,
+    )) //
+      ..httpClientAdapter = MockAdapter();
+    final expectedResponseData = <String, dynamic>{"code": 0, "result": "ok"};
+
+    final response = await dio.get<Map<String, dynamic>>('/test-force-convert');
+    expect(response.data, expectedResponseData);
+
+    final textResponse = await dio.get<dynamic>('/test-force-convert');
+    expect(textResponse.data, json.encode(expectedResponseData));
+
+    final textResponse2 = await dio.get<String>('/test-force-convert');
+    expect(textResponse2.data, json.encode(expectedResponseData));
+  });
+
+  test('option invalid base url', () {
+    final opt1 = 'blob:http://localhost/xyz123';
+    final opt2 = 'https://pub.dev';
+    final opt3 = 'https://';
+    final opt4 = 'https://loremipsum/';
+    final opt5 = '';
+    final opt6 = 'pub.dev';
+    expect(Uri.parse(opt1).host.isNotEmpty, false);
+    expect(Uri.parse(opt2).host.isNotEmpty, true);
+    expect(Uri.parse(opt3).host.isNotEmpty, false);
+    expect(Uri.parse(opt4).host.isNotEmpty, true);
+    expect(Uri.parse(opt5).host.isNotEmpty, false);
+    expect(Uri.parse(opt6).host.isNotEmpty, false);
+  });
+
+  test('Throws when using invalid methods', () async {
+    final dio = Dio();
+    void testInvalidArgumentException(String method) async {
+      await expectLater(
+        dio.fetch(RequestOptions(path: 'http://127.0.0.1', method: method)),
+        throwsA((e) => e is DioError && e.error is ArgumentError),
+      );
     }
 
-    dio.options.setRequestContentTypeWhenNoPayload = false;
+    const String separators = "\t\n\r()<>@,;:\\/[]?={}";
+    for (int i = 0; i < separators.length; i++) {
+      final String separator = separators.substring(i, i + 1);
+      testInvalidArgumentException(separator);
+      testInvalidArgumentException("${separator}CONNECT");
+      testInvalidArgumentException("CONN${separator}ECT");
+      testInvalidArgumentException("CONN$separator${separator}ECT");
+      testInvalidArgumentException("CONNECT$separator");
+    }
+  });
 
-    var r3 = Options(method: 'GET').compose(dio.options, '/test');
-    assert(r3.uri.toString() == 'https://www.example.com/test');
-    assert(r3.headers[Headers.contentTypeHeader] == null);
+  test('Transform data correctly with requests', () async {
+    final dio = Dio()
+      ..httpClientAdapter = EchoAdapter()
+      ..options.baseUrl = EchoAdapter.mockBase;
+    const methods = [
+      'CONNECT',
+      'HEAD',
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'DELETE',
+      'OPTIONS',
+      'TRACE',
+    ];
+    for (final method in methods) {
+      final response = await dio.request(
+        '/test',
+        data: 'test',
+        options: Options(method: method),
+      );
+      expect(response.data, 'test');
+    }
   });
 }

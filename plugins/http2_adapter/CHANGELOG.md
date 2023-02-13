@@ -1,3 +1,9 @@
+# CHANGELOG
+
+## 2.1.0
+
+* For the `diox`'s release.
+* Add `validateCertificate` for `ClientSetting`.
 
 ## [2.0.0]
 

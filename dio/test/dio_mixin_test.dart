@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
+import 'package:diox/diox.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('#assureResponse', () {
+  test('assureResponse', () {
     final untypedResponse = Response<dynamic>(
       requestOptions: RequestOptions(path: ''),
       data: null,

@@ -1,22 +1,27 @@
+# diox_http2_adapter
 
+[![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg)](https://pub.dev/packages/diox_http2_adapter)
 
-### Dependencies
+An HTTP/2 adapter for [diox](https://github.com/cfug/diox).
 
-```
+## Getting Started
+
+### Install
+
+```yaml
 dependencies:
-  dio: ^4.0.0
-  dio_http2_adapter: ^2.0.0
+  diox_http2_adapter: ^2.0.0 # latest version
 ```
 
-### Example
+### Usage
 
 ```dart
-import 'package:dio/dio.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:diox/diox.dart';
+import 'package:diox_http2_adapter/diox_http2_adapter.dart';
 
 void main() async {
-  var dio = Dio()
-    ..options.baseUrl = 'https://google.com'
+  final dio = Dio()
+    ..options.baseUrl = 'https://pub.dev'
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
       ConnectionManager(
@@ -25,10 +30,7 @@ void main() async {
         onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
       ),
     );
-
-  Response<String> response;
-
-  response = await dio.get('/?xx=6');
+  final response = await dio.get('/?xx=something');
   print(response.data?.length);
   print(response.redirects.length);
   print(response.data);

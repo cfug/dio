@@ -1,10 +1,10 @@
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:diox/diox.dart';
+import 'package:diox_cookie_manager/diox_cookie_manager.dart';
 
 void main() async {
-  var dio = Dio();
-  var cookieJar = CookieJar();
+  final dio = Dio();
+  final cookieJar = CookieJar();
   dio.interceptors
     ..add(LogInterceptor())
     ..add(CookieManager(cookieJar));

@@ -10,6 +10,7 @@ import '../options.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
+/// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// These are aborted if the client is closed.
   final _xhrs = <HttpRequest>{};
@@ -23,18 +24,20 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   bool withCredentials = false;
 
   @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) async {
-    var xhr = HttpRequest();
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final xhr = HttpRequest();
     _xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
       ..responseType = 'arraybuffer';
 
-    var _withCredentials = options.extra['withCredentials'];
-
-    if (_withCredentials != null) {
-      xhr.withCredentials = _withCredentials == true;
+    final withCredentials = options.extra['withCredentials'];
+    if (withCredentials != null) {
+      xhr.withCredentials = withCredentials == true;
     } else {
       xhr.withCredentials = withCredentials;
     }
@@ -42,18 +45,22 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
 
-    if (options.connectTimeout > 0 && options.receiveTimeout > 0) {
-      xhr.timeout = options.connectTimeout + options.receiveTimeout;
+    final connectTimeout = options.connectTimeout;
+    final receiveTimeout = options.receiveTimeout;
+    if (connectTimeout != null &&
+        receiveTimeout != null &&
+        receiveTimeout > Duration.zero) {
+      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
     }
 
-    var completer = Completer<ResponseBody>();
+    final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
-      Uint8List body = (xhr.response as ByteBuffer).asUint8List();
+      final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
       completer.complete(
         ResponseBody.fromBytes(
           body,
-          xhr.status,
+          xhr.status!,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
           isRedirect: xhr.status == 302 || xhr.status == 301,
@@ -61,41 +68,57 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    bool haveSent = false;
+    Timer? connectTimeoutTimer;
 
-    if (options.connectTimeout > 0) {
-      Future.delayed(Duration(milliseconds: options.connectTimeout)).then(
-        (value) {
-          if (!haveSent) {
+    final connectionTimeout = options.connectTimeout;
+    if (connectionTimeout != null) {
+      connectTimeoutTimer = Timer(
+        connectionTimeout,
+        () {
+          if (!completer.isCompleted) {
+            xhr.abort();
             completer.completeError(
-              DioError(
+              DioError.connectionTimeout(
                 requestOptions: options,
-                error: 'Connecting timed out [${options.connectTimeout}ms]',
-                type: DioErrorType.connectTimeout,
+                timeout: connectionTimeout,
               ),
               StackTrace.current,
             );
-            xhr.abort();
+            return;
+          } else {
+            // connectTimeout is triggered after the fetch has been completed.
           }
+          xhr.abort();
+          completer.completeError(
+            DioError.connectionTimeout(
+              requestOptions: options,
+              timeout: options.connectTimeout!,
+            ),
+            StackTrace.current,
+          );
         },
       );
     }
 
-    int sendStart = 0;
+    final uploadStopwatch = Stopwatch();
     xhr.upload.onProgress.listen((event) {
-      haveSent = true;
-      if (options.sendTimeout > 0) {
-        if (sendStart == 0) {
-          sendStart = DateTime.now().millisecondsSinceEpoch;
+      // This event will only be triggered if a request body exists.
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer!.cancel();
+        connectTimeoutTimer = null;
+      }
+
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        if (!uploadStopwatch.isRunning) {
+          uploadStopwatch.start();
         }
-        var t = DateTime.now().millisecondsSinceEpoch;
-        if (t - sendStart > options.sendTimeout) {
+
+        final duration = uploadStopwatch.elapsed;
+        if (duration > sendTimeout) {
+          uploadStopwatch.stop();
           completer.completeError(
-            DioError(
-              requestOptions: options,
-              error: 'Sending timed out [${options.sendTimeout}ms]',
-              type: DioErrorType.sendTimeout,
-            ),
+            DioError.sendTimeout(timeout: sendTimeout, requestOptions: options),
             StackTrace.current,
           );
           xhr.abort();
@@ -108,19 +131,26 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    int receiveStart = 0;
+    final downloadStopwatch = Stopwatch();
     xhr.onProgress.listen((event) {
-      if (options.receiveTimeout > 0) {
-        if (receiveStart == 0) {
-          receiveStart = DateTime.now().millisecondsSinceEpoch;
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer!.cancel();
+        connectTimeoutTimer = null;
+      }
+
+      final receiveTimeout = options.receiveTimeout;
+      if (receiveTimeout != null) {
+        if (!uploadStopwatch.isRunning) {
+          uploadStopwatch.start();
         }
-        if (DateTime.now().millisecondsSinceEpoch - receiveStart >
-            options.receiveTimeout) {
+
+        final duration = downloadStopwatch.elapsed;
+        if (duration > receiveTimeout) {
+          downloadStopwatch.stop();
           completer.completeError(
-            DioError(
+            DioError.receiveTimeout(
+              timeout: options.receiveTimeout!,
               requestOptions: options,
-              error: 'Receiving timed out [${options.receiveTimeout}ms]',
-              type: DioErrorType.receiveTimeout,
             ),
             StackTrace.current,
           );
@@ -135,51 +165,56 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     xhr.onError.first.then((_) {
+      connectTimeoutTimer?.cancel();
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
+      // See also: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
       completer.completeError(
-        DioError(
-          type: DioErrorType.response,
-          error: 'XMLHttpRequest error.',
+        DioError.connectionError(
           requestOptions: options,
+          reason: 'The XMLHttpRequest onError callback was called. '
+              'This typically indicates an error on the network layer.',
         ),
         StackTrace.current,
       );
     });
 
-    cancelFuture?.then((err) {
+    cancelFuture?.then((_) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
+        connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
-        } catch (e) {
-          // ignore
-        }
-
+        } catch (_) {}
         // xhr.onError will not triggered when xhr.abort() called.
         // so need to manual throw the cancel error to avoid Future hang ups.
         // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
-          completer.completeError(err);
+          completer.completeError(
+            DioError.requestCancelled(
+              requestOptions: options,
+              reason: 'The XMLHttpRequest was aborted.',
+            ),
+          );
         }
       }
     });
 
     if (requestStream != null) {
-      var _completer = Completer<Uint8List>();
-      var sink = ByteConversionSink.withCallback(
-          (bytes) => _completer.complete(Uint8List.fromList(bytes)));
+      final completer = Completer<Uint8List>();
+      final sink = ByteConversionSink.withCallback(
+        (bytes) => completer.complete(Uint8List.fromList(bytes)),
+      );
       requestStream.listen(
         sink.add,
-        onError: _completer.completeError,
+        onError: (Object e, StackTrace s) => completer.completeError(e, s),
         onDone: sink.close,
         cancelOnError: true,
       );
-      var bytes = await _completer.future;
+      final bytes = await completer.future;
       xhr.send(bytes);
     } else {
       xhr.send();
     }
-
     return completer.future.whenComplete(() {
       _xhrs.remove(xhr);
     });
@@ -191,7 +226,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     if (force) {
-      for (var xhr in _xhrs) {
+      for (final xhr in _xhrs) {
         xhr.abort();
       }
     }

@@ -2,10 +2,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
+import 'package:diox/diox.dart';
+import 'package:diox/io.dart';
 import 'package:test/test.dart';
 
-const SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED = 5000;
+const _sleepDurationAfterConnectionEstablished = Duration(seconds: 5);
 
 HttpServer? _server;
 
@@ -22,15 +23,14 @@ Future<int> getUnusedPort() async {
 }
 
 void startServer() async {
-  var port = await getUnusedPort();
+  final port = await getUnusedPort();
   serverUrl = Uri.parse('http://localhost:$port');
   _server = await HttpServer.bind('localhost', port);
   _server?.listen((request) {
     const content = 'success';
-    var response = request.response;
+    final response = request.response;
 
-    sleep(const Duration(
-        milliseconds: SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED));
+    sleep(_sleepDurationAfterConnectionEstablished);
 
     response
       ..statusCode = 200
@@ -55,13 +55,14 @@ void main() {
   tearDown(stopServer);
 
   test(
-      '#read_timeout - catch DioError when receiveTimeout < $SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED',
+      'catch DioError when receiveTimeout < $_sleepDurationAfterConnectionEstablished',
       () async {
-    var dio = Dio();
+    final dio = Dio();
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..receiveTimeout = SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED - 1000;
+      ..receiveTimeout =
+          _sleepDurationAfterConnectionEstablished - Duration(seconds: 1);
 
     DioError error;
 
@@ -78,13 +79,14 @@ void main() {
   });
 
   test(
-      '#read_timeout - no DioError when receiveTimeout > $SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED',
+      'no DioError when receiveTimeout > $_sleepDurationAfterConnectionEstablished',
       () async {
-    var dio = Dio();
+    final dio = Dio();
 
     dio.options
       ..baseUrl = serverUrl.toString()
-      ..connectTimeout = SLEEP_DURATION_AFTER_CONNECTION_ESTABLISHED + 1000;
+      ..connectTimeout =
+          _sleepDurationAfterConnectionEstablished + Duration(seconds: 1);
 
     DioError? error;
 
@@ -96,5 +98,28 @@ void main() {
     }
 
     expect(error, isNull);
+  });
+
+  test('change connectTimeout in run time ', () async {
+    final dio = Dio();
+    final adapter = IOHttpClientAdapter();
+    final http = HttpClient();
+
+    adapter.onHttpClientCreate = (_) => http;
+    dio.httpClientAdapter = adapter;
+    dio.options
+      ..baseUrl = serverUrl.toString()
+      ..connectTimeout = Duration(milliseconds: 200);
+
+    try {
+      await dio.get('/');
+    } on DioError catch (_) {}
+    expect(http.connectionTimeout?.inMilliseconds == 200, isTrue);
+
+    try {
+      dio.options.connectTimeout = Duration(seconds: 1);
+      await dio.get('/');
+    } on DioError catch (_) {}
+    expect(http.connectionTimeout?.inSeconds == 1, isTrue);
   });
 }

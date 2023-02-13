@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
+
+import 'package:diox/diox.dart';
 
 void main() async {
-  var dio = Dio(BaseOptions(
-    baseUrl: 'http://httpbin.org/',
-    connectTimeout: 5000,
-    receiveTimeout: 100000,
+  final dio = Dio(BaseOptions(
+    baseUrl: 'https://httpbin.org/',
+    connectTimeout: Duration(seconds: 5),
+    receiveTimeout: Duration(seconds: 10),
     // 5s
     headers: {
       HttpHeaders.userAgentHeader: 'dio',
@@ -22,7 +23,7 @@ void main() async {
   response = await dio.get('/get');
   print(response.data);
 
-  var responseMap = await dio.get(
+  final responseMap = await dio.get(
     '/get',
     // Transform response data to Json Map
     options: Options(responseType: ResponseType.json),
