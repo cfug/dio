@@ -1,5 +1,8 @@
 # diox
 
+> The diox has been migrated to the original dio package. Please refer to the dio repo.
+> https://github.com/cfug/dio
+
 Language: English | [简体中文](README-ZH.md)
 
 This is the base repo of the **diox** project.
