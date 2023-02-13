@@ -57,7 +57,7 @@ jobs:
       - run: pub get
       - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
       - name: Upload test report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: test-results-${{ matrix.sdk }}-${{ matrix.platform }}
