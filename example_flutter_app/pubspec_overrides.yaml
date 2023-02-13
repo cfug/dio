@@ -1,0 +1,7 @@
+dependency_overrides:
+  dio:
+    path: ../dio
+  dio_cookie_manager:
+    path: ../plugins/cookie_manager
+  dio_http2_adapter:
+    path: ../plugins/http2_adapter
