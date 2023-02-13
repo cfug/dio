@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 
 class MyAdapter implements HttpClientAdapter {
   final HttpClientAdapter _adapter = HttpClientAdapter();

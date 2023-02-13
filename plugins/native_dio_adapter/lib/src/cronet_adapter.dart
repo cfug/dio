@@ -1,17 +1,15 @@
 import 'dart:typed_data';
 
-import 'package:cupertino_http/cupertino_client.dart';
-import 'package:cupertino_http/cupertino_http.dart';
-import 'package:diox/diox.dart';
+import 'package:cronet_http/cronet_client.dart';
+import 'package:dio/dio.dart';
 import 'conversion_layer_adapter.dart';
 
 /// A [HttpClientAdapter] for Dio which delegates HTTP requests
 /// to the native platform by making use of
-/// [cupertino_http](https://pub.dev/packages/cupertino_http).
-class CupertinoAdapter implements HttpClientAdapter {
-  CupertinoAdapter(URLSessionConfiguration configuration)
-      : _conversionLayer = ConversionLayerAdapter(
-            CupertinoClient.fromSessionConfiguration(configuration));
+/// [cronet_http](https://pub.dev/packages/cronet_http).
+class CronetAdapter implements HttpClientAdapter {
+  CronetAdapter(CronetEngine? engine)
+      : _conversionLayer = ConversionLayerAdapter(CronetClient(engine));
 
   final ConversionLayerAdapter _conversionLayer;
 

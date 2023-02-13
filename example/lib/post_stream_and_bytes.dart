@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 
 void main() async {
   final dio = Dio(BaseOptions(

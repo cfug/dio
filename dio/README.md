@@ -1,7 +1,7 @@
-# diox
+# dio
 
-[![Pub](https://img.shields.io/pub/v/diox.svg)](https://pub.dev/packages/diox)
-[![Dev](https://img.shields.io/pub/v/diox.svg?label=dev&include_prereleases)](https://pub.dev/packages/diox)
+[![Pub](https://img.shields.io/pub/v/dio.svg)](https://pub.dev/packages/dio)
+[![Dev](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
 
 Language: English | [简体中文](README-ZH.md)
 
@@ -13,7 +13,7 @@ timeout, and custom adapters etc.
   <summary>Table of content</summary>
 
 <!-- TOC -->
-* [diox](#diox)
+* [dio](#dio)
   * [Get started](#get-started)
     * [Add dependency](#add-dependency)
     * [Super simple to use](#super-simple-to-use)
@@ -56,37 +56,26 @@ timeout, and custom adapters etc.
 
 ### Add dependency
 
-You can use the command to add diox as a dependency with the latest stable version:
+You can use the command to add dio as a dependency with the latest stable version:
 
 ```console
-$ dart pub add diox
+$ dart pub add dio
 ```
 
-Or you can manually add diox into the dependencies section in your pubspec.yaml:
+Or you can manually add dio into the dependencies section in your pubspec.yaml:
 
 ```yaml
 dependencies:
-  diox: ^replace-with-latest-version
+  dio: ^replace-with-latest-version
 ```
 
-The latest version is: ![Pub](https://img.shields.io/pub/v/diox.svg)
-The latest version including pre-releases is: ![Pub](https://img.shields.io/pub/v/diox?include_prereleases)
-
-To use `diox` as a `dio`'s fork, use `dependency_overrides` in your `pubspec.yaml`:
-
-```yaml
-dependency_overrides:
-  dio:
-    git:
-      url: https://github.com/cfug/diox
-      path: dio/
-      ref: dio
-```
+The latest version is: ![Pub](https://img.shields.io/pub/v/dio.svg)
+The latest version including pre-releases is: ![Pub](https://img.shields.io/pub/v/dio?include_prereleases)
 
 ### Super simple to use
 
 ```dart
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 
 final dio = Dio();
 
@@ -102,18 +91,18 @@ void getHttp() async {
 
 ### Plugins
 
-| Repository                                                                                | Status                                                                                                                       | Description                                                                                                            |
-|-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| [diox_cookie_manager](../plugins/cookie_manager)                                          | [![Pub](https://img.shields.io/pub/v/diox_cookie_manager.svg)](https://pub.dev/packages/diox_cookie_manager)                 | A cookie manager for Dio                                                                                               |
-| [diox_http2_adapter](../plugins/http2_adapter)                                            | [![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg)](https://pub.dev/packages/diox_http2_adapter)                   | A Dio HttpClientAdapter which support Http/2.0                                                                         |
-| [native_diox_adapter](https://github.com/cfug/diox/blob/main/plugins/native_diox_adapter) | [![Pub](https://img.shields.io/pub/v/native_diox_adapter.svg)](https://pub.dev/packages/native_diox_adapter)                 | An adapter for Dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform. |
-| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                            | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.dev/packages/dio_smart_retry)                         | Flexible retry library for Dio and DioX                                                                                         |
-| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)        | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.dev/packages/http_certificate_pinning)       | Https Certificate pinning for Flutter                                                                                  |
-| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)      | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.                                                                              |
-| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)               | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg)](https://pub.dev/packages/dio_cache_interceptor)             | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)                                    |
-| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                                | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.dev/packages/dio_http_cache)                           | A simple cache library for Dio like Rxcache in Android                                                                 |
-| [pretty_diox_logger](https://github.com/dmakwt/pretty_diox_logger)                    | [![Pub](https://img.shields.io/pub/v/pretty_diox_logger.svg)](https://pub.dev/packages/pretty_diox_logger)                     | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.                       |
-| [dio_image_provider](https://github.com/ueman/image_provider)                             | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.flutter-io.cn/packages/dio_image_provider)         | An image provider which makes use of package:dio to instead of dart:io                                                 |
+| Repository                                                                             | Status                                                                                                                       | Description                                                                                                            |
+|----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [dio_cookie_manager](https://github.com/cfug/dio/blob/main/plugins/cookie_manager)     | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.dev/packages/dio_cookie_manager)                   | A cookie manager for Dio                                                                                               |
+| [dio_http2_adapter](https://github.com/cfug/dio/blob/main/plugins/http2_adapter)       | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.dev/packages/dio_http2_adapter)                     | A Dio HttpClientAdapter which support Http/2.0                                                                         |
+| [native_dio_adapter](https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter) | [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg)](https://pub.dev/packages/native_dio_adapter)                   | An adapter for Dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform. |
+| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                         | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.dev/packages/dio_smart_retry)                         | Flexible retry library for Dio                                                                                         |
+| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)     | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.dev/packages/http_certificate_pinning)       | Https Certificate pinning for Flutter                                                                                  |
+| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)   | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.dev/packages/curl_logger_dio_interceptor) | A Flutter curl-command generator for Dio.                                                                              |
+| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)            | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg)](https://pub.dev/packages/dio_cache_interceptor)             | Dio HTTP cache interceptor with multiple stores respecting HTTP directives (or not)                                    |
+| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                             | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.dev/packages/dio_http_cache)                           | A simple cache library for Dio like Rxcache in Android                                                                 |
+| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                 | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.dev/packages/pretty_dio_logger)                     | Pretty Dio logger is a Dio interceptor that logs network calls in a pretty, easy to read format.                       |
+| [dio_image_provider](https://github.com/ueman/image_provider)                          | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.flutter-io.cn/packages/dio_image_provider)         | An image provider which makes use of package:dio to instead of dart:io                                                 |
 
 ### Related Projects
 
@@ -125,7 +114,7 @@ in [here](https://github.com/flutterchina/dio/issues/347).
 Performing a `GET` request:
 
 ```dart
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 
 final dio = Dio();
 
@@ -445,7 +434,7 @@ dio.interceptors.add(
 Simple interceptor example:
 
 ```dart
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 class CustomInterceptors extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -807,7 +796,7 @@ so it's not recommended to use in common cases.
 
 ## HTTP/2 support
 
-[diox_http2_adapter](../plugins/http2_adapter) is a Dio `HttpClientAdapter`
+[dio_http2_adapter](../plugins/http2_adapter) is a Dio `HttpClientAdapter`
 which supports HTTP/2.
 
 ## Cancellation
@@ -838,9 +827,9 @@ so we don't extend `Dio` class direct.
 We can extend `DioForNative` or `DioForBrowser` instead, for example:
 
 ```dart
-import 'package:diox/diox.dart';
-import 'package:diox/io.dart';
-// If in browser, import 'package:diox/browser.dart'.
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+// If in browser, import 'package:dio/browser.dart'.
 
 class Http extends DioForNative {
   Http([BaseOptions options]) : super(options) {
@@ -863,7 +852,7 @@ The project is originally authored by
 [@wendux](https://github.com/wendux)
 with the organization
 [@flutterchina](https://github.com/flutterchina),
-hard-forked at 2022 and maintained by
-[@cfug](https://github.com/cfug).
+started to maintained by
+[@cfug](https://github.com/cfug) in 2023.
 
 The project consents [the MIT license](LICENSE).

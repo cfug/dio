@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/plugins/cookie_manager/cookie_manager.iml" filepath="$PROJECT_DIR$/plugins/cookie_manager/cookie_manager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/dio/dio.iml" filepath="$PROJECT_DIR$/dio/dio.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/diox.iml" filepath="$PROJECT_DIR$/.idea/diox.iml" />
-      <module fileurl="file://$PROJECT_DIR$/plugins/http2_adapter/http2_adapter.iml" filepath="$PROJECT_DIR$/plugins/http2_adapter/http2_adapter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/plugins/native_diox_adapter/native_diox_adapter.iml" filepath="$PROJECT_DIR$/plugins/native_diox_adapter/native_diox_adapter.iml" />
     </modules>
   </component>
 </project>

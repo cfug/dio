@@ -1,6 +1,6 @@
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart';
-import 'package:native_diox_adapter/src/conversion_layer_adapter.dart';
+import 'package:native_dio_adapter/src/conversion_layer_adapter.dart';
 import 'package:test/test.dart';
 
 import 'client_mock.dart';

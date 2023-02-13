@@ -1,4 +1,4 @@
-name: diox
+name: dio
 
 description: |
   A powerful HTTP package for Dart/Flutter,
@@ -6,9 +6,9 @@ description: |
   FormData, Aborting and canceling a request,
   Files uploading and downloading,
   Requests timeout, Custom adapters, etc.
-homepage: https://github.com/cfug/diox
-repository: https://github.com/cfug/diox/blob/main/dio
-issue_tracker: https://github.com/cfug/diox/issues
+homepage: https://github.com/cfug/dio
+repository: https://github.com/cfug/dio/blob/main/dio
+issue_tracker: https://github.com/cfug/dio/issues
 version: 5.0.0
 
 environment:

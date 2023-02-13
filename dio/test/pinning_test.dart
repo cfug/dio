@@ -2,8 +2,8 @@
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:diox/diox.dart';
-import 'package:diox/io.dart';
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:test/test.dart';
 
 void main() {

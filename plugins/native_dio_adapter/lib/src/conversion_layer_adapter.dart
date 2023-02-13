@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart';
 
 /// A conversion layer which translates Dio HTTP requests to

@@ -1,4 +1,4 @@
-# For diox pinning tests
+# For dio pinning tests
 openssl s_client \
   -servername badssl.com \
   -connect badssl.com:443 < /dev/null 2>/dev/null \

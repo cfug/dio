@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 import 'package:http2/http2.dart';
 
 part 'client_setting.dart';

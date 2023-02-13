@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cronet_http/cronet_client.dart';
 import 'package:cupertino_http/cupertino_http.dart';
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 import 'cronet_adapter.dart';
 import 'cupertino_adapter.dart';
 

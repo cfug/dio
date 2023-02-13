@@ -1,6 +1,6 @@
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:diox/diox.dart';
-import 'package:diox_cookie_manager/diox_cookie_manager.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:test/test.dart';
 
 void main() {

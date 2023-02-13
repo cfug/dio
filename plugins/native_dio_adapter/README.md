@@ -1,6 +1,9 @@
-# Native Diox Adapter
+# Native Dio Adapter
 
-[![pub package](https://img.shields.io/pub/v/native_diox_adapter.svg)](https://pub.dev/packages/native_diox_adapter) [![likes](https://img.shields.io/pub/likes/native_diox_adapter)](https://pub.dev/packages/native_diox_adapter/score) [![popularity](https://img.shields.io/pub/popularity/native_diox_adapter)](https://pub.dev/packages/native_diox_adapter/score) [![pub points](https://img.shields.io/pub/points/native_diox_adapter)](https://pub.dev/packages/native_diox_adapter/score)
+[![pub package](https://img.shields.io/pub/v/native_dio_adapter.svg)](https://pub.dev/packages/native_dio_adapter)
+[![likes](https://img.shields.io/pub/likes/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
+[![popularity](https://img.shields.io/pub/popularity/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
+[![pub points](https://img.shields.io/pub/points/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
 
 > Note: Experimental
 
@@ -9,7 +12,10 @@ is also considered experimental.
 
 If you encounter bugs, consider fixing it by opening a PR or at least contribute a failing test case.
 
-A client for [Diox](https://pub.dev/packages/diox) which makes use of [`cupertino_http`](https://pub.dev/packages/cupertino_http) and [`cronet_http`](https://pub.dev/packages/cronet_http) to delegate HTTP requests to the native platform instead of the `dart:io` platforms.
+A client for [Dio](https://pub.dev/packages/dio) which makes use of
+[`cupertino_http`](https://pub.dev/packages/cupertino_http) and
+[`cronet_http`](https://pub.dev/packages/cronet_http)
+to delegate HTTP requests to the native platform instead of the `dart:io` platforms.
 
 Inspired by the [Dart 2.18 release blog](https://medium.com/dartlang/dart-2-18-f4b3101f146c).
 

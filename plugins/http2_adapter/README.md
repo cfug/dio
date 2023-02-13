@@ -1,8 +1,8 @@
-# diox_http2_adapter
+# dio_http2_adapter
 
-[![Pub](https://img.shields.io/pub/v/diox_http2_adapter.svg)](https://pub.dev/packages/diox_http2_adapter)
+[![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.dev/packages/dio_http2_adapter)
 
-An HTTP/2 adapter for [diox](https://github.com/cfug/diox).
+An HTTP/2 adapter for [dio](https://github.com/cfug/dio).
 
 ## Getting Started
 
@@ -10,14 +10,14 @@ An HTTP/2 adapter for [diox](https://github.com/cfug/diox).
 
 ```yaml
 dependencies:
-  diox_http2_adapter: ^2.0.0 # latest version
+  dio_http2_adapter: ^2.0.0 # latest version
 ```
 
 ### Usage
 
 ```dart
-import 'package:diox/diox.dart';
-import 'package:diox_http2_adapter/diox_http2_adapter.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 
 void main() async {
   final dio = Dio()

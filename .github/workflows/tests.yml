@@ -24,7 +24,7 @@ jobs:
           "example_flutter_app",
           "plugins/cookie_manager",
           "plugins/http2_adapter",
-          "plugins/native_diox_adapter"
+          "plugins/native_dio_adapter"
         ]
     defaults:
       run:
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["example_flutter_app", "plugins/native_diox_adapter"]
+        directory: ["example_flutter_app", "plugins/native_dio_adapter"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -75,9 +75,9 @@ jobs:
       - name: Analyze
         run: flutter pub get && flutter analyze
 
-  test_diox:
+  test_dio:
     needs: [analyze, analyze_flutter]
-    name: Run unit tests with diox
+    name: Run unit tests with dio
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -129,7 +129,7 @@ jobs:
       fail-fast: false
       matrix:
         channel: [ min, stable, beta ]
-        directory: ["plugins/native_diox_adapter"]
+        directory: ["plugins/native_dio_adapter"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -144,7 +144,7 @@ jobs:
       - run: flutter test
 
   build_example_android:
-    needs: [test_diox, test_plugins, test_flutter_plugins]
+    needs: [test_dio, test_plugins, test_flutter_plugins]
     name: Build Android example
     runs-on: ubuntu-latest
     defaults:

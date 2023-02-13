@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:diox/src/compute/compute.dart';
-import 'package:diox/src/transformers/sync_transformer.dart';
+import 'package:dio/src/compute/compute.dart';
+import 'package:dio/src/transformers/sync_transformer.dart';
 
 /// [BackgroundTransformer] will do the deserialization of JSON
 /// in a background isolate if possible.

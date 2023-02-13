@@ -41,5 +41,5 @@ plugins/http2_adapter/test/*_pinning.txt
 
 # IDEA configurations
 /.idea/*
-!/.idea/diox.iml
+!/.idea/dio.iml
 !/.idea/modules.xml

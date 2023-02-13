@@ -7,21 +7,21 @@ body:
       value: |
         🧐 **Guidelines:**
 
-        - Search through [existing issues](https://github.com/cfug/diox/issues) first to ensure that this bug has not been reported before.
+        - Search through [existing issues](https://github.com/cfug/dio/issues) first to ensure that this bug has not been reported before.
         - Write a descriptive title for your issue. Avoid generic or vague titles such as "Something's not working" or "A couple of problems".
         - Keep your issue focused on one single problem. If you have multiple bug reports, please create separate issues for each of them.
         - Provide as much context as possible in the fields below. Include screenshots, screen recordings, links, references, or anything else you may consider relevant.
-        - If you want to ask a question instead of reporting a bug, please use [discussions](https://github.com/cfug/diox/discussions/new) instead.
+        - If you want to ask a question instead of reporting a bug, please use [discussions](https://github.com/cfug/dio/discussions/new) instead.
   - type: dropdown
     id: package
     attributes:
       label: Package
       description: Which package has a problem?
       options:
-        - diox
+        - dio
         - cookie_manager
         - http2_adapter
-        - native_diox_adapter
+        - native_dio_adapter
     validations:
       required: true
   - type: input

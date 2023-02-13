@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  diox: ^5.0.0-0
-  native_diox_adapter:
+  dio: ^5.0.0-0
+  native_dio_adapter:
     path:
       ../
 

@@ -1,4 +1,4 @@
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 
 // void getHttp() async {
 //   final dio = Dio();

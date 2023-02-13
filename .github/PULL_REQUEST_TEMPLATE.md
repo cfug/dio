@@ -2,8 +2,8 @@
 
 ### New Pull Request Checklist
 
-- [ ] I have read the [Documentation](https://pub.dev/documentation/diox/latest/)
-- [ ] I have searched for a similar pull request in the [project](https://github.com/cfug/diox/pulls) and found none
+- [ ] I have read the [Documentation](https://pub.dev/documentation/dio/latest/)
+- [ ] I have searched for a similar pull request in the [project](https://github.com/cfug/dio/pulls) and found none
 - [ ] I have updated this branch with the latest `main` branch to avoid conflicts (via merge from master or rebase)
 - [ ] I have added the required tests to prove the fix/feature I'm adding
 - [ ] I have updated the documentation (if necessary)

@@ -2,7 +2,7 @@
 
 ## 2.1.0
 
-* For the `diox`'s release.
+* For the `dio`'s 5.0 release.
 * Add `validateCertificate` for `ClientSetting`.
 
 ## [2.0.0]

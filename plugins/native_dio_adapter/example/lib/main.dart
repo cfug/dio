@@ -2,9 +2,9 @@
 
 import 'dart:convert';
 
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:native_diox_adapter/native_diox_adapter.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 
 void main() {
   runApp(const MyApp());

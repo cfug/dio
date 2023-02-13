@@ -1,4 +1,4 @@
-import 'package:diox/diox.dart';
+import 'package:dio/dio.dart';
 
 final dio = Dio(BaseOptions(
   connectTimeout: Duration(seconds: 3),

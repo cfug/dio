@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_diox_adapter"]
+        directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_dio_adapter"]
     steps:
       - uses: actions/checkout@v3
       - name: Publish dry run

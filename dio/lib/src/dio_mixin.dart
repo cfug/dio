@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:diox/src/transformers/background_transformer.dart';
+import 'package:dio/src/transformers/background_transformer.dart';
 
 import 'adapter.dart';
 import 'cancel_token.dart';

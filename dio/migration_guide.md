@@ -54,7 +54,7 @@ or in every requests' `Options` or headers. To do so:
   );
   ```
 
-If you have your own request method that wraps `diox`:
+If you have your own request method that wraps `dio`:
 ```dart
 void request(
   Uri uri, {

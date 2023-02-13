@@ -1,7 +1,7 @@
 /// A powerful Http client for Dart, which supports Interceptors,
 /// Global configuration, FormData, File downloading etc. and Dio is
 /// very easy to use.
-library diox;
+library dio;
 
 export 'src/adapter.dart';
 export 'src/cancel_token.dart';

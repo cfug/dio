@@ -1,8 +1,8 @@
-# diox_cookie_manager
+# dio_cookie_manager
 
-[![Pub](https://img.shields.io/pub/v/diox_cookie_manager.svg)](https://pub.dev/packages/diox_cookie_manager)
+[![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.dev/packages/dio_cookie_manager)
 
-A cookie manager for [diox](https://github.com/cfug/diox). 
+A cookie manager for [dio](https://github.com/cfug/dio). 
 
 ## Getting Started
 
@@ -10,15 +10,15 @@ A cookie manager for [diox](https://github.com/cfug/diox).
 
 ```yaml
 dependencies:
-  diox_cookie_manager: ^2.0.0 # latest version
+  dio_cookie_manager: ^2.0.0 # latest version
 ```
 
 ### Usage
 
 ```dart
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:diox/diox.dart';
-import 'package:diox_cookie_manager/diox_cookie_manager.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 void main() async {
   final dio =  Dio();
@@ -38,7 +38,7 @@ void main() async {
 `CookieManager` Interceptor can help us manage the request/response cookies automatically.
 `CookieManager` depends on the `cookie_jar` package:
 
-> The diox_cookie_manager manage API is based on the withdrawn
+> The dio_cookie_manager manage API is based on the withdrawn
 > [cookie_jar](https://github.com/flutterchina/cookie_jar).
 
 You can create a `CookieJar` or `PersistCookieJar` to manage cookies automatically,
