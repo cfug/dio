@@ -16,6 +16,7 @@ class Headers {
   static const jsonContentType = 'application/json';
   static const formUrlEncodedContentType = 'application/x-www-form-urlencoded';
   static const textPlainContentType = 'text/plain';
+  static const multipartFormDataContentType = 'multipart/form-data';
 
   static final jsonMimeType = MediaType.parse(jsonContentType);
 
