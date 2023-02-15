@@ -637,8 +637,8 @@ abstract class DioMixin implements Dio {
         });
       } else if (data is FormData) {
         options.headers[Headers.contentTypeHeader] =
-            'multipart/form-data; boundary=${data.boundary}';
-
+            '${Headers.multipartFormDataContentType}; '
+            'boundary=${data.boundary}';
         stream = data.finalize();
         length = data.length;
         options.headers[Headers.contentLengthHeader] = length.toString();
