@@ -308,6 +308,12 @@ void main() {
       r9.requestOptions.headers[Headers.contentTypeHeader],
       Headers.jsonContentType,
     );
+
+    final r10 = await dio.post('', data: FormData());
+    expect(
+      r10.requestOptions.contentType,
+      startsWith(Headers.multipartFormDataContentType),
+    );
   });
 
   test('default content-type 2', () async {
