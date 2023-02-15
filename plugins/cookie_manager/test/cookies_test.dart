@@ -6,7 +6,8 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:test/test.dart';
 
 class MockRequestInterceptorHandler extends RequestInterceptorHandler {
-  String cookies = '';
+  final String expectResult;
+  MockRequestInterceptorHandler(this.expectResult);
   @override
   void next(RequestOptions requestOptions) {
     final c = requestOptions.headers[HttpHeaders.cookieHeader];
@@ -17,8 +18,6 @@ class MockRequestInterceptorHandler extends RequestInterceptorHandler {
 
 class MockResponseInterceptorHandler extends ResponseInterceptorHandler {}
 
-const expectResult = 'foo=bar; a=c; d=e; e=f';
-
 void main() {
   test('testing merge cookies', () async {
     const List<String> mockFirstRequestCookies = [
@@ -27,12 +26,18 @@ void main() {
     ];
     const exampleUrl = 'https://example.com';
     const String mockSecondRequestCookies = 'd=e;e=f';
+
+    final expectResult = mockFirstRequestCookies
+            .map((mock) => mock.replaceAll(' Path=/', ' '))
+            .join() +
+        mockSecondRequestCookies.split(';').join('; ');
+
     final cookieJar = CookieJar();
     final cookieManager = CookieManager(cookieJar);
-    final mockRequestInterceptorHandler = MockRequestInterceptorHandler();
+    final mockRequestInterceptorHandler =
+        MockRequestInterceptorHandler(expectResult);
     final mockResponseInterceptorHandler = MockResponseInterceptorHandler();
-    final firstRequestOptions =
-        RequestOptions(baseUrl: exampleUrl, headers: {});
+    final firstRequestOptions = RequestOptions(baseUrl: exampleUrl);
 
     final mockResponse = Response(
         requestOptions: firstRequestOptions,
