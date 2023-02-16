@@ -1,6 +1,6 @@
 name: 👷 Infra
 description: Something is wrong with the CI setup or could be improved
-labels: ["s: infra"]
+labels: ["infra"]
 body:
   - type: textarea
     id: problem
