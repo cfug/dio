@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 2.1.1
+
+* Fix #1651
+
 ## 2.1.0
 
 * For the `dio`'s 5.0 release.
