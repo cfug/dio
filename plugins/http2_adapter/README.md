@@ -24,17 +24,38 @@ void main() async {
     ..options.baseUrl = 'https://pub.dev'
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
-      ConnectionManager(
-          idleTimeout: 10000,
-          // Ignore bad certificate
-          onClientCreate: (_, config) =>
-              config..onBadCertificate = ((_) => true)
-          //..proxy = Uri.parse('http://login:password@192.168.0.1:8888'),
-          ),
+      ConnectionManager(idleTimeout: Duration(seconds: 10)),
     );
-  final response = await dio.get('/?xx=something');
-  print(response.data?.length);
-  print(response.redirects.length);
+
+  Response<String> response;
+  response = await dio.get('/?xx=6');
+  for (final e in response.redirects) {
+    print('redirect: ${e.statusCode} ${e.location}');
+  }
+  print(response.data);
+}
+```
+
+### Configuring the proxy
+
+```dart
+void main() async {
+  final dio = Dio()
+    ..options.baseUrl = 'https://pub.dev'
+    ..interceptors.add(LogInterceptor())
+    ..httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: Duration(seconds: 10),
+        onClientCreate: (_, config) =>
+            config.proxy = Uri.parse('http://login:password@192.168.0.1:8888'),
+      ),
+    );
+
+  Response<String> response;
+  response = await dio.get('/?xx=6');
+  for (final e in response.redirects) {
+    print('redirect: ${e.statusCode} ${e.location}');
+  }
   print(response.data);
 }
 ```
