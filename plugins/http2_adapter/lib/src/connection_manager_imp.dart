@@ -74,10 +74,7 @@ class _ConnectionManager implements ConnectionManager {
     late final SecureSocket socket;
 
     try {
-      // Create socket
-      socket = clientConfig.proxy == null
-          ? await _createSocket(uri, options, clientConfig)
-          : await _createSocketWithProxy(uri, options, clientConfig);
+      socket = await _createSocket(uri, options, clientConfig);
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
@@ -129,23 +126,17 @@ class _ConnectionManager implements ConnectionManager {
     RequestOptions options,
     ClientSetting clientConfig,
   ) async {
-    final socket = await SecureSocket.connect(
-      target.host,
-      target.port,
-      timeout: options.connectTimeout,
-      context: clientConfig.context,
-      onBadCertificate: clientConfig.onBadCertificate,
-      supportedProtocols: ['h2'],
-    );
+    if (clientConfig.proxy == null) {
+      return SecureSocket.connect(
+        target.host,
+        target.port,
+        timeout: options.connectTimeout,
+        context: clientConfig.context,
+        onBadCertificate: clientConfig.onBadCertificate,
+        supportedProtocols: ['h2'],
+      );
+    }
 
-    return socket;
-  }
-
-  Future<SecureSocket> _createSocketWithProxy(
-    Uri target,
-    RequestOptions options,
-    ClientSetting clientConfig,
-  ) async {
     final proxySocket = await Socket.connect(
       clientConfig.proxy!.host,
       clientConfig.proxy!.port,
