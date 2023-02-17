@@ -35,9 +35,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       ..open(options.method, '${options.uri}')
       ..responseType = 'arraybuffer';
 
-    final withCredentials = options.extra['withCredentials'];
-    if (withCredentials != null) {
-      xhr.withCredentials = withCredentials == true;
+    final withCredentialsOption = options.extra['withCredentials'];
+    if (withCredentialsOption != null) {
+      xhr.withCredentials = withCredentialsOption == true;
     } else {
       xhr.withCredentials = withCredentials;
     }
