@@ -36,6 +36,22 @@ void main() async {
 }
 ```
 
+### Ignoring a bad certificate
+
+```dart
+void main() async {
+  final dio = Dio()
+    ..options.baseUrl = 'https://pub.dev'
+    ..interceptors.add(LogInterceptor())
+    ..httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: Duration(seconds: 10),
+        onClientCreate: (_, config) => config.onBadCertificate = (_) => true,
+      ),
+    );
+}
+```
+
 ### Configuring the proxy
 
 ```dart
@@ -50,12 +66,5 @@ void main() async {
             config.proxy = Uri.parse('http://login:password@192.168.0.1:8888'),
       ),
     );
-
-  Response<String> response;
-  response = await dio.get('/?xx=6');
-  for (final e in response.redirects) {
-    print('redirect: ${e.statusCode} ${e.location}');
-  }
-  print(response.data);
 }
 ```
