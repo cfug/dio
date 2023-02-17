@@ -25,8 +25,8 @@ class ClientSetting {
   /// [validateCertificate] evaluates the leaf certificate.
   ValidateCertificate? validateCertificate;
 
-  /// [proxy] optional proxy setting.
-  /// When [proxy] setting is set, a proxy tunnel is created through which all [Dio] http2 traffic goes
-  /// This setting uses [Uri] to correctly pass the scheme, address, port of the proxy
+  /// Create clients with the given [proxy] setting.
+  /// When it's set, all HTTP/2 traffic from [Dio] will go through the proxy tunnel.
+  /// This setting uses [Uri] to correctly pass the scheme, address, and port of the proxy.
   Uri? proxy;
 }
