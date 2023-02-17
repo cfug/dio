@@ -172,13 +172,16 @@ class _ConnectionManager implements ConnectionManager {
 
     final completerProxyInitialization = Completer<void>();
 
-    completerProxyInitialization.future.onError((error, stackTrace) => {
-          throw DioError(
-            requestOptions: options,
-            error: error,
-            type: DioErrorType.connectionError,
-          )
-        });
+    Never _onProxyError(Object? error, StackTrace stackTrace) {
+      throw DioError(
+        requestOptions: options,
+        error: error,
+        type: DioErrorType.connectionError,
+        stackTrace: stackTrace,
+      );
+    }
+
+    completerProxyInitialization.future.onError(_onProxyError);
 
     final proxySubscription = proxySocket.listen(
       (event) {
