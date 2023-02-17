@@ -34,4 +34,17 @@ void main() {
     final res = await dio.post('post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));
   });
+
+  test('request with payload via proxy', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbin.org/'
+      ..httpClientAdapter = Http2Adapter(ConnectionManager(
+        idleTimeout: Duration(milliseconds: 10),
+        onClientCreate: (uri, settings) =>
+            settings.proxy = Uri.parse('http://localhost:8888'),
+      ));
+
+    final res = await dio.post('post', data: 'TEST');
+    expect(res.data.toString(), contains('TEST'));
+  });
 }
