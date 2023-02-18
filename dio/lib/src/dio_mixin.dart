@@ -523,7 +523,7 @@ abstract class DioMixin implements Dio {
     }).catchError((dynamic e, StackTrace s) {
       final isState = e is InterceptorState;
       if (isState) {
-        if ((e as InterceptorState).type == InterceptorResultType.resolve) {
+        if (e.type == InterceptorResultType.resolve) {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
