@@ -851,8 +851,8 @@ class MyDio with DioMixin implements Dio {
 The project is originally authored by
 [@wendux](https://github.com/wendux)
 with the organization
-[@flutterchina](https://github.com/flutterchina),
-started to maintained by
+[@flutterchina](https://github.com/flutterchina) -
+started being maintained by
 [@cfug](https://github.com/cfug) since 2023.
 
 The project consents [the MIT license](LICENSE).
