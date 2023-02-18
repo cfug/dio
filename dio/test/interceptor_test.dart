@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:dio/src/interceptors/imply_content_type.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
@@ -299,6 +300,14 @@ void main() {
       expect(response.data['errCode'], 0);
       response = await dio.get('/test?tag=1');
       expect(response.data['errCode'], 0);
+    });
+
+    test('ImplyContentTypeInterceptor', () async {
+      final dio = Dio();
+      expect(dio.interceptors, isNotEmpty);
+      expect(dio.interceptors.first, isA<ImplyContentTypeInterceptor>());
+      dio.interceptors.removeImplyContentTypeInterceptor();
+      expect(dio.interceptors, isEmpty);
     });
   });
 
