@@ -309,12 +309,7 @@ class Interceptors extends ListMixin<Interceptor> {
   final List<Interceptor> _list;
 
   @override
-  int get length => _list.length;
-
-  @override
-  set length(int value) {
-    _list.length = value;
-  }
+  late int length = _list.length;
 
   @override
   Interceptor operator [](int index) => _list[index];
