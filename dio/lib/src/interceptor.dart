@@ -302,7 +302,11 @@ class InterceptorsWrapper extends Interceptor with _InterceptorWrapperMixin {
 /// Interceptors are a queue, and you can add any number of interceptors,
 /// All interceptors will be executed in first in first out order.
 class Interceptors extends ListMixin<Interceptor> {
-  final _list = <Interceptor>[];
+  Interceptors([
+    Iterable<Interceptor>? interceptors,
+  ]) : _list = {...?interceptors, const ImplyContentTypeInterceptor()}.toList();
+
+  final List<Interceptor> _list;
 
   @override
   int length = 0;
@@ -317,6 +321,11 @@ class Interceptors extends ListMixin<Interceptor> {
     } else {
       _list[index] = value;
     }
+  }
+
+  /// Remove the default imply content type interceptor.
+  void removeImplyContentTypeInterceptor() {
+    _list.removeWhere((e) => e is ImplyContentTypeInterceptor);
   }
 }
 

@@ -4,17 +4,17 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:dio/src/transformers/background_transformer.dart';
-
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
 import 'dio_error.dart';
 import 'form_data.dart';
 import 'headers.dart';
+import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
+import 'transformers/background_transformer.dart';
 
 import 'progress_stream/io_progress_stream.dart'
     if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
