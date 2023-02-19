@@ -8,7 +8,7 @@ const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
     ? bool.fromEnvironment('dart.library.js_util')
     : identical(0, 0.0);
 
-final setCookieReg = RegExp('(?<=)(,)(?=[^;]+?=)');
+final _setCookieReg = RegExp('(?<=)(,)(?=[^;]+?=)');
 
 /// Cookie manager for HTTP requests based on [CookieJar].
 class CookieManager extends Interceptor {
@@ -76,7 +76,7 @@ class CookieManager extends Interceptor {
 
     if (setCookies != null) {
       final cookies = setCookies
-          .map((str) => str.split(setCookieReg))
+          .map((str) => str.split(_setCookieReg))
           .expand((element) => element);
       await cookieJar.saveFromResponse(
         response.requestOptions.uri,
