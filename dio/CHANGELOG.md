@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add `ImplyContentTypeInterceptor` as a default interceptor.
 - Add `Headers.multipartFormDataContentType` for headers usage.
 
 ## 5.0.0
