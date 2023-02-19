@@ -19,8 +19,6 @@
 
 ### Breaking Changes
 
-- Content type with `application/json` and `application/x-www-form-urlencoded`
-  will not be implied anymore in the transformer and the request option.
 - The default charset `utf-8` in `Headers` content type constants has been removed.
 - `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed.
 - Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.

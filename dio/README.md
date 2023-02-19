@@ -313,6 +313,12 @@ dynamic data;
 String path;
 
 /// The request Content-Type.
+///
+/// The default `content-type` for requests will be implied by the
+/// [ImplyContentTypeInterceptor] according to the type of the request payload.
+/// The interceptor can be removed by
+/// [Interceptors.removeImplyContentTypeInterceptor].
+///
 /// If you want to encode request body with 'application/x-www-form-urlencoded',
 /// you can set [Headers.formUrlEncodedContentType], and [Dio]
 /// will automatically encode the request body.

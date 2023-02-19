@@ -5,11 +5,12 @@ import '../form_data.dart';
 import '../headers.dart';
 import '../options.dart';
 
-/// The interceptor will imply the `content-type` in request headers
-/// according to the type of the request payload.
-///
+/// {@template dio.interceptors.ImplyContentTypeInterceptor}
+/// The default `content-type` for requests will be implied by the
+/// [ImplyContentTypeInterceptor] according to the type of the request payload.
 /// The interceptor can be removed by
 /// [Interceptors.removeImplyContentTypeInterceptor].
+/// {@endtemplate}
 class ImplyContentTypeInterceptor extends Interceptor {
   const ImplyContentTypeInterceptor();
 
