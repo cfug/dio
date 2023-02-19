@@ -12,42 +12,43 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   <summary>内容列表</summary>
 
 <!-- TOC -->
-* [dio](#dio)
-  * [开始使用](#开始使用)
-    * [添加依赖](#添加依赖)
-  * [一个极简的示例](#一个极简的示例)
-  * [Awesome dio](#awesome-dio)
-    * [相关插件](#相关插件)
-    * [相关的项目](#相关的项目)
-  * [示例](#示例)
-  * [Dio APIs](#dio-apis)
-    * [创建一个Dio实例，并配置它](#创建一个dio实例并配置它)
-    * [请求配置](#请求配置)
-    * [响应数据](#响应数据)
-    * [拦截器](#拦截器)
-      * [完成和终止请求/响应](#完成和终止请求响应)
-      * [QueuedInterceptor](#queuedinterceptor)
-        * [例子](#例子)
-      * [日志拦截器](#日志拦截器)
-    * [自定义拦截器](#自定义拦截器)
-  * [错误处理](#错误处理)
-    * [DioError](#dioerror)
-    * [DioErrorType](#dioerrortype)
-  * [使用 application/x-www-form-urlencoded 编码](#使用-applicationx-www-form-urlencoded-编码)
-  * [发送 FormData](#发送-formdata)
-    * [多文件上传](#多文件上传)
-  * [转换器](#转换器)
-    * [在 Flutter 中进行设置](#在-flutter-中进行设置)
-    * [其它示例](#其它示例)
-  * [HttpClientAdapter](#httpclientadapter)
-    * [设置代理](#设置代理)
-    * [HTTPS 证书校验](#https-证书校验)
-  * [HTTP/2 支持](#http2-支持)
-  * [请求取消](#请求取消)
-  * [继承 Dio class](#继承-dio-class)
-  * [版权 & 协议](#版权--协议)
-<!-- TOC -->
-</details>
+
+- [dio](#dio)
+  - [开始使用](#开始使用)
+    - [添加依赖](#添加依赖)
+  - [一个极简的示例](#一个极简的示例)
+  - [Awesome dio](#awesome-dio)
+    - [相关插件](#相关插件)
+    - [相关的项目](#相关的项目)
+  - [示例](#示例)
+  - [Dio APIs](#dio-apis)
+    - [创建一个 Dio 实例，并配置它](#创建一个dio实例并配置它)
+    - [请求配置](#请求配置)
+    - [响应数据](#响应数据)
+    - [拦截器](#拦截器)
+      - [完成和终止请求/响应](#完成和终止请求响应)
+      - [QueuedInterceptor](#queuedinterceptor)
+        - [例子](#例子)
+      - [日志拦截器](#日志拦截器)
+    - [自定义拦截器](#自定义拦截器)
+  - [错误处理](#错误处理)
+    - [DioError](#dioerror)
+    - [DioErrorType](#dioerrortype)
+  - [使用 application/x-www-form-urlencoded 编码](#使用-applicationx-www-form-urlencoded-编码)
+  - [发送 FormData](#发送-formdata)
+    - [多文件上传](#多文件上传)
+  - [转换器](#转换器)
+    - [在 Flutter 中进行设置](#在-flutter-中进行设置)
+    - [其它示例](#其它示例)
+  - [HttpClientAdapter](#httpclientadapter)
+    - [设置代理](#设置代理)
+    - [HTTPS 证书校验](#https-证书校验)
+  - [HTTP/2 支持](#http2-支持)
+  - [请求取消](#请求取消)
+  - [继承 Dio class](#继承-dio-class)
+  - [版权 & 协议](#版权--协议)
+    <!-- TOC -->
+    </details>
 
 ## 开始使用
 
@@ -90,18 +91,18 @@ void getHttp() async {
 
 ### 相关插件
 
-| 仓库                                                                                     | 最新版本                                                                                                                                   | 描述                                                 |
-|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| [dio_cookie_manager](https://github.com/cfug/dio/blob/main/plugins/cookie_manager)     | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.flutter-io.cn/packages/dio_cookie_manager)                   | Cookie 管理                                          |
-| [dio_http2_adapter](https://github.com/cfug/dio/blob/main/plugins/http2_adapter)       | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.flutter-io.cn/packages/dio_http2_adapter)                     | 支持 HTTP/2 的自定义适配器                                  |
+| 仓库                                                                                   | 最新版本                                                                                                                               | 描述                                                                    |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [dio_cookie_manager](https://github.com/cfug/dio/blob/main/plugins/cookie_manager)     | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.flutter-io.cn/packages/dio_cookie_manager)                   | Cookie 管理                                                             |
+| [dio_http2_adapter](https://github.com/cfug/dio/blob/main/plugins/http2_adapter)       | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.flutter-io.cn/packages/dio_http2_adapter)                     | 支持 HTTP/2 的自定义适配器                                              |
 | [native_dio_adapter](https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter) | [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg)](https://pub.flutter-io.cn/packages/native_dio_adapter)                   | 使用 cupertino_http 和 cronet_http 以适配器代理实现的原生网络请求功能。 |
-| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                         | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.flutter-io.cn/packages/dio_smart_retry)                         | 支持灵活地请求重试                                          |
-| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)     | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.flutter-io.cn/packages/http_certificate_pinning)       | 用于 Flutter 的 HTTPS 证书锁定                            |
-| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)   | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.flutter-io.cn/packages/curl_logger_dio_interceptor) | 用于 Flutter 的 CURL 命令生成器                            |
-| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)            | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg)](https://pub.flutter-io.cn/packages/dio_cache_interceptor)             | 具有多个符合 HTTP 指令的 HTTP 缓存拦截器，                        |
-| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                             | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.flutter-io.cn/packages/dio_http_cache)                           | 类似 Android 中的 RxCache 的缓存管理                        |
-| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                 | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.flutter-io.cn/packages/pretty_dio_logger)                     | 基于拦截器的简明易读的请求日志打印                                  |
-| [dio_image_provider](https://github.com/ueman/image_provider)                          | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.dev/packages/dio_image_provider)                             | 基于 Dio 的图片加载                                       |
+| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                         | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.flutter-io.cn/packages/dio_smart_retry)                         | 支持灵活地请求重试                                                      |
+| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)     | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.flutter-io.cn/packages/http_certificate_pinning)       | 用于 Flutter 的 HTTPS 证书锁定                                          |
+| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)   | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.flutter-io.cn/packages/curl_logger_dio_interceptor) | 用于 Flutter 的 CURL 命令生成器                                         |
+| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)            | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg)](https://pub.flutter-io.cn/packages/dio_cache_interceptor)             | 具有多个符合 HTTP 指令的 HTTP 缓存拦截器，                              |
+| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                             | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.flutter-io.cn/packages/dio_http_cache)                           | 类似 Android 中的 RxCache 的缓存管理                                    |
+| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                 | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.flutter-io.cn/packages/pretty_dio_logger)                     | 基于拦截器的简明易读的请求日志打印                                      |
+| [dio_image_provider](https://github.com/ueman/image_provider)                          | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.dev/packages/dio_image_provider)                             | 基于 Dio 的图片加载                                                     |
 
 ### 相关的项目
 
@@ -224,20 +225,20 @@ await dio.post(
 );
 ```
 
-注意：如果要监听提交进度，则必须设置content-length，否则是可选的。
+注意：如果要监听提交进度，则必须设置 content-length，否则是可选的。
 
 你可以在这里查看 [全部示例](example)。
 
 ## Dio APIs
 
-### 创建一个Dio实例，并配置它
+### 创建一个 Dio 实例，并配置它
 
-> 建议在项目中使用Dio单例，这样便可对同一个dio实例发起的所有请求进行一些统一的配置，
-> 比如设置公共header、请求基地址、超时时间等。
-> 这里有一个在[Flutter工程中使用Dio单例](../example_flutter_app)
-> （定义为top level变量）的示例供开发者参考。
+> 建议在项目中使用 Dio 单例，这样便可对同一个 dio 实例发起的所有请求进行一些统一的配置，
+> 比如设置公共 header、请求基地址、超时时间等。
+> 这里有一个在[Flutter 工程中使用 Dio 单例](../example_flutter_app)
+> （定义为 top level 变量）的示例供开发者参考。
 
-你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个Dio实例 :
+你可以使用默认配置或传递一个可选 `BaseOptions`参数来创建一个 Dio 实例 :
 
 ```dart
 final dio = Dio(); // With default `Options`.
@@ -283,7 +284,7 @@ final response = await dio.request(
 ### 请求配置
 
 `BaseOptions` 描述的是 Dio 实例发起网络请求的的公共配置，
-而 `Options` 描述了每一个Http请求的配置信息，每一次请求都可以单独配置，
+而 `Options` 描述了每一个 Http 请求的配置信息，每一次请求都可以单独配置，
 单次请求的 `Options` 中的配置信息可以覆盖 `BaseOptions` 中的配置。
 下面是 `Options` 的配置项：
 
@@ -343,7 +344,7 @@ ListFormat? listFormat;
 
 ### 响应数据
 
-当请求成功时会返回一个Response对象，它包含如下字段：
+当请求成功时会返回一个 Response 对象，它包含如下字段：
 
 ```dart
 /// 响应数据。可能已经被转换了类型, 详情请参考 [ResponseType]。
@@ -552,7 +553,7 @@ dio.post(
 
 ## 发送 FormData
 
-Dio 支持发送 `FormData`, 请求数据将会以 `multipart/form-data` 方式编码, 
+Dio 支持发送 `FormData`, 请求数据将会以 `multipart/form-data` 方式编码,
 `FormData` 中可以包含一个或多个文件。
 
 ```dart
@@ -570,7 +571,7 @@ final response = await dio.post('/info', data: formData);
 
 ### 多文件上传
 
-多文件上传时，通过给 key 加中括号 `[]` 方式作为文件数组的标记，大多数后台也会通过 `key[]` 来读取多个文件。 
+多文件上传时，通过给 key 加中括号 `[]` 方式作为文件数组的标记，大多数后台也会通过 `key[]` 来读取多个文件。
 然而 RFC 标准中并没有规定多文件上传必须要使用 `[]`，关键在于后台与客户端之间保持一致。
 
 ```dart
@@ -615,7 +616,7 @@ Dio 实现了一个默认转换器 `DefaultTransformer`。
 从而避免在解析复杂 JSON 时导致的 UI 卡顿。
 
 ```dart
-/// 
+///
 Map<String, dynamic> _parseAndDecode(String response) {
   return jsonDecode(response) as Map<String, dynamic>;
 }
@@ -781,7 +782,7 @@ token.cancel('cancelled');
 ## 继承 Dio class
 
 `Dio` 是一个拥有工厂构造函数的接口类，因此不能直接继承 `Dio`，
-但是可以继承 `DioForNative` 或 `DioForBrowser`： 
+但是可以继承 `DioForNative` 或 `DioForBrowser`：
 
 ```dart
 import 'package:dio/dio.dart';
@@ -803,11 +804,13 @@ class MyDio with DioMixin implements Dio {
 }
 ```
 
-## 版权 & 协议
+## 版权和许可
 
-该项目由 [@flutterchina](https://github.com/flutterchina)
-开源组织的 [@wendux](https://github.com/wendux) 创作，
-并在 2023 年转移至
-[@cfug](https://github.com/cfug) 组织进行维护。
+该项目最初的作者是
+[@wendux](https://github.com/wendux)
+与该组织
+[@flutterchina](https://github.com/flutterchina)。
+开始由
+[@cfug](https://github.com/cfug)从 2023 年开始维护。
 
-该项目遵循 [MIT 开源协议](LICENSE)。
+该项目同意[MIT 许可]（LICENSE）。
