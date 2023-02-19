@@ -51,4 +51,30 @@ void main() {
 
     cookieManager.onRequest(options, mockRequestInterceptorHandler);
   });
+  test('testing set-cookies parsing', () async {
+    const List<String> mockResponseCookies = [
+      "key=value; expires=Sun, 19 Feb 3000 00:42:14 GMT; path=/; HttpOnly; secure; SameSite=Lax",
+      "key1=value1; expires=Sun, 19 Feb 3000 01:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax, key2=value2; expires=Sat, 20 May 3000 00:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax",
+    ];
+    const exampleUrl = 'https://example.com';
+
+    final expectResult = 'key=value; key1=value1; key2=value2';
+
+    final cookieJar = CookieJar();
+    final cookieManager = CookieManager(cookieJar);
+    final mockRequestInterceptorHandler =
+        MockRequestInterceptorHandler(expectResult);
+    final mockResponseInterceptorHandler = MockResponseInterceptorHandler();
+    final requestOptions = RequestOptions(baseUrl: exampleUrl);
+
+    final mockResponse = Response(
+        requestOptions: requestOptions,
+        headers: Headers.fromMap(
+          {HttpHeaders.setCookieHeader: mockResponseCookies},
+        ));
+    cookieManager.onResponse(mockResponse, mockResponseInterceptorHandler);
+    final options = RequestOptions(baseUrl: exampleUrl);
+
+    cookieManager.onRequest(options, mockRequestInterceptorHandler);
+  });
 }
