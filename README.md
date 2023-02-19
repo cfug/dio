@@ -29,7 +29,7 @@ Please move specific paths for projects instructions.
 The project is originally authored by
 [@wendux](https://github.com/wendux)
 with the organization
-[@flutterchina](https://github.com/flutterchina) - 
+[@flutterchina](https://github.com/flutterchina), 
 started being maintained by
 [@cfug](https://github.com/cfug) since 2023.
 
