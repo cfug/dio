@@ -514,4 +514,16 @@ void main() {
       expect(result, 3);
     });
   });
+
+  test('Size of Interceptors', () {
+    final interceptors = Dio().interceptors;
+    expect(interceptors.length, equals(1));
+    expect(interceptors, isNotEmpty);
+    interceptors.add(InterceptorsWrapper());
+    expect(interceptors.length, equals(2));
+    expect(interceptors, isNotEmpty);
+    interceptors.clear();
+    expect(interceptors.length, equals(0));
+    expect(interceptors, isEmpty);
+  });
 }
