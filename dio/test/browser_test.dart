@@ -15,6 +15,6 @@ void main() {
     final cancelFuture = opts.cancelToken?.whenCancel;
 
     browserAdapter.fetch(opts, testStream, cancelFuture);
-    expect(browserAdapter.xhrs.first.withCredentials, isTrue);
+    expect(browserAdapter.xhrs.every((e) => e.withCredentials == true), isTrue);
   });
 }
