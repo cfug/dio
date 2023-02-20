@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
-import 'package:meta/meta.dart';
 
+import 'package:meta/meta.dart';
 import '../adapter.dart';
 import '../dio_error.dart';
 import '../headers.dart';
