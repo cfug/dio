@@ -8,6 +8,7 @@
 - [ ] I have added the required tests to prove the fix/feature I'm adding
 - [ ] I have updated the documentation (if necessary)
 - [ ] I have run the tests without failures
+- [ ] I have updated the `CHANGELOG.md` in the corresponding package
 
 ### Additional context and info (if any)
 
