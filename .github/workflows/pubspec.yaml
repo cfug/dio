@@ -1,0 +1,9 @@
+name: dio_publish_tool
+description: A Dart CLI tool that helps to publish packages with tags.
+publish_to: none
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dev_dependencies:
+  yaml_edit: ^2.0.3
