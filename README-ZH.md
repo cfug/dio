@@ -23,13 +23,11 @@ Language: [English](README.md) | 简体中文
 - example: [链接](example)
 - example_flutter_app: [链接](example_flutter_app)
 
-## 版权和许可
+## 版权 & 协议
 
-该项目最初的作者是
-[@wendux](https://github.com/wendux)
-与该组织
-[@flutterchina](https://github.com/flutterchina)。
-开始由
-[@cfug](https://github.com/cfug)从 2023 年开始维护。
+该项目由 [@flutterchina](https://github.com/flutterchina)
+开源组织的 [@wendux](https://github.com/wendux) 创作，
+并在 2023 年转移至
+[@cfug](https://github.com/cfug) 组织进行维护。
 
-该项目同意[MIT 许可]（LICENSE）。
+该项目遵循 [MIT 开源协议](LICENSE)。
