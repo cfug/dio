@@ -1,0 +1,37 @@
+name: Publish packages from the infra comment
+
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+
+jobs:
+  read_body:
+    if: github.event.issue.number == 1633
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    outputs:
+      name_and_version: ${{ steps.parse.outputs.name_and_version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: dart-lang/setup-dart@v1.3
+      - run: dart pub get -C .github/workflows
+      - id: parse
+        run: echo "name_and_version=$(dart run .github/workflows/publish_from_comment.dart ${{ github.event.comment.body }})" >> "$GITHUB_OUTPUT"
+      - uses: actions-cool/check-user-permission@v2
+        id: checkIfUserHasWriteAccess
+        with:
+          require: 'write'
+
+  write_tag:
+    needs: read_body
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          name_and_version: ${{needs.read_tag.outputs.name_and_version}}
+        run: |
+          echo $name_and_version
+          echo $(name_and_version[0])
+          echo $(name_and_version[1])
