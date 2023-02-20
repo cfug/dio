@@ -251,7 +251,7 @@ void main() {
     final r4 = await dio.post('', data: '');
     expect(
       r4.requestOptions.headers[Headers.contentTypeHeader],
-      null,
+      Headers.jsonContentType,
     );
 
     final r5 = await dio.get(

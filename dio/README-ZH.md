@@ -311,6 +311,10 @@ dynamic data;
 String path = '';
 
 /// 请求的 Content-Type。
+///
+/// 默认值会由 [ImplyContentTypeInterceptor] 根据请求载荷类型进行推导。
+/// 可以调用 [Interceptors.removeImplyContentTypeInterceptor] 进行移除。
+///
 /// 如果你想以 `application/x-www-form-urlencoded` 格式编码请求数据,
 /// 可以设置此选项为 `Headers.formUrlEncodedContentType`,
 /// [Dio] 会自动编码请求体。
