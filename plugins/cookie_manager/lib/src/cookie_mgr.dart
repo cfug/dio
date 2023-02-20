@@ -8,6 +8,15 @@ const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
     ? bool.fromEnvironment('dart.library.js_util')
     : identical(0, 0.0);
 
+/// - `(?<=)` is a positive lookbehind assertion that matches a comma (",")
+/// only if it's preceded by a specific pattern. In this case, the lookbehind
+/// assertion is empty, which means it matches any comma that's preceded by any character.
+/// - `(,)` captures the comma as a group.
+/// - `(?=[^;]+?=)` is a positive lookahead assertion that matches a comma only
+/// if it's followed by a specific pattern. In this case, it matches any comma
+/// that's followed by one or more characters that are not semicolons (";") and
+/// then an equals sign ("="). This ensures that the comma is not part of a cookie
+/// attribute like "expires=Sun, 19 Feb 3000 01:43:15 GMT", which could also contain commas.
 final _setCookieReg = RegExp('(?<=)(,)(?=[^;]+?=)');
 
 /// Cookie manager for HTTP requests based on [CookieJar].

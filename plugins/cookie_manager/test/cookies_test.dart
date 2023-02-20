@@ -53,8 +53,9 @@ void main() {
   });
   test('testing set-cookies parsing', () async {
     const List<String> mockResponseCookies = [
-      "key=value; expires=Sun, 19 Feb 3000 00:42:14 GMT; path=/; HttpOnly; secure; SameSite=Lax",
-      "key1=value1; expires=Sun, 19 Feb 3000 01:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax, key2=value2; expires=Sat, 20 May 3000 00:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax",
+      'key=value; expires=Sun, 19 Feb 3000 00:42:14 GMT; path=/; HttpOnly; secure; SameSite=Lax',
+      'key1=value1; expires=Sun, 19 Feb 3000 01:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax, '
+          'key2=value2; expires=Sat, 20 May 3000 00:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax',
     ];
     const exampleUrl = 'https://example.com';
 
