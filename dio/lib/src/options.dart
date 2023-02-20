@@ -377,6 +377,8 @@ class Options {
   /// The request Content-Type.
   ///
   /// [Dio] will automatically encode the request body accordingly.
+  ///
+  /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? contentType;
 
   /// [responseType] indicates the type of data that the server will respond with
@@ -703,6 +705,8 @@ class _RequestConfig {
   /// The request Content-Type.
   ///
   /// [Dio] will automatically encode the request body accordingly.
+  ///
+  /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? get contentType => _headers[Headers.contentTypeHeader] as String?;
 
   set contentType(String? contentType) {
