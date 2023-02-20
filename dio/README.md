@@ -46,7 +46,6 @@ timeout, and custom adapters etc.
   * [HTTP/2 support](#http2-support)
   * [Cancellation](#cancellation)
   * [Extends Dio class](#extends-dio-class)
-  * [Copyright & License](#copyright--license)
 <!-- TOC -->
 </details>
 
@@ -845,14 +844,3 @@ class MyDio with DioMixin implements Dio {
   // ...
 }
 ```
-
-## Copyright & License
-
-The project is originally authored by
-[@wendux](https://github.com/wendux)
-with the organization
-[@flutterchina](https://github.com/flutterchina),
-started to maintained by
-[@cfug](https://github.com/cfug) since 2023.
-
-The project consents [the MIT license](LICENSE).

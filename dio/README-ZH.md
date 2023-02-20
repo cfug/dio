@@ -802,12 +802,3 @@ class MyDio with DioMixin implements Dio {
   // ...
 }
 ```
-
-## 版权 & 协议
-
-该项目由 [@flutterchina](https://github.com/flutterchina)
-开源组织的 [@wendux](https://github.com/wendux) 创作，
-并在 2023 年转移至
-[@cfug](https://github.com/cfug) 组织进行维护。
-
-该项目遵循 [MIT 开源协议](LICENSE)。
