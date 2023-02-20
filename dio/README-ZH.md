@@ -107,7 +107,7 @@ void getHttp() async {
 ### 相关的项目
 
 如果您也想提供第三方组件，请移步
-[这里](https://github.com/flutterchina/dio/issues/347)。
+[这里](https://github.com/cfug/dio/issues/347)。
 
 ## 示例
 
