@@ -102,6 +102,7 @@ void getHttp() async {
 | [dio_http_cache](https://github.com/hurshi/dio-http-cache)                             | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.flutter-io.cn/packages/dio_http_cache)                           | 类似 Android 中的 RxCache 的缓存管理                        |
 | [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                 | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.flutter-io.cn/packages/pretty_dio_logger)                     | 基于拦截器的简明易读的请求日志打印                                  |
 | [dio_image_provider](https://github.com/ueman/image_provider)                          | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.dev/packages/dio_image_provider)                             | 基于 Dio 的图片加载                                       |
+| [flutter_ume_kit_dio](https://github.com/cfug/flutter_ume_kits/tree/main/packages/flutter_ume_kit_dio) | [![Pub](https://img.shields.io/pub/v/flutter_ume_kit_dio.svg)](https://pub.dev/packages/flutter_ume_kit_dio)           | flutter_ume 上的 dio 调试插件 |
 
 ### 相关的项目
 
