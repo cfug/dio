@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
 import '../adapter.dart';
 import '../dio_error.dart';
 import '../headers.dart';
@@ -13,7 +14,8 @@ HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 /// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// These are aborted if the client is closed.
-  final _xhrs = <HttpRequest>{};
+  @visibleForTesting
+  final xhrs = <HttpRequest>{};
 
   /// Whether to send credentials such as cookies or authorization headers for
   /// cross-site requests.
@@ -30,14 +32,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     final xhr = HttpRequest();
-    _xhrs.add(xhr);
+    xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
       ..responseType = 'arraybuffer';
 
-    final withCredentials = options.extra['withCredentials'];
-    if (withCredentials != null) {
-      xhr.withCredentials = withCredentials == true;
+    final withCredentialsOption = options.extra['withCredentials'];
+    if (withCredentialsOption != null) {
+      xhr.withCredentials = withCredentialsOption == true;
     } else {
       xhr.withCredentials = withCredentials;
     }
@@ -216,7 +218,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       xhr.send();
     }
     return completer.future.whenComplete(() {
-      _xhrs.remove(xhr);
+      xhrs.remove(xhr);
     });
   }
 
@@ -226,10 +228,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     if (force) {
-      for (final xhr in _xhrs) {
+      for (final xhr in xhrs) {
         xhr.abort();
       }
     }
-    _xhrs.clear();
+    xhrs.clear();
   }
 }

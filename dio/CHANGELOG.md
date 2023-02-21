@@ -4,6 +4,7 @@
 
 - Add `ImplyContentTypeInterceptor` as a default interceptor.
 - Add `Headers.multipartFormDataContentType` for headers usage.
+- Fix variable shadowing of `withCredentials` in `browser_adapers.dart`.
 
 ## 5.0.0
 
