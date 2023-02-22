@@ -15,13 +15,13 @@ jobs:
         with:
           require: 'write'
       - name: Close issues if no access
-        if: steps.checkIfUserHasWriteAccess.outputs.check-result == 'false'
+        if: steps.checkIfUserHasWriteAccess.outputs.check-result == false
         uses: actions-cool/issues-helper@v2.1.2
         with:
           actions: 'close-issue'
           issue-number: ${{ github.event.issue.number }}
       - name: Write comment
-        if: steps.checkIfUserHasWriteAccess.outputs.check-result == 'false'
+        if: steps.checkIfUserHasWriteAccess.outputs.check-result == false
         uses: actions-cool/issues-helper@v2.1.2
         with:
           actions: 'create-comment'
