@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2.1.1
+## Unreleased
 
 * Fix #1651
 * Fix #1674
