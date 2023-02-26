@@ -656,6 +656,20 @@ Dio 使用 `IOHttpClientAdapter` 作为原生平台默认的桥梁，
 dio.httpClientAdapter = HttpClientAdapter();
 ```
 
+如果你需要单独使用对应平台的适配器：
+- 对于 Web 平台
+  ```dart
+  import 'package:dio/browser.dart';
+  // ...
+  dio.httpClientAdapter = BrowserClientAdapter();
+  ```
+- 对于原生平台：
+  ```dart
+  import 'package:dio/io.dart';
+  // ...
+  dio.httpClientAdapter = IOClientAdapter();
+  ```
+
 [示例](../example/lib/adapter.dart) 中包含了一个简单的自定义桥接。
 
 ### 设置代理
@@ -663,6 +677,8 @@ dio.httpClientAdapter = HttpClientAdapter();
 `IOHttpClientAdapter` 提供了一个 `onHttpClientCreate` 回调来设置底层 `HttpClient` 的代理：
 
 ```dart
+import 'package:dio/io.dart';
+
 void initAdapter() {
   dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
     // Config the client.

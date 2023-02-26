@@ -696,6 +696,20 @@ They can be initiated by calling the `HttpClientAdapter()`.
 dio.httpClientAdapter = HttpClientAdapter();
 ```
 
+If you want to use platform adapters explicitly:
+- For the Web platform:
+  ```dart
+  import 'package:dio/browser.dart';
+  // ...
+  dio.httpClientAdapter = BrowserClientAdapter();
+  ```
+- For native platforms:
+  ```dart
+  import 'package:dio/io.dart';
+  // ...
+  dio.httpClientAdapter = IOClientAdapter();
+  ```
+
 [Here](../example/lib/adapter.dart) is a simple example to custom adapter. 
 
 ### Using proxy
@@ -704,6 +718,8 @@ dio.httpClientAdapter = HttpClientAdapter();
 for example:
 
 ```dart
+import 'package:dio/io.dart';
+
 void initAdapter() {
   dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
     // Config the client.
