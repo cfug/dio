@@ -5,8 +5,32 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
+import 'utils.dart';
 
 void main() {
+  setUp(startServer);
+  tearDown(stopServer);
+
+  test('headers maintained after redirects', () async {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: serverUrl.toString(),
+        headers: {'x-test-base': 'test-base'},
+      ),
+    );
+    final r = await dio.get(
+      '/redirect',
+      options: Options(headers: {'x-test-header': 'test-value'}),
+    );
+    expect(r.isRedirect, isTrue);
+    expect(r.data['headers']['x-test-base'].length, equals(1));
+    expect(r.data['headers']['x-test-base'].single, equals('test-base'));
+    expect(r.data['headers']['x-test-header'].length, equals(1));
+    expect(r.data['headers']['x-test-header'].single, equals('test-value'));
+    expect(r.requestOptions.headers['x-test-base'], equals('test-base'));
+    expect(r.requestOptions.headers['x-test-header'], equals('test-value'));
+  });
+
   test('options', () {
     final map = {'a': '5'};
     final mapOverride = {'b': '6'};
