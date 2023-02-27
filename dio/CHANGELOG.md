@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix "unsupported operation" error on web platform.
+
 ## 5.0.1
 
 - Add `ImplyContentTypeInterceptor` as a default interceptor.
@@ -69,7 +71,7 @@ stable version
 
 ## 4.0.0-prev3
 
-- fix #1091 , #1089 , #1087 
+- fix #1091 , #1089 , #1087
 
 ## 4.0.0-prev2
 
