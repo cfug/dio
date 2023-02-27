@@ -11,7 +11,7 @@ void main() {
   setUp(startServer);
   tearDown(stopServer);
 
-  test('headers maintained after redirects', () async {
+  test('headers are kept after redirects', () async {
     final dio = Dio(
       BaseOptions(
         baseUrl: serverUrl.toString(),
