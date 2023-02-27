@@ -5,6 +5,13 @@ import '../form_data.dart';
 import '../headers.dart';
 import '../options.dart';
 
+// For the web platform, an inline `bool.fromEnvironment` translates to
+// `core.bool.fromEnvironment` instead of correctly being replaced by the
+// constant value found in the environment at build time.
+//
+// See https://github.com/flutter/flutter/issues/51186.
+const _kReleaseMode = bool.fromEnvironment('dart.vm.product');
+
 /// {@template dio.interceptors.ImplyContentTypeInterceptor}
 /// The default `content-type` for requests will be implied by the
 /// [ImplyContentTypeInterceptor] according to the type of the request payload.
@@ -28,7 +35,7 @@ class ImplyContentTypeInterceptor extends Interceptor {
         contentType = Headers.jsonContentType;
       } else {
         // Do not log in the release mode.
-        if (!bool.fromEnvironment('dart.vm.product')) {
+        if (!_kReleaseMode) {
           dev.log(
             '${data.runtimeType} cannot be used'
             'to imply a default content-type, '
