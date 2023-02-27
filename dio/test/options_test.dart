@@ -18,17 +18,27 @@ void main() {
         headers: {'x-test-base': 'test-base'},
       ),
     );
-    final r = await dio.get(
+    final response = await dio.get(
       '/redirect',
       options: Options(headers: {'x-test-header': 'test-value'}),
     );
-    expect(r.isRedirect, isTrue);
-    expect(r.data['headers']['x-test-base'].length, equals(1));
-    expect(r.data['headers']['x-test-base'].single, equals('test-base'));
-    expect(r.data['headers']['x-test-header'].length, equals(1));
-    expect(r.data['headers']['x-test-header'].single, equals('test-value'));
-    expect(r.requestOptions.headers['x-test-base'], equals('test-base'));
-    expect(r.requestOptions.headers['x-test-header'], equals('test-value'));
+    expect(response.isRedirect, isTrue);
+    expect(
+      response.data['headers']['x-test-base'].single,
+      equals('test-base'),
+    );
+    expect(
+      response.data['headers']['x-test-header'].single,
+      equals('test-value'),
+    );
+    expect(
+      response.requestOptions.headers['x-test-base'],
+      equals('test-base'),
+    );
+    expect(
+      response.requestOptions.headers['x-test-header'],
+      equals('test-value'),
+    );
   });
 
   test('options', () {
