@@ -302,12 +302,76 @@ void main() {
       expect(response.data['errCode'], 0);
     });
 
-    test('ImplyContentTypeInterceptor', () async {
-      final dio = Dio();
-      expect(dio.interceptors, isNotEmpty);
-      expect(dio.interceptors.first, isA<ImplyContentTypeInterceptor>());
-      dio.interceptors.removeImplyContentTypeInterceptor();
-      expect(dio.interceptors, isEmpty);
+    group(ImplyContentTypeInterceptor, () {
+      Dio createDio() {
+        final dio = Dio();
+        dio.options.baseUrl = EchoAdapter.mockBase;
+        dio.httpClientAdapter = EchoAdapter();
+        return dio;
+      }
+
+      test('is enabled by default', () async {
+        final dio = createDio();
+        expect(
+          dio.interceptors.whereType<ImplyContentTypeInterceptor>(),
+          isNotEmpty,
+        );
+      });
+
+      test('can be removed with the helper method', () async {
+        final dio = createDio();
+        dio.interceptors.removeImplyContentTypeInterceptor();
+        expect(
+          dio.interceptors.whereType<ImplyContentTypeInterceptor>(),
+          isEmpty,
+        );
+      });
+
+      test('ignores null data', () async {
+        final dio = createDio();
+        final response = await dio.get('/echo');
+        expect(response.requestOptions.contentType, isNull);
+      });
+
+      test('does not override existing content type', () async {
+        final dio = createDio();
+        final response = await dio.get(
+          '/echo',
+          data: 'hello',
+          options: Options(headers: {'Content-Type': 'text/plain'}),
+        );
+        expect(response.requestOptions.contentType, 'text/plain');
+      });
+
+      test('ignores unsupported data type', () async {
+        final dio = createDio();
+        final response = await dio.get('/echo', data: 42);
+        expect(response.requestOptions.contentType, isNull);
+      });
+
+      test('sets application/json for String instances', () async {
+        final dio = createDio();
+        final response = await dio.get('/echo', data: 'hello');
+        expect(response.requestOptions.contentType, 'application/json');
+      });
+
+      test('sets application/json for Map instances', () async {
+        final dio = createDio();
+        final response = await dio.get('/echo', data: {'hello': 'there'});
+        expect(response.requestOptions.contentType, 'application/json');
+      });
+
+      test('sets multipart/form-data for FormData instances', () async {
+        final dio = createDio();
+        final response = await dio.get(
+          '/echo',
+          data: FormData.fromMap({'hello': 'there'}),
+        );
+        expect(
+          response.requestOptions.contentType?.split(';').first,
+          'multipart/form-data',
+        );
+      });
     });
   });
 
