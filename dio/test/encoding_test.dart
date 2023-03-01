@@ -112,17 +112,17 @@ void main() {
               'd': 8,
               'e': {
                 'a': 5,
-                'b': ListParam<Object>(['foo', 'bar', 1, 2.0], ListFormat.csv),
-                'c': ListParam<Object>(['foo', 'bar', 1, 2.0], ListFormat.ssv),
+                'b': ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.csv),
+                'c': ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.ssv),
                 'd':
-                    ListParam<Object>(['foo', 'bar', 1, 2.0], ListFormat.multi),
-                'e': ListParam<Object>(['foo', 'bar', 1, 2.0], ListFormat.tsv),
+                    ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.multi),
+                'e': ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.tsv),
               },
             },
           },
           ListFormat.multiCompatible,
         ),
-        'a=%E4%BD%A0%E5%A5%BD&b=5|6&c[d]=8&c[e][a]=5&c[e][b]=foo,bar,1,2.0&c[e][c]=foo%20bar%201%202.0&c[e][d][]=foo&c[e][d][]=bar&c[e][d][]=1&c[e][d][]=2.0&c[e][e]=foo\\tbar\\t1\\t2.0',
+        'a=%E4%BD%A0%E5%A5%BD&b=5|6&c[d]=8&c[e][a]=5&c[e][b]=foo,bar,1,2.2&c[e][c]=foo%20bar%201%202.2&c[e][d][]=foo&c[e][d][]=bar&c[e][d][]=1&c[e][d][]=2.2&c[e][e]=foo\\tbar\\t1\\t2.2',
       );
     });
   });
