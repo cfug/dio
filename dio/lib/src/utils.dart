@@ -30,17 +30,25 @@ String encodeMap(
   data,
   DioEncodeHandler handler, {
   bool encode = true,
+  bool isQuery = false,
   ListFormat listFormat = ListFormat.multi,
 }) {
   final urlData = StringBuffer('');
   bool first = true;
-  final leftBracket = encode ? '%5B' : '[';
-  final rightBracket = encode ? '%5D' : ']';
+  final leftBracket = !isQuery ? '%5B' : '[';
+  final rightBracket = !isQuery ? '%5D' : ']';
   final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
-  void urlEncode(dynamic sub, String path) {
+  Object? maybeEncode(Object? value) {
+    if (!isQuery || value == null || value is! String) {
+      return value;
+    }
+    return encodeComponent(value);
+  }
+
+  void urlEncode(Object? sub, String path) {
     // Detect if the list format for this parameter derivatives from default.
     final format = sub is ListParam ? sub.format : listFormat;
-    final separatorChar = _getSeparatorChar(format);
+    final separatorChar = _getSeparatorChar(format, isQuery);
 
     if (sub is ListParam) {
       // Need to unwrap all param objects here
@@ -54,28 +62,28 @@ String encodeMap(
               sub[i] is Map || sub[i] is List || sub[i] is ListParam;
           if (listFormat == ListFormat.multi) {
             urlEncode(
-              sub[i],
+              maybeEncode(sub[i]),
               '$path${isCollection ? '$leftBracket$i$rightBracket' : ''}',
             );
           } else {
             // Forward compatibility
             urlEncode(
-              sub[i],
+              maybeEncode(sub[i]),
               '$path$leftBracket${isCollection ? i : ''}$rightBracket',
             );
           }
         }
       } else {
-        urlEncode(sub.join(separatorChar), path);
+        urlEncode(sub.map(maybeEncode).join(separatorChar), path);
       }
-    } else if (sub is Map) {
+    } else if (sub is Map<String, dynamic>) {
       sub.forEach((k, v) {
         if (path == '') {
-          urlEncode(v, '${encodeComponent(k as String)}');
+          urlEncode(maybeEncode(v), '${encodeComponent(k)}');
         } else {
           urlEncode(
-            v,
-            '$path$leftBracket${encodeComponent(k as String)}$rightBracket',
+            maybeEncode(v),
+            '$path$leftBracket${encodeComponent(k)}$rightBracket',
           );
         }
       });
@@ -96,12 +104,12 @@ String encodeMap(
   return urlData.toString();
 }
 
-String _getSeparatorChar(ListFormat collectionFormat) {
+String _getSeparatorChar(ListFormat collectionFormat, bool isQuery) {
   switch (collectionFormat) {
     case ListFormat.csv:
       return ',';
     case ListFormat.ssv:
-      return ' ';
+      return isQuery ? '%20' : ' ';
     case ListFormat.tsv:
       return r'\t';
     case ListFormat.pipes:

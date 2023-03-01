@@ -572,7 +572,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
         url = '${s[0]}:/${s[1].replaceAll('//', '/')}';
       }
     }
-    final query = Transformer.urlEncodeMap(queryParameters, listFormat);
+    final query = Transformer.urlEncodeQueryMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
       url += (url.contains('?') ? '&' : '?') + query;
     }
@@ -695,7 +695,7 @@ class _RequestConfig {
 
   set receiveTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("reveiveTimeout should be positive");
+      throw StateError("receiveTimeout should be positive");
     }
     _receiveTimeout = value;
   }
