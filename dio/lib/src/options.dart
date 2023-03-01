@@ -177,7 +177,7 @@ mixin OptionsMixin {
   ///
   /// List values use the default [ListFormat.multiCompatible].
   ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// The value can be overridden per parameter by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
   late Map<String, dynamic> queryParameters;
 
@@ -585,7 +585,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   /// When using `x-www-url-encoded` body data,
   /// List values use the default [ListFormat.multi].
   ///
-  /// The value can be overridden per value by adding a [MultiParam]
+  /// The value can be overridden per value by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
   dynamic data;
 
@@ -776,7 +776,7 @@ class _RequestConfig {
   /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
   /// The default value is `multi`.
   ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// The value can be overridden per parameter by adding a [ListParam]
   /// object to the query or body data map.
   late ListFormat listFormat;
 }
