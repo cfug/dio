@@ -117,6 +117,7 @@ jobs:
           ./scripts/prepare_pinning_certs.sh
         shell: bash
       - name: Install proxy
+        if: matrix.directory == 'plugins/http2_adapter'
         run: sudo apt-get install -y squid
       - run: dart pub get
         working-directory: ${{ matrix.directory }}
