@@ -116,6 +116,8 @@ jobs:
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
         shell: bash
+      - name: Install proxy
+        run: sudo apt-get install -y squid
       - run: dart pub get
         working-directory: ${{ matrix.directory }}
       - run: dart test --chain-stack-traces
