@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fix wrong encoding of collection query parameters.
 - Fix "unsupported operation" error on web platform.
 
 ## 5.0.1
