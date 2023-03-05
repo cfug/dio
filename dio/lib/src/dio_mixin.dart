@@ -454,7 +454,13 @@ abstract class DioMixin implements Dio {
           );
         }
 
-        if (err.type == InterceptorResultType.next ||
+        // The request has already been canceled,
+        // there is no need to listen for another cancellation.
+        if (err.data is DioError && err.data.type == DioErrorType.cancel) {
+          final errorHandler = ErrorInterceptorHandler();
+          interceptor(err.data, errorHandler);
+          return errorHandler.future;
+        } else if (err.type == InterceptorResultType.next ||
             err.type == InterceptorResultType.rejectCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
