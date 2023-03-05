@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fix `DioErrorType.cancel` in `Interceptors`.
 - Fix "unsupported operation" error on web platform.
 
 ## 5.0.1
