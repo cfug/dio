@@ -469,6 +469,40 @@ void main() {
     });
   });
 
+  group('Error Interceptor', () {
+    test('handled when request cancelled', () async {
+      final cancelToken = CancelToken();
+      DioError? iError, qError;
+      final dio = Dio()
+        ..httpClientAdapter = MockAdapter()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..interceptors.add(
+          InterceptorsWrapper(
+            onError: (DioError e, ErrorInterceptorHandler handler) {
+              iError = e;
+              handler.next(e);
+            },
+          ),
+        )
+        ..interceptors.add(
+          QueuedInterceptorsWrapper(
+            onError: (DioError e, ErrorInterceptorHandler handler) {
+              qError = e;
+              handler.next(e);
+            },
+          ),
+        );
+      Future.delayed(const Duration(seconds: 1)).then((_) {
+        cancelToken.cancel('test');
+      });
+      await dio
+          .get('/test-timeout', cancelToken: cancelToken)
+          .then((_) {}, onError: (_) {});
+      expect(iError, isA<DioError>());
+      expect(qError, isA<DioError>());
+    });
+  });
+
   group('QueuedInterceptor', () {
     test('requests ', () async {
       String? csrfToken;
