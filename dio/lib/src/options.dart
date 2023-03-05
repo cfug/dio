@@ -177,7 +177,7 @@ mixin OptionsMixin {
   ///
   /// List values use the default [ListFormat.multiCompatible].
   ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// The value can be overridden per parameter by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
   late Map<String, dynamic> queryParameters;
 
@@ -572,7 +572,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
         url = '${s[0]}:/${s[1].replaceAll('//', '/')}';
       }
     }
-    final query = Transformer.urlEncodeMap(queryParameters, listFormat);
+    final query = Transformer.urlEncodeQueryMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
       url += (url.contains('?') ? '&' : '?') + query;
     }
@@ -585,7 +585,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   /// When using `x-www-url-encoded` body data,
   /// List values use the default [ListFormat.multi].
   ///
-  /// The value can be overridden per value by adding a [MultiParam]
+  /// The value can be overridden per value by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
   dynamic data;
 
@@ -695,7 +695,7 @@ class _RequestConfig {
 
   set receiveTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("reveiveTimeout should be positive");
+      throw StateError("receiveTimeout should be positive");
     }
     _receiveTimeout = value;
   }
@@ -776,7 +776,7 @@ class _RequestConfig {
   /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
   /// The default value is `multi`.
   ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// The value can be overridden per parameter by adding a [ListParam]
   /// object to the query or body data map.
   late ListFormat listFormat;
 }
