@@ -142,7 +142,7 @@ class FormData {
       throw StateError(
         'The FormData has already been finalized. '
         'This typically means you are using '
-        'the same FormData in repeatedly requests.',
+        'the same FormData in repeated requests.',
       );
     }
     _isFinalized = true;
