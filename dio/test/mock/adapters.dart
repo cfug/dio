@@ -85,8 +85,14 @@ class MockAdapter implements HttpClientAdapter {
               },
             );
           }
-        case '/test-force-convert':
-          return ResponseBody.fromString('{"code":0,"result":"ok"}', 200);
+        case '/test-plain-text-content-type':
+          return ResponseBody.fromString(
+            '{"code":0,"result":"ok"}',
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.textPlainContentType],
+            },
+          );
         default:
           return ResponseBody.fromString('', 404);
       }
