@@ -139,7 +139,11 @@ class FormData {
 
   Stream<List<int>> finalize() {
     if (isFinalized) {
-      throw StateError('Already finalized.');
+      throw StateError(
+        'The FormData has already been finalized. '
+        'This typically means you are using '
+        'the same FormData in repeatedly requests.',
+      );
     }
     _isFinalized = true;
     final controller = StreamController<List<int>>(sync: false);
