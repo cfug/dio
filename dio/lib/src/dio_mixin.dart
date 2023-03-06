@@ -557,7 +557,8 @@ abstract class DioMixin implements Dio {
       final statusOk = reqOpt.validateStatus(responseBody.statusCode);
       if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
         // Imply as JSON if the given generic type matches the condition.
-        final implicitConvert = T != dynamic &&
+        final implicitConvert = statusOk &&
+            T != dynamic &&
             T != String &&
             reqOpt.responseType != ResponseType.bytes &&
             reqOpt.responseType != ResponseType.stream;
