@@ -36,6 +36,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   * [使用 application/x-www-form-urlencoded 编码](#使用-applicationx-www-form-urlencoded-编码)
   * [发送 FormData](#发送-formdata)
     * [多文件上传](#多文件上传)
+    * [复用 `FormData` 和 `MultipartFile`](#复用-formdata-和-multipartfile)
   * [转换器](#转换器)
     * [在 Flutter 中进行设置](#在-flutter-中进行设置)
     * [其它示例](#其它示例)
@@ -569,7 +570,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-> 注意: 只有 post 方法支持发送 FormData.
+> 通常情况下只有 POST 方法支持发送 FormData。
 
 这里有一个完整的 [示例](../example/lib/formdata.dart)。
 
@@ -602,6 +603,26 @@ formData.files.addAll([
     MultipartFile.fromFileSync('./example/upload.txt',filename: 'upload.txt'),
   ),
 ]);
+```
+
+### 复用 `FormData` 和 `MultipartFile`
+
+如果你在重复调用的请求中使用 `FormData` 或者 `MultipartFile`，确保你每次使用的都是新实例。
+常见的错误做法是将 `FormData` 赋值给一个共享变量，在每次请求中都使用这个变量。
+这样的操作会加大 **无法序列化** 的错误出现的可能性。
+你可以像以下的代码一样编写你的请求以避免出现这样的错误：
+```dart
+Future<void> _repeatedlyRequest() async {
+  Future<FormData> createFormData() async {
+    return FormData.fromMap({
+      'name': 'dio',
+      'date': DateTime.now().toIso8601String(),
+      'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt'),
+    });
+  }
+  
+  await dio.post('some-url', data: await createFormData());
+}
 ```
 
 ## 转换器
