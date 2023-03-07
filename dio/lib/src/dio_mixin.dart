@@ -449,17 +449,14 @@ abstract class DioMixin implements Dio {
     ) {
       final stackTrace = StackTrace.current;
       return (err, _) {
+        final dioError = assureDioError(err, requestOptions, stackTrace);
+
         if (err is! InterceptorState) {
-          err = InterceptorState(
-            assureDioError(err, requestOptions, stackTrace),
-          );
+          err = InterceptorState(dioError);
         }
 
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
-          final dioError = (err.data as DioError).copyWith(
-            stackTrace: stackTrace,
-          );
           interceptor(dioError, errorHandler);
           return errorHandler.future;
         }
