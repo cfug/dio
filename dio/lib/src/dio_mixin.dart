@@ -12,12 +12,11 @@ import 'form_data.dart';
 import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
 import 'options.dart';
+import 'progress_stream/io_progress_stream.dart'
+    if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
 import 'response.dart';
 import 'transformer.dart';
 import 'transformers/background_transformer.dart';
-
-import 'progress_stream/io_progress_stream.dart'
-    if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
 
 part 'interceptor.dart';
 
@@ -447,7 +446,8 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(dynamic, StackTrace) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
-      return (err, stackTrace) {
+      final stackTrace = StackTrace.current;
+      return (err, _) {
         if (err is! InterceptorState) {
           err = InterceptorState(
             assureDioError(err, requestOptions, stackTrace),
@@ -456,7 +456,10 @@ abstract class DioMixin implements Dio {
 
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
-          interceptor(err.data, errorHandler);
+          final dioError = (err.data as DioError).copyWith(
+            stackTrace: stackTrace,
+          );
+          interceptor(dioError, errorHandler);
           return errorHandler.future;
         }
 

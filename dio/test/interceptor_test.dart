@@ -349,6 +349,40 @@ void main() {
         expect(response.requestOptions.contentType, isNull);
       });
 
+      test("Interceptor gets stacktrace in onError", () async {
+        final dio = Dio();
+        dio.options.baseUrl = EchoAdapter.mockBase;
+        dio.httpClientAdapter = EchoAdapter();
+
+        late final StackTrace caughtStackTrace;
+        dio.interceptors.addAll([
+          InterceptorsWrapper(
+            onError: (err, handler) {
+              caughtStackTrace = err.stackTrace!;
+              handler.next(err);
+            },
+          ),
+          InterceptorsWrapper(onRequest: (options, handler) {
+            final error = DioError(
+              error: Error(),
+              requestOptions: options,
+            );
+            handler.reject(error, true);
+          }),
+        ]);
+
+        await expectLater(
+          dio.get('/error'),
+          throwsA(predicate(
+            (error) {
+              return error is DioError &&
+                  caughtStackTrace.toString() == error.stackTrace.toString();
+            },
+          )),
+          reason: "Stacktrace should be available in onError",
+        );
+      });
+
       test('sets application/json for String instances', () async {
         final dio = createDio();
         final response = await dio.get('/echo', data: 'hello');
@@ -610,6 +644,39 @@ void main() {
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);
+    });
+
+    test("QueuedInterceptor gets stacktrace in onError", () async {
+      final dio = Dio();
+      dio.options.baseUrl = EchoAdapter.mockBase;
+      dio.httpClientAdapter = EchoAdapter();
+
+      late final StackTrace caughtStackTrace;
+      dio.interceptors.addAll([
+        QueuedInterceptorsWrapper(
+          onError: (err, handler) {
+            caughtStackTrace = err.stackTrace!;
+            handler.next(err);
+          },
+        ),
+        QueuedInterceptorsWrapper(onRequest: (options, handler) {
+          final error = DioError(
+            error: Error(),
+            requestOptions: options,
+          );
+          handler.reject(error, true);
+        }),
+      ]);
+
+      await expectLater(
+        dio.get('/error'),
+        throwsA(predicate(
+          (error) =>
+              error is DioError &&
+              caughtStackTrace.toString() == error.stackTrace.toString(),
+        )),
+        reason: "Stacktrace should be available in onError",
+      );
     });
   });
 
