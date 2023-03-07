@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improve code formats according to linter rules.
+
 ## 2.1.1
 
 * Fix #1651
