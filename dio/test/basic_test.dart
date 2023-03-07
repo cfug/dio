@@ -46,16 +46,17 @@ void main() {
   }, testOn: "vm");
 
   test('cancellation', () async {
-    final dio = Dio();
+    final dio = Dio()
+      ..httpClientAdapter = MockAdapter()
+      ..options.baseUrl = MockAdapter.mockBase;
     final token = CancelToken();
     Future.delayed(const Duration(milliseconds: 10), () {
       token.cancel('cancelled');
       dio.httpClientAdapter.close(force: true);
     });
 
-    final url = 'https://pub.dev';
     await expectLater(
-      dio.get(url, cancelToken: token),
+      dio.get('/test-timeout', cancelToken: token),
       throwsA((e) => e is DioError && CancelToken.isCancel(e)),
     );
   });

@@ -37,6 +37,7 @@ timeout, and custom adapters etc.
   * [Using application/x-www-form-urlencoded format](#using-applicationx-www-form-urlencoded-format)
   * [Sending FormData](#sending-formdata)
     * [Multiple files upload](#multiple-files-upload)
+    * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdata-s-and-multipartfile-s)
   * [Transformer](#transformer)
     * [In Flutter](#in-flutter)
     * [Other example](#other-example)
@@ -596,12 +597,12 @@ and it supports uploading files.
 final formData = FormData.fromMap({
   'name': 'dio',
   'date': DateTime.now().toIso8601String(),
-  'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt')
+  'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt'),
 });
 final response = await dio.post('/info', data: formData);
 ```
 
-Note: `FormData` is only supported in POST methods.
+> `FormData` is supported with the POST method typically.
 
 There is a complete example [here](../example/lib/formdata.dart).
 
@@ -637,6 +638,26 @@ formData.files.addAll([
     MultipartFile.fromFileSync('./example/upload.txt',filename: 'upload.txt'),
   ),
 ]);
+```
+
+### Reuse `FormData`s and `MultipartFile`s
+
+You should make a new `FormData` or `MultipartFile` every time in repeated requests.
+A typical wrong behavior is setting the `FormData` as a variable and using it in every request.
+It can be easy for the *Cannot finalize* exceptions to occur.
+To avoid that, write your requests like the below code:
+```dart
+Future<void> _repeatedlyRequest() async {
+  Future<FormData> createFormData() async {
+    return FormData.fromMap({
+      'name': 'dio',
+      'date': DateTime.now().toIso8601String(),
+      'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt'),
+    });
+  }
+  
+  await dio.post('some-url', data: await createFormData());
+}
 ```
 
 ## Transformer
