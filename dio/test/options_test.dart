@@ -392,8 +392,12 @@ void main() {
   });
 
   test('invalid response type throws exceptions', () async {
-    final dio = Dio(BaseOptions(baseUrl: MockAdapter.mockBase))
-      ..httpClientAdapter = MockAdapter();
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: MockAdapter.mockBase,
+        contentType: Headers.jsonContentType,
+      ),
+    )..httpClientAdapter = MockAdapter();
 
     // Throws nothing.
     await dio.get<dynamic>('/test-plain-text-content-type');
