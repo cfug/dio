@@ -349,7 +349,7 @@ void main() {
         expect(response.requestOptions.contentType, isNull);
       });
 
-      test("Interceptor gets stacktrace in onError", () async {
+      test('Interceptor gets stacktrace in onError', () async {
         final dio = Dio();
         dio.options.baseUrl = EchoAdapter.mockBase;
         dio.httpClientAdapter = EchoAdapter();
@@ -379,7 +379,7 @@ void main() {
                   caughtStackTrace.toString() == error.stackTrace.toString();
             },
           )),
-          reason: "Stacktrace should be available in onError",
+          reason: 'Stacktrace should be available in onError',
         );
       });
 
@@ -646,7 +646,7 @@ void main() {
       expect(result, 3);
     });
 
-    test("QueuedInterceptor gets stacktrace in onError", () async {
+    test('QueuedInterceptor gets stacktrace in onError', () async {
       final dio = Dio();
       dio.options.baseUrl = EchoAdapter.mockBase;
       dio.httpClientAdapter = EchoAdapter();
@@ -675,7 +675,7 @@ void main() {
               error is DioError &&
               caughtStackTrace.toString() == error.stackTrace.toString(),
         )),
-        reason: "Stacktrace should be available in onError",
+        reason: 'Stacktrace should be available in onError',
       );
     });
   });
