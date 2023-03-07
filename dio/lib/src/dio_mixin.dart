@@ -447,6 +447,7 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(dynamic, StackTrace) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
+      // Fetches and exposes the current stack trace when using interceptors.
       final stackTrace = StackTrace.current;
       return (err, _) {
         final dioError = assureDioError(err, requestOptions, stackTrace);
