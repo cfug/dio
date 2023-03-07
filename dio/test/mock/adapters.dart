@@ -80,8 +80,14 @@ class MockAdapter implements HttpClientAdapter {
               Headers.contentTypeHeader: [Headers.jsonContentType],
             },
           );
-        case '/test-force-convert':
-          return ResponseBody.fromString('{"code":0,"result":"ok"}', 200);
+        case '/test-plain-text-content-type':
+          return ResponseBody.fromString(
+            '{"code":0,"result":"ok"}',
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.textPlainContentType],
+            },
+          );
         case '/test-timeout':
           await Future.delayed(const Duration(days: 365));
           return ResponseBody.fromString('', 200);
