@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fix `DioErrorType.cancel` in `Interceptors`.
 - Fix wrong encoding of collection query parameters.
 - Fix "unsupported operation" error on web platform.
 
