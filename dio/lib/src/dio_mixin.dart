@@ -708,13 +708,13 @@ abstract class DioMixin implements Dio {
   }
 
   static Response<T> assureResponse<T>(
-    Object response, [
-    RequestOptions? requestOptions,
-  ]) {
+    Object response,
+    RequestOptions requestOptions,
+  ) {
     if (response is! Response) {
       return Response<T>(
         data: response as T,
-        requestOptions: requestOptions ?? RequestOptions(path: ''),
+        requestOptions: requestOptions,
       );
     } else if (response is! Response<T>) {
       final T? data = response.data as T?;
