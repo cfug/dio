@@ -373,12 +373,12 @@ void main() {
 
         await expectLater(
           dio.get('/error'),
-          throwsA(predicate(
-            (error) {
-              return error is DioError &&
-                  caughtStackTrace.toString() == error.stackTrace.toString();
+          throwsA(
+            (e) {
+              return e is DioError &&
+                  caughtStackTrace.toString() == e.stackTrace.toString();
             },
-          )),
+          ),
           reason: 'Stacktrace should be available in onError',
         );
       });
@@ -670,11 +670,12 @@ void main() {
 
       await expectLater(
         dio.get('/error'),
-        throwsA(predicate(
-          (error) =>
-              error is DioError &&
-              caughtStackTrace.toString() == error.stackTrace.toString(),
-        )),
+        throwsA(
+          (e) {
+            return e is DioError &&
+                caughtStackTrace.toString() == e.stackTrace.toString();
+          },
+        ),
         reason: 'Stacktrace should be available in onError',
       );
     });
