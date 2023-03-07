@@ -1,3 +1,4 @@
+import '../compute/compute.dart';
 import '../dio_error.dart';
 import '../dio_mixin.dart';
 import '../options.dart';
@@ -51,80 +52,105 @@ class LogInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    logPrint('*** Request ***');
-    _printKV('uri', options.uri);
-    //options.headers;
-
-    if (request) {
-      _printKV('method', options.method);
-      _printKV('responseType', options.responseType.toString());
-      _printKV('followRedirects', options.followRedirects);
-      _printKV('persistentConnection', options.persistentConnection);
-      _printKV('connectTimeout', options.connectTimeout);
-      _printKV('sendTimeout', options.sendTimeout);
-      _printKV('receiveTimeout', options.receiveTimeout);
-      _printKV(
-          'receiveDataWhenStatusError', options.receiveDataWhenStatusError);
-      _printKV('extra', options.extra);
-    }
-    if (requestHeader) {
-      logPrint('headers:');
-      options.headers.forEach((key, v) => _printKV(' $key', v));
-    }
-    if (requestBody) {
-      logPrint('data:');
-      _printAll(options.data);
-    }
-    logPrint('');
-
+    compute(_printRequest, options);
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    logPrint('*** Response ***');
-    _printResponse(response);
+    compute(_printResponse, response);
     handler.next(response);
   }
 
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async {
     if (error) {
-      logPrint('*** DioError ***:');
-      logPrint('uri: ${err.requestOptions.uri}');
-      logPrint('$err');
-      if (err.response != null) {
-        _printResponse(err.response!);
-      }
-      logPrint('');
+      compute(_printError, err);
     }
-
     handler.next(err);
   }
 
-  void _printResponse(Response response) {
-    _printKV('uri', response.requestOptions.uri);
-    if (responseHeader) {
-      _printKV('statusCode', response.statusCode);
-      if (response.isRedirect == true) {
-        _printKV('redirect', response.realUri);
-      }
+  void _printRequest(RequestOptions options) {
+    final sb = StringBuffer();
+    sb.writeln('*** Request ***');
+    sb.writeln(_composeKV('uri', options.uri));
+    if (request) {
+      sb.writeln(_composeKV('method', options.method));
+      sb.writeln(_composeKV('responseType', options.responseType.toString()));
+      sb.writeln(_composeKV('followRedirects', options.followRedirects));
+      sb.writeln(
+        _composeKV('persistentConnection', options.persistentConnection),
+      );
+      sb.writeln(_composeKV('connectTimeout', options.connectTimeout));
+      sb.writeln(_composeKV('sendTimeout', options.sendTimeout));
+      sb.writeln(_composeKV('receiveTimeout', options.receiveTimeout));
+      sb.writeln(
+        _composeKV(
+          'receiveDataWhenStatusError',
+          options.receiveDataWhenStatusError,
+        ),
+      );
+      sb.writeln(_composeKV('extra', options.extra));
+    }
+    if (requestHeader) {
+      sb.writeln('Headers:');
+      options.headers.forEach((key, v) => sb.writeln(_composeKV(' $key', v)));
+    }
+    if (requestBody) {
+      sb.writeln('Data:');
+      sb.writeln(options.data);
+    }
+    sb.writeln();
+    logPrint(sb.toString());
+  }
 
-      logPrint('headers:');
-      response.headers.forEach((key, v) => _printKV(' $key', v.join('\r\n\t')));
+  void _printResponse(Response response) {
+    final sb = StringBuffer();
+    sb.writeln('*** Response ***');
+    sb.writeln(_composeKV('uri', response.requestOptions.uri));
+    if (responseHeader) {
+      sb.writeln(_composeKV('statusCode', response.statusCode));
+      if (response.isRedirect == true) {
+        sb.writeln(_composeKV('redirect', response.realUri));
+      }
+      sb.writeln('Headers:');
+      response.headers.forEach((key, v) => sb.writeln(_composeKV(' $key', v)));
     }
     if (responseBody) {
-      logPrint('Response Text:');
-      _printAll(response.toString());
+      sb.writeln('Response (in text):');
+      sb.writeln(response.toString());
     }
-    logPrint('');
+    sb.writeln();
+    logPrint(sb.toString());
   }
 
-  void _printKV(String key, Object? v) {
-    logPrint('$key: $v');
+  void _printError(DioError error) {
+    final sb = StringBuffer();
+    sb.writeln('*** DioError ***');
+    sb.writeln(_composeKV('uri', error.requestOptions.uri));
+    sb.writeln(_composeKV('error', error));
+    if (error.response != null) {
+      final response = error.response!;
+      if (responseHeader) {
+        sb.writeln(_composeKV('statusCode', response.statusCode));
+        if (response.isRedirect == true) {
+          sb.writeln(_composeKV('redirect', response.realUri));
+        }
+        sb.writeln('Headers:');
+        response.headers.forEach(
+          (key, v) => sb.writeln(_composeKV(' $key', v)),
+        );
+      }
+      if (responseBody) {
+        sb.writeln('Response (in text):');
+        sb.writeln(response.toString());
+      }
+    }
+    sb.writeln();
+    logPrint(sb.toString());
   }
 
-  void _printAll(msg) {
-    msg.toString().split('\n').forEach(logPrint);
+  String _composeKV(String key, Object? value) {
+    return '$key: $value';
   }
 }
