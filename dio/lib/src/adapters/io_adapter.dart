@@ -52,6 +52,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     final httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
     final reqFuture = httpClient.openUrl(options.method, options.uri);
 
+    final stackTrace = StackTrace.current;
     late HttpClientRequest request;
     try {
       final connectionTimeout = options.connectTimeout;
@@ -73,7 +74,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       options.headers.forEach((k, v) {
         if (v != null) request.headers.set(k, v);
       });
-    } on SocketException catch (e, stackTrace) {
+    } on SocketException catch (e, _) {
       if (!e.message.contains('timed out')) {
         rethrow;
       }
@@ -83,7 +84,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
             httpClient.connectionTimeout ??
             Duration.zero,
         error: e,
-        stackTrace: stackTrace,
       );
     }
 
@@ -141,6 +141,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           type: DioErrorType.badCertificate,
           error: responseStream.certificate,
           message: 'The certificate of the response is not approved.',
+          stackTrace: stackTrace,
         );
       }
     }

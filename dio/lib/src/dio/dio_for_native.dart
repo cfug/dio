@@ -183,7 +183,7 @@ class DioForNative with DioMixin implements Dio {
             throw DioError.receiveTimeout(
               timeout: timeout,
               requestOptions: response.requestOptions,
-              stackTrace: s,
+              error: e,
             );
           } else {
             throw e;

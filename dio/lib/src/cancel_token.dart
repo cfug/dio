@@ -31,8 +31,12 @@ class CancelToken {
 
   /// Cancel the request with the given [reason].
   void cancel([Object? reason]) {
+    if (requestOptions == null) {
+      throw StateError(
+          'CancelToken was canceled before being used in a request!');
+    }
     _cancelError = DioError.requestCancelled(
-      requestOptions: requestOptions ?? RequestOptions(),
+      requestOptions: requestOptions!,
       reason: reason,
       stackTrace: StackTrace.current,
     );

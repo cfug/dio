@@ -359,8 +359,7 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    options ??= Options();
-    final requestOptions = options.compose(
+    final requestOptions = (options ??= Options()).compose(
       this.options,
       path,
       data: data,
@@ -368,10 +367,8 @@ abstract class DioMixin implements Dio {
       onReceiveProgress: onReceiveProgress,
       onSendProgress: onSendProgress,
       cancelToken: cancelToken,
+      sourceStackTrace: StackTrace.current,
     );
-    requestOptions.onReceiveProgress = onReceiveProgress;
-    requestOptions.onSendProgress = onSendProgress;
-    requestOptions.cancelToken = cancelToken;
 
     if (_closed) {
       throw DioError.connectionError(
@@ -385,8 +382,6 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-    requestOptions.cancelToken?.requestOptions = requestOptions;
-
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
             requestOptions.responseType == ResponseType.stream)) {
@@ -694,7 +689,7 @@ abstract class DioMixin implements Dio {
   static DioError assureDioError(
     Object err,
     RequestOptions requestOptions,
-    StackTrace? sourceStackTrace,
+    StackTrace sourceStackTrace,
   ) {
     if (err is DioError) {
       // nothing to be done
