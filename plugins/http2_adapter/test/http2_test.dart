@@ -27,9 +27,11 @@ void main() {
   test('request with payload', () async {
     final dio = Dio()
       ..options.baseUrl = 'https://httpbin.org/'
-      ..httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(milliseconds: 10),
-      ));
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(milliseconds: 10),
+        ),
+      );
 
     final res = await dio.post('post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));

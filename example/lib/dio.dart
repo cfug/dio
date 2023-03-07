@@ -27,13 +27,15 @@ void main() async {
   //    },
   //  ));
   dio.interceptors
-    ..add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        // return handler.resolve( Response(data:"xxx"));
-        // return handler.reject( DioError(message: "eh"));
-        return handler.next(options);
-      },
-    ))
+    ..add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // return handler.resolve( Response(data:"xxx"));
+          // return handler.reject( DioError(message: "eh"));
+          return handler.next(options);
+        },
+      ),
+    )
     ..add(LogInterceptor(responseBody: false)); //Open log;
 
   Response response = await dio.get('https://pub.dev/');

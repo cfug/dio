@@ -10,8 +10,11 @@ import 'parameter.dart';
 /// done.
 Future writeStreamToSink(Stream stream, EventSink sink) {
   final completer = Completer();
-  stream.listen(sink.add,
-      onError: sink.addError, onDone: () => completer.complete());
+  stream.listen(
+    sink.add,
+    onError: sink.addError,
+    onDone: () => completer.complete(),
+  );
   return completer.future;
 }
 

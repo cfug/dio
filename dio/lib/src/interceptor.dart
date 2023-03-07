@@ -134,10 +134,12 @@ class ErrorInterceptorHandler extends _BaseHandler {
   ///
   /// [response]: Response object to return.
   void resolve(Response response) {
-    _completer.complete(InterceptorState<Response>(
-      response,
-      InterceptorResultType.resolve,
-    ));
+    _completer.complete(
+      InterceptorState<Response>(
+        response,
+        InterceptorResultType.resolve,
+      ),
+    );
     _processNextInQueue?.call();
   }
 

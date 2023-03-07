@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 void main() async {
-  final dio = Dio(BaseOptions(
-    connectTimeout: Duration(seconds: 5),
-    baseUrl: 'https://httpbin.org/',
-  ));
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: Duration(seconds: 5),
+      baseUrl: 'https://httpbin.org/',
+    ),
+  );
 
   dio.interceptors.add(LogInterceptor(responseBody: true));
 

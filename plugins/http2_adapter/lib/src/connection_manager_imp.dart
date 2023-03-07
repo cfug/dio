@@ -33,7 +33,8 @@ class _ConnectionManager implements ConnectionManager {
   ) async {
     if (_closed) {
       throw Exception(
-          "Can't establish connection after [ConnectionManager] closed!");
+        "Can't establish connection after [ConnectionManager] closed!",
+      );
     }
     final uri = options.uri;
     final domain = '${uri.host}:${uri.port}';
@@ -95,7 +96,10 @@ class _ConnectionManager implements ConnectionManager {
 
     if (clientConfig.validateCertificate != null) {
       final isCertApproved = clientConfig.validateCertificate!(
-          socket.peerCertificate, uri.host, uri.port);
+        socket.peerCertificate,
+        uri.host,
+        uri.port,
+      );
       if (!isCertApproved) {
         throw DioError(
           requestOptions: options,

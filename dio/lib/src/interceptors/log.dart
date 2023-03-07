@@ -50,7 +50,9 @@ class LogInterceptor extends Interceptor {
 
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -64,7 +66,9 @@ class LogInterceptor extends Interceptor {
       _printKV('sendTimeout', options.sendTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
       _printKV(
-          'receiveDataWhenStatusError', options.receiveDataWhenStatusError);
+        'receiveDataWhenStatusError',
+        options.receiveDataWhenStatusError,
+      );
       _printKV('extra', options.extra);
     }
     if (requestHeader) {
