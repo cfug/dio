@@ -1,3 +1,5 @@
+include: package:lints/recommended.yaml
+
 analyzer:
   errors:
     deprecated_member_use_from_same_package: ignore
@@ -5,93 +7,7 @@ analyzer:
 
 linter:
   rules:
-    - always_require_non_null_named_parameters
-    - annotate_overrides
-    - avoid_empty_else
-    - avoid_function_literals_in_foreach_calls
-    - avoid_init_to_null
-    - avoid_null_checks_in_equality_operators
-    - avoid_relative_lib_imports
-    - avoid_renaming_method_parameters
-    - avoid_return_types_on_setters
-    - avoid_returning_null_for_void
-    - avoid_shadowing_type_parameters
-    - avoid_single_cascade_in_expression_statements
-    - avoid_types_as_parameter_names
-    - await_only_futures
-    - camel_case_extensions
-    - camel_case_types
-    - constant_identifier_names
-    - control_flow_in_finally
-    - curly_braces_in_flow_control_structures
-    - depend_on_referenced_packages
-    - empty_catches
-    - empty_constructor_bodies
-    - empty_statements
-    - exhaustive_cases
-    - file_names
-    - hash_and_equals
-    - implementation_imports
-    - iterable_contains_unrelated_type
-    - library_names
-    - library_prefixes
-    - library_private_types_in_public_api
-    - list_remove_unrelated_type
-    - no_duplicate_case_values
-    - no_leading_underscores_for_library_prefixes
-    - no_leading_underscores_for_local_identifiers
-    - non_constant_identifier_names
-    - null_check_on_nullable_type_parameter
-    - null_closures
-    - overridden_fields
-    - package_names
-    - package_prefixed_library_names
-    - prefer_adjacent_string_concatenation
-    - prefer_collection_literals
-    - prefer_conditional_assignment
-    - prefer_contains
-    - prefer_equal_for_default_values
-    - prefer_final_fields
     - prefer_final_locals
     - prefer_final_in_for_each
-    - prefer_for_elements_to_map_fromIterable
-    - prefer_function_declarations_over_variables
-    - prefer_generic_function_type_aliases
-    - prefer_if_null_operators
-    - prefer_initializing_formals
-    - prefer_inlined_adds
-    - prefer_interpolation_to_compose_strings
-    - prefer_is_empty
-    - prefer_is_not_empty
-    - prefer_is_not_operator
-    - prefer_iterable_whereType
-    - prefer_null_aware_operators
     - prefer_single_quotes
-    - prefer_spread_collections
-    - prefer_typing_uninitialized_variables
-    - prefer_void_to_null
-    - provide_deprecation_message
-    - recursive_getters
-    - require_trailing_commas
-    - slash_for_doc_comments
-    - type_init_formals
-    - unnecessary_brace_in_string_interps
-    - unnecessary_const
-    - unnecessary_constructor_name
-    - unnecessary_getters_setters
-    - unnecessary_late
-    - unnecessary_new
-    - unnecessary_null_aware_assignments
-    - unnecessary_null_in_if_null_operators
-    - unnecessary_nullable_for_final_variable_declarations
-    - unnecessary_overrides
     - unnecessary_parenthesis
-    - unnecessary_string_escapes
-    - unnecessary_string_interpolations
-    - unnecessary_this
-    - unrelated_type_equality_checks
-    - use_function_type_syntax_for_parameters
-    - use_rethrow_when_possible
-    - valid_regexps
-    - void_checks
-
