@@ -99,6 +99,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    this.useStackTraceChains = false,
   })  : assert(connectTimeout == null || !connectTimeout.isNegative),
         assert(baseUrl.isEmpty || Uri.parse(baseUrl).host.isNotEmpty),
         super(
@@ -122,6 +123,8 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     this.baseUrl = baseUrl;
     this.connectTimeout = connectTimeout;
   }
+
+  final bool useStackTraceChains;
 
   /// Create a Option from current instance with merging attributes.
   BaseOptions copyWith({

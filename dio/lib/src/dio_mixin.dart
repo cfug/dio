@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:stack_trace/stack_trace.dart';
+
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
@@ -358,30 +360,48 @@ abstract class DioMixin implements Dio {
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-  }) async {
-    options ??= Options();
-    final requestOptions = options.compose(
-      this.options,
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      onReceiveProgress: onReceiveProgress,
-      onSendProgress: onSendProgress,
-      cancelToken: cancelToken,
-    );
-    requestOptions.onReceiveProgress = onReceiveProgress;
-    requestOptions.onSendProgress = onSendProgress;
-    requestOptions.cancelToken = cancelToken;
+  }) async =>
+      Chain.capture(
+        () => Future(() async {
+          try {
+            final requestOptions = (options ?? Options()).compose(
+              this.options,
+              path,
+              data: data,
+              queryParameters: queryParameters,
+              onReceiveProgress: onReceiveProgress,
+              onSendProgress: onSendProgress,
+              cancelToken: cancelToken,
+            );
+            requestOptions.onReceiveProgress = onReceiveProgress;
+            requestOptions.onSendProgress = onSendProgress;
+            requestOptions.cancelToken = cancelToken;
 
-    if (_closed) {
-      throw DioError.connectionError(
-        reason: "Dio can't establish a new connection after it was closed.",
-        requestOptions: requestOptions,
+            if (_closed) {
+              throw DioError.connectionError(
+                reason:
+                    "Dio can't establish a new connection after it was closed.",
+                requestOptions: requestOptions,
+              );
+            }
+
+            /// DO NOT REMOVE THE AWAIT
+            /// This looks like it can be collapsed but it is
+            /// crucial to catch the error here in order for [Chain.capture]
+            /// to work when [BaseOptions.useStackTraceChains] is enabled.
+            final response = await fetch<T>(requestOptions);
+            return response;
+          } catch (error, stackTrace) {
+            Error.throwWithStackTrace(
+                error,
+                this.options.useStackTraceChains
+                    ? Chain.forTrace(stackTrace)
+                    : stackTrace);
+          }
+        }),
+        when: this.options.useStackTraceChains,
+        errorZone: false,
       );
-    }
-
-    return fetch<T>(requestOptions);
-  }
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
