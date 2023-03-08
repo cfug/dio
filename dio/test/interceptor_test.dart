@@ -354,7 +354,7 @@ void main() {
         dio.options.baseUrl = EchoAdapter.mockBase;
         dio.httpClientAdapter = EchoAdapter();
 
-        late final StackTrace caughtStackTrace;
+        StackTrace? caughtStackTrace;
         dio.interceptors.addAll([
           InterceptorsWrapper(
             onError: (err, handler) {
@@ -376,6 +376,7 @@ void main() {
           throwsA(
             (e) {
               return e is DioError &&
+                  caughtStackTrace != null &&
                   caughtStackTrace.toString() == e.stackTrace.toString();
             },
           ),
@@ -651,7 +652,7 @@ void main() {
       dio.options.baseUrl = EchoAdapter.mockBase;
       dio.httpClientAdapter = EchoAdapter();
 
-      late final StackTrace caughtStackTrace;
+      StackTrace? caughtStackTrace;
       dio.interceptors.addAll([
         QueuedInterceptorsWrapper(
           onError: (err, handler) {
@@ -673,6 +674,7 @@ void main() {
         throwsA(
           (e) {
             return e is DioError &&
+                caughtStackTrace != null &&
                 caughtStackTrace.toString() == e.stackTrace.toString();
           },
         ),
