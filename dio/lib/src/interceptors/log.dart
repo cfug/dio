@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../compute/compute.dart';
 import '../dio_error.dart';
 import '../dio_mixin.dart';
@@ -52,49 +54,50 @@ class LogInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    compute(_printRequest, options);
+    compute(printRequest, options);
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    compute(_printResponse, response);
+    compute(printResponse, response);
     handler.next(response);
   }
 
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) async {
     if (error) {
-      compute(_printError, err);
+      compute(printError, err);
     }
     handler.next(err);
   }
 
-  void _printRequest(RequestOptions options) {
+  @internal
+  void printRequest(RequestOptions options) {
     final sb = StringBuffer();
     sb.writeln('*** Request ***');
-    sb.writeln(_composeKV('uri', options.uri));
+    sb.writeln(composeKV('uri', options.uri));
     if (request) {
-      sb.writeln(_composeKV('method', options.method));
-      sb.writeln(_composeKV('responseType', options.responseType.toString()));
-      sb.writeln(_composeKV('followRedirects', options.followRedirects));
+      sb.writeln(composeKV('method', options.method));
+      sb.writeln(composeKV('responseType', options.responseType.toString()));
+      sb.writeln(composeKV('followRedirects', options.followRedirects));
       sb.writeln(
-        _composeKV('persistentConnection', options.persistentConnection),
+        composeKV('persistentConnection', options.persistentConnection),
       );
-      sb.writeln(_composeKV('connectTimeout', options.connectTimeout));
-      sb.writeln(_composeKV('sendTimeout', options.sendTimeout));
-      sb.writeln(_composeKV('receiveTimeout', options.receiveTimeout));
+      sb.writeln(composeKV('connectTimeout', options.connectTimeout));
+      sb.writeln(composeKV('sendTimeout', options.sendTimeout));
+      sb.writeln(composeKV('receiveTimeout', options.receiveTimeout));
       sb.writeln(
-        _composeKV(
+        composeKV(
           'receiveDataWhenStatusError',
           options.receiveDataWhenStatusError,
         ),
       );
-      sb.writeln(_composeKV('extra', options.extra));
+      sb.writeln(composeKV('extra', options.extra));
     }
     if (requestHeader) {
       sb.writeln('Headers:');
-      options.headers.forEach((key, v) => sb.writeln(_composeKV(' $key', v)));
+      options.headers.forEach((key, v) => sb.writeln(composeKV(' $key', v)));
     }
     if (requestBody) {
       sb.writeln('Data:');
@@ -104,17 +107,18 @@ class LogInterceptor extends Interceptor {
     logPrint(sb.toString());
   }
 
-  void _printResponse(Response response) {
+  @internal
+  void printResponse(Response response) {
     final sb = StringBuffer();
     sb.writeln('*** Response ***');
-    sb.writeln(_composeKV('uri', response.requestOptions.uri));
+    sb.writeln(composeKV('uri', response.requestOptions.uri));
     if (responseHeader) {
-      sb.writeln(_composeKV('statusCode', response.statusCode));
+      sb.writeln(composeKV('statusCode', response.statusCode));
       if (response.isRedirect == true) {
-        sb.writeln(_composeKV('redirect', response.realUri));
+        sb.writeln(composeKV('redirect', response.realUri));
       }
       sb.writeln('Headers:');
-      response.headers.forEach((key, v) => sb.writeln(_composeKV(' $key', v)));
+      response.headers.forEach((key, v) => sb.writeln(composeKV(' $key', v)));
     }
     if (responseBody) {
       sb.writeln('Response (in text):');
@@ -124,21 +128,22 @@ class LogInterceptor extends Interceptor {
     logPrint(sb.toString());
   }
 
-  void _printError(DioError error) {
+  @internal
+  void printError(DioError error) {
     final sb = StringBuffer();
     sb.writeln('*** DioError ***');
-    sb.writeln(_composeKV('uri', error.requestOptions.uri));
-    sb.writeln(_composeKV('error', error));
+    sb.writeln(composeKV('uri', error.requestOptions.uri));
+    sb.writeln(composeKV('error', error));
     if (error.response != null) {
       final response = error.response!;
       if (responseHeader) {
-        sb.writeln(_composeKV('statusCode', response.statusCode));
+        sb.writeln(composeKV('statusCode', response.statusCode));
         if (response.isRedirect == true) {
-          sb.writeln(_composeKV('redirect', response.realUri));
+          sb.writeln(composeKV('redirect', response.realUri));
         }
         sb.writeln('Headers:');
         response.headers.forEach(
-          (key, v) => sb.writeln(_composeKV(' $key', v)),
+          (key, v) => sb.writeln(composeKV(' $key', v)),
         );
       }
       if (responseBody) {
@@ -150,7 +155,8 @@ class LogInterceptor extends Interceptor {
     logPrint(sb.toString());
   }
 
-  String _composeKV(String key, Object? value) {
+  @internal
+  String composeKV(String key, Object? value) {
     return '$key: $value';
   }
 }
