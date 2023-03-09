@@ -653,7 +653,7 @@ headers:
       );
       await interceptor.onError(
         DioError(requestOptions: RequestOptions()),
-        ErrorInterceptorHandler(),
+        ErrorInterceptorHandler()..future.catchError((e) => e), // In order to emit error from the completer.
       );
       expect(
         logged,
