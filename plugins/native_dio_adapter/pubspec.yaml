@@ -11,8 +11,8 @@ environment:
 
 dependencies:
   dio: ^5.0.0
-  cupertino_http: ^0.0.9
-  cronet_http: ^0.0.3
+  cupertino_http: ^0.1.2
+  cronet_http: ^0.2.0
   http: ^0.13.4
 
 dev_dependencies:
