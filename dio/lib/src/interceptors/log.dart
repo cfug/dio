@@ -57,7 +57,7 @@ class LogInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     handler.next(options);
-    await compute(printRequest, options);
+    logPrint(await compute(logRequest, options));
   }
 
   @override
@@ -66,19 +66,19 @@ class LogInterceptor extends Interceptor {
     ResponseInterceptorHandler handler,
   ) async {
     handler.next(response);
-    await compute(printResponse, response);
+    logPrint(await compute(logResponse, response));
   }
 
   @override
   Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
     handler.next(err);
     if (error) {
-      await compute(printError, err);
+      logPrint(await compute(logError, err));
     }
   }
 
   @internal
-  void printRequest(RequestOptions options) {
+  String logRequest(RequestOptions options) {
     final sb = StringBuffer();
     sb.writeln('*** Request ***');
     sb.writeln(composeKV('uri', options.uri));
@@ -101,19 +101,18 @@ class LogInterceptor extends Interceptor {
       sb.writeln(composeKV('extra', options.extra));
     }
     if (requestHeader) {
-      sb.writeln('Headers:');
+      sb.writeln('headers:');
       options.headers.forEach((key, v) => sb.writeln(composeKV(' $key', v)));
     }
     if (requestBody) {
-      sb.writeln('Data:');
+      sb.writeln('data:');
       sb.writeln(options.data);
     }
-    sb.writeln();
-    logPrint(sb.toString());
+    return sb.toString();
   }
 
   @internal
-  void printResponse(Response response) {
+  String logResponse(Response response) {
     final sb = StringBuffer();
     sb.writeln('*** Response ***');
     sb.writeln(composeKV('uri', response.requestOptions.uri));
@@ -122,19 +121,18 @@ class LogInterceptor extends Interceptor {
       if (response.isRedirect == true) {
         sb.writeln(composeKV('redirect', response.realUri));
       }
-      sb.writeln('Headers:');
+      sb.writeln('headers:');
       response.headers.forEach((key, v) => sb.writeln(composeKV(' $key', v)));
     }
     if (responseBody) {
-      sb.writeln('Response (in text):');
+      sb.writeln('response (in text):');
       sb.writeln(response.toString());
     }
-    sb.writeln();
-    logPrint(sb.toString());
+    return sb.toString();
   }
 
   @internal
-  void printError(DioError error) {
+  String logError(DioError error) {
     final sb = StringBuffer();
     sb.writeln('*** DioError ***');
     sb.writeln(composeKV('uri', error.requestOptions.uri));
@@ -146,18 +144,17 @@ class LogInterceptor extends Interceptor {
         if (response.isRedirect == true) {
           sb.writeln(composeKV('redirect', response.realUri));
         }
-        sb.writeln('Headers:');
+        sb.writeln('headers:');
         response.headers.forEach(
           (key, v) => sb.writeln(composeKV(' $key', v)),
         );
       }
       if (responseBody) {
-        sb.writeln('Response (in text):');
+        sb.writeln('response (in text):');
         sb.writeln(response.toString());
       }
     }
-    sb.writeln();
-    logPrint(sb.toString());
+    return sb.toString();
   }
 
   @internal
