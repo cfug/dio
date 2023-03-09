@@ -52,24 +52,29 @@ class LogInterceptor extends Interceptor {
   void Function(Object object) logPrint;
 
   @override
-  void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
-    compute(printRequest, options);
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     handler.next(options);
+    await compute(printRequest, options);
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    compute(printResponse, response);
+  Future<void> onResponse(
+    Response response,
+    ResponseInterceptorHandler handler,
+  ) async {
     handler.next(response);
+    await compute(printResponse, response);
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) async {
-    if (error) {
-      compute(printError, err);
-    }
+  Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
     handler.next(err);
+    if (error) {
+      await compute(printError, err);
+    }
   }
 
   @internal

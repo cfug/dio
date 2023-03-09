@@ -613,6 +613,37 @@ void main() {
     });
   });
 
+  group(LogInterceptor, () {
+    test('logged correctly', () async {
+      String? logged;
+      final LogInterceptor interceptor = LogInterceptor(
+        logPrint: (object) {
+          logged = object.toString();
+        },
+      );
+      await interceptor.onRequest(
+        RequestOptions(),
+        RequestInterceptorHandler(),
+      );
+      expect(
+        logged,
+        equals('''*** Request ***
+uri: 
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: null
+sendTimeout: null
+receiveTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+Headers:
+'''),
+      );
+    });
+  });
+
   test('Size of Interceptors', () {
     final interceptors = Dio().interceptors;
     expect(interceptors.length, equals(1));
