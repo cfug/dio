@@ -617,9 +617,7 @@ void main() {
     test('logged correctly', () async {
       String? logged;
       final LogInterceptor interceptor = LogInterceptor(
-        logPrint: (object) {
-          logged = object.toString();
-        },
+        logPrint: (object) => logged = object.toString(),
       );
       await interceptor.onRequest(
         RequestOptions(),
@@ -638,8 +636,30 @@ sendTimeout: null
 receiveTimeout: null
 receiveDataWhenStatusError: true
 extra: {}
-Headers:
-
+headers:
+'''),
+      );
+      await interceptor.onResponse(
+        Response(requestOptions: RequestOptions()),
+        ResponseInterceptorHandler(),
+      );
+      expect(
+        logged,
+        equals('''*** Response ***
+uri: 
+statusCode: null
+headers:
+'''),
+      );
+      await interceptor.onError(
+        DioError(requestOptions: RequestOptions()),
+        ErrorInterceptorHandler(),
+      );
+      expect(
+        logged,
+        equals('''*** DioError ***
+uri: 
+error: DioError [unknown]: null
 '''),
       );
     });
