@@ -23,134 +23,143 @@ void main() {
       dio.options.baseUrl = EchoAdapter.mockBase;
       dio.httpClientAdapter = EchoAdapter();
       dio.interceptors
-        ..add(InterceptorsWrapper(
-          onRequest: (reqOpt, handler) {
-            switch (reqOpt.path) {
-              case '/resolve':
-                handler.resolve(Response(requestOptions: reqOpt, data: 1));
-                break;
-              case '/resolve-next':
+        ..add(
+          InterceptorsWrapper(
+            onRequest: (reqOpt, handler) {
+              switch (reqOpt.path) {
+                case '/resolve':
+                  handler.resolve(Response(requestOptions: reqOpt, data: 1));
+                  break;
+                case '/resolve-next':
+                  handler.resolve(
+                    Response(requestOptions: reqOpt, data: 2),
+                    true,
+                  );
+                  break;
+                case '/resolve-next/always':
+                  handler.resolve(
+                    Response(requestOptions: reqOpt, data: 2),
+                    true,
+                  );
+                  break;
+                case '/resolve-next/reject':
+                  handler.resolve(
+                    Response(requestOptions: reqOpt, data: 2),
+                    true,
+                  );
+                  break;
+                case '/resolve-next/reject-next':
+                  handler.resolve(
+                    Response(requestOptions: reqOpt, data: 2),
+                    true,
+                  );
+                  break;
+                case '/reject':
+                  handler.reject(DioError(requestOptions: reqOpt, error: 3));
+                  break;
+                case '/reject-next':
+                  handler.reject(
+                    DioError(requestOptions: reqOpt, error: 4),
+                    true,
+                  );
+                  break;
+                case '/reject-next/reject':
+                  handler.reject(
+                    DioError(requestOptions: reqOpt, error: 5),
+                    true,
+                  );
+                  break;
+                case '/reject-next-response':
+                  handler.reject(
+                    DioError(requestOptions: reqOpt, error: 5),
+                    true,
+                  );
+                  break;
+                default:
+                  handler.next(reqOpt); //continue
+              }
+            },
+            onResponse: (response, ResponseInterceptorHandler handler) {
+              final options = response.requestOptions;
+              switch (options.path) {
+                case '/resolve':
+                  throw 'unexpected1';
+                case '/resolve-next':
+                  response.data++;
+                  handler.resolve(response); //3
+                  break;
+                case '/resolve-next/always':
+                  response.data++;
+                  handler.next(response); //3
+                  break;
+                case '/resolve-next/reject':
+                  handler.reject(
+                    DioError(
+                      requestOptions: options,
+                      error: '/resolve-next/reject',
+                    ),
+                  );
+                  break;
+                case '/resolve-next/reject-next':
+                  handler.reject(
+                    DioError(requestOptions: options, error: ''),
+                    true,
+                  );
+                  break;
+                default:
+                  handler.next(response); //continue
+              }
+            },
+            onError: (err, handler) {
+              if (err.requestOptions.path == '/reject-next-response') {
                 handler.resolve(
-                  Response(requestOptions: reqOpt, data: 2),
-                  true,
+                  Response(
+                    requestOptions: err.requestOptions,
+                    data: 100,
+                  ),
                 );
-                break;
-              case '/resolve-next/always':
-                handler.resolve(
-                  Response(requestOptions: reqOpt, data: 2),
-                  true,
-                );
-                break;
-              case '/resolve-next/reject':
-                handler.resolve(
-                  Response(requestOptions: reqOpt, data: 2),
-                  true,
-                );
-                break;
-              case '/resolve-next/reject-next':
-                handler.resolve(
-                  Response(requestOptions: reqOpt, data: 2),
-                  true,
-                );
-                break;
-              case '/reject':
-                handler.reject(DioError(requestOptions: reqOpt, error: 3));
-                break;
-              case '/reject-next':
-                handler.reject(
-                  DioError(requestOptions: reqOpt, error: 4),
-                  true,
-                );
-                break;
-              case '/reject-next/reject':
-                handler.reject(
-                  DioError(requestOptions: reqOpt, error: 5),
-                  true,
-                );
-                break;
-              case '/reject-next-response':
-                handler.reject(
-                  DioError(requestOptions: reqOpt, error: 5),
-                  true,
-                );
-                break;
-              default:
-                handler.next(reqOpt); //continue
-            }
-          },
-          onResponse: (response, ResponseInterceptorHandler handler) {
-            final options = response.requestOptions;
-            switch (options.path) {
-              case '/resolve':
-                throw 'unexpected1';
-              case '/resolve-next':
-                response.data++;
-                handler.resolve(response); //3
-                break;
-              case '/resolve-next/always':
-                response.data++;
-                handler.next(response); //3
-                break;
-              case '/resolve-next/reject':
-                handler.reject(DioError(
-                  requestOptions: options,
-                  error: '/resolve-next/reject',
-                ));
-                break;
-              case '/resolve-next/reject-next':
-                handler.reject(
-                  DioError(requestOptions: options, error: ''),
-                  true,
-                );
-                break;
-              default:
-                handler.next(response); //continue
-            }
-          },
-          onError: (err, handler) {
-            if (err.requestOptions.path == '/reject-next-response') {
-              handler.resolve(Response(
-                requestOptions: err.requestOptions,
-                data: 100,
-              ));
-            } else if (err.requestOptions.path == '/resolve-next/reject-next') {
-              handler.next(err.copyWith(error: 1));
-            } else {
-              if (err.requestOptions.path == '/reject-next/reject') {
-                handler.reject(err);
+              } else if (err.requestOptions.path ==
+                  '/resolve-next/reject-next') {
+                handler.next(err.copyWith(error: 1));
+              } else {
+                if (err.requestOptions.path == '/reject-next/reject') {
+                  handler.reject(err);
+                } else {
+                  int count = err.error as int;
+                  count++;
+                  handler.next(err.copyWith(error: count));
+                }
+              }
+            },
+          ),
+        )
+        ..add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) => handler.next(options),
+            onResponse: (response, handler) {
+              final options = response.requestOptions;
+              switch (options.path) {
+                case '/resolve-next/always':
+                  response.data++;
+                  handler.next(response); //4
+                  break;
+                default:
+                  handler.next(response); //continue
+              }
+            },
+            onError: (err, handler) {
+              if (err.requestOptions.path == '/resolve-next/reject-next') {
+                int count = err.error as int;
+                count++;
+                handler.next(err.copyWith(error: count));
               } else {
                 int count = err.error as int;
                 count++;
                 handler.next(err.copyWith(error: count));
               }
-            }
-          },
-        ))
-        ..add(InterceptorsWrapper(
-          onRequest: (options, handler) => handler.next(options),
-          onResponse: (response, handler) {
-            final options = response.requestOptions;
-            switch (options.path) {
-              case '/resolve-next/always':
-                response.data++;
-                handler.next(response); //4
-                break;
-              default:
-                handler.next(response); //continue
-            }
-          },
-          onError: (err, handler) {
-            if (err.requestOptions.path == '/resolve-next/reject-next') {
-              int count = err.error as int;
-              count++;
-              handler.next(err.copyWith(error: count));
-            } else {
-              int count = err.error as int;
-              count++;
-              handler.next(err.copyWith(error: count));
-            }
-          },
-        ));
+            },
+          ),
+        );
       Response response = await dio.get('/resolve');
       expect(response.data, 1);
       response = await dio.get('/resolve-next');
@@ -229,49 +238,55 @@ void main() {
       final dio = Dio();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.httpClientAdapter = MockAdapter();
-      dio.interceptors.add(InterceptorsWrapper(onRequest: (
-        RequestOptions options,
-        RequestInterceptorHandler handler,
-      ) {
-        switch (options.path) {
-          case '/fakepath1':
-            handler.resolve(
-              Response(
-                requestOptions: options,
-                data: 'fake data',
-              ),
-            );
-            break;
-          case '/fakepath2':
-            dio
-                .get('/test')
-                .then(handler.resolve)
-                .catchError((e) => handler.reject(e as DioError));
-            break;
-          case '/fakepath3':
-            handler.reject(DioError(
-              requestOptions: options,
-              error: 'test error',
-            ));
-            break;
-          case '/fakepath4':
-            handler.reject(DioError(
-              requestOptions: options,
-              error: 'test error',
-            ));
-            break;
-          case '/test?tag=1':
-            {
-              dio.get('/token').then((response) {
-                options.headers['token'] = response.data['data']['token'];
-                handler.next(options);
-              });
-              break;
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (
+            RequestOptions options,
+            RequestInterceptorHandler handler,
+          ) {
+            switch (options.path) {
+              case '/fakepath1':
+                handler.resolve(
+                  Response(
+                    requestOptions: options,
+                    data: 'fake data',
+                  ),
+                );
+                break;
+              case '/fakepath2':
+                dio
+                    .get('/test')
+                    .then(handler.resolve)
+                    .catchError((e) => handler.reject(e as DioError));
+                break;
+              case '/fakepath3':
+                handler.reject(
+                  DioError(
+                    requestOptions: options,
+                    error: 'test error',
+                  ),
+                );
+                break;
+              case '/fakepath4':
+                handler.reject(
+                  DioError(
+                    requestOptions: options,
+                    error: 'test error',
+                  ),
+                );
+                break;
+              case '/test?tag=1':
+                dio.get('/token').then((response) {
+                  options.headers['token'] = response.data['data']['token'];
+                  handler.next(options);
+                });
+                break;
+              default:
+                handler.next(options); //continue
             }
-          default:
-            handler.next(options); //continue
-        }
-      }));
+          },
+        ),
+      );
 
       Response response = await dio.get('/fakepath1');
       expect(response.data, 'fake data');
@@ -387,41 +402,43 @@ void main() {
       dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
 
-      dio.interceptors.add(InterceptorsWrapper(
-        onResponse: (response, handler) {
-          response.data = response.data['data'];
-          handler.next(response);
-        },
-        onError: (DioError e, ErrorInterceptorHandler handler) {
-          if (e.response?.requestOptions != null) {
-            switch (e.response!.requestOptions.path) {
-              case urlNotFound:
-                return handler.next(e);
-              case urlNotFound1:
-                return handler.resolve(
-                  Response(
-                    requestOptions: e.requestOptions,
-                    data: 'fake data',
-                  ),
-                );
-              case urlNotFound2:
-                return handler.resolve(
-                  Response(
-                    data: 'fake data',
-                    requestOptions: e.requestOptions,
-                  ),
-                );
-              case urlNotFound3:
-                return handler.next(
-                  e.copyWith(
-                    error: 'custom error info [${e.response!.statusCode}]',
-                  ),
-                );
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onResponse: (response, handler) {
+            response.data = response.data['data'];
+            handler.next(response);
+          },
+          onError: (DioError e, ErrorInterceptorHandler handler) {
+            if (e.response?.requestOptions != null) {
+              switch (e.response!.requestOptions.path) {
+                case urlNotFound:
+                  return handler.next(e);
+                case urlNotFound1:
+                  return handler.resolve(
+                    Response(
+                      requestOptions: e.requestOptions,
+                      data: 'fake data',
+                    ),
+                  );
+                case urlNotFound2:
+                  return handler.resolve(
+                    Response(
+                      data: 'fake data',
+                      requestOptions: e.requestOptions,
+                    ),
+                  );
+                case urlNotFound3:
+                  return handler.next(
+                    e.copyWith(
+                      error: 'custom error info [${e.response!.statusCode}]',
+                    ),
+                  );
+              }
             }
-          }
-          handler.next(e);
-        },
-      ));
+            handler.next(e);
+          },
+        ),
+      );
       Response response = await dio.get('/test');
       expect(response.data['path'], '/test');
       expect(
@@ -444,24 +461,30 @@ void main() {
       dio.httpClientAdapter = MockAdapter();
       dio.options.baseUrl = MockAdapter.mockBase;
       dio.interceptors
-        ..add(InterceptorsWrapper(
-          onResponse: (resp, handler) {
-            resp.data = resp.data['data'];
-            handler.next(resp);
-          },
-        ))
-        ..add(InterceptorsWrapper(
-          onResponse: (resp, handler) {
-            resp.data['extra_1'] = 'extra';
-            handler.next(resp);
-          },
-        ))
-        ..add(InterceptorsWrapper(
-          onResponse: (resp, handler) {
-            resp.data['extra_2'] = 'extra';
-            handler.next(resp);
-          },
-        ));
+        ..add(
+          InterceptorsWrapper(
+            onResponse: (resp, handler) {
+              resp.data = resp.data['data'];
+              handler.next(resp);
+            },
+          ),
+        )
+        ..add(
+          InterceptorsWrapper(
+            onResponse: (resp, handler) {
+              resp.data['extra_1'] = 'extra';
+              handler.next(resp);
+            },
+          ),
+        )
+        ..add(
+          InterceptorsWrapper(
+            onResponse: (resp, handler) {
+              resp.data['extra_2'] = 'extra';
+              handler.next(resp);
+            },
+          ),
+        );
       final resp = await dio.get('/test');
       expect(resp.data['path'], '/test');
       expect(resp.data['extra_1'], 'extra');
@@ -514,23 +537,25 @@ void main() {
       dio.httpClientAdapter = tokenDio.httpClientAdapter = MockAdapter();
       final myInter = MyInterceptor();
       dio.interceptors.add(myInter);
-      dio.interceptors.add(QueuedInterceptorsWrapper(
-        onRequest: (options, handler) {
-          if (csrfToken == null) {
-            tokenRequestCounts++;
-            tokenDio.get('/token').then((d) {
-              options.headers['csrfToken'] =
-                  csrfToken = d.data['data']['token'] as String;
+      dio.interceptors.add(
+        QueuedInterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (csrfToken == null) {
+              tokenRequestCounts++;
+              tokenDio.get('/token').then((d) {
+                options.headers['csrfToken'] =
+                    csrfToken = d.data['data']['token'] as String;
+                handler.next(options);
+              }).catchError((e) {
+                handler.reject(e as DioError, true);
+              });
+            } else {
+              options.headers['csrfToken'] = csrfToken;
               handler.next(options);
-            }).catchError((e) {
-              handler.reject(e as DioError, true);
-            });
-          } else {
-            options.headers['csrfToken'] = csrfToken;
-            handler.next(options);
-          }
-        },
-      ));
+            }
+          },
+        ),
+      );
 
       int result = 0;
       void onResult(d) {

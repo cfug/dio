@@ -493,17 +493,19 @@ abstract class DioMixin implements Dio {
     }
 
     // Add dispatching callback to request flow
-    future = future.then(requestInterceptorWrapper((
-      RequestOptions reqOpt,
-      RequestInterceptorHandler handler,
-    ) {
-      requestOptions = reqOpt;
-      _dispatchRequest<T>(reqOpt)
-          .then((value) => handler.resolve(value, true))
-          .catchError((e) {
-        handler.reject(e as DioError, true);
-      });
-    }));
+    future = future.then(
+      requestInterceptorWrapper((
+        RequestOptions reqOpt,
+        RequestInterceptorHandler handler,
+      ) {
+        requestOptions = reqOpt;
+        _dispatchRequest<T>(reqOpt)
+            .then((value) => handler.resolve(value, true))
+            .catchError((e) {
+          handler.reject(e as DioError, true);
+        });
+      }),
+    );
 
     // Add response interceptors to request flow
     for (final interceptor in interceptors) {
@@ -582,7 +584,7 @@ abstract class DioMixin implements Dio {
   }
 
   bool _isValidToken(String token) {
-    _checkNotNullable(token, "token");
+    _checkNotNullable(token, 'token');
     // from https://www.rfc-editor.org/rfc/rfc2616#page-15
     //
     // CTL            = <any US-ASCII control character
@@ -592,10 +594,10 @@ abstract class DioMixin implements Dio {
     //                | "/" | "[" | "]" | "?" | "="
     //                | "{" | "}" | SP | HT
     // token          = 1*<any CHAR except CTLs or separators>
-    const String validChars = r"                                "
+    const String validChars = r'                                '
         r" ! #$%&'  *+ -. 0123456789      "
-        r" ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_"
-        r"`abcdefghijklmnopqrstuvwxyz | ~ ";
+        r' ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_'
+        r'`abcdefghijklmnopqrstuvwxyz | ~ ';
     for (final int codeUnit in token.codeUnits) {
       if (codeUnit >= validChars.length ||
           validChars.codeUnitAt(codeUnit) == 0x20) {
@@ -607,7 +609,7 @@ abstract class DioMixin implements Dio {
 
   Future<Stream<Uint8List>?> _transformData(RequestOptions options) async {
     if (!_isValidToken(options.method)) {
-      throw ArgumentError.value(options.method, "method");
+      throw ArgumentError.value(options.method, 'method');
     }
     final data = options.data;
     if (data != null) {

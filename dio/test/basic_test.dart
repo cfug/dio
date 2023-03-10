@@ -38,12 +38,16 @@ void main() {
     expect(headers1.map.isEmpty, isTrue);
   });
 
-  test('send with an invalid URL', () async {
-    await expectLater(
-      Dio().get('http://http.invalid'),
-      throwsA((e) => e is DioError && e.error is SocketException),
-    );
-  }, testOn: "vm");
+  test(
+    'send with an invalid URL',
+    () async {
+      await expectLater(
+        Dio().get('http://http.invalid'),
+        throwsA((e) => e is DioError && e.error is SocketException),
+      );
+    },
+    testOn: 'vm',
+  );
 
   test('cancellation', () async {
     final dio = Dio()
@@ -67,10 +71,12 @@ void main() {
       ..httpClientAdapter = EchoAdapter();
     await expectLater(
       dio.get('/401'),
-      throwsA((e) =>
-          e is DioError &&
-          e.type == DioErrorType.badResponse &&
-          e.response!.statusCode == 401),
+      throwsA(
+        (e) =>
+            e is DioError &&
+            e.type == DioErrorType.badResponse &&
+            e.response!.statusCode == 401,
+      ),
     );
     final r = await dio.get(
       '/401',

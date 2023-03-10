@@ -146,22 +146,24 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     final stream = responseStream.transform<Uint8List>(
-      StreamTransformer.fromHandlers(handleData: (data, sink) {
-        stopwatch.stop();
-        final duration = stopwatch.elapsed;
-        final receiveTimeout = options.receiveTimeout;
-        if (receiveTimeout != null && duration > receiveTimeout) {
-          sink.addError(
-            DioError.receiveTimeout(
-              timeout: receiveTimeout,
-              requestOptions: options,
-            ),
-          );
-          responseStream.detachSocket().then((socket) => socket.destroy());
-        } else {
-          sink.add(Uint8List.fromList(data));
-        }
-      }),
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          stopwatch.stop();
+          final duration = stopwatch.elapsed;
+          final receiveTimeout = options.receiveTimeout;
+          if (receiveTimeout != null && duration > receiveTimeout) {
+            sink.addError(
+              DioError.receiveTimeout(
+                timeout: receiveTimeout,
+                requestOptions: options,
+              ),
+            );
+            responseStream.detachSocket().then((socket) => socket.destroy());
+          } else {
+            sink.add(Uint8List.fromList(data));
+          }
+        },
+      ),
     );
 
     final headers = <String, List<String>>{};

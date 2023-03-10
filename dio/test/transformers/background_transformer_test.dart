@@ -7,11 +7,15 @@ void main() {
 
     final response = await transformer.transformResponse(
       RequestOptions(responseType: ResponseType.json),
-      ResponseBody.fromString('{"foo": "bar"}', 200, headers: {
-        Headers.contentTypeHeader: ['application/json'],
-      }),
+      ResponseBody.fromString(
+        '{"foo": "bar"}',
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['application/json'],
+        },
+      ),
     );
 
-    expect(response, {"foo": "bar"});
+    expect(response, {'foo': 'bar'});
   });
 }

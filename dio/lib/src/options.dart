@@ -73,9 +73,14 @@ enum ListFormat {
 typedef ValidateStatus = bool Function(int? status);
 
 typedef ResponseDecoder = String? Function(
-    List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
+  List<int> responseBytes,
+  RequestOptions options,
+  ResponseBody responseBody,
+);
 typedef RequestEncoder = List<int> Function(
-    String request, RequestOptions options);
+  String request,
+  RequestOptions options,
+);
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
@@ -188,7 +193,7 @@ mixin OptionsMixin {
 
   set connectTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("connectTimeout should be positive");
+      throw StateError('connectTimeout should be positive');
     }
     _connectTimeout = value;
   }
@@ -350,7 +355,7 @@ class Options {
 
   set sendTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("sendTimeout should be positive");
+      throw StateError('sendTimeout should be positive');
     }
     _sendTimeout = value;
   }
@@ -678,7 +683,7 @@ class _RequestConfig {
 
   set sendTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("sendTimeout should be positive");
+      throw StateError('sendTimeout should be positive');
     }
     _sendTimeout = value;
   }
@@ -695,7 +700,7 @@ class _RequestConfig {
 
   set receiveTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("receiveTimeout should be positive");
+      throw StateError('receiveTimeout should be positive');
     }
     _receiveTimeout = value;
   }

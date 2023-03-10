@@ -11,7 +11,7 @@ void main() async {
   // openssl s_client -servername pinning-test.badssl.com \
   //    -connect pinning-test.badssl.com:443 < /dev/null 2>/dev/null \
   //    | openssl x509 -noout -fingerprint -sha256
-  String fingerprint =
+  final fingerprint =
       // 'update-with-latest-sha256-hex-ee5ce1dfa7a53657c545c62b65802e4272';
       // should look like this:
       'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';

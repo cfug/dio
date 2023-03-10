@@ -39,15 +39,18 @@ class ConversionLayerAdapter implements HttpClientAdapter {
       options.uri,
     );
 
-    request.headers.addAll(Map.fromEntries(options.headers.entries
-        .map((e) => MapEntry(e.key, e.value.toString()))));
+    request.headers.addAll(
+      Map.fromEntries(
+        options.headers.entries.map((e) => MapEntry(e.key, e.value.toString())),
+      ),
+    );
 
     request.followRedirects = options.followRedirects;
     request.maxRedirects = options.maxRedirects;
 
     if (requestStream != null) {
-      var completer = Completer<Uint8List>();
-      var sink = ByteConversionSink.withCallback(
+      final completer = Completer<Uint8List>();
+      final sink = ByteConversionSink.withCallback(
         (bytes) => completer.complete(Uint8List.fromList(bytes)),
       );
       requestStream.listen(
@@ -56,11 +59,9 @@ class ConversionLayerAdapter implements HttpClientAdapter {
         onDone: sink.close,
         cancelOnError: true,
       );
-      var bytes = await completer.future;
-
+      final bytes = await completer.future;
       request.bodyBytes = bytes;
     }
-
     return request;
   }
 }
@@ -68,7 +69,6 @@ class ConversionLayerAdapter implements HttpClientAdapter {
 extension on StreamedResponse {
   ResponseBody toDioResponseBody() {
     final dioHeaders = headers.entries.map((e) => MapEntry(e.key, [e.value]));
-
     return ResponseBody(
       Stream.fromFuture(stream.toBytes()),
       statusCode,

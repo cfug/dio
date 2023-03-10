@@ -20,13 +20,15 @@ void main() {
         ..connectTimeout = Duration(seconds: 1)
         ..receiveTimeout = Duration(seconds: 5)
         ..headers = {'User-Agent': 'dartisan'};
-      dio.interceptors.add(LogInterceptor(
-        responseBody: true,
-        requestBody: true,
-        logPrint: (log) => {
-          // ignore log
-        },
-      ));
+      dio.interceptors.add(
+        LogInterceptor(
+          responseBody: true,
+          requestBody: true,
+          logPrint: (log) => {
+            // ignore log
+          },
+        ),
+      );
     });
     test('restful APIs', () async {
       Response response;
@@ -75,10 +77,11 @@ void main() {
 
       // error test
       expect(
-          dio
-              .get('/error')
-              .catchError((e) => throw (e as DioError).response!.statusCode!),
-          throwsA(equals(400)));
+        dio
+            .get('/error')
+            .catchError((e) => throw (e as DioError).response!.statusCode!),
+        throwsA(equals(400)),
+      );
 
       // redirect test
       response = await dio.get(
