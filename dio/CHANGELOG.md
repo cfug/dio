@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 5.0.2
+
 - Improve code formats according to linter rules.
 - Remove the force conversion for the response body.
 - Fix `DioErrorType.cancel` in `Interceptors`.
