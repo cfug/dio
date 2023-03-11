@@ -156,8 +156,12 @@ class ErrorInterceptorHandler extends _BaseHandler {
   }
 }
 
-/// Dio instance may have interceptor(s) by which you can intercept
+/// Dio instance may have one or more interceptors by which you can intercept
 /// requests/responses/errors before they are handled by `then` or `catchError`.
+///
+/// Interceptors are called once per request and response. That means that redirects
+/// aren't triggering interceptors.
+///
 /// See also:
 ///  - [InterceptorsWrapper]  A helper class to create Interceptor(s).
 ///  - [QueuedInterceptor] Serialize the request/response/error before they enter the interceptor.
