@@ -10,11 +10,15 @@ void main() async {
 //  final url = "https://www.baidu.com/img/bdlogo.gif";
 //  final savePath = "./example/bg.gif";
 
-  await downloadWithChunks(url, savePath, onReceiveProgress: (received, total) {
-    if (total != -1) {
-      print('${(received / total * 100).floor()}%');
-    }
-  });
+  await downloadWithChunks(
+    url,
+    savePath,
+    onReceiveProgress: (received, total) {
+      if (total != -1) {
+        print('${(received / total * 100).floor()}%');
+      }
+    },
+  );
 }
 
 /// Downloading by spiting as file in chunks
@@ -66,10 +70,9 @@ Future downloadWithChunks(
 
   final response = await downloadChunk(url, 0, firstChunkSize, 0);
   if (response.statusCode == 206) {
-    total = int.parse(response.headers
-        .value(HttpHeaders.contentRangeHeader)!
-        .split('/')
-        .last);
+    total = int.parse(
+      response.headers.value(HttpHeaders.contentRangeHeader)!.split('/').last,
+    );
     final reserved =
         total - int.parse(response.headers.value(Headers.contentLengthHeader)!);
     int chunk = (reserved / firstChunkSize).ceil() + 1;

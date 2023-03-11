@@ -380,13 +380,13 @@ void main() {
     expect(r3.headers[Headers.contentTypeHeader], null);
   });
 
-  test("responseDecoder return null", () async {
+  test('responseDecoder return null', () async {
     final dio = Dio();
     dio.options.responseDecoder = (_, __, ___) => null;
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
 
-    final Response response = await dio.get("");
+    final Response response = await dio.get('');
 
     expect(response.data, null);
   });
@@ -434,14 +434,14 @@ void main() {
       );
     }
 
-    const String separators = "\t\n\r()<>@,;:\\/[]?={}";
+    const String separators = '\t\n\r()<>@,;:\\/[]?={}';
     for (int i = 0; i < separators.length; i++) {
       final String separator = separators.substring(i, i + 1);
       testInvalidArgumentException(separator);
-      testInvalidArgumentException("${separator}CONNECT");
-      testInvalidArgumentException("CONN${separator}ECT");
-      testInvalidArgumentException("CONN$separator${separator}ECT");
-      testInvalidArgumentException("CONNECT$separator");
+      testInvalidArgumentException('${separator}CONNECT');
+      testInvalidArgumentException('CONN${separator}ECT');
+      testInvalidArgumentException('CONN$separator${separator}ECT');
+      testInvalidArgumentException('CONNECT$separator');
     }
   });
 

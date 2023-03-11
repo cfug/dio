@@ -89,10 +89,12 @@ Future<R> compute<Q, R>(
 
     // native error; see Isolate.addErrorListener
     case 2:
-      await Future<Never>.error(RemoteError(
-        response[0] as String,
-        response[1] as String,
-      ));
+      await Future<Never>.error(
+        RemoteError(
+          response[0] as String,
+          response[1] as String,
+        ),
+      );
 
     // caught error; see _buildErrorResponse
     case 3:

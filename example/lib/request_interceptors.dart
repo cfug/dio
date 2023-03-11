@@ -4,32 +4,36 @@ void main() async {
   final dio = Dio();
   dio.options.baseUrl = 'https://httpbin.org/';
   dio.options.connectTimeout = Duration(seconds: 5);
-  dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
-    switch (options.path) {
-      case '/fakepath1':
-        return handler.resolve(
-          Response(
-            requestOptions: options,
-            data: 'fake data',
-          ),
-        );
-      case '/fakepath2':
-        dio
-            .get('/get')
-            .then(handler.resolve)
-            .catchError((e) => handler.reject(e));
-        break;
-      case '/fakepath3':
-        return handler.reject(
-          DioError(
-            requestOptions: options,
-            error: 'test error',
-          ),
-        );
-      default:
-        return handler.next(options); //continue
-    }
-  }));
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) {
+        switch (options.path) {
+          case '/fakepath1':
+            return handler.resolve(
+              Response(
+                requestOptions: options,
+                data: 'fake data',
+              ),
+            );
+          case '/fakepath2':
+            dio
+                .get('/get')
+                .then(handler.resolve)
+                .catchError((e) => handler.reject(e));
+            break;
+          case '/fakepath3':
+            return handler.reject(
+              DioError(
+                requestOptions: options,
+                error: 'test error',
+              ),
+            );
+          default:
+            return handler.next(options); //continue
+        }
+      },
+    ),
+  );
   Response response;
   response = await dio.get('/fakepath1');
   assert(response.data == 'fake data');

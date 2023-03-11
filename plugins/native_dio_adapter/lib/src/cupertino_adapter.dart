@@ -9,9 +9,11 @@ import 'conversion_layer_adapter.dart';
 /// to the native platform by making use of
 /// [cupertino_http](https://pub.dev/packages/cupertino_http).
 class CupertinoAdapter implements HttpClientAdapter {
-  CupertinoAdapter(URLSessionConfiguration configuration)
-      : _conversionLayer = ConversionLayerAdapter(
-            CupertinoClient.fromSessionConfiguration(configuration));
+  CupertinoAdapter(
+    URLSessionConfiguration configuration,
+  ) : _conversionLayer = ConversionLayerAdapter(
+          CupertinoClient.fromSessionConfiguration(configuration),
+        );
 
   final ConversionLayerAdapter _conversionLayer;
 

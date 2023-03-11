@@ -9,7 +9,7 @@ description: |
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/dio
 issue_tracker: https://github.com/cfug/dio/issues
-version: 5.0.1
+version: 5.0.2
 
 environment:
   sdk: '>=2.15.0 <3.0.0'

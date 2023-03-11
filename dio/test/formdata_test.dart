@@ -11,9 +11,12 @@ void main() async {
       'name': 'wendux',
       'age': 25,
       'path': '/图片空间/地址',
-      'file': MultipartFile.fromString('hello world.', headers: {
-        'test': <String>['a']
-      }),
+      'file': MultipartFile.fromString(
+        'hello world.',
+        headers: {
+          'test': <String>['a']
+        },
+      ),
       'files': [
         await MultipartFile.fromFile(
           'test/mock/_testfile',
@@ -47,32 +50,41 @@ void main() async {
     fm1.fields.add(MapEntry('name', 'wendux'));
     fm1.fields.add(MapEntry('age', '25'));
     fm1.fields.add(MapEntry('path', '/图片空间/地址'));
-    fm1.files.add(MapEntry(
-      'file',
-      MultipartFile.fromString('hello world.', headers: {
-        'test': <String>['a']
-      }),
-    ));
-    fm1.files.add(MapEntry(
-      'files',
-      await MultipartFile.fromFile(
-        'test/mock/_testfile',
-        filename: '1.txt',
-        headers: {
-          'test': <String>['b'],
-        },
+    fm1.files.add(
+      MapEntry(
+        'file',
+        MultipartFile.fromString(
+          'hello world.',
+          headers: {
+            'test': <String>['a']
+          },
+        ),
       ),
-    ));
-    fm1.files.add(MapEntry(
-      'files',
-      await MultipartFile.fromFile(
-        'test/mock/_testfile',
-        filename: '2.txt',
-        headers: {
-          'test': <String>['c'],
-        },
+    );
+    fm1.files.add(
+      MapEntry(
+        'files',
+        await MultipartFile.fromFile(
+          'test/mock/_testfile',
+          filename: '1.txt',
+          headers: {
+            'test': <String>['b'],
+          },
+        ),
       ),
-    ));
+    );
+    fm1.files.add(
+      MapEntry(
+        'files',
+        await MultipartFile.fromFile(
+          'test/mock/_testfile',
+          filename: '2.txt',
+          headers: {
+            'test': <String>['c'],
+          },
+        ),
+      ),
+    );
     expect(fmStr.length, fm1.length);
   });
 }

@@ -32,9 +32,11 @@ void main() {
     final expectedHostString = 'Host: $baseHost';
 
     test('trusted host allowed with no approver', () async {
-      dio.httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(seconds: 10),
-      ));
+      dio.httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(seconds: 10),
+        ),
+      );
 
       final res = await dio.get('get');
       expect(res, isNotNull);
@@ -45,13 +47,15 @@ void main() {
     test('untrusted host rejected with no approver', () async {
       DioError? error;
       try {
-        dio.httpClientAdapter = Http2Adapter(ConnectionManager(
-          idleTimeout: Duration(seconds: 10),
-          onClientCreate: (url, config) {
-            // Consider all hosts untrusted
-            config.context = SecurityContext(withTrustedRoots: false);
-          },
-        ));
+        dio.httpClientAdapter = Http2Adapter(
+          ConnectionManager(
+            idleTimeout: Duration(seconds: 10),
+            onClientCreate: (url, config) {
+              // Consider all hosts untrusted
+              config.context = SecurityContext(withTrustedRoots: false);
+            },
+          ),
+        );
         await dio.get('get');
         fail('did not throw');
       } on DioError catch (e) {
@@ -62,15 +66,17 @@ void main() {
 
     test('trusted certificate tested and allowed', () async {
       bool approved = false;
-      dio.httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(seconds: 10),
-        onClientCreate: (url, config) {
-          config.validateCertificate = (certificate, host, port) {
-            approved = true;
-            return true;
-          };
-        },
-      ));
+      dio.httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(seconds: 10),
+          onClientCreate: (url, config) {
+            config.validateCertificate = (certificate, host, port) {
+              approved = true;
+              return true;
+            };
+          },
+        ),
+      );
       final res = await dio.get('get');
       expect(approved, true);
       expect(res, isNotNull);
@@ -81,20 +87,22 @@ void main() {
     test('untrusted certificate tested and allowed', () async {
       bool badCert = false;
       bool approved = false;
-      dio.httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(seconds: 10),
-        onClientCreate: (url, config) {
-          config.context = SecurityContext(withTrustedRoots: false);
-          config.onBadCertificate = (certificate) {
-            badCert = true;
-            return true;
-          };
-          config.validateCertificate = (certificate, host, port) {
-            approved = true;
-            return true;
-          };
-        },
-      ));
+      dio.httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(seconds: 10),
+          onClientCreate: (url, config) {
+            config.context = SecurityContext(withTrustedRoots: false);
+            config.onBadCertificate = (certificate) {
+              badCert = true;
+              return true;
+            };
+            config.validateCertificate = (certificate, host, port) {
+              approved = true;
+              return true;
+            };
+          },
+        ),
+      );
 
       final res = await dio.get('get');
       expect(badCert, true);
@@ -112,25 +120,27 @@ void main() {
       String? badCertSha256;
       String? approverSha256;
 
-      dio.httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(seconds: 10),
-        onClientCreate: (url, config) {
-          config.context = SecurityContext(withTrustedRoots: false);
-          config.onBadCertificate = (certificate) {
-            badCert = true;
-            badCertSubject = certificate.subject.toString();
-            badCertSha256 = sha256.convert(certificate.der).toString();
-            return true;
-          };
-          config.validateCertificate = (certificate, host, port) {
-            if (certificate == null) fail('must include a certificate');
-            approved = true;
-            approverSubject = certificate.subject.toString();
-            approverSha256 = sha256.convert(certificate.der).toString();
-            return true;
-          };
-        },
-      ));
+      dio.httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(seconds: 10),
+          onClientCreate: (url, config) {
+            config.context = SecurityContext(withTrustedRoots: false);
+            config.onBadCertificate = (certificate) {
+              badCert = true;
+              badCertSubject = certificate.subject.toString();
+              badCertSha256 = sha256.convert(certificate.der).toString();
+              return true;
+            };
+            config.validateCertificate = (certificate, host, port) {
+              if (certificate == null) fail('must include a certificate');
+              approved = true;
+              approverSubject = certificate.subject.toString();
+              approverSha256 = sha256.convert(certificate.der).toString();
+              return true;
+            };
+          },
+        ),
+      );
 
       final res = await dio.get('get');
       expect(badCert, true);
@@ -150,16 +160,18 @@ void main() {
 
     test('2 requests == 1 approval', () async {
       int approvalCount = 0;
-      dio.httpClientAdapter = Http2Adapter(ConnectionManager(
-        // allow connection reuse
-        idleTimeout: Duration(seconds: 20),
-        onClientCreate: (url, config) {
-          config.validateCertificate = (certificate, host, port) {
-            approvalCount++;
-            return true;
-          };
-        },
-      ));
+      dio.httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          // allow connection reuse
+          idleTimeout: Duration(seconds: 20),
+          onClientCreate: (url, config) {
+            config.validateCertificate = (certificate, host, port) {
+              approvalCount++;
+              return true;
+            };
+          },
+        ),
+      );
 
       Response res = await dio.get('get');
       final firstTime = res.headers['date'];

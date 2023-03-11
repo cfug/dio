@@ -35,35 +35,43 @@ void main() {
     expect(r.data['data'], str);
   });
 
-  test('file stream', () async {
-    final f = File('test/mock/test.jpg');
-    final r = await dio.put(
-      '/put',
-      data: f.openRead(),
-      options: Options(
-        contentType: 'image/jpeg',
-        headers: {
-          Headers.contentLengthHeader: f.lengthSync(), // set content-length
-        },
-      ),
-    );
-    final img = base64Encode(f.readAsBytesSync());
-    expect(r.data['data'], 'data:application/octet-stream;base64,$img');
-  }, testOn: "vm");
+  test(
+    'file stream',
+    () async {
+      final f = File('test/mock/test.jpg');
+      final r = await dio.put(
+        '/put',
+        data: f.openRead(),
+        options: Options(
+          contentType: 'image/jpeg',
+          headers: {
+            Headers.contentLengthHeader: f.lengthSync(), // set content-length
+          },
+        ),
+      );
+      final img = base64Encode(f.readAsBytesSync());
+      expect(r.data['data'], 'data:application/octet-stream;base64,$img');
+    },
+    testOn: 'vm',
+  );
 
-  test('file stream<Uint8List>', () async {
-    final f = File('test/mock/test.jpg');
-    final r = await dio.put(
-      '/put',
-      data: f.readAsBytes().asStream(),
-      options: Options(
-        contentType: 'image/jpeg',
-        headers: {
-          Headers.contentLengthHeader: f.lengthSync(), // set content-length
-        },
-      ),
-    );
-    final img = base64Encode(f.readAsBytesSync());
-    expect(r.data['data'], 'data:application/octet-stream;base64,$img');
-  }, testOn: "vm");
+  test(
+    'file stream<Uint8List>',
+    () async {
+      final f = File('test/mock/test.jpg');
+      final r = await dio.put(
+        '/put',
+        data: f.readAsBytes().asStream(),
+        options: Options(
+          contentType: 'image/jpeg',
+          headers: {
+            Headers.contentLengthHeader: f.lengthSync(), // set content-length
+          },
+        ),
+      );
+      final img = base64Encode(f.readAsBytesSync());
+      expect(r.data['data'], 'data:application/octet-stream;base64,$img');
+    },
+    testOn: 'vm',
+  );
 }

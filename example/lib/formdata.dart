@@ -34,22 +34,28 @@ Future<FormData> formData2() async {
   final formData = FormData();
 
   formData.fields
-    ..add(MapEntry(
-      'name',
-      'wendux',
-    ))
-    ..add(MapEntry(
-      'age',
-      '25',
-    ));
+    ..add(
+      MapEntry(
+        'name',
+        'wendux',
+      ),
+    )
+    ..add(
+      MapEntry(
+        'age',
+        '25',
+      ),
+    );
 
-  formData.files.add(MapEntry(
-    'file',
-    await MultipartFile.fromFile(
-      './example/xx.png',
-      filename: 'xx.png',
+  formData.files.add(
+    MapEntry(
+      'file',
+      await MultipartFile.fromFile(
+        './example/xx.png',
+        filename: 'xx.png',
+      ),
     ),
-  ));
+  );
 
   formData.files.addAll([
     MapEntry(

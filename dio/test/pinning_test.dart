@@ -89,8 +89,10 @@ void main() {
         }
         ..validateCertificate =
             (cert, host, port) => fail('Should not be evaluated');
-      await dio.get(untrustedCertUrl,
-          options: Options(validateStatus: (status) => true));
+      await dio.get(
+        untrustedCertUrl,
+        options: Options(validateStatus: (status) => true),
+      );
       fail('did not throw');
     } on DioError catch (e) {
       error = e;

@@ -46,7 +46,8 @@ class Headers {
     if (arr == null) return null;
     if (arr.length == 1) return arr.first;
     throw Exception(
-        '"$name" header has more than one value, please use Headers[name]');
+      '"$name" header has more than one value, please use Headers[name]',
+    );
   }
 
   /// Adds a header value. The header named [name] will have the value

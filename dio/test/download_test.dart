@@ -61,15 +61,18 @@ void main() {
 
   test('download timeout', () async {
     const savePath = 'test/_download_test.md';
-    final dio = Dio(BaseOptions(
-      receiveTimeout: Duration(milliseconds: 1),
-      baseUrl: serverUrl.toString(),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        receiveTimeout: Duration(milliseconds: 1),
+        baseUrl: serverUrl.toString(),
+      ),
+    );
     expect(
-        dio
-            .download('/download', savePath)
-            .catchError((e) => throw (e as DioError).type),
-        throwsA(DioErrorType.receiveTimeout));
+      dio
+          .download('/download', savePath)
+          .catchError((e) => throw (e as DioError).type),
+      throwsA(DioErrorType.receiveTimeout),
+    );
     //print(r);
   });
 

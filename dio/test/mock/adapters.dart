@@ -71,10 +71,12 @@ class MockAdapter implements HttpClientAdapter {
         case '/token':
           final t = 'ABCDEFGHIJKLMN'.split('')..shuffle();
           return ResponseBody.fromBytes(
-            utf8.encode(jsonEncode({
-              'errCode': 0,
-              'data': {'token': t.join()}
-            })),
+            utf8.encode(
+              jsonEncode({
+                'errCode': 0,
+                'data': {'token': t.join()}
+              }),
+            ),
             200,
             headers: {
               Headers.contentTypeHeader: [Headers.jsonContentType],
