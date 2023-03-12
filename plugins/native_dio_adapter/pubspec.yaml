@@ -6,7 +6,7 @@ repository: https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=2.19.0 <3.0.0'
   flutter: ">=3.0.0"
 
 dependencies:
