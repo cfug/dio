@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fix empty cookie parsing and header value set.
 - Improve code formats according to linter rules.
 
 ## 2.1.1
@@ -27,4 +28,4 @@
 
 ## 0.0.1 - 2019.9.17
 
-* A  cookie manager for Dio.
+* A cookie manager for Dio.
