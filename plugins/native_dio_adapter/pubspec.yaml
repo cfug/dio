@@ -7,7 +7,7 @@ issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
   sdk: '>=2.19.0 <3.0.0'
-  flutter: ">=3.0.0"
+  flutter: ">=3.7.0"
 
 dependencies:
   dio: ^5.0.0
