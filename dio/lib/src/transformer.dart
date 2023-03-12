@@ -13,13 +13,13 @@ import 'utils.dart';
 /// request/response data, you can provide a [Transformer] by your self, and
 /// replace the [DefaultTransformer] by setting the [dio.Transformer].
 abstract class Transformer {
-  /// `transformRequest` allows changes to the request data before it is
+  /// [transformRequest] allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
   ///
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'
   Future<String> transformRequest(RequestOptions options);
 
-  /// `transformResponse` allows changes to the response data  before
+  /// [transformResponse] allows changes to the response data  before
   /// it is passed to [ResponseInterceptor].
   ///
   /// **Note**: As an agreement, you must return the [response]

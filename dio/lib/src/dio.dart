@@ -208,13 +208,13 @@ abstract class Dio {
   ///
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
-  /// 1. If this value is 'content-length', the `total` argument of `onProgress` will be -1
+  /// 1. If this value is 'content-length', the `total` argument of [onReceiveProgress] will be -1
   /// 2. If this value is not 'content-length', maybe a custom header indicates the original
-  /// file size , the `total` argument of `onProgress` will be this header value.
+  /// file size , the `total` argument of [onReceiveProgress] will be this header value.
   ///
   /// You can also disable the compression by specifying
   /// the 'accept-encoding' header value as '*' to assure the value of
-  /// `total` argument of `onProgress` is not -1. for example:
+  /// `total` argument of [onReceiveProgress] is not -1. for example:
   ///
   /// ```dart
   /// await dio.download(
@@ -223,7 +223,7 @@ abstract class Dio {
   ///   options: Options(
   ///     headers: {HttpHeaders.acceptEncodingHeader: "*"}, // Disable gzip
   ///   ),
-  ///   onProgress: (received, total) {
+  ///   onReceiveProgress: (received, total) {
   ///     if (total != -1) {
   ///       print((received / total * 100).toStringAsFixed(0) + "%");
   ///     }
