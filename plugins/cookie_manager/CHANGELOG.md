@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.1.2
+
 - Fix empty cookie parsing and header value set.
 - Improve code formats according to linter rules.
 
