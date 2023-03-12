@@ -101,6 +101,9 @@ class CookieManager extends Interceptor {
     final statusCode = response.statusCode ?? 0;
     // 300 indicates the URL has multiple choices, so here we use list literal.
     final locations = response.headers[HttpHeaders.locationHeader] ?? [];
+    // We don't want to explicitly consider recursive redirections
+    // cookie handling here, because when `followRedirects` is set to false,
+    // users will be available to handle cookies themselves.
     final isRedirectRequest = statusCode >= 300 && statusCode < 400;
     if (isRedirectRequest && locations.isNotEmpty) {
       await Future.wait(
