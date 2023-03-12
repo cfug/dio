@@ -87,15 +87,14 @@ class CookieManager extends Interceptor {
 
   Future<void> _saveCookies(Response response) async {
     final setCookies = response.headers[HttpHeaders.setCookieHeader];
-
     if (setCookies != null) {
-      final cookies = setCookies
+      final List<Cookie> cookies = setCookies
           .map((str) => str.split(_setCookieReg))
-          .expand((element) => element);
-      await cookieJar.saveFromResponse(
-        response.requestOptions.uri,
-        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
-      );
+          .expand((cookie) => cookie)
+          .where((cookie) => cookie.isNotEmpty)
+          .map((str) => Cookie.fromSetCookieValue(str))
+          .toList();
+      await cookieJar.saveFromResponse(response.realUri, cookies);
     }
   }
 }
