@@ -35,12 +35,17 @@ class CookieManager extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     cookieJar.loadForRequest(options.uri).then((cookies) {
-      options.headers[HttpHeaders.cookieHeader] = getCookies([
+      final previousCookies =
+          options.headers[HttpHeaders.cookieHeader] as String?;
+      final newCookies = getCookies([
         ...cookies,
-        ...?options.headers[HttpHeaders.cookieHeader]
+        ...?previousCookies
             ?.split(';')
+            .where((e) => e.isNotEmpty)
             .map((c) => Cookie.fromSetCookieValue(c)),
       ]);
+      options.headers[HttpHeaders.cookieHeader] =
+          newCookies.isNotEmpty ? newCookies : null;
       handler.next(options);
     }).catchError((dynamic e, StackTrace s) {
       final err = DioError(requestOptions: options, error: e, stackTrace: s);
