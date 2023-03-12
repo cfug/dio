@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Allow `Set-Cookie` to be parsed in redirect responses.
 
 ## 2.1.2
 
