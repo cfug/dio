@@ -85,4 +85,30 @@ void main() {
 
     cookieManager.onRequest(options, mockRequestInterceptorHandler);
   });
+
+  group('Empty cookies', () {
+    test('not produced by default', () async {
+      final dio = Dio();
+      dio.interceptors.add(CookieManager(CookieJar()));
+      final response = await dio.get('http://www.gstatic.com/generate_204');
+      expect(response.requestOptions.headers[HttpHeaders.cookieHeader], null);
+    });
+
+    test('can be parsed', () async {
+      final dio = Dio();
+      dio.interceptors
+        ..add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              // Write an empty cookie header.
+              options.headers[HttpHeaders.cookieHeader] = '';
+              handler.next(options);
+            },
+          ),
+        )
+        ..add(CookieManager(CookieJar()));
+      final response = await dio.get('http://www.gstatic.com/generate_204');
+      expect(response.requestOptions.headers[HttpHeaders.cookieHeader], null);
+    });
+  });
 }
