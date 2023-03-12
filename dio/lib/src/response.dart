@@ -56,7 +56,7 @@ class Response<T> {
   Uri get realUri =>
       redirects.isNotEmpty ? redirects.last.location : requestOptions.uri;
 
-  /// We are more concerned about `data` field.
+  /// We are more concerned about [data] field.
   @override
   String toString() {
     if (data is Map) {

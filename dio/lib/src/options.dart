@@ -24,7 +24,7 @@ enum ResponseType {
   json,
 
   /// Get the response stream without any transformation. The
-  /// Response data will be a `ResponseBody` instance.
+  /// Response data will be a [ResponseBody] instance.
   ///
   ///    Response<ResponseBody> rs = await Dio().get<ResponseBody>(
   ///      url,
@@ -402,8 +402,8 @@ class Options {
   /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   ResponseType? responseType;
 
-  /// `validateStatus` defines whether the request is successful for a given
-  /// HTTP response status code. If `validateStatus` returns `true` ,
+  /// [validateStatus] defines whether the request is successful for a given
+  /// HTTP response status code. If [validateStatus] returns `true` ,
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus? validateStatus;
 
