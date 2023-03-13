@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:cupertino_http/cupertino_client.dart';
 import 'package:cupertino_http/cupertino_http.dart';
 import 'package:dio/dio.dart';
 import 'conversion_layer_adapter.dart';
