@@ -29,6 +29,10 @@ class CookieManager extends Interceptor {
 
   /// Merge cookies into a Cookie string.
   static String getCookies(List<Cookie> cookies) {
+    // remove previous cookie with same name
+    cookies.removeWhere((cookie) =>
+        cookies.indexWhere((c) => c.name == cookie.name) <
+        cookies.indexOf(cookie));
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
 
@@ -38,11 +42,11 @@ class CookieManager extends Interceptor {
       final previousCookies =
           options.headers[HttpHeaders.cookieHeader] as String?;
       final newCookies = getCookies([
+        ...cookies,
         ...?previousCookies
             ?.split(';')
             .where((e) => e.isNotEmpty)
             .map((c) => Cookie.fromSetCookieValue(c)),
-        ...cookies,
       ]);
       options.headers[HttpHeaders.cookieHeader] =
           newCookies.isNotEmpty ? newCookies : null;

@@ -111,4 +111,22 @@ void main() {
       expect(response.requestOptions.headers[HttpHeaders.cookieHeader], null);
     });
   });
+  test('testing redundant cookies', () async {
+    final cookies = [
+      Cookie('foo', 'bar'),
+      Cookie('a', 'c'),
+    ];
+
+    final previousCookies = [
+      Cookie('foo', 'oldbar'),
+      Cookie('d', 'e'),
+      Cookie('e', 'f'),
+    ];
+
+    final newCookies = CookieManager.getCookies(
+      [...cookies, ...previousCookies],
+    );
+
+    expect(newCookies, 'foo=bar; a=c; d=e; e=f');
+  });
 }
