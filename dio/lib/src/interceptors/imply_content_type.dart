@@ -37,7 +37,7 @@ class ImplyContentTypeInterceptor extends Interceptor {
         // Do not log in the release mode.
         if (!_kReleaseMode) {
           dev.log(
-            '${data.runtimeType} cannot be used'
+            '${data.runtimeType} cannot be used '
             'to imply a default content-type, '
             'please set a proper content-type in the request.',
             level: 900,
