@@ -85,8 +85,8 @@ final dio = Dio()
   ..options.followRedirects = false
   ..options.validateStatus =
       (status) => status != null && status >= 200 && status < 400;
-  final redirected = await dio.get('/redirection');
-  final response = await dio.get(
-    redirected.headers.value(HttpHeaders.locationHeader)!,
-  );
+final redirected = await dio.get('/redirection');
+final response = await dio.get(
+  redirected.headers.value(HttpHeaders.locationHeader)!,
+);
 ```
