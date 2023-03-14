@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Imply `List<Map>` as JSON content in `ImplyContentTypeInterceptor`.
 
 ## 5.0.2
 
