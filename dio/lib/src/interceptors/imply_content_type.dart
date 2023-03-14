@@ -31,7 +31,7 @@ class ImplyContentTypeInterceptor extends Interceptor {
       final String? contentType;
       if (data is FormData) {
         contentType = Headers.multipartFormDataContentType;
-      } else if (data is Map || data is String) {
+      } else if (data is List<Map> || data is Map || data is String) {
         contentType = Headers.jsonContentType;
       } else {
         // Do not log in the release mode.
