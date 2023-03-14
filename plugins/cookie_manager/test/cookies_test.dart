@@ -102,8 +102,9 @@ void main() {
       expect(response1.realUri.path, '/redirection');
       final cookies1 = await cookieJar.loadForRequest(response1.realUri);
       expect(cookies1.length, 3);
-      final response2 = await dio.get('/destination');
-      expect(response2.realUri.path, '/destination');
+      final location = response1.headers.value(HttpHeaders.locationHeader)!;
+      final response2 = await dio.get(location);
+      expect(response2.realUri.path, location);
       final cookies2 = await cookieJar.loadForRequest(response2.realUri);
       expect(cookies2.length, 3);
       expect(
