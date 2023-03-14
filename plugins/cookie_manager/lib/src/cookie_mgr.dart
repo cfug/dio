@@ -38,11 +38,11 @@ class CookieManager extends Interceptor {
       final previousCookies =
           options.headers[HttpHeaders.cookieHeader] as String?;
       final newCookies = getCookies([
-        ...cookies,
         ...?previousCookies
             ?.split(';')
             .where((e) => e.isNotEmpty)
             .map((c) => Cookie.fromSetCookieValue(c)),
+        ...cookies,
       ]);
       options.headers[HttpHeaders.cookieHeader] =
           newCookies.isNotEmpty ? newCookies : null;
