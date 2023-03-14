@@ -1,6 +1,6 @@
 name: native_dio_adapter
 description: A client for dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform.
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter
 issue_tracker: https://github.com/cfug/dio/issues
