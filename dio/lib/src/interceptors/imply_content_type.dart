@@ -31,13 +31,13 @@ class ImplyContentTypeInterceptor extends Interceptor {
       final String? contentType;
       if (data is FormData) {
         contentType = Headers.multipartFormDataContentType;
-      } else if (data is Map || data is String) {
+      } else if (data is List<Map> || data is Map || data is String) {
         contentType = Headers.jsonContentType;
       } else {
         // Do not log in the release mode.
         if (!_kReleaseMode) {
           dev.log(
-            '${data.runtimeType} cannot be used'
+            '${data.runtimeType} cannot be used '
             'to imply a default content-type, '
             'please set a proper content-type in the request.',
             level: 900,

@@ -376,6 +376,18 @@ void main() {
         expect(response.requestOptions.contentType, 'application/json');
       });
 
+      test('sets application/json for List<Map> instances', () async {
+        final dio = createDio();
+        final response = await dio.get(
+          '/echo',
+          data: [
+            {'hello': 'here'},
+            {'hello': 'there'}
+          ],
+        );
+        expect(response.requestOptions.contentType, 'application/json');
+      });
+
       test('sets multipart/form-data for FormData instances', () async {
         final dio = createDio();
         final response = await dio.get(
