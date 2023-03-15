@@ -30,9 +30,16 @@ class CookieManager extends Interceptor {
   /// Merge cookies into a Cookie string.
   static String getCookies(List<Cookie> cookies) {
     // remove previous cookie with same name
-    cookies.removeWhere((cookie) =>
-        cookies.indexWhere((c) => c.name == cookie.name) <
-        cookies.indexOf(cookie));
+    cookies = cookies.fold<List<Cookie>>(
+        [],
+        (prev, current) => prev.indexWhere((c) => c.name == current.name) == -1
+            ? [...prev, current]
+            : prev);
+
+    // sort cookies by path (longer path first)
+    cookies
+        .sort((a, b) => (b.path?.length ?? 0).compareTo(a.path?.length ?? 0));
+
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
 
