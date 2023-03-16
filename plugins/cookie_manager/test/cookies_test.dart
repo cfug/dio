@@ -139,7 +139,8 @@ void main() {
       expect(response.requestOptions.headers[HttpHeaders.cookieHeader], null);
     });
   });
-  test('testing redundant cookies', () async {
+
+  test('cookies replacement', () async {
     final cookies = [
       Cookie('foo', 'bar'),
       Cookie('a', 'c'),
