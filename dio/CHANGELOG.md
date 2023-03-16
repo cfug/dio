@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Imply `List<Map>` as JSON content in `ImplyContentTypeInterceptor`.
+- Mark several static `DioMixin` functions as `@internal`.
 
 ## 5.0.2
 

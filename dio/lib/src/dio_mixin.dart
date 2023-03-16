@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
@@ -663,6 +665,7 @@ abstract class DioMixin implements Dio {
   }
 
   // If the request has been cancelled, stop request and throw error.
+  @internal
   static void checkCancelled(CancelToken? cancelToken) {
     final error = cancelToken?.cancelError;
     if (error != null) {
@@ -670,6 +673,7 @@ abstract class DioMixin implements Dio {
     }
   }
 
+  @internal
   static Future<T> listenCancelForAsyncTask<T>(
     CancelToken? cancelToken,
     Future<T> future,
@@ -680,12 +684,14 @@ abstract class DioMixin implements Dio {
     ]);
   }
 
+  @internal
   static Options checkOptions(String method, Options? options) {
     options ??= Options();
     options.method = method;
     return options;
   }
 
+  @internal
   static DioError assureDioError(
     Object err,
     RequestOptions requestOptions,
@@ -702,6 +708,7 @@ abstract class DioMixin implements Dio {
     );
   }
 
+  @internal
   static Response<T> assureResponse<T>(
     Object response,
     RequestOptions requestOptions,
