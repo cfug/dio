@@ -160,16 +160,19 @@ void main() {
   });
 
   test('testing cookies RFC6265 5.4 #2 sorting', () async {
+    // To test cookies with longer paths are listed before
+    // cookies with shorter paths.
     final cookies = [
       Cookie('a', 'b')..path = '/',
       Cookie('c', 'd')..path = '/foo',
       Cookie('e', 'f')..path = '/foo/bar',
       Cookie('g', 'h')..path = '/foo/bar/baz',
+      Cookie('i', 'j'),
     ];
 
     final newCookies = CookieManager.getCookies(cookies);
 
-    expect(newCookies, 'g=h; e=f; c=d; a=b');
+    expect(newCookies, 'g=h; e=f; c=d; a=b; i=j');
   });
 }
 
