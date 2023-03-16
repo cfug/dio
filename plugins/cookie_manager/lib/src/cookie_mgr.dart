@@ -87,15 +87,35 @@ class CookieManager extends Interceptor {
 
   Future<void> _saveCookies(Response response) async {
     final setCookies = response.headers[HttpHeaders.setCookieHeader];
-
-    if (setCookies != null) {
-      final cookies = setCookies
-          .map((str) => str.split(_setCookieReg))
-          .expand((element) => element);
-      await cookieJar.saveFromResponse(
-        response.requestOptions.uri,
-        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+    if (setCookies == null || setCookies.isEmpty) {
+      return;
+    }
+    final List<Cookie> cookies = setCookies
+        .map((str) => str.split(_setCookieReg))
+        .expand((cookie) => cookie)
+        .where((cookie) => cookie.isNotEmpty)
+        .map((str) => Cookie.fromSetCookieValue(str))
+        .toList();
+    // Handle `Set-Cookie` when `followRedirects` is false
+    // and the response returns a redirect status code.
+    final statusCode = response.statusCode ?? 0;
+    // 300 indicates the URL has multiple choices, so here we use list literal.
+    final locations = response.headers[HttpHeaders.locationHeader] ?? [];
+    // We don't want to explicitly consider recursive redirections
+    // cookie handling here, because when `followRedirects` is set to false,
+    // users will be available to handle cookies themselves.
+    final isRedirectRequest = statusCode >= 300 && statusCode < 400;
+    if (isRedirectRequest && locations.isNotEmpty) {
+      await Future.wait(
+        locations.map(
+          (location) => cookieJar.saveFromResponse(
+            Uri.parse(location),
+            cookies,
+          ),
+        ),
       );
+    } else {
+      await cookieJar.saveFromResponse(response.realUri, cookies);
     }
   }
 }
