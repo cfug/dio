@@ -37,8 +37,9 @@ class CookieManager extends Interceptor {
             : prev);
 
     // sort cookies by path (longer path first)
-    cookies
-        .sort((a, b) => (b.path?.length ?? 0).compareTo(a.path?.length ?? 0));
+    cookies.sort(
+      (a, b) => (b.path?.length ?? 0).compareTo(a.path?.length ?? 0),
+    );
 
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
