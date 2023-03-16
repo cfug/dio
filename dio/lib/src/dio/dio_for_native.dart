@@ -135,12 +135,12 @@ class DioForNative with DioMixin implements Dio {
           if (cancelToken == null || !cancelToken.isCancelled) {
             subscription.resume();
           }
-        }).catchError((dynamic e, StackTrace s) async {
+        }).catchError((Object e) async {
           try {
             await subscription.cancel();
           } finally {
             completer.completeError(
-              DioMixin.assureDioError(e, response.requestOptions, s),
+              DioMixin.assureDioError(e, response.requestOptions),
             );
           }
         });
@@ -151,18 +151,18 @@ class DioForNative with DioMixin implements Dio {
           closed = true;
           await raf.close();
           completer.complete(response);
-        } catch (e, s) {
+        } catch (e) {
           completer.completeError(
-            DioMixin.assureDioError(e, response.requestOptions, s),
+            DioMixin.assureDioError(e, response.requestOptions),
           );
         }
       },
-      onError: (e, s) async {
+      onError: (e) async {
         try {
           await closeAndDelete();
         } finally {
           completer.completeError(
-            DioMixin.assureDioError(e, response.requestOptions, s),
+            DioMixin.assureDioError(e, response.requestOptions),
           );
         }
       },

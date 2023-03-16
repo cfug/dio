@@ -444,10 +444,10 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(dynamic, StackTrace) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
-      return (err, stackTrace) {
+      return (err, _) {
         if (err is! InterceptorState) {
           err = InterceptorState(
-            assureDioError(err, requestOptions, stackTrace),
+            assureDioError(err, requestOptions),
           );
         }
 
@@ -525,14 +525,14 @@ abstract class DioMixin implements Dio {
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((dynamic e, StackTrace s) {
+    }).catchError((Object e) {
       final isState = e is InterceptorState;
       if (isState) {
         if (e.type == InterceptorResultType.resolve) {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
-      throw assureDioError(isState ? e.data : e, requestOptions, s);
+      throw assureDioError(isState ? e.data : e, requestOptions);
     });
   }
 
@@ -575,8 +575,8 @@ abstract class DioMixin implements Dio {
           response: ret,
         );
       }
-    } catch (e, stackTrace) {
-      throw assureDioError(e, reqOpt, stackTrace);
+    } catch (e) {
+      throw assureDioError(e, reqOpt);
     }
   }
 
@@ -695,7 +695,6 @@ abstract class DioMixin implements Dio {
   static DioError assureDioError(
     Object err,
     RequestOptions requestOptions,
-    StackTrace sourceStackTrace,
   ) {
     if (err is DioError) {
       // nothing to be done
@@ -704,7 +703,6 @@ abstract class DioMixin implements Dio {
     return DioError(
       requestOptions: requestOptions,
       error: err,
-      stackTrace: sourceStackTrace,
     );
   }
 

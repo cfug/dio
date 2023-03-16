@@ -4,6 +4,8 @@
 
 - Imply `List<Map>` as JSON content in `ImplyContentTypeInterceptor`.
 - Mark several static `DioMixin` functions as `@internal`.
+- Make `DioError.stackTrace` non-nullable.
+- Ensure `DioError.stackTrace` always points to the correct call site.
 
 ## 5.0.2
 
