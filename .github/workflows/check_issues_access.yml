@@ -8,7 +8,7 @@ on:
 jobs:
   verify_access:
     runs-on: ubuntu-latest
-    if: ${{ join(github.event.issue.labels) == '' || contains('infra', github.event.issue.labels)}}
+    if: ${{ join(github.event.issue.labels) == '' || contains(github.event.issue.labels, 'infra')}}
     steps:
       - uses: actions-cool/check-user-permission@v2
         id: checkIfUserHasWriteAccess
