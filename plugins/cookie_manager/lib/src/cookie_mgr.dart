@@ -28,15 +28,21 @@ class CookieManager extends Interceptor {
   final CookieJar cookieJar;
 
   /// Merge cookies into a Cookie string.
+  /// Cookies with longer paths are listed before cookies with shorter paths.
   static String getCookies(List<Cookie> cookies) {
-    // remove previous cookie with same name
-    cookies = cookies.fold<List<Cookie>>(
-        [],
-        (prev, current) => prev.indexWhere((c) => c.name == current.name) == -1
-            ? [...prev, current]
-            : prev);
+    // Remove previous cookie with same name.
+    cookies = cookies.fold<List<Cookie>>([], (prev, current) {
+      // Check if the current cookie's name is already in the list.
+      if (prev.any((c) => c.name == current.name)) {
+        // Skip this cookie.
+        return prev;
+      } else {
+        // Add this cookie to the list.
+        return [...prev, current];
+      }
+    });
 
-    // sort cookies by path (longer path first)
+    // Sort cookies by path (longer path first).
     cookies.sort(
       (a, b) => (b.path?.length ?? 0).compareTo(a.path?.length ?? 0),
     );
