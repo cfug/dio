@@ -30,13 +30,19 @@ class CookieManager extends Interceptor {
   /// Merge cookies into a Cookie string.
   /// Cookies with longer paths are listed before cookies with shorter paths.
   static String getCookies(List<Cookie> cookies) {
-    final uniqueNames = <String>{};
-    // Filter out cookie with duplicate name.
-    cookies = cookies.where((cookie) => uniqueNames.add(cookie.name)).toList();
     // Sort cookies by path (longer path first).
-    cookies.sort(
-      (a, b) => (b.path?.length ?? 0).compareTo(a.path?.length ?? 0),
-    );
+    cookies.sort((a, b) {
+      if (a.path == null && b.path == null) {
+        return 0;
+      } else if (a.path == null) {
+        return -1;
+      } else if (b.path == null) {
+        return 1;
+      } else {
+        return (b.path!.length).compareTo(a.path!.length);
+      }
+    });
+
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
 
@@ -46,11 +52,11 @@ class CookieManager extends Interceptor {
       final previousCookies =
           options.headers[HttpHeaders.cookieHeader] as String?;
       final newCookies = getCookies([
-        ...cookies,
         ...?previousCookies
             ?.split(';')
             .where((e) => e.isNotEmpty)
             .map((c) => Cookie.fromSetCookieValue(c)),
+        ...cookies,
       ]);
       options.headers[HttpHeaders.cookieHeader] =
           newCookies.isNotEmpty ? newCookies : null;
