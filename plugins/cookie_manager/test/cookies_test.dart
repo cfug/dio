@@ -159,7 +159,7 @@ void main() {
     expect(newCookies, 'foo=bar; a=c; d=e; e=f');
   });
 
-  test('testing cookies RFC6265 5.4 #2 sorting', () async {
+  test('RFC6265 5.4 #2 sorting', () async {
     // To test cookies with longer paths are listed before
     // cookies with shorter paths.
     final cookies = [
