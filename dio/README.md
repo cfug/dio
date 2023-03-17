@@ -423,17 +423,17 @@ dio.interceptors.add(
       // you can reject with a `DioError` using `handler.reject(dioError)`.
       return handler.next(options);
     },
-    onResponse: (Response response, RequestInterceptorHandler handler) {
+    onResponse: (Response response, ResponseInterceptorHandler handler) {
       // Do something with response data.
       // If you want to reject the request with a error message,
-      // you can reject a `DioError` object eg: `handler.reject(dioError)`.
+      // you can reject a `DioError` object using `handler.reject(dioError)`.
       return handler.next(response);
     },
-    onError: (DioError e, RequestInterceptorHandler handler) {
-      // Do something with response error
-      // If you want to resolve the request with some custom data
-      // you can resolve a `Response` object eg: `handler.resolve(response)`.
-      return handler.next(e);//continue
+    onError: (DioError e, ErrorInterceptorHandler handler) {
+      // Do something with response error.
+      // If you want to resolve the request with some custom data,
+      // you can resolve a `Response` object using `handler.resolve(response)`.
+      return handler.next(e);
     },
   ),
 );
