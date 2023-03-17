@@ -145,17 +145,14 @@ void main() {
       Cookie('foo', 'bar'),
       Cookie('a', 'c'),
     ];
-
     final previousCookies = [
       Cookie('foo', 'oldbar'),
       Cookie('d', 'e'),
       Cookie('e', 'f'),
     ];
-
     final newCookies = CookieManager.getCookies(
       [...cookies, ...previousCookies],
     );
-
     expect(newCookies, 'foo=bar; a=c; d=e; e=f');
   });
 
@@ -169,9 +166,7 @@ void main() {
       Cookie('g', 'h')..path = '/foo/bar/baz',
       Cookie('i', 'j'),
     ];
-
     final newCookies = CookieManager.getCookies(cookies);
-
     expect(newCookies, 'g=h; e=f; c=d; a=b; i=j');
   });
 }
