@@ -10,8 +10,10 @@ void main() {
     );
     expect(untypedResponse is Response<int?>, isFalse);
 
-    final typedResponse =
-        DioMixin.assureResponse<int?>(untypedResponse, requestOptions);
+    final typedResponse = DioMixin.assureResponse<int?>(
+      untypedResponse,
+      requestOptions,
+    );
     expect(typedResponse.data, isNull);
   });
 }
