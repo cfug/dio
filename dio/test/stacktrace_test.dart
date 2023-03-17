@@ -54,14 +54,15 @@ void main() async {
       DioErrorType.connectionTimeout,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
+          final timeout = Duration(milliseconds: 10);
           final dio = Dio(BaseOptions()
-            ..connectTimeout = Duration(milliseconds: 10)
+            ..connectTimeout = timeout
             ..baseUrl = 'https://does.not.exist');
 
           when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
             final request = MockHttpClientRequest();
-            await Future.delayed(Duration(
-                milliseconds: dio.options.connectTimeout!.inMilliseconds + 10));
+            await Future.delayed(
+                Duration(milliseconds: timeout.inMilliseconds + 10));
             return request;
           });
 
@@ -83,17 +84,16 @@ void main() async {
       DioErrorType.receiveTimeout,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
+          final timeout = Duration(milliseconds: 10);
           final dio = Dio(BaseOptions()
-            ..receiveTimeout = Duration(milliseconds: 10)
+            ..receiveTimeout = timeout
             ..baseUrl = 'https://does.not.exist');
 
           when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
             final request = MockHttpClientRequest();
             final response = MockHttpClientResponse();
             when(request.close()).thenAnswer((_) => Future.delayed(
-                  Duration(
-                      milliseconds:
-                          dio.options.receiveTimeout!.inMilliseconds + 10),
+                  Duration(milliseconds: timeout.inMilliseconds + 10),
                   () => response,
                 ));
             return request;
@@ -117,16 +117,16 @@ void main() async {
       DioErrorType.sendTimeout,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
+          final timeout = Duration(milliseconds: 10);
           final dio = Dio(BaseOptions()
-            ..sendTimeout = Duration(milliseconds: 100)
+            ..sendTimeout = timeout
             ..baseUrl = 'https://does.not.exist');
 
           when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
             final request = MockHttpClientRequest();
             when(request.addStream(any)).thenAnswer(
               (_) async => Future.delayed(
-                Duration(
-                    milliseconds: dio.options.sendTimeout!.inMilliseconds + 10),
+                Duration(milliseconds: timeout.inMilliseconds + 10),
               ),
             );
             when(request.headers).thenReturn(MockHttpHeaders());
@@ -151,9 +151,7 @@ void main() async {
       DioErrorType.badCertificate,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
-          final dio = Dio(BaseOptions()
-            ..sendTimeout = Duration(milliseconds: 100)
-            ..baseUrl = 'https://does.not.exist')
+          final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist')
             ..httpClientAdapter = (IOHttpClientAdapter()
               ..validateCertificate = (certificate, host, port) => false);
 

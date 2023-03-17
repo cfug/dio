@@ -361,7 +361,7 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final requestOptions = (options ??= Options()).compose(
+    final requestOptions = (options ?? Options()).compose(
       this.options,
       path,
       data: data,

@@ -65,9 +65,9 @@ class DioError implements Exception {
     this.message,
   }) : stackTrace = identical(stackTrace, StackTrace.empty)
             ? (requestOptions.sourceStackTrace ?? StackTrace.current)
-            : (stackTrace ??
+            : stackTrace ??
                 requestOptions.sourceStackTrace ??
-                StackTrace.current);
+                StackTrace.current;
 
   factory DioError.badResponse({
     required int statusCode,
