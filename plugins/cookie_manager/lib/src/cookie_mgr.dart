@@ -30,17 +30,9 @@ class CookieManager extends Interceptor {
   /// Merge cookies into a Cookie string.
   /// Cookies with longer paths are listed before cookies with shorter paths.
   static String getCookies(List<Cookie> cookies) {
-    // Remove previous cookie with same name.
-    cookies = cookies.fold<List<Cookie>>([], (prev, current) {
-      // Check if the current cookie's name is already in the list.
-      if (prev.any((c) => c.name == current.name)) {
-        // Skip this cookie.
-        return prev;
-      } else {
-        // Add this cookie to the list.
-        return [...prev, current];
-      }
-    });
+    final uniqueNames = <String>{};
+    // Filter out cookie with duplicate name.
+    cookies = cookies.where((cookie) => uniqueNames.add(cookie.name)).toList();
 
     // Sort cookies by path (longer path first).
     cookies.sort(
