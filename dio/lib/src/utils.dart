@@ -38,6 +38,9 @@ String encodeMap(
 }) {
   final urlData = StringBuffer('');
   bool first = true;
+  // URL Query parameters are generally encoded but not their
+  // index or nested names in square brackets.
+  // When [encode] is false, for example for [FormData], nothing is encoded.
   final leftBracket = isQuery || !encode ? '[' : '%5B';
   final rightBracket = isQuery || !encode ? ']' : '%5D';
   final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
