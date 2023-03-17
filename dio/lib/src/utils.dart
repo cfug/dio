@@ -38,8 +38,8 @@ String encodeMap(
 }) {
   final urlData = StringBuffer('');
   bool first = true;
-  final leftBracket = isQuery ? '[' : '%5B';
-  final rightBracket = isQuery ? ']' : '%5D';
+  final leftBracket = isQuery || !encode ? '[' : '%5B';
+  final rightBracket = isQuery || !encode ? ']' : '%5D';
   final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
   Object? maybeEncode(Object? value) {
     if (!isQuery || value == null || value is! String) {
