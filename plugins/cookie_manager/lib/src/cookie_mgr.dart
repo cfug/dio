@@ -42,7 +42,6 @@ class CookieManager extends Interceptor {
         return (b.path!.length).compareTo(a.path!.length);
       }
     });
-
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
 
