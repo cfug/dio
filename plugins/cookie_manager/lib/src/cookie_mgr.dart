@@ -33,12 +33,10 @@ class CookieManager extends Interceptor {
     final uniqueNames = <String>{};
     // Filter out cookie with duplicate name.
     cookies = cookies.where((cookie) => uniqueNames.add(cookie.name)).toList();
-
     // Sort cookies by path (longer path first).
     cookies.sort(
       (a, b) => (b.path?.length ?? 0).compareTo(a.path?.length ?? 0),
     );
-
     return cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
 
