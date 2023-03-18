@@ -55,7 +55,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
 
 ### 添加依赖
 
-你可以使用一下命令将 dio 的最新稳定版依赖添加至你的项目：
+你可以使用以下命令将 dio 的最新稳定版依赖添加至你的项目：
 
 ```console
 $ dart pub add dio
