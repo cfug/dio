@@ -4,6 +4,11 @@
 
 - Allow `Set-Cookie` to be parsed in redirect responses.
 
+## 2.1.3
+
+- Fix new cookie being replaced by old cookie with the same name.
+- Sort the cookie by path (longer path first).
+
 ## 2.1.2
 
 - Fix empty cookie parsing and header value set.
