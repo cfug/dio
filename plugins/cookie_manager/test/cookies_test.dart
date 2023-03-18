@@ -143,9 +143,9 @@ void main() {
       Cookie('a', 'c')..path = '/',
     ];
     final previousCookies = [
-      Cookie('foo', 'oldbar')..path = '/',
-      Cookie('d', 'e')..path = '/',
-      Cookie('e', 'f')..path = '/',
+      Cookie('foo', 'oldbar'),
+      Cookie('d', 'e'),
+      Cookie('e', 'f'),
     ];
     final newCookies = CookieManager.getCookies(
       [
