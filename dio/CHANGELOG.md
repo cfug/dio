@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+*None.*
+
+## 5.0.3
+
 - Imply `List<Map>` as JSON content in `ImplyContentTypeInterceptor`.
+- Fix `FormData` encoding for collections and objects.
 
 ## 5.0.2
 
