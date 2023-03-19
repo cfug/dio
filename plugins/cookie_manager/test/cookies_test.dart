@@ -31,10 +31,7 @@ void main() {
     const exampleUrl = 'https://example.com';
     const String mockSecondRequestCookies = 'd=e;e=f';
 
-    final expectResult = mockFirstRequestCookies
-            .map((mock) => mock.replaceAll(' Path=/', ' '))
-            .join() +
-        mockSecondRequestCookies.split(';').join('; ');
+    final expectResult = 'd=e; e=f; foo=bar; a=c';
 
     final cookieJar = CookieJar();
     final cookieManager = CookieManager(cookieJar);
@@ -138,6 +135,40 @@ void main() {
       final response = await dio.get('http://www.gstatic.com/generate_204');
       expect(response.requestOptions.headers[HttpHeaders.cookieHeader], null);
     });
+  });
+
+  test('cookies replacement', () async {
+    final cookies = [
+      Cookie('foo', 'bar')..path = '/',
+      Cookie('a', 'c')..path = '/',
+    ];
+    final previousCookies = [
+      Cookie('foo', 'oldbar'),
+      Cookie('d', 'e'),
+      Cookie('e', 'f'),
+    ];
+    final newCookies = CookieManager.getCookies(
+      [
+        ...previousCookies,
+        ...cookies,
+      ],
+    );
+    expect(newCookies, 'foo=oldbar; d=e; e=f; foo=bar; a=c');
+  });
+
+  test('RFC6265 5.4 #2 sorting', () async {
+    // To test cookies with longer paths are listed before
+    // cookies with shorter paths.
+    final cookies = [
+      Cookie('a', 'k'),
+      Cookie('a', 'b')..path = '/',
+      Cookie('c', 'd')..path = '/foo',
+      Cookie('e', 'f')..path = '/foo/bar',
+      Cookie('g', 'h')..path = '/foo/bar/baz',
+      Cookie('i', 'j'),
+    ];
+    final newCookies = CookieManager.getCookies(cookies);
+    expect(newCookies, 'a=k; i=j; g=h; e=f; c=d; a=b');
   });
 }
 
