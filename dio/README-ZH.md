@@ -55,7 +55,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
 
 ### 添加依赖
 
-你可以使用一下命令将 dio 的最新稳定版依赖添加至你的项目：
+你可以使用以下命令将 dio 的最新稳定版依赖添加至你的项目：
 
 ```console
 $ dart pub add dio
@@ -398,14 +398,14 @@ dio.interceptors.add(
   InterceptorsWrapper(
     onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
-      // 如果你想终止请求并触发一个错误,你可以使用 `handler.reject(error)`。
+      // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(options);
     },
-    onResponse: (Response response, RequestInterceptorHandler handler) {
-      // 如果你想终止请求并触发一个错误,你可以使用 `handler.reject(error)`。
+    onResponse: (Response response, ResponseInterceptorHandler handler) {
+      // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(response);
     },
-    onError: (DioError e, RequestInterceptorHandler handler) {
+    onError: (DioError e, ErrorInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
       return handler.next(e);
     },
