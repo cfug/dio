@@ -17,16 +17,16 @@ void main() async {
       'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
 
   // Don't trust any certificate just because their root cert is trusted
-  dio.httpClientAdapter = IOHttpClientAdapter()
-    ..onHttpClientCreate = (_) {
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (_) {
       final client = HttpClient(
         context: SecurityContext(withTrustedRoots: false),
       );
       // You can test the intermediate / root cert here. We just ignore it.
       client.badCertificateCallback = (cert, host, port) => true;
       return client;
-    }
-    ..validateCertificate = (cert, host, port) {
+    },
+    validateCertificate: (cert, host, port) {
       // Check that the cert fingerprint matches the one we expect
       // We definitely require _some_ certificate
       if (cert == null) return false;
@@ -35,7 +35,8 @@ void main() async {
       final f = sha256.convert(cert.der).toString();
       print(f);
       return fingerprint == f;
-    };
+    },
+  );
 
   Response? response;
 

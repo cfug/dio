@@ -21,9 +21,10 @@ HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for native platforms.
 class IOHttpClientAdapter implements HttpClientAdapter {
-  /// [Dio] will create HttpClient when it is needed.
-  /// If [onHttpClientCreate] is provided, [Dio] will call
-  /// it when a HttpClient created.
+  IOHttpClientAdapter({this.onHttpClientCreate, this.validateCertificate});
+
+  /// [Dio] will create [HttpClient] when it is needed. If [onHttpClientCreate]
+  /// has provided, [Dio] will call it when a [HttpClient] created.
   OnHttpClientCreate? onHttpClientCreate;
 
   /// Allows the user to decide if the response certificate is good.
