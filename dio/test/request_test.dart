@@ -191,5 +191,46 @@ void main() {
       expect(response.data, isA<List>());
       expect(response.data[0], 1);
     });
+
+    group('response type is', () {
+      group('nullable:', () {
+        test('<String?> => null', () async {
+          final response = await dio.get<String?>('/null-response');
+          expect(response.data, isNull);
+          expect(response.data?.isEmpty, isNull);
+        });
+
+        test('<String?> => non-null', () async {
+          final response = await dio.get<String?>('/non-null-response');
+          expect(response.data, isNotNull);
+          expect(response.data.runtimeType, String);
+          expect(response.data?.isEmpty, false);
+          expect(response.data, 'response');
+        });
+      });
+
+      group('non-nullable:', () {
+        test('<String> => null', () async {
+          await expectLater(
+            dio.get<String>('/null-response'),
+            throwsA(allOf([
+              isA<DioError>(),
+              (DioError e) => e.type == DioErrorType.unknown,
+              (DioError e) =>
+                  e.error.toString() ==
+                  "type 'Null' is not a subtype of type 'String' in type cast",
+            ])),
+          );
+        });
+
+        test('<String> => non-null', () async {
+          final response = await dio.get<String>('/non-null-response');
+          expect(response.data, isNotNull);
+          expect(response.data.runtimeType, String);
+          expect(response.data.isEmpty, false);
+          expect(response.data, 'response');
+        });
+      });
+    });
   });
 }

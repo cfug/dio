@@ -549,6 +549,7 @@ abstract class DioMixin implements Dio {
       // Make sure headers and responseBody.headers point to a same Map
       responseBody.headers = headers.map;
       final ret = Response<dynamic>(
+        data: null,
         headers: headers,
         requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
@@ -579,7 +580,6 @@ abstract class DioMixin implements Dio {
   }
 
   bool _isValidToken(String token) {
-    _checkNotNullable(token, 'token');
     // from https://www.rfc-editor.org/rfc/rfc2616#page-15
     //
     // CTL            = <any US-ASCII control character
@@ -715,7 +715,7 @@ abstract class DioMixin implements Dio {
         requestOptions: requestOptions,
       );
     } else if (response is! Response<T>) {
-      final T? data = response.data as T?;
+      final T data = response.data as T;
       final Headers headers;
       if (data is ResponseBody) {
         headers = Headers.fromMap(data.headers);
@@ -735,23 +735,6 @@ abstract class DioMixin implements Dio {
     }
     return response;
   }
-}
-
-/// A null-check function for function parameters in Null Safety enabled code.
-///
-/// Because Dart does not have full null safety
-/// until all legacy code has been removed from a program,
-/// a non-nullable parameter can still end up with a `null` value.
-/// This function can be used to guard those functions against null arguments.
-/// It throws a [TypeError] because we are really seeing the failure to
-/// assign `null` to a non-nullable type.
-///
-/// See http://dartbug.com/40614 for context.
-T _checkNotNullable<T extends Object>(T value, String name) {
-  if ((value as dynamic) == null) {
-    throw NotNullableError<T>(name);
-  }
-  return value;
 }
 
 /// A [TypeError] thrown by [_checkNotNullable].
