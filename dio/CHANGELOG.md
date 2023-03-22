@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Allow defining adapter methods through their constructors.
 
 ## 5.0.3
 
