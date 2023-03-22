@@ -64,7 +64,7 @@ class DioError implements Exception {
     StackTrace? stackTrace,
     this.message,
   }) : stackTrace = identical(stackTrace, StackTrace.empty)
-            ? (requestOptions.sourceStackTrace ?? StackTrace.current)
+            ? requestOptions.sourceStackTrace ?? StackTrace.current
             : stackTrace ??
                 requestOptions.sourceStackTrace ??
                 StackTrace.current;
