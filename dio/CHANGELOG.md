@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Fix double-completion when using `connectionTimeout` on web platform.
 
 ## 5.0.3
 
