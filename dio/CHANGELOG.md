@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fix double-completion when using `connectionTimeout` on web platform.
 - Allow defining adapter methods through their constructors.
 
 ## 5.0.3

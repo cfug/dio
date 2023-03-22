@@ -79,24 +79,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       connectTimeoutTimer = Timer(
         connectionTimeout,
         () {
-          if (!completer.isCompleted) {
-            xhr.abort();
-            completer.completeError(
-              DioError.connectionTimeout(
-                requestOptions: options,
-                timeout: connectionTimeout,
-              ),
-              StackTrace.current,
-            );
-            return;
-          } else {
+          if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
+            return;
           }
+
           xhr.abort();
           completer.completeError(
             DioError.connectionTimeout(
               requestOptions: options,
-              timeout: options.connectTimeout!,
+              timeout: connectionTimeout,
             ),
             StackTrace.current,
           );
