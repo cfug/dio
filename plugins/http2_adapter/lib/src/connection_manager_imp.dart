@@ -146,7 +146,9 @@ class _ConnectionManager implements ConnectionManager {
     final String credentialsProxy =
         base64Encode(utf8.encode(clientConfig.proxy!.userInfo));
 
-    //Send proxy headers
+    // Create http tunnel proxy https://www.ietf.org/rfc/rfc2817.txt
+
+    // Use crlf as the end of the line https://www.ietf.org/rfc/rfc2616.txt
     const crlf = '\r\n';
 
     proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
