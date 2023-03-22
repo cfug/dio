@@ -94,7 +94,7 @@ class DioForNative with DioMixin implements Dio {
     int received = 0;
 
     // Stream<Uint8List>
-    final stream = response.data!.stream;
+    final stream = response.data.stream;
     bool compressed = false;
     int total = 0;
     final contentEncoding = response.headers.value(

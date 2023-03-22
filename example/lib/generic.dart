@@ -42,5 +42,5 @@ void main() async {
 
   // This is the recommended way.
   final r = await dio.get<String>('https://baidu.com');
-  print(r.data?.length);
+  print(r.data.length);
 }

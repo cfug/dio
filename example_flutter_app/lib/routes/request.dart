@@ -26,7 +26,7 @@ class _RequestRouteState extends State<RequestRoute> {
               onPressed: () {
                 dio.get<String>('https://httpbin.org/get').then((r) {
                   setState(() {
-                    _text = r.data!;
+                    _text = r.data;
                   });
                 });
               },
