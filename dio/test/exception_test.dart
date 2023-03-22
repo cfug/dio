@@ -55,10 +55,11 @@ void main() {
     'allow badssl',
     () async {
       final dio = Dio();
-      dio.httpClientAdapter = IOHttpClientAdapter()
-        ..onHttpClientCreate = (client) {
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        onHttpClientCreate: (client) {
           return client..badCertificateCallback = (cert, host, port) => true;
-        };
+        },
+      );
       Response response = await dio.get('https://wrong.host.badssl.com/');
       expect(response.statusCode, 200);
       response = await dio.get('https://expired.badssl.com/');
