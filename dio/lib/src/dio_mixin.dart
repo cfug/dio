@@ -441,28 +441,25 @@ abstract class DioMixin implements Dio {
 
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic, StackTrace) errorInterceptorWrapper(
+    FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
-      return (err, _) {
-        if (err is! InterceptorState) {
-          err = InterceptorState(
-            assureDioError(err, requestOptions),
-          );
-        }
-
+      return (err) {
+        final state = err is InterceptorState
+            ? err
+            : InterceptorState(assureDioError(err, requestOptions));
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
-          interceptor(err.data, errorHandler);
+          interceptor(state.data, errorHandler);
           return errorHandler.future;
         }
 
         // The request has already been canceled,
         // there is no need to listen for another cancellation.
-        if (err.data is DioError && err.data.type == DioErrorType.cancel) {
+        if (state.data is DioError && state.data.type == DioErrorType.cancel) {
           return handleError();
-        } else if (err.type == InterceptorResultType.next ||
-            err.type == InterceptorResultType.rejectCallFollowing) {
+        } else if (state.type == InterceptorResultType.next ||
+            state.type == InterceptorResultType.rejectCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(handleError),
