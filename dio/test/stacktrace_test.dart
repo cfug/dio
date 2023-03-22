@@ -199,5 +199,73 @@ void main() async {
       },
       testOn: '!browser',
     );
+
+    test('Interceptor gets stacktrace in onError', () async {
+      final dio = Dio();
+      dio.options.baseUrl = EchoAdapter.mockBase;
+      dio.httpClientAdapter = EchoAdapter();
+
+      StackTrace? caughtStackTrace;
+      dio.interceptors.addAll([
+        InterceptorsWrapper(
+          onError: (err, handler) {
+            caughtStackTrace = err.stackTrace;
+            handler.next(err);
+          },
+        ),
+        InterceptorsWrapper(onRequest: (options, handler) {
+          final error = DioError(
+            error: Error(),
+            requestOptions: options,
+          );
+          handler.reject(error, true);
+        }),
+      ]);
+
+      await expectLater(
+        dio.get('/error'),
+        throwsA(allOf([
+          isA<DioError>(),
+          (DioError e) => e.stackTrace == caughtStackTrace,
+          (DioError e) =>
+              e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+        ])),
+        reason: 'Stacktrace should be available in onError',
+      );
+    });
+
+    test('QueuedInterceptor gets stacktrace in onError', () async {
+      final dio = Dio();
+      dio.options.baseUrl = EchoAdapter.mockBase;
+      dio.httpClientAdapter = EchoAdapter();
+
+      StackTrace? caughtStackTrace;
+      dio.interceptors.addAll([
+        QueuedInterceptorsWrapper(
+          onError: (err, handler) {
+            caughtStackTrace = err.stackTrace;
+            handler.next(err);
+          },
+        ),
+        QueuedInterceptorsWrapper(onRequest: (options, handler) {
+          final error = DioError(
+            error: Error(),
+            requestOptions: options,
+          );
+          handler.reject(error, true);
+        }),
+      ]);
+
+      await expectLater(
+        dio.get('/error'),
+        throwsA(allOf([
+          isA<DioError>(),
+          (DioError e) => e.stackTrace == caughtStackTrace,
+          (DioError e) =>
+              e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+        ])),
+        reason: 'Stacktrace should be available in onError',
+      );
+    });
   });
 }
