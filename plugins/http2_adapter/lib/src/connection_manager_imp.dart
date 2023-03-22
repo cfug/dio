@@ -148,7 +148,7 @@ class _ConnectionManager implements ConnectionManager {
 
     // Create http tunnel proxy https://www.ietf.org/rfc/rfc2817.txt
 
-    // Use crlf as the end of the line https://www.ietf.org/rfc/rfc2616.txt
+    // Use CRLF as the end of the line https://www.ietf.org/rfc/rfc2616.txt
     const crlf = '\r\n';
 
     proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
