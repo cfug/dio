@@ -84,4 +84,17 @@ void main() {
     );
     expect(r.statusCode, 401);
   });
+
+  test('post map', () async {
+    final dio = Dio()
+      ..options.baseUrl = EchoAdapter.mockBase
+      ..httpClientAdapter = EchoAdapter();
+
+    final response = await dio.post(
+      '/post',
+      data: {'a': 1, 'b': 2, 'c': 3},
+    );
+    expect(response.data, '{"a":1,"b":2,"c":3}');
+    expect(response.statusCode, 200);
+  });
 }
