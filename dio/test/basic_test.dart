@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'dart:async';
 import 'dart:io';
 
@@ -6,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
+import 'utils.dart';
 
 void main() {
   test('test headers', () {
@@ -38,16 +38,18 @@ void main() {
     expect(headers1.map.isEmpty, isTrue);
   });
 
-  test(
-    'send with an invalid URL',
-    () async {
-      await expectLater(
-        Dio().get('http://http.invalid'),
-        throwsA((e) => e is DioError && e.error is SocketException),
-      );
-    },
-    testOn: 'vm',
-  );
+  test('send with an invalid URL', () async {
+    await expectLater(
+      Dio().get('http://http.invalid'),
+      throwsA(allOf([
+        isA<DioError>(),
+        (DioError e) =>
+            e.type ==
+            (isWeb ? DioErrorType.connectionError : DioErrorType.unknown),
+        if (!isWeb) (DioError e) => e.error is SocketException,
+      ])),
+    );
+  });
 
   test('cancellation', () async {
     final dio = Dio()
