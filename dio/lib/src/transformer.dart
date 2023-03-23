@@ -13,13 +13,13 @@ import 'utils.dart';
 /// request/response data, you can provide a [Transformer] by your self, and
 /// replace the [DefaultTransformer] by setting the [dio.Transformer].
 abstract class Transformer {
-  /// `transformRequest` allows changes to the request data before it is
+  /// [transformRequest] allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
   ///
   /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'
   Future<String> transformRequest(RequestOptions options);
 
-  /// `transformResponse` allows changes to the response data  before
+  /// [transformResponse] allows changes to the response data  before
   /// it is passed to [ResponseInterceptor].
   ///
   /// **Note**: As an agreement, you must return the [response]
@@ -29,7 +29,7 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
-    Map map, [
+    Map<String, dynamic> map, [
     ListFormat listFormat = ListFormat.multi,
   ]) {
     return encodeMap(
@@ -39,6 +39,22 @@ abstract class Transformer {
         return '$key=${Uri.encodeQueryComponent(value.toString())}';
       },
       listFormat: listFormat,
+    );
+  }
+
+  /// Deep encode the [Map<String, dynamic>] to a query parameter string.
+  static String urlEncodeQueryMap(
+    Map<String, dynamic> map, [
+    ListFormat listFormat = ListFormat.multi,
+  ]) {
+    return encodeMap(
+      map,
+      (key, value) {
+        if (value == null) return key;
+        return '$key=$value';
+      },
+      listFormat: listFormat,
+      isQuery: true,
     );
   }
 

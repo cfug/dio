@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Support proxy for the adapter.
+- Improve code formats according to linter rules.
 
 ## 2.1.0
 

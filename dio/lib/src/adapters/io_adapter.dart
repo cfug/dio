@@ -21,9 +21,10 @@ HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for native platforms.
 class IOHttpClientAdapter implements HttpClientAdapter {
-  /// [Dio] will create HttpClient when it is needed.
-  /// If [onHttpClientCreate] is provided, [Dio] will call
-  /// it when a HttpClient created.
+  IOHttpClientAdapter({this.onHttpClientCreate, this.validateCertificate});
+
+  /// [Dio] will create [HttpClient] when it is needed. If [onHttpClientCreate]
+  /// has provided, [Dio] will call it when a [HttpClient] created.
   OnHttpClientCreate? onHttpClientCreate;
 
   /// Allows the user to decide if the response certificate is good.
@@ -146,22 +147,24 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     final stream = responseStream.transform<Uint8List>(
-      StreamTransformer.fromHandlers(handleData: (data, sink) {
-        stopwatch.stop();
-        final duration = stopwatch.elapsed;
-        final receiveTimeout = options.receiveTimeout;
-        if (receiveTimeout != null && duration > receiveTimeout) {
-          sink.addError(
-            DioError.receiveTimeout(
-              timeout: receiveTimeout,
-              requestOptions: options,
-            ),
-          );
-          responseStream.detachSocket().then((socket) => socket.destroy());
-        } else {
-          sink.add(Uint8List.fromList(data));
-        }
-      }),
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          stopwatch.stop();
+          final duration = stopwatch.elapsed;
+          final receiveTimeout = options.receiveTimeout;
+          if (receiveTimeout != null && duration > receiveTimeout) {
+            sink.addError(
+              DioError.receiveTimeout(
+                timeout: receiveTimeout,
+                requestOptions: options,
+              ),
+            );
+            responseStream.detachSocket().then((socket) => socket.destroy());
+          } else {
+            sink.add(Uint8List.fromList(data));
+          }
+        },
+      ),
     );
 
     final headers = <String, List<String>>{};

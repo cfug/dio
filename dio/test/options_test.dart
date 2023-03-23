@@ -1,12 +1,44 @@
 @TestOn('vm')
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
+import 'utils.dart';
 
 void main() {
+  setUp(startServer);
+  tearDown(stopServer);
+
+  test('headers are kept after redirects', () async {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: serverUrl.toString(),
+        headers: {'x-test-base': 'test-base'},
+      ),
+    );
+    final response = await dio.get(
+      '/redirect',
+      options: Options(headers: {'x-test-header': 'test-value'}),
+    );
+    expect(response.isRedirect, isTrue);
+    expect(
+      response.data['headers']['x-test-base'].single,
+      equals('test-base'),
+    );
+    expect(
+      response.data['headers']['x-test-header'].single,
+      equals('test-value'),
+    );
+    expect(
+      response.requestOptions.headers['x-test-base'],
+      equals('test-base'),
+    );
+    expect(
+      response.requestOptions.headers['x-test-header'],
+      equals('test-value'),
+    );
+  });
+
   test('options', () {
     final map = {'a': '5'};
     final mapOverride = {'b': '6'};
@@ -251,7 +283,7 @@ void main() {
     final r4 = await dio.post('', data: '');
     expect(
       r4.requestOptions.headers[Headers.contentTypeHeader],
-      null,
+      Headers.jsonContentType,
     );
 
     final r5 = await dio.get(
@@ -348,32 +380,34 @@ void main() {
     expect(r3.headers[Headers.contentTypeHeader], null);
   });
 
-  test("responseDecoder return null", () async {
+  test('responseDecoder return null', () async {
     final dio = Dio();
     dio.options.responseDecoder = (_, __, ___) => null;
     dio.options.baseUrl = EchoAdapter.mockBase;
     dio.httpClientAdapter = EchoAdapter();
 
-    final Response response = await dio.get("");
+    final Response response = await dio.get('');
 
     expect(response.data, null);
   });
 
-  test('forceConvert responseType', () async {
-    final dio = Dio(BaseOptions(
-      baseUrl: MockAdapter.mockBase,
-    )) //
-      ..httpClientAdapter = MockAdapter();
-    final expectedResponseData = <String, dynamic>{"code": 0, "result": "ok"};
+  test('invalid response type throws exceptions', () async {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: MockAdapter.mockBase,
+        contentType: Headers.jsonContentType,
+      ),
+    )..httpClientAdapter = MockAdapter();
 
-    final response = await dio.get<Map<String, dynamic>>('/test-force-convert');
-    expect(response.data, expectedResponseData);
+    // Throws nothing.
+    await dio.get<dynamic>('/test-plain-text-content-type');
+    await dio.get<String>('/test-plain-text-content-type');
 
-    final textResponse = await dio.get<dynamic>('/test-force-convert');
-    expect(textResponse.data, json.encode(expectedResponseData));
-
-    final textResponse2 = await dio.get<String>('/test-force-convert');
-    expect(textResponse2.data, json.encode(expectedResponseData));
+    // Throws a type error during cast.
+    expectLater(
+      dio.get<Map<String, dynamic>>('/test-plain-text-content-type'),
+      throwsA((e) => e is DioError && e.error is TypeError),
+    );
   });
 
   test('option invalid base url', () {
@@ -400,14 +434,14 @@ void main() {
       );
     }
 
-    const String separators = "\t\n\r()<>@,;:\\/[]?={}";
+    const String separators = '\t\n\r()<>@,;:\\/[]?={}';
     for (int i = 0; i < separators.length; i++) {
       final String separator = separators.substring(i, i + 1);
       testInvalidArgumentException(separator);
-      testInvalidArgumentException("${separator}CONNECT");
-      testInvalidArgumentException("CONN${separator}ECT");
-      testInvalidArgumentException("CONN$separator${separator}ECT");
-      testInvalidArgumentException("CONNECT$separator");
+      testInvalidArgumentException('${separator}CONNECT');
+      testInvalidArgumentException('CONN${separator}ECT');
+      testInvalidArgumentException('CONN$separator${separator}ECT');
+      testInvalidArgumentException('CONNECT$separator');
     }
   });
 

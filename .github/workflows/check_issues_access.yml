@@ -1,0 +1,31 @@
+# Not allow users without write access to create "infra" or blank issues.
+name: Check issues access
+
+on:
+  issues:
+    types: [ opened, reopened ]
+
+jobs:
+  verify_access:
+    runs-on: ubuntu-latest
+    if: ${{ join(github.event.issue.labels) == '' || contains(github.event.issue.labels.*.name, 'infra')}}
+    steps:
+      - uses: actions-cool/check-user-permission@v2
+        id: checkIfUserHasWriteAccess
+        with:
+          require: 'write'
+      - name: Close issues if no access
+        if: steps.checkIfUserHasWriteAccess.outputs.check-result == false
+        uses: actions-cool/issues-helper@v2.1.2
+        with:
+          actions: 'close-issue'
+          issue-number: ${{ github.event.issue.number }}
+      - name: Write comment
+        if: steps.checkIfUserHasWriteAccess.outputs.check-result == false
+        uses: actions-cool/issues-helper@v2.1.2
+        with:
+          actions: 'create-comment'
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            @${{ github.event.issue.user.login }} Infra and blank issues are only available for moderators. You're apperantly using the wrong issue template.
+            > Infra 和空白 issue 仅供管理人员使用，请选择其他 issue 模板创建 issue。

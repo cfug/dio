@@ -38,24 +38,29 @@ void main() {
     expect(headers1.map.isEmpty, isTrue);
   });
 
-  test('send with an invalid URL', () async {
-    await expectLater(
-      Dio().get('http://http.invalid'),
-      throwsA((e) => e is DioError && e.error is SocketException),
-    );
-  }, testOn: "vm");
+  test(
+    'send with an invalid URL',
+    () async {
+      await expectLater(
+        Dio().get('http://http.invalid'),
+        throwsA((e) => e is DioError && e.error is SocketException),
+      );
+    },
+    testOn: 'vm',
+  );
 
   test('cancellation', () async {
-    final dio = Dio();
+    final dio = Dio()
+      ..httpClientAdapter = MockAdapter()
+      ..options.baseUrl = MockAdapter.mockBase;
     final token = CancelToken();
     Future.delayed(const Duration(milliseconds: 10), () {
       token.cancel('cancelled');
       dio.httpClientAdapter.close(force: true);
     });
 
-    final url = 'https://pub.dev';
     await expectLater(
-      dio.get(url, cancelToken: token),
+      dio.get('/test-timeout', cancelToken: token),
       throwsA((e) => e is DioError && CancelToken.isCancel(e)),
     );
   });
@@ -66,10 +71,12 @@ void main() {
       ..httpClientAdapter = EchoAdapter();
     await expectLater(
       dio.get('/401'),
-      throwsA((e) =>
-          e is DioError &&
-          e.type == DioErrorType.badResponse &&
-          e.response!.statusCode == 401),
+      throwsA(
+        (e) =>
+            e is DioError &&
+            e.type == DioErrorType.badResponse &&
+            e.response!.statusCode == 401,
+      ),
     );
     final r = await dio.get(
       '/401',

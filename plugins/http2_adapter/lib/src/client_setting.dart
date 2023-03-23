@@ -1,7 +1,10 @@
 part of 'http2_adapter.dart';
 
 typedef ValidateCertificate = bool Function(
-    X509Certificate? certificate, String host, int port);
+  X509Certificate? certificate,
+  String host,
+  int port,
+);
 
 class ClientSetting {
   /// The certificate provided by the server is checked

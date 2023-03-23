@@ -142,7 +142,7 @@ jobs:
         uses: subosito/flutter-action@v2.8.0
         with:
           cache: true
-          flutter-version: ${{ matrix.channel == 'min' && '3.3.0' || '' }}
+          flutter-version: ${{ matrix.channel == 'min' && '3.7.0' || '' }}
           channel: ${{ matrix.channel == 'min' && 'stable' || matrix.channel }}
       - run: flutter test
 

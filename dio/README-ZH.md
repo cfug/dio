@@ -36,6 +36,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   * [使用 application/x-www-form-urlencoded 编码](#使用-applicationx-www-form-urlencoded-编码)
   * [发送 FormData](#发送-formdata)
     * [多文件上传](#多文件上传)
+    * [复用 `FormData` 和 `MultipartFile`](#复用-formdata-和-multipartfile)
   * [转换器](#转换器)
     * [在 Flutter 中进行设置](#在-flutter-中进行设置)
     * [其它示例](#其它示例)
@@ -45,7 +46,6 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   * [HTTP/2 支持](#http2-支持)
   * [请求取消](#请求取消)
   * [继承 Dio class](#继承-dio-class)
-  * [版权 & 协议](#版权--协议)
 <!-- TOC -->
 </details>
 
@@ -55,7 +55,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
 
 ### 添加依赖
 
-你可以使用一下命令将 dio 的最新稳定版依赖添加至你的项目：
+你可以使用以下命令将 dio 的最新稳定版依赖添加至你的项目：
 
 ```console
 $ dart pub add dio
@@ -90,23 +90,25 @@ void getHttp() async {
 
 ### 相关插件
 
-| 仓库                                                                                     | 最新版本                                                                                                                                   | 描述                                                 |
-|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| [dio_cookie_manager](https://github.com/cfug/dio/blob/main/plugins/cookie_manager)     | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.flutter-io.cn/packages/dio_cookie_manager)                   | Cookie 管理                                          |
-| [dio_http2_adapter](https://github.com/cfug/dio/blob/main/plugins/http2_adapter)       | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.flutter-io.cn/packages/dio_http2_adapter)                     | 支持 HTTP/2 的自定义适配器                                  |
-| [native_dio_adapter](https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter) | [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg)](https://pub.flutter-io.cn/packages/native_dio_adapter)                   | 使用 cupertino_http 和 cronet_http 以适配器代理实现的原生网络请求功能。 |
-| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                         | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.flutter-io.cn/packages/dio_smart_retry)                         | 支持灵活地请求重试                                          |
-| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)     | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.flutter-io.cn/packages/http_certificate_pinning)       | 用于 Flutter 的 HTTPS 证书锁定                            |
-| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)   | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.flutter-io.cn/packages/curl_logger_dio_interceptor) | 用于 Flutter 的 CURL 命令生成器                            |
-| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)            | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg)](https://pub.flutter-io.cn/packages/dio_cache_interceptor)             | 具有多个符合 HTTP 指令的 HTTP 缓存拦截器，                        |
-| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                             | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.flutter-io.cn/packages/dio_http_cache)                           | 类似 Android 中的 RxCache 的缓存管理                        |
-| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                 | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.flutter-io.cn/packages/pretty_dio_logger)                     | 基于拦截器的简明易读的请求日志打印                                  |
-| [dio_image_provider](https://github.com/ueman/image_provider)                          | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.dev/packages/dio_image_provider)                             | 基于 Dio 的图片加载                                       |
+<!-- 使用 https://pub.flutter-io.cn 作为管理网址 -->
+| 仓库                                                                                                     | 最新版本                                                                                                                                   | 描述                                                 |
+|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
+| [dio_cookie_manager](https://github.com/cfug/dio/blob/main/plugins/cookie_manager)                     | [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.flutter-io.cn/packages/dio_cookie_manager)                   | Cookie 管理                                          |
+| [dio_http2_adapter](https://github.com/cfug/dio/blob/main/plugins/http2_adapter)                       | [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.flutter-io.cn/packages/dio_http2_adapter)                     | 支持 HTTP/2 的自定义适配器                                  |
+| [native_dio_adapter](https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter)                 | [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg)](https://pub.flutter-io.cn/packages/native_dio_adapter)                   | 使用 cupertino_http 和 cronet_http 以适配器代理实现的原生网络请求功能。 |
+| [dio_smart_retry](https://github.com/rodion-m/dio_smart_retry)                                         | [![Pub](https://img.shields.io/pub/v/dio_smart_retry.svg)](https://pub.flutter-io.cn/packages/dio_smart_retry)                         | 支持灵活地请求重试                                          |
+| [http_certificate_pinning](https://github.com/diefferson/http_certificate_pinning)                     | [![Pub](https://img.shields.io/pub/v/http_certificate_pinning.svg)](https://pub.flutter-io.cn/packages/http_certificate_pinning)       | 用于 Flutter 的 HTTPS 证书锁定                            |
+| [curl_logger_dio_interceptor](https://github.com/OwnWeb/curl_logger_dio_interceptor)                   | [![Pub](https://img.shields.io/pub/v/curl_logger_dio_interceptor.svg)](https://pub.flutter-io.cn/packages/curl_logger_dio_interceptor) | 用于 Flutter 的 CURL 命令生成器                            |
+| [dio_cache_interceptor](https://github.com/llfbandit/dio_cache_interceptor)                            | [![Pub](https://img.shields.io/pub/v/dio_cache_interceptor.svg)](https://pub.flutter-io.cn/packages/dio_cache_interceptor)             | 具有多个符合 HTTP 指令的 HTTP 缓存拦截器，                        |
+| [dio_http_cache](https://github.com/hurshi/dio-http-cache)                                             | [![Pub](https://img.shields.io/pub/v/dio_http_cache.svg)](https://pub.flutter-io.cn/packages/dio_http_cache)                           | 类似 Android 中的 RxCache 的缓存管理                        |
+| [pretty_dio_logger](https://github.com/Milad-Akarie/pretty_dio_logger)                                 | [![Pub](https://img.shields.io/pub/v/pretty_dio_logger.svg)](https://pub.flutter-io.cn/packages/pretty_dio_logger)                     | 基于拦截器的简明易读的请求日志打印                                  |
+| [dio_image_provider](https://github.com/ueman/image_provider)                                          | [![Pub](https://img.shields.io/pub/v/dio_image_provider.svg)](https://pub.flutter-io.cn/packages/dio_image_provider)                   | 基于 Dio 的图片加载                                       |
+| [flutter_ume_kit_dio](https://github.com/cfug/flutter_ume_kits/tree/main/packages/flutter_ume_kit_dio) | [![Pub](https://img.shields.io/pub/v/flutter_ume_kit_dio.svg)](https://pub.flutter-io.cn/packages/flutter_ume_kit_dio)                 | flutter_ume 上的 dio 调试插件                            |
 
 ### 相关的项目
 
 如果您也想提供第三方组件，请移步
-[这里](https://github.com/flutterchina/dio/issues/347)。
+[这里](https://github.com/cfug/dio/issues/347)。
 
 ## 示例
 
@@ -147,7 +149,7 @@ response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```dart
 response = await dio.download(
   'https://www.google.com/',
-  (await getTemporaryDirectory()).path + 'google.html',
+  '${(await getTemporaryDirectory()).path}google.html',
 );
 ```
 
@@ -164,7 +166,7 @@ print(rs.data.stream); // 响应流
 以二进制数组的方式接收响应数据：
 
 ```dart
-final rs = await Dio().get<List<int>>(
+final rs = await dio.get(
   url,
   options: Options(responseType: ResponseType.bytes), // 设置接收类型为 `bytes`
 );
@@ -243,7 +245,7 @@ await dio.post(
 final dio = Dio(); // With default `Options`.
 
 void configureDio() {
-  // Set default configs
+  // Update default configs.
   dio.options.baseUrl = 'https://api.pub.dev';
   dio.options.connectTimeout = Duration(seconds: 5);
   dio.options.receiveTimeout = Duration(seconds: 3);
@@ -311,6 +313,10 @@ dynamic data;
 String path = '';
 
 /// 请求的 Content-Type。
+///
+/// 默认值会由 [ImplyContentTypeInterceptor] 根据请求载荷类型进行推导。
+/// 可以调用 [Interceptors.removeImplyContentTypeInterceptor] 进行移除。
+///
 /// 如果你想以 `application/x-www-form-urlencoded` 格式编码请求数据,
 /// 可以设置此选项为 `Headers.formUrlEncodedContentType`,
 /// [Dio] 会自动编码请求体。
@@ -392,14 +398,14 @@ dio.interceptors.add(
   InterceptorsWrapper(
     onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
-      // 如果你想终止请求并触发一个错误,你可以使用 `handler.reject(error)`。
+      // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(options);
     },
-    onResponse: (Response response, RequestInterceptorHandler handler) {
-      // 如果你想终止请求并触发一个错误,你可以使用 `handler.reject(error)`。
+    onResponse: (Response response, ResponseInterceptorHandler handler) {
+      // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(response);
     },
-    onError: (DioError e, RequestInterceptorHandler handler) {
+    onError: (DioError e, ErrorInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
       return handler.next(e);
     },
@@ -564,7 +570,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-> 注意: 只有 post 方法支持发送 FormData.
+> 通常情况下只有 POST 方法支持发送 FormData。
 
 这里有一个完整的 [示例](../example/lib/formdata.dart)。
 
@@ -597,6 +603,26 @@ formData.files.addAll([
     MultipartFile.fromFileSync('./example/upload.txt',filename: 'upload.txt'),
   ),
 ]);
+```
+
+### 复用 `FormData` 和 `MultipartFile`
+
+如果你在重复调用的请求中使用 `FormData` 或者 `MultipartFile`，确保你每次使用的都是新实例。
+常见的错误做法是将 `FormData` 赋值给一个共享变量，在每次请求中都使用这个变量。
+这样的操作会加大 **无法序列化** 的错误出现的可能性。
+你可以像以下的代码一样编写你的请求以避免出现这样的错误：
+```dart
+Future<void> _repeatedlyRequest() async {
+  Future<FormData> createFormData() async {
+    return FormData.fromMap({
+      'name': 'dio',
+      'date': DateTime.now().toIso8601String(),
+      'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt'),
+    });
+  }
+  
+  await dio.post('some-url', data: await createFormData());
+}
 ```
 
 ## 转换器
@@ -651,6 +677,20 @@ Dio 使用 `IOHttpClientAdapter` 作为原生平台默认的桥梁，
 dio.httpClientAdapter = HttpClientAdapter();
 ```
 
+如果你需要单独使用对应平台的适配器：
+- 对于 Web 平台
+  ```dart
+  import 'package:dio/browser.dart';
+  // ...
+  dio.httpClientAdapter = BrowserClientAdapter();
+  ```
+- 对于原生平台：
+  ```dart
+  import 'package:dio/io.dart';
+  // ...
+  dio.httpClientAdapter = IOClientAdapter();
+  ```
+
 [示例](../example/lib/adapter.dart) 中包含了一个简单的自定义桥接。
 
 ### 设置代理
@@ -658,21 +698,25 @@ dio.httpClientAdapter = HttpClientAdapter();
 `IOHttpClientAdapter` 提供了一个 `onHttpClientCreate` 回调来设置底层 `HttpClient` 的代理：
 
 ```dart
+import 'package:dio/io.dart';
+
 void initAdapter() {
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
-    // Config the client.
-    client.findProxy = (uri) {
-      // Forward all request to proxy "localhost:8888".
-      return 'PROXY localhost:8888';
-    };
-    // You can also create a new HttpClient for Dio instead of returning,
-    // but a client must being returned here.
-    return client;
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (client) {
+      client.findProxy = (uri) {
+        // 将请求代理至 localhost:8888。
+        // 请注意，代理会在你正在运行应用的设备上生效，而不是在宿主平台生效。
+        return 'PROXY localhost:8888';
+      };
+      return client;
+    },
+  );
 }
 ```
 
 完整的示例请查看 [这里](../example/lib/proxy.dart)。
+
+Web 平台不支持设置代理。
 
 ### HTTPS 证书校验
 
@@ -686,22 +730,25 @@ HTTPS 证书验证（或公钥固定）是指确保端侧与服务器的 TLS 连
 ```dart
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (_) {
-    // Don't trust any certificate just because their root cert is trusted.
-    final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-    // You can test the intermediate / root cert here. We just ignore it.
-    client.badCertificateCallback = (cert, host, port) => true;
-    return client;
-  }..validateCertificate = (cert, host, port) {
-    // Check that the cert fingerprint matches the one we expect.
-    // We definitely require _some_ certificate.
-    if (cert == null) {
-      return false;
-    }
-    // Validate it any way you want. Here we only check that
-    // the fingerprint matches the OpenSSL SHA256.
-    return fingerprint == sha256.convert(cert.der).toString();
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (_) {
+      // Don't trust any certificate just because their root cert is trusted.
+      final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+      // You can test the intermediate / root cert here. We just ignore it.
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    },
+    validateCertificate: (cert, host, port) {
+      // Check that the cert fingerprint matches the one we expect.
+      // We definitely require _some_ certificate.
+      if (cert == null) {
+        return false;
+      }
+      // Validate it any way you want. Here we only check that
+      // the fingerprint matches the OpenSSL SHA256.
+      return fingerprint == sha256.convert(cert.der).toString();
+    },
+  );
 }
 ```
 
@@ -725,12 +772,14 @@ openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badss
 ```dart
 void initAdapter() {
   String PEM = 'XXXXX'; // root certificate content
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
-    client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-      return cert.pem == PEM; // Verify the certificate.
-    };
-    return client;
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return cert.pem == PEM; // Verify the certificate.
+      };
+      return client;
+    },
+  );
 }
 ```
 
@@ -740,12 +789,14 @@ void initAdapter() {
 ```dart
 void initAdapter() {
   String PEM = 'XXXXX'; // root certificate content
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (_) {
-    final SecurityContext sc = SecurityContext();
-    sc.setTrustedCertificates(File(pathToTheCertificate));
-    final HttpClient client = HttpClient(context: sc);
-    return client;
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (_) {
+      final SecurityContext sc = SecurityContext();
+      sc.setTrustedCertificates(File(pathToTheCertificate));
+      final HttpClient client = HttpClient(context: sc);
+      return client;
+    },
+  );
 }
 ```
 
@@ -767,8 +818,8 @@ void initAdapter() {
 final cancelToken = CancelToken();
 dio.get(url, cancelToken: cancelToken).catchError((DioError err) {
   if (CancelToken.isCancel(err)) {
-    print('Request canceled: ${err.message};);
-  } else{
+    print('Request canceled: ${err.message}');
+  } else {
     // handle error.
   }
 });
@@ -802,12 +853,3 @@ class MyDio with DioMixin implements Dio {
   // ...
 }
 ```
-
-## 版权 & 协议
-
-该项目由 [@flutterchina](https://github.com/flutterchina)
-开源组织的 [@wendux](https://github.com/wendux) 创作，
-并在 2023 年转移至
-[@cfug](https://github.com/cfug) 组织进行维护。
-
-该项目遵循 [MIT 开源协议](LICENSE)。

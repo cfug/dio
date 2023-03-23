@@ -4,17 +4,17 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:dio/src/transformers/background_transformer.dart';
-
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
 import 'dio_error.dart';
 import 'form_data.dart';
 import 'headers.dart';
+import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'response.dart';
 import 'transformer.dart';
+import 'transformers/background_transformer.dart';
 
 import 'progress_stream/io_progress_stream.dart'
     if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
@@ -454,15 +454,21 @@ abstract class DioMixin implements Dio {
           );
         }
 
-        if (err.type == InterceptorResultType.next ||
+        Future<InterceptorState> handleError() async {
+          final errorHandler = ErrorInterceptorHandler();
+          interceptor(err.data, errorHandler);
+          return errorHandler.future;
+        }
+
+        // The request has already been canceled,
+        // there is no need to listen for another cancellation.
+        if (err.data is DioError && err.data.type == DioErrorType.cancel) {
+          return handleError();
+        } else if (err.type == InterceptorResultType.next ||
             err.type == InterceptorResultType.rejectCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
-            Future(() {
-              final errorHandler = ErrorInterceptorHandler();
-              interceptor(err.data as DioError, errorHandler);
-              return errorHandler.future;
-            }),
+            Future(handleError),
           );
         } else {
           throw err;
@@ -487,17 +493,19 @@ abstract class DioMixin implements Dio {
     }
 
     // Add dispatching callback to request flow
-    future = future.then(requestInterceptorWrapper((
-      RequestOptions reqOpt,
-      RequestInterceptorHandler handler,
-    ) {
-      requestOptions = reqOpt;
-      _dispatchRequest<T>(reqOpt)
-          .then((value) => handler.resolve(value, true))
-          .catchError((e) {
-        handler.reject(e as DioError, true);
-      });
-    }));
+    future = future.then(
+      requestInterceptorWrapper((
+        RequestOptions reqOpt,
+        RequestInterceptorHandler handler,
+      ) {
+        requestOptions = reqOpt;
+        _dispatchRequest<T>(reqOpt)
+            .then((value) => handler.resolve(value, true))
+            .catchError((e) {
+          handler.reject(e as DioError, true);
+        });
+      }),
+    );
 
     // Add response interceptors to request flow
     for (final interceptor in interceptors) {
@@ -523,7 +531,7 @@ abstract class DioMixin implements Dio {
     }).catchError((dynamic e, StackTrace s) {
       final isState = e is InterceptorState;
       if (isState) {
-        if ((e as InterceptorState).type == InterceptorResultType.resolve) {
+        if (e.type == InterceptorResultType.resolve) {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
@@ -556,18 +564,7 @@ abstract class DioMixin implements Dio {
       );
       final statusOk = reqOpt.validateStatus(responseBody.statusCode);
       if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
-        final forceConvert = !(T == dynamic || T == String) &&
-            !(reqOpt.responseType == ResponseType.bytes ||
-                reqOpt.responseType == ResponseType.stream);
-        String? contentType;
-        if (forceConvert) {
-          contentType = headers.value(Headers.contentTypeHeader);
-          headers.set(Headers.contentTypeHeader, Headers.jsonContentType);
-        }
         ret.data = await transformer.transformResponse(reqOpt, responseBody);
-        if (forceConvert) {
-          headers.set(Headers.contentTypeHeader, contentType);
-        }
       } else {
         await responseBody.stream.listen(null).cancel();
       }
@@ -587,7 +584,7 @@ abstract class DioMixin implements Dio {
   }
 
   bool _isValidToken(String token) {
-    _checkNotNullable(token, "token");
+    _checkNotNullable(token, 'token');
     // from https://www.rfc-editor.org/rfc/rfc2616#page-15
     //
     // CTL            = <any US-ASCII control character
@@ -597,10 +594,10 @@ abstract class DioMixin implements Dio {
     //                | "/" | "[" | "]" | "?" | "="
     //                | "{" | "}" | SP | HT
     // token          = 1*<any CHAR except CTLs or separators>
-    const String validChars = r"                                "
+    const String validChars = r'                                '
         r" ! #$%&'  *+ -. 0123456789      "
-        r" ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_"
-        r"`abcdefghijklmnopqrstuvwxyz | ~ ";
+        r' ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_'
+        r'`abcdefghijklmnopqrstuvwxyz | ~ ';
     for (final int codeUnit in token.codeUnits) {
       if (codeUnit >= validChars.length ||
           validChars.codeUnitAt(codeUnit) == 0x20) {
@@ -612,7 +609,7 @@ abstract class DioMixin implements Dio {
 
   Future<Stream<Uint8List>?> _transformData(RequestOptions options) async {
     if (!_isValidToken(options.method)) {
-      throw ArgumentError.value(options.method, "method");
+      throw ArgumentError.value(options.method, 'method');
     }
     final data = options.data;
     if (data != null) {

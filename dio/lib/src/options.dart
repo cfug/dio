@@ -24,7 +24,7 @@ enum ResponseType {
   json,
 
   /// Get the response stream without any transformation. The
-  /// Response data will be a `ResponseBody` instance.
+  /// Response data will be a [ResponseBody] instance.
   ///
   ///    Response<ResponseBody> rs = await Dio().get<ResponseBody>(
   ///      url,
@@ -73,9 +73,14 @@ enum ListFormat {
 typedef ValidateStatus = bool Function(int? status);
 
 typedef ResponseDecoder = String? Function(
-    List<int> responseBytes, RequestOptions options, ResponseBody responseBody);
+  List<int> responseBytes,
+  RequestOptions options,
+  ResponseBody responseBody,
+);
 typedef RequestEncoder = List<int> Function(
-    String request, RequestOptions options);
+  String request,
+  RequestOptions options,
+);
 
 /// The common config for the Dio instance.
 /// `dio.options` is a instance of [BaseOptions]
@@ -177,7 +182,7 @@ mixin OptionsMixin {
   ///
   /// List values use the default [ListFormat.multiCompatible].
   ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// The value can be overridden per parameter by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
   late Map<String, dynamic> queryParameters;
 
@@ -188,7 +193,7 @@ mixin OptionsMixin {
 
   set connectTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("connectTimeout should be positive");
+      throw StateError('connectTimeout should be positive');
     }
     _connectTimeout = value;
   }
@@ -350,7 +355,7 @@ class Options {
 
   set sendTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("sendTimeout should be positive");
+      throw StateError('sendTimeout should be positive');
     }
     _sendTimeout = value;
   }
@@ -377,6 +382,8 @@ class Options {
   /// The request Content-Type.
   ///
   /// [Dio] will automatically encode the request body accordingly.
+  ///
+  /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? contentType;
 
   /// [responseType] indicates the type of data that the server will respond with
@@ -395,8 +402,8 @@ class Options {
   /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   ResponseType? responseType;
 
-  /// `validateStatus` defines whether the request is successful for a given
-  /// HTTP response status code. If `validateStatus` returns `true` ,
+  /// [validateStatus] defines whether the request is successful for a given
+  /// HTTP response status code. If [validateStatus] returns `true` ,
   /// the request will be perceived as successful; otherwise, considered as failed.
   ValidateStatus? validateStatus;
 
@@ -570,7 +577,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
         url = '${s[0]}:/${s[1].replaceAll('//', '/')}';
       }
     }
-    final query = Transformer.urlEncodeMap(queryParameters, listFormat);
+    final query = Transformer.urlEncodeQueryMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
       url += (url.contains('?') ? '&' : '?') + query;
     }
@@ -583,7 +590,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   /// When using `x-www-url-encoded` body data,
   /// List values use the default [ListFormat.multi].
   ///
-  /// The value can be overridden per value by adding a [MultiParam]
+  /// The value can be overridden per value by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
   dynamic data;
 
@@ -676,7 +683,7 @@ class _RequestConfig {
 
   set sendTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("sendTimeout should be positive");
+      throw StateError('sendTimeout should be positive');
     }
     _sendTimeout = value;
   }
@@ -693,7 +700,7 @@ class _RequestConfig {
 
   set receiveTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError("reveiveTimeout should be positive");
+      throw StateError('receiveTimeout should be positive');
     }
     _receiveTimeout = value;
   }
@@ -703,6 +710,8 @@ class _RequestConfig {
   /// The request Content-Type.
   ///
   /// [Dio] will automatically encode the request body accordingly.
+  ///
+  /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? get contentType => _headers[Headers.contentTypeHeader] as String?;
 
   set contentType(String? contentType) {
@@ -772,7 +781,7 @@ class _RequestConfig {
   /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
   /// The default value is `multi`.
   ///
-  /// The value can be overridden per parameter by adding a [MultiParam]
+  /// The value can be overridden per parameter by adding a [ListParam]
   /// object to the query or body data map.
   late ListFormat listFormat;
 }

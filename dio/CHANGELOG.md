@@ -2,7 +2,27 @@
 
 ## Unreleased
 
+- Fix double-completion when using `connectionTimeout` on web platform.
+- Allow defining adapter methods through their constructors.
+
+## 5.0.3
+
+- Imply `List<Map>` as JSON content in `ImplyContentTypeInterceptor`.
+- Fix `FormData` encoding for collections and objects.
+
+## 5.0.2
+
+- Improve code formats according to linter rules.
+- Remove the force conversion for the response body.
+- Fix `DioErrorType.cancel` in `Interceptors`.
+- Fix wrong encoding of collection query parameters.
+- Fix "unsupported operation" error on web platform.
+
+## 5.0.1
+
+- Add `ImplyContentTypeInterceptor` as a default interceptor.
 - Add `Headers.multipartFormDataContentType` for headers usage.
+- Fix variable shadowing of `withCredentials` in `browser_adapers.dart`.
 
 ## 5.0.0
 
@@ -18,8 +38,6 @@
 
 ### Breaking Changes
 
-- Content type with `application/json` and `application/x-www-form-urlencoded`
-  will not be implied anymore in the transformer and the request option.
 - The default charset `utf-8` in `Headers` content type constants has been removed.
 - `BaseOptions.setRequestContentTypeWhenNoPayload` has been removed.
 - Improve `DioError`s. There are now more cases in which the inner original stacktrace is supplied.
@@ -67,7 +85,7 @@ stable version
 
 ## 4.0.0-prev3
 
-- fix #1091 , #1089 , #1087 
+- fix #1091 , #1089 , #1087
 
 ## 4.0.0-prev2
 

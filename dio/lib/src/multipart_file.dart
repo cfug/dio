@@ -131,7 +131,11 @@ class MultipartFile {
 
   Stream<List<int>> finalize() {
     if (isFinalized) {
-      throw StateError("Can't finalize a finalized MultipartFile.");
+      throw StateError(
+        'The MultipartFile has already been finalized. '
+        'This typically means you are using '
+        'the same MultipartFile in repeated requests.',
+      );
     }
     _isFinalized = true;
     return _stream;

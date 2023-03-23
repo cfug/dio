@@ -1,30 +1,20 @@
-name: Publish
+name: Publish from comments
 
 on:
-  release:
-    types: [ published ]
-  workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 jobs:
   publish:
-    strategy:
-      matrix:
-        package: [
-          "dio",
-          "plugins/cookie_manager",
-          "plugins/http2_adapter",
-          "plugins/native_dio_adapter"
-        ]
-    defaults:
-      run:
-        working-directory: dio
+    # https://github.com/cfug/dio/issues/1633
+    if: github.event.issue.number == 1633
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Publish
-        uses: k-paxian/dart-package-publisher@master
+      - uses: actions/checkout@v3
         with:
-          credentialJson: ${{ secrets.CREDENTIAL_JSON }}
-          relativePath: ${{ matrix.package }}
-          skipTests: true
+          token: ${{ secrets.CFUG_PUBLISHER }}
+      - uses: dart-lang/setup-dart@v1.3
+      - uses: cfug/dio_issue_release_action@v1
+        with:
+          github-token: ${{ secrets.CFUG_PUBLISHER }}
+          pub-credentials-json: ${{ secrets.CREDENTIAL_JSON }}

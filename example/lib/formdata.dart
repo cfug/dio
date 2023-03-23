@@ -34,22 +34,28 @@ Future<FormData> formData2() async {
   final formData = FormData();
 
   formData.fields
-    ..add(MapEntry(
-      'name',
-      'wendux',
-    ))
-    ..add(MapEntry(
-      'age',
-      '25',
-    ));
+    ..add(
+      MapEntry(
+        'name',
+        'wendux',
+      ),
+    )
+    ..add(
+      MapEntry(
+        'age',
+        '25',
+      ),
+    );
 
-  formData.files.add(MapEntry(
-    'file',
-    await MultipartFile.fromFile(
-      './example/xx.png',
-      filename: 'xx.png',
+  formData.files.add(
+    MapEntry(
+      'file',
+      await MultipartFile.fromFile(
+        './example/xx.png',
+        filename: 'xx.png',
+      ),
     ),
-  ));
+  );
 
   formData.files.addAll([
     MapEntry(
@@ -86,15 +92,16 @@ void main() async {
   dio.options.baseUrl = 'http://localhost:3000/';
   dio.interceptors.add(LogInterceptor());
   // dio.interceptors.add(LogInterceptor(requestBody: true));
-  dio.httpClientAdapter = IOHttpClientAdapter()
-    ..onHttpClientCreate = (client) {
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (client) {
       client.findProxy = (uri) {
         // Proxy all request to localhost:8888
         return 'PROXY localhost:8888';
       };
       client.badCertificateCallback = (cert, host, port) => true;
       return client;
-    };
+    },
+  );
   Response response;
 
   final data1 = await formData1();

@@ -45,7 +45,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _text = "";
+  String _text = '';
 
   @override
   Widget build(BuildContext context) {
@@ -55,38 +55,45 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         padding: EdgeInsets.all(16),
-        child: Column(children: [
-          ElevatedButton(
-            child: Text("Request"),
-            onPressed: () async {
-              try {
-                await dio
-                    .get<String>("https://httpbin.org/status/404")
-                    .then((r) {
-                  setState(() {
-                    print(r.data);
-                    _text = r.data!.replaceAll(RegExp(r"\s"), "");
+        child: Column(
+          children: [
+            ElevatedButton(
+              child: Text('Request'),
+              onPressed: () async {
+                try {
+                  await dio
+                      .get<String>('https://httpbin.org/status/404')
+                      .then((r) {
+                    setState(() {
+                      print(r.data);
+                      _text = r.data!.replaceAll(RegExp(r'\s'), '');
+                    });
                   });
-                });
-              } catch (e) {
-                print(e);
-              }
-            },
-          ),
-          ElevatedButton(
-            child: Text("Open new page5"),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return RequestRoute();
-              }));
-            },
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Text(_text),
+                } catch (e) {
+                  print(e);
+                }
+              },
             ),
-          )
-        ]),
+            ElevatedButton(
+              child: Text('Open new page5'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return RequestRoute();
+                    },
+                  ),
+                );
+              },
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(_text),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
