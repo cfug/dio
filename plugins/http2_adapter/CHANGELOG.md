@@ -1,28 +1,31 @@
 # CHANGELOG
 
+## Unreleased
+
+- Support proxy for the adapter.
+
 ## 2.1.0
 
-* For the `dio`'s 5.0 release.
-* Add `validateCertificate` for `ClientSetting`.
+- For the `dio`'s 5.0 release.
+- Add `validateCertificate` for `ClientSetting`.
 
-## [2.0.0]
+## 2.0.0
 
-* support dio 4.0.0
+- support dio 4.0.0
 
-## [2.0.0-beta2]
+## 2.0.0-beta2
 
 - support null-safety
 - support dio 4.x
 
-
-## [1.0.1] - 2020.8.7
+## 1.0.1 - 2020.8.7
 
 - merge #760
 
-## [1.0.0] - 2019.9.18
+## 1.0.0 - 2019.9.18
 
-* Support redirect
+- Support redirect
 
-## [0.0.2] - 2019.9.17
+## 0.0.2 - 2019.9.17
 
-* A Dio HttpAdapter which support Http/2.0.
+- A Dio HttpAdapter which support Http/2.0.
