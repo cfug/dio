@@ -902,3 +902,9 @@ class MyDio with DioMixin implements Dio {
   // ...
 }
 ```
+
+## Flutter Web
+
+When using Dio with Flutter Web, be aware of Web Browser CORS Pre-flight Requests. You won't encounter this on mobile platforms like Android/IOS. However, Pre-flight requests always happen with Flutter web when one makes a REST Api call such as dio.post() or dio.get() with headers.
+
+The way to handle browser pre-flight requests is to enable CORS on your web server. Most web server frameworks or libraries provide CORS middleware to handle browser pre-flight requests.
