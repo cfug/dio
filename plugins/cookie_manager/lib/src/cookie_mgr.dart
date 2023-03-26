@@ -122,7 +122,7 @@ class CookieManager extends Interceptor {
       await Future.wait(
         locations.map(
           (location) => cookieJar.saveFromResponse(
-            Uri.parse(response.realUri).resolve(location),
+            response.realUri.resolve(location),
             cookies,
           ),
         ),
