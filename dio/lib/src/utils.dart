@@ -82,7 +82,7 @@ String encodeMap(
       } else {
         urlEncode(sub.map(maybeEncode).join(separatorChar), path);
       }
-    } else if (sub is Map<String, dynamic>) {
+    } else if (sub is Map) {
       sub.forEach((k, v) {
         if (path == '') {
           urlEncode(maybeEncode(v), '${encodeComponent(k)}');

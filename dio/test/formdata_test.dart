@@ -129,6 +129,29 @@ void main() async {
       expect(result, contains('name="api[data][c]"'));
     });
 
+    test('encodes dynamic Map correctly', () async {
+      final dynamicData = <dynamic, dynamic>{
+        'a': 1,
+        'b': 2,
+        'c': 3,
+      };
+
+      final request = {
+        'api': {
+          'dest': '/',
+          'data': dynamicData,
+        }
+      };
+
+      final fd = FormData.fromMap(request);
+      final data = await fd.readAsBytes();
+      final result = utf8.decode(data, allowMalformed: true);
+      expect(result, contains('name="api[dest]"'));
+      expect(result, contains('name="api[data][a]"'));
+      expect(result, contains('name="api[data][b]"'));
+      expect(result, contains('name="api[data][c]"'));
+    });
+
     test('posts maps correctly', () async {
       final fd = FormData.fromMap(
         {
