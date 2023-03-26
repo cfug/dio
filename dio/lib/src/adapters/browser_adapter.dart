@@ -13,6 +13,8 @@ HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
+  BrowserHttpClientAdapter({this.withCredentials = false});
+
   /// These are aborted if the client is closed.
   @visibleForTesting
   final xhrs = <HttpRequest>{};
@@ -23,7 +25,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// Defaults to `false`.
   ///
   /// You can also override this value in Options.extra['withCredentials'] for each request
-  bool withCredentials = false;
+  bool withCredentials;
 
   @override
   Future<ResponseBody> fetch(

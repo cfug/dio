@@ -92,15 +92,16 @@ void main() async {
   dio.options.baseUrl = 'http://localhost:3000/';
   dio.interceptors.add(LogInterceptor());
   // dio.interceptors.add(LogInterceptor(requestBody: true));
-  dio.httpClientAdapter = IOHttpClientAdapter()
-    ..onHttpClientCreate = (client) {
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (client) {
       client.findProxy = (uri) {
         // Proxy all request to localhost:8888
         return 'PROXY localhost:8888';
       };
       client.badCertificateCallback = (cert, host, port) => true;
       return client;
-    };
+    },
+  );
   Response response;
 
   final data1 = await formData1();

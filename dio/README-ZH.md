@@ -149,7 +149,7 @@ response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```dart
 response = await dio.download(
   'https://www.google.com/',
-  (await getTemporaryDirectory()).path + 'google.html',
+  '${(await getTemporaryDirectory()).path}google.html',
 );
 ```
 
@@ -166,7 +166,7 @@ print(rs.data.stream); // 响应流
 以二进制数组的方式接收响应数据：
 
 ```dart
-final rs = await Dio().get<List<int>>(
+final rs = await dio.get(
   url,
   options: Options(responseType: ResponseType.bytes), // 设置接收类型为 `bytes`
 );
@@ -245,7 +245,7 @@ await dio.post(
 final dio = Dio(); // With default `Options`.
 
 void configureDio() {
-  // Set default configs
+  // Update default configs.
   dio.options.baseUrl = 'https://api.pub.dev';
   dio.options.connectTimeout = Duration(seconds: 5);
   dio.options.receiveTimeout = Duration(seconds: 3);
@@ -701,20 +701,22 @@ dio.httpClientAdapter = HttpClientAdapter();
 import 'package:dio/io.dart';
 
 void initAdapter() {
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
-    // Config the client.
-    client.findProxy = (uri) {
-      // Forward all request to proxy "localhost:8888".
-      return 'PROXY localhost:8888';
-    };
-    // You can also create a new HttpClient for Dio instead of returning,
-    // but a client must being returned here.
-    return client;
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (client) {
+      client.findProxy = (uri) {
+        // 将请求代理至 localhost:8888。
+        // 请注意，代理会在你正在运行应用的设备上生效，而不是在宿主平台生效。
+        return 'PROXY localhost:8888';
+      };
+      return client;
+    },
+  );
 }
 ```
 
 完整的示例请查看 [这里](../example/lib/proxy.dart)。
+
+Web 平台不支持设置代理。
 
 ### HTTPS 证书校验
 
@@ -728,22 +730,25 @@ HTTPS 证书验证（或公钥固定）是指确保端侧与服务器的 TLS 连
 ```dart
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (_) {
-    // Don't trust any certificate just because their root cert is trusted.
-    final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-    // You can test the intermediate / root cert here. We just ignore it.
-    client.badCertificateCallback = (cert, host, port) => true;
-    return client;
-  }..validateCertificate = (cert, host, port) {
-    // Check that the cert fingerprint matches the one we expect.
-    // We definitely require _some_ certificate.
-    if (cert == null) {
-      return false;
-    }
-    // Validate it any way you want. Here we only check that
-    // the fingerprint matches the OpenSSL SHA256.
-    return fingerprint == sha256.convert(cert.der).toString();
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (_) {
+      // Don't trust any certificate just because their root cert is trusted.
+      final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
+      // You can test the intermediate / root cert here. We just ignore it.
+      client.badCertificateCallback = (cert, host, port) => true;
+      return client;
+    },
+    validateCertificate: (cert, host, port) {
+      // Check that the cert fingerprint matches the one we expect.
+      // We definitely require _some_ certificate.
+      if (cert == null) {
+        return false;
+      }
+      // Validate it any way you want. Here we only check that
+      // the fingerprint matches the OpenSSL SHA256.
+      return fingerprint == sha256.convert(cert.der).toString();
+    },
+  );
 }
 ```
 
@@ -767,12 +772,14 @@ openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badss
 ```dart
 void initAdapter() {
   String PEM = 'XXXXX'; // root certificate content
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (client) {
-    client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-      return cert.pem == PEM; // Verify the certificate.
-    };
-    return client;
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return cert.pem == PEM; // Verify the certificate.
+      };
+      return client;
+    },
+  );
 }
 ```
 
@@ -782,12 +789,14 @@ void initAdapter() {
 ```dart
 void initAdapter() {
   String PEM = 'XXXXX'; // root certificate content
-  dio.httpClientAdapter = IOHttpClientAdapter()..onHttpClientCreate = (_) {
-    final SecurityContext sc = SecurityContext();
-    sc.setTrustedCertificates(File(pathToTheCertificate));
-    final HttpClient client = HttpClient(context: sc);
-    return client;
-  };
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    onHttpClientCreate: (_) {
+      final SecurityContext sc = SecurityContext();
+      sc.setTrustedCertificates(File(pathToTheCertificate));
+      final HttpClient client = HttpClient(context: sc);
+      return client;
+    },
+  );
 }
 ```
 
@@ -809,8 +818,8 @@ void initAdapter() {
 final cancelToken = CancelToken();
 dio.get(url, cancelToken: cancelToken).catchError((DioError err) {
   if (CancelToken.isCancel(err)) {
-    print('Request canceled: ${err.message};);
-  } else{
+    print('Request canceled: ${err.message}');
+  } else {
     // handle error.
   }
 });
