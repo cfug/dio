@@ -14,6 +14,10 @@ Encoding requiredEncodingForCharset(String charset) =>
 /// The URL for the current server instance.
 Uri get serverUrl => Uri.parse('http://localhost:${_server?.port}');
 
+const isWeb = bool.hasEnvironment('dart.library.js_util')
+    ? bool.fromEnvironment('dart.library.js_util')
+    : identical(0, 0.0);
+
 /// Starts a new HTTP server.
 Future<void> startServer() async {
   _server = (await HttpServer.bind('localhost', 0))
