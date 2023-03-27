@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 5.1.0
+
 - Fix double-completion when using `connectionTimeout` on web platform.
 - Allow defining adapter methods through their constructors.
 - Fix `FormData` encoding regression for maps with dynamic keys, introduced in 5.0.3.
