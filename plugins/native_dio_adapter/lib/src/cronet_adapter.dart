@@ -9,9 +9,11 @@ import 'conversion_layer_adapter.dart';
 /// [cronet_http](https://pub.dev/packages/cronet_http).
 class CronetAdapter implements HttpClientAdapter {
   CronetAdapter(CronetEngine? engine)
-      : _conversionLayer = ConversionLayerAdapter(engine == null
-            ? CronetClient.defaultCronetEngine()
-            : CronetClient.fromCronetEngine(engine));
+      : _conversionLayer = ConversionLayerAdapter(
+          engine == null
+              ? CronetClient.defaultCronetEngine()
+              : CronetClient.fromCronetEngine(engine),
+        );
 
   final ConversionLayerAdapter _conversionLayer;
 
