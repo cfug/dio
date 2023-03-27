@@ -56,78 +56,99 @@ extension _DioErrorTypeExtension on DioErrorType {
 class DioError implements Exception {
   /// Prefer using one of the other constructors.
   /// They're most likely better fitting.
-  const DioError({
+  DioError({
     required this.requestOptions,
     this.response,
     this.type = DioErrorType.unknown,
     this.error,
     StackTrace? stackTrace,
     this.message,
-  }) : stackTrace = identical(stackTrace, StackTrace.empty) ? null : stackTrace;
+  }) : stackTrace = identical(stackTrace, StackTrace.empty)
+            ? requestOptions.sourceStackTrace ?? StackTrace.current
+            : stackTrace ??
+                requestOptions.sourceStackTrace ??
+                StackTrace.current;
 
-  const DioError.badResponse({
+  factory DioError.badResponse({
     required int statusCode,
-    required this.requestOptions,
-    required this.response,
-  })  : type = DioErrorType.badResponse,
-        message = 'The request returned an '
+    required RequestOptions requestOptions,
+    required Response response,
+  }) =>
+      DioError(
+        type: DioErrorType.badResponse,
+        message: 'The request returned an '
             'invalid status code of $statusCode.',
-        error = null,
-        stackTrace = null;
+        requestOptions: requestOptions,
+        response: response,
+        error: null,
+      );
 
-  const DioError.connectionTimeout({
+  factory DioError.connectionTimeout({
     required Duration timeout,
-    required this.requestOptions,
-    this.error,
-    StackTrace? stackTrace,
-  })  : type = DioErrorType.connectionTimeout,
-        message = 'The request connection took '
+    required RequestOptions requestOptions,
+    Object? error,
+  }) =>
+      DioError(
+        type: DioErrorType.connectionTimeout,
+        message: 'The request connection took '
             'longer than $timeout. It was aborted.',
-        response = null,
-        stackTrace =
-            identical(stackTrace, StackTrace.empty) ? null : stackTrace;
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
+      );
 
-  const DioError.sendTimeout({
+  factory DioError.sendTimeout({
     required Duration timeout,
-    required this.requestOptions,
-  })  : type = DioErrorType.sendTimeout,
-        message = 'The request took '
+    required RequestOptions requestOptions,
+  }) =>
+      DioError(
+        type: DioErrorType.sendTimeout,
+        message: 'The request took '
             'longer than $timeout to send data. It was aborted.',
-        response = null,
-        error = null,
-        stackTrace = null;
+        requestOptions: requestOptions,
+        response: null,
+        error: null,
+      );
 
-  const DioError.receiveTimeout({
+  factory DioError.receiveTimeout({
     required Duration timeout,
-    required this.requestOptions,
-    StackTrace? stackTrace,
-  })  : type = DioErrorType.receiveTimeout,
-        message = 'The request took '
+    required RequestOptions requestOptions,
+    Object? error,
+  }) =>
+      DioError(
+        type: DioErrorType.receiveTimeout,
+        message: 'The request took '
             'longer than $timeout to receive data. It was aborted.',
-        response = null,
-        error = null,
-        stackTrace =
-            identical(stackTrace, StackTrace.empty) ? null : stackTrace;
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
+      );
 
-  const DioError.requestCancelled({
-    required this.requestOptions,
+  factory DioError.requestCancelled({
+    required RequestOptions requestOptions,
     required Object? reason,
     StackTrace? stackTrace,
-  })  : type = DioErrorType.cancel,
-        message = 'The request was cancelled.',
-        error = reason,
-        response = null,
-        stackTrace =
-            identical(stackTrace, StackTrace.empty) ? null : stackTrace;
+  }) =>
+      DioError(
+        type: DioErrorType.cancel,
+        message: 'The request was cancelled.',
+        requestOptions: requestOptions,
+        response: null,
+        error: reason,
+        stackTrace: stackTrace,
+      );
 
-  const DioError.connectionError({
-    required this.requestOptions,
+  factory DioError.connectionError({
+    required RequestOptions requestOptions,
     required String reason,
-  })  : type = DioErrorType.connectionError,
-        message = 'The connection errored: $reason',
-        response = null,
-        error = null,
-        stackTrace = null;
+  }) =>
+      DioError(
+        type: DioErrorType.connectionError,
+        message: 'The connection errored: $reason',
+        requestOptions: requestOptions,
+        response: null,
+        error: null,
+      );
 
   /// The request info for the request that throws exception.
   final RequestOptions requestOptions;
@@ -144,7 +165,7 @@ class DioError implements Exception {
 
   /// The stacktrace of the original error/exception object;
   /// It's usually not null when `type` is [DioErrorType.unknown].
-  final StackTrace? stackTrace;
+  final StackTrace stackTrace;
 
   /// The error message that throws a [DioError].
   final String? message;

@@ -18,6 +18,12 @@
       <excludeFolder url="file://$MODULE_DIR$/dio/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/dio/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/dio/build" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/native_dio_adapter/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/native_dio_adapter/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/native_dio_adapter/build" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/native_dio_adapter/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/native_dio_adapter/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/native_dio_adapter/example/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

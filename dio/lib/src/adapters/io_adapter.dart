@@ -74,7 +74,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       options.headers.forEach((k, v) {
         if (v != null) request.headers.set(k, v);
       });
-    } on SocketException catch (e, stackTrace) {
+    } on SocketException catch (e) {
       if (!e.message.contains('timed out')) {
         rethrow;
       }
@@ -84,7 +84,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
             httpClient.connectionTimeout ??
             Duration.zero,
         error: e,
-        stackTrace: stackTrace,
       );
     }
 

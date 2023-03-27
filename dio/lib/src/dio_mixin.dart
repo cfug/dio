@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
@@ -359,8 +361,7 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    options ??= Options();
-    final requestOptions = options.compose(
+    final requestOptions = (options ?? Options()).compose(
       this.options,
       path,
       data: data,
@@ -368,10 +369,8 @@ abstract class DioMixin implements Dio {
       onReceiveProgress: onReceiveProgress,
       onSendProgress: onSendProgress,
       cancelToken: cancelToken,
+      sourceStackTrace: StackTrace.current,
     );
-    requestOptions.onReceiveProgress = onReceiveProgress;
-    requestOptions.onSendProgress = onSendProgress;
-    requestOptions.cancelToken = cancelToken;
 
     if (_closed) {
       throw DioError.connectionError(
@@ -385,8 +384,6 @@ abstract class DioMixin implements Dio {
 
   @override
   Future<Response<T>> fetch<T>(RequestOptions requestOptions) async {
-    requestOptions.cancelToken?.requestOptions = requestOptions;
-
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
             requestOptions.responseType == ResponseType.stream)) {
@@ -444,28 +441,25 @@ abstract class DioMixin implements Dio {
 
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic, StackTrace) errorInterceptorWrapper(
+    FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
-      return (err, stackTrace) {
-        if (err is! InterceptorState) {
-          err = InterceptorState(
-            assureDioError(err, requestOptions, stackTrace),
-          );
-        }
-
+      return (err) {
+        final state = err is InterceptorState
+            ? err
+            : InterceptorState(assureDioError(err, requestOptions));
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
-          interceptor(err.data, errorHandler);
+          interceptor(state.data, errorHandler);
           return errorHandler.future;
         }
 
         // The request has already been canceled,
         // there is no need to listen for another cancellation.
-        if (err.data is DioError && err.data.type == DioErrorType.cancel) {
+        if (state.data is DioError && state.data.type == DioErrorType.cancel) {
           return handleError();
-        } else if (err.type == InterceptorResultType.next ||
-            err.type == InterceptorResultType.rejectCallFollowing) {
+        } else if (state.type == InterceptorResultType.next ||
+            state.type == InterceptorResultType.rejectCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(handleError),
@@ -528,14 +522,14 @@ abstract class DioMixin implements Dio {
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((dynamic e, StackTrace s) {
+    }).catchError((Object e) {
       final isState = e is InterceptorState;
       if (isState) {
         if (e.type == InterceptorResultType.resolve) {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
-      throw assureDioError(isState ? e.data : e, requestOptions, s);
+      throw assureDioError(isState ? e.data : e, requestOptions);
     });
   }
 
@@ -578,8 +572,8 @@ abstract class DioMixin implements Dio {
           response: ret,
         );
       }
-    } catch (e, stackTrace) {
-      throw assureDioError(e, reqOpt, stackTrace);
+    } catch (e) {
+      throw assureDioError(e, reqOpt);
     }
   }
 
@@ -668,6 +662,7 @@ abstract class DioMixin implements Dio {
   }
 
   // If the request has been cancelled, stop request and throw error.
+  @internal
   static void checkCancelled(CancelToken? cancelToken) {
     final error = cancelToken?.cancelError;
     if (error != null) {
@@ -675,6 +670,7 @@ abstract class DioMixin implements Dio {
     }
   }
 
+  @internal
   static Future<T> listenCancelForAsyncTask<T>(
     CancelToken? cancelToken,
     Future<T> future,
@@ -685,16 +681,17 @@ abstract class DioMixin implements Dio {
     ]);
   }
 
+  @internal
   static Options checkOptions(String method, Options? options) {
     options ??= Options();
     options.method = method;
     return options;
   }
 
+  @internal
   static DioError assureDioError(
     Object err,
     RequestOptions requestOptions,
-    StackTrace? sourceStackTrace,
   ) {
     if (err is DioError) {
       // nothing to be done
@@ -703,18 +700,18 @@ abstract class DioMixin implements Dio {
     return DioError(
       requestOptions: requestOptions,
       error: err,
-      stackTrace: sourceStackTrace,
     );
   }
 
+  @internal
   static Response<T> assureResponse<T>(
-    Object response, [
-    RequestOptions? requestOptions,
-  ]) {
+    Object response,
+    RequestOptions requestOptions,
+  ) {
     if (response is! Response) {
       return Response<T>(
         data: response as T,
-        requestOptions: requestOptions ?? RequestOptions(path: ''),
+        requestOptions: requestOptions,
       );
     } else if (response is! Response<T>) {
       final T? data = response.data as T?;

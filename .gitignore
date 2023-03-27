@@ -36,6 +36,9 @@ plugins/http2_adapter/test/*_pinning.txt
 
 .vscode/
 
+# FVM
+.fvm
+
 # Miscellaneous
 .DS_Store
 
