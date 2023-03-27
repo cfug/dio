@@ -95,18 +95,26 @@ void main() {
         ..options.followRedirects = false
         ..options.validateStatus =
             (status) => status != null && status >= 200 && status < 400;
-      final response1 = await dio.get('/redirection');
-      expect(response1.realUri.path, '/redirection');
-      final cookies1 = await cookieJar.loadForRequest(response1.realUri);
-      expect(cookies1.length, 3);
-      final location = response1.headers.value(HttpHeaders.locationHeader)!;
-      final response2 = await dio.get(location);
-      expect(response2.realUri.path, location);
-      final cookies2 = await cookieJar.loadForRequest(response2.realUri);
-      expect(cookies2.length, 3);
-      expect(
-        response2.requestOptions.headers[HttpHeaders.cookieHeader],
-        'key=value; key1=value1; key2=value2',
+      await Future.wait(
+        ['/redirection', '/redirection1', '/redirection2', '/redirection3'].map(
+          (url) async {
+            final response1 = await dio.get(url);
+            expect(response1.realUri.path, url);
+            final cookies1 = await cookieJar.loadForRequest(response1.realUri);
+            expect(cookies1.length, 3);
+            final location1 = response1.realUri
+                .resolve(response1.headers.value(HttpHeaders.locationHeader)!)
+                .toString();
+            final response2 = await dio.get(location1);
+            expect(response2.realUri.toString(), location1);
+            final cookies2 = await cookieJar.loadForRequest(response2.realUri);
+            expect(cookies2.length, 3);
+            expect(
+              response2.requestOptions.headers[HttpHeaders.cookieHeader],
+              'key=value; key1=value1; key2=value2',
+            );
+          },
+        ),
       );
     });
   });
@@ -175,6 +183,12 @@ void main() {
 class _RedirectAdapter implements HttpClientAdapter {
   final HttpClientAdapter _adapter = IOHttpClientAdapter();
 
+  static const List<String> _setCookieHeaders = [
+    'key=value; expires=Sun, 19 Feb 3000 00:42:14 GMT; path=/; HttpOnly; secure; SameSite=Lax, '
+        'key1=value1; expires=Sun, 19 Feb 3000 01:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax, '
+        'key2=value2; expires=Sat, 20 May 3000 00:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax',
+  ];
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -183,23 +197,48 @@ class _RedirectAdapter implements HttpClientAdapter {
   ) async {
     final Uri uri = options.uri;
     final int statusCode = HttpStatus.found;
-    if (uri.path != '/destination') {
-      return ResponseBody.fromString(
-        '',
-        statusCode,
-        headers: {
-          HttpHeaders.locationHeader: [
-            uri.replace(path: '/destination').toString(),
-          ],
-          HttpHeaders.setCookieHeader: [
-            'key=value; expires=Sun, 19 Feb 3000 00:42:14 GMT; path=/; HttpOnly; secure; SameSite=Lax, '
-                'key1=value1; expires=Sun, 19 Feb 3000 01:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax, '
-                'key2=value2; expires=Sat, 20 May 3000 00:43:15 GMT; path=/; HttpOnly; secure; SameSite=Lax',
-          ],
-        },
-      );
+    switch (uri.path) {
+      case '/redirection':
+        return ResponseBody.fromString(
+          '',
+          statusCode,
+          headers: {
+            HttpHeaders.locationHeader: [
+              uri.replace(path: '/destination').toString(),
+            ],
+            HttpHeaders.setCookieHeader: _setCookieHeaders,
+          },
+        );
+      case '/redirection1':
+        return ResponseBody.fromString(
+          '',
+          statusCode,
+          headers: {
+            HttpHeaders.locationHeader: ['/destination'],
+            HttpHeaders.setCookieHeader: _setCookieHeaders,
+          },
+        );
+      case '/redirection2':
+        return ResponseBody.fromString(
+          '',
+          statusCode,
+          headers: {
+            HttpHeaders.locationHeader: ['destination?param1=true'],
+            HttpHeaders.setCookieHeader: _setCookieHeaders,
+          },
+        );
+      case '/redirection3':
+        return ResponseBody.fromString(
+          '',
+          statusCode,
+          headers: {
+            HttpHeaders.locationHeader: ['www.google.com/test-path'],
+            HttpHeaders.setCookieHeader: _setCookieHeaders,
+          },
+        );
+      default:
+        return ResponseBody.fromString('', HttpStatus.ok);
     }
-    return ResponseBody.fromString('', HttpStatus.ok);
   }
 
   @override
