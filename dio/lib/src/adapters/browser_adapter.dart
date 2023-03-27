@@ -13,6 +13,8 @@ HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
+  BrowserHttpClientAdapter({this.withCredentials = false});
+
   /// These are aborted if the client is closed.
   @visibleForTesting
   final xhrs = <HttpRequest>{};
@@ -23,7 +25,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// Defaults to `false`.
   ///
   /// You can also override this value in Options.extra['withCredentials'] for each request
-  bool withCredentials = false;
+  bool withCredentials;
 
   @override
   Future<ResponseBody> fetch(
@@ -77,24 +79,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       connectTimeoutTimer = Timer(
         connectionTimeout,
         () {
-          if (!completer.isCompleted) {
-            xhr.abort();
-            completer.completeError(
-              DioError.connectionTimeout(
-                requestOptions: options,
-                timeout: connectionTimeout,
-              ),
-              StackTrace.current,
-            );
-            return;
-          } else {
+          if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
+            return;
           }
+
           xhr.abort();
           completer.completeError(
             DioError.connectionTimeout(
               requestOptions: options,
-              timeout: options.connectTimeout!,
+              timeout: connectionTimeout,
             ),
             StackTrace.current,
           );

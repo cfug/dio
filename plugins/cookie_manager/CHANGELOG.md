@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.1.3
+
 - Allow `Set-Cookie` to be parsed in redirect responses.
 - Fix new cookies being replaced by old cookies with the same name.
 - Sort the cookie by path (longer path first).

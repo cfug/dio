@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix double-completion when using `connectionTimeout` on web platform.
+- Allow defining adapter methods through their constructors.
+- Fix `FormData` encoding regression for maps with dynamic keys, introduced in 5.0.3.
 - Mark several static `DioMixin` functions as `@internal`.
 - Make `DioError.stackTrace` non-nullable.
 - Ensure `DioError.stackTrace` always points to the correct call site.
