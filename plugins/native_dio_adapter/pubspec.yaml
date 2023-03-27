@@ -17,8 +17,8 @@ dependencies:
 
 dev_dependencies:
   lints: ^2.0.0
-  test: ^1.16.0
-  test_api: ^0.4.0
+  flutter_test:
+    sdk: flutter
 
 platforms:
   android:

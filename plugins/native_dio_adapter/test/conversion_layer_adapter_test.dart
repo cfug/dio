@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:http/http.dart';
 import 'package:native_dio_adapter/src/conversion_layer_adapter.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import 'client_mock.dart';
 
