@@ -47,6 +47,7 @@ timeout, and custom adapters etc.
   * [HTTP/2 support](#http2-support)
   * [Cancellation](#cancellation)
   * [Extends Dio class](#extends-dio-class)
+  * [Cross-Origin Resource Sharing on Web (CORS)](#cross-origin-resource-sharing-on-web--cors-)
 <!-- TOC -->
 </details>
 
@@ -903,8 +904,15 @@ class MyDio with DioMixin implements Dio {
 }
 ```
 
-## CORS on Flutter Web
+## Cross-Origin Resource Sharing on Web (CORS)
 
-When using Dio with Flutter Web, be aware of Web Browser CORS Pre-flight Requests. You won't encounter this on mobile platforms like Android/IOS. However, Pre-flight requests always happen with Flutter web when one makes a REST Api call such as dio.post() or dio.get() with headers.
+If a request is not a [simple request][],
+the Web browser will send a [CORS preflight request][]
+that checks to see if the CORS protocol is understood
+and a server is aware using specific methods and headers.
 
-The way to handle browser pre-flight requests is to enable CORS on your web server. Most web server frameworks or libraries provide CORS middleware to handle browser pre-flight requests.
+You can modify your requests to match the definition of simple request,
+or add a CORS middleware for your service to handle CORS requests.
+
+[simple request]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+[CORS preflight request]: https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
