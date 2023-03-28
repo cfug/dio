@@ -853,3 +853,9 @@ class MyDio with DioMixin implements Dio {
   // ...
 }
 ```
+
+## Web平台跨源资源共享（CORS）
+
+在Web平台上用Dio时，请注意浏览器会自动向服务器发CORS预检请求（Pre-flight requests），而移动平台上就不会有CORS预检请求。
+
+应对CORS预检请求的方式是在你的Web服务器上插入CORS中间件(CORS Middleware）。
