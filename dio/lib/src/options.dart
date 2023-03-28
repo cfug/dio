@@ -621,6 +621,11 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   ProgressCallback? onSendProgress;
 }
 
+/// Validate the status code if it's not null and within the range of 200~299.
+bool dioDefaultValidateStatus(int? status) {
+  return status != null && status >= 200 && status < 300;
+}
+
 /// The [_RequestConfig] class describes the http request information and configuration.
 class _RequestConfig {
   _RequestConfig({
@@ -642,30 +647,30 @@ class _RequestConfig {
   })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
-        _sendTimeout = sendTimeout {
+        _sendTimeout = sendTimeout,
+        method = method ?? 'GET',
+        listFormat = listFormat ?? ListFormat.multi,
+        extra = extra ?? {},
+        followRedirects = followRedirects ?? true,
+        maxRedirects = maxRedirects ?? 5,
+        persistentConnection = persistentConnection ?? true,
+        receiveDataWhenStatusError = receiveDataWhenStatusError ?? true,
+        validateStatus = validateStatus ?? dioDefaultValidateStatus,
+        responseType = responseType ?? ResponseType.json {
     this.headers = headers;
-
-    final contentTypeInHeader =
+    final hasContentTypeHeader =
         this.headers.containsKey(Headers.contentTypeHeader);
-    assert(
-      !(contentType != null && contentTypeInHeader) ||
-          this.headers[Headers.contentTypeHeader] == contentType,
-      'You cannot set different values for contentType param and a content-type header',
-    );
-
-    this.method = method ?? 'GET';
-    this.listFormat = listFormat ?? ListFormat.multi;
-    this.extra = extra ?? {};
-    this.followRedirects = followRedirects ?? true;
-    this.maxRedirects = maxRedirects ?? 5;
-    this.persistentConnection = persistentConnection ?? true;
-    this.receiveDataWhenStatusError = receiveDataWhenStatusError ?? true;
-    this.validateStatus = validateStatus ??
-        (int? status) {
-          return status != null && status >= 200 && status < 300;
-        };
-    this.responseType = responseType ?? ResponseType.json;
-    if (!contentTypeInHeader) {
+    if (contentType != null &&
+        hasContentTypeHeader &&
+        this.headers[Headers.contentTypeHeader] != contentType) {
+      throw ArgumentError.value(
+        contentType,
+        'contentType',
+        'Unable to set different values for '
+            '`contentType` and the content-type header.',
+      );
+    }
+    if (!hasContentTypeHeader) {
       this.contentType = contentType;
     }
   }
@@ -766,7 +771,8 @@ class _RequestConfig {
   /// The default value is true
   late bool receiveDataWhenStatusError;
 
-  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
+  /// Custom field that you can retrieve it later in [Interceptor],
+  /// [Transformer] and the [Response.requestOptions] object.
   late Map<String, dynamic> extra;
 
   /// see [HttpClientRequest.followRedirects],
