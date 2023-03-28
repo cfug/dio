@@ -16,10 +16,8 @@ void main() {
       token.cancel(reason);
     });
 
-    test('cancel without use throws StateError', () async {
-      final token = CancelToken();
-
-      expect(() => token.cancel(), throwsStateError);
+    test('cancel without use does not throw (#1765)', () async {
+      CancelToken().cancel();
     });
   });
 }
