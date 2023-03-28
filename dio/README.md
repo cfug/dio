@@ -344,8 +344,8 @@ ResponseType? responseType;
 /// the request will be perceived as successful; otherwise, considered as failed.
 ValidateStatus? validateStatus;
 
-/// Custom field that you can retrieve it later in
-/// [Interceptor], [Transformer] and the [Response] object.
+/// Custom field that you can retrieve it later in [Interceptor],
+/// [Transformer] and the [Response.requestOptions] object.
 Map<String, dynamic>? extra;
 
 /// Common query parameters.
@@ -390,7 +390,7 @@ bool isRedirect;
 /// implementation of the adapter supports it or not.
 List<RedirectRecord> redirects;
 
-/// Custom fields that are constructed in the [RequestOptions].
+/// Custom fields that only for the [Response].
 Map<String, dynamic> extra;
 
 /// Response headers.
@@ -406,6 +406,9 @@ print(response.headers);
 print(response.requestOptions);
 print(response.statusCode);
 ```
+
+Be aware, the `Response.extra` is different from `RequestOptions.extra`,
+they're irrelevant to each other.
 
 ### Interceptors
 
