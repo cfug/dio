@@ -42,8 +42,8 @@ class SyncTransformer extends Transformer {
     }
   }
 
-  /// As an agreement, we return the [response] when the
-  /// Options.responseType is [ResponseType.stream].
+  /// As an agreement, we return the [response] when the [Options.responseType]
+  /// is [ResponseType.stream].
   @override
   Future<dynamic> transformResponse(
     RequestOptions options,
