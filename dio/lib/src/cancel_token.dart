@@ -21,6 +21,9 @@ class CancelToken {
   DioError? get cancelError => _cancelError;
   DioError? _cancelError;
 
+  /// Corresponds request options for the request.
+  ///
+  /// This field can be null if the request has never submitted.
   RequestOptions? requestOptions;
 
   /// Whether the token is cancelled.

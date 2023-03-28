@@ -7,11 +7,14 @@ void main() {
       final token = CancelToken();
       const reason = 'cancel';
 
-      expectLater(token.whenCancel, completion((error) {
-        return error is DioError &&
-            error.type == DioErrorType.cancel &&
-            error.error == reason;
-      }));
+      expectLater(
+        token.whenCancel,
+        completion((error) {
+          return error is DioError &&
+              error.type == DioErrorType.cancel &&
+              error.error == reason;
+        }),
+      );
       token.requestOptions = RequestOptions();
       token.cancel(reason);
     });
