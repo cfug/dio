@@ -46,6 +46,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   * [HTTP/2 支持](#http2-支持)
   * [请求取消](#请求取消)
   * [继承 Dio class](#继承-dio-class)
+  * [Web 平台跨域资源共享 (CORS)](#web-平台跨域资源共享--cors-)
 <!-- TOC -->
 </details>
 
@@ -853,3 +854,14 @@ class MyDio with DioMixin implements Dio {
   // ...
 }
 ```
+
+## Web 平台跨域资源共享 (CORS)
+
+在 Web 平台上发送网络请求时，如果请求不是一个 [简单请求][]，
+浏览器会自动向服务器发送 [CORS 预检][] (Pre-flight requests)，
+用于检查服务器是否支持跨域资源共享。
+
+你可以参考简单请求的定义修改你的请求，或者为你的服务加上 CORS 中间件进行跨域处理。
+
+[简单请求]: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS#%E7%AE%80%E5%8D%95%E8%AF%B7%E6%B1%82
+[CORS 预检]: https://developer.mozilla.org/zh-CN/docs/Glossary/Preflight_request
