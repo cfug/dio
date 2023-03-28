@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-*None.*
+- Fix wrong `ListFormat` being used for comparison during encoding of `FormData`
+  and `application/x-www-form-urlencoded`, resulting in potential wrong output encoding
+  for `ListFormat.multi` and `ListFormat.multiCompatible` since Dio 4.0.x.
 
 ## 5.1.0
 
