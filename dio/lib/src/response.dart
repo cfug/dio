@@ -12,9 +12,10 @@ class Response<T> {
     this.statusMessage,
     this.isRedirect = false,
     this.redirects = const [],
-    this.extra = const {},
+    Map<String, dynamic>? extra,
     Headers? headers,
-  }) : headers = headers ?? Headers();
+  })  : headers = headers ?? Headers(),
+        extra = extra ?? <String, dynamic>{};
 
   /// Response body. may have been transformed, please refer to [ResponseType].
   T? data;
@@ -43,7 +44,7 @@ class Response<T> {
   /// implementation of the adapter supports it or not.
   List<RedirectRecord> redirects;
 
-  /// Custom fields that are constructed in the [RequestOptions].
+  /// Custom fields that only for the [Response].
   Map<String, dynamic> extra;
 
   /// Response headers.
