@@ -1,6 +1,7 @@
 import 'options.dart';
 import 'response.dart';
 
+/// The error enumeration indicates what type the error has happened in dio.
 enum DioErrorType {
   /// Caused by a connection timeout.
   connectionTimeout,
