@@ -71,7 +71,7 @@ void main() {
 
     test('custom', () {
       final result =
-          'a=%E4%BD%A0%E5%A5%BD&b=5%7C6&c%5Bd%5D=8&c%5Be%5D%5Ba%5D=5&c%5Be%5D%5Bb%5D=foo%2Cbar&c%5Be%5D%5Bc%5D=foo+bar&c%5Be%5D%5Bd%5D%5B%5D=foo&c%5Be%5D%5Bd%5D%5B%5D=bar&c%5Be%5D%5Be%5D=foo%5Ctbar';
+          'a=%E4%BD%A0%E5%A5%BD&b=5%7C6&c%5Bd%5D=8&c%5Be%5D%5Ba%5D=5&c%5Be%5D%5Bb%5D=foo%2Cbar&c%5Be%5D%5Bc%5D=foo+bar&c%5Be%5D%5Bd%5D=foo&c%5Be%5D%5Bd%5D=bar&c%5Be%5D%5Be%5D=foo%5Ctbar&c%5Be%5D%5Bf%5D%5B%5D=foo&c%5Be%5D%5Bf%5D%5B%5D=bar';
       expect(
         Transformer.urlEncodeMap(
           {
@@ -85,6 +85,10 @@ void main() {
                 'c': ListParam<String>(['foo', 'bar'], ListFormat.ssv),
                 'd': ListParam<String>(['foo', 'bar'], ListFormat.multi),
                 'e': ListParam<String>(['foo', 'bar'], ListFormat.tsv),
+                'f': [
+                  'foo',
+                  'bar'
+                ], // this uses ListFormat.multiCompatible set below
               },
             },
           },
@@ -115,17 +119,34 @@ void main() {
               'd': 8,
               'e': {
                 'a': 5,
-                'b': ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.csv),
-                'c': ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.ssv),
-                'd':
-                    ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.multi),
-                'e': ListParam<Object>(['foo', 'bar', 1, 2.2], ListFormat.tsv),
+                'b': ListParam<Object>(
+                  ['foo', 'bar', 1, 2.2],
+                  ListFormat.csv,
+                ),
+                'c': ListParam<Object>(
+                  ['foo', 'bar', 1, 2.2],
+                  ListFormat.ssv,
+                ),
+                'd': ListParam<Object>(
+                  ['foo', 'bar', 1, 2.2],
+                  ListFormat.multi,
+                ),
+                'e': ListParam<Object>(
+                  ['foo', 'bar', 1, 2.2],
+                  ListFormat.tsv,
+                ),
+                'f': [
+                  'foo',
+                  'bar',
+                  1,
+                  2.2
+                ], // this uses ListFormat.multiCompatible set below
               },
             },
           },
           ListFormat.multiCompatible,
         ),
-        'a=%E4%BD%A0%E5%A5%BD&b=5|6&c[d]=8&c[e][a]=5&c[e][b]=foo,bar,1,2.2&c[e][c]=foo%20bar%201%202.2&c[e][d][]=foo&c[e][d][]=bar&c[e][d][]=1&c[e][d][]=2.2&c[e][e]=foo\\tbar\\t1\\t2.2',
+        'a=%E4%BD%A0%E5%A5%BD&b=5|6&c[d]=8&c[e][a]=5&c[e][b]=foo,bar,1,2.2&c[e][c]=foo%20bar%201%202.2&c[e][d]=foo&c[e][d]=bar&c[e][d]=1&c[e][d]=2.2&c[e][e]=foo\\tbar\\t1\\t2.2&c[e][f][]=foo&c[e][f][]=bar&c[e][f][]=1&c[e][f][]=2.2',
       );
     });
   });
