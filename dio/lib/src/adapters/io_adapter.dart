@@ -10,13 +10,17 @@ import '../redirect_record.dart';
 @Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
 typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
 
+/// The signature of [IOHttpClientAdapter.onHttpClientCreate].
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
+
+/// The signature of [IOHttpClientAdapter.validateCertificate].
 typedef ValidateCertificate = bool Function(
   X509Certificate? certificate,
   String host,
   int port,
 );
 
+/// Creates an [IOHttpClientAdapter].
 HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for native platforms.
@@ -36,7 +40,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   ValidateCertificate? validateCertificate;
 
   HttpClient? _defaultHttpClient;
-
   bool _closed = false;
 
   @override
@@ -47,7 +50,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   ) async {
     if (_closed) {
       throw StateError(
-        "Can't establish connection after the adapter was closed!",
+        "Can't establish connection after the adapter was closed.",
       );
     }
     final httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
@@ -196,8 +199,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
     if (_defaultHttpClient == null) {
       client.idleTimeout = Duration(seconds: 3);
-      if (onHttpClientCreate?.call(client) != null) {
-        client = onHttpClientCreate!(client)!;
+      final potentialHttpClient = onHttpClientCreate?.call(client);
+      if (potentialHttpClient != null) {
+        client = potentialHttpClient;
       }
       client.connectionTimeout = connectionTimeout;
       _defaultHttpClient = client;
