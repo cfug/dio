@@ -169,7 +169,7 @@ class _ConnectionManager implements ConnectionManager {
 
     final completerProxyInitialization = Completer<void>();
 
-    Never _onProxyError(Object? error, StackTrace stackTrace) {
+    Never onProxyError(Object? error, StackTrace stackTrace) {
       throw DioError(
         requestOptions: options,
         error: error,
@@ -178,7 +178,7 @@ class _ConnectionManager implements ConnectionManager {
       );
     }
 
-    completerProxyInitialization.future.onError(_onProxyError);
+    completerProxyInitialization.future.onError(onProxyError);
 
     final proxySubscription = proxySocket.listen(
       (event) {
