@@ -149,5 +149,24 @@ void main() {
         'a=%E4%BD%A0%E5%A5%BD&b=5|6&c[d]=8&c[e][a]=5&c[e][b]=foo,bar,1,2.2&c[e][c]=foo%20bar%201%202.2&c[e][d]=foo&c[e][d]=bar&c[e][d]=1&c[e][d]=2.2&c[e][e]=foo\\tbar\\t1\\t2.2&c[e][f][]=foo&c[e][f][]=bar&c[e][f][]=1&c[e][f][]=2.2',
       );
     });
+
+    test('InOption', () async {
+      final data = {
+        'key1': 'value1',
+        'spec': [6],
+      };
+
+      await Dio()
+          .post<Map<String, dynamic>>('https://postman-echo.com/post',
+              data: data,
+              options: Options(
+                  contentType: Headers.formUrlEncodedContentType,
+                  method: 'post',
+                  listFormat: ListFormat.multiCompatible))
+          .then((result) {
+        print('===<Response>---\n$result');
+        expect(result.toString(), contains('spec[]'));
+      });
+    });
   });
 }
