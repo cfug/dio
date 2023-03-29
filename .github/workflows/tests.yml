@@ -53,7 +53,7 @@ jobs:
         with:
           sdk: stable
       - name: Analyze
-        run: dart pub get && dart analyze
+        run: dart pub get && dart analyze --fatal-infos
 
   analyze_flutter:
     needs: format
@@ -73,7 +73,7 @@ jobs:
           cache: true
           channel: stable
       - name: Analyze
-        run: flutter pub get && flutter analyze
+        run: flutter pub get && flutter analyze --fatal-infos
 
   test_dio:
     needs: [analyze, analyze_flutter]
@@ -116,6 +116,9 @@ jobs:
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
         shell: bash
+      - name: Install proxy
+        if: matrix.directory == 'plugins/http2_adapter'
+        run: sudo apt-get install -y squid
       - run: dart pub get
         working-directory: ${{ matrix.directory }}
       - run: dart test --chain-stack-traces

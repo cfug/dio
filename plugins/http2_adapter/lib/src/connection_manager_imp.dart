@@ -71,17 +71,11 @@ class _ConnectionManager implements ConnectionManager {
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);
     }
-    late SecureSocket socket;
+
+    late final SecureSocket socket;
+
     try {
-      // Create socket
-      socket = await SecureSocket.connect(
-        uri.host,
-        uri.port,
-        timeout: options.connectTimeout,
-        context: clientConfig.context,
-        onBadCertificate: clientConfig.onBadCertificate,
-        supportedProtocols: ['h2'],
-      );
+      socket = await _createSocket(uri, options, clientConfig);
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
@@ -119,6 +113,7 @@ class _ConnectionManager implements ConnectionManager {
         transportState.latestIdleTimeStamp = DateTime.now();
       }
     };
+
     //
     transportState.delayClose(
       _closed ? Duration(milliseconds: 50) : _idleTimeout,
@@ -128,6 +123,93 @@ class _ConnectionManager implements ConnectionManager {
       },
     );
     return transportState;
+  }
+
+  Future<SecureSocket> _createSocket(
+    Uri target,
+    RequestOptions options,
+    ClientSetting clientConfig,
+  ) async {
+    if (clientConfig.proxy == null) {
+      return SecureSocket.connect(
+        target.host,
+        target.port,
+        timeout: options.connectTimeout,
+        context: clientConfig.context,
+        onBadCertificate: clientConfig.onBadCertificate,
+        supportedProtocols: ['h2'],
+      );
+    }
+
+    final proxySocket = await Socket.connect(
+      clientConfig.proxy!.host,
+      clientConfig.proxy!.port,
+      timeout: options.connectTimeout,
+    );
+
+    final String credentialsProxy =
+        base64Encode(utf8.encode(clientConfig.proxy!.userInfo));
+
+    // Create http tunnel proxy https://www.ietf.org/rfc/rfc2817.txt
+
+    // Use CRLF as the end of the line https://www.ietf.org/rfc/rfc2616.txt
+    const crlf = '\r\n';
+
+    proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
+    proxySocket.write(crlf);
+    proxySocket.write('Host: ${target.host}:${target.port}');
+
+    if (credentialsProxy.isNotEmpty) {
+      proxySocket.write(crlf);
+      proxySocket.write('Proxy-Authorization: Basic $credentialsProxy');
+    }
+
+    proxySocket.write(crlf);
+    proxySocket.write(crlf);
+
+    final completerProxyInitialization = Completer<void>();
+
+    Never onProxyError(Object? error, StackTrace stackTrace) {
+      throw DioError(
+        requestOptions: options,
+        error: error,
+        type: DioErrorType.connectionError,
+        stackTrace: stackTrace,
+      );
+    }
+
+    completerProxyInitialization.future.onError(onProxyError);
+
+    final proxySubscription = proxySocket.listen(
+      (event) {
+        final response = ascii.decode(event);
+        final lines = response.split(crlf);
+        final statusLine = lines.first;
+
+        if (statusLine.startsWith('HTTP/1.1 200')) {
+          completerProxyInitialization.complete();
+        } else {
+          completerProxyInitialization.completeError(
+            SocketException('Proxy cannot be initialized'),
+          );
+        }
+      },
+      onError: completerProxyInitialization.completeError,
+    );
+
+    await completerProxyInitialization.future;
+
+    final socket = await SecureSocket.secure(
+      proxySocket,
+      host: target.host,
+      context: clientConfig.context,
+      onBadCertificate: clientConfig.onBadCertificate,
+      supportedProtocols: ['h2'],
+    );
+
+    proxySubscription.cancel();
+
+    return socket;
   }
 
   @override
