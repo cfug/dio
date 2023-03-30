@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 5.1.1
+
 - Revert changes to `CancelToken.cancel()` behavior, as a result the `DioError`
   provided by the `CancelToken.cancelError` does not contain useful information
   when the token was not used with a request.
