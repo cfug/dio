@@ -4,6 +4,10 @@
 
 *None.*
 
+## 5.1.2
+
+- Update plugins version
+
 ## 5.1.1
 
 - Revert changes to `CancelToken.cancel()` behavior, as a result the `DioError`
