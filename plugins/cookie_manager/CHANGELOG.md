@@ -4,6 +4,10 @@
 
 *None.*
 
+## 5.1.2
+
+- Bump cookie_jar from 3.0.0 to 4.0.1
+
 ## 2.1.3
 
 - Allow `Set-Cookie` to be parsed in redirect responses.
