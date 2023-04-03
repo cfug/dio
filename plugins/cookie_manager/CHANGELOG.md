@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-*None.*
+- Fix cookie not applied to the original destination during redirect handling.
+- Resolves the location for cookies during redirect handling.
 
 ## 2.1.3
 
