@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-*None.*
+- Fix cookie not applied to the original destination during redirect handling.
+- Resolves the location for cookies during redirect handling.
 
 - Bump cookie_jar from 3.0.0 to 4.0.1.
 
