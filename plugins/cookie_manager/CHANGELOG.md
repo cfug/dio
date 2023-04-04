@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Bump cookie_jar from 3.0.0 to 4.0.0.
 
 ## 2.1.4
 

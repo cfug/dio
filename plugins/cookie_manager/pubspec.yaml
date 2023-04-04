@@ -9,7 +9,7 @@ environment:
   sdk: '>=2.15.0 <3.0.0'
 
 dependencies:
-  cookie_jar: ^3.0.0
+  cookie_jar: ^4.0.0
   dio: ^5.0.0
 
 dev_dependencies:
