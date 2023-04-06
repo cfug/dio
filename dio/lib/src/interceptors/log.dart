@@ -15,7 +15,7 @@ class LogInterceptor extends Interceptor {
     this.responseHeader = true,
     this.responseBody = false,
     this.error = true,
-    this.logPrint = print,
+    this.logPrint = printOnlyDebug,
   });
 
   /// Print request [Options]
@@ -131,4 +131,11 @@ class LogInterceptor extends Interceptor {
   void _printAll(msg) {
     msg.toString().split('\n').forEach(logPrint);
   }
+}
+
+void printOnlyDebug(Object? object) {
+  assert(() {
+    print(object);
+    return true;
+  }());
 }
