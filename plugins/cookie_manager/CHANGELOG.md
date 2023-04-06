@@ -2,7 +2,9 @@
 
 ## Unreleased
 
+### Breaking changes
 - Bump cookie_jar from 3.0.0 to 4.0.0.
+  Upgrading to this version will lose all previous cookies.
 
 ## 2.1.4
 
