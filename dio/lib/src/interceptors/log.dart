@@ -15,7 +15,7 @@ class LogInterceptor extends Interceptor {
     this.responseHeader = true,
     this.responseBody = false,
     this.error = true,
-    this.logPrint = printOnlyDebug,
+    this.logPrint = debugPrint,
   });
 
   /// Print request [Options]
@@ -133,7 +133,7 @@ class LogInterceptor extends Interceptor {
   }
 }
 
-void printOnlyDebug(Object? object) {
+void debugPrint(Object? object) {
   assert(() {
     print(object);
     return true;
