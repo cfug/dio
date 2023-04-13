@@ -4,6 +4,9 @@
 
 *None.*
 
+## 5.1.2
+ - In the interceptor log, add by default that requests are only printed in debug mode
+
 ## 5.1.1
 
 - Revert changes to `CancelToken.cancel()` behavior, as a result the `DioError`
