@@ -515,6 +515,15 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); // Do not output resp
 
 Note: `LogInterceptor` should be the last to add since the interceptors are FIFO.
 
+### Note: As of version 5.1.2, by default, request logs will only be printed in debug mode, to change this customize the print mode: 
+
+LogInterceptor:
+```dart 
+dio.interceptors.add(LogInterceptor(
+  logPrint: print
+));
+```
+
 #### Custom Interceptor
 
 You can customize interceptor by extending the `Interceptor/QueuedInterceptor` class.
