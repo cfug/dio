@@ -1,4 +1,4 @@
-/// A powerful HTTP package for Dart/Flutter, which supports Global settings,
+/// A powerful HTTP client for Dart and Flutter, which supports global settings,
 /// [Interceptors], [FormData], aborting and canceling a request,
 /// files uploading and downloading, requests timeout, custom adapters, etc.
 library dio;

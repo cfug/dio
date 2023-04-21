@@ -408,7 +408,7 @@ print(response.statusCode);
 ```
 
 Be aware, the `Response.extra` is different from `RequestOptions.extra`,
-they're irrelevant to each other.
+they are not related to each other.
 
 ### Interceptors
 

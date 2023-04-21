@@ -45,7 +45,7 @@ abstract class HttpClientAdapter {
     Future<void>? cancelFuture,
   );
 
-  /// Close the current adapter and it's inner clients or requests.
+  /// Close the current adapter and its inner clients or requests.
   void close({bool force = false});
 }
 

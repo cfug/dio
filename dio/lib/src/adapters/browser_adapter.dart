@@ -182,10 +182,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         try {
           xhr.abort();
         } catch (_) {}
-        // `xhr.onError` will not triggered when `xhr.abort()` is called.
-        // We need to manually throw the exception to avoid `Future` hangs,
-        // or adding `xhr.onAbort` like axios:
-        // https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
           completer.completeError(
             DioError.requestCancelled(
