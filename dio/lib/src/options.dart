@@ -445,7 +445,6 @@ class Options {
 
 /// The internal request option class that is the eventual result after
 /// [BaseOptions] and [Options] are composed.
-@internal
 class RequestOptions extends _RequestConfig with OptionsMixin {
   RequestOptions({
     this.path = '',
