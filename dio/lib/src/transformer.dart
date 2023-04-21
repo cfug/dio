@@ -29,7 +29,7 @@ abstract class Transformer {
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
-    Map<String, dynamic> map, [
+    Map<dynamic, dynamic> map, [
     ListFormat listFormat = ListFormat.multi,
   ]) {
     return encodeMap(

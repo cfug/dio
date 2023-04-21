@@ -30,7 +30,7 @@ Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
 typedef DioEncodeHandler = String? Function(String key, Object? value);
 
 String encodeMap(
-  data,
+  Object data,
   DioEncodeHandler handler, {
   bool encode = true,
   bool isQuery = false,
@@ -43,7 +43,12 @@ String encodeMap(
   // When [encode] is false, for example for [FormData], nothing is encoded.
   final leftBracket = isQuery || !encode ? '[' : '%5B';
   final rightBracket = isQuery || !encode ? ']' : '%5D';
-  final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
+  final Object? Function(Object?) encodeComponent;
+  if (encode) {
+    encodeComponent = (e) => Uri.encodeQueryComponent(e?.toString() ?? '');
+  } else {
+    encodeComponent = (e) => e;
+  }
   Object? maybeEncode(Object? value) {
     if (!isQuery || value == null || value is! String) {
       return value;
