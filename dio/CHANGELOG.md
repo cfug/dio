@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Backward compatible with `Map<dynamic, dynamic>` encodes.
 
 ## 5.1.1
 
