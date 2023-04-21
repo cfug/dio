@@ -53,7 +53,7 @@ jobs:
         with:
           sdk: stable
       - name: Analyze
-        run: dart pub get && dart analyze
+        run: dart pub get && dart analyze --fatal-infos
 
   analyze_flutter:
     needs: format
@@ -73,7 +73,7 @@ jobs:
           cache: true
           channel: stable
       - name: Analyze
-        run: flutter pub get && flutter analyze
+        run: flutter pub get && flutter analyze --fatal-infos
 
   test_dio:
     needs: [analyze, analyze_flutter]
@@ -145,19 +145,3 @@ jobs:
           flutter-version: ${{ matrix.channel == 'min' && '3.7.0' || '' }}
           channel: ${{ matrix.channel == 'min' && 'stable' || matrix.channel }}
       - run: flutter test
-
-  build_example_android:
-    needs: [test_dio, test_plugins, test_flutter_plugins]
-    name: Build Android example
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: example_flutter_app
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.8.0
-        with:
-          cache: true
-          channel: stable
-      - run: flutter pub get
-      - run: flutter build apk

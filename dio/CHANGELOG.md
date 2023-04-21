@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+*None.*
+
+## 5.1.1
+
 - Revert changes to `CancelToken.cancel()` behavior, as a result the `DioError`
   provided by the `CancelToken.cancelError` does not contain useful information
   when the token was not used with a request.
+- Fix wrong `ListFormat` being used for comparison during encoding of `FormData`
+  and `application/x-www-form-urlencoded`, resulting in potential wrong output encoding
+  for `ListFormat.multi` and `ListFormat.multiCompatible` since Dio 4.0.x.
+- Respect `Options.listFormat` when encoding `x-www-url-encoded` content.
 
 ## 5.1.0
 

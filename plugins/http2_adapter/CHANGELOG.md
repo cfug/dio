@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.2.0
+
 - Support proxy for the adapter.
 - Improve code formats according to linter rules.
 
