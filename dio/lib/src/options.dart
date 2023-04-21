@@ -613,8 +613,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   ProgressCallback? onSendProgress;
 }
 
-/// Validate the status code if it's not null and within the range of 200~299.
-bool dioDefaultValidateStatus(int? status) {
+bool _defaultValidateStatus(int? status) {
   return status != null && status >= 200 && status < 300;
 }
 
@@ -646,7 +645,7 @@ class _RequestConfig {
         maxRedirects = maxRedirects ?? 5,
         persistentConnection = persistentConnection ?? true,
         receiveDataWhenStatusError = receiveDataWhenStatusError ?? true,
-        validateStatus = validateStatus ?? dioDefaultValidateStatus,
+        validateStatus = validateStatus ?? _defaultValidateStatus,
         responseType = responseType ?? ResponseType.json {
     this.headers = headers;
     final hasContentTypeHeader =

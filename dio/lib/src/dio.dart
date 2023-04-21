@@ -11,21 +11,9 @@ import 'response.dart';
 import 'dio/dio_for_native.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
 
-/// The abstraction class users can use directly by the unnamed constructor.
+/// The abstracted class for users to easily make HTTP request.
 ///
-/// You can create a dio instance and config it in two ways:
-/// 1. Create the instance first, then update the config:
-/// ```dart
-/// final dio = Dio();
-/// dio.options.baseUrl = "https://pub.dev";
-/// dio.options.connectTimeout = const Duration(seconds: 5);
-/// dio.options.receiveTimeout = const Duration(seconds: 5);
-/// dio.options.headers = {
-///   HttpHeaders.userAgentHeader: 'dio',
-///   'common-header': 'xx',
-/// };
-/// ```
-/// 2. Create the instance along with the config:
+/// Creating a [Dio] instance with configurations:
 /// ```dart
 /// final dio = Dio(
 ///   BaseOptions(
@@ -38,6 +26,13 @@ import 'dio/dio_for_native.dart'
 ///     },
 ///   )
 /// );
+/// ```
+///
+/// The [Dio.options] can be updated in anytime:
+/// ```dart
+/// dio.options.baseUrl = "https://pub.dev";
+/// dio.options.connectTimeout = const Duration(seconds: 5);
+/// dio.options.receiveTimeout = const Duration(seconds: 5);
 /// ```
 abstract class Dio {
   /// Create the default [Dio] instance with the default implementation
@@ -68,7 +63,7 @@ abstract class Dio {
   /// calling [close] will throw an exception.
   void close({bool force = false});
 
-  /// An alias methods to make HTTP HEAD request.
+  /// Convenience method to make an HTTP HEAD request.
   Future<Response<T>> head<T>(
     String path, {
     Object? data,
@@ -77,7 +72,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// An alias methods to make HTTP HEAD request with [Uri].
+  /// Convenience method to make an HTTP HEAD request with [Uri].
   Future<Response<T>> headUri<T>(
     Uri uri, {
     Object? data,
@@ -85,7 +80,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// An alias methods to make HTTP GET request.
+  /// Convenience method to make an HTTP GET request.
   Future<Response<T>> get<T>(
     String path, {
     Object? data,
@@ -95,7 +90,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP GET request with [Uri].
+  /// Convenience method to make an HTTP GET request with [Uri].
   Future<Response<T>> getUri<T>(
     Uri uri, {
     Object? data,
@@ -104,7 +99,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP POST request.
+  /// Convenience method to make an HTTP POST request.
   Future<Response<T>> post<T>(
     String path, {
     Object? data,
@@ -115,7 +110,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP POST request with [Uri].
+  /// Convenience method to make an HTTP POST request with [Uri].
   Future<Response<T>> postUri<T>(
     Uri uri, {
     Object? data,
@@ -125,7 +120,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP PUT request.
+  /// Convenience method to make an HTTP PUT request.
   Future<Response<T>> put<T>(
     String path, {
     Object? data,
@@ -136,7 +131,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP PUT request with [Uri].
+  /// Convenience method to make an HTTP PUT request with [Uri].
   Future<Response<T>> putUri<T>(
     Uri uri, {
     Object? data,
@@ -146,7 +141,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP PATCH request.
+  /// Convenience method to make an HTTP PATCH request.
   Future<Response<T>> patch<T>(
     String path, {
     Object? data,
@@ -157,7 +152,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP PATCH request with [Uri].
+  /// Convenience method to make an HTTP PATCH request with [Uri].
   Future<Response<T>> patchUri<T>(
     Uri uri, {
     Object? data,
@@ -167,7 +162,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// An alias methods to make HTTP DELETE request.
+  /// Convenience method to make an HTTP DELETE request.
   Future<Response<T>> delete<T>(
     String path, {
     Object? data,
@@ -176,7 +171,7 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
-  /// An alias methods to make HTTP DELETE request with [Uri].
+  /// Convenience method to make an HTTP DELETE request with [Uri].
   Future<Response<T>> deleteUri<T>(
     Uri uri, {
     Object? data,
@@ -190,23 +185,23 @@ abstract class Dio {
   ///
   /// [urlPath] is the file url.
   ///
-  /// [savePath] is the path to save the downloading file later.
-  /// It can be these types:
-  /// 1. A path with the `String` type, eg "xs.jpg"
-  /// 2. `String Function(Headers headers)`, for example:
-  /// ```dart
-  /// await dio.download(
-  ///   url,
-  ///   (Headers headers) {
-  ///     // Extra info: redirect counts
-  ///     print(headers.value('redirects'));
-  ///     // Extra info: real uri
-  ///     print(headers.value('uri'));
-  ///     // ...
-  ///     return (await getTemporaryDirectory()).path + 'file_name';
-  ///   },
-  /// );
-  /// ```
+  /// The file will be saved to the path specified by [savePath].
+  /// The following two types are accepted:
+  /// 1. `String`: A path, eg "xs.jpg"
+  /// 2. `FutureOr<String> Function(Headers headers)`, for example:
+  ///    ```dart
+  ///    await dio.download(
+  ///      url,
+  ///      (Headers headers) {
+  ///        // Extra info: redirect counts
+  ///        print(headers.value('redirects'));
+  ///        // Extra info: real uri
+  ///        print(headers.value('uri'));
+  ///        // ...
+  ///        return (await getTemporaryDirectory()).path + 'file_name';
+  ///      },
+  ///    );
+  ///    ```
   ///
   /// [onReceiveProgress] is the callback to listen downloading progress.
   /// Please refer to [ProgressCallback].

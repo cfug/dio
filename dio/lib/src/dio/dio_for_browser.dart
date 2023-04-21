@@ -1,7 +1,10 @@
 import '../adapters/browser_adapter.dart';
+import '../cancel_token.dart';
 import '../dio.dart';
 import '../dio_mixin.dart';
+import '../headers.dart';
 import '../options.dart';
+import '../response.dart';
 
 /// Create the [Dio] instance for Web platforms.
 Dio createDio([BaseOptions? options]) => DioForBrowser(options);
@@ -13,5 +16,22 @@ class DioForBrowser with DioMixin implements Dio {
   DioForBrowser([BaseOptions? options]) {
     this.options = options ?? BaseOptions();
     httpClientAdapter = BrowserHttpClientAdapter();
+  }
+
+  @override
+  Future<Response> download(
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  }) {
+    throw UnsupportedError(
+      'The download method is not available in the Web environment.',
+    );
   }
 }

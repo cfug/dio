@@ -294,23 +294,6 @@ abstract class DioMixin implements Dio {
   }
 
   @override
-  Future<Response> download(
-    String urlPath,
-    dynamic savePath, {
-    ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    String lengthHeader = Headers.contentLengthHeader,
-    Object? data,
-    Options? options,
-  }) {
-    throw UnsupportedError(
-      'The download method is not available in the current environment.',
-    );
-  }
-
-  @override
   Future<Response<T>> requestUri<T>(
     Uri uri, {
     Object? data,

@@ -26,8 +26,8 @@ abstract class Transformer {
   /// when the Options.responseType is [ResponseType.stream].
   Future transformResponse(RequestOptions options, ResponseBody response);
 
-  /// Deeply encode the [Map<String, dynamic>] to percent-encoding.
-  /// It is mostly used with the "application/x-www-form-urlencoded" content-type.
+  /// Recursively encode the [Map<String, dynamic>] to percent-encoding.
+  /// Generally used with the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
     Map<String, dynamic> map, [
     ListFormat listFormat = ListFormat.multi,
@@ -58,7 +58,7 @@ abstract class Transformer {
     );
   }
 
-  /// https://mimesniff.spec.whatwg.org/#json-mime-type
+  /// See https://mimesniff.spec.whatwg.org/#json-mime-type.
   static bool isJsonMimeType(String? contentType) {
     if (contentType == null) return false;
     final mediaType = MediaType.parse(contentType);

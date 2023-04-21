@@ -44,7 +44,7 @@ class Response<T> {
   /// implementation of the adapter supports it or not.
   List<RedirectRecord> redirects;
 
-  /// Custom fields that only for the [Response].
+  /// Custom fields that are only for the [Response].
   Map<String, dynamic> extra;
 
   /// Response headers.
