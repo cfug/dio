@@ -223,6 +223,8 @@ void main() async {
         data: fd,
       );
 
+      expect(fd.fields[5].value, '');
+
       final result = response.data;
       expect(result, contains('name="items[0][name]"'));
       expect(result, contains('name="items[0][value]"'));
