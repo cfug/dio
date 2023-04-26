@@ -193,5 +193,50 @@ void main() async {
       expect(result, contains('name="api[data][b]"'));
       expect(result, contains('name="api[data][c]"'));
     });
+
+    test('posts maps with a null value item correctly', () async {
+      final fd = FormData.fromMap(
+        {
+          'items': [
+            {'name': 'foo', 'value': 1},
+            {'name': 'bar', 'value': 2},
+            {'name': 'null', 'value': null},
+          ],
+          'api': {
+            'dest': '/',
+            'data': {
+              'a': 1,
+              'b': 2,
+              'c': 3,
+            },
+          },
+        },
+        ListFormat.multiCompatible,
+      );
+
+      final dio = Dio()
+        ..options.baseUrl = EchoAdapter.mockBase
+        ..httpClientAdapter = EchoAdapter();
+
+      final response = await dio.post(
+        '/post',
+        data: fd,
+      );
+
+      final result = response.data;
+      expect(result, contains('name="items[0][name]"'));
+      expect(result, contains('name="items[0][value]"'));
+
+      expect(result, contains('name="items[1][name]"'));
+      expect(result, contains('name="items[1][value]"'));
+
+      expect(result, contains('name="items[2][name]"'));
+      expect(result, contains('name="items[2][value]"'));
+
+      expect(result, contains('name="api[dest]"'));
+      expect(result, contains('name="api[data][a]"'));
+      expect(result, contains('name="api[data][b]"'));
+      expect(result, contains('name="api[data][c]"'));
+    });
   });
 }
