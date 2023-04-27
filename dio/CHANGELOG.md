@@ -13,6 +13,7 @@
   and `application/x-www-form-urlencoded`, resulting in potential wrong output encoding
   for `ListFormat.multi` and `ListFormat.multiCompatible` since Dio 4.0.x.
 - Respect `Options.listFormat` when encoding `x-www-url-encoded` content.
+- Fix `FormData.fromMap` that did not send the entry if the value was null.
 
 ## 5.1.0
 
