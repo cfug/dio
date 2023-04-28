@@ -14,7 +14,6 @@
   for `ListFormat.multi` and `ListFormat.multiCompatible` since Dio 4.0.x.
 - Respect `Options.listFormat` when encoding `x-www-url-encoded` content.
 
-
 ## 5.1.0
 
 - Fix double-completion when using `connectionTimeout` on web platform.
