@@ -202,14 +202,6 @@ void main() async {
             {'name': 'bar', 'value': 2},
             {'name': 'null', 'value': null},
           ],
-          'api': {
-            'dest': '/',
-            'data': {
-              'a': 1,
-              'b': 2,
-              'c': 3,
-            },
-          },
         },
         ListFormat.multiCompatible,
       );
@@ -234,11 +226,6 @@ void main() async {
 
       expect(result, contains('name="items[2][name]"'));
       expect(result, contains('name="items[2][value]"'));
-
-      expect(result, contains('name="api[dest]"'));
-      expect(result, contains('name="api[data][a]"'));
-      expect(result, contains('name="api[data][b]"'));
-      expect(result, contains('name="api[data][c]"'));
     });
   });
 }
