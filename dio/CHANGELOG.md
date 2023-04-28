@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fix `FormData.fromMap` that did not send the entry if the value was null.
+- Allow `FormData` to send a null entry value as an empty string.
 
 ## 5.1.1
 
