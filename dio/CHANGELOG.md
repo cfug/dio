@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Allow `FormData` to send a null entry value as an empty string.
 - Backward compatible with `Map<dynamic, dynamic>` encodes.
 
 ## 5.1.1
