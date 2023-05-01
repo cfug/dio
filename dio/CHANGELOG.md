@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Allow `FormData` to send a null entry value as an empty string.
 
 ## 5.1.1
 
