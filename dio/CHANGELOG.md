@@ -4,9 +4,6 @@
 
 *None.*
 
-## 5.1.2
- - BREAKING CHANGE: Logging is only done in debug builds. Previously, it was also enabled in release builds. See the readme for instructions on how to revert to the old behavior 
-
 ## 5.1.1
 
 - Revert changes to `CancelToken.cancel()` behavior, as a result the `DioError`
