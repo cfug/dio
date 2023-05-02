@@ -507,7 +507,7 @@ For the complete code see [here](../example/lib/queued_interceptor_crsftoken.dar
 
 #### LogInterceptor
 
-You can apply the `LogInterceptor` to log requests and responses automatically:
+You can apply the `LogInterceptor` to log requests and responses automatically in the DEBUG mode:
 
 ```dart
 dio.interceptors.add(LogInterceptor(responseBody: false)); // Do not output responses body.
