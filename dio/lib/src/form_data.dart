@@ -48,11 +48,10 @@ class FormData {
     encodeMap(
       map,
       (key, value) {
-        if (value == null) return null;
         if (value is MultipartFile) {
           files.add(MapEntry(key, value));
         } else {
-          fields.add(MapEntry(key, value.toString()));
+          fields.add(MapEntry(key, value?.toString() ?? ''));
         }
         return null;
       },
