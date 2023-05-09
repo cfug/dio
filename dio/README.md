@@ -513,16 +513,9 @@ You can apply the `LogInterceptor` to log requests and responses automatically i
 dio.interceptors.add(LogInterceptor(responseBody: false)); // Do not output responses body.
 ```
 
-Note: `LogInterceptor` should be the last to add since the interceptors are FIFO.
+**Note:** `LogInterceptor` should be the last to add since the interceptors are FIFO.
 
-### Note: By default, request logs will only be printed in debug mode, to change this customize the print mode: 
-
-LogInterceptor:
-```dart 
-dio.interceptors.add(LogInterceptor(
-  logPrint: print
-));
-```
+**Note:** Logs will only be printed in the DEBUG mode (when the assertion is enabled).
 
 #### Custom Interceptor
 
