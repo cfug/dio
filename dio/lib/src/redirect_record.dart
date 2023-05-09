@@ -1,5 +1,5 @@
-/// The redirection happens during requests, contains the redirect status code,
-/// the redirection method, and the redirect target location.
+/// A record that records the redirection happens during requests,
+/// including status code, request method, and the location.
 class RedirectRecord {
   const RedirectRecord(this.statusCode, this.method, this.location);
 
@@ -11,4 +11,10 @@ class RedirectRecord {
 
   /// Returns the location for the redirect.
   final Uri location;
+
+  @override
+  String toString() {
+    return 'RedirectRecord'
+        '{statusCode: $statusCode, method: $method, location: $location}';
+  }
 }
