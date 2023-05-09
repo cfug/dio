@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
 
 ## 5.1.2
 
