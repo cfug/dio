@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'options.dart';
 import 'parameter.dart';
 
-/// Pipes all data and errors from [stream] into [sink]. Completes [Future] once
+/// Pipes all data and errors from [stream] into [sink]. Completes [Future]HttpClonce
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is
 /// done.
 Future writeStreamToSink(Stream stream, EventSink sink) {

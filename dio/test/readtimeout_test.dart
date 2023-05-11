@@ -105,7 +105,7 @@ void main() {
     final adapter = IOHttpClientAdapter();
     final http = HttpClient();
 
-    adapter.onHttpClientCreate = (_) => http;
+    adapter.createHttpClient = () => http;
     dio.httpClientAdapter = adapter;
     dio.options
       ..baseUrl = serverUrl.toString()
