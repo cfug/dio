@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
-
+- Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
 ## 5.1.2
 
 - Allow `FormData` to send a null entry value as an empty string.
