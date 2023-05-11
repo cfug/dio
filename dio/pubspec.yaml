@@ -15,6 +15,7 @@ environment:
   sdk: '>=2.15.0 <3.0.0'
 
 dependencies:
+  async: ^2.8.2
   http_parser: ^4.0.0
   meta: ^1.5.0
   path: ^1.8.0

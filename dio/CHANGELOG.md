@@ -7,6 +7,7 @@
 - Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
 - `IOHttpClientAdapter.onHttpClientCreate` has been deprecated and is scheduled for removal in
   Dio 6.0.0 - Please use the replacement `IOHttpClientAdapter.createHttpClient` instead.
+- Using `CancelToken` no longer closes and re-creates `HttpClient` for each request when `IOHttpClientAdapter` is used. 
 
 ## 5.1.2
 
