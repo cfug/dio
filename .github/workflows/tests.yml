@@ -84,6 +84,11 @@ jobs:
       matrix:
         sdk: [ 2.15.0, stable, beta ]
         platform: [ vm, chrome ]
+    services:
+      httpbin:
+        image: kennethreitz/httpbin
+        ports:
+          - 80:80
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1.3
@@ -95,6 +100,9 @@ jobs:
         shell: bash
       - run: dart pub get
         working-directory: dio
+      - name: Rewrite httpbin.org in /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 httpbin.org" | sudo tee -a /etc/hosts
       - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
         working-directory: dio
 
@@ -107,6 +115,11 @@ jobs:
       matrix:
         sdk: [ 2.15.0, stable, beta ]
         directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
+    services:
+      httpbin:
+        image: kennethreitz/httpbin
+        ports:
+          - 80:80
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1.3
@@ -121,6 +134,9 @@ jobs:
         run: sudo apt-get install -y squid
       - run: dart pub get
         working-directory: ${{ matrix.directory }}
+      - name: Rewrite httpbin.org in /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 httpbin.org" | sudo tee -a /etc/hosts
       - run: dart test --chain-stack-traces
         working-directory: ${{ matrix.directory }}
 
