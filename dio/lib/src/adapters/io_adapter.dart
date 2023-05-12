@@ -35,7 +35,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// [validateCertificate] evaluates the leaf certificate.
   ValidateCertificate? validateCertificate;
 
-  HttpClient? _defaultHttpClient;
+  HttpClient? _cachedHttpClient;
 
   bool _closed = false;
 
@@ -187,27 +187,26 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
     Duration? connectionTimeout,
   ) {
-    HttpClient client = onHttpClientCreate?.call(HttpClient()) ?? HttpClient();
     if (cancelFuture != null) {
+      final HttpClient client =
+          onHttpClientCreate?.call(HttpClient()) ?? HttpClient();
       client.userAgent = null;
       client.idleTimeout = Duration(seconds: 0);
       cancelFuture.whenComplete(() => client.close(force: true));
       return client..connectionTimeout = connectionTimeout;
     }
-    if (_defaultHttpClient == null) {
-      client.idleTimeout = Duration(seconds: 3);
-      if (onHttpClientCreate?.call(client) != null) {
-        client = onHttpClientCreate!(client)!;
-      }
-      client.connectionTimeout = connectionTimeout;
-      _defaultHttpClient = client;
+
+    if (_cachedHttpClient == null) {
+      final HttpClient client = HttpClient()
+        ..idleTimeout = Duration(seconds: 3);
+      _cachedHttpClient = onHttpClientCreate?.call(client) ?? client;
     }
-    return _defaultHttpClient!..connectionTimeout = connectionTimeout;
+    return _cachedHttpClient!..connectionTimeout = connectionTimeout;
   }
 
   @override
   void close({bool force = false}) {
     _closed = true;
-    _defaultHttpClient?.close(force: force);
+    _cachedHttpClient?.close(force: force);
   }
 }
