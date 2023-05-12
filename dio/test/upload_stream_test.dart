@@ -6,7 +6,9 @@ import 'package:test/test.dart';
 
 void main() {
   final dio = Dio()
-    ..options.baseUrl = 'https://httpbin.org/'
+    ..options.baseUrl = Platform.environment.containsKey('CI')
+        ? 'http://localhost/'
+        : 'https://httpbin.org/'
     ..interceptors.add(
       QueuedInterceptorsWrapper(
         onRequest: (options, handler) async {

@@ -86,6 +86,11 @@ jobs:
       matrix:
         sdk: [ 2.15.0, stable, beta ]
         platform: [ vm, chrome ]
+    services:
+      httpbin:
+        image: kennethreitz/httpbin
+        ports:
+          - 80:80
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1.3
@@ -109,6 +114,11 @@ jobs:
       matrix:
         sdk: [ 2.15.0, stable, beta ]
         directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
+    services:
+      httpbin:
+        image: kennethreitz/httpbin
+        ports:
+          - 80:80
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1.3
