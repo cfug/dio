@@ -14,7 +14,7 @@ void main() {
         return client;
       });
       await dio.get('https://pub.dev');
-      expect(onHttpClientCreateInvokeCount <= 1, isTrue);
+      expect(onHttpClientCreateInvokeCount, 1);
     });
   });
 }
