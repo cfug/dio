@@ -45,7 +45,7 @@ void main() {
     });
 
     test('untrusted host rejected with no approver', () async {
-      DioError? error;
+      DioException? error;
       try {
         dio.httpClientAdapter = Http2Adapter(
           ConnectionManager(
@@ -58,7 +58,7 @@ void main() {
         );
         await dio.get('get');
         fail('did not throw');
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         error = e;
       }
       expect(error, isNotNull);

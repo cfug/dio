@@ -32,8 +32,8 @@ timeout, and custom adapters etc.
       * [LogInterceptor](#loginterceptor)
       * [Custom Interceptor](#custom-interceptor)
   * [Handling Errors](#handling-errors)
-    * [DioError](#dioerror)
-    * [DioErrorType](#dioerrortype)
+    * [DioException](#dioexception)
+    * [DioExceptionType](#dioexceptiontype)
   * [Using application/x-www-form-urlencoded format](#using-applicationx-www-form-urlencoded-format)
   * [Sending FormData](#sending-formdata)
     * [Multiple files upload](#multiple-files-upload)
@@ -304,7 +304,7 @@ Map<String, dynamic>? headers;
 Duration? connectTimeout;
 
 /// Whenever more than [receiveTimeout] passes between two events from response stream,
-/// [Dio] will throw the [DioError] with [DioErrorType.RECEIVE_TIMEOUT].
+/// [Dio] will throw the [DioException] with [DioExceptionType.RECEIVE_TIMEOUT].
 /// Note: This is not the receiving time limitation.
 Duration? receiveTimeout;
 
@@ -421,16 +421,16 @@ dio.interceptors.add(
       // If you want to resolve the request with custom data,
       // you can resolve a `Response` using `handler.resolve(response)`.
       // If you want to reject the request with a error message,
-      // you can reject with a `DioError` using `handler.reject(dioError)`.
+      // you can reject with a `DioException` using `handler.reject(dioError)`.
       return handler.next(options);
     },
     onResponse: (Response response, ResponseInterceptorHandler handler) {
       // Do something with response data.
       // If you want to reject the request with a error message,
-      // you can reject a `DioError` object using `handler.reject(dioError)`.
+      // you can reject a `DioException` object using `handler.reject(dioError)`.
       return handler.next(response);
     },
-    onError: (DioError e, ErrorInterceptorHandler handler) {
+    onError: (DioException e, ErrorInterceptorHandler handler) {
       // Do something with response error.
       // If you want to resolve the request with some custom data,
       // you can resolve a `Response` object using `handler.resolve(response)`.
@@ -458,7 +458,7 @@ class CustomInterceptors extends Interceptor {
   }
 
   @override
-  Future onError(DioError err, ErrorInterceptorHandler handler) async {
+  Future onError(DioException err, ErrorInterceptorHandler handler) async {
     print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
     super.onError(err, handler);
   }
@@ -525,13 +525,13 @@ There is an example that implementing a simple cache policy:
 
 ## Handling Errors
 
-When an error occurs, Dio will wrap the `Error/Exception` to a `DioError`:
+When an error occurs, Dio will wrap the `Error/Exception` to a `DioException`:
 
 ```dart
 try {
   // 404
   await dio.get('https://api.pub.dev/not-exist');
-} on DioError catch (e) {
+} on DioException catch (e) {
   // The request was made and the server responded with a status code
   // that falls out of the range of 2xx and is also not 304.
   if (e.response != null) {
@@ -546,7 +546,7 @@ try {
 }
 ```
 
-### DioError
+### DioException
 
 ```dart
 /// The request info for the request that throws exception.
@@ -556,24 +556,24 @@ RequestOptions requestOptions;
 /// HTTP server, for example, occurring a DNS error, network is not available.
 Response? response;
 
-/// The type of the current [DioError].
-DioErrorType type;
+/// The type of the current [DioException].
+DioExceptionType type;
 
 /// The original error/exception object;
-/// It's usually not null when `type` is [DioErrorType.unknown].
+/// It's usually not null when `type` is [DioExceptionType.unknown].
 Object? error;
 
 /// The stacktrace of the original error/exception object;
-/// It's usually not null when `type` is [DioErrorType.unknown].
+/// It's usually not null when `type` is [DioExceptionType.unknown].
 StackTrace? stackTrace;
 
-/// The error message that throws a [DioError].
+/// The error message that throws a [DioException].
 String? message;
 ```
 
-### DioErrorType
+### DioExceptionType
 
-See [the source code](lib/src/dio_error.dart).
+See [the source code](lib/src/dio_exception.dart).
 
 ## Using application/x-www-form-urlencoded format
 
@@ -867,7 +867,7 @@ When a token's `cancel()` is invoked, all requests with this token will be cance
 
 ```dart
 final cancelToken = CancelToken();
-dio.get(url, cancelToken: cancelToken).catchError((DioError err) {
+dio.get(url, cancelToken: cancelToken).catchError((DioException err) {
   if (CancelToken.isCancel(err)) {
     print('Request canceled: ${err.message}');
   } else {

@@ -23,19 +23,19 @@ void main() {
   });
 
   test('pinning: untrusted host rejected with no approver', () async {
-    DioError? error;
+    DioException? error;
     try {
       final dio = Dio();
       await dio.get(untrustedCertUrl);
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
     expect(error, isNotNull);
   });
 
   test('pinning: every certificate tested and rejected', () async {
-    DioError? error;
+    DioException? error;
     try {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter(
@@ -43,7 +43,7 @@ void main() {
       );
       await dio.get(trustedCertUrl);
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
     expect(error, isNotNull);
@@ -84,7 +84,7 @@ void main() {
   test(
     'pinning: untrusted certificate rejected before validateCertificate',
     () async {
-      DioError? error;
+      DioException? error;
       try {
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter(
@@ -101,7 +101,7 @@ void main() {
           options: Options(validateStatus: (status) => true),
         );
         fail('did not throw');
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         error = e;
       }
       expect(error, isNotNull);
@@ -109,7 +109,7 @@ void main() {
   );
 
   test('bad pinning: badCertCallback does not use leaf certificate', () async {
-    DioError? error;
+    DioException? error;
     try {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter(
@@ -129,7 +129,7 @@ void main() {
         options: Options(validateStatus: (status) => true),
       );
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
     expect(error, isNotNull);

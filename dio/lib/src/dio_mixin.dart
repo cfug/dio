@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
-import 'dio_error.dart';
+import 'dio_exception.dart';
 import 'form_data.dart';
 import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
@@ -373,7 +373,7 @@ abstract class DioMixin implements Dio {
     );
 
     if (_closed) {
-      throw DioError.connectionError(
+      throw DioException.connectionError(
         reason: "Dio can't establish a new connection after it was closed.",
         requestOptions: requestOptions,
       );
@@ -447,7 +447,7 @@ abstract class DioMixin implements Dio {
       return (err) {
         final state = err is InterceptorState
             ? err
-            : InterceptorState(assureDioError(err, requestOptions));
+            : InterceptorState(assureDioException(err, requestOptions));
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
           interceptor(state.data, errorHandler);
@@ -456,7 +456,8 @@ abstract class DioMixin implements Dio {
 
         // The request has already been canceled,
         // there is no need to listen for another cancellation.
-        if (state.data is DioError && state.data.type == DioErrorType.cancel) {
+        if (state.data is DioException &&
+            state.data.type == DioExceptionType.cancel) {
           return handleError();
         } else if (state.type == InterceptorResultType.next ||
             state.type == InterceptorResultType.rejectCallFollowing) {
@@ -496,7 +497,7 @@ abstract class DioMixin implements Dio {
         _dispatchRequest<T>(reqOpt)
             .then((value) => handler.resolve(value, true))
             .catchError((e) {
-          handler.reject(e as DioError, true);
+          handler.reject(e as DioException, true);
         });
       }),
     );
@@ -516,7 +517,7 @@ abstract class DioMixin implements Dio {
           : interceptor.onError;
       future = future.catchError(errorInterceptorWrapper(fun));
     }
-    // Normalize errors, we convert error to the DioError.
+    // Normalize errors, we convert error to the DioException.
     return future.then<Response<T>>((data) {
       return assureResponse<T>(
         data is InterceptorState ? data.data : data,
@@ -529,7 +530,7 @@ abstract class DioMixin implements Dio {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
-      throw assureDioError(isState ? e.data : e, requestOptions);
+      throw assureDioException(isState ? e.data : e, requestOptions);
     });
   }
 
@@ -566,14 +567,14 @@ abstract class DioMixin implements Dio {
       if (statusOk) {
         return ret;
       } else {
-        throw DioError.badResponse(
+        throw DioException.badResponse(
           statusCode: responseBody.statusCode,
           requestOptions: reqOpt,
           response: ret,
         );
       }
     } catch (e) {
-      throw assureDioError(e, reqOpt);
+      throw assureDioException(e, reqOpt);
     }
   }
 
@@ -689,15 +690,15 @@ abstract class DioMixin implements Dio {
   }
 
   @internal
-  static DioError assureDioError(
+  static DioException assureDioException(
     Object err,
     RequestOptions requestOptions,
   ) {
-    if (err is DioError) {
+    if (err is DioException) {
       // nothing to be done
       return err;
     }
-    return DioError(
+    return DioException(
       requestOptions: requestOptions,
       error: err,
     );

@@ -79,7 +79,7 @@ class _ConnectionManager implements ConnectionManager {
     } on SocketException catch (e) {
       if (e.osError == null) {
         if (e.message.contains('timed out')) {
-          throw DioError.connectionTimeout(
+          throw DioException.connectionTimeout(
             timeout: options.connectTimeout!,
             requestOptions: options,
           );
@@ -95,9 +95,9 @@ class _ConnectionManager implements ConnectionManager {
         uri.port,
       );
       if (!isCertApproved) {
-        throw DioError(
+        throw DioException(
           requestOptions: options,
-          type: DioErrorType.badCertificate,
+          type: DioExceptionType.badCertificate,
           error: socket.peerCertificate,
           message: 'The certificate of the response is not approved.',
         );
@@ -170,10 +170,10 @@ class _ConnectionManager implements ConnectionManager {
     final completerProxyInitialization = Completer<void>();
 
     Never onProxyError(Object? error, StackTrace stackTrace) {
-      throw DioError(
+      throw DioException(
         requestOptions: options,
         error: error,
-        type: DioErrorType.connectionError,
+        type: DioExceptionType.connectionError,
         stackTrace: stackTrace,
       );
     }

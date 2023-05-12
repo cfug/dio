@@ -23,7 +23,7 @@ void main() async {
             break;
           case '/fakepath3':
             return handler.reject(
-              DioError(
+              DioException(
                 requestOptions: options,
                 error: 'test error',
               ),
@@ -41,7 +41,7 @@ void main() async {
   assert(response.data['headers'] is Map);
   try {
     response = await dio.get('/fakepath3');
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     assert(e.message == 'test error');
     assert(e.response == null);
   }
@@ -49,7 +49,7 @@ void main() async {
   assert(response.data['headers'] is Map);
   try {
     await dio.get('/status/404');
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     assert(e.response!.statusCode == 404);
   }
 }

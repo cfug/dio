@@ -55,23 +55,24 @@ void main() {
                   );
                   break;
                 case '/reject':
-                  handler.reject(DioError(requestOptions: reqOpt, error: 3));
+                  handler
+                      .reject(DioException(requestOptions: reqOpt, error: 3));
                   break;
                 case '/reject-next':
                   handler.reject(
-                    DioError(requestOptions: reqOpt, error: 4),
+                    DioException(requestOptions: reqOpt, error: 4),
                     true,
                   );
                   break;
                 case '/reject-next/reject':
                   handler.reject(
-                    DioError(requestOptions: reqOpt, error: 5),
+                    DioException(requestOptions: reqOpt, error: 5),
                     true,
                   );
                   break;
                 case '/reject-next-response':
                   handler.reject(
-                    DioError(requestOptions: reqOpt, error: 5),
+                    DioException(requestOptions: reqOpt, error: 5),
                     true,
                   );
                   break;
@@ -94,7 +95,7 @@ void main() {
                   break;
                 case '/resolve-next/reject':
                   handler.reject(
-                    DioError(
+                    DioException(
                       requestOptions: options,
                       error: '/resolve-next/reject',
                     ),
@@ -102,7 +103,7 @@ void main() {
                   break;
                 case '/resolve-next/reject-next':
                   handler.reject(
-                    DioError(requestOptions: options, error: ''),
+                    DioException(requestOptions: options, error: ''),
                     true,
                   );
                   break;
@@ -257,11 +258,11 @@ void main() {
                 dio
                     .get('/test')
                     .then(handler.resolve)
-                    .catchError((e) => handler.reject(e as DioError));
+                    .catchError((e) => handler.reject(e as DioException));
                 break;
               case '/fakepath3':
                 handler.reject(
-                  DioError(
+                  DioException(
                     requestOptions: options,
                     error: 'test error',
                   ),
@@ -269,7 +270,7 @@ void main() {
                 break;
               case '/fakepath4':
                 handler.reject(
-                  DioError(
+                  DioException(
                     requestOptions: options,
                     error: 'test error',
                   ),
@@ -297,17 +298,17 @@ void main() {
       expect(
         dio.get('/fakepath3'),
         throwsA(
-          isA<DioError>()
+          isA<DioException>()
               .having((e) => e.message, 'message', null)
-              .having((e) => e.type, 'error type', DioErrorType.unknown),
+              .having((e) => e.type, 'error type', DioExceptionType.unknown),
         ),
       );
       expect(
         dio.get('/fakepath4'),
         throwsA(
-          isA<DioError>()
+          isA<DioException>()
               .having((e) => e.message, 'message', null)
-              .having((e) => e.type, 'error type', DioErrorType.unknown),
+              .having((e) => e.type, 'error type', DioExceptionType.unknown),
         ),
       );
 
@@ -420,7 +421,7 @@ void main() {
             response.data = response.data['data'];
             handler.next(response);
           },
-          onError: (DioError e, ErrorInterceptorHandler handler) {
+          onError: (DioException e, ErrorInterceptorHandler handler) {
             if (e.response?.requestOptions != null) {
               switch (e.response!.requestOptions.path) {
                 case urlNotFound:
@@ -456,7 +457,7 @@ void main() {
       expect(
         dio
             .get(urlNotFound)
-            .catchError((e) => throw (e as DioError).response!.statusCode!),
+            .catchError((e) => throw (e as DioException).response!.statusCode!),
         throwsA(404),
       );
       response = await dio.get('${urlNotFound}1');
@@ -464,8 +465,8 @@ void main() {
       response = await dio.get('${urlNotFound}2');
       expect(response.data, 'fake data');
       expect(
-        dio.get('${urlNotFound}3').catchError((e) => throw e as DioError),
-        throwsA(isA<DioError>()),
+        dio.get('${urlNotFound}3').catchError((e) => throw e as DioException),
+        throwsA(isA<DioException>()),
       );
     });
     test('multi response interceptor', () async {
@@ -507,13 +508,13 @@ void main() {
   group('Error Interceptor', () {
     test('handled when request cancelled', () async {
       final cancelToken = CancelToken();
-      DioError? iError, qError;
+      DioException? iError, qError;
       final dio = Dio()
         ..httpClientAdapter = MockAdapter()
         ..options.baseUrl = MockAdapter.mockBase
         ..interceptors.add(
           InterceptorsWrapper(
-            onError: (DioError e, ErrorInterceptorHandler handler) {
+            onError: (DioException e, ErrorInterceptorHandler handler) {
               iError = e;
               handler.next(e);
             },
@@ -521,7 +522,7 @@ void main() {
         )
         ..interceptors.add(
           QueuedInterceptorsWrapper(
-            onError: (DioError e, ErrorInterceptorHandler handler) {
+            onError: (DioException e, ErrorInterceptorHandler handler) {
               qError = e;
               handler.next(e);
             },
@@ -533,8 +534,8 @@ void main() {
       await dio
           .get('/test-timeout', cancelToken: cancelToken)
           .then((_) {}, onError: (_) {});
-      expect(iError, isA<DioError>());
-      expect(qError, isA<DioError>());
+      expect(iError, isA<DioException>());
+      expect(qError, isA<DioException>());
     });
   });
 
@@ -559,7 +560,7 @@ void main() {
                     csrfToken = d.data['data']['token'] as String;
                 handler.next(options);
               }).catchError((e) {
-                handler.reject(e as DioError, true);
+                handler.reject(e as DioException, true);
               });
             } else {
               options.headers['csrfToken'] = csrfToken;
@@ -612,7 +613,7 @@ void main() {
                 dio
                     .fetch(options)
                     .then(handler.resolve)
-                    .catchError((e) => handler.reject(e as DioError));
+                    .catchError((e) => handler.reject(e as DioException));
                 return;
               }
               // update token and repeat
@@ -626,7 +627,7 @@ void main() {
                 dio
                     .fetch(options)
                     .then(handler.resolve)
-                    .catchError((e) => handler.reject(e as DioError));
+                    .catchError((e) => handler.reject(e as DioException));
               });
             } else {
               handler.next(error);

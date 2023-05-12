@@ -11,8 +11,8 @@ import 'mock/http_mock.dart';
 import 'mock/http_mock.mocks.dart';
 
 void main() async {
-  group('$DioError.stackTrace', () {
-    test(DioErrorType.badResponse, () async {
+  group('$DioException.stackTrace', () {
+    test(DioExceptionType.badResponse, () async {
       final dio = Dio(BaseOptions())
         ..httpClientAdapter = MockAdapter()
         ..options.baseUrl = MockAdapter.mockBase;
@@ -20,15 +20,15 @@ void main() async {
       await expectLater(
         dio.get('/foo'),
         throwsA(allOf([
-          isA<DioError>(),
-          (DioError e) => e.type == DioErrorType.badResponse,
-          (DioError e) =>
+          isA<DioException>(),
+          (DioException e) => e.type == DioExceptionType.badResponse,
+          (DioException e) =>
               e.stackTrace.toString().contains('test/stacktrace_test.dart'),
         ])),
       );
     });
 
-    test(DioErrorType.cancel, () async {
+    test(DioExceptionType.cancel, () async {
       final dio = Dio(BaseOptions())
         ..httpClientAdapter = MockAdapter()
         ..options.baseUrl = MockAdapter.mockBase;
@@ -42,16 +42,16 @@ void main() async {
       await expectLater(
         dio.get('/test-timeout', cancelToken: token),
         throwsA(allOf([
-          isA<DioError>(),
-          (DioError e) => e.type == DioErrorType.cancel,
-          (DioError e) =>
+          isA<DioException>(),
+          (DioException e) => e.type == DioExceptionType.cancel,
+          (DioException e) =>
               e.stackTrace.toString().contains('test/stacktrace_test.dart'),
         ])),
       );
     });
 
     test(
-      DioErrorType.connectionTimeout,
+      DioExceptionType.connectionTimeout,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
@@ -69,9 +69,9 @@ void main() async {
           await expectLater(
             dio.get('/test'),
             throwsA(allOf([
-              isA<DioError>(),
-              (DioError e) => e.type == DioErrorType.connectionTimeout,
-              (DioError e) =>
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.connectionTimeout,
+              (DioException e) =>
                   e.stackTrace.toString().contains('test/stacktrace_test.dart'),
             ])),
           );
@@ -81,7 +81,7 @@ void main() async {
     );
 
     test(
-      DioErrorType.receiveTimeout,
+      DioExceptionType.receiveTimeout,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
@@ -102,9 +102,9 @@ void main() async {
           await expectLater(
             dio.get('/test'),
             throwsA(allOf([
-              isA<DioError>(),
-              (DioError e) => e.type == DioErrorType.receiveTimeout,
-              (DioError e) =>
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.receiveTimeout,
+              (DioException e) =>
                   e.stackTrace.toString().contains('test/stacktrace_test.dart'),
             ])),
           );
@@ -114,7 +114,7 @@ void main() async {
     );
 
     test(
-      DioErrorType.sendTimeout,
+      DioExceptionType.sendTimeout,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
@@ -136,9 +136,9 @@ void main() async {
           await expectLater(
             dio.get('/test', data: 'some data'),
             throwsA(allOf([
-              isA<DioError>(),
-              (DioError e) => e.type == DioErrorType.sendTimeout,
-              (DioError e) =>
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.sendTimeout,
+              (DioException e) =>
                   e.stackTrace.toString().contains('test/stacktrace_test.dart'),
             ])),
           );
@@ -148,7 +148,7 @@ void main() async {
     );
 
     test(
-      DioErrorType.badCertificate,
+      DioExceptionType.badCertificate,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist')
@@ -166,9 +166,9 @@ void main() async {
           await expectLater(
             dio.get('/test'),
             throwsA(allOf([
-              isA<DioError>(),
-              (DioError e) => e.type == DioErrorType.badCertificate,
-              (DioError e) =>
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.badCertificate,
+              (DioException e) =>
                   e.stackTrace.toString().contains('test/stacktrace_test.dart'),
             ])),
           );
@@ -178,7 +178,7 @@ void main() async {
     );
 
     test(
-      DioErrorType.unknown,
+      DioExceptionType.unknown,
       () async {
         final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist');
 
@@ -189,10 +189,10 @@ void main() async {
             data: Object(),
           ),
           throwsA(allOf([
-            isA<DioError>(),
-            (DioError e) => e.type == DioErrorType.unknown,
-            (DioError e) => e.error is JsonUnsupportedObjectError,
-            (DioError e) =>
+            isA<DioException>(),
+            (DioException e) => e.type == DioExceptionType.unknown,
+            (DioException e) => e.error is JsonUnsupportedObjectError,
+            (DioException e) =>
                 e.stackTrace.toString().contains('test/stacktrace_test.dart'),
           ])),
         );
@@ -214,7 +214,7 @@ void main() async {
           },
         ),
         InterceptorsWrapper(onRequest: (options, handler) {
-          final error = DioError(
+          final error = DioException(
             error: Error(),
             requestOptions: options,
           );
@@ -225,9 +225,9 @@ void main() async {
       await expectLater(
         dio.get('/error'),
         throwsA(allOf([
-          isA<DioError>(),
-          (DioError e) => e.stackTrace == caughtStackTrace,
-          (DioError e) =>
+          isA<DioException>(),
+          (DioException e) => e.stackTrace == caughtStackTrace,
+          (DioException e) =>
               e.stackTrace.toString().contains('test/stacktrace_test.dart'),
         ])),
         reason: 'Stacktrace should be available in onError',
@@ -248,7 +248,7 @@ void main() async {
           },
         ),
         QueuedInterceptorsWrapper(onRequest: (options, handler) {
-          final error = DioError(
+          final error = DioException(
             error: Error(),
             requestOptions: options,
           );
@@ -259,9 +259,9 @@ void main() async {
       await expectLater(
         dio.get('/error'),
         throwsA(allOf([
-          isA<DioError>(),
-          (DioError e) => e.stackTrace == caughtStackTrace,
-          (DioError e) =>
+          isA<DioException>(),
+          (DioException e) => e.stackTrace == caughtStackTrace,
+          (DioException e) =>
               e.stackTrace.toString().contains('test/stacktrace_test.dart'),
         ])),
         reason: 'Stacktrace should be available in onError',

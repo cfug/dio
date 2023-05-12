@@ -15,7 +15,7 @@ void main() async {
         response.data = json.decode(response.data['data']);
         handler.next(response);
       },
-      onError: (DioError e, handler) {
+      onError: (DioException e, handler) {
         if (e.response != null) {
           switch (e.response!.requestOptions.path) {
             case urlNotFound:
@@ -57,7 +57,7 @@ void main() async {
   assert(response.data['a'] == 5);
   try {
     await dio.get(urlNotFound);
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     assert(e.response!.statusCode == 404);
   }
   response = await dio.get('${urlNotFound}1');
@@ -66,7 +66,7 @@ void main() async {
   assert(response.data == 'fake data');
   try {
     await dio.get('${urlNotFound}3');
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     assert(e.message == 'custom error info [404]');
   }
 }

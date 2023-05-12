@@ -1,4 +1,4 @@
-import '../dio_error.dart';
+import '../dio_exception.dart';
 import '../dio_mixin.dart';
 import '../options.dart';
 import '../response.dart';
@@ -92,9 +92,9 @@ class LogInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (error) {
-      logPrint('*** DioError ***:');
+      logPrint('*** DioException ***:');
       logPrint('uri: ${err.requestOptions.uri}');
       logPrint('$err');
       if (err.response != null) {
