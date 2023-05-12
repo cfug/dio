@@ -195,11 +195,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       cancelFuture.whenComplete(() => client.close(force: true));
       return client..connectionTimeout = connectionTimeout;
     }
-    _cachedHttpClient ??=
-        onHttpClientCreate?.call(HttpClient()) ?? HttpClient();
-    return _cachedHttpClient!
-      ..idleTimeout = Duration(seconds: 3)
-      ..connectionTimeout = connectionTimeout;
+
+    if (_cachedHttpClient == null) {
+      final HttpClient client = HttpClient()
+        ..idleTimeout = Duration(seconds: 3);
+      _cachedHttpClient = onHttpClientCreate?.call(client) ?? client;
+    }
+    return _cachedHttpClient!..connectionTimeout = connectionTimeout;
   }
 
   @override
