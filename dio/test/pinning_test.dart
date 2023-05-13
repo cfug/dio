@@ -67,8 +67,9 @@ void main() {
     final dio = Dio();
     // badCertificateCallback must allow the untrusted certificate through
     dio.httpClientAdapter = IOHttpClientAdapter(
-      onHttpClientCreate: (client) {
-        return client..badCertificateCallback = (cert, host, port) => true;
+      createHttpClient: () {
+        return HttpClient()
+          ..badCertificateCallback = (cert, host, port) => true;
       },
       validateCertificate: (cert, host, port) {
         return fingerprint == sha256.convert(cert!.der).toString();
@@ -88,7 +89,7 @@ void main() {
       try {
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter(
-          onHttpClientCreate: (client) {
+          createHttpClient: () {
             return HttpClient(
               context: SecurityContext(withTrustedRoots: false),
             );
@@ -113,7 +114,7 @@ void main() {
     try {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter(
-        onHttpClientCreate: (HttpClient client) {
+        createHttpClient: () {
           final effectiveClient = HttpClient(
             context: SecurityContext(withTrustedRoots: false),
           );

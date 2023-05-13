@@ -4,6 +4,8 @@
 
 - Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
 - Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
+- `IOHttpClientAdapter.onHttpClientCreate` has been deprecated and is scheduled for removal in
+  Dio 6.0.0 - Please use the replacement `IOHttpClientAdapter.createHttpClient` instead.
 
 ## 5.1.2
 

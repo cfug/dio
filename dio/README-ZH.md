@@ -698,14 +698,15 @@ dio.httpClientAdapter = HttpClientAdapter();
 
 ### 设置代理
 
-`IOHttpClientAdapter` 提供了一个 `onHttpClientCreate` 回调来设置底层 `HttpClient` 的代理：
+`IOHttpClientAdapter` 提供了一个 `createHttpClient` 回调来设置底层 `HttpClient` 的代理：
 
 ```dart
 import 'package:dio/io.dart';
 
 void initAdapter() {
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (client) {
+    createHttpClient: () {
+      final client = HttpClient();
       client.findProxy = (uri) {
         // 将请求代理至 localhost:8888。
         // 请注意，代理会在你正在运行应用的设备上生效，而不是在宿主平台生效。
@@ -776,7 +777,8 @@ openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badss
 void initAdapter() {
   String PEM = 'XXXXX'; // root certificate content
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (client) {
+    createHttpClient: () {
+      final client = HttpClient();
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
         return cert.pem == PEM; // Verify the certificate.
       };
