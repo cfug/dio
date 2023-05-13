@@ -9,7 +9,8 @@ void main() async {
     ..headers['user-agent'] = 'xxx'
     ..contentType = 'text';
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (HttpClient client) {
+    createHttpClient: () {
+      final client = HttpClient();
       client.findProxy = (uri) {
         // Proxy all request to localhost:8888.
         // Be aware, the proxy should went through you running device,

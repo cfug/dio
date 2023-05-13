@@ -56,8 +56,9 @@ void main() {
     () async {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter(
-        onHttpClientCreate: (client) {
-          return client..badCertificateCallback = (cert, host, port) => true;
+        createHttpClient: () {
+          return HttpClient()
+            ..badCertificateCallback = (cert, host, port) => true;
         },
       );
       Response response = await dio.get('https://wrong.host.badssl.com/');

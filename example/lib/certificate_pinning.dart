@@ -18,7 +18,7 @@ void main() async {
 
   // Don't trust any certificate just because their root cert is trusted
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (_) {
+    createHttpClient: () {
       final client = HttpClient(
         context: SecurityContext(withTrustedRoots: false),
       );

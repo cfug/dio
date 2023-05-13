@@ -10,7 +10,12 @@ import '../redirect_record.dart';
 @Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
 typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
 
+@Deprecated('Use CreateHttpClient instead. This will be removed in 6.0.0')
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
+
+/// Can be used to provide a custom [HttpClient] for Dio.
+typedef CreateHttpClient = HttpClient Function();
+
 typedef ValidateCertificate = bool Function(
   X509Certificate? certificate,
   String host,
@@ -21,11 +26,21 @@ HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for native platforms.
 class IOHttpClientAdapter implements HttpClientAdapter {
-  IOHttpClientAdapter({this.onHttpClientCreate, this.validateCertificate});
+  IOHttpClientAdapter({
+    @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
+        this.onHttpClientCreate,
+    this.createHttpClient,
+    this.validateCertificate,
+  });
 
   /// [Dio] will create [HttpClient] when it is needed. If [onHttpClientCreate]
   /// has provided, [Dio] will call it when a [HttpClient] created.
+  @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
   OnHttpClientCreate? onHttpClientCreate;
+
+  /// When this callback is set, [Dio] will call it every
+  /// time it needs a [HttpClient].
+  CreateHttpClient? createHttpClient;
 
   /// Allows the user to decide if the response certificate is good.
   /// If this function is missing, then the certificate is allowed.
@@ -188,25 +203,27 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     Duration? connectionTimeout,
   ) {
     if (cancelFuture != null) {
-      final HttpClient client =
-          onHttpClientCreate?.call(HttpClient()) ?? HttpClient();
+      final client = _createHttpClient();
       client.userAgent = null;
       client.idleTimeout = Duration(seconds: 0);
       cancelFuture.whenComplete(() => client.close(force: true));
       return client..connectionTimeout = connectionTimeout;
     }
-
-    if (_cachedHttpClient == null) {
-      final HttpClient client = HttpClient()
-        ..idleTimeout = Duration(seconds: 3);
-      _cachedHttpClient = onHttpClientCreate?.call(client) ?? client;
-    }
-    return _cachedHttpClient!..connectionTimeout = connectionTimeout;
+    return (_cachedHttpClient ??= _createHttpClient())
+      ..connectionTimeout = connectionTimeout;
   }
 
   @override
   void close({bool force = false}) {
     _closed = true;
     _cachedHttpClient?.close(force: force);
+  }
+
+  HttpClient _createHttpClient() {
+    if (createHttpClient != null) {
+      return createHttpClient!();
+    }
+    final client = HttpClient()..idleTimeout = Duration(seconds: 3);
+    return onHttpClientCreate?.call(client) ?? client;
   }
 }

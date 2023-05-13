@@ -746,7 +746,8 @@ import 'package:dio/io.dart';
 
 void initAdapter() {
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (client) {
+    createHttpClient: () {
+      final client = HttpClient();
       // Config the client.
       client.findProxy = (uri) {
         // Forward all request to proxy "localhost:8888".
@@ -824,7 +825,8 @@ Suppose the certificate format is PEM, the code like:
 void initAdapter() {
   String PEM = 'XXXXX'; // root certificate content
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (client) {
+    createHttpClient: () {
+      final client = HttpClient();
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
         return cert.pem == PEM; // Verify the certificate.
       };
