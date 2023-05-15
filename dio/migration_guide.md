@@ -10,8 +10,16 @@ When new content need to be added to the migration guide, make sure they're foll
 
 ## Breaking versions
 
+- [6.0.0](#600)
 - [5.0.0](#500)
 - [4.0.0](#400)
+
+## 6.0.0
+
+### Summary
+
+- `DefaultHttpClientAdapter` which was deprecated in `5.0.0` has been removed - see migration guide for [5.0.0](#500).
+
 
 ## 5.0.0
 

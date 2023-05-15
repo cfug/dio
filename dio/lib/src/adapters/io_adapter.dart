@@ -7,9 +7,6 @@ import '../dio_exception.dart';
 import '../options.dart';
 import '../redirect_record.dart';
 
-@Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
-typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
-
 @Deprecated('Use CreateHttpClient instead. This will be removed in 6.0.0')
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 
