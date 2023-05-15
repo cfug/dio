@@ -735,7 +735,7 @@ HTTPS 证书验证（或公钥固定）是指确保端侧与服务器的 TLS 连
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (_) {
+    createHttpClient: () {
       // Don't trust any certificate just because their root cert is trusted.
       final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
       // You can test the intermediate / root cert here. We just ignore it.
