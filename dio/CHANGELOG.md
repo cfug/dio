@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased 6.0.0
+
+- Remove `DefaultHttpClientAdapter` which was deprecated in `5.0.0`.
+
 ## Unreleased
 
 - Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
