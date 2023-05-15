@@ -6,11 +6,11 @@ import 'http_mock.mocks.dart';
 
 final httpClientMock = MockHttpClient();
 
-@GenerateMocks([
-  HttpClient,
-  HttpClientRequest,
-  HttpClientResponse,
-  HttpHeaders,
+@GenerateNiceMocks([
+  MockSpec<HttpClient>(),
+  MockSpec<HttpClientRequest>(),
+  MockSpec<HttpClientResponse>(),
+  MockSpec<HttpHeaders>(),
 ])
 class MockHttpOverrides extends HttpOverrides {
   @override
