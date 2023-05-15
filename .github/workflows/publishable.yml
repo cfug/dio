@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - '6.0.0'
     paths:
       - "**.md"
       - "**.yaml"
@@ -11,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+      - '6.0.0'
     paths:
       - "**.md"
       - "**.yaml"
