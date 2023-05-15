@@ -19,7 +19,7 @@ When new content need to be added to the migration guide, make sure they're foll
 ### Summary
 
 - `DefaultHttpClientAdapter` which was deprecated in `5.0.0` has been removed - see migration guide for [5.0.0](#500).
-
+- `DioError` and `DioErrorType` which was deprecated in `5.2.0` has been removed - use `DioException` and `DioExceptionType` instead.
 
 ## 5.0.0
 
