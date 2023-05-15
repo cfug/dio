@@ -79,7 +79,7 @@ void main() {
       expect(
         dio
             .get('/error')
-            .catchError((e) => throw (e as DioError).response!.statusCode!),
+            .catchError((e) => throw (e as DioException).response!.statusCode!),
         throwsA(equals(400)),
       );
 

@@ -5,7 +5,7 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import '../adapter.dart';
-import '../dio_error.dart';
+import '../dio_exception.dart';
 import '../headers.dart';
 import '../options.dart';
 
@@ -86,7 +86,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
           xhr.abort();
           completer.completeError(
-            DioError.connectionTimeout(
+            DioException.connectionTimeout(
               requestOptions: options,
               timeout: connectionTimeout,
             ),
@@ -114,7 +114,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         if (duration > sendTimeout) {
           uploadStopwatch.stop();
           completer.completeError(
-            DioError.sendTimeout(timeout: sendTimeout, requestOptions: options),
+            DioException.sendTimeout(
+              timeout: sendTimeout,
+              requestOptions: options,
+            ),
             StackTrace.current,
           );
           xhr.abort();
@@ -144,7 +147,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         if (duration > receiveTimeout) {
           downloadStopwatch.stop();
           completer.completeError(
-            DioError.receiveTimeout(
+            DioException.receiveTimeout(
               timeout: options.receiveTimeout!,
               requestOptions: options,
             ),
@@ -166,7 +169,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       // specific information about the error itself.
       // See also: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
       completer.completeError(
-        DioError.connectionError(
+        DioException.connectionError(
           requestOptions: options,
           reason: 'The XMLHttpRequest onError callback was called. '
               'This typically indicates an error on the network layer.',
@@ -186,7 +189,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
           completer.completeError(
-            DioError.requestCancelled(
+            DioException.requestCancelled(
               requestOptions: options,
               reason: 'The XMLHttpRequest was aborted.',
             ),

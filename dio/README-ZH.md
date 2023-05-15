@@ -31,8 +31,8 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
       * [日志拦截器](#日志拦截器)
     * [自定义拦截器](#自定义拦截器)
   * [错误处理](#错误处理)
-    * [DioError](#dioerror)
-    * [DioErrorType](#dioerrortype)
+    * [DioException](#dioexception)
+    * [DioExceptionType](#dioexceptiontype)
   * [使用 application/x-www-form-urlencoded 编码](#使用-applicationx-www-form-urlencoded-编码)
   * [发送 FormData](#发送-formdata)
     * [多文件上传](#多文件上传)
@@ -406,7 +406,7 @@ dio.interceptors.add(
       // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(response);
     },
-    onError: (DioError e, ErrorInterceptorHandler handler) {
+    onError: (DioException e, ErrorInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
       return handler.next(e);
     },
@@ -432,7 +432,7 @@ class CustomInterceptors extends Interceptor {
   }
 
   @override
-  Future onError(DioError err, ErrorInterceptorHandler handler) async {
+  Future onError(DioException err, ErrorInterceptorHandler handler) async {
     print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
     super.onError(err, handler);
   }
@@ -445,7 +445,7 @@ class CustomInterceptors extends Interceptor {
 如果你想完成请求/响应并返回自定义数据，你可以 resolve 一个 `Response` 对象
 或返回 `handler.resolve(data)` 的结果。
 如果你想终止（触发一个错误，上层 `catchError` 会被调用）一个请求/响应，
-那么可以 reject 一个`DioError` 对象或返回 `handler.reject(errMsg)` 的结果。
+那么可以 reject 一个`DioException` 对象或返回 `handler.reject(errMsg)` 的结果。
 
 ```dart
 dio.interceptors.add(
@@ -496,13 +496,13 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); // 不输出响应内
 
 ## 错误处理
 
-当请求过程中发生错误时, Dio 会将 `Error/Exception` 包装成一个 `DioError`:
+当请求过程中发生错误时, Dio 会将 `Error/Exception` 包装成一个 `DioException`:
 
 ```dart
 try {
   // 404
   await dio.get('https://api.pub.dev/not-exist');
-} on DioError catch (e) {
+} on DioException catch (e) {
   // The request was made and the server responded with a status code
   // that falls out of the range of 2xx and is also not 304.
   if (e.response != null) {
@@ -517,7 +517,7 @@ try {
 }
 ```
 
-### DioError
+### DioException
 
 ```dart
 /// 错误的请求对应的配置。
@@ -527,7 +527,7 @@ RequestOptions requestOptions;
 Response? response;
 
 /// 错误的类型。
-DioErrorType type;
+DioExceptionType type;
 
 /// 实际错误的内容。
 Object? error;
@@ -539,9 +539,9 @@ StackTrace? stackTrace;
 String? message;
 ```
 
-### DioErrorType
+### DioExceptionType
 
-见 [源码](lib/src/dio_error.dart)。
+见 [源码](lib/src/dio_exception.dart)。
 
 ## 使用 application/x-www-form-urlencoded 编码
 
@@ -821,7 +821,7 @@ void initAdapter() {
 
 ```dart
 final cancelToken = CancelToken();
-dio.get(url, cancelToken: cancelToken).catchError((DioError err) {
+dio.get(url, cancelToken: cancelToken).catchError((DioException err) {
   if (CancelToken.isCancel(err)) {
     print('Request canceled: ${err.message}');
   } else {

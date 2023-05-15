@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Replace `DioError` with `DioException`.
 
 ## 2.2.0
 

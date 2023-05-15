@@ -30,7 +30,7 @@ void main() async {
   // it will cause a Error (type 'String' is not a subtype of type 'Map<dynamic, dynamic>')
   try {
     response = await dio.get<Map>('https://baidu.com');
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     print(e.message);
   }
 

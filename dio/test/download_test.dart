@@ -47,7 +47,7 @@ void main() {
     dio.options.baseUrl = serverUrl.toString();
     Response response = await dio
         .download('/error', savePath)
-        .catchError((e) => (e as DioError).response!);
+        .catchError((e) => (e as DioException).response!);
     expect(response.data, 'error');
     response = await dio
         .download(
@@ -55,7 +55,7 @@ void main() {
           savePath,
           options: Options(receiveDataWhenStatusError: false),
         )
-        .catchError((e) => (e as DioError).response!);
+        .catchError((e) => (e as DioException).response!);
     expect(response.data, null);
   });
 
@@ -70,8 +70,8 @@ void main() {
     expect(
       dio
           .download('/download', savePath)
-          .catchError((e) => throw (e as DioError).type),
-      throwsA(DioErrorType.receiveTimeout),
+          .catchError((e) => throw (e as DioException).type),
+      throwsA(DioExceptionType.receiveTimeout),
     );
     //print(r);
   });
@@ -89,8 +89,8 @@ void main() {
             savePath,
             cancelToken: cancelToken,
           )
-          .catchError((e) => throw (e as DioError).type),
-      throwsA(DioErrorType.cancel),
+          .catchError((e) => throw (e as DioException).type),
+      throwsA(DioExceptionType.cancel),
     );
   });
 

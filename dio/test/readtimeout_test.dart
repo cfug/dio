@@ -55,7 +55,7 @@ void main() {
   tearDown(stopServer);
 
   test(
-      'catch DioError when receiveTimeout < $_sleepDurationAfterConnectionEstablished',
+      'catch DioException when receiveTimeout < $_sleepDurationAfterConnectionEstablished',
       () async {
     final dio = Dio();
 
@@ -64,22 +64,22 @@ void main() {
       ..receiveTimeout =
           _sleepDurationAfterConnectionEstablished - Duration(seconds: 1);
 
-    DioError error;
+    DioException error;
 
     try {
       await dio.get('/');
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
 
     expect(error, isNotNull);
     //print(error);
-    expect(error.type == DioErrorType.receiveTimeout, isTrue);
+    expect(error.type == DioExceptionType.receiveTimeout, isTrue);
   });
 
   test(
-      'no DioError when receiveTimeout > $_sleepDurationAfterConnectionEstablished',
+      'no DioException when receiveTimeout > $_sleepDurationAfterConnectionEstablished',
       () async {
     final dio = Dio();
 
@@ -88,11 +88,11 @@ void main() {
       ..connectTimeout =
           _sleepDurationAfterConnectionEstablished + Duration(seconds: 1);
 
-    DioError? error;
+    DioException? error;
 
     try {
       await dio.get('/');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
       print(e.requestOptions.uri);
     }
@@ -113,13 +113,13 @@ void main() {
 
     try {
       await dio.get('/');
-    } on DioError catch (_) {}
+    } on DioException catch (_) {}
     expect(http.connectionTimeout?.inMilliseconds == 200, isTrue);
 
     try {
       dio.options.connectTimeout = Duration(seconds: 1);
       await dio.get('/');
-    } on DioError catch (_) {}
+    } on DioException catch (_) {}
     expect(http.connectionTimeout?.inSeconds == 1, isTrue);
   });
 }

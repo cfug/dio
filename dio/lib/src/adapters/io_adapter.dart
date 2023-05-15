@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import '../adapter.dart';
-import '../dio_error.dart';
+import '../dio_exception.dart';
 import '../options.dart';
 import '../redirect_record.dart';
 
@@ -75,7 +75,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture.timeout(
           connectionTimeout,
           onTimeout: () {
-            throw DioError.connectionTimeout(
+            throw DioException.connectionTimeout(
               requestOptions: options,
               timeout: connectionTimeout,
             );
@@ -93,7 +93,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       if (!e.message.contains('timed out')) {
         rethrow;
       }
-      throw DioError.connectionTimeout(
+      throw DioException.connectionTimeout(
         requestOptions: options,
         timeout: options.connectTimeout ??
             httpClient.connectionTimeout ??
@@ -115,7 +115,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           sendTimeout,
           onTimeout: () {
             request.abort();
-            throw DioError.sendTimeout(
+            throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
             );
@@ -132,7 +132,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       future = future.timeout(
         receiveTimeout,
         onTimeout: () {
-          throw DioError.receiveTimeout(
+          throw DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
           );
@@ -151,9 +151,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         port,
       );
       if (!isCertApproved) {
-        throw DioError(
+        throw DioException(
           requestOptions: options,
-          type: DioErrorType.badCertificate,
+          type: DioExceptionType.badCertificate,
           error: responseStream.certificate,
           message: 'The certificate of the response is not approved.',
         );
@@ -168,7 +168,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           final receiveTimeout = options.receiveTimeout;
           if (receiveTimeout != null && duration > receiveTimeout) {
             sink.addError(
-              DioError.receiveTimeout(
+              DioException.receiveTimeout(
                 timeout: receiveTimeout,
                 requestOptions: options,
               ),

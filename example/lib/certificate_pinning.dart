@@ -55,7 +55,7 @@ void main() async {
     // This certificate doesn't have the same fingerprint.
     response = await dio.get('https://bad.host.badssl.com/');
     print(response.data);
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     print(e.message);
     print(response?.data);
     dio.close(force: true);

@@ -31,7 +31,7 @@ void main() async {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           // return handler.resolve( Response(data:"xxx"));
-          // return handler.reject( DioError(message: "eh"));
+          // return handler.reject( DioException(message: "eh"));
           return handler.next(options);
         },
       ),
