@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dio/src/adapters/io_adapter.dart';
 import 'package:mockito/mockito.dart';
