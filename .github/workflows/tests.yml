@@ -84,7 +84,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ 2.15.0, stable, beta ]
+        sdk: [ 2.16.0, stable, beta ]
         platform: [ vm, chrome ]
     steps:
       - uses: actions/checkout@v3
@@ -107,7 +107,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ 2.15.0, stable, beta ]
+        sdk: [ 2.16.0, stable, beta ]
         directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
     steps:
       - uses: actions/checkout@v3
