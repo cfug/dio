@@ -7,9 +7,6 @@ import '../dio_exception.dart';
 import '../options.dart';
 import '../redirect_record.dart';
 
-@Deprecated('Use CreateHttpClient instead. This will be removed in 6.0.0')
-typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
-
 /// Can be used to provide a custom [HttpClient] for Dio.
 typedef CreateHttpClient = HttpClient Function();
 
@@ -24,16 +21,9 @@ HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 /// The default [HttpClientAdapter] for native platforms.
 class IOHttpClientAdapter implements HttpClientAdapter {
   IOHttpClientAdapter({
-    @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
-        this.onHttpClientCreate,
     this.createHttpClient,
     this.validateCertificate,
   });
-
-  /// [Dio] will create [HttpClient] when it is needed. If [onHttpClientCreate]
-  /// has provided, [Dio] will call it when a [HttpClient] created.
-  @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
-  OnHttpClientCreate? onHttpClientCreate;
 
   /// When this callback is set, [Dio] will call it every
   /// time it needs a [HttpClient].
@@ -220,7 +210,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     if (createHttpClient != null) {
       return createHttpClient!();
     }
-    final client = HttpClient()..idleTimeout = Duration(seconds: 3);
-    return onHttpClientCreate?.call(client) ?? client;
+    return HttpClient()..idleTimeout = Duration(seconds: 3);
   }
 }
