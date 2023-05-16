@@ -4,6 +4,7 @@
 
 - Remove `DefaultHttpClientAdapter` which was deprecated in `5.0.0`.
 - Remove `IOHttpClientAdapter.onHttpClientCreate` which was deprecated in `5.2.0`
+- Remove `DioError` and `DioErrorType` which was deprecated in `5.2.0`.
 
 ## Unreleased
 
