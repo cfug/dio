@@ -28,7 +28,7 @@ HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 class IOHttpClientAdapter implements HttpClientAdapter {
   IOHttpClientAdapter({
     @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
-        this.onHttpClientCreate,
+    this.onHttpClientCreate,
     this.createHttpClient,
     this.validateCertificate,
   });
