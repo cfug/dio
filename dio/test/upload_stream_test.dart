@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,9 +7,7 @@ import 'package:test/test.dart';
 
 void main() {
   final dio = Dio()
-    ..options.baseUrl = Platform.environment.containsKey('CI')
-        ? 'http://localhost/'
-        : 'https://httpbin.org/'
+    ..options.baseUrl = 'https://httpbun.com/'
     ..interceptors.add(
       QueuedInterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -40,12 +39,12 @@ void main() {
   test(
     'file stream',
     () async {
-      final f = File('test/mock/test.jpg');
+      final f = File('test/mock/flutter.png');
       final r = await dio.put(
         '/put',
         data: f.openRead(),
         options: Options(
-          contentType: 'image/jpeg',
+          contentType: 'image/png',
           headers: {
             Headers.contentLengthHeader: f.lengthSync(), // set content-length
           },
@@ -60,12 +59,12 @@ void main() {
   test(
     'file stream<Uint8List>',
     () async {
-      final f = File('test/mock/test.jpg');
+      final f = File('test/mock/flutter.png');
       final r = await dio.put(
         '/put',
         data: f.readAsBytes().asStream(),
         options: Options(
-          contentType: 'image/jpeg',
+          contentType: 'image/png',
           headers: {
             Headers.contentLengthHeader: f.lengthSync(), // set content-length
           },
