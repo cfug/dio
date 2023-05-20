@@ -668,10 +668,10 @@ Future<void> _repeatedlyRequest() async {
 `Transformer` allows changes to the request/response data
 before it is sent/received to/from the server.
 This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
-Dio has already implemented a `DefaultTransformer` as default.
+Dio has already implemented a `BackgroundTransformer` as default.
 If you want to customize the transformation of request/response data,
 you can provide a `Transformer` by your self,
-and replace the `DefaultTransformer` by setting the `dio.transformer`.
+and replace the `BackgroundTransformer` by setting the `dio.transformer`.
 
 > `Transformer.transformRequest` only takes effect when request with `PUT`/`POST`/`PATCH`,
 > they're methods that can contain the request body.
@@ -694,7 +694,7 @@ Future<Map<String, dynamic>> parseJson(String text) {
 
 void main() {
   // Custom `jsonDecodeCallback`.
-  dio.transformer = DefaultTransformer()..jsonDecodeCallback = parseJson;
+  dio.transformer = BackgroundTransformer()..jsonDecodeCallback = parseJson;
   runApp(MyApp());
 }
 ```
