@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
@@ -8,10 +9,10 @@ import 'utils.dart';
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
 ///
-/// Dio has already implemented a [DefaultTransformer], and as the default
+/// Dio has already implemented a [BackgroundTransformer] as the default
 /// [Transformer]. If you want to custom the transformation of
 /// request/response data, you can provide a [Transformer] by your self, and
-/// replace the [DefaultTransformer] by setting the [dio.Transformer].
+/// replace the [BackgroundTransformer] by setting the [dio.Transformer].
 abstract class Transformer {
   /// [transformRequest] allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].

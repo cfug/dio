@@ -631,7 +631,7 @@ Future<void> _repeatedlyRequest() async {
 ## 转换器
 
 转换器 `Transformer` 用于对请求数据和响应数据进行编解码处理。
-Dio 实现了一个默认转换器 `DefaultTransformer`。
+Dio 实现了一个默认转换器 `BackgroundTransformer`。
 如果你想对请求和响应数据进行自定义编解码处理，可以提供自定义转换器并通过 `dio.transformer` 设置。
 
 > `Transformer.transformRequest` 只在 `PUT`/`POST`/`PATCH` 方法中生效，
@@ -655,7 +655,7 @@ Future<Map<String, dynamic>> parseJson(String text) {
 
 void main() {
   // 自定义 `jsonDecodeCallback`
-  dio.transformer = DefaultTransformer()..jsonDecodeCallback = parseJson;
+  dio.transformer = BackgroundTransformer()..jsonDecodeCallback = parseJson;
   runApp(MyApp());
 }
 ```
