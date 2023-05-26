@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
+
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../options.dart';
@@ -65,7 +67,23 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         "Can't establish connection after the adapter was closed!",
       );
     }
-    final httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
+    final operation = CancelableOperation.fromFuture(_fetch(
+      options,
+      requestStream,
+      cancelFuture,
+    ));
+    if (cancelFuture != null) {
+      cancelFuture.whenComplete(() => operation.cancel());
+    }
+    return operation.value;
+  }
+
+  Future<ResponseBody> _fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final httpClient = _configHttpClient(options.connectTimeout);
     final reqFuture = httpClient.openUrl(options.method, options.uri);
 
     late HttpClientRequest request;
@@ -83,6 +101,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         );
       } else {
         request = await reqFuture;
+      }
+
+      if (cancelFuture != null) {
+        cancelFuture.whenComplete(() => request.abort());
       }
 
       // Set Headers
@@ -198,17 +220,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(
-    Future<void>? cancelFuture,
-    Duration? connectionTimeout,
-  ) {
-    if (cancelFuture != null) {
-      final client = _createHttpClient();
-      client.userAgent = null;
-      client.idleTimeout = Duration(seconds: 0);
-      cancelFuture.whenComplete(() => client.close(force: true));
-      return client..connectionTimeout = connectionTimeout;
-    }
+  HttpClient _configHttpClient(Duration? connectionTimeout) {
     return (_cachedHttpClient ??= _createHttpClient())
       ..connectionTimeout = connectionTimeout;
   }
