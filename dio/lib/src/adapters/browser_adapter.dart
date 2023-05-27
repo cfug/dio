@@ -179,10 +179,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     xhr.onTimeout.first.then((_) {
+      int timeoutMilliseconds = 0;
+      if (connectTimeout != null) {
+        timeoutMilliseconds += connectTimeout.inMilliseconds;
+      }
+      if (receiveTimeout != null) {
+        timeoutMilliseconds += receiveTimeout.inMilliseconds;
+      }
       connectTimeoutTimer?.cancel();
       completer.completeError(
         DioException.receiveTimeout(
-          timeout: options.receiveTimeout!,
+          timeout: Duration(milliseconds: timeoutMilliseconds),
           requestOptions: options,
         ),
         StackTrace.current,
