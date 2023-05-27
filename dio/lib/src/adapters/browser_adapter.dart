@@ -178,6 +178,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
+    xhr.onTimeout.first.then((_) {
+      connectTimeoutTimer?.cancel();
+      completer.completeError(
+        DioException.receiveTimeout(
+          timeout: options.receiveTimeout!,
+          requestOptions: options,
+        ),
+        StackTrace.current,
+      );
+    });
+
     cancelFuture?.then((_) {
       if (xhr.readyState < 4 && xhr.readyState > 0) {
         connectTimeoutTimer?.cancel();
