@@ -3,27 +3,35 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
+import 'mock/http_mock.mocks.dart';
+
 void main() {
-  final dio = Dio()
-    ..options.baseUrl = 'https://httpbun.com/'
-    ..interceptors.add(
-      QueuedInterceptorsWrapper(
-        onRequest: (options, handler) async {
-          // Delay 1 second before requests to avoid request too frequently.
-          await Future.delayed(const Duration(seconds: 1));
-          handler.next(options);
-        },
-      ),
+  late Dio dio;
+
+  setUp(() {
+    dio = Dio()..options.baseUrl = 'https://httpbun.com/';
+  });
+
+  test('binary data should not be transformed', () async {
+    final bytes = List.generate(1024, (index) => index);
+    final transformer = MockTransformer();
+    dio.transformer = transformer;
+    final r = await dio.put(
+      '/put',
+      data: bytes,
     );
+    verifyNever(transformer.transformRequest(any));
+    expect(r.statusCode, 200);
+  });
 
   test('stream', () async {
-    Response r;
     const str = 'hello 😌';
     final bytes = utf8.encode(str).toList();
     final stream = Stream.fromIterable(bytes.map((e) => [e]));
-    r = await dio.put(
+    final r = await dio.put(
       '/put',
       data: stream,
       options: Options(

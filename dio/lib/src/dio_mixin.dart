@@ -636,14 +636,21 @@ abstract class DioMixin implements Dio {
         options.headers[Headers.contentLengthHeader] = length.toString();
       } else {
         final List<int> bytes;
-        // Call request transformer.
-        final data = await transformer.transformRequest(options);
-        if (options.requestEncoder != null) {
-          bytes = options.requestEncoder!(data, options);
+
+        if (data is List<int>) {
+          // Handle binary data which does not need to be transformed
+          bytes = data is Uint8List ? data : Uint8List.fromList(data);
         } else {
-          //Default convert to utf8
-          bytes = utf8.encode(data);
+          // Call request transformer for anything else
+          final transformed = await transformer.transformRequest(options);
+          if (options.requestEncoder != null) {
+            bytes = options.requestEncoder!(transformed, options);
+          } else {
+            // Default convert to utf8
+            bytes = utf8.encode(transformed);
+          }
         }
+
         // support data sending progress
         length = bytes.length;
         options.headers[Headers.contentLengthHeader] = length.toString();
