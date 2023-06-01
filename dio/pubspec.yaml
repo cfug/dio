@@ -25,5 +25,5 @@ dev_dependencies:
   test: ^1.5.1
   coverage: ^1.0.3
   crypto: ^3.0.2
-  mockito: ^5.3.0
+  mockito: ^5.2.0
   build_runner: any
