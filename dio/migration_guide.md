@@ -18,6 +18,7 @@ When new content need to be added to the migration guide, make sure they're foll
 
 ### Summary
 
+- The minimum supported Dart version has been bumped from `2.15.0` to `2.17.0`.
 - `DefaultHttpClientAdapter` which was deprecated in `5.0.0` has been removed - see migration guide [5.0.0](#500) for details.
 - `IOHttpClientAdapter.onHttpClientCreate` which was deprecated in `5.2.0` has been removed - use `IOHttpClientAdapter.createHttpClient` instead.
 - `DioError` and `DioErrorType` which was deprecated in `5.2.0` has been removed - use `DioException` and `DioExceptionType` instead.

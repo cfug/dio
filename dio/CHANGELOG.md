@@ -2,7 +2,7 @@
 
 ## Unreleased 6.0.0
 
-- The minimum supported Dart version has been bumped from `2.15.0` to `2.16.0`.
+- The minimum supported Dart version has been bumped from `2.15.0` to `2.17.0`.
 - Remove `DefaultHttpClientAdapter` which was deprecated in `5.0.0`.
 - Remove `IOHttpClientAdapter.onHttpClientCreate` which was deprecated in `5.2.0`
 - Remove `DioError` and `DioErrorType` which was deprecated in `5.2.0`.
