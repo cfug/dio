@@ -1,7 +1,7 @@
 # CHANGELOG
 
-**Breaking changes might happen in major and minor versions of packages.<br/>
-See the [Migration Guide][] for the complete breaking changes list before you do an upgrade.**
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
