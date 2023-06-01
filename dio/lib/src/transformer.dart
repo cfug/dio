@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
-import 'adapter.dart';
-import 'options.dart';
 import 'utils.dart';
 
 /// [Transformer] allows changes to the request/response data before
