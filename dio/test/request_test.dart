@@ -214,9 +214,9 @@ void main() {
           await expectLater(
             dio.get<String>('/null-response'),
             throwsA(allOf([
-              isA<DioError>(),
-              (DioError e) => e.type == DioErrorType.unknown,
-              (DioError e) =>
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.unknown,
+              (DioException e) =>
                   e.error.toString() ==
                   "type 'Null' is not a subtype of type 'String' in type cast",
             ])),
