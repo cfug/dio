@@ -10,6 +10,9 @@ Please move specific paths for projects instructions.
 - dio: [link](dio)
   [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
 
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide](dio/migration_guide.md) for the complete breaking changes list.**
+
 ### Plugins
 
 - cookie_manager: [link](plugins/cookie_manager)
