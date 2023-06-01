@@ -12,7 +12,7 @@ issue_tracker: https://github.com/cfug/dio/issues
 version: 5.1.2
 
 environment:
-  sdk: '>=2.15.0 <3.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
   async: ^2.8.2
