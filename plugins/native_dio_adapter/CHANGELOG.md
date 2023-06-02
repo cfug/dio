@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Replace `DioError` with `DioException`.
+- Fix `onReceiveProgress` callback.
 
 ## 0.1.0
 
