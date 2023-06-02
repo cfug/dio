@@ -53,8 +53,6 @@ timeout, and custom adapters etc.
 
 ## Get started
 
-> Checkout the [Migration Guide](migration_guide.md) for breaking changes between versions.
-
 ### Add dependency
 
 You can use the command to add dio as a dependency with the latest stable version:
@@ -72,6 +70,9 @@ dependencies:
 
 The latest version is: ![Pub](https://img.shields.io/pub/v/dio.svg)
 The latest version including pre-releases is: ![Pub](https://img.shields.io/pub/v/dio?include_prereleases)
+
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
 
 ### Super simple to use
 
@@ -918,5 +919,6 @@ and a server is aware using specific methods and headers.
 You can modify your requests to match the definition of simple request,
 or add a CORS middleware for your service to handle CORS requests.
 
+[Migration Guide]: ./migration_guide.md
 [simple request]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
 [CORS preflight request]: https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
