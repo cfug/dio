@@ -1,5 +1,8 @@
 # CHANGELOG
 
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
+
 ## Unreleased
 
 - Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
@@ -324,3 +327,5 @@ First Stable version for 2.x
 ## 0.0.1
 
 - Initial version, created by Stagehand
+
+[Migration Guide]: ./migration_guide.md

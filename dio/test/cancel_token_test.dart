@@ -62,7 +62,7 @@ void main() {
         );
       }
 
-      await Future.delayed(const Duration(milliseconds: 5));
+      await Future.delayed(const Duration(milliseconds: 50));
       token.cancel(reason);
 
       expect(requests, hasLength(2));
