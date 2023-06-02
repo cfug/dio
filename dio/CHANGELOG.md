@@ -7,6 +7,8 @@
 - Remove `IOHttpClientAdapter.onHttpClientCreate` which was deprecated in `5.2.0`
 - Remove `DioError` and `DioErrorType` which was deprecated in `5.2.0`.
 - Remove `DefaultTransformer` which was deprecated in `5.0.0`.
+- `IOHttpClientAdapter` no longer sets a custom `HttpClient.idleTimeout`. A custom `HttpClient` can be provided via
+  `IOHttpClientAdapter.createHttpClient` if customisation is required.
 
 ## Unreleased
 

@@ -222,6 +222,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     if (createHttpClient != null) {
       return createHttpClient!();
     }
-    return HttpClient()..idleTimeout = Duration(seconds: 3);
+    return HttpClient();
   }
 }
