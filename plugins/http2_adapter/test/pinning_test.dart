@@ -18,7 +18,7 @@ void main() {
 
   group('SSL pinning', () {
     final Dio dio = Dio()
-      ..options.baseUrl = 'https://httpbin.org/'
+      ..options.baseUrl = 'https://httpbun.com/'
       ..interceptors.add(
         QueuedInterceptorsWrapper(
           onRequest: (options, handler) async {
@@ -28,8 +28,7 @@ void main() {
           },
         ),
       );
-    final baseHost = 'httpbin.org';
-    final expectedHostString = 'Host: $baseHost';
+    final expectedHostString = 'httpbun.com';
 
     test('trusted host allowed with no approver', () async {
       dio.httpClientAdapter = Http2Adapter(
@@ -146,10 +145,10 @@ void main() {
       expect(badCert, true);
       expect(approved, true);
       expect(badCertSubject, isNotNull);
-      expect(badCertSubject, isNot(contains(baseHost)));
+      expect(badCertSubject, isNot(contains(expectedHostString)));
       expect(badCertSha256, isNot(fingerprint));
       expect(approverSubject, isNotNull);
-      expect(approverSubject, contains(baseHost));
+      expect(approverSubject, contains(expectedHostString));
       expect(approverSha256, fingerprint);
       expect(approverSubject, isNot(badCertSubject));
       expect(approverSha256, isNot(badCertSha256));
