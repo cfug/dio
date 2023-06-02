@@ -51,11 +51,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     final connectTimeout = options.connectTimeout;
     final receiveTimeout = options.receiveTimeout;
-    if (connectTimeout != null &&
-        receiveTimeout != null &&
-        receiveTimeout > Duration.zero) {
-      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
+    int xhrTimeout = 0;
+    if (connectTimeout != null) {
+      xhrTimeout += connectTimeout.inMilliseconds;
     }
+    if (receiveTimeout != null) {
+      xhrTimeout += receiveTimeout.inMilliseconds;
+    }
+    xhr.timeout = xhrTimeout;
 
     final completer = Completer<ResponseBody>();
 
@@ -179,17 +182,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     xhr.onTimeout.first.then((_) {
-      int timeoutMilliseconds = 0;
-      if (connectTimeout != null) {
-        timeoutMilliseconds += connectTimeout.inMilliseconds;
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer?.cancel();
       }
-      if (receiveTimeout != null) {
-        timeoutMilliseconds += receiveTimeout.inMilliseconds;
-      }
-      connectTimeoutTimer?.cancel();
       completer.completeError(
         DioException.receiveTimeout(
-          timeout: Duration(milliseconds: timeoutMilliseconds),
+          timeout: Duration(milliseconds: xhrTimeout),
           requestOptions: options,
         ),
         StackTrace.current,
