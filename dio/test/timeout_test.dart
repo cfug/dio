@@ -10,7 +10,6 @@ void main() {
   setUp(() {
     dio = Dio();
     dio.options.baseUrl = 'https://httpbun.com/';
-    dio.interceptors.add(LogInterceptor());
   });
 
   test('catch DioException when connect timeout', () {
@@ -26,6 +25,24 @@ void main() {
       ),
     );
   });
+
+  test('catch DioException when receiveTimeout', () {
+    dio.options.receiveTimeout = Duration(milliseconds: 10);
+
+    expectLater(
+      dio.get(
+        '/bytes/${1024 * 1024 * 20}',
+        options: Options(responseType: ResponseType.stream),
+      ),
+      allOf([
+        throwsA(isA<DioException>()),
+        throwsA(predicate(
+            (DioException e) => e.type == DioExceptionType.receiveTimeout)),
+        throwsA(predicate(
+            (DioException e) => e.message!.contains('0:00:00.010000'))),
+      ]),
+    );
+  }, testOn: 'vm');
 
   group('catch DioException when receiveTimeout', () {
     final platforms = {
