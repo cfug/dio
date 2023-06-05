@@ -5,10 +5,8 @@
 [![popularity](https://img.shields.io/pub/popularity/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
 [![pub points](https://img.shields.io/pub/points/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
 
-> Note: Experimental
-
-The underlying technology is still considered experimental, therefore this
-is also considered experimental.
+> Note: This uses the native http implementation on macOS, iOS and Android. Other platforms still use the Dart http stack.
+> Please keep in mind that Android is still considered experimental.
 
 If you encounter bugs, consider fixing it by opening a PR or at least contribute a failing test case.
 

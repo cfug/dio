@@ -6,14 +6,14 @@ repository: https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
-  flutter: ">=3.7.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
 
 dependencies:
   dio: ^5.2.0
-  cupertino_http: ^0.1.2
-  cronet_http: ^0.2.0
-  http: ^0.13.4
+  cupertino_http: ^1.0.0
+  cronet_http: ^0.2.1
+  http: ^1.0.0
 
 dev_dependencies:
   lints: ^2.0.0

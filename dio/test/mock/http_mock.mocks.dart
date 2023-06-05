@@ -6,6 +6,9 @@ import 'dart:async' as _i4;
 import 'dart:convert' as _i3;
 import 'dart:io' as _i2;
 
+import 'package:dio/src/adapter.dart' as _i7;
+import 'package:dio/src/options.dart' as _i6;
+import 'package:dio/src/transformer.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -653,4 +656,24 @@ class MockHttpHeaders extends _i1.Mock implements _i2.HttpHeaders {
   @override
   void clear() => super.noSuchMethod(Invocation.method(#clear, []),
       returnValueForMissingStub: null);
+}
+
+/// A class which mocks [Transformer].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTransformer extends _i1.Mock implements _i5.Transformer {
+  MockTransformer() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<String> transformRequest(_i6.RequestOptions? options) =>
+      (super.noSuchMethod(Invocation.method(#transformRequest, [options]),
+          returnValue: Future<String>.value('')) as _i4.Future<String>);
+  @override
+  _i4.Future<dynamic> transformResponse(
+          _i6.RequestOptions? options, _i7.ResponseBody? response) =>
+      (super.noSuchMethod(
+          Invocation.method(#transformResponse, [options, response]),
+          returnValue: Future<dynamic>.value()) as _i4.Future<dynamic>);
 }
