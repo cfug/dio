@@ -18,7 +18,9 @@ void main() {
   test('binary data should not be transformed', () async {
     final bytes = List.generate(1024, (index) => index);
     final transformer = MockTransformer();
-    dio.transformer = transformer;
+    when(transformer.transformResponse(any, any)).thenAnswer(
+      (i) => i.positionalArguments[1],
+    );
     final r = await dio.put(
       '/put',
       data: bytes,

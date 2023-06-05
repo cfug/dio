@@ -662,30 +662,18 @@ class MockHttpHeaders extends _i1.Mock implements _i2.HttpHeaders {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTransformer extends _i1.Mock implements _i5.Transformer {
+  MockTransformer() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   _i4.Future<String> transformRequest(_i6.RequestOptions? options) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #transformRequest,
-          [options],
-        ),
-        returnValue: _i4.Future<String>.value(''),
-        returnValueForMissingStub: _i4.Future<String>.value(''),
-      ) as _i4.Future<String>);
+      (super.noSuchMethod(Invocation.method(#transformRequest, [options]),
+          returnValue: Future<String>.value('')) as _i4.Future<String>);
   @override
   _i4.Future<dynamic> transformResponse(
-    _i6.RequestOptions? options,
-    _i7.ResponseBody? response,
-  ) =>
+          _i6.RequestOptions? options, _i7.ResponseBody? response) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #transformResponse,
-          [
-            options,
-            response,
-          ],
-        ),
-        returnValue: _i4.Future<dynamic>.value(),
-        returnValueForMissingStub: _i4.Future<dynamic>.value(),
-      ) as _i4.Future<dynamic>);
+          Invocation.method(#transformResponse, [options, response]),
+          returnValue: Future<dynamic>.value()) as _i4.Future<dynamic>);
 }
