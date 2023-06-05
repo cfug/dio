@@ -14,7 +14,7 @@ jobs:
         with:
           token: ${{ secrets.CFUG_PUBLISHER }}
       - uses: dart-lang/setup-dart@v1.3
-      - uses: cfug/dio_issue_release_action@v1
+      - uses: cfug/dio_issue_release_action@v2
         with:
           github-token: ${{ secrets.CFUG_PUBLISHER }}
           pub-credentials-json: ${{ secrets.CREDENTIAL_JSON }}
