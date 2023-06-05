@@ -20,12 +20,11 @@ void main() {
       allOf(
         throwsA(isA<DioError>()),
         throwsA(predicate((DioError e) =>
-        e.type == DioErrorType.connectionTimeout &&
+            e.type == DioErrorType.connectionTimeout &&
             e.message!.contains('0:00:00.003000'))),
       ),
     );
   });
-
 
   group('catch DioException when receiveTimeout', () {
     final platforms = {
@@ -46,13 +45,12 @@ void main() {
           allOf([
             throwsA(isA<DioException>()),
             throwsA(predicate(
-                    (DioException e) => e.type == DioExceptionType.receiveTimeout)),
+                (DioException e) => e.type == DioExceptionType.receiveTimeout)),
             throwsA(predicate(
-                    (DioException e) => e.message!.contains(entry.value))),
+                (DioException e) => e.message!.contains(entry.value))),
           ]),
         );
       }, testOn: entry.key);
-
     }
   });
 
