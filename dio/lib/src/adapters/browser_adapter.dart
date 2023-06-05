@@ -51,10 +51,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     final connectTimeout = options.connectTimeout;
     final receiveTimeout = options.receiveTimeout;
-    int xhrTimeout = 0;
-    if (connectTimeout != null && receiveTimeout != null && receiveTimeout > Duration.zero) {
-      xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
-      xhr.timeout = xhrTimeout;
+    if (connectTimeout != null &&
+        receiveTimeout != null &&
+        receiveTimeout > Duration.zero) {
+      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
     }
 
     final completer = Completer<ResponseBody>();
@@ -123,7 +123,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           xhr.abort();
         }
       }
-      if (options.onSendProgress != null && event.loaded != null && event.total != null) {
+      if (options.onSendProgress != null &&
+          event.loaded != null &&
+          event.total != null) {
         options.onSendProgress!(event.loaded!, event.total!);
       }
     });
