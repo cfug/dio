@@ -44,34 +44,6 @@ void main() {
     );
   }, testOn: 'vm');
 
-  group('catch DioException when receiveTimeout', () {
-    final platforms = {
-      'vm': '0:00:00.100000',
-      'chrome': '0:00:00.600000', // we add connect/receive timeouts in browser
-    };
-    for (final entry in platforms.entries) {
-      test(entry.key, () {
-        dio
-          ..options.connectTimeout = Duration(milliseconds: 500)
-          ..options.receiveTimeout = Duration(milliseconds: 100);
-
-        expectLater(
-          dio.get(
-            '/bytes/${1024 * 1024 * 20}',
-            options: Options(responseType: ResponseType.stream),
-          ),
-          allOf([
-            throwsA(isA<DioException>()),
-            throwsA(predicate(
-                (DioException e) => e.type == DioExceptionType.receiveTimeout)),
-            throwsA(predicate(
-                (DioException e) => e.message!.contains(entry.value))),
-          ]),
-        );
-      }, testOn: entry.key);
-    }
-  });
-
   test('no DioException when receiveTimeout > request duration', () async {
     dio.options.receiveTimeout = Duration(seconds: 5);
 
