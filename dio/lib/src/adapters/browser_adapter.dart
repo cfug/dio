@@ -51,10 +51,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     final connectTimeout = options.connectTimeout;
     final receiveTimeout = options.receiveTimeout;
+    int xhrTimeout = 0;
     if (connectTimeout != null &&
         receiveTimeout != null &&
         receiveTimeout > Duration.zero) {
-      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
+      xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
+      xhr.timeout = xhrTimeout;
     }
 
     final completer = Completer<ResponseBody>();
