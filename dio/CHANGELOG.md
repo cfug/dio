@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `DioErrorType` deprecation hint.
 
 ## 5.2.0
 
