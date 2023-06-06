@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Make `DioError` deprecation non-breaking.
 
 ## 5.2.0
 
