@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Deprecated the `dio_error.dart` import.
 
 ## 5.2.0
 
@@ -14,7 +14,6 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
 - `IOHttpClientAdapter.onHttpClientCreate` has been deprecated and is scheduled for removal in
   Dio 6.0.0 - Please use the replacement `IOHttpClientAdapter.createHttpClient` instead.
-- Using `CancelToken` no longer closes and re-creates `HttpClient` for each request when `IOHttpClientAdapter` is used.
 - Fix timeout handling for browser `receiveTimeout`.
 - Using `CancelToken` no longer closes and re-creates `HttpClient` for each request when `IOHttpClientAdapter` is used. 
 - Improve performance when sending binary data (`List<int>`/`Uint8List`). 
