@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.2.0
+
 - Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
 - Deprecate `DioError` in favor of `DioException`.
 - Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
