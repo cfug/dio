@@ -783,7 +783,7 @@ Unlike other methods, this one works with the certificate of the server itself.
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
   dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient = () {
+    createHttpClient: () {
       // Don't trust any certificate just because their root cert is trusted.
       final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
       // You can test the intermediate / root cert here. We just ignore it.
