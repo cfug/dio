@@ -640,9 +640,6 @@ abstract class DioMixin implements Dio {
         if (data is Uint8List) {
           // Handle binary data which does not need to be transformed
           bytes = data;
-        } else if (data is List<int>) {
-          // Handle binary data which does not need to be transformed
-          bytes = Uint8List.fromList(data);
         } else {
           // Call request transformer for anything else
           final transformed = await transformer.transformRequest(options);

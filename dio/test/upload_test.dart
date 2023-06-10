@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
-
-import 'mock/http_mock.mocks.dart';
 
 void main() {
   late Dio dio;
@@ -15,18 +13,26 @@ void main() {
     dio = Dio()..options.baseUrl = 'https://httpbun.com/';
   });
 
-  test('binary data should not be transformed', () async {
-    final bytes = List.generate(1024, (index) => index);
-    final transformer = MockTransformer();
-    when(transformer.transformResponse(any, any)).thenAnswer(
-      (i) => i.positionalArguments[1],
-    );
+  test('Uint8List should not be transformed', () async {
+    final bytes = Uint8List.fromList(List.generate(10, (index) => index));
+    final transformer = dio.transformer = _TestTransformer();
     final r = await dio.put(
       '/put',
       data: bytes,
     );
-    verifyNever(transformer.transformRequest(any));
+    expect(transformer.requestTransformed, isFalse);
     expect(r.statusCode, 200);
+  });
+
+  test('List<int> should be transformed', () async {
+    final ints = List.generate(10, (index) => index);
+    final transformer = dio.transformer = _TestTransformer();
+    final r = await dio.put(
+      '/put',
+      data: ints,
+    );
+    expect(transformer.requestTransformed, isTrue);
+    expect(r.data['data'], ints.toString());
   });
 
   test('stream', () async {
@@ -95,4 +101,14 @@ void main() {
     },
     testOn: 'vm',
   );
+}
+
+class _TestTransformer extends BackgroundTransformer {
+  bool requestTransformed = false;
+
+  @override
+  Future<String> transformRequest(RequestOptions options) async {
+    requestTransformed = true;
+    return super.transformRequest(options);
+  }
 }
