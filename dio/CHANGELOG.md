@@ -7,11 +7,11 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 *None.*
 
+## 5.2.1+1
+
+- Fix changelog on pub.dev.
+
 ## 5.2.1
-
-*None.*
-
-## 5.2.0+2
 
 - Revert changes to handling of `List<int>` body data.
 
