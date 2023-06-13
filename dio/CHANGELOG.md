@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.2.1+1
+
 - Fix changelog on pub.dev.
 
 ## 5.2.1
