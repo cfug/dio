@@ -80,7 +80,7 @@ class DioForNative with DioMixin implements Dio {
       );
     }
 
-    // If the directory (or file) doesn't exist yet, the entire method fails.
+    // If the directory (or file) exists yet, the entire method fails.
     file.createSync(recursive: true);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
