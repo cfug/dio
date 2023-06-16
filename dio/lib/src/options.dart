@@ -587,10 +587,10 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
   Uri get uri {
     String url = path;
     if (!url.startsWith(RegExp(r'https?:'))) {
-      url = baseUrl + url;
+      url = '$baseUrl/$url';
       final s = url.split(':/');
       if (s.length == 2) {
-        url = '${s[0]}:/${s[1].replaceAll('//', '/')}';
+        url = '${s[0]}:/${s[1].replaceAll(RegExp(r'///?'), '/')}';
       }
     }
     final query = Transformer.urlEncodeQueryMap(queryParameters, listFormat);

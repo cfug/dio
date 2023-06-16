@@ -380,6 +380,24 @@ void main() {
     expect(r3.headers[Headers.contentTypeHeader], null);
   });
 
+  test('Ensure consistent slash handling', () {
+    final dio = Dio();
+    final inputs = [
+      ['https://www.example.com', 'path'],
+      ['https://www.example.com/', 'path'],
+      ['https://www.example.com', '/path'],
+      ['https://www.example.com/', '/path'],
+    ];
+
+    for (final input in inputs) {
+      final baseUrl = input[0];
+      final path = input[1];
+      dio.options.baseUrl = baseUrl;
+      final actual = Options().compose(dio.options, path).uri.toString();
+      expect(actual, 'https://www.example.com/path');
+    }
+  });
+
   test('responseDecoder return null', () async {
     final dio = Dio();
     dio.options.responseDecoder = (_, __, ___) => null;
