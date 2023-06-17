@@ -380,24 +380,6 @@ void main() {
     expect(r3.headers[Headers.contentTypeHeader], null);
   });
 
-  test('Ensure consistent slash handling', () {
-    final dio = Dio();
-    final inputs = [
-      ['https://www.example.com', 'path'],
-      ['https://www.example.com/', 'path'],
-      ['https://www.example.com', '/path'],
-      ['https://www.example.com/', '/path'],
-    ];
-
-    for (final input in inputs) {
-      final baseUrl = input[0];
-      final path = input[1];
-      dio.options.baseUrl = baseUrl;
-      final actual = Options().compose(dio.options, path).uri.toString();
-      expect(actual, 'https://www.example.com/path');
-    }
-  });
-
   test('responseDecoder return null', () async {
     final dio = Dio();
     dio.options.responseDecoder = (_, __, ___) => null;
@@ -486,5 +468,86 @@ void main() {
       );
       expect(response.data, 'test');
     }
+  });
+
+  test('Ensure consistent slash handling', () {
+    final dio = Dio();
+    final inputs = [
+      ['https://www.example.com', 'path'],
+      ['https://www.example.com/', 'path'],
+      ['https://www.example.com', '/path'],
+      ['https://www.example.com/', '/path'],
+    ];
+
+    for (final input in inputs) {
+      final baseUrl = input[0];
+      final path = input[1];
+      dio.options.baseUrl = baseUrl;
+      final actual = Options().compose(dio.options, path).uri.toString();
+      expect(actual, equals('https://www.example.com/path'));
+    }
+  });
+
+  test('Should return absolute URI when path is already absolute', () {
+    final baseUrl = 'https://www.example.com';
+    final path = 'https://www.another-example.com/path/to/resource';
+    final baseOptions = BaseOptions(baseUrl: baseUrl);
+
+    final actual = Options().compose(baseOptions, path).uri;
+
+    expect(actual.toString(), equals(path));
+  });
+
+  test('Should resolve relative path with base URL', () {
+    final baseUrl = 'https://www.example.com';
+    final path = '/path/to/resource';
+    final baseOptions = BaseOptions(baseUrl: baseUrl);
+
+    final actual = Options().compose(baseOptions, path).uri;
+
+    expect(
+      actual.toString(),
+      equals('https://www.example.com/path/to/resource'),
+    );
+  });
+
+  test('Should add query parameters to the URI', () {
+    final baseUrl = 'https://www.example.com';
+    final path = '/path/to/resource';
+    final baseOptions = BaseOptions(
+      baseUrl: baseUrl,
+      queryParameters: {'param1': 'value1'},
+    );
+
+    final actual = Options().compose(
+      baseOptions,
+      path,
+      queryParameters: {'param2': 'value2'},
+    ).uri;
+
+    expect(
+      actual.queryParameters,
+      equals({
+        'param1': 'value1',
+        'param2': 'value2',
+      }),
+    );
+  });
+
+  test('Should handle query parameters with list format', () {
+    final baseUrl = 'https://www.example.com';
+    final path = '/path/to/resource';
+    final baseOptions = BaseOptions(baseUrl: baseUrl);
+    final expectedUri = Uri.parse('$baseUrl$path?param=value1,value2');
+
+    final actual = Options(listFormat: ListFormat.csv).compose(
+      baseOptions,
+      path,
+      queryParameters: {
+        'param': ['value1', 'value2']
+      },
+    ).uri;
+
+    expect(actual.toString(), equals(expectedUri.toString()));
   });
 }
