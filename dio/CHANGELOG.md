@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Only produce null response body when `ResponseType.json`.
 
 ## 5.2.1+1
 
