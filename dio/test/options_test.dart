@@ -534,20 +534,23 @@ void main() {
     );
   });
 
-  test('Should handle query parameters with list format', () {
+  test('Should preserve path query parameters to the URI', () {
     final baseUrl = 'https://www.example.com';
-    final path = '/path/to/resource';
+    final path = '/path/to/resource?param1=value1';
     final baseOptions = BaseOptions(baseUrl: baseUrl);
-    final expectedUri = Uri.parse('$baseUrl$path?param=value1,value2');
 
     final actual = Options(listFormat: ListFormat.csv).compose(
       baseOptions,
       path,
-      queryParameters: {
-        'param': ['value1', 'value2']
-      },
+      queryParameters: {'param2': 'value2'},
     ).uri;
 
-    expect(actual.toString(), equals(expectedUri.toString()));
+    expect(
+      actual.queryParameters,
+      equals({
+        'param1': 'value1',
+        'param2': 'value2',
+      }),
+    );
   });
 }

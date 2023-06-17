@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:meta/meta.dart';
 
 import 'adapter.dart';
@@ -585,20 +587,21 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
 
   /// generate uri
   Uri get uri {
-    String url = path;
-    if (!url.startsWith(RegExp(r'https?:'))) {
-      url = '$baseUrl/$url';
-      final s = url.split(':/');
-      if (s.length == 2) {
-        url = '${s[0]}:/${s[1].replaceAll(RegExp(r'///?'), '/')}';
-      }
+    Uri uri = Uri.parse(path);
+
+    if (!uri.isAbsolute) {
+      uri = Uri.parse(baseUrl).resolveUri(uri);
     }
+
     final query = Transformer.urlEncodeQueryMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
-      url += (url.contains('?') ? '&' : '?') + query;
+      final separator = uri.query.isNotEmpty ? '&' : '';
+      final mergedQuery = uri.query + separator + query;
+      uri = uri.replace(query: mergedQuery);
     }
+
     // Normalize the url.
-    return Uri.parse(url).normalizePath();
+    return uri.normalizePath();
   }
 
   /// Request data, can be any type.
