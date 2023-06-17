@@ -49,9 +49,11 @@ class SyncTransformer extends Transformer {
     RequestOptions options,
     ResponseBody response,
   ) async {
+    final responseType = options.responseType;
     if (options.responseType == ResponseType.stream) {
       return response;
     }
+
     int length = 0;
     int received = 0;
     final showDownloadProgress = options.onReceiveProgress != null;
@@ -60,6 +62,7 @@ class SyncTransformer extends Transformer {
         response.headers[Headers.contentLengthHeader]?.first ?? '-1',
       );
     }
+
     final completer = Completer();
     final stream = response.stream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
@@ -90,6 +93,7 @@ class SyncTransformer extends Transformer {
       return subscription.cancel();
     });
     await completer.future;
+
     // Copy all chunks into a final Uint8List.
     final responseBytes = Uint8List(finalSize);
     int chunkOffset = 0;
@@ -98,7 +102,7 @@ class SyncTransformer extends Transformer {
       chunkOffset += chunk.length;
     }
 
-    if (options.responseType == ResponseType.bytes) {
+    if (responseType == ResponseType.bytes) {
       return responseBytes;
     }
 
@@ -109,14 +113,15 @@ class SyncTransformer extends Transformer {
         options,
         response..stream = Stream.empty(),
       );
-    } else if (responseBytes.isNotEmpty) {
+    } else if (responseType != ResponseType.json || responseBytes.isNotEmpty) {
       responseBody = utf8.decode(responseBytes, allowMalformed: true);
     } else {
       responseBody = null;
     }
+
     if (responseBody != null &&
         responseBody.isNotEmpty &&
-        options.responseType == ResponseType.json &&
+        responseType == ResponseType.json &&
         Transformer.isJsonMimeType(
           response.headers[Headers.contentTypeHeader]?.first,
         )) {
