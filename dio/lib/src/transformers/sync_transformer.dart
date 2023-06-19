@@ -111,6 +111,9 @@ class SyncTransformer extends Transformer {
       return responseBytes;
     }
 
+    final isJsonContent = Transformer.isJsonMimeType(
+      responseBody.headers[Headers.contentTypeHeader]?.first,
+    );
     final String? response;
     if (options.responseDecoder != null) {
       response = options.responseDecoder!(
@@ -118,7 +121,7 @@ class SyncTransformer extends Transformer {
         options,
         responseBody..stream = Stream.empty(),
       );
-    } else if (responseType != ResponseType.json || responseBytes.isNotEmpty) {
+    } else if (!isJsonContent || responseBytes.isNotEmpty) {
       response = utf8.decode(responseBytes, allowMalformed: true);
     } else {
       response = null;
@@ -127,9 +130,7 @@ class SyncTransformer extends Transformer {
     if (response != null &&
         response.isNotEmpty &&
         responseType == ResponseType.json &&
-        Transformer.isJsonMimeType(
-          responseBody.headers[Headers.contentTypeHeader]?.first,
-        )) {
+        isJsonContent) {
       return jsonDecodeCallback(response);
     }
     return response;
