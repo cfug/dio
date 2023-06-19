@@ -346,6 +346,14 @@ void main() {
       r10.requestOptions.contentType,
       startsWith(Headers.multipartFormDataContentType),
     );
+
+    // Regression: https://github.com/cfug/dio/issues/1834
+    final r11 = await dio.get('');
+    expect(r11.data, '');
+    final r12 = await dio.get<Map>('');
+    expect(r12.data, null);
+    final r13 = await dio.get<Map<String, Object>>('');
+    expect(r13.data, null);
   });
 
   test('default content-type 2', () async {
