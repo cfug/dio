@@ -177,28 +177,96 @@ void main() async {
       testOn: '!browser',
     );
 
-    test(
-      DioExceptionType.unknown,
-      () async {
-        final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist');
+    group('DioExceptionType.unknown', () {
+      test(
+        JsonUnsupportedObjectError,
+        () async {
+          final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist');
 
-        await expectLater(
-          dio.get(
-            '/test',
-            options: Options(contentType: Headers.jsonContentType),
-            data: Object(),
-          ),
-          throwsA(allOf([
-            isA<DioException>(),
-            (DioException e) => e.type == DioExceptionType.unknown,
-            (DioException e) => e.error is JsonUnsupportedObjectError,
-            (DioException e) =>
-                e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-          ])),
-        );
-      },
-      testOn: '!browser',
-    );
+          await expectLater(
+            dio.get(
+              '/test',
+              options: Options(contentType: Headers.jsonContentType),
+              data: Object(),
+            ),
+            throwsA(allOf([
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.unknown,
+              (DioException e) => e.error is JsonUnsupportedObjectError,
+              (DioException e) =>
+                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+            ])),
+          );
+        },
+        testOn: '!browser',
+      );
+
+      test(
+        'SocketException on request',
+        () async {
+          final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist')
+            ..httpClientAdapter = IOHttpClientAdapter();
+
+          await expectLater(
+            dio.get(
+              '/test',
+              data: 'test',
+            ),
+            throwsA(allOf([
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.unknown,
+              (DioException e) => e.error is SocketException,
+              (DioException e) => (e.error as SocketException)
+                  .message
+                  .startsWith("Failed host lookup: 'does.not.exist'"),
+              (DioException e) =>
+                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+            ])),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test(
+        'SocketException on response',
+        () async {
+          final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist')
+            ..httpClientAdapter = IOHttpClientAdapter(
+              createHttpClient: () {
+                final request = MockHttpClientRequest();
+                final client = MockHttpClient();
+                when(client.openUrl(any, any)).thenAnswer(
+                  (_) async => request,
+                );
+                when(request.headers).thenReturn(MockHttpHeaders());
+                when(request.addStream(any)).thenAnswer(
+                  (_) => Future.value(),
+                );
+                when(request.close()).thenAnswer(
+                  (_) async => Future.delayed(Duration(milliseconds: 50),
+                      () => throw SocketException('test')),
+                );
+                return client;
+              },
+            );
+
+          await expectLater(
+            dio.get(
+              '/test',
+              data: 'test',
+            ),
+            throwsA(allOf([
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.unknown,
+              (DioException e) => e.error is SocketException,
+              (DioException e) =>
+                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+            ])),
+          );
+        },
+        testOn: 'vm',
+      );
+    });
 
     test('Interceptor gets stacktrace in onError', () async {
       final dio = Dio();
