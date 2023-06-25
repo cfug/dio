@@ -24,6 +24,7 @@ abstract class Transformer {
   ///
   /// **Note**: As an agreement, you must return the [responseBody]
   /// when the Options.responseType is [ResponseType.stream].
+  // TODO(AlexV525): Add generic type for the method in v6.0.0.
   Future transformResponse(RequestOptions options, ResponseBody responseBody);
 
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
