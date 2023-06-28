@@ -70,7 +70,7 @@ extension on StreamedResponse {
   ResponseBody toDioResponseBody() {
     final dioHeaders = headers.entries.map((e) => MapEntry(e.key, [e.value]));
     return ResponseBody(
-      Stream.fromFuture(stream.toBytes()),
+      stream.cast<Uint8List>(),
       statusCode,
       headers: Map.fromEntries(dioHeaders),
       isRedirect: isRedirect,

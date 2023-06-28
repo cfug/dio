@@ -18,7 +18,7 @@ void main() async {
 
   // Don't trust any certificate just because their root cert is trusted
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (_) {
+    createHttpClient: () {
       final client = HttpClient(
         context: SecurityContext(withTrustedRoots: false),
       );
@@ -55,7 +55,7 @@ void main() async {
     // This certificate doesn't have the same fingerprint.
     response = await dio.get('https://bad.host.badssl.com/');
     print(response.data);
-  } on DioError catch (e) {
+  } on DioException catch (e) {
     print(e.message);
     print(response?.data);
     dio.close(force: true);

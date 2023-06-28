@@ -9,6 +9,9 @@ Language: [English](README.md) | 简体中文
 - dio: [链接](dio)
   [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio)
 
+**在你更新之前：大版本和次要版本可能会包含不兼容的重大改动。<br/>
+请阅读 [迁移指南](dio/migration_guide.md) 了解完整的重大变更内容。**
+
 ### 插件
 
 - cookie_manager: [链接](plugins/cookie_manager)

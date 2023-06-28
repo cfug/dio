@@ -3,12 +3,12 @@ import 'dart:io';
 
 import '../adapter.dart';
 import '../cancel_token.dart';
+import '../dio_exception.dart';
 import '../dio_mixin.dart';
 import '../response.dart';
 import '../dio.dart';
 import '../headers.dart';
 import '../options.dart';
-import '../dio_error.dart';
 import '../adapters/io_adapter.dart';
 
 /// Create the [Dio] instance for native platforms.
@@ -51,8 +51,8 @@ class DioForNative with DioMixin implements Dio {
         queryParameters: queryParameters,
         cancelToken: cancelToken ?? CancelToken(),
       );
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.badResponse) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse) {
         if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
           final res = await transformer.transformResponse(
             e.response!.requestOptions..responseType = ResponseType.json,
@@ -82,7 +82,7 @@ class DioForNative with DioMixin implements Dio {
       );
     }
 
-    // If the directory (or file) doesn't exist yet, the entire method fails.
+    // If the file already exists, the method fails.
     file.createSync(recursive: true);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
@@ -142,7 +142,7 @@ class DioForNative with DioMixin implements Dio {
             await subscription.cancel();
           } finally {
             completer.completeError(
-              DioMixin.assureDioError(e, response.requestOptions),
+              DioMixin.assureDioException(e, response.requestOptions),
             );
           }
         });
@@ -155,7 +155,7 @@ class DioForNative with DioMixin implements Dio {
           completer.complete(response);
         } catch (e) {
           completer.completeError(
-            DioMixin.assureDioError(e, response.requestOptions),
+            DioMixin.assureDioException(e, response.requestOptions),
           );
         }
       },
@@ -164,7 +164,7 @@ class DioForNative with DioMixin implements Dio {
           await closeAndDelete();
         } finally {
           completer.completeError(
-            DioMixin.assureDioError(e, response.requestOptions),
+            DioMixin.assureDioException(e, response.requestOptions),
           );
         }
       },
@@ -182,7 +182,7 @@ class DioForNative with DioMixin implements Dio {
           await subscription.cancel();
           await closeAndDelete();
           if (e is TimeoutException) {
-            throw DioError.receiveTimeout(
+            throw DioException.receiveTimeout(
               timeout: timeout,
               requestOptions: response.requestOptions,
               error: e,

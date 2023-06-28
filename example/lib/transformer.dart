@@ -11,7 +11,7 @@ class MyTransformer extends BackgroundTransformer {
   @override
   Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
-      throw DioError(
+      throw DioException(
         error: "Can't send List to sever directly",
         requestOptions: options,
       );

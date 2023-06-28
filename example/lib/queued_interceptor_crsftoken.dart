@@ -35,7 +35,7 @@ void main() async {
           }
 
           return handler.reject(
-            DioError(requestOptions: result.requestOptions),
+            DioException(requestOptions: result.requestOptions),
             true,
           );
         }
@@ -72,7 +72,7 @@ void main() async {
           }
           print('the token has not been updated');
           return handler.reject(
-            DioError(requestOptions: options),
+            DioException(requestOptions: options),
           );
         }
         return handler.next(error);

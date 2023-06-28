@@ -63,9 +63,12 @@ class RequestInterceptorHandler extends _BaseHandler {
   ///
   /// [error]: Error info to reject.
   /// [callFollowingErrorInterceptor]: Whether to call the error interceptor(s).
-  void reject(DioError error, [bool callFollowingErrorInterceptor = false]) {
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
     _completer.completeError(
-      InterceptorState<DioError>(
+      InterceptorState<DioException>(
         error,
         callFollowingErrorInterceptor
             ? InterceptorResultType.rejectCallFollowing
@@ -104,9 +107,12 @@ class ResponseInterceptorHandler extends _BaseHandler {
   ///
   /// [error]: Error info to reject.
   /// [callFollowingErrorInterceptor]: Whether to call the error interceptor(s).
-  void reject(DioError error, [bool callFollowingErrorInterceptor = false]) {
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
     _completer.completeError(
-      InterceptorState<DioError>(
+      InterceptorState<DioException>(
         error,
         callFollowingErrorInterceptor
             ? InterceptorResultType.rejectCallFollowing
@@ -121,9 +127,9 @@ class ResponseInterceptorHandler extends _BaseHandler {
 /// Handler for error interceptor.
 class ErrorInterceptorHandler extends _BaseHandler {
   /// Continue to call the next error interceptor.
-  void next(DioError err) {
+  void next(DioException err) {
     _completer.completeError(
-      InterceptorState<DioError>(err),
+      InterceptorState<DioException>(err),
       err.stackTrace,
     );
     _processNextInQueue?.call();
@@ -144,9 +150,9 @@ class ErrorInterceptorHandler extends _BaseHandler {
   }
 
   /// Complete the request with a error directly! Other error interceptor(s) will not be executed.
-  void reject(DioError error) {
+  void reject(DioException error) {
     _completer.completeError(
-      InterceptorState<DioError>(
+      InterceptorState<DioException>(
         error,
         InterceptorResultType.reject,
       ),
@@ -177,7 +183,7 @@ class Interceptor {
   /// you can resolve a [Response] object with [handler.resolve].
   ///
   /// If you want to complete the request with an error message,
-  /// you can reject a [DioError] object with [handler.reject].
+  /// you can reject a [DioException] object with [handler.reject].
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
@@ -193,7 +199,7 @@ class Interceptor {
   /// response interceptor(s) will not be executed.
   ///
   /// If you want to complete the response with an error message,
-  /// you can reject a [DioError] object with [handler.reject].
+  /// you can reject a [DioException] object with [handler.reject].
   void onResponse(
     Response response,
     ResponseInterceptorHandler handler,
@@ -210,10 +216,10 @@ class Interceptor {
   /// error interceptor(s) will be skipped.
   ///
   /// If you want to complete the response with an error message directly,
-  /// you can reject a [DioError] object with [handler.reject], and other
+  /// you can reject a [DioException] object with [handler.reject], and other
   ///  error interceptor(s) will be skipped.
   void onError(
-    DioError err,
+    DioException err,
     ErrorInterceptorHandler handler,
   ) {
     handler.next(err);
@@ -231,7 +237,7 @@ typedef InterceptorSuccessCallback = void Function(
 );
 
 typedef InterceptorErrorCallback = void Function(
-  DioError e,
+  DioException e,
   ErrorInterceptorHandler handler,
 );
 
@@ -266,7 +272,7 @@ mixin _InterceptorWrapperMixin on Interceptor {
 
   @override
   void onError(
-    DioError err,
+    DioException err,
     ErrorInterceptorHandler handler,
   ) {
     if (_onError != null) {
@@ -375,7 +381,7 @@ class QueuedInterceptor extends Interceptor {
   }
 
   void _handleError(
-    DioError err,
+    DioException err,
     ErrorInterceptorHandler handler,
   ) {
     _handleQueue(_errorQueue, err, handler, onError);

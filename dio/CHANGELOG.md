@@ -1,8 +1,38 @@
 # CHANGELOG
 
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
+
 ## Unreleased
 
 *None.*
+
+## 5.2.1+1
+
+- Fix changelog on pub.dev.
+
+## 5.2.1
+
+- Revert changes to handling of `List<int>` body data.
+
+## 5.2.0+1
+
+- Fix `DioErrorType` deprecation hint.
+
+## 5.2.0
+
+- Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
+- Deprecate `DioError` in favor of `DioException`.
+- Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
+- `IOHttpClientAdapter.onHttpClientCreate` has been deprecated and is scheduled for removal in
+  Dio 6.0.0 - Please use the replacement `IOHttpClientAdapter.createHttpClient` instead.
+- Using `CancelToken` no longer closes and re-creates `HttpClient` for each request when `IOHttpClientAdapter` is used.
+- Fix timeout handling for browser `receiveTimeout`.
+- Improve performance when sending binary data (`List<int>`/`Uint8List`). 
+
+## 5.1.2
+
+- Allow `FormData` to send a null entry value as an empty string.
 
 ## 5.1.1
 
@@ -78,7 +108,6 @@
 - refactor timeout logic
 - use 'arraybuffer' instead of 'blob' for xhr requests in web platform
 
-
 ## 4.0.4
 
 - Fix fetching null data in a response
@@ -150,7 +179,6 @@ the subsequent interceptors processing logic more finely (whether to skip them o
 2. fix #851
 3. fix #641
 
-
 ## 3.0.9 2020.2.24
 
 - Add test cases
@@ -204,9 +232,9 @@ the subsequent interceptors processing logic more finely (whether to skip them o
 
 - ~~Options.cookies~~
 
-- ~~Options.connectionTimeout~~ ；We should config connection timed out  in `BaseOptions`.  For keep-alive reasons, not every request requires a separate connection。
+- ~~Options.connectionTimeout~~ ；We should config connection timed out in `BaseOptions`. For keep-alive reasons, not every request requires a separate connection。
 
-- `Options.followRedirects`、`Options.maxRedirects`、`Response.redirects` don't make sense in Flutter Web，because redirection  can be automatically handled by browsers.
+- `Options.followRedirects`、`Options.maxRedirects`、`Response.redirects` don't make sense in Flutter Web，because redirection can be automatically handled by browsers.
 - ~~FormData.from~~，use `FormData.fromMap` instead.
 - Delete ~~Formdata.asBytes()~~、~~Formdata.asBytesAsync()~~ , use `Formdata.readAsBytes()` instead.
 - Delete ~~`UploadFileInfo`~~ class， `MultipartFile` instead.
@@ -238,7 +266,6 @@ Add `deleteOnError` parameter to `downloadUri`
 ## 2.1.9
 
 - support flutter version>=1.8 (fix #357)
-
 
 ## 2.1.8
 
@@ -273,20 +300,24 @@ First Stable version for 2.x
 ## 2.0
 
 **Refactor the Interceptors**
+
 - Support add Multiple Interceptors.
 - Add Log Interceptor
 - Add CookieManager Interceptor
 
 **API**
+
 - Support Uri
 - Support `queryParameters` for all request API
 - Modify the `get` API
 
 **Options**
+
 - Separate Options to three class: Options、BaseOptions、RequestOptions
 - Add `queryParameters` and `cookies` for BaseOptions
 
 **Adapter**
+
 - Abstract HttpClientAdapter layer.
 - Provide a DefaultHttpClientAdapter which make http requests by `dart:io:HttpClient`
 
@@ -314,3 +345,5 @@ First Stable version for 2.x
 ## 0.0.1
 
 - Initial version, created by Stagehand
+
+[Migration Guide]: ./migration_guide.md

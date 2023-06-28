@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -93,7 +94,8 @@ void main() async {
   dio.interceptors.add(LogInterceptor());
   // dio.interceptors.add(LogInterceptor(requestBody: true));
   dio.httpClientAdapter = IOHttpClientAdapter(
-    onHttpClientCreate: (client) {
+    createHttpClient: () {
+      final client = HttpClient();
       client.findProxy = (uri) {
         // Proxy all request to localhost:8888
         return 'PROXY localhost:8888';

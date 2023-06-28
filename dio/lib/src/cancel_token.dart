@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'dio_error.dart';
+import 'dio_exception.dart';
 import 'options.dart';
 
 /// {@template dio.CancelToken}
@@ -12,14 +12,15 @@ import 'options.dart';
 class CancelToken {
   CancelToken();
 
-  final Completer<DioError> _completer = Completer<DioError>();
+  final Completer<DioException> _completer = Completer<DioException>();
 
   /// Whether the [error] is thrown by [cancel].
-  static bool isCancel(DioError error) => error.type == DioErrorType.cancel;
+  static bool isCancel(DioException error) =>
+      error.type == DioExceptionType.cancel;
 
   /// If request have been canceled, save the cancel error.
-  DioError? get cancelError => _cancelError;
-  DioError? _cancelError;
+  DioException? get cancelError => _cancelError;
+  DioException? _cancelError;
 
   /// Corresponding request options for the request.
   ///
@@ -30,11 +31,11 @@ class CancelToken {
   bool get isCancelled => _cancelError != null;
 
   /// When cancelled, this future will be resolved.
-  Future<DioError> get whenCancel => _completer.future;
+  Future<DioException> get whenCancel => _completer.future;
 
   /// Cancel the request with the given [reason].
   void cancel([Object? reason]) {
-    _cancelError = DioError.requestCancelled(
+    _cancelError = DioException.requestCancelled(
       requestOptions: requestOptions ?? RequestOptions(),
       reason: reason,
       stackTrace: StackTrace.current,

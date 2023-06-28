@@ -1,8 +1,17 @@
 import 'options.dart';
 import 'response.dart';
 
-/// The error enumeration indicates what type the error has happened in dio.
-enum DioErrorType {
+/// Deprecated in favor of [DioExceptionType] and will be removed in future major versions.
+@Deprecated('Use DioExceptionType instead. This will be removed in 6.0.0')
+typedef DioErrorType = DioExceptionType;
+
+/// [DioError] describes the exception info when a request failed.
+@Deprecated('Use DioException instead. This will be removed in 6.0.0')
+typedef DioError = DioException;
+
+/// The exception enumeration indicates what type of exception
+/// has happened during requests.
+enum DioExceptionType {
   /// Caused by a connection timeout.
   connectionTimeout,
 
@@ -15,7 +24,7 @@ enum DioErrorType {
   /// Caused by an incorrect certificate as configured by [ValidateCertificate].
   badCertificate,
 
-  /// The [DioError] was caused by an incorrect status code as configured by
+  /// The [DioException] was caused by an incorrect status code as configured by
   /// [ValidateStatus].
   badResponse,
 
@@ -26,41 +35,41 @@ enum DioErrorType {
   connectionError,
 
   /// Default error type, Some other [Error]. In this case, you can use the
-  /// [DioError.error] if it is not null.
+  /// [DioException.error] if it is not null.
   unknown,
 }
 
-extension _DioErrorTypeExtension on DioErrorType {
+extension _DioExceptionTypeExtension on DioExceptionType {
   String toPrettyDescription() {
     switch (this) {
-      case DioErrorType.connectionTimeout:
+      case DioExceptionType.connectionTimeout:
         return 'connection timeout';
-      case DioErrorType.sendTimeout:
+      case DioExceptionType.sendTimeout:
         return 'send timeout';
-      case DioErrorType.receiveTimeout:
+      case DioExceptionType.receiveTimeout:
         return 'receive timeout';
-      case DioErrorType.badCertificate:
+      case DioExceptionType.badCertificate:
         return 'bad certificate';
-      case DioErrorType.badResponse:
+      case DioExceptionType.badResponse:
         return 'bad response';
-      case DioErrorType.cancel:
+      case DioExceptionType.cancel:
         return 'request cancelled';
-      case DioErrorType.connectionError:
+      case DioExceptionType.connectionError:
         return 'connection error';
-      case DioErrorType.unknown:
+      case DioExceptionType.unknown:
         return 'unknown';
     }
   }
 }
 
-/// [DioError] describes the exception info when a request failed.
-class DioError implements Exception {
+/// [DioException] describes the exception info when a request failed.
+class DioException implements Exception {
   /// Prefer using one of the other constructors.
   /// They're most likely better fitting.
-  DioError({
+  DioException({
     required this.requestOptions,
     this.response,
-    this.type = DioErrorType.unknown,
+    this.type = DioExceptionType.unknown,
     this.error,
     StackTrace? stackTrace,
     this.message,
@@ -70,13 +79,13 @@ class DioError implements Exception {
                 requestOptions.sourceStackTrace ??
                 StackTrace.current;
 
-  factory DioError.badResponse({
+  factory DioException.badResponse({
     required int statusCode,
     required RequestOptions requestOptions,
     required Response response,
   }) =>
-      DioError(
-        type: DioErrorType.badResponse,
+      DioException(
+        type: DioExceptionType.badResponse,
         message: 'The request returned an '
             'invalid status code of $statusCode.',
         requestOptions: requestOptions,
@@ -84,13 +93,13 @@ class DioError implements Exception {
         error: null,
       );
 
-  factory DioError.connectionTimeout({
+  factory DioException.connectionTimeout({
     required Duration timeout,
     required RequestOptions requestOptions,
     Object? error,
   }) =>
-      DioError(
-        type: DioErrorType.connectionTimeout,
+      DioException(
+        type: DioExceptionType.connectionTimeout,
         message: 'The request connection took '
             'longer than $timeout. It was aborted.',
         requestOptions: requestOptions,
@@ -98,12 +107,12 @@ class DioError implements Exception {
         error: error,
       );
 
-  factory DioError.sendTimeout({
+  factory DioException.sendTimeout({
     required Duration timeout,
     required RequestOptions requestOptions,
   }) =>
-      DioError(
-        type: DioErrorType.sendTimeout,
+      DioException(
+        type: DioExceptionType.sendTimeout,
         message: 'The request took '
             'longer than $timeout to send data. It was aborted.',
         requestOptions: requestOptions,
@@ -111,13 +120,13 @@ class DioError implements Exception {
         error: null,
       );
 
-  factory DioError.receiveTimeout({
+  factory DioException.receiveTimeout({
     required Duration timeout,
     required RequestOptions requestOptions,
     Object? error,
   }) =>
-      DioError(
-        type: DioErrorType.receiveTimeout,
+      DioException(
+        type: DioExceptionType.receiveTimeout,
         message: 'The request took '
             'longer than $timeout to receive data. It was aborted.',
         requestOptions: requestOptions,
@@ -125,13 +134,13 @@ class DioError implements Exception {
         error: error,
       );
 
-  factory DioError.requestCancelled({
+  factory DioException.requestCancelled({
     required RequestOptions requestOptions,
     required Object? reason,
     StackTrace? stackTrace,
   }) =>
-      DioError(
-        type: DioErrorType.cancel,
+      DioException(
+        type: DioExceptionType.cancel,
         message: 'The request was cancelled.',
         requestOptions: requestOptions,
         response: null,
@@ -139,12 +148,12 @@ class DioError implements Exception {
         stackTrace: stackTrace,
       );
 
-  factory DioError.connectionError({
+  factory DioException.connectionError({
     required RequestOptions requestOptions,
     required String reason,
   }) =>
-      DioError(
-        type: DioErrorType.connectionError,
+      DioException(
+        type: DioExceptionType.connectionError,
         message: 'The connection errored: $reason',
         requestOptions: requestOptions,
         response: null,
@@ -158,29 +167,29 @@ class DioError implements Exception {
   /// HTTP server, for example, occurring a DNS error, network is not available.
   final Response? response;
 
-  final DioErrorType type;
+  final DioExceptionType type;
 
   /// The original error/exception object;
-  /// It's usually not null when `type` is [DioErrorType.unknown].
+  /// It's usually not null when `type` is [DioExceptionType.unknown].
   final Object? error;
 
   /// The stacktrace of the original error/exception object;
-  /// It's usually not null when `type` is [DioErrorType.unknown].
+  /// It's usually not null when `type` is [DioExceptionType.unknown].
   final StackTrace stackTrace;
 
-  /// The error message that throws a [DioError].
+  /// The error message that throws a [DioException].
   final String? message;
 
-  /// Generate a new [DioError] by combining given values and original values.
-  DioError copyWith({
+  /// Generate a new [DioException] by combining given values and original values.
+  DioException copyWith({
     RequestOptions? requestOptions,
     Response? response,
-    DioErrorType? type,
+    DioExceptionType? type,
     Object? error,
     StackTrace? stackTrace,
     String? message,
   }) {
-    return DioError(
+    return DioException(
       requestOptions: requestOptions ?? this.requestOptions,
       response: response ?? this.response,
       type: type ?? this.type,
@@ -192,7 +201,7 @@ class DioError implements Exception {
 
   @override
   String toString() {
-    String msg = 'DioError [${type.toPrettyDescription()}]: $message';
+    String msg = 'DioException [${type.toPrettyDescription()}]: $message';
     if (error != null) {
       msg += '\nError: $error';
     }

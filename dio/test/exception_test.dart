@@ -7,39 +7,39 @@ import 'package:test/test.dart';
 
 void main() {
   /// https://github.com/cfug/diox/issues/66
-  test('Ensure DioError is an Exception', () {
-    final error = DioError(requestOptions: RequestOptions());
+  test('Ensure DioException is an Exception', () {
+    final error = DioException(requestOptions: RequestOptions());
     expect(error, isA<Exception>());
   });
 
-  test('catch DioError', () async {
-    DioError? error;
+  test('catch DioException', () async {
+    DioException? error;
     try {
       await Dio().get('https://does.not.exist');
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
     expect(error, isNotNull);
   });
 
-  test('catch DioError as Exception', () async {
-    DioError? error;
+  test('catch DioException as Exception', () async {
+    DioException? error;
     try {
       await Dio().get('https://does.not.exist');
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
     expect(error, isNotNull);
   });
 
-  test('catch DioError: hostname mismatch', () async {
-    DioError? error;
+  test('catch DioException: hostname mismatch', () async {
+    DioException? error;
     try {
       await Dio().get('https://wrong.host.badssl.com/');
       fail('did not throw');
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       error = e;
     }
     expect(error, isNotNull);
@@ -56,8 +56,9 @@ void main() {
     () async {
       final dio = Dio();
       dio.httpClientAdapter = IOHttpClientAdapter(
-        onHttpClientCreate: (client) {
-          return client..badCertificateCallback = (cert, host, port) => true;
+        createHttpClient: () {
+          return HttpClient()
+            ..badCertificateCallback = (cert, host, port) => true;
         },
       );
       Response response = await dio.get('https://wrong.host.badssl.com/');

@@ -100,9 +100,12 @@ mixin OptionsMixin {
   /// object wrapping the actual List value and the desired format.
   late Map<String, dynamic> queryParameters;
 
-  /// Timeout in milliseconds for opening url.
-  /// [Dio] will throw the [DioError] with [DioErrorType.connectionTimeout] type
-  /// when time out.
+  /// Timeout when opening url.
+  ///
+  /// [Dio] will throw the [DioException] with
+  /// [DioErrorType.connectionTimeout] type when time out.
+  ///
+  /// `null` meanings no timeout limit.
   Duration? get connectTimeout => _connectTimeout;
   Duration? _connectTimeout;
 
@@ -355,8 +358,11 @@ class Options {
   Map<String, dynamic>? headers;
 
   /// Timeout when sending data.
-  /// [Dio] will throw the [DioError] with [DioErrorType.sendTimeout] type
-  /// when timed out.
+  ///
+  /// [Dio] will throw the [DioException] with
+  /// [DioExceptionType.sendTimeout] type when timed out.
+  ///
+  /// `null` meanings no timeout limit.
   Duration? get sendTimeout => _sendTimeout;
   Duration? _sendTimeout;
 
@@ -371,6 +377,11 @@ class Options {
   ///
   /// The timeout represents the timeout during data transfer of each bytes,
   /// rather than the overall timing during the receiving.
+  ///
+  /// [Dio] will throw the [DioException] with
+  /// [DioErrorType.receiveTimeout] type when time out.
+  ///
+  /// `null` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
   Duration? _receiveTimeout;
 

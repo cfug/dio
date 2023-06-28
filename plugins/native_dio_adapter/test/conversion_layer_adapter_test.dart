@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:http/http.dart';
 import 'package:native_dio_adapter/src/conversion_layer_adapter.dart';
@@ -35,5 +37,27 @@ void main() {
     );
 
     expect(mock.request?.headers, {'foo': 'bar'});
+  });
+
+  test('download stream', () async {
+    final mock = ClientMock()
+      ..response = StreamedResponse(
+          Stream.fromIterable(<Uint8List>[
+            Uint8List.fromList([10, 1]),
+            Uint8List.fromList([1, 4]),
+            Uint8List.fromList([5, 1]),
+            Uint8List.fromList([1, 1]),
+            Uint8List.fromList([2, 4]),
+          ]),
+          200);
+    final cla = ConversionLayerAdapter(mock);
+
+    final resp = await cla.fetch(
+      RequestOptions(path: ''),
+      null,
+      null,
+    );
+
+    expect(await resp.stream.length, 5);
   });
 }

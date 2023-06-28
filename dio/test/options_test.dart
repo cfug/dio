@@ -406,7 +406,7 @@ void main() {
     // Throws a type error during cast.
     expectLater(
       dio.get<Map<String, dynamic>>('/test-plain-text-content-type'),
-      throwsA((e) => e is DioError && e.error is TypeError),
+      throwsA((e) => e is DioException && e.error is TypeError),
     );
   });
 
@@ -430,7 +430,7 @@ void main() {
     void testInvalidArgumentException(String method) async {
       await expectLater(
         dio.fetch(RequestOptions(path: 'http://127.0.0.1', method: method)),
-        throwsA((e) => e is DioError && e.error is ArgumentError),
+        throwsA((e) => e is DioException && e.error is ArgumentError),
       );
     }
 

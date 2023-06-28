@@ -4,6 +4,10 @@
 
 *None.*
 
+## 2.3.0
+
+- Replace `DioError` with `DioException`.
+
 ## 2.2.0
 
 - Support proxy for the adapter.

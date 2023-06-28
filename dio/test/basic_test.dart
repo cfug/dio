@@ -43,11 +43,13 @@ void main() {
       Dio().get('http://http.invalid'),
       throwsA(
         allOf([
-          isA<DioError>(),
-          (DioError e) =>
+          isA<DioException>(),
+          (DioException e) =>
               e.type ==
-              (isWeb ? DioErrorType.connectionError : DioErrorType.unknown),
-          if (!isWeb) (DioError e) => e.error is SocketException,
+              (isWeb
+                  ? DioExceptionType.connectionError
+                  : DioExceptionType.unknown),
+          if (!isWeb) (DioException e) => e.error is SocketException,
         ]),
       ),
     );
@@ -78,7 +80,9 @@ void main() {
       throwsA(
         (e) =>
             e is DioError &&
-            e.type == DioErrorType.badResponse &&
+      throwsA((e) => e is DioException && CancelToken.isCancel(e)),
+            e is DioException &&
+            e.type == DioExceptionType.badResponse &&
             e.response!.statusCode == 401,
       ),
     );
