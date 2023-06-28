@@ -18,9 +18,9 @@ void main() {
     expectLater(
       dio.get('/drip-lines?delay=2'),
       allOf(
-        throwsA(isA<DioError>()),
-        throwsA(predicate((DioError e) =>
-            e.type == DioErrorType.connectionTimeout &&
+        throwsA(isA<DioException>()),
+        throwsA(predicate((DioException e) =>
+            e.type == DioExceptionType.connectionTimeout &&
             e.message!.contains('0:00:00.003000'))),
       ),
     );

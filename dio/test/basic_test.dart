@@ -67,7 +67,7 @@ void main() {
 
     await expectLater(
       dio.get('/test-timeout', cancelToken: token),
-      throwsA((e) => e is DioError && CancelToken.isCancel(e)),
+      throwsA((e) => e is DioException && CancelToken.isCancel(e)),
     );
   });
 
@@ -79,8 +79,6 @@ void main() {
       dio.get('/401'),
       throwsA(
         (e) =>
-            e is DioError &&
-      throwsA((e) => e is DioException && CancelToken.isCancel(e)),
             e is DioException &&
             e.type == DioExceptionType.badResponse &&
             e.response!.statusCode == 401,

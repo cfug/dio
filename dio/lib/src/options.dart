@@ -103,7 +103,7 @@ mixin OptionsMixin {
   /// Timeout when opening url.
   ///
   /// [Dio] will throw the [DioException] with
-  /// [DioErrorType.connectionTimeout] type when time out.
+  /// [DioExceptionType.connectionTimeout] type when time out.
   ///
   /// `null` meanings no timeout limit.
   Duration? get connectTimeout => _connectTimeout;
@@ -379,7 +379,7 @@ class Options {
   /// rather than the overall timing during the receiving.
   ///
   /// [Dio] will throw the [DioException] with
-  /// [DioErrorType.receiveTimeout] type when time out.
+  /// [DioExceptionType.receiveTimeout] type when time out.
   ///
   /// `null` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
