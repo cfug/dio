@@ -1,9 +1,14 @@
 import 'dart:convert';
-import 'options.dart';
+
 import 'headers.dart';
+import 'options.dart';
 import 'redirect_record.dart';
 
-/// Response describes the http Response info.
+/// The [Response] class contains the payload (could be transformed)
+/// that respond from the request, and other information of the response.
+///
+/// The object is not sealed or immutable, which means it can be manipulated
+/// in anytime, typically by [Interceptor] and [Transformer].
 class Response<T> {
   Response({
     this.data,
@@ -17,38 +22,35 @@ class Response<T> {
   })  : headers = headers ?? Headers(),
         extra = extra ?? <String, dynamic>{};
 
-  /// Response body. may have been transformed, please refer to [ResponseType].
+  /// The response payload in specific type.
+  ///
+  /// The content could have been transformed by the [Transformer]
+  /// before it can use eventually.
   T? data;
 
-  /// The corresponding request info.
+  /// The [RequestOptions] used for the corresponding request.
   RequestOptions requestOptions;
 
-  /// HTTP status code.
+  /// The HTTP status code for the response.
+  ///
+  /// This can be null if the response was constructed manually.
   int? statusCode;
 
   /// Returns the reason phrase associated with the status code.
-  /// The reason phrase must be set before the body is written
-  /// to. Setting the reason phrase after writing to the body.
   String? statusMessage;
 
-  /// Whether this response is a redirect.
-  /// ** Attention **: Whether this field is available depends on whether the
-  /// implementation of the adapter supports it or not.
+  /// Headers for the response.
+  Headers headers;
+
+  /// Whether the response has been redirected.
+  ///
+  /// The field rely on the implementation of the adapter.
   bool isRedirect;
 
-  /// The series of redirects this connection has been through. The list will be
-  /// empty if no redirects were followed. [redirects] will be updated both
-  /// in the case of an automatic and a manual redirect.
+  /// All redirections happened before the response respond.
   ///
-  /// ** Attention **: Whether this field is available depends on whether the
-  /// implementation of the adapter supports it or not.
+  /// The field rely on the implementation of the adapter.
   List<RedirectRecord> redirects;
-
-  /// Custom fields that are only for the [Response].
-  Map<String, dynamic> extra;
-
-  /// Response headers.
-  Headers headers;
 
   /// Return the final real request URI (may be redirected).
   ///
@@ -57,10 +59,16 @@ class Response<T> {
   Uri get realUri =>
       redirects.isNotEmpty ? redirects.last.location : requestOptions.uri;
 
-  /// We are more concerned about [data] field.
+  /// An extra map that you can save your custom information in.
+  ///
+  /// The field is designed to be non-identical with
+  /// [Options.extra] and [RequestOptions.extra].
+  Map<String, dynamic> extra;
+
   @override
   String toString() {
     if (data is Map) {
+      // Log encoded maps for better readability.
       return json.encode(data);
     }
     return data.toString();
