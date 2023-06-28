@@ -421,6 +421,8 @@ class Options {
 
   /// An extra map that you can retrieve in [Interceptor], [Transformer]
   /// and [Response.requestOptions].
+  ///
+  /// The field is designed to be non-identical with [Response.extra].
   Map<String, dynamic>? extra;
 
   /// See [HttpClientRequest.followRedirects].
