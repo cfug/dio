@@ -1,7 +1,7 @@
 dependency_overrides:
   dio:
     path: ../dio
-  cancel_token:
+  dio_cancel_token:
     path: ../plugins/cancel_token
   dio_cookie_manager:
     path: ../plugins/cookie_manager

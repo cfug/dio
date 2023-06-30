@@ -3,7 +3,7 @@
 /// very easy to use.
 library dio;
 
-export 'package:cancel_token/cancel_token.dart';
+export 'package:dio_cancel_token/dio_cancel_token.dart';
 
 export 'src/adapter.dart';
 export 'src/cancel_token.dart';

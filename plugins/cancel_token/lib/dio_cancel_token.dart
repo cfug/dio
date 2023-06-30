@@ -1,4 +1,4 @@
-library cancel_token;
+library dio_cancel_token;
 
 import 'dart:async';
 

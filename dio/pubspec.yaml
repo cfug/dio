@@ -16,7 +16,7 @@ environment:
 
 dependencies:
   async: ^2.8.2
-  cancel_token: ^1.0.0
+  dio_cancel_token: ^1.0.0
   http_parser: ^4.0.0
   meta: ^1.5.0
   path: ^1.8.0

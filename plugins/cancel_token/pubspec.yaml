@@ -1,4 +1,4 @@
-name: cancel_token
+name: dio_cancel_token
 description: A useful instance builds from `Completer` that helps control the cancellation of `Dio`(s) requests.
 version: 1.0.0
 homepage: https://github.com/cfug/dio
