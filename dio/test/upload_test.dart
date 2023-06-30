@@ -69,10 +69,8 @@ void main() {
       );
       expect(r.data['headers']['Content-Length'], contentLength.toString());
 
-      // Image content comparison not working with httpbun for now.
-      // See https://github.com/sharat87/httpbun/issues/5
-      // final img = base64Encode(f.readAsBytesSync());
-      // expect(r.data['data'], 'data:application/octet-stream;base64,$img');
+      final img = base64Encode(f.readAsBytesSync());
+      expect(r.data['data'], img);
     },
     testOn: 'vm',
   );
@@ -94,10 +92,8 @@ void main() {
       );
       expect(r.data['headers']['Content-Length'], contentLength.toString());
 
-      // Image content comparison not working with httpbun for now.
-      // See https://github.com/sharat87/httpbun/issues/5
-      // final img = base64Encode(f.readAsBytesSync());
-      // expect(r.data['data'], 'data:application/octet-stream;base64,$img');
+      final img = base64Encode(f.readAsBytesSync());
+      expect(r.data['data'], img);
     },
     testOn: 'vm',
   );
