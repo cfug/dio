@@ -1,0 +1,18 @@
+name: cancel_token
+description: A useful instance builds from `Completer` that helps control the cancellation of `Dio`(s) requests.
+version: 1.0.0
+homepage: https://github.com/cfug/dio
+repository: https://github.com/cfug/dio/blob/main/plugins/cancel_token
+issue_tracker: https://github.com/cfug/dio/issues
+
+environment:
+  sdk: '>=2.15.0 <4.0.0'
+
+dependencies:
+  dio: ^5.2.0
+
+dev_dependencies:
+  lints: any
+  test: ^1.5.1
+  mockito: ^5.2.0
+  build_runner: any

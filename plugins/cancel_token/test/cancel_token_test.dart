@@ -56,8 +56,8 @@ void main() {
         expectLater(
           future,
           throwsA((error) =>
-              error is DioError &&
-              error.type == DioErrorType.cancel &&
+              error is DioException &&
+              error.type == DioExceptionType.cancel &&
               error.error == reason),
         );
       }
