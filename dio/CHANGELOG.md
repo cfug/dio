@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Remove `http` from `dev_dependencies`.
 
 ## 5.2.1+1
 
