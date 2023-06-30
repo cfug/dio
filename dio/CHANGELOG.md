@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Bump `http` dev_dependency to `^1.0.0`.
 
 ## 5.2.1+1
 
