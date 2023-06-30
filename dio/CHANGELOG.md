@@ -5,6 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Fix url concatenation '/' handling
 - Remove `http` from `dev_dependencies`.
 
 ## 5.2.1+1
