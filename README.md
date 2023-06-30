@@ -15,6 +15,8 @@ See the [Migration Guide](dio/migration_guide.md) for the complete breaking chan
 
 ### Plugins
 
+- cancel_token: [link](plugins/cancel_token)
+  [![Pub](https://img.shields.io/pub/v/dio_cancel_token.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_cancel_token)
 - cookie_manager: [link](plugins/cookie_manager)
   [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_cookie_manager)
 - http2_adapter: [link](plugins/http2_adapter)

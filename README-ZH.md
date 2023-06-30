@@ -14,6 +14,8 @@ Language: [English](README.md) | 简体中文
 
 ### 插件
 
+- cancel_token: [链接](plugins/cancel_token)
+  [![Pub](https://img.shields.io/pub/v/dio_cancel_token.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_cancel_token)
 - cookie_manager: [链接](plugins/cookie_manager)
   [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_cookie_manager)
 - http2_adapter: [链接](plugins/http2_adapter)
