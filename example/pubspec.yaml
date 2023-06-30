@@ -13,14 +13,6 @@ dependencies:
   dio_cookie_manager:
   dio_http2_adapter:
 
-dependency_overrides:
-  dio:
-    path: ../dio
-  dio_cookie_manager:
-    path: ../plugins/cookie_manager
-  dio_http2_adapter:
-    path: ../plugins/http2_adapter
-
 dev_dependencies:
   lints: any
   test: ^1.22.1

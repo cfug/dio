@@ -1,7 +1,6 @@
 // ignore_for_file: unused_import
 
 import 'package:dio_example/adapter.dart';
-import 'package:dio_example/cancel_request.dart';
 import 'package:dio_example/cookie_mgr.dart';
 import 'package:dio_example/custom_cache_interceptor.dart';
 import 'package:dio_example/dio.dart';

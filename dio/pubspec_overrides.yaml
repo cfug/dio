@@ -1,0 +1,3 @@
+dependency_overrides:
+  cancel_token:
+    path: ../plugins/cancel_token
