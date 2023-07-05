@@ -94,6 +94,70 @@ void main() async {
       testOn: 'vm',
     );
 
+    // Restored multipart files should be able to read again and be the same as the original ones.
+    test(
+      'complex with restoration',
+      () async {
+        final multipartFile1 = MultipartFile.fromString(
+          'hello world.',
+          headers: {
+            'test': <String>['a']
+          },
+        );
+        final multipartFile2 = await MultipartFile.fromFile(
+          'test/mock/_testfile',
+          filename: '1.txt',
+          headers: {
+            'test': <String>['b']
+          },
+        );
+        final multipartFile3 = MultipartFile.fromFileSync(
+          'test/mock/_testfile',
+          filename: '2.txt',
+          headers: {
+            'test': <String>['c']
+          },
+        );
+
+        final fm = FormData.fromMap({
+          'name': 'wendux',
+          'age': 25,
+          'path': '/图片空间/地址',
+          'file': multipartFile1,
+          'files': [
+            multipartFile2,
+            multipartFile3,
+          ]
+        });
+        final fmStr = await fm.readAsBytes();
+
+        final fm1 = FormData();
+        fm1.fields.add(MapEntry('name', 'wendux'));
+        fm1.fields.add(MapEntry('age', '25'));
+        fm1.fields.add(MapEntry('path', '/图片空间/地址'));
+        fm1.files.add(
+          MapEntry(
+            'file',
+            multipartFile1.restoreMultipartFile(),
+          ),
+        );
+        fm1.files.add(
+          MapEntry(
+            'files',
+            multipartFile2.restoreMultipartFile(),
+          ),
+        );
+        fm1.files.add(
+          MapEntry(
+            'files',
+            multipartFile3.restoreMultipartFile(),
+          ),
+        );
+        expect(fmStr.length, fm1.length);
+      },
+      testOn: 'vm',
+    );
+
     test('encodes maps correctly', () async {
       final fd = FormData.fromMap(
         {
