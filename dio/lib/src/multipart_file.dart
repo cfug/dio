@@ -25,6 +25,12 @@ class MultipartFile {
   /// The content-type of the file. Defaults to `application/octet-stream`.
   final MediaType? contentType;
 
+  /// The path of the file on disk. May be null.
+  final String? _filePath;
+
+  /// The bytes of the file. May be null.
+  final List<int>? _valueBytes;
+
   /// The stream that will emit the file's contents.
   final Stream<List<int>> _stream;
 
@@ -44,9 +50,13 @@ class MultipartFile {
     this.filename,
     MediaType? contentType,
     Map<String, List<String>>? headers,
+    String? filePath,
+    List<int>? value,
   })  : _stream = stream,
         headers = caseInsensitiveKeyMap(headers),
-        contentType = contentType ?? MediaType('application', 'octet-stream');
+        contentType = contentType ?? MediaType('application', 'octet-stream'),
+        _filePath = filePath,
+        _valueBytes = value;
 
   /// Creates a new [MultipartFile] from a byte array.
   ///
@@ -65,6 +75,7 @@ class MultipartFile {
       filename: filename,
       contentType: contentType,
       headers: headers,
+      value: value,
     );
   }
 
@@ -139,5 +150,28 @@ class MultipartFile {
     }
     _isFinalized = true;
     return _stream;
+  }
+
+  /// Restore MultipartFile from path or value after its initial use. This is useful if your request failed and you wish
+  /// to sistematically retry it, for example a 401 error that can be solved by refreshing the token.
+  MultipartFile restoreMultipartFile() {
+    if (_filePath != null) {
+      return multipartFileFromPathSync(
+        _filePath!,
+        filename: filename,
+        contentType: contentType,
+        headers: headers,
+      );
+    } else if (_valueBytes != null) {
+      return MultipartFile.fromBytes(
+        _valueBytes!,
+        filename: filename,
+        contentType: contentType,
+        headers: headers,
+      );
+    } else {
+      throw ArgumentError(
+          'Operation is not possible, file path or value is not available');
+    }
   }
 }
