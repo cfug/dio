@@ -22,7 +22,6 @@ Future<MultipartFile> multipartFileFromPath(
     filename: filename,
     contentType: contentType,
     headers: headers,
-    filePath: filePath,
   );
 }
 
@@ -42,6 +41,5 @@ MultipartFile multipartFileFromPathSync(
     filename: filename,
     contentType: contentType,
     headers: headers,
-    filePath: filePath,
   );
 }
