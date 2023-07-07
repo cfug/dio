@@ -154,6 +154,9 @@ void main() async {
           ),
         );
         expect(fmStr.length, fm1.length);
+        expect(fm1.files[0].value.isFinalized, false);
+        expect(fm1.files[1].value.isFinalized, false);
+        expect(fm1.files[2].value.isFinalized, false);
       },
       testOn: 'vm',
     );
