@@ -26,10 +26,10 @@ class MyTransformer extends BackgroundTransformer {
   @override
   Future transformResponse(
     RequestOptions options,
-    ResponseBody response,
+    ResponseBody responseBody,
   ) async {
     options.extra['self'] = 'XX';
-    return super.transformResponse(options, response);
+    return super.transformResponse(options, responseBody);
   }
 }
 

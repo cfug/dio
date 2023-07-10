@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Remove `http` from `dev_dependencies`.
+- Only produce null response body when `ResponseType.json`.
 
 ## 5.2.1+1
 
