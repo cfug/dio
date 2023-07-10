@@ -141,9 +141,10 @@ class MultipartFile {
     return _stream;
   }
 
-  /// Restore MultipartFile, returning a new instance of the same object. This is useful if your request failed and you wish
-  /// to sistematically retry it, for example a 401 error that can be solved by refreshing the token.
-  MultipartFile restoreMultipartFile() => MultipartFile(
+  /// Restore MultipartFile, returning a new instance of the same object.
+  /// This is useful if your request failed and you wish to retry it,
+  /// such as an unauthorized exception can be solved by refreshing the token.
+  MultipartFile duplicateMultipartFile() => MultipartFile(
         _stream,
         length,
         filename: filename,
