@@ -7,6 +7,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Remove `http` from `dev_dependencies`.
 - Only produce null response body when `ResponseType.json`.
+- Remove parameter from queryParameters if it null
 
 ## 5.2.1+1
 
