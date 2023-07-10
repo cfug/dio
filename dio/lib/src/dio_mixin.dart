@@ -495,10 +495,9 @@ abstract class DioMixin implements Dio {
 
   Future<Response<dynamic>> _dispatchRequest<T>(RequestOptions reqOpt) async {
     final cancelToken = reqOpt.cancelToken;
-    ResponseBody responseBody;
     try {
       final stream = await _transformData(reqOpt);
-      responseBody = await httpClientAdapter.fetch(
+      final responseBody = await httpClientAdapter.fetch(
         reqOpt,
         stream,
         cancelToken?.whenCancel,
@@ -517,7 +516,19 @@ abstract class DioMixin implements Dio {
       );
       final statusOk = reqOpt.validateStatus(responseBody.statusCode);
       if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
-        ret.data = await transformer.transformResponse(reqOpt, responseBody);
+        Object? data = await transformer.transformResponse(
+          reqOpt,
+          responseBody,
+        );
+        // Make the response as null before returned as JSON.
+        if (data is String &&
+            data.isEmpty &&
+            T != dynamic &&
+            T != String &&
+            reqOpt.responseType == ResponseType.json) {
+          data = null;
+        }
+        ret.data = data;
       } else {
         await responseBody.stream.listen(null).cancel();
       }
