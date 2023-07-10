@@ -22,9 +22,10 @@ abstract class Transformer {
   /// [transformResponse] allows changes to the response data  before
   /// it is passed to [ResponseInterceptor].
   ///
-  /// **Note**: As an agreement, you must return the [response]
+  /// **Note**: As an agreement, you must return the [responseBody]
   /// when the Options.responseType is [ResponseType.stream].
-  Future transformResponse(RequestOptions options, ResponseBody response);
+  // TODO(AlexV525): Add generic type for the method in v6.0.0.
+  Future transformResponse(RequestOptions options, ResponseBody responseBody);
 
   /// Deep encode the [Map<String, dynamic>] to percent-encoding.
   /// It is mostly used with the "application/x-www-form-urlencoded" content-type.

@@ -672,8 +672,8 @@ class MockTransformer extends _i1.Mock implements _i5.Transformer {
           returnValue: Future<String>.value('')) as _i4.Future<String>);
   @override
   _i4.Future<dynamic> transformResponse(
-          _i6.RequestOptions? options, _i7.ResponseBody? response) =>
+          _i6.RequestOptions? options, _i7.ResponseBody? responseBody) =>
       (super.noSuchMethod(
-          Invocation.method(#transformResponse, [options, response]),
+          Invocation.method(#transformResponse, [options, responseBody]),
           returnValue: Future<dynamic>.value()) as _i4.Future<dynamic>);
 }
