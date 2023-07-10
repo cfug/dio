@@ -297,7 +297,8 @@ class Options {
     final query = <String, dynamic>{};
     query.addAll(baseOpt.queryParameters);
     if (queryParameters != null) query.addAll(queryParameters);
-
+    query.removeWhere((key, value) => value == null);
+    
     final headers = caseInsensitiveKeyMap(baseOpt.headers);
     if (this.headers != null) {
       headers.addAll(this.headers!);
