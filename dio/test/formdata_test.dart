@@ -94,10 +94,10 @@ void main() async {
       testOn: 'vm',
     );
 
-    // Restored multipart files should be able to be read again and be the same
+    // Cloned multipart files should be able to be read again and be the same
     // as the original ones.
     test(
-      'complex with restoration',
+      'complex with cloning',
       () async {
         final multipartFile1 = MultipartFile.fromString(
           'hello world.',
@@ -152,24 +152,24 @@ void main() async {
         fm1.files.add(
           MapEntry(
             'file',
-            multipartFile1.duplicateMultipartFile(),
+            multipartFile1.clone(),
           ),
         );
         fm1.files.add(
           MapEntry(
             'files',
-            multipartFile2.duplicateMultipartFile(),
+            multipartFile2.clone(),
           ),
         );
         fm1.files.add(
           MapEntry(
             'files',
-            multipartFile3.duplicateMultipartFile(),
+            multipartFile3.clone(),
           ),
         );
         expect(fmStr.length, fm1.length);
 
-        // The restored multipart files should be able to be read again.
+        // The cloned multipart files should be able to be read again.
         expect(fm.files[0].value.isFinalized, true);
         expect(fm.files[1].value.isFinalized, true);
         expect(fm.files[2].value.isFinalized, true);
@@ -177,7 +177,7 @@ void main() async {
         expect(fm1.files[1].value.isFinalized, false);
         expect(fm1.files[2].value.isFinalized, false);
 
-        // The restored multipart files' properties should be the same as the
+        // The cloned multipart files' properties should be the same as the
         // original ones.
         expect(fm1.files[0].value.filename, multipartFile1.filename);
         expect(fm1.files[0].value.contentType, multipartFile1.contentType);
