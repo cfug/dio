@@ -45,12 +45,13 @@ class _ConnectionManager implements ConnectionManager {
       if (initFuture == null) {
         _connectFutures[domain] = initFuture = _connect(options);
       }
-      transportState = await initFuture;
+      transportState = await initFuture.whenComplete(() {
+         _connectFutures.remove(domain);
+      });
       if (_forceClosed) {
         transportState.dispose();
       } else {
         _transportsMap[domain] = transportState;
-        final _ = _connectFutures.remove(domain);
       }
     } else {
       // Check whether the connection is terminated, if it is, reconnecting.
