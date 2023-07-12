@@ -4,6 +4,7 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
+
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../headers.dart';

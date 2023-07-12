@@ -49,52 +49,57 @@ abstract class HttpClientAdapter {
   void close({bool force = false});
 }
 
-/// The response class used in adapters. Users should not access this directly.
+/// The response wrapper class for adapters.
+///
+/// This class should not be used in regular usages.
 class ResponseBody {
   ResponseBody(
     this.stream,
     this.statusCode, {
-    this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
     this.redirects,
-  });
+    Map<String, List<String>>? headers,
+  }) : headers = headers ?? {};
 
   ResponseBody.fromString(
     String text,
     this.statusCode, {
-    this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
-  }) : stream = Stream.value(Uint8List.fromList(utf8.encode(text)));
+    Map<String, List<String>>? headers,
+  })  : stream = Stream.value(Uint8List.fromList(utf8.encode(text))),
+        headers = headers ?? {};
 
   ResponseBody.fromBytes(
     List<int> bytes,
     this.statusCode, {
-    this.headers = const {},
     this.statusMessage,
     this.isRedirect = false,
-  }) : stream = Stream.value(Uint8List.fromList(bytes));
-
-  /// The response stream.
-  Stream<Uint8List> stream;
-
-  /// The response headers.
-  Map<String, List<String>> headers;
-
-  /// HTTP status code.
-  int statusCode;
-
-  /// Returns the reason phrase associated with the status code.
-  /// The reason phrase must be set before the body is written to.
-  /// Setting the reason phrase after writing to the body.
-  String? statusMessage;
+    Map<String, List<String>>? headers,
+  })  : stream = Stream.value(Uint8List.fromList(bytes)),
+        headers = headers ?? {};
 
   /// Whether this response is a redirect.
   final bool isRedirect;
 
+  /// The response stream.
+  Stream<Uint8List> stream;
+
+  /// HTTP status code.
+  int statusCode;
+
+  /// Returns the reason phrase corresponds to the status code.
+  /// The message can be [HttpRequest.statusText]
+  /// or [HttpClientResponse.reasonPhrase].
+  String? statusMessage;
+
   /// Stores redirections during the request.
   List<RedirectRecord>? redirects;
 
+  /// The response headers.
+  Map<String, List<String>> headers;
+
+  /// The extra field which will pass-through to the [Response.extra].
   Map<String, dynamic> extra = {};
 }
