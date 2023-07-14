@@ -70,7 +70,7 @@ void main() {
     try {
       // will throw SocketException
       await dio.post('post', data: 'TEST');
-    } on DioException catch (e) {
+    } on DioException {
       // ignore
     }
     final res = await dio.post('post', data: 'TEST');
