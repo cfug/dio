@@ -7,7 +7,8 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
 void main() {
-  // NOTE: Run test.sh to download the current certs to the file below.
+  // NOTE: Run scripts/prepare_pinning_certs.sh
+  // to download the current certs to the file below.
   //
   // OpenSSL output like: SHA256 Fingerprint=EE:5C:E1:DF:A7:A4...
   // All badssl.com hosts have the same cert, they just have TLS
