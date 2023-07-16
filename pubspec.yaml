@@ -1,0 +1,8 @@
+name: dio_workspace
+
+environment:
+  sdk: '>=2.16.0 <4.0.0'
+
+dev_dependencies:
+  lints: any
+  melos: ^3.1.0

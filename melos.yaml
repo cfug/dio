@@ -1,0 +1,9 @@
+name: dio
+repository: https://github.com/cfug/dio
+
+packages:
+  - dio
+  - plugins/*
+
+ide:
+  intellij: true
