@@ -7,7 +7,8 @@ import 'package:dio/io.dart';
 import 'package:test/test.dart';
 
 void main() {
-  // NOTE: Run test.sh to download the currrent certs to the file below.
+  // NOTE: Run scripts/prepare_pinning_certs.sh
+  // to download the current certs to the file below.
   final trustedCertUrl = 'https://sha256.badssl.com/';
   final untrustedCertUrl = 'https://wrong.host.badssl.com/';
 
