@@ -1,4 +1,6 @@
 name: dio_workspace
+publish_to: 'none'
+repository: https://github.com/cfug/dio
 
 environment:
   sdk: '>=2.16.0 <4.0.0'
