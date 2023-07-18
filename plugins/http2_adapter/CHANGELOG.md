@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.3.1
+
 - Fix cached `initFuture` not remove when throw exception.
 
 ## 2.3.0
