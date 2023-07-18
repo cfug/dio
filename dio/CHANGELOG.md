@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.3.0
+
 - Remove `http` from `dev_dependencies`.
 - Add support for cloning `MultipartFile` from `FormData`.
 - Only produce null response body when `ResponseType.json`.
