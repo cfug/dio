@@ -34,34 +34,51 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
   ) async {
-    final request = Request(
-      options.method,
-      options.uri,
-    );
+    final BaseRequest request;
+    if (options.onSendProgress != null && requestStream != null) {
+      final streamedRequest = StreamedRequest(
+        options.method,
+        options.uri,
+      );
+      requestStream.listen(
+        streamedRequest.sink.add,
+        onDone: streamedRequest.sink.close,
+        onError: streamedRequest.sink.addError,
+        cancelOnError: true,
+      );
+      request = streamedRequest;
+    } else {
+      final simpleRequest = Request(
+        options.method,
+        options.uri,
+      );
+      if (requestStream != null) {
+        final completer = Completer<Uint8List>();
+        final sink = ByteConversionSink.withCallback(
+          (bytes) => completer.complete(Uint8List.fromList(bytes)),
+        );
+        requestStream.listen(
+          sink.add,
+          onError: completer.completeError,
+          onDone: sink.close,
+          cancelOnError: true,
+        );
+        final bytes = await completer.future;
+        simpleRequest.bodyBytes = bytes;
+        // simpleRequest.bodyBytes = await ByteStream(requestStream).toBytes();
+      }
+      request = simpleRequest;
+    }
 
     request.headers.addAll(
       Map.fromEntries(
         options.headers.entries.map((e) => MapEntry(e.key, e.value.toString())),
       ),
     );
-
     request.followRedirects = options.followRedirects;
     request.maxRedirects = options.maxRedirects;
+    request.persistentConnection = options.persistentConnection;
 
-    if (requestStream != null) {
-      final completer = Completer<Uint8List>();
-      final sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(Uint8List.fromList(bytes)),
-      );
-      requestStream.listen(
-        sink.add,
-        onError: completer.completeError,
-        onDone: sink.close,
-        cancelOnError: true,
-      );
-      final bytes = await completer.future;
-      request.bodyBytes = bytes;
-    }
     return request;
   }
 }
