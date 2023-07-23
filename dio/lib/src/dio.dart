@@ -11,7 +11,7 @@ import 'response.dart';
 import 'dio/dio_for_native.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
 
-/// The abstracted class for users to easily make HTTP request.
+/// Dio enables you to make HTTP requests easily.
 ///
 /// Creating a [Dio] instance with configurations:
 /// ```dart
