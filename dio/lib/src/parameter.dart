@@ -1,14 +1,24 @@
-import 'package:dio/dio.dart';
+import 'options.dart';
 
+/// Indicates a param being used as queries or form data,
+/// and how does it gets formatted.
 class ListParam<T> {
-  final ListFormat format;
-  List<T> value;
+  const ListParam(this.value, this.format);
 
-  ListParam(this.value, this.format);
+  /// The value used in queries or in form data.
+  final List<T> value;
+
+  /// How does the value gets formatted.
+  final ListFormat format;
+
+  /// Generate a new [ListParam] by copying fields.
+  ListParam<T> copyWith({List<T>? value, ListFormat? format}) {
+    return ListParam(value ?? this.value, format ?? this.format);
+  }
 
   @override
   String toString() {
-    return 'ListParam{format: $format, value: $value}';
+    return 'ListParam{value: $value, format: $format}';
   }
 
   @override
@@ -16,9 +26,9 @@ class ListParam<T> {
       identical(this, other) ||
       other is ListParam &&
           runtimeType == other.runtimeType &&
-          format == other.format &&
-          value == other.value;
+          value == other.value &&
+          format == other.format;
 
   @override
-  int get hashCode => format.hashCode ^ value.hashCode;
+  int get hashCode => value.hashCode ^ format.hashCode;
 }

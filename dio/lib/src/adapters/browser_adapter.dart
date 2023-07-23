@@ -4,6 +4,7 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
+
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../headers.dart';
@@ -24,7 +25,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   ///
   /// Defaults to `false`.
   ///
-  /// You can also override this value in Options.extra['withCredentials'] for each request
+  /// You can also override this value using `Options.extra['withCredentials']`
+  /// for each request.
   bool withCredentials;
 
   @override
@@ -201,9 +203,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         try {
           xhr.abort();
         } catch (_) {}
-        // xhr.onError will not triggered when xhr.abort() called.
-        // so need to manual throw the cancel error to avoid Future hang ups.
-        // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
           completer.completeError(
             DioException.requestCancelled(

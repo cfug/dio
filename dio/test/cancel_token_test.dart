@@ -11,11 +11,16 @@ void main() {
       final token = CancelToken();
       const reason = 'cancel';
 
-      expectLater(token.whenCancel, completion((error) {
-        return error is DioException &&
-            error.type == DioExceptionType.cancel &&
-            error.error == reason;
-      }));
+      expectLater(
+        token.whenCancel,
+        completion(
+          (error) {
+            return error is DioException &&
+                error.type == DioExceptionType.cancel &&
+                error.error == reason;
+          },
+        ),
+      );
       token.requestOptions = RequestOptions();
       token.cancel(reason);
     });
@@ -55,10 +60,12 @@ void main() {
       for (final future in futures) {
         expectLater(
           future,
-          throwsA((error) =>
-              error is DioError &&
-              error.type == DioErrorType.cancel &&
-              error.error == reason),
+          throwsA(
+            (error) =>
+                error is DioException &&
+                error.type == DioExceptionType.cancel &&
+                error.error == reason,
+          ),
         );
       }
 
@@ -70,7 +77,7 @@ void main() {
       try {
         await Future.wait(futures);
       } catch (_) {
-        // ignore, just waiting here till all futures are completed
+        // ignore, just waiting here till all futures are completed.
       }
 
       for (final request in requests) {

@@ -12,26 +12,6 @@ import 'multipart_file/io_multipart_file.dart'
 /// MultipartFile is based on stream, and a stream can be read only once,
 /// so the same MultipartFile can't be read multiple times.
 class MultipartFile {
-  /// The size of the file in bytes. This must be known in advance, even if this
-  /// file is created from a [ByteStream].
-  final int length;
-
-  /// The basename of the file. May be null.
-  final String? filename;
-
-  /// The additional headers the file has. May be null.
-  final Map<String, List<String>>? headers;
-
-  /// The content-type of the file. Defaults to `application/octet-stream`.
-  final MediaType? contentType;
-
-  /// The stream that will emit the file's contents.
-  final Stream<List<int>> _stream;
-
-  /// Whether [finalize] has been called.
-  bool get isFinalized => _isFinalized;
-  bool _isFinalized = false;
-
   /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
   /// of the file in bytes must be known in advance. If it's not, read the data
   /// from the stream and use [MultipartFile.fromBytes] instead.
@@ -94,6 +74,26 @@ class MultipartFile {
       headers: headers,
     );
   }
+
+  /// The size of the file in bytes. This must be known in advance, even if this
+  /// file is created from a [ByteStream].
+  final int length;
+
+  /// The basename of the file. May be null.
+  final String? filename;
+
+  /// The additional headers the file has. May be null.
+  final Map<String, List<String>>? headers;
+
+  /// The content-type of the file. Defaults to `application/octet-stream`.
+  final MediaType? contentType;
+
+  /// The stream that will emit the file's contents.
+  final Stream<List<int>> _stream;
+
+  /// Whether [finalize] has been called.
+  bool get isFinalized => _isFinalized;
+  bool _isFinalized = false;
 
   /// Creates a new [MultipartFile] from a path to a file on disk.
   ///

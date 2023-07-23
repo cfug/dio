@@ -389,6 +389,8 @@ print(response.requestOptions);
 print(response.statusCode);
 ```
 
+注意，`Response.extra` 与 `RequestOptions.extra` 是不同的实例，互相之间无关。
+
 ### 拦截器
 
 每个 Dio 实例都可以添加任意多个拦截器，他们会组成一个队列，拦截器队列的执行顺序是先进先出。

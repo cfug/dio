@@ -6,60 +6,60 @@ import 'headers.dart';
 import 'transformer.dart';
 import 'utils.dart';
 
-/// Callback to listen the progress for sending/receiving data.
+/// {@template dio.options.ProgressCallback}
+/// The type of a progress listening callback when sending or receiving data.
 ///
 /// [count] is the length of the bytes have been sent/received.
 ///
 /// [total] is the content length of the response/request body.
-/// 1.When sending data:
-///   [total] is the request body length.
-/// 2.When receiving data:
-///   [total] will be -1 if the size of the response body is not known in advance,
-///   for example: response data is compressed with gzip or no content-length header.
+/// 1. When sending data, [total] is the request body length.
+/// 2. When receiving data, [total] will be -1 if the size of the response body,
+///    typically with no `content-length` header.
+/// {@endtemplate}
 typedef ProgressCallback = void Function(int count, int total);
 
-/// ResponseType indicates which transformation should
-/// be automatically applied to the response data by Dio.
+/// Indicates which transformation should be applied to the response data.
 enum ResponseType {
   /// Transform the response data to JSON object only when the
   /// content-type of response is "application/json" .
   json,
 
-  /// Get the response stream without any transformation. The
-  /// Response data will be a [ResponseBody] instance.
+  /// Get the response stream directly,
+  /// the [Response.data] will be [ResponseBody].
   ///
-  ///    Response<ResponseBody> rs = await Dio().get<ResponseBody>(
-  ///      url,
-  ///      options: Options(
-  ///        responseType: ResponseType.stream,
-  ///      ),
-  ///    );
+  /// ```dart
+  /// Response<ResponseBody> rs = await Dio().get<ResponseBody>(
+  ///   url,
+  ///   options: Options(responseType: ResponseType.stream),
+  /// );
   stream,
 
-  /// Transform the response data to a String encoded with UTF8.
+  /// Transform the response data to an UTF-8 encoded [String].
   plain,
 
-  /// Get original bytes, the type of [Response.data] will be List<int>
-  bytes
+  /// Get the original bytes, the [Response.data] will be [List<int>].
+  bytes,
 }
 
-/// ListFormat specifies the array format
-/// (a single parameter with multiple parameter or multiple parameters with the same name)
+/// {@template dio.options.ListFormat}
+/// Specifies the array format (a single parameter with multiple parameter
+/// or multiple parameters with the same name).
 /// and the separator for array items.
+/// {@endtemplate}
 enum ListFormat {
-  /// Comma-separated values
+  /// Comma-separated values.
   /// e.g. (foo,bar,baz)
   csv,
 
-  /// Space-separated values
+  /// Space-separated values.
   /// e.g. (foo bar baz)
   ssv,
 
-  /// Tab-separated values
+  /// Tab-separated values.
   /// e.g. (foo\tbar\tbaz)
   tsv,
 
-  /// Pipe-separated values
+  /// Pipe-separated values.
   /// e.g. (foo|bar|baz)
   pipes,
 
@@ -67,25 +67,57 @@ enum ListFormat {
   /// e.g. (foo=value&foo=another_value)
   multi,
 
-  /// Forward compatibility
+  /// Forward compatibility.
   /// e.g. (foo[]=value&foo[]=another_value)
   multiCompatible,
 }
 
+/// The type of a response status code validate callback.
 typedef ValidateStatus = bool Function(int? status);
 
+/// The type of a response decoding callback.
 typedef ResponseDecoder = String? Function(
   List<int> responseBytes,
   RequestOptions options,
   ResponseBody responseBody,
 );
+
+/// The type of a response encoding callback.
 typedef RequestEncoder = List<int> Function(
   String request,
   RequestOptions options,
 );
 
-/// The common config for the Dio instance.
-/// `dio.options` is a instance of [BaseOptions]
+/// The mixin class for options that provides common attributes.
+mixin OptionsMixin {
+  /// Request base url, it can contain sub paths like: https://pub.dev/api/.
+  late String baseUrl;
+
+  /// Common query parameters.
+  ///
+  /// List values use the default [ListFormat.multiCompatible].
+  /// The value can be overridden per parameter by adding a [ListParam]
+  /// object wrapping the actual List value and the desired format.
+  late Map<String, dynamic> queryParameters;
+
+  /// Timeout when opening url.
+  ///
+  /// [Dio] will throw the [DioException] with
+  /// [DioExceptionType.connectionTimeout] type when time out.
+  ///
+  /// `null` meanings no timeout limit.
+  Duration? get connectTimeout => _connectTimeout;
+  Duration? _connectTimeout;
+
+  set connectTimeout(Duration? value) {
+    if (value != null && value.isNegative) {
+      throw StateError('connectTimeout should be positive');
+    }
+    _connectTimeout = value;
+  }
+}
+
+/// The base config for the Dio instance, used by [Dio.options].
 class BaseOptions extends _RequestConfig with OptionsMixin {
   BaseOptions({
     String? method,
@@ -130,7 +162,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     this.connectTimeout = connectTimeout;
   }
 
-  /// Create a Option from current instance with merging attributes.
+  /// Create a [BaseOptions] from current instance with merged attributes.
   BaseOptions copyWith({
     String? method,
     String? baseUrl,
@@ -174,33 +206,6 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       listFormat: listFormat ?? this.listFormat,
     );
   }
-}
-
-mixin OptionsMixin {
-  /// Request base url, it can contain sub paths like: https://pub.dev/api/.
-  late String baseUrl;
-
-  /// Common query parameters.
-  ///
-  /// List values use the default [ListFormat.multiCompatible].
-  ///
-  /// The value can be overridden per parameter by adding a [ListParam]
-  /// object wrapping the actual List value and the desired format.
-  late Map<String, dynamic> queryParameters;
-
-  /// Timeout in milliseconds for opening url.
-  /// [Dio] will throw the [DioException] with [DioExceptionType.connectionTimeout] type
-  ///  when time out.
-  Duration? get connectTimeout => _connectTimeout;
-
-  set connectTimeout(Duration? value) {
-    if (value != null && value.isNegative) {
-      throw StateError('connectTimeout should be positive');
-    }
-    _connectTimeout = value;
-  }
-
-  Duration? _connectTimeout;
 }
 
 /// Every request can pass an [Options] object which will be merged with [Dio.options]
@@ -343,96 +348,97 @@ class Options {
     return requestOptions;
   }
 
-  /// Http method.
+  /// The HTTP request method.
   String? method;
 
-  /// Http request headers. The keys of initial headers will be converted to lowercase,
-  /// for example 'Content-Type' will be converted to 'content-type'.
+  /// HTTP request headers.
   ///
-  /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
-  /// regard as the same key.
+  /// The keys of the header are case-insensitive,
+  /// e.g.: content-type and Content-Type will be treated as the same key.
   Map<String, dynamic>? headers;
 
-  /// Timeout in milliseconds for sending data.
-  /// [Dio] will throw the [DioException] with [DioExceptionType.sendTimeout] type
-  ///  when time out.
+  /// Timeout when sending data.
+  ///
+  /// [Dio] will throw the [DioException] with
+  /// [DioExceptionType.sendTimeout] type when timed out.
+  ///
+  /// `null` meanings no timeout limit.
   Duration? get sendTimeout => _sendTimeout;
+  Duration? _sendTimeout;
 
   set sendTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError('sendTimeout should be positive');
+      throw ArgumentError.value(value, 'sendTimeout', 'should be positive');
     }
     _sendTimeout = value;
   }
 
-  Duration? _sendTimeout;
-
-  ///  Timeout in milliseconds for receiving data.
+  /// Timeout when receiving data.
   ///
-  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
-  ///  client has connected to the server, and the server starts to send data to the client.
+  /// The timeout represents the timeout during data transfer of each bytes,
+  /// rather than the overall timing during the receiving.
+  ///
+  /// [Dio] will throw the [DioException] with
+  /// [DioExceptionType.receiveTimeout] type when time out.
   ///
   /// `null` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
+  Duration? _receiveTimeout;
 
   set receiveTimeout(Duration? value) {
     if (value != null && value.isNegative) {
-      throw StateError('receiveTimeout should be positive');
+      throw ArgumentError.value(value, 'receiveTimeout', 'should be positive');
     }
     _receiveTimeout = value;
   }
 
-  Duration? _receiveTimeout;
-
-  /// The request Content-Type.
-  ///
-  /// [Dio] will automatically encode the request body accordingly.
+  /// The request content-type.
   ///
   /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? contentType;
 
-  /// [responseType] indicates the type of data that the server will respond with
-  /// options which defined in [ResponseType] are `json`, `stream`, `plain`.
+  /// Indicates the type of data that the server will respond with options.
   ///
   /// The default value is [ResponseType.json], [Dio] will parse response string
   /// to JSON object automatically when the content-type of response is
   /// [Headers.jsonContentType].
   ///
-  /// If you want to receive response data with binary bytes, for example,
-  /// downloading a image, use `stream`.
+  /// If you want to receive response data with binary bytes, use `stream`.
   ///
   /// If you want to receive the response data with String, use `plain`.
   ///
-  /// If you want to receive the response data with original bytes,
-  /// that's to say the type of [Response.data] will be List<int>, use `bytes`
+  /// If you want to receive the response data with original bytes, use `bytes`.
   ResponseType? responseType;
 
-  /// [validateStatus] defines whether the request is successful for a given
-  /// HTTP response status code. If [validateStatus] returns `true` ,
-  /// the request will be perceived as successful; otherwise, considered as failed.
+  /// Defines whether the request is succeed with the given status code.
+  /// The request will be treated as succeed if the callback returns true.
   ValidateStatus? validateStatus;
 
-  /// Whether receiving response data when http status code is not successful.
-  /// The default value is true
+  /// Whether to retrieve the data if status code indicates a failed request.
+  ///
+  /// Defaults to true.
   bool? receiveDataWhenStatusError;
 
-  /// Custom field that you can retrieve it later in
-  /// [Interceptor], [Transformer] and the [Response] object.
+  /// An extra map that you can retrieve in [Interceptor], [Transformer]
+  /// and [Response.requestOptions].
+  ///
+  /// The field is designed to be non-identical with [Response.extra].
   Map<String, dynamic>? extra;
 
-  /// see [HttpClientRequest.followRedirects],
-  /// The default value is true
+  /// See [HttpClientRequest.followRedirects].
+  ///
+  /// Defaults to true.
   bool? followRedirects;
 
-  /// Set this property to the maximum number of redirects to follow
-  /// when [followRedirects] is `true`. If this number is exceeded
-  /// an error event will be added with a [RedirectException].
+  /// The maximum number of redirects when [followRedirects] is `true`.
+  /// [RedirectException] will be thrown if redirects exceeded the limit.
   ///
-  /// The default value is 5.
+  /// Defaults to 5.
   int? maxRedirects;
 
-  /// see [HttpClientRequest.persistentConnection],
-  /// The default value is true
+  /// See [HttpClientRequest.persistentConnection].
+  ///
+  /// Defaults to true.
   bool? persistentConnection;
 
   /// The default request encoder is utf8encoder, you can set custom
@@ -443,13 +449,15 @@ class Options {
   /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder? responseDecoder;
 
-  /// The [listFormat] indicates the format of collection data in request
-  /// query parameters and `x-www-url-encoded` body data.
-  /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
-  /// The default value is `multi`.
+  /// Indicates the format of collection data in request query parameters and
+  /// `x-www-url-encoded` body data.
+  ///
+  /// Defaults to [ListFormat.multi].
   ListFormat? listFormat;
 }
 
+/// The internal request option class that is the eventual result after
+/// [BaseOptions] and [Options] are composed.
 class RequestOptions extends _RequestConfig with OptionsMixin {
   RequestOptions({
     this.path = '',
@@ -501,7 +509,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     this.connectTimeout = connectTimeout;
   }
 
-  /// Create a Option from current instance with merging attributes.
+  /// Create a [RequestOptions] from current instance with merged attributes.
   RequestOptions copyWith({
     String? method,
     Duration? sendTimeout,
@@ -575,15 +583,14 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     return ro;
   }
 
-  /// The source [StackTrace] which should always point to
-  /// the invocation of [DioMixin.request] or if not provided,
-  /// to the construction of the [RequestOptions] instance.
-  /// In both instances the source context should still be
-  /// available before it is lost due to asynchronous operations.
+  /// The source [StackTrace] which should always point to the invocation of
+  /// [DioMixin.request] or if not provided, to the construction of the
+  /// [RequestOptions] instance. In both instances the source context should
+  /// still be available before it is lost due to asynchronous operations.
   @internal
   StackTrace? sourceStackTrace;
 
-  /// generate uri
+  /// Generate the requesting [Uri] from the options.
   Uri get uri {
     String url = path;
     if (!url.startsWith(RegExp(r'https?:'))) {
@@ -601,27 +608,28 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     return Uri.parse(url).normalizePath();
   }
 
-  /// Request data, can be any type.
-  ///
-  /// When using `x-www-url-encoded` body data,
-  /// List values use the default [ListFormat.multi].
-  ///
-  /// The value can be overridden per value by adding a [ListParam]
-  /// object wrapping the actual List value and the desired format.
+  /// Request data in dynamic types.
   dynamic data;
 
-  /// If the `path` starts with 'http(s)', the `baseURL` will be ignored,
-  /// otherwise, it will be combined and then resolved with the baseUrl.
+  /// Defines the path of the request. If it starts with "http(s)",
+  /// [baseUrl] will be ignored. Otherwise, it will be combined and resolved
+  /// with the [baseUrl].
   String path;
 
+  /// {@macro dio.CancelToken}
   CancelToken? cancelToken;
 
+  /// {@macro dio.options.ProgressCallback}
   ProgressCallback? onReceiveProgress;
 
+  /// {@macro dio.options.ProgressCallback}
   ProgressCallback? onSendProgress;
 }
 
-/// The [_RequestConfig] class describes the http request information and configuration.
+bool _defaultValidateStatus(int? status) {
+  return status != null && status >= 200 && status < 300;
+}
+
 class _RequestConfig {
   _RequestConfig({
     Duration? receiveTimeout,
@@ -642,42 +650,35 @@ class _RequestConfig {
   })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
-        _sendTimeout = sendTimeout {
+        _sendTimeout = sendTimeout,
+        method = method ?? 'GET',
+        listFormat = listFormat ?? ListFormat.multi,
+        extra = extra ?? {},
+        followRedirects = followRedirects ?? true,
+        maxRedirects = maxRedirects ?? 5,
+        persistentConnection = persistentConnection ?? true,
+        receiveDataWhenStatusError = receiveDataWhenStatusError ?? true,
+        validateStatus = validateStatus ?? _defaultValidateStatus,
+        responseType = responseType ?? ResponseType.json {
     this.headers = headers;
-
-    final contentTypeInHeader =
+    final hasContentTypeHeader =
         this.headers.containsKey(Headers.contentTypeHeader);
-    assert(
-      !(contentType != null && contentTypeInHeader) ||
-          this.headers[Headers.contentTypeHeader] == contentType,
-      'You cannot set different values for contentType param and a content-type header',
-    );
-
-    this.method = method ?? 'GET';
-    this.listFormat = listFormat ?? ListFormat.multi;
-    this.extra = extra ?? {};
-    this.followRedirects = followRedirects ?? true;
-    this.maxRedirects = maxRedirects ?? 5;
-    this.persistentConnection = persistentConnection ?? true;
-    this.receiveDataWhenStatusError = receiveDataWhenStatusError ?? true;
-    this.validateStatus = validateStatus ??
-        (int? status) {
-          return status != null && status >= 200 && status < 300;
-        };
-    this.responseType = responseType ?? ResponseType.json;
-    if (!contentTypeInHeader) {
+    if (contentType != null &&
+        hasContentTypeHeader &&
+        this.headers[Headers.contentTypeHeader] != contentType) {
+      throw ArgumentError.value(
+        contentType,
+        'contentType',
+        'Unable to set different values for '
+            '`contentType` and the content-type header.',
+      );
+    }
+    if (!hasContentTypeHeader) {
       this.contentType = contentType;
     }
   }
 
-  /// Http method.
   late String method;
-
-  /// Http request headers. The keys of initial headers will be converted to lowercase,
-  /// for example 'Content-Type' will be converted to 'content-type'.
-  ///
-  /// The key of Header Map is case-insensitive, eg: content-type and Content-Type are
-  /// regard as the same key.
 
   Map<String, dynamic> get headers => _headers;
   late Map<String, dynamic> _headers;
@@ -690,12 +691,8 @@ class _RequestConfig {
     }
   }
 
-  /// Timeout in milliseconds for sending data.
-  /// [Dio] will throw the [DioException] with [DioExceptionType.sendTimeout] type
-  ///  when time out.
-  ///
-  /// `null` meanings no timeout limit.
   Duration? get sendTimeout => _sendTimeout;
+  Duration? _sendTimeout;
 
   set sendTimeout(Duration? value) {
     if (value != null && value.isNegative) {
@@ -704,15 +701,8 @@ class _RequestConfig {
     _sendTimeout = value;
   }
 
-  Duration? _sendTimeout;
-
-  ///  Timeout in milliseconds for receiving data.
-  ///
-  ///  Note: [receiveTimeout]  represents a timeout during data transfer! That is to say the
-  ///  client has connected to the server, and the server starts to send data to the client.
-  ///
-  /// `null` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
+  Duration? _receiveTimeout;
 
   set receiveTimeout(Duration? value) {
     if (value != null && value.isNegative) {
@@ -721,13 +711,8 @@ class _RequestConfig {
     _receiveTimeout = value;
   }
 
-  Duration? _receiveTimeout;
+  String? _defaultContentType;
 
-  /// The request Content-Type.
-  ///
-  /// [Dio] will automatically encode the request body accordingly.
-  ///
-  /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? get contentType => _headers[Headers.contentTypeHeader] as String?;
 
   set contentType(String? contentType) {
@@ -740,64 +725,14 @@ class _RequestConfig {
     }
   }
 
-  String? _defaultContentType;
-
-  /// [responseType] indicates the type of data that the server will respond with
-  /// options which defined in [ResponseType] are `json`, `stream`, `plain`.
-  ///
-  /// The default value is `json`, dio will parse response string to json object automatically
-  /// when the content-type of response is 'application/json'.
-  ///
-  /// If you want to receive response data with binary bytes, for example,
-  /// downloading a image, use `stream`.
-  ///
-  /// If you want to receive the response data with String, use `plain`.
-  ///
-  /// If you want to receive the response data with  original bytes,
-  /// that's to say the type of [Response.data] will be List<int>, use `bytes`
   late ResponseType responseType;
-
-  /// `validateStatus` defines whether the request is successful for a given
-  /// HTTP response status code. If `validateStatus` returns `true` ,
-  /// the request will be perceived as successful; otherwise, considered as failed.
   late ValidateStatus validateStatus;
-
-  /// Whether receiving response data when http status code is not successful.
-  /// The default value is true
   late bool receiveDataWhenStatusError;
-
-  /// Custom field that you can retrieve it later in [Interceptor]、[Transformer] and the [Response] object.
   late Map<String, dynamic> extra;
-
-  /// see [HttpClientRequest.followRedirects],
-  /// The default value is true
   late bool followRedirects;
-
-  /// Set this property to the maximum number of redirects to follow
-  /// when [followRedirects] is `true`. If this number is exceeded
-  /// an error event will be added with a [RedirectException].
-  ///
-  /// The default value is 5.
   late int maxRedirects;
-
-  /// see [HttpClientRequest.persistentConnection],
-  /// The default value is true
   late bool persistentConnection;
-
-  /// The default request encoder is utf8encoder, you can set custom
-  /// encoder by this option.
   RequestEncoder? requestEncoder;
-
-  /// The default response decoder is utf8decoder, you can set custom
-  /// decoder by this option, it will be used in [Transformer].
   ResponseDecoder? responseDecoder;
-
-  /// The [listFormat] indicates the format of collection data in request
-  /// query parameters and `x-www-url-encoded` body data.
-  /// Possible values defined in [ListFormat] are `csv`, `ssv`, `tsv`, `pipes`, `multi`, `multiCompatible`.
-  /// The default value is `multi`.
-  ///
-  /// The value can be overridden per parameter by adding a [ListParam]
-  /// object to the query or body data map.
   late ListFormat listFormat;
 }
