@@ -140,4 +140,15 @@ class MultipartFile {
     _isFinalized = true;
     return _stream;
   }
+
+  /// Clone MultipartFile, returning a new instance of the same object.
+  /// This is useful if your request failed and you wish to retry it,
+  /// such as an unauthorized exception can be solved by refreshing the token.
+  MultipartFile clone() => MultipartFile(
+        _stream,
+        length,
+        filename: filename,
+        contentType: contentType,
+        headers: headers,
+      );
 }
