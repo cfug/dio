@@ -6,7 +6,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Improve comments.
-- Fix error when cloning `MultipartFile` from `FormData`.
+- Fix error when cloning `MultipartFile` from `FormData` with regression test.
+- Add convenience method for cloning `FormData` as a whole
+- Deprecate `stream` parameter in favor of `data` in `MultipartFile`.
 
 ## 5.3.0
 
