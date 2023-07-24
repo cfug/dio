@@ -26,13 +26,11 @@ class MultipartFile {
   final MediaType? contentType;
 
   /// The stream that will emit the file's contents.
+  @Deprecated('Use [data] instead.')
   final Stream<List<int>> _stream;
 
-  /// The path of the file on disk. May be null.
-  final String? _filePath;
-
-  /// The bytes of the file. May be null.
-  final List<int>? _valueBytes;
+  // The stream builder that will emit the file's contents for every call.
+  final Stream<List<int>> Function() _data;
 
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
@@ -45,18 +43,15 @@ class MultipartFile {
   /// [contentType] currently defaults to `application/octet-stream`, but in the
   /// future may be inferred from [filename].
   MultipartFile(
-    Stream<List<int>> stream,
+    Stream<List<int>> Function() data,
     this.length, {
     this.filename,
     MediaType? contentType,
     Map<String, List<String>>? headers,
-    String? filePath,
-    List<int>? value,
-  })  : _stream = stream,
+  })  : _data = data,
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream'),
-        _filePath = filePath,
-        _valueBytes = value;
+        _stream = data.call();
 
   /// Creates a new [MultipartFile] from a byte array.
   ///
@@ -68,14 +63,12 @@ class MultipartFile {
     MediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
-    final stream = Stream.fromIterable([value]);
     return MultipartFile(
-      stream,
+      () => Stream.fromIterable([value]),
       value.length,
       filename: filename,
       contentType: contentType,
       headers: headers,
-      value: value,
     );
   }
 
@@ -156,23 +149,12 @@ class MultipartFile {
   /// This is useful if your request failed and you wish to retry it,
   /// such as an unauthorized exception can be solved by refreshing the token.
   MultipartFile clone() {
-    if (_filePath != null) {
-      return multipartFileFromPathSync(
-        _filePath!,
-        filename: filename,
-        contentType: contentType,
-        headers: headers,
-      );
-    } else if (_valueBytes != null) {
-      return MultipartFile.fromBytes(
-        _valueBytes!,
-        filename: filename,
-        contentType: contentType,
-        headers: headers,
-      );
-    } else {
-      throw ArgumentError(
-          'Operation is not possible, file path or value is not available');
-    }
+    return MultipartFile(
+      _data,
+      length,
+      filename: filename,
+      contentType: contentType,
+      headers: headers,
+    );
   }
 }
