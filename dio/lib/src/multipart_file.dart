@@ -28,6 +28,12 @@ class MultipartFile {
   /// The stream that will emit the file's contents.
   final Stream<List<int>> _stream;
 
+  /// The path of the file on disk. May be null.
+  final String? _filePath;
+
+  /// The bytes of the file. May be null.
+  final List<int>? _valueBytes;
+
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
   bool _isFinalized = false;
@@ -44,9 +50,13 @@ class MultipartFile {
     this.filename,
     MediaType? contentType,
     Map<String, List<String>>? headers,
+    String? filePath,
+    List<int>? value,
   })  : _stream = stream,
         headers = caseInsensitiveKeyMap(headers),
-        contentType = contentType ?? MediaType('application', 'octet-stream');
+        contentType = contentType ?? MediaType('application', 'octet-stream'),
+        _filePath = filePath,
+        _valueBytes = value;
 
   /// Creates a new [MultipartFile] from a byte array.
   ///
@@ -65,6 +75,7 @@ class MultipartFile {
       filename: filename,
       contentType: contentType,
       headers: headers,
+      value: value,
     );
   }
 
@@ -144,11 +155,24 @@ class MultipartFile {
   /// Clone MultipartFile, returning a new instance of the same object.
   /// This is useful if your request failed and you wish to retry it,
   /// such as an unauthorized exception can be solved by refreshing the token.
-  MultipartFile clone() => MultipartFile(
-        _stream,
-        length,
+  MultipartFile clone() {
+    if (_filePath != null) {
+      return multipartFileFromPathSync(
+        _filePath!,
         filename: filename,
         contentType: contentType,
         headers: headers,
       );
+    } else if (_valueBytes != null) {
+      return MultipartFile.fromBytes(
+        _valueBytes!,
+        filename: filename,
+        contentType: contentType,
+        headers: headers,
+      );
+    } else {
+      throw ArgumentError(
+          'Operation is not possible, file path or value is not available');
+    }
+  }
 }
