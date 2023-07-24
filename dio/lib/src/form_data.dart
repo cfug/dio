@@ -9,32 +9,7 @@ import 'utils.dart';
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
 class FormData {
-  static const String _boundaryPrefix = '--dio-boundary-';
-  static const int _boundaryLength = _boundaryPrefix.length + 10;
-
-  late String _boundary;
-
-  /// The boundary of FormData, it consists of a constant prefix and a random
-  /// postfix to assure the the boundary unpredictable and unique, each FormData
-  /// instance will be different.
-  String get boundary => _boundary;
-
-  final _newlineRegExp = RegExp(r'\r\n|\r|\n');
-
-  /// The form fields to send for this request.
-  final fields = <MapEntry<String, String>>[];
-
-  /// The [files].
-  final files = <MapEntry<String, MultipartFile>>[];
-
-  /// Whether [finalize] has been called.
-  bool get isFinalized => _isFinalized;
-  bool _isFinalized = false;
-  final bool camelCaseContentDisposition;
-
-  FormData({
-    this.camelCaseContentDisposition = false,
-  }) {
+  FormData({this.camelCaseContentDisposition = false}) {
     _init();
   }
 
@@ -66,6 +41,29 @@ class FormData {
     _boundary = _boundaryPrefix +
         random.nextInt(4294967296).toString().padLeft(10, '0');
   }
+
+  static const String _boundaryPrefix = '--dio-boundary-';
+  static const int _boundaryLength = _boundaryPrefix.length + 10;
+
+  late String _boundary;
+
+  /// The boundary of FormData, it consists of a constant prefix and a random
+  /// postfix to assure the the boundary unpredictable and unique, each FormData
+  /// instance will be different.
+  String get boundary => _boundary;
+
+  final _newlineRegExp = RegExp(r'\r\n|\r|\n');
+
+  /// The form fields to send for this request.
+  final fields = <MapEntry<String, String>>[];
+
+  /// The [files].
+  final files = <MapEntry<String, MultipartFile>>[];
+
+  /// Whether [finalize] has been called.
+  bool get isFinalized => _isFinalized;
+  bool _isFinalized = false;
+  final bool camelCaseContentDisposition;
 
   /// Returns the header string for a field.
   String _headerForField(String name, String value) {

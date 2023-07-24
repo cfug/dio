@@ -11,43 +11,46 @@ import 'response.dart';
 import 'dio/dio_for_native.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
 
-/// A powerful Http client for Dart, which supports Interceptors,
-/// Global configuration, FormData, File downloading etc. and Dio is
-/// very easy to use.
+/// Dio enables you to make HTTP requests easily.
 ///
-/// You can create a dio instance and config it by two ways:
-/// 1. create first , then config it
-///
-///   ```dart
-///    final dio = Dio();
-///    dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
-///    dio.options.connectTimeout = const Duration(seconds: 5);
-///    dio.options.receiveTimeout = const Duration(seconds: 5);
-///    dio.options.headers = {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'};
-///   ```
-/// 2. create and config it:
-///
+/// Creating a [Dio] instance with configurations:
 /// ```dart
-///   final dio = Dio(BaseOptions(
-///    baseUrl: "http://www.dtworkroom.com/doris/1/2.0.0/",
-///    connectTimeout: const Duration(seconds: 5),
-///    receiveTimeout: const Duration(seconds: 5),
-///    headers: {HttpHeaders.userAgentHeader: 'dio', 'common-header': 'xx'},
-///   ));
-///  ```
-
+/// final dio = Dio(
+///   BaseOptions(
+///     baseUrl: "https://pub.dev",
+///     connectTimeout: const Duration(seconds: 5),
+///     receiveTimeout: const Duration(seconds: 5),
+///     headers: {
+///       HttpHeaders.userAgentHeader: 'dio',
+///       'common-header': 'xx',
+///     },
+///   )
+/// );
+/// ```
+///
+/// The [Dio.options] can be updated in anytime:
+/// ```dart
+/// dio.options.baseUrl = "https://pub.dev";
+/// dio.options.connectTimeout = const Duration(seconds: 5);
+/// dio.options.receiveTimeout = const Duration(seconds: 5);
+/// ```
 abstract class Dio {
+  /// Create the default [Dio] instance with the default implementation
+  /// based on different platforms.
   factory Dio([BaseOptions? options]) => createDio(options);
 
   /// Default Request config. More see [BaseOptions] .
   late BaseOptions options;
 
+  /// Return the interceptors added into the instance.
   Interceptors get interceptors;
 
+  /// The adapter that the instance is using.
   late HttpClientAdapter httpClientAdapter;
 
-  /// [transformer] allows changes to the request/response data before it is sent/received to/from the server
-  /// This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
+  /// [Transformer] allows changes to the request/response data before it is
+  /// sent/received to/from the server.
+  /// This is only applicable for requests that have payload.
   late Transformer transformer;
 
   /// Shuts down the dio client.
@@ -60,7 +63,24 @@ abstract class Dio {
   /// calling [close] will throw an exception.
   void close({bool force = false});
 
-  /// Handy method to make http GET request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP HEAD request.
+  Future<Response<T>> head<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  });
+
+  /// Convenience method to make an HTTP HEAD request with [Uri].
+  Future<Response<T>> headUri<T>(
+    Uri uri, {
+    Object? data,
+    Options? options,
+    CancelToken? cancelToken,
+  });
+
+  /// Convenience method to make an HTTP GET request.
   Future<Response<T>> get<T>(
     String path, {
     Object? data,
@@ -70,7 +90,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http GET request, which is a alias of [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP GET request with [Uri].
   Future<Response<T>> getUri<T>(
     Uri uri, {
     Object? data,
@@ -79,7 +99,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http POST request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP POST request.
   Future<Response<T>> post<T>(
     String path, {
     Object? data,
@@ -90,7 +110,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http POST request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP POST request with [Uri].
   Future<Response<T>> postUri<T>(
     Uri uri, {
     Object? data,
@@ -100,7 +120,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http PUT request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP PUT request.
   Future<Response<T>> put<T>(
     String path, {
     Object? data,
@@ -111,7 +131,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http PUT request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP PUT request with [Uri].
   Future<Response<T>> putUri<T>(
     Uri uri, {
     Object? data,
@@ -121,41 +141,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http HEAD request, which is a alias of [dio.fetch(RequestOptions)].
-  Future<Response<T>> head<T>(
-    String path, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  });
-
-  /// Handy method to make http HEAD request, which is a alias of [dio.fetch(RequestOptions)].
-  Future<Response<T>> headUri<T>(
-    Uri uri, {
-    Object? data,
-    Options? options,
-    CancelToken? cancelToken,
-  });
-
-  /// Handy method to make http DELETE request, which is a alias of  [dio.fetch(RequestOptions)].
-  Future<Response<T>> delete<T>(
-    String path, {
-    Object? data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-  });
-
-  /// Handy method to make http DELETE request, which is a alias of  [dio.fetch(RequestOptions)].
-  Future<Response<T>> deleteUri<T>(
-    Uri uri, {
-    Object? data,
-    Options? options,
-    CancelToken? cancelToken,
-  });
-
-  /// Handy method to make http PATCH request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP PATCH request.
   Future<Response<T>> patch<T>(
     String path, {
     Object? data,
@@ -166,7 +152,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Handy method to make http PATCH request, which is a alias of  [dio.fetch(RequestOptions)].
+  /// Convenience method to make an HTTP PATCH request with [Uri].
   Future<Response<T>> patchUri<T>(
     Uri uri, {
     Object? data,
@@ -176,29 +162,46 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
+  /// Convenience method to make an HTTP DELETE request.
+  Future<Response<T>> delete<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  });
+
+  /// Convenience method to make an HTTP DELETE request with [Uri].
+  Future<Response<T>> deleteUri<T>(
+    Uri uri, {
+    Object? data,
+    Options? options,
+    CancelToken? cancelToken,
+  });
+
   /// {@template dio.Dio.download}
   /// Download the file and save it in local. The default http method is "GET",
   /// you can custom it by [Options.method].
   ///
   /// [urlPath] is the file url.
   ///
-  /// [savePath] is the path to save the downloading file later. it can be a String or
-  /// a callback:
-  /// 1. A path with String type, eg "xs.jpg"
-  /// 2. A callback `String Function(Headers headers)`; for example:
-  /// ```dart
-  /// await dio.download(
-  ///   url,
-  ///   (Headers headers) {
-  ///     // Extra info: redirect counts
-  ///     print(headers.value('redirects'));
-  ///     // Extra info: real uri
-  ///     print(headers.value('uri'));
-  ///     // ...
-  ///     return (await getTemporaryDirectory()).path + 'file_name';
-  ///   },
-  /// );
-  /// ```
+  /// The file will be saved to the path specified by [savePath].
+  /// The following two types are accepted:
+  /// 1. `String`: A path, eg "xs.jpg"
+  /// 2. `FutureOr<String> Function(Headers headers)`, for example:
+  ///    ```dart
+  ///    await dio.download(
+  ///      url,
+  ///      (Headers headers) {
+  ///        // Extra info: redirect counts
+  ///        print(headers.value('redirects'));
+  ///        // Extra info: real uri
+  ///        print(headers.value('uri'));
+  ///        // ...
+  ///        return (await getTemporaryDirectory()).path + 'file_name';
+  ///      },
+  ///    );
+  ///    ```
   ///
   /// [onReceiveProgress] is the callback to listen downloading progress.
   /// Please refer to [ProgressCallback].
@@ -208,24 +211,26 @@ abstract class Dio {
   ///
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
-  /// 1. If this value is 'content-length', the `total` argument of [onReceiveProgress] will be -1
-  /// 2. If this value is not 'content-length', maybe a custom header indicates the original
-  /// file size , the `total` argument of [onReceiveProgress] will be this header value.
+  /// 1. If this value is 'content-length', the `total` argument of
+  ///    [onReceiveProgress] will be -1.
+  /// 2. If this value is not 'content-length', maybe a custom header indicates
+  ///    the original file size, the `total` argument of [onReceiveProgress]
+  ///    will be this header value.
   ///
-  /// You can also disable the compression by specifying
-  /// the 'accept-encoding' header value as '*' to assure the value of
-  /// `total` argument of [onReceiveProgress] is not -1. for example:
+  /// You can also disable the compression by specifying the 'accept-encoding'
+  /// header value as '*' to assure the value of `total` argument of
+  /// [onReceiveProgress] is not -1. For example:
   ///
   /// ```dart
   /// await dio.download(
   ///   url,
   ///   (await getTemporaryDirectory()).path + 'flutter.svg',
   ///   options: Options(
-  ///     headers: {HttpHeaders.acceptEncodingHeader: "*"}, // Disable gzip
+  ///     headers: {HttpHeaders.acceptEncodingHeader: '*'}, // Disable gzip
   ///   ),
   ///   onReceiveProgress: (received, total) {
   ///     if (total != -1) {
-  ///       print((received / total * 100).toStringAsFixed(0) + "%");
+  ///       print((received / total * 100).toStringAsFixed(0) + '%');
   ///     }
   ///   },
   /// );
@@ -266,13 +271,9 @@ abstract class Dio {
     );
   }
 
-  /// Make http request with options.
-  ///
-  /// [path] The url path.
-  /// [data] The request data
-  /// [options] The request options.
+  /// Make HTTP request with options.
   Future<Response<T>> request<T>(
-    String path, {
+    String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
@@ -281,11 +282,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
-  /// Make http request with options.
-  ///
-  /// [uri] The uri.
-  /// [data] The request data
-  /// [options] The request options.
+  /// Make http request with options with [Uri].
   Future<Response<T>> requestUri<T>(
     Uri uri, {
     Object? data,
@@ -295,5 +292,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
   });
 
+  /// The eventual method to submit requests. All callers for requests should
+  /// eventually go through this method.
   Future<Response<T>> fetch<T>(RequestOptions requestOptions);
 }
