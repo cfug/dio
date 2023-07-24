@@ -19,9 +19,26 @@ class MultipartFile {
   /// [contentType] currently defaults to `application/octet-stream`, but in the
   /// future may be inferred from [filename].
   @Deprecated(
-    'Clone will not work with this constructor and it will be removed in 6.0.0',
+    'MultipartFile.clone() will not work when the stream is provided, use the MultipartFile.fromStream instead.'
+    'This will be removed in 6.0.0',
   )
   MultipartFile(
+    Stream<List<int>>? stream,
+    this.length, {
+    this.filename,
+    MediaType? contentType,
+    Map<String, List<String>>? headers,
+  })  : _data = (() => stream!),
+        headers = caseInsensitiveKeyMap(headers),
+        contentType = contentType ?? MediaType('application', 'octet-stream');
+
+  /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
+  /// of the file in bytes must be known in advance. If it's not, read the data
+  /// from the stream and use [MultipartFile.fromBytes] instead.
+  ///
+  /// [contentType] currently defaults to `application/octet-stream`, but in the
+  /// future may be inferred from [filename].
+  MultipartFile.fromStream(
     Stream<List<int>> Function() data,
     this.length, {
     this.filename,
@@ -44,7 +61,7 @@ class MultipartFile {
   /// The content-type of the file. Defaults to `application/octet-stream`.
   final MediaType? contentType;
 
-  // The stream builder that will emit the file's contents for every call.
+  /// The stream builder that will emit the file's contents for every call.
   final Stream<List<int>> Function() _data;
 
   /// Whether [finalize] has been called.
@@ -61,7 +78,7 @@ class MultipartFile {
     MediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
-    return MultipartFile(
+    return MultipartFile.fromStream(
       () => Stream.fromIterable([value]),
       value.length,
       filename: filename,
@@ -147,7 +164,7 @@ class MultipartFile {
   /// This is useful if your request failed and you wish to retry it,
   /// such as an unauthorized exception can be solved by refreshing the token.
   MultipartFile clone() {
-    return MultipartFile(
+    return MultipartFile.fromStream(
       _data,
       length,
       filename: filename,

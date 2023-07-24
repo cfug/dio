@@ -15,7 +15,7 @@ Future<MultipartFile> multipartFileFromPath(
   filename ??= p.basename(filePath);
   final file = File(filePath);
   final length = await file.length();
-  return MultipartFile(
+  return MultipartFile.fromStream(
     () => _getStreamFromFilepath(file),
     length,
     filename: filename,
@@ -33,7 +33,7 @@ MultipartFile multipartFileFromPathSync(
   filename ??= p.basename(filePath);
   final file = File(filePath);
   final length = file.lengthSync();
-  return MultipartFile(
+  return MultipartFile.fromStream(
     () => _getStreamFromFilepath(file),
     length,
     filename: filename,
