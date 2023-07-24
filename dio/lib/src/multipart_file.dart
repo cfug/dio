@@ -29,8 +29,7 @@ class MultipartFile {
     Map<String, List<String>>? headers,
   })  : _data = data,
         headers = caseInsensitiveKeyMap(headers),
-        contentType = contentType ?? MediaType('application', 'octet-stream'),
-        _stream = data.call();
+        contentType = contentType ?? MediaType('application', 'octet-stream');
 
   /// The size of the file in bytes. This must be known in advance, even if this
   /// file is created from a [ByteStream].
@@ -44,9 +43,6 @@ class MultipartFile {
 
   /// The content-type of the file. Defaults to `application/octet-stream`.
   final MediaType? contentType;
-
-  /// The stream that will emit the file's contents.
-  final Stream<List<int>> _stream;
 
   // The stream builder that will emit the file's contents for every call.
   final Stream<List<int>> Function() _data;
@@ -144,7 +140,7 @@ class MultipartFile {
       );
     }
     _isFinalized = true;
-    return _stream;
+    return _data.call();
   }
 
   /// Clone MultipartFile, returning a new instance of the same object.
