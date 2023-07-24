@@ -6,10 +6,11 @@ import 'response.dart';
 typedef DioErrorType = DioExceptionType;
 
 /// [DioError] describes the exception info when a request failed.
-/// Deprecated in favor of [DioException] and will be removed in future major versions.
 @Deprecated('Use DioException instead. This will be removed in 6.0.0')
 typedef DioError = DioException;
 
+/// The exception enumeration indicates what type of exception
+/// has happened during requests.
 enum DioExceptionType {
   /// Caused by a connection timeout.
   connectionTimeout,

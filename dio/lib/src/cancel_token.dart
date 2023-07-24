@@ -3,12 +3,12 @@ import 'dart:async';
 import 'dio_exception.dart';
 import 'options.dart';
 
-/// An instance which controls cancellation of [Dio]'s requests,
-/// build from [Completer].
+/// {@template dio.CancelToken}
+/// Controls cancellation of [Dio]'s requests.
 ///
-/// You can cancel requests by using a [CancelToken].
-/// One token can be shared with different requests.
-/// When [cancel] is invoked, all requests using this token will be cancelled.
+/// The same token can be shared between different requests.
+/// When [cancel] is invoked, requests bound to this token will be cancelled.
+/// {@endtemplate}
 class CancelToken {
   CancelToken();
 
@@ -22,6 +22,9 @@ class CancelToken {
   DioException? get cancelError => _cancelError;
   DioException? _cancelError;
 
+  /// Corresponding request options for the request.
+  ///
+  /// This field can be null if the request was never submitted.
   RequestOptions? requestOptions;
 
   /// Whether the token is cancelled.
