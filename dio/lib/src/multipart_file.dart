@@ -23,12 +23,12 @@ class MultipartFile {
     'This will be removed in 6.0.0',
   )
   MultipartFile(
-    Stream<List<int>>? stream,
+    Stream<List<int>> stream,
     this.length, {
     this.filename,
     MediaType? contentType,
     Map<String, List<String>>? headers,
-  })  : _data = (() => stream!),
+  })  : _data = (() => stream),
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
