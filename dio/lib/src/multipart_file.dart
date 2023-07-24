@@ -12,6 +12,26 @@ import 'multipart_file/io_multipart_file.dart'
 /// MultipartFile is based on stream, and a stream can be read only once,
 /// so the same MultipartFile can't be read multiple times.
 class MultipartFile {
+  /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
+  /// of the file in bytes must be known in advance. If it's not, read the data
+  /// from the stream and use [MultipartFile.fromBytes] instead.
+  ///
+  /// [contentType] currently defaults to `application/octet-stream`, but in the
+  /// future may be inferred from [filename].
+  @Deprecated(
+    'Clone will not work with this constructor and it will be removed in 6.0.0',
+  )
+  MultipartFile(
+    Stream<List<int>> Function() data,
+    this.length, {
+    this.filename,
+    MediaType? contentType,
+    Map<String, List<String>>? headers,
+  })  : _data = data,
+        headers = caseInsensitiveKeyMap(headers),
+        contentType = contentType ?? MediaType('application', 'octet-stream'),
+        _stream = data.call();
+
   /// The size of the file in bytes. This must be known in advance, even if this
   /// file is created from a [ByteStream].
   final int length;
@@ -26,7 +46,6 @@ class MultipartFile {
   final MediaType? contentType;
 
   /// The stream that will emit the file's contents.
-  @Deprecated('Use [data] instead.')
   final Stream<List<int>> _stream;
 
   // The stream builder that will emit the file's contents for every call.
@@ -35,23 +54,6 @@ class MultipartFile {
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
   bool _isFinalized = false;
-
-  /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
-  /// of the file in bytes must be known in advance. If it's not, read the data
-  /// from the stream and use [MultipartFile.fromBytes] instead.
-  ///
-  /// [contentType] currently defaults to `application/octet-stream`, but in the
-  /// future may be inferred from [filename].
-  MultipartFile(
-    Stream<List<int>> Function() data,
-    this.length, {
-    this.filename,
-    MediaType? contentType,
-    Map<String, List<String>>? headers,
-  })  : _data = data,
-        headers = caseInsensitiveKeyMap(headers),
-        contentType = contentType ?? MediaType('application', 'octet-stream'),
-        _stream = data.call();
 
   /// Creates a new [MultipartFile] from a byte array.
   ///
