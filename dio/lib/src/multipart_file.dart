@@ -48,26 +48,6 @@ class MultipartFile {
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
-  /// The size of the file in bytes. This must be known in advance, even if this
-  /// file is created from a [ByteStream].
-  final int length;
-
-  /// The basename of the file. May be null.
-  final String? filename;
-
-  /// The additional headers the file has. May be null.
-  final Map<String, List<String>>? headers;
-
-  /// The content-type of the file. Defaults to `application/octet-stream`.
-  final MediaType? contentType;
-
-  /// The stream builder that will emit the file's contents for every call.
-  final Stream<List<int>> Function() _data;
-
-  /// Whether [finalize] has been called.
-  bool get isFinalized => _isFinalized;
-  bool _isFinalized = false;
-
   /// Creates a new [MultipartFile] from a byte array.
   ///
   /// [contentType] currently defaults to `application/octet-stream`, but in the
@@ -114,6 +94,25 @@ class MultipartFile {
     );
   }
 
+  /// The size of the file in bytes. This must be known in advance, even if this
+  /// file is created from a [ByteStream].
+  final int length;
+
+  /// The basename of the file. May be null.
+  final String? filename;
+
+  /// The additional headers the file has. May be null.
+  final Map<String, List<String>>? headers;
+
+  /// The content-type of the file. Defaults to `application/octet-stream`.
+  final MediaType? contentType;
+
+  /// The stream builder that will emit the file's contents for every call.
+  final Stream<List<int>> Function() _data;
+
+  /// Whether [finalize] has been called.
+  bool get isFinalized => _isFinalized;
+
   /// Creates a new [MultipartFile] from a path to a file on disk.
   ///
   /// [filename] defaults to the basename of [filePath]. [contentType] currently
@@ -147,6 +146,7 @@ class MultipartFile {
         contentType: contentType,
         headers: headers,
       );
+  bool _isFinalized = false;
 
   Stream<List<int>> finalize() {
     if (isFinalized) {
