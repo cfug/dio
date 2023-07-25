@@ -176,4 +176,14 @@ class FormData {
   Future<List<int>> readAsBytes() {
     return Future(() => finalize().reduce((a, b) => [...a, ...b]));
   }
+
+  // Convenience method to clone finalized FormData when retrying requests.
+  FormData clone() {
+    final clone = FormData();
+    clone.fields.addAll(fields);
+    for (final file in files) {
+      clone.files.add(MapEntry(file.key, file.value.clone()));
+    }
+    return clone;
+  }
 }

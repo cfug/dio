@@ -18,13 +18,33 @@ class MultipartFile {
   ///
   /// [contentType] currently defaults to `application/octet-stream`, but in the
   /// future may be inferred from [filename].
+  @Deprecated(
+    'MultipartFile.clone() will not work when the stream is provided, use the MultipartFile.fromStream instead.'
+    'This will be removed in 6.0.0',
+  )
   MultipartFile(
     Stream<List<int>> stream,
     this.length, {
     this.filename,
     MediaType? contentType,
     Map<String, List<String>>? headers,
-  })  : _stream = stream,
+  })  : _data = (() => stream),
+        headers = caseInsensitiveKeyMap(headers),
+        contentType = contentType ?? MediaType('application', 'octet-stream');
+
+  /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
+  /// of the file in bytes must be known in advance. If it's not, read the data
+  /// from the stream and use [MultipartFile.fromBytes] instead.
+  ///
+  /// [contentType] currently defaults to `application/octet-stream`, but in the
+  /// future may be inferred from [filename].
+  MultipartFile.fromStream(
+    Stream<List<int>> Function() data,
+    this.length, {
+    this.filename,
+    MediaType? contentType,
+    Map<String, List<String>>? headers,
+  })  : _data = data,
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
@@ -38,9 +58,8 @@ class MultipartFile {
     MediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
-    final stream = Stream.fromIterable([value]);
-    return MultipartFile(
-      stream,
+    return MultipartFile.fromStream(
+      () => Stream.fromIterable([value]),
       value.length,
       filename: filename,
       contentType: contentType,
@@ -88,12 +107,11 @@ class MultipartFile {
   /// The content-type of the file. Defaults to `application/octet-stream`.
   final MediaType? contentType;
 
-  /// The stream that will emit the file's contents.
-  final Stream<List<int>> _stream;
+  /// The stream builder that will emit the file's contents for every call.
+  final Stream<List<int>> Function() _data;
 
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
-  bool _isFinalized = false;
 
   /// Creates a new [MultipartFile] from a path to a file on disk.
   ///
@@ -129,6 +147,8 @@ class MultipartFile {
         headers: headers,
       );
 
+  bool _isFinalized = false;
+
   Stream<List<int>> finalize() {
     if (isFinalized) {
       throw StateError(
@@ -138,17 +158,19 @@ class MultipartFile {
       );
     }
     _isFinalized = true;
-    return _stream;
+    return _data.call();
   }
 
   /// Clone MultipartFile, returning a new instance of the same object.
   /// This is useful if your request failed and you wish to retry it,
   /// such as an unauthorized exception can be solved by refreshing the token.
-  MultipartFile clone() => MultipartFile(
-        _stream,
-        length,
-        filename: filename,
-        contentType: contentType,
-        headers: headers,
-      );
+  MultipartFile clone() {
+    return MultipartFile.fromStream(
+      _data,
+      length,
+      filename: filename,
+      contentType: contentType,
+      headers: headers,
+    );
+  }
 }
