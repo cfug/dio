@@ -1,6 +1,6 @@
 import 'options.dart';
 import 'response.dart';
-
+//samir karam
 /// Deprecated in favor of [DioExceptionType] and will be removed in future major versions.
 @Deprecated('Use DioExceptionType instead. This will be removed in 6.0.0')
 typedef DioErrorType = DioExceptionType;
