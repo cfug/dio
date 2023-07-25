@@ -13,30 +13,32 @@ typedef DioError = DioException;
 /// has happened during requests.
 enum DioExceptionType {
   /// Caused by a connection timeout.
-  connectionTimeout,
+  connectionTimeout("Connection Timeout"),
 
   /// It occurs when url is sent timeout.
-  sendTimeout,
+  sendTimeout("Send Timeout"),
 
   ///It occurs when receiving timeout.
-  receiveTimeout,
+  receiveTimeout("Receive Timeout"),
 
   /// Caused by an incorrect certificate as configured by [ValidateCertificate].
-  badCertificate,
+  badCertificate("bad Certificate"),
 
   /// The [DioException] was caused by an incorrect status code as configured by
   /// [ValidateStatus].
-  badResponse,
+  badResponse("Bad Response"),
 
   /// When the request is cancelled, dio will throw a error with this type.
-  cancel,
+  cancel("Cancel"),
 
   /// Caused for example by a `xhr.onError` or SocketExceptions.
-  connectionError,
+  connectionError("Connection Error"),
 
   /// Default error type, Some other [Error]. In this case, you can use the
   /// [DioException.error] if it is not null.
-  unknown,
+  unknown("Unknown Error");
+  final message;
+  const DioExceptionType(this.message);
 }
 
 extension _DioExceptionTypeExtension on DioExceptionType {
