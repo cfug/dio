@@ -146,6 +146,7 @@ class MultipartFile {
         contentType: contentType,
         headers: headers,
       );
+
   bool _isFinalized = false;
 
   Stream<List<int>> finalize() {
