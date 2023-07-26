@@ -1,37 +1,47 @@
 import 'dart:async';
-import 'dio_error.dart';
 
-/// You can cancel a request by using a cancel token.
-/// One token can be shared with different requests.
-/// when a token's [cancel] method invoked, all requests
-/// with this token will be cancelled.
+import 'dio_exception.dart';
+import 'options.dart';
+
+/// {@template dio.CancelToken}
+/// Controls cancellation of [Dio]'s requests.
+///
+/// The same token can be shared between different requests.
+/// When [cancel] is invoked, requests bound to this token will be cancelled.
+/// {@endtemplate}
 class CancelToken {
-  CancelToken() {
-    _completer = Completer();
-  }
+  CancelToken();
 
-  /// Whether is throw by [cancel]
-  static bool isCancel(DioError e) {
-    return e.type == DioErrorType.CANCEL;
-  }
+  final Completer<DioException> _completer = Completer<DioException>();
 
-  /// If request have been canceled, save the cancel Error.
-  DioError _cancelError;
+  /// Whether the [error] is thrown by [cancel].
+  static bool isCancel(DioException error) =>
+      error.type == DioExceptionType.cancel;
 
-  /// If request have been canceled, save the cancel Error.
-  DioError get cancelError => _cancelError;
+  /// If request have been canceled, save the cancel error.
+  DioException? get cancelError => _cancelError;
+  DioException? _cancelError;
 
-  Completer _completer;
+  /// Corresponding request options for the request.
+  ///
+  /// This field can be null if the request was never submitted.
+  RequestOptions? requestOptions;
 
-  /// whether cancelled
+  /// Whether the token is cancelled.
   bool get isCancelled => _cancelError != null;
 
   /// When cancelled, this future will be resolved.
-  Future<void> get whenCancel => _completer.future;
+  Future<DioException> get whenCancel => _completer.future;
 
-  /// Cancel the request
-  void cancel([dynamic reason]) {
-    _cancelError = DioError(type: DioErrorType.CANCEL, error: reason);
-    _completer.complete();
+  /// Cancel the request with the given [reason].
+  void cancel([Object? reason]) {
+    _cancelError = DioException.requestCancelled(
+      requestOptions: requestOptions ?? RequestOptions(),
+      reason: reason,
+      stackTrace: StackTrace.current,
+    );
+    if (!_completer.isCompleted) {
+      _completer.complete(_cancelError);
+    }
   }
 }

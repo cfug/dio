@@ -1,32 +1,29 @@
-// Copyright (c) 2014, the Dart project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:dio/dio.dart';
-import 'package:pedantic/pedantic.dart';
 import 'package:test/test.dart';
 
 /// The current server instance.
-HttpServer _server;
+HttpServer? _server;
 
 Encoding requiredEncodingForCharset(String charset) =>
     Encoding.getByName(charset) ??
     (throw FormatException('Unsupported encoding "$charset".'));
 
 /// The URL for the current server instance.
-Uri get serverUrl => Uri.parse('http://localhost:${_server.port}');
+Uri get serverUrl => Uri.parse('http://localhost:${_server?.port}');
+
+const isWeb = bool.hasEnvironment('dart.library.js_util')
+    ? bool.fromEnvironment('dart.library.js_util')
+    : identical(0, 0.0);
 
 /// Starts a new HTTP server.
 Future<void> startServer() async {
   _server = (await HttpServer.bind('localhost', 0))
     ..listen((request) async {
-      var path = request.uri.path;
-      var response = request.response;
+      final path = request.uri.path;
+      final response = request.response;
 
       if (path == '/error') {
         const content = 'error';
@@ -34,18 +31,18 @@ Future<void> startServer() async {
           ..statusCode = 400
           ..contentLength = content.length
           ..write(content);
-        unawaited(response.close());
+        response.close();
         return;
       }
 
       if (path == '/loop') {
-        var n = int.parse(request.uri.query);
+        final n = int.parse(request.uri.query);
         response
           ..statusCode = 302
           ..headers
               .set('location', serverUrl.resolve('/loop?${n + 1}').toString())
           ..contentLength = 0;
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -54,7 +51,7 @@ Future<void> startServer() async {
           ..statusCode = 302
           ..headers.set('location', serverUrl.resolve('/').toString())
           ..contentLength = 0;
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -63,7 +60,7 @@ Future<void> startServer() async {
           ..statusCode = 200
           ..contentLength = -1
           ..write('body');
-        unawaited(response.close());
+        response.close();
         return;
       }
 
@@ -73,13 +70,27 @@ Future<void> startServer() async {
           ..statusCode = 200
           ..contentLength = -1
           ..write('[1,2,3]');
-        unawaited(response.close());
+        response.close();
         return;
       }
 
-      if (path == "/download") {
+      if (path == '/multi-value-header') {
+        response.headers.contentType = ContentType('application', 'json');
+        response.headers.add(
+          'x-multi-value-request-header-echo',
+          request.headers.value('x-multi-value-request-header').toString(),
+        );
+        response
+          ..statusCode = 200
+          ..contentLength = -1
+          ..write('');
+        response.close();
+        return;
+      }
+
+      if (path == '/download') {
         const content = 'I am a text file';
-        response.headers.set("content-encoding", 'plain');
+        response.headers.set('content-encoding', 'plain');
         response
           ..statusCode = 200
           ..contentLength = content.length
@@ -91,9 +102,9 @@ Future<void> startServer() async {
         return;
       }
 
-      var requestBodyBytes = await ByteStream(request).toBytes();
-      var encodingName = request.uri.queryParameters['response-encoding'];
-      var outputEncoding = encodingName == null
+      final requestBodyBytes = await ByteStream(request).toBytes();
+      final encodingName = request.uri.queryParameters['response-encoding'];
+      final outputEncoding = encodingName == null
           ? ascii
           : requiredEncodingForCharset(encodingName);
 
@@ -104,15 +115,14 @@ Future<void> startServer() async {
       dynamic requestBody;
       if (requestBodyBytes.isEmpty) {
         requestBody = null;
-      } else if (request.headers.contentType?.charset != null) {
-        var encoding =
-            requiredEncodingForCharset(request.headers.contentType.charset);
-        requestBody = encoding.decode(requestBodyBytes);
       } else {
-        requestBody = requestBodyBytes;
+        final encoding = requiredEncodingForCharset(
+          request.headers.contentType?.charset ?? 'utf-8',
+        );
+        requestBody = encoding.decode(requestBodyBytes);
       }
 
-      var content = <String, dynamic>{
+      final content = <String, dynamic>{
         'method': request.method,
         'path': request.uri.path,
         'query': request.uri.query,
@@ -127,18 +137,18 @@ Future<void> startServer() async {
         content['headers'][name] = values;
       });
 
-      var body = json.encode(content);
+      final body = json.encode(content);
       response
         ..contentLength = body.length
         ..write(body);
-      unawaited(response.close());
+      response.close();
     });
 }
 
 /// Stops the current HTTP server.
 void stopServer() {
   if (_server != null) {
-    _server.close();
+    _server!.close();
     _server = null;
   }
 }
@@ -158,13 +168,16 @@ class ByteStream extends StreamView<List<int>> {
 
   /// Collects the data of this stream in a [Uint8List].
   Future<Uint8List> toBytes() {
-    var completer = Completer<Uint8List>();
-    var sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(Uint8List.fromList(bytes)));
-    listen(sink.add,
-        onError: completer.completeError,
-        onDone: sink.close,
-        cancelOnError: true);
+    final completer = Completer<Uint8List>();
+    final sink = ByteConversionSink.withCallback(
+      (bytes) => completer.complete(Uint8List.fromList(bytes)),
+    );
+    listen(
+      sink.add,
+      onError: completer.completeError,
+      onDone: sink.close,
+      cancelOnError: true,
+    );
     return completer.future;
   }
 

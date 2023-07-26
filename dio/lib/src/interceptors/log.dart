@@ -1,7 +1,5 @@
-import 'dart:async';
-
-import '../dio_error.dart';
-import '../interceptor.dart';
+import '../dio_exception.dart';
+import '../dio_mixin.dart';
 import '../options.dart';
 import '../response.dart';
 
@@ -17,7 +15,7 @@ class LogInterceptor extends Interceptor {
     this.responseHeader = true,
     this.responseBody = false,
     this.error = true,
-    this.logPrint = print,
+    this.logPrint = _debugPrint,
   });
 
   /// Print request [Options]
@@ -42,8 +40,8 @@ class LogInterceptor extends Interceptor {
   /// In flutter, you'd better use debugPrint.
   /// you can also write log in a file, for example:
   ///```dart
-  ///  var file=File("./log.txt");
-  ///  var sink=file.openWrite();
+  ///  final file=File("./log.txt");
+  ///  final sink=file.openWrite();
   ///  dio.interceptors.add(LogInterceptor(logPrint: sink.writeln));
   ///  ...
   ///  await sink.close();
@@ -51,16 +49,26 @@ class LogInterceptor extends Interceptor {
   void Function(Object object) logPrint;
 
   @override
-  Future onRequest(RequestOptions options) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
+    //options.headers;
 
     if (request) {
       _printKV('method', options.method);
-      _printKV('responseType', options.responseType?.toString());
+      _printKV('responseType', options.responseType.toString());
       _printKV('followRedirects', options.followRedirects);
+      _printKV('persistentConnection', options.persistentConnection);
       _printKV('connectTimeout', options.connectTimeout);
+      _printKV('sendTimeout', options.sendTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
+      _printKV(
+        'receiveDataWhenStatusError',
+        options.receiveDataWhenStatusError,
+      );
       _printKV('extra', options.extra);
     }
     if (requestHeader) {
@@ -72,38 +80,42 @@ class LogInterceptor extends Interceptor {
       _printAll(options.data);
     }
     logPrint('');
+
+    handler.next(options);
   }
 
   @override
-  Future onError(DioError err) async {
+  void onResponse(Response response, ResponseInterceptorHandler handler) async {
+    logPrint('*** Response ***');
+    _printResponse(response);
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (error) {
-      logPrint('*** DioError ***:');
-      logPrint('uri: ${err.request.uri}');
+      logPrint('*** DioException ***:');
+      logPrint('uri: ${err.requestOptions.uri}');
       logPrint('$err');
       if (err.response != null) {
-        _printResponse(err.response);
+        _printResponse(err.response!);
       }
       logPrint('');
     }
-  }
 
-  @override
-  Future onResponse(Response response) async {
-    logPrint('*** Response ***');
-    _printResponse(response);
+    handler.next(err);
   }
 
   void _printResponse(Response response) {
-    _printKV('uri', response.request?.uri);
+    _printKV('uri', response.requestOptions.uri);
     if (responseHeader) {
       _printKV('statusCode', response.statusCode);
       if (response.isRedirect == true) {
         _printKV('redirect', response.realUri);
       }
-      if (response.headers != null) {
-        logPrint('headers:');
-        response.headers.forEach((key, v) => _printKV(' $key', v.join(',')));
-      }
+
+      logPrint('headers:');
+      response.headers.forEach((key, v) => _printKV(' $key', v.join('\r\n\t')));
     }
     if (responseBody) {
       logPrint('Response Text:');
@@ -112,11 +124,18 @@ class LogInterceptor extends Interceptor {
     logPrint('');
   }
 
-  void _printKV(String key, Object v) {
+  void _printKV(String key, Object? v) {
     logPrint('$key: $v');
   }
 
   void _printAll(msg) {
     msg.toString().split('\n').forEach(logPrint);
   }
+}
+
+void _debugPrint(Object? object) {
+  assert(() {
+    print(object);
+    return true;
+  }());
 }

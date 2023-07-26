@@ -1,101 +1,105 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'options.dart';
 import 'redirect_record.dart';
 
-typedef CancelWrapper = Future Function(Future);
-typedef VoidCallback = dynamic Function();
+import 'adapters/io_adapter.dart'
+    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
 
-/// HttpAdapter is a bridge between Dio and HttpClient.
+/// [HttpAdapter] is a bridge between [Dio] and [HttpClient].
 ///
-/// Dio: Implements standard and friendly API for developer.
-///
-/// HttpClient: It is the real object that makes Http
+/// [Dio] implements standard and friendly API for developer.
+/// [HttpClient] is the real object that makes Http
 /// requests.
 ///
-/// We can use any HttpClient not just "dart:io:HttpClient" to
-/// make the Http request. All we need is providing a [HttpClientAdapter].
+/// We can use any [HttpClient]s not just "dart:io:HttpClient" to
+/// make the HTTP request. All we need is to provide a [HttpClientAdapter].
 ///
-/// The default HttpClientAdapter for Dio is [DefaultHttpClientAdapter].
-///
-/// ```dart
-/// dio.httpClientAdapter = DefaultHttpClientAdapter();
-/// ```
+/// If you want to customize the [HttpClientAdapter] you should instead use
+/// either [IOHttpClientAdapter] on `dart:io` platforms
+/// or [BrowserHttpClientAdapter] on `dart:html` platforms.
 abstract class HttpClientAdapter {
-  /// We should implement this method to make real http requests.
-  ///
-  /// [options]: The request options
-  ///
-  /// [requestStream] The request stream, It will not be null
-  /// only when http method is one of "POST","PUT","PATCH"
-  /// and the request body is not empty.
-  ///
-  /// We should give priority to using requestStream(not options.data) as request data.
-  /// because supporting stream ensures the `onSendProgress` works.
-  ///
-  /// [cancelFuture]: When  cancelled the request, [cancelFuture] will be resolved!
-  /// you can listen cancel event by it, for example:
-  ///
-  /// ```dart
-  ///  cancelFuture?.then((_)=>print("request cancelled!"))
-  /// ```
-  /// [cancelFuture]: will be null when the request is not set [CancelToken].
+  /// Create a [HttpClientAdapter] based on the current platform (IO/Web).
+  factory HttpClientAdapter() => adapter.createAdapter();
 
+  /// Implement this method to make real HTTP requests.
+  ///
+  /// [options] are the request options.
+  ///
+  /// [requestStream] is the request stream. It will not be null only when
+  /// the request body is not empty.
+  /// Use [requestStream] if your code rely on [RequestOptions.onSendProgress].
+  ///
+  /// [cancelFuture] will be null when the [CancelToken]
+  /// is not set [CancelToken] for the request.
+  ///
+  /// When the request is cancelled, [cancelFuture] will be resolved.
+  /// The adapter can listen cancel event like:
+  /// ```dart
+  /// cancelFuture?.then((_)=>print("request cancelled!"))
+  /// ```
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
   );
 
+  /// Close the current adapter and its inner clients or requests.
   void close({bool force = false});
 }
 
+/// The response wrapper class for adapters.
+///
+/// This class should not be used in regular usages.
 class ResponseBody {
   ResponseBody(
     this.stream,
     this.statusCode, {
-    this.headers,
     this.statusMessage,
-    this.isRedirect,
+    this.isRedirect = false,
     this.redirects,
-  });
-
-  /// The response stream
-  Stream<Uint8List> stream;
-
-  /// the response headers
-  Map<String, List<String>> headers;
-
-  /// Http status code
-  int statusCode;
-
-  /// Returns the reason phrase associated with the status code.
-  /// The reason phrase must be set before the body is written
-  /// to. Setting the reason phrase after writing to the body.
-  String statusMessage;
-
-  /// Whether this response is a redirect.
-  final bool isRedirect;
-
-  List<RedirectRecord> redirects;
-
-  Map<String, dynamic> extra = {};
+    Map<String, List<String>>? headers,
+  }) : headers = headers ?? {};
 
   ResponseBody.fromString(
     String text,
     this.statusCode, {
-    this.headers,
     this.statusMessage,
-    this.isRedirect,
-  }) : stream = Stream.fromIterable(
-            utf8.encode(text).map((e) => Uint8List.fromList([e])).toList());
+    this.isRedirect = false,
+    Map<String, List<String>>? headers,
+  })  : stream = Stream.value(Uint8List.fromList(utf8.encode(text))),
+        headers = headers ?? {};
 
   ResponseBody.fromBytes(
     List<int> bytes,
     this.statusCode, {
-    this.headers,
     this.statusMessage,
-    this.isRedirect,
-  }) : stream = Stream.fromIterable(
-            bytes.map((e) => Uint8List.fromList([e])).toList());
+    this.isRedirect = false,
+    Map<String, List<String>>? headers,
+  })  : stream = Stream.value(Uint8List.fromList(bytes)),
+        headers = headers ?? {};
+
+  /// Whether this response is a redirect.
+  final bool isRedirect;
+
+  /// The response stream.
+  Stream<Uint8List> stream;
+
+  /// HTTP status code.
+  int statusCode;
+
+  /// Returns the reason phrase corresponds to the status code.
+  /// The message can be [HttpRequest.statusText]
+  /// or [HttpClientResponse.reasonPhrase].
+  String? statusMessage;
+
+  /// Stores redirections during the request.
+  List<RedirectRecord>? redirects;
+
+  /// The response headers.
+  Map<String, List<String>> headers;
+
+  /// The extra field which will pass-through to the [Response.extra].
+  Map<String, dynamic> extra = {};
 }

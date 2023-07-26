@@ -1,84 +1,212 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:async/async.dart';
+
 import '../adapter.dart';
+import '../dio_exception.dart';
 import '../options.dart';
-import '../dio_error.dart';
 import '../redirect_record.dart';
 
-typedef OnHttpClientCreate = dynamic Function(HttpClient client);
+@Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
+typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
 
-HttpClientAdapter createAdapter() => DefaultHttpClientAdapter();
+/// The signature of [IOHttpClientAdapter.onHttpClientCreate].
+@Deprecated('Use CreateHttpClient instead. This will be removed in 6.0.0')
+typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 
-/// The default HttpClientAdapter for Dio.
-class DefaultHttpClientAdapter implements HttpClientAdapter {
-  /// [Dio] will create HttpClient when it is needed.
-  /// If [onHttpClientCreate] is provided, [Dio] will call
-  /// it when a HttpClient created.
-  OnHttpClientCreate onHttpClientCreate;
+/// The signature of [IOHttpClientAdapter.createHttpClient].
+/// Can be used to provide a custom [HttpClient] for Dio.
+typedef CreateHttpClient = HttpClient Function();
 
-  HttpClient _defaultHttpClient;
+/// The signature of [IOHttpClientAdapter.validateCertificate].
+typedef ValidateCertificate = bool Function(
+  X509Certificate? certificate,
+  String host,
+  int port,
+);
 
+/// Creates an [IOHttpClientAdapter].
+HttpClientAdapter createAdapter() => IOHttpClientAdapter();
+
+/// The default [HttpClientAdapter] for native platforms.
+class IOHttpClientAdapter implements HttpClientAdapter {
+  IOHttpClientAdapter({
+    @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
+    this.onHttpClientCreate,
+    this.createHttpClient,
+    this.validateCertificate,
+  });
+
+  /// [Dio] will create [HttpClient] when it is needed. If [onHttpClientCreate]
+  /// has provided, [Dio] will call it when a [HttpClient] created.
+  @Deprecated('Use createHttpClient instead. This will be removed in 6.0.0')
+  OnHttpClientCreate? onHttpClientCreate;
+
+  /// When this callback is set, [Dio] will call it every
+  /// time it needs a [HttpClient].
+  CreateHttpClient? createHttpClient;
+
+  /// Allows the user to decide if the response certificate is good.
+  /// If this function is missing, then the certificate is allowed.
+  /// This method is called only if both the [SecurityContext] and
+  /// [badCertificateCallback] accept the certificate chain. Those
+  /// methods evaluate the root or intermediate certificate, while
+  /// [validateCertificate] evaluates the leaf certificate.
+  ValidateCertificate? validateCertificate;
+
+  HttpClient? _cachedHttpClient;
   bool _closed = false;
 
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
   ) async {
     if (_closed) {
-      throw Exception(
-          "Can't establish connection after [HttpClientAdapter] closed!");
-    }
-    var _httpClient = _configHttpClient(cancelFuture, options.connectTimeout);
-    Future requestFuture = _httpClient.openUrl(options.method, options.uri);
-
-    void _throwConnectingTimeout() {
-      throw DioError(
-        request: options,
-        error: 'Connecting timed out [${options.connectTimeout}ms]',
-        type: DioErrorType.CONNECT_TIMEOUT,
+      throw StateError(
+        "Can't establish connection after the adapter was closed.",
       );
     }
+    final operation = CancelableOperation.fromFuture(_fetch(
+      options,
+      requestStream,
+      cancelFuture,
+    ));
+    if (cancelFuture != null) {
+      cancelFuture.whenComplete(() => operation.cancel());
+    }
+    return operation.value;
+  }
 
-    HttpClientRequest request;
+  Future<ResponseBody> _fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final httpClient = _configHttpClient(options.connectTimeout);
+    final reqFuture = httpClient.openUrl(options.method, options.uri);
+
+    late HttpClientRequest request;
     try {
-      request = await requestFuture;
-      //Set Headers
-      options.headers.forEach((k, v) => request.headers.set(k, v));
+      final connectionTimeout = options.connectTimeout;
+      if (connectionTimeout != null) {
+        request = await reqFuture.timeout(
+          connectionTimeout,
+          onTimeout: () {
+            throw DioException.connectionTimeout(
+              requestOptions: options,
+              timeout: connectionTimeout,
+            );
+          },
+        );
+      } else {
+        request = await reqFuture;
+      }
+
+      if (cancelFuture != null) {
+        cancelFuture.whenComplete(() => request.abort());
+      }
+
+      // Set Headers
+      options.headers.forEach((k, v) {
+        if (v != null) request.headers.set(k, v);
+      });
     } on SocketException catch (e) {
-      if (e.message.contains('timed out')) _throwConnectingTimeout();
-      rethrow;
+      if (!e.message.contains('timed out')) {
+        rethrow;
+      }
+      throw DioException.connectionTimeout(
+        requestOptions: options,
+        timeout: options.connectTimeout ??
+            httpClient.connectionTimeout ??
+            Duration.zero,
+        error: e,
+      );
     }
 
     request.followRedirects = options.followRedirects;
     request.maxRedirects = options.maxRedirects;
+    request.persistentConnection = options.persistentConnection;
 
-    if (options.method != 'GET' && requestStream != null) {
-      // Transform the request data
-      await request.addStream(requestStream);
-    }
-    Future future = request.close();
-    if (options.connectTimeout > 0) {
-      future = future.timeout(Duration(milliseconds: options.connectTimeout));
-    }
-    HttpClientResponse responseStream;
-    try {
-      responseStream = await future;
-    } on TimeoutException {
-      _throwConnectingTimeout();
+    if (requestStream != null) {
+      // Transform the request data.
+      Future<dynamic> future = request.addStream(requestStream);
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        future = future.timeout(
+          sendTimeout,
+          onTimeout: () {
+            request.abort();
+            throw DioException.sendTimeout(
+              timeout: sendTimeout,
+              requestOptions: options,
+            );
+          },
+        );
+      }
+      await future;
     }
 
-    // https://github.com/dart-lang/co19/issues/383
-    var stream =
-        responseStream.transform<Uint8List>(StreamTransformer.fromHandlers(
-      handleData: (data, sink) {
-        sink.add(Uint8List.fromList(data));
-      },
-    ));
+    final stopwatch = Stopwatch()..start();
+    Future<HttpClientResponse> future = request.close();
+    final receiveTimeout = options.receiveTimeout;
+    if (receiveTimeout != null) {
+      future = future.timeout(
+        receiveTimeout,
+        onTimeout: () {
+          throw DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          );
+        },
+      );
+    }
 
-    var headers = <String, List<String>>{};
+    final responseStream = await future;
+
+    if (validateCertificate != null) {
+      final host = options.uri.host;
+      final port = options.uri.port;
+      final bool isCertApproved = validateCertificate!(
+        responseStream.certificate,
+        host,
+        port,
+      );
+      if (!isCertApproved) {
+        throw DioException(
+          requestOptions: options,
+          type: DioExceptionType.badCertificate,
+          error: responseStream.certificate,
+          message: 'The certificate of the response is not approved.',
+        );
+      }
+    }
+
+    final stream = responseStream.transform<Uint8List>(
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          stopwatch.stop();
+          final duration = stopwatch.elapsed;
+          final receiveTimeout = options.receiveTimeout;
+          if (receiveTimeout != null && duration > receiveTimeout) {
+            sink.addError(
+              DioException.receiveTimeout(
+                timeout: receiveTimeout,
+                requestOptions: options,
+              ),
+            );
+            responseStream.detachSocket().then((socket) => socket.destroy());
+          } else {
+            sink.add(Uint8List.fromList(data));
+          }
+        },
+      ),
+    );
+
+    final headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {
       headers[key] = values;
     });
@@ -95,44 +223,22 @@ class DefaultHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(Future cancelFuture, int connectionTimeout) {
-    var _connectionTimeout = connectionTimeout > 0
-        ? Duration(milliseconds: connectionTimeout)
-        : null;
-    if (cancelFuture != null) {
-      var _httpClient = HttpClient();
-      _httpClient.userAgent = null;
-      if (onHttpClientCreate != null) {
-        //user can return a HttpClient instance
-        _httpClient = onHttpClientCreate(_httpClient) ?? _httpClient;
-      }
-      _httpClient.idleTimeout = Duration(seconds: 0);
-      cancelFuture.whenComplete(() {
-        Future.delayed(Duration(seconds: 0)).then((e) {
-          try {
-            _httpClient.close(force: true);
-          } catch (e) {
-            //...
-          }
-        });
-      });
-      return _httpClient..connectionTimeout = _connectionTimeout;
-    } else if (_defaultHttpClient == null) {
-      _defaultHttpClient = HttpClient();
-      _defaultHttpClient.idleTimeout = Duration(seconds: 3);
-      if (onHttpClientCreate != null) {
-        //user can return a HttpClient instance
-        _defaultHttpClient =
-            onHttpClientCreate(_defaultHttpClient) ?? _defaultHttpClient;
-      }
-      _defaultHttpClient.connectionTimeout = _connectionTimeout;
-    }
-    return _defaultHttpClient;
+  HttpClient _configHttpClient(Duration? connectionTimeout) {
+    return (_cachedHttpClient ??= _createHttpClient())
+      ..connectionTimeout = connectionTimeout;
   }
 
   @override
   void close({bool force = false}) {
-    _closed = _closed;
-    _defaultHttpClient?.close(force: force);
+    _closed = true;
+    _cachedHttpClient?.close(force: force);
+  }
+
+  HttpClient _createHttpClient() {
+    if (createHttpClient != null) {
+      return createHttpClient!();
+    }
+    final client = HttpClient()..idleTimeout = Duration(seconds: 3);
+    return onHttpClientCreate?.call(client) ?? client;
   }
 }
