@@ -5,9 +5,10 @@
 
 Language: English | [简体中文](README-ZH.md)
 
-A powerful HTTP client for Dart/Flutter, which supports global configuration,
-interceptors, FormData, request cancellation, file uploading/downloading,
-timeout, and custom adapters etc. 
+A powerful HTTP networking package for Dart/Flutter,
+supports Global configuration, Interceptors, FormData,
+Request cancellation, File uploading/downloading,
+Timeout, Custom adapters, Transformers, etc. 
 
 <details>
   <summary>Table of content</summary>
@@ -37,7 +38,7 @@ timeout, and custom adapters etc.
   * [Using application/x-www-form-urlencoded format](#using-applicationx-www-form-urlencoded-format)
   * [Sending FormData](#sending-formdata)
     * [Multiple files upload](#multiple-files-upload)
-    * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdata-s-and-multipartfile-s)
+    * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdatas-and-multipartfiles)
   * [Transformer](#transformer)
     * [In Flutter](#in-flutter)
     * [Other example](#other-example)
@@ -47,7 +48,7 @@ timeout, and custom adapters etc.
   * [HTTP/2 support](#http2-support)
   * [Cancellation](#cancellation)
   * [Extends Dio class](#extends-dio-class)
-  * [Cross-Origin Resource Sharing on Web (CORS)](#cross-origin-resource-sharing-on-web--cors-)
+  * [Cross-Origin Resource Sharing on Web (CORS)](#cross-origin-resource-sharing-on-web-cors)
 <!-- TOC -->
 </details>
 
