@@ -165,7 +165,8 @@ class ErrorInterceptorHandler extends _BaseHandler {
 }
 
 /// [Interceptor] helps to deal with [RequestOptions], [Response],
-/// and [DioError] during the lifecycle of a request before it reaches users.
+/// and [DioException] during the lifecycle of a request
+/// before it reaches users.
 ///
 /// Interceptors are called once per request and response,
 /// that means redirects aren't triggering interceptors.
@@ -342,7 +343,7 @@ class _TaskQueue<T, V extends _BaseHandler> {
 class QueuedInterceptor extends Interceptor {
   final _requestQueue = _TaskQueue<RequestOptions, RequestInterceptorHandler>();
   final _responseQueue = _TaskQueue<Response, ResponseInterceptorHandler>();
-  final _errorQueue = _TaskQueue<DioError, ErrorInterceptorHandler>();
+  final _errorQueue = _TaskQueue<DioException, ErrorInterceptorHandler>();
 
   void _handleRequest(
     RequestOptions options,
