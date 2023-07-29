@@ -239,7 +239,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       return createHttpClient!();
     }
     final client = HttpClient()..idleTimeout = Duration(seconds: 3);
-    // ignore: deprecated_member_use_from_same_package
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
     return onHttpClientCreate?.call(client) ?? client;
   }
 }
