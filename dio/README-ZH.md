@@ -5,8 +5,8 @@
 
 文档语言： 简体中文 | [English](README.md)
 
-dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、FormData、拦截器、
-请求取消、Cookie 管理、文件上传/下载、超时以及自定义适配器等。
+dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API、FormData、拦截器、
+请求取消、Cookie 管理、文件上传/下载、超时、自定义适配器、转换器等。
 
 <details>
   <summary>内容列表</summary>
@@ -46,7 +46,7 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   * [HTTP/2 支持](#http2-支持)
   * [请求取消](#请求取消)
   * [继承 Dio class](#继承-dio-class)
-  * [Web 平台跨域资源共享 (CORS)](#web-平台跨域资源共享--cors-)
+  * [Web 平台跨域资源共享 (CORS)](#web-平台跨域资源共享-cors)
 <!-- TOC -->
 </details>
 

@@ -5,6 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Improve package descriptions and code formats.
 - Improve comments.
 - Fix error when cloning `MultipartFile` from `FormData` with regression test.
 - Deprecate `MulitpartFile` constructor in favor `MultipartFile.fromStream`.

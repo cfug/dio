@@ -2,11 +2,10 @@ name: dio
 version: 5.3.0
 
 description: |
-  A powerful HTTP package for Dart/Flutter,
-  which supports Global settings, Interceptors,
-  FormData, Aborting and canceling a request,
-  Files uploading and downloading,
-  Requests timeout, Custom adapters, etc.
+  A powerful HTTP networking package,
+  supports Interceptors,
+  Aborting and canceling a request,
+  Custom adapters, Transformers, etc.
 topics:
   - dio
   - http

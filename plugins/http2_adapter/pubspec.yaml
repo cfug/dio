@@ -1,7 +1,7 @@
 name: dio_http2_adapter
 version: 2.3.1
 
-description: A Dio HttpClientAdapter which support Http/2.0(Support connection reuse, header compression, server pushing is not supported yet.)
+description: An adapter that combines HTTP/2 and dio. Supports reuse connections, header compression, etc.
 topics:
   - dio
   - http2
