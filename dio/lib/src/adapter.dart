@@ -31,13 +31,11 @@ abstract class HttpClientAdapter {
   /// the request body is not empty.
   /// Use [requestStream] if your code rely on [RequestOptions.onSendProgress].
   ///
-  /// [cancelFuture] will be null when the [CancelToken]
-  /// is not set [CancelToken] for the request.
-  ///
-  /// When the request is cancelled, [cancelFuture] will be resolved.
-  /// The adapter can listen cancel event like:
+  /// [cancelFuture] corresponds to [CancelToken] handling.
+  /// When the request is canceled, [cancelFuture] will be resolved.
+  /// To await if a request has been canceled:
   /// ```dart
-  /// cancelFuture?.then((_)=>print("request cancelled!"))
+  /// cancelFuture?.then((_) => print('request cancelled!'));
   /// ```
   Future<ResponseBody> fetch(
     RequestOptions options,
