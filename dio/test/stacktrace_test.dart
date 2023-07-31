@@ -212,7 +212,6 @@ void main() async {
           final dio = Dio()
             ..options.baseUrl = 'https://does.not.exist'
             ..httpClientAdapter = IOHttpClientAdapter();
-          await dio.get('/test', data: 'test');
           await expectLater(
             dio.get('/test', data: 'test'),
             throwsA(
