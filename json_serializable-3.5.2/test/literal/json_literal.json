@@ -1,0 +1,42 @@
+[
+ {
+  "backspace": "\b",
+  "tab": "\t",
+  "new line": "\n",
+  "vertical tab": "\u000b",
+  "form feed": "\r",
+  "carriage return": "\r",
+  "delete": "\u007F"
+ },
+ "simple string",
+ "'string with single quotes'",
+ "\"string with double quotes\"",
+ "'With singles and \"doubles\"'",
+ "dollar $igns",
+ "'single quotes and dollor $ig$'",
+ "${'nice!'}",
+ "\"\"hello\"\"",
+ "\"\"$double quotes and dollar signs\"\"",
+ "$scary with 'single quotes' and triple-doubles \"\"\"oh no!",
+ "Dollar signs: $ vs \\$ vs \\\\$",
+ "Slashes \\nice slash\\",
+ "slashes \\ and dollars $ with white \n space",
+ "'''triple quoted strings should be\nfine!'''",
+ "\"\"\"as with triple-double-quotes\"\"\"",
+ "\"\"\"as with triple-double-quotes even when 'mixed'\"\"\"",
+ null,
+ true,
+ false,
+ 5,
+ 5.5351,
+ -5.5,
+ {},
+ {
+  "null": null,
+  "int": 42,
+  "double": 42.0,
+  "string": "string",
+  "list": [],
+  "bool": true
+ }
+]

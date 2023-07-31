@@ -27,6 +27,12 @@ WORKDIR /build/dio
 RUN timeout 5m dart pub get
 RUN create_publishable_artifact.sh
 
-ARG BUILD_ARTIFACTS_PUB=/build/dio/pub_package.pub.tgz
+WORKDIR /build/json_annotation-3.1.1
+RUN create_publishable_artifact.sh
+
+WORKDIR /build/json_serializable-3.5.2
+RUN create_publishable_artifact.sh
+
+ARG BUILD_ARTIFACTS_PUB=/build/dio/pub_package.pub.tgz:/build/json_annotation-3.1.1/pub_package.pub.tgz:/build/json_serializable-3.5.2/pub_package.pub.tgz
 
 FROM scratch

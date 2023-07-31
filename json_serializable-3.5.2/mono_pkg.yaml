@@ -1,0 +1,23 @@
+# See https://github.com/google/mono_repo.dart for details on this file
+dart:
+- 2.13.4
+- stable
+
+stages:
+- analyzer_and_format:
+  - group:
+    - analyze: --fatal-warnings .
+    dart: [stable]
+  - group:
+    - format
+    - analyze: --fatal-warnings .
+    dart: [2.13.4]
+- unit_test:
+  - test
+  - test: -p chrome
+- ensure_build:
+  - test: --run-skipped -t presubmit-only test/ensure_build_test.dart
+
+cache:
+  directories:
+  - .dart_tool/build

@@ -1,0 +1,115 @@
+# Read about `build.yaml` at https://pub.dev/packages/build_config
+targets:
+  $default:
+    builders:
+      json_serializable:
+        generate_for:
+        - example/*
+        - test/default_value/*
+        - test/generic_files/*
+        - test/integration/*
+        - test/kitchen_sink/*
+        - test/literal/*
+        - test/supported_types/*
+
+      build_web_compilers|entrypoint:
+        generate_for:
+        - test/**/**.browser_test.dart
+
+      json_serializable|_test_builder:
+        generate_for:
+        - test/default_value/default_value.dart
+        - test/generic_files/generic_class.dart
+        - test/integration/json_test_example.dart
+        - test/integration/json_test_example.dart
+        - test/integration/json_test_example.non_nullable.dart
+        - test/kitchen_sink/kitchen_sink.dart
+
+      json_serializable|_type_builder:
+        generate_for:
+        - test/supported_types/input.dart
+
+      json_serializable|_type_test_builder:
+        generate_for:
+        - test/supported_types/type_test.dart
+
+builders:
+  _test_builder:
+    import: 'tool/test_builder.dart'
+    builder_factories: ['testBuilder']
+    build_extensions:
+      .dart:
+      - .factories.dart
+      - .g_any_map.dart
+      - .g_any_map__checked.dart
+      - .g_any_map__checked__non_nullable.dart
+      - .g_any_map__non_nullable.dart
+      - .g_exclude_null.dart
+      - .g_exclude_null__non_nullable.dart
+      - .g_explicit_to_json.dart
+      - .g_non_nullable.dart
+    build_to: source
+    runs_before: ["json_serializable"]
+
+  _type_builder:
+    import: 'tool/test_type_builder.dart'
+    builder_factories: ['typeBuilder']
+    build_extensions:
+      .dart:
+      - .type_bigint.dart
+      - .type_bool.dart
+      - .type_datetime.dart
+      - .type_double.dart
+      - .type_duration.dart
+      - .type_enumtype.dart
+      - .type_int.dart
+      - .type_iterable.dart
+      - .type_list.dart
+      - .type_map.dart
+      - .type_num.dart
+      - .type_object.dart
+      - .type_set.dart
+      - .type_string.dart
+      - .type_uri.dart
+    build_to: source
+    runs_before: ["json_serializable"]
+
+  _type_test_builder:
+    import: 'tool/test_type_builder.dart'
+    builder_factories: ['typeTestBuilder']
+    build_extensions:
+      .dart:
+      - .bigint_test.dart
+      - .bool_test.dart
+      - .datetime_test.dart
+      - .double_test.dart
+      - .duration_test.dart
+      - .enumtype_test.dart
+      - .int_test.dart
+      - .iterable_test.dart
+      - .list_test.dart
+      - .map_test.dart
+      - .num_test.dart
+      - .object_test.dart
+      - .set_test.dart
+      - .string_test.dart
+      - .uri_test.dart
+    build_to: source
+    runs_before: ["json_serializable"]
+
+  _doc_builder:
+    import: "tool/doc_builder.dart"
+    builder_factories: ["docBuilder"]
+    build_extensions: {"lib/json_serializable.dart": ["doc/doc.md"]}
+    build_to: source
+    auto_apply: root_package
+    runs_before: ["json_serializable"]
+    required_inputs: ["doc/json_annotation_version.txt"]
+
+  json_serializable:
+    import: "package:json_serializable/builder.dart"
+    builder_factories: ["jsonSerializable"]
+    build_extensions: {".dart": ["json_serializable.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
