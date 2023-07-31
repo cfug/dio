@@ -154,11 +154,12 @@ class DioException implements Exception {
     Object? error,
   }) =>
       DioException(
-          type: DioExceptionType.connectionError,
-          message: 'The connection errored: $reason',
-          requestOptions: requestOptions,
-          response: null,
-          error: error);
+        type: DioExceptionType.connectionError,
+        message: 'The connection errored: $reason',
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
+      );
 
   /// The request info for the request that throws exception.
   final RequestOptions requestOptions;
