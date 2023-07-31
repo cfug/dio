@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.3.1
+
 - Improve package descriptions and code formats.
 - Improve comments.
 - Fix error when cloning `MultipartFile` from `FormData` with regression test.
