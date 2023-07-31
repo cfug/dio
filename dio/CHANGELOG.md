@@ -5,7 +5,6 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
 - Fixing requests failing with unknown instead of connection error on SocketException
 
 ## 5.3.1
