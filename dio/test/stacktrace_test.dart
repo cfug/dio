@@ -205,7 +205,34 @@ void main() async {
       },
       testOn: '!browser',
     );
-
+    group('DioExceptionType.connectionError', () {
+      test(
+        'SocketException on request',
+        () async {
+          final dio = Dio()
+            ..options.baseUrl = 'https://does.not.exist'
+            ..httpClientAdapter = IOHttpClientAdapter();
+          await dio.get('/test', data: 'test');
+          await expectLater(
+            dio.get('/test', data: 'test'),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (e) => e.type == DioExceptionType.connectionError,
+                (e) => e.error is SocketException,
+                (e) => (e.error as SocketException)
+                    .message
+                    .contains("Failed host lookup: 'does.not.exist'"),
+                (e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
+    });
     group('DioExceptionType.unknown', () {
       test(
         JsonUnsupportedObjectError,
@@ -231,33 +258,6 @@ void main() async {
           );
         },
         testOn: '!browser',
-      );
-
-      test(
-        'SocketException on request',
-        () async {
-          final dio = Dio()
-            ..options.baseUrl = 'https://does.not.exist'
-            ..httpClientAdapter = IOHttpClientAdapter();
-
-          await expectLater(
-            dio.get('/test', data: 'test'),
-            throwsA(
-              allOf([
-                isA<DioException>(),
-                (e) => e.type == DioExceptionType.unknown,
-                (e) => e.error is SocketException,
-                (e) => (e.error as SocketException)
-                    .message
-                    .startsWith("Failed host lookup: 'does.not.exist'"),
-                (e) => e.stackTrace
-                    .toString()
-                    .contains('test/stacktrace_test.dart'),
-              ]),
-            ),
-          );
-        },
-        testOn: 'vm',
       );
 
       test(

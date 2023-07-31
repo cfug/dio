@@ -116,7 +116,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       });
     } on SocketException catch (e) {
       if (!e.message.contains('timed out')) {
-        rethrow;
+        throw DioException.connectionError(
+          requestOptions: options,
+          reason: e.message,
+          error: e,
+        );
       }
       throw DioException.connectionTimeout(
         requestOptions: options,
