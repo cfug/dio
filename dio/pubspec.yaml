@@ -11,7 +11,7 @@ topics:
   - http
   - network
   - interceptor
-  - web
+  - middleware
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/dio
 issue_tracker: https://github.com/cfug/dio/issues

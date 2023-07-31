@@ -2,7 +2,7 @@
 
 [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg)](https://pub.dev/packages/dio_cookie_manager)
 
-A cookie manager for [dio](https://github.com/cfug/dio).
+A cookie manager combines cookie_jar and dio, based on the interceptor algorithm.
 
 ## Getting Started
 
@@ -10,7 +10,7 @@ A cookie manager for [dio](https://github.com/cfug/dio).
 
 ```yaml
 dependencies:
-  dio_cookie_manager: ^2.0.0 # latest version
+  dio_cookie_manager: ^latest-version
 ```
 
 ### Usage

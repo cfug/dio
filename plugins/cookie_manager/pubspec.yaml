@@ -7,7 +7,7 @@ topics:
   - cookie
   - network
   - storage
-  - persistent
+  - persistence
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/plugins/cookie_manager
 issue_tracker: https://github.com/cfug/dio/issues
