@@ -1,6 +1,13 @@
 name: dio_cookie_manager
-description: A cookie manager combines cookie_jar and dio, based on the interceptor algorithm.
 version: 3.1.0
+
+description: A cookie manager combines cookie_jar and dio, based on the interceptor algorithm.
+topics:
+  - dio
+  - cookie
+  - network
+  - storage
+  - persistence
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/plugins/cookie_manager
 issue_tracker: https://github.com/cfug/dio/issues

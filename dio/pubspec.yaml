@@ -1,14 +1,20 @@
 name: dio
+version: 5.3.0
 
 description: |
   A powerful HTTP networking package,
   supports Interceptors,
   Aborting and canceling a request,
   Custom adapters, Transformers, etc.
+topics:
+  - dio
+  - http
+  - network
+  - interceptor
+  - middleware
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/dio
 issue_tracker: https://github.com/cfug/dio/issues
-version: 5.3.0
 
 environment:
   sdk: '>=2.15.0 <3.0.0'
