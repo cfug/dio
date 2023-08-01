@@ -140,6 +140,11 @@ class DioForNative with DioMixin implements Dio {
         }).catchError((Object e) async {
           try {
             await subscription.cancel();
+            closed = true;
+            await raf.close();
+            if (deleteOnError && file.existsSync()) {
+              await file.delete();
+            }
           } finally {
             completer.completeError(
               DioMixin.assureDioException(e, response.requestOptions),

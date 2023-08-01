@@ -94,6 +94,25 @@ void main() {
     );
   });
 
+  test('download write failed', () async {
+    const savePath = 'test/_download_test.md';
+    final f = File(savePath)..createSync(recursive: true);
+    final raf = f.openSync(mode: FileMode.write)..lockSync(FileLock.exclusive);
+    expect(f.existsSync(), isTrue);
+
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
+    await expectLater(
+      dio.download('/download', savePath, deleteOnError: false).catchError((e) {
+        throw (e as DioException).error!;
+      }),
+      throwsA(isA<FileSystemException>()),
+    );
+
+    await expectLater(raf.unlock(), completes);
+    await expectLater(raf.close(), completes);
+    await expectLater(f.delete(), completes);
+  });
+
   test('`savePath` types', () async {
     final testPath = p.join(Directory.systemTemp.path, 'dio', 'testPath');
 

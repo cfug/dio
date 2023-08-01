@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `Dio.download` not closing `RandomAccessFile` when file writing fails.
 
 ## 5.3.1
 
