@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-- Fixing requests failing with unknown instead of connection error on SocketException
+- Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
 
 ## 5.3.1
 
