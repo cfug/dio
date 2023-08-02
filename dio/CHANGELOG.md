@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Revert removed `download` for `DioMixin`.
+- Fix for `Dio.download` not cleaning the file on data handling error.
 
 ## 5.3.1
 
