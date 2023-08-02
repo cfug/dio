@@ -114,7 +114,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       options.headers.forEach((k, v) {
         if (v != null) request.headers.set(k, v);
       });
-    } on SocketException catch (e) {
+    } on SocketException catch (e,stacktrace) {
       if (e.message.contains('timed out')) {
         throw DioException.connectionTimeout(
           requestOptions: options,
@@ -122,14 +122,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
               httpClient.connectionTimeout ??
               Duration.zero,
           error: e,
-          stackTrace: StackTrace.current,
         );
       }
       throw DioException.connectionError(
         requestOptions: options,
         reason: e.message,
         error: e,
-        stackTrace: StackTrace.current,
+        stackTrace: stacktrace,
       );
     }
 
