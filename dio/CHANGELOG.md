@@ -5,6 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Revert removed `download` for `DioMixin`.
 - Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
 
 ## 5.3.1
