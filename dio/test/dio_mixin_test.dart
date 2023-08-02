@@ -16,4 +16,10 @@ void main() {
     );
     expect(typedResponse.data, isNull);
   });
+
+  test('throws UnimplementedError when calling download', () {
+    expectLater(() => _TextDioMixin().download(), throwsA<UnimplementedError>();
+  });
 }
+
+class _TestDioMixin with DioMixin implements Dio {}
