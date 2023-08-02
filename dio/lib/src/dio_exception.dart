@@ -97,6 +97,7 @@ class DioException implements Exception {
     required Duration timeout,
     required RequestOptions requestOptions,
     Object? error,
+    StackTrace? stackTrace,
   }) =>
       DioException(
         type: DioExceptionType.connectionTimeout,
@@ -105,6 +106,7 @@ class DioException implements Exception {
         requestOptions: requestOptions,
         response: null,
         error: error,
+        stackTrace: stackTrace,
       );
 
   factory DioException.sendTimeout({

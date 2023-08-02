@@ -122,6 +122,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
               httpClient.connectionTimeout ??
               Duration.zero,
           error: e,
+          stackTrace: StackTrace.current,
         );
       }
       throw DioException.connectionError(
