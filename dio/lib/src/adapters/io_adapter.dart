@@ -128,6 +128,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         requestOptions: options,
         reason: e.message,
         error: e,
+        stackTrace: StackTrace.current,
       );
     }
 
