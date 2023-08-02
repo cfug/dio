@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Revert removed `download` for `DioMixin`.
 
 ## 5.3.1
 
