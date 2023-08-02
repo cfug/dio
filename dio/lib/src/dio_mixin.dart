@@ -294,6 +294,21 @@ abstract class DioMixin implements Dio {
   }
 
   @override
+  Future<Response> download(
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<Response<T>> requestUri<T>(
     Uri uri, {
     Object? data,
