@@ -117,9 +117,9 @@ class DioForNative with DioMixin implements Dio {
       if (!closed) {
         closed = true;
         await asyncWrite;
-        await raf.close();
+        await raf.close().catchError((_) => raf);
         if (deleteOnError && file.existsSync()) {
-          await file.delete();
+          await file.delete().catchError((_) => file);
         }
       }
     }
@@ -141,9 +141,9 @@ class DioForNative with DioMixin implements Dio {
           try {
             await subscription.cancel();
             closed = true;
-            await raf.close();
+            await raf.close().catchError((_) => raf);
             if (deleteOnError && file.existsSync()) {
-              await file.delete();
+              await file.delete().catchError((_) => file);
             }
           } finally {
             completer.completeError(
@@ -156,7 +156,7 @@ class DioForNative with DioMixin implements Dio {
         try {
           await asyncWrite;
           closed = true;
-          await raf.close();
+          await raf.close().catchError((_) => raf);
           completer.complete(response);
         } catch (e) {
           completer.completeError(
