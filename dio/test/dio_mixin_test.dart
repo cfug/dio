@@ -17,10 +17,10 @@ void main() {
     expect(typedResponse.data, isNull);
   });
 
-  test('throws UnimplementedError when calling download', () {
-    expectLater(
-      () => _TestDioMixin().download('a', 'b'),
-      throwsA<UnimplementedError>(),
+  test('throws UnimplementedError when calling download', () async {
+    await expectLater(
+      _TestDioMixin().download('a', 'b'),
+      throwsA((e) => e is UnimplementedError),
     );
   });
 }
