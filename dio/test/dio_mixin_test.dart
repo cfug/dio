@@ -19,7 +19,7 @@ void main() {
 
   test('throws UnimplementedError when calling download', () {
     expectLater(
-      () => _TextDioMixin().download('a', 'b'),
+      () => _TestDioMixin().download('a', 'b'),
       throwsA<UnimplementedError>(),
     );
   });
