@@ -222,9 +222,9 @@ void main() async {
                 (e) => (e.error as SocketException)
                     .message
                     .contains("Failed host lookup: 'does.not.exist'"),
-                // (e) => e.stackTrace
-                //     .toString()
-                //     .contains('test/stacktrace_test.dart'),
+                (e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
               ]),
             ),
           );
