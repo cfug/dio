@@ -272,8 +272,9 @@ void main() async {
                 when(request.headers).thenReturn(MockHttpHeaders());
                 when(request.addStream(any)).thenAnswer((_) => Future.value());
                 when(request.close()).thenAnswer(
-                  (_) async => Future.delayed(Duration(milliseconds: 50),
-                      () => throw SocketException('test')),
+                  (_) => Future.delayed(Duration(milliseconds: 50), () {
+                    throw SocketException('test');
+                  }),
                 );
                 return client;
               },
