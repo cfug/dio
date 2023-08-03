@@ -238,7 +238,15 @@ void main() async {
         () async {
           final dio = Dio()
             ..options.baseUrl = 'https://does.not.exist'
-            ..httpClientAdapter = IOHttpClientAdapter();
+            ..httpClientAdapter = IOHttpClientAdapter(
+              createHttpClient: () {
+                final client = MockHttpClient();
+                when(client.openUrl(any, any)).thenThrow(
+                  SocketException('test'),
+                );
+                return client;
+              },
+            );
 
           await expectLater(
             dio.get('/test', data: 'test'),
@@ -247,9 +255,6 @@ void main() async {
                 isA<DioException>(),
                 (e) => e.type == DioExceptionType.unknown,
                 (e) => e.error is SocketException,
-                (e) => (e.error as SocketException)
-                    .message
-                    .startsWith("Failed host lookup: 'does.not.exist'"),
                 (e) => e.stackTrace
                     .toString()
                     .contains('test/stacktrace_test.dart'),
@@ -273,8 +278,9 @@ void main() async {
                 when(request.headers).thenReturn(MockHttpHeaders());
                 when(request.addStream(any)).thenAnswer((_) => Future.value());
                 when(request.close()).thenAnswer(
-                  (_) async => Future.delayed(Duration(milliseconds: 50),
-                      () => throw SocketException('test')),
+                  (_) => Future.delayed(Duration(milliseconds: 50), () {
+                    throw SocketException('test');
+                  }),
                 );
                 return client;
               },
