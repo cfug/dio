@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 3.1.0+1
+
 - Add topics to packages.
 
 ## 3.1.0
