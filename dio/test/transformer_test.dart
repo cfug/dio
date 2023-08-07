@@ -38,6 +38,8 @@ void main() {
         case ResponseType.bytes:
           expect(response, []);
           break;
+        default:
+          throw AssertionError('Unknown response type: $responseType');
       }
     }
     final jsonResponse = await transformer.transformResponse(
