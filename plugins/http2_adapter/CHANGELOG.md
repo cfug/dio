@@ -4,6 +4,10 @@
 
 *None.*
 
+## 2.3.1+1
+
+- Add topics to packages.
+
 ## 2.3.1
 
 - Fix cached `initFuture` not remove when throw exception.

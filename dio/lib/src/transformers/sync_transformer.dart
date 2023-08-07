@@ -16,11 +16,9 @@ typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
 /// The callback definition for encoding a JSON object.
 typedef JsonEncodeCallback = FutureOr<String> Function(Object);
 
-/// The default [Transformer] for [Dio].
-///
 /// If you want to custom the transformation of request/response data,
 /// you can provide a [Transformer] by your self, and replace
-/// the [DefaultTransformer] by setting the [dio.transformer].
+/// the transformer by setting the [Dio.transformer].
 class SyncTransformer extends Transformer {
   SyncTransformer({
     this.jsonDecodeCallback = jsonDecode,
@@ -49,7 +47,7 @@ class SyncTransformer extends Transformer {
   ) async {
     final responseType = options.responseType;
     // Do not handled the body for streams.
-    if (options.responseType == ResponseType.stream) {
+    if (responseType == ResponseType.stream) {
       return responseBody;
     }
 

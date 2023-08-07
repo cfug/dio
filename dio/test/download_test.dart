@@ -94,6 +94,49 @@ void main() {
     );
   });
 
+  test('delete on error', () async {
+    const savePath = 'test/_download_test.md';
+    final f = File(savePath)..createSync(recursive: true);
+    expect(f.existsSync(), isTrue);
+
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
+    await expectLater(
+      dio
+          .download(
+            '/download',
+            savePath,
+            deleteOnError: true,
+            onReceiveProgress: (count, total) => throw AssertionError(),
+          )
+          .catchError((e) => throw (e as DioException).error!),
+      throwsA(isA<AssertionError>()),
+    );
+    expect(f.existsSync(), isFalse);
+  });
+
+  test('delete on cancel', () async {
+    const savePath = 'test/_download_test.md';
+    final f = File(savePath)..createSync(recursive: true);
+    expect(f.existsSync(), isTrue);
+
+    final cancelToken = CancelToken();
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
+    await expectLater(
+      dio
+          .download(
+            '/download',
+            savePath,
+            deleteOnError: true,
+            cancelToken: cancelToken,
+            onReceiveProgress: (count, total) => cancelToken.cancel(),
+          )
+          .catchError((e) => throw (e as DioException).type),
+      throwsA(DioExceptionType.cancel),
+    );
+    await Future.delayed(const Duration(milliseconds: 100));
+    expect(f.existsSync(), isFalse);
+  });
+
   test('`savePath` types', () async {
     final testPath = p.join(Directory.systemTemp.path, 'dio', 'testPath');
 

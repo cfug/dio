@@ -7,6 +7,19 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 *None.*
 
+## 5.3.2
+
+- Revert removed `download` for `DioMixin`.
+- Fix for `Dio.download` not cleaning the file on data handling error.
+
+## 5.3.1
+
+- Improve package descriptions and code formats.
+- Improve comments.
+- Fix error when cloning `MultipartFile` from `FormData` with regression test.
+- Deprecate `MulitpartFile` constructor in favor `MultipartFile.fromStream`.
+- Add `FormData.clone`.
+
 ## 5.3.0
 
 - Remove `http` from `dev_dependencies`.

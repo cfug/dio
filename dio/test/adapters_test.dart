@@ -12,6 +12,7 @@ void main() {
         int onHttpClientCreateInvokeCount = 0;
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter(
+          // ignore: deprecated_member_use_from_same_package
           onHttpClientCreate: (client) {
             onHttpClientCreateInvokeCount++;
             return client;
