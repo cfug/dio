@@ -47,7 +47,7 @@ class SyncTransformer extends Transformer {
   ) async {
     final responseType = options.responseType;
     // Do not handled the body for streams.
-    if (options.responseType == ResponseType.stream) {
+    if (responseType == ResponseType.stream) {
       return responseBody;
     }
 
