@@ -19,7 +19,7 @@ Inspired by the [Dart 2.18 release blog](https://medium.com/dartlang/dart-2-18-f
 
 # Motivation
 
-Using the native platform implementation, rather than the socket-based [`dart:io` HttpClient](https://api.dart.dev/stable/dart-io/HttpClient-class.html) implemententation, has several advantages:
+Using the native platform implementation, rather than the socket-based [`dart:io` HttpClient](https://api.dart.dev/stable/dart-io/HttpClient-class.html) implementation, has several advantages:
 
 - It automatically supports platform features such VPNs and HTTP proxies.
 - It supports many more configuration options such as only allowing access through WiFi and blocking cookies.
@@ -29,7 +29,7 @@ Using the native platform implementation, rather than the socket-based [`dart:io
 
 ```dart
 final dioClient = Dio();
-if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
+if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
   dioClient.httpClientAdapter = NativeAdapter();
 }
 ```
