@@ -135,7 +135,7 @@ void main() {
   });
   test('options content-type', () {
     const contentType = 'text/html';
-    const contentTypeJson = 'appliction/json';
+    const contentTypeJson = 'application/json';
     final headers = {'content-type': contentType};
     final jsonHeaders = {'content-type': contentTypeJson};
 

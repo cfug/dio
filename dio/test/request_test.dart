@@ -125,7 +125,7 @@ void main() {
       expect(response.data['query'], equals('id=12&name=wendu'));
       expect(response.headers.value('single'), equals('value'));
 
-      const map = {'content': 'I am playload'};
+      const map = {'content': 'I am payload'};
 
       // test post
       response = await dio.postUri(
