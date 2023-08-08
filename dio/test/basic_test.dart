@@ -44,11 +44,7 @@ void main() {
       throwsA(
         allOf([
           isA<DioException>(),
-          (DioException e) =>
-              e.type ==
-              (isWeb
-                  ? DioExceptionType.connectionError
-                  : DioExceptionType.unknown),
+          (DioException e) => e.type == (DioExceptionType.connectionError),
           if (!isWeb) (DioException e) => e.error is SocketException,
         ]),
       ),
