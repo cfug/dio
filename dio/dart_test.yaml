@@ -1,2 +1,8 @@
 file_reporters:
   json: build/reports/test-results.json
+
+override_platforms:
+  chrome:
+    settings:
+      # disable web security to allow CORS requests
+      arguments: --disable-web-security

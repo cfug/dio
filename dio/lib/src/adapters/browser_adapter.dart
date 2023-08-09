@@ -71,7 +71,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           xhr.status!,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
-          isRedirect: xhr.status == 302 || xhr.status == 301,
+          isRedirect: xhr.status == 302 ||
+              xhr.status == 301 ||
+              options.uri.toString() != xhr.responseUrl,
         ),
       );
     });
@@ -198,7 +200,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     cancelFuture?.then((_) {
-      if (xhr.readyState < 4 && xhr.readyState > 0) {
+      if (xhr.readyState < HttpRequest.DONE &&
+          xhr.readyState > HttpRequest.UNSENT) {
         connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
