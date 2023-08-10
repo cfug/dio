@@ -230,7 +230,7 @@ abstract class Dio {
   ///   ),
   ///   onReceiveProgress: (received, total) {
   ///     if (total != -1) {
-  ///       print((received / total * 100).toStringAsFixed(0) + '%');
+  ///       print('${(received / total * 100).toStringAsFixed(0)}%');
   ///     }
   ///   },
   /// );
