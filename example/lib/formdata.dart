@@ -111,10 +111,9 @@ void main() async {
   response = await dio.post(
     'http://localhost:3000/upload',
     data: data3,
-    onSendProgress: (received, total) {
-      if (total != -1) {
-        print('${(received / total * 100).toStringAsFixed(0)}%');
-      }
+    onSendProgress: (sent, total) {
+      if (total <= 0) return;
+      print('percentage: ${(sent / total * 100).toStringAsFixed(0)}%');
     },
   );
   print(response);
