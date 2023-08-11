@@ -1,20 +1,8 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'http.dart'; // make dio as global top-level variable
 import 'routes/request.dart';
-
-// Must be top-level function
-_parseAndDecode(String response) {
-  return jsonDecode(response);
-}
-
-parseJson(String text) {
-  return compute(_parseAndDecode, text);
-}
 
 void main() {
   dio.interceptors.add(LogInterceptor());
@@ -91,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: SingleChildScrollView(
                 child: Text(_text),
               ),
-            )
+            ),
           ],
         ),
       ),

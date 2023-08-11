@@ -13,14 +13,8 @@ void main() {
   tearDown(stopServer);
   test('download1', () async {
     const savePath = 'test/_download_test.md';
-    final dio = Dio();
-    dio.options.baseUrl = serverUrl.toString();
-    await dio.download(
-      '/download', savePath, // disable gzip
-      onReceiveProgress: (received, total) {
-        // ignore progress
-      },
-    );
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
+    await dio.download('/download', savePath);
 
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
@@ -29,11 +23,10 @@ void main() {
 
   test('download2', () async {
     const savePath = 'test/_download_test.md';
-    final dio = Dio();
-    dio.options.baseUrl = serverUrl.toString();
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
     await dio.downloadUri(
       serverUrl.replace(path: '/download'),
-      (header) => savePath, // disable gzip
+      (header) => savePath,
     );
 
     final f = File(savePath);
@@ -43,8 +36,7 @@ void main() {
 
   test('download error', () async {
     const savePath = 'test/_download_test.md';
-    final dio = Dio();
-    dio.options.baseUrl = serverUrl.toString();
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
     Response response = await dio
         .download('/error', savePath)
         .catchError((e) => (e as DioException).response!);
@@ -73,7 +65,6 @@ void main() {
           .catchError((e) => throw (e as DioException).type),
       throwsA(DioExceptionType.receiveTimeout),
     );
-    //print(r);
   });
 
   test('download cancellation', () async {

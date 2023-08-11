@@ -84,12 +84,7 @@ void main() {
       );
 
       // redirect test
-      response = await dio.get(
-        '/redirect',
-        onReceiveProgress: (received, total) {
-          // ignore progress
-        },
-      );
+      response = await dio.get('/redirect');
       expect(response.isRedirect, true);
       expect(response.redirects.length, 1);
       final ri = response.redirects.first;

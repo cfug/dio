@@ -229,9 +229,8 @@ abstract class Dio {
   ///     headers: {HttpHeaders.acceptEncodingHeader: '*'}, // Disable gzip
   ///   ),
   ///   onReceiveProgress: (received, total) {
-  ///     if (total != -1) {
-  ///       print((received / total * 100).toStringAsFixed(0) + '%');
-  ///     }
+  ///     if (total <= 0) return;
+  ///     print('percentage: ${(received / total * 100).toStringAsFixed(0)}%');
   ///   },
   /// );
   /// ```
