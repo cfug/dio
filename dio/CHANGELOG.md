@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
+- Removes the accidentally added `options` argument for `Options.compose`.
 
 ## 5.3.2
 
