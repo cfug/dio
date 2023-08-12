@@ -294,7 +294,6 @@ class Options {
     Object? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
-    Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
     StackTrace? sourceStackTrace,
