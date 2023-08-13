@@ -96,9 +96,7 @@ Future<void> startServer() async {
           ..contentLength = content.length
           ..write(content);
 
-        Future.delayed(Duration(milliseconds: 300), () {
-          response.close();
-        });
+        Future.delayed(Duration(milliseconds: 300), () => response.close());
         return;
       }
 
