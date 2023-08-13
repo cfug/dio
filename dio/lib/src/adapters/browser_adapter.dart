@@ -57,7 +57,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     options.headers.remove(Headers.contentLengthHeader);
-    options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
+    options.headers.forEach((key, v) {
+      if (v is Iterable) {
+        xhr.setRequestHeader(key, v.join(', '));
+      } else {
+        xhr.setRequestHeader(key, v.toString());
+      }
+    });
 
     final connectTimeout = options.connectTimeout;
     final receiveTimeout = options.receiveTimeout;
