@@ -89,11 +89,21 @@ class Http2Adapter implements HttpClientAdapter {
     }
 
     if (hasRequestData) {
-      await requestStream!.listen((data) {
+      final requestStreamFuture = requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
       }).asFuture();
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        await requestStreamFuture.timeout(sendTimeout, onTimeout: () {
+          throw DioException.sendTimeout(
+            timeout: sendTimeout,
+            requestOptions: options,
+          );
+        });
+      } else {
+        await requestStreamFuture;
+      }
     }
-
     await stream.outgoingMessages.close();
 
     final sc = StreamController<Uint8List>();
@@ -145,7 +155,21 @@ class Http2Adapter implements HttpClientAdapter {
       cancelOnError: true,
     );
 
-    await completer.future;
+    final receiveTimeout = options.receiveTimeout;
+    if (receiveTimeout != null) {
+      await completer.future.timeout(
+        receiveTimeout,
+        onTimeout: () {
+          subscription.cancel().whenComplete(() => sc.close());
+          throw DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          );
+        },
+      );
+    } else {
+      await completer.future;
+    }
 
     // Handle redirection
     if (needRedirect) {

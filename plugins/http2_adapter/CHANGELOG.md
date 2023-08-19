@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Add send timeout and receive timeout
 
 ## 2.3.1+1
 

@@ -76,4 +76,39 @@ void main() {
     final res = await dio.post('post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));
   });
+
+  test('catch DioException when receiveTimeout', () {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.com/'
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(milliseconds: 10),
+        ),
+      );
+    dio.options.receiveTimeout = Duration(seconds: 5);
+
+    expectLater(
+      dio.get('/drip?delay=10&numbytes=1'),
+      allOf([
+        throwsA(isA<DioException>()),
+        throwsA(predicate(
+            (DioException e) => e.type == DioExceptionType.receiveTimeout)),
+        throwsA(predicate(
+            (DioException e) => e.message!.contains('0:00:05.000000'))),
+      ]),
+    );
+  }, testOn: 'vm');
+
+  test('no DioException when receiveTimeout > request duration', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.com/'
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: Duration(milliseconds: 10),
+        ),
+      );
+    dio.options.receiveTimeout = Duration(seconds: 5);
+
+    await dio.get('/drip?delay=1&numbytes=1');
+  });
 }
