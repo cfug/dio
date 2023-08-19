@@ -4,12 +4,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 
-void showProgress(received, total) {
-  if (total != -1) {
-    print((received / total * 100).toStringAsFixed(0) + '%');
-  }
-}
-
 Future<FormData> formData1() async {
   return FormData.fromMap({
     'name': 'wendux',
@@ -92,7 +86,6 @@ void main() async {
   final dio = Dio();
   dio.options.baseUrl = 'http://localhost:3000/';
   dio.interceptors.add(LogInterceptor());
-  // dio.interceptors.add(LogInterceptor(requestBody: true));
   dio.httpClientAdapter = IOHttpClientAdapter(
     createHttpClient: () {
       final client = HttpClient();
@@ -116,13 +109,11 @@ void main() async {
   print(utf8.decode(await data3.readAsBytes()));
 
   response = await dio.post(
-    //"/upload",
     'http://localhost:3000/upload',
     data: data3,
-    onSendProgress: (received, total) {
-      if (total != -1) {
-        print('${(received / total * 100).toStringAsFixed(0)}%');
-      }
+    onSendProgress: (sent, total) {
+      if (total <= 0) return;
+      print('percentage: ${(sent / total * 100).toStringAsFixed(0)}%');
     },
   );
   print(response);

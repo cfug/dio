@@ -5,6 +5,26 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
+- Removes the accidentally added `options` argument for `Options.compose`.
+- Fix wrong formatting of multi-value header in `BrowserHttpClientAdapter`.
+- Add warning in debug mode when trying to send data with a `GET` request in web.
+
+## 5.3.2
+
+- Revert removed `download` for `DioMixin`.
+- Fix for `Dio.download` not cleaning the file on data handling error.
+
+## 5.3.1
+
+- Improve package descriptions and code formats.
+- Improve comments.
+- Fix error when cloning `MultipartFile` from `FormData` with regression test.
+- Deprecate `MultipartFile` constructor in favor `MultipartFile.fromStream`.
+- Add `FormData.clone`.
+
+## 5.3.0
+
 - Remove `http` from `dev_dependencies`.
 - Add support for cloning `MultipartFile` from `FormData`.
 - Only produce null response body when `ResponseType.json`.
@@ -72,14 +92,14 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Add `ImplyContentTypeInterceptor` as a default interceptor.
 - Add `Headers.multipartFormDataContentType` for headers usage.
-- Fix variable shadowing of `withCredentials` in `browser_adapers.dart`.
+- Fix variable shadowing of `withCredentials` in `browser_adapter.dart`.
 
 ## 5.0.0
 
 - Raise the min Dart SDK version to 2.15.0 to support `BackgroundTransformer`.
 - Change `Dio.transformer` from `DefaultTransformer` to `BackgroundTransformer`.
 - Remove plain ASCII check in `FormData`.
-- Allow asynchronized method with `savePath`.
+- Allow asynchronous method with `savePath`.
 - Allow `data` in all request methods.
 - A platform independent `HttpClientAdapter` can now be instantiated by doing
   `dio.httpClientAdapter = HttpClientAdapter();`.
@@ -164,7 +184,7 @@ the subsequent interceptors processing logic more finely (whether to skip them o
 ## 4.0.0-beta3
 
 - rename CollectionFormat to ListFormat
-- change default value of Options.listFormat from `mutiComptible` to `multi`
+- change default value of Options.listFormat from `multiCompatible` to `multi`
 - add upload_stream_test.dart
 
 ## 4.0.0-beta2

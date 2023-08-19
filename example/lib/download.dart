@@ -7,6 +7,8 @@ import 'package:dio/dio.dart';
 void main() async {
   final dio = Dio();
   dio.interceptors.add(LogInterceptor());
+  // Assure the value of total argument of onReceiveProgress is not -1.
+  dio.options.headers = {HttpHeaders.acceptEncodingHeader: '*'};
   final url = 'https://pub.dev/static/hash-rhob5slb/img/pub-dev-logo.svg';
   await download1(dio, url, './example/pub-dev-logo.svg');
   await download1(dio, url, (headers) => './example/pub-dev-logo-1.svg');
@@ -51,8 +53,7 @@ Future download2(Dio dio, String url, String savePath) async {
   }
 }
 
-void showDownloadProgress(received, total) {
-  if (total != -1) {
-    print((received / total * 100).toStringAsFixed(0) + '%');
-  }
+void showDownloadProgress(int received, int total) {
+  if (total <= 0) return;
+  print('percentage: ${(received / total * 100).toStringAsFixed(0)}%');
 }

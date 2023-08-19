@@ -12,18 +12,22 @@ import '../redirect_record.dart';
 @Deprecated('Use IOHttpClientAdapter instead. This will be removed in 6.0.0')
 typedef DefaultHttpClientAdapter = IOHttpClientAdapter;
 
+/// The signature of [IOHttpClientAdapter.onHttpClientCreate].
 @Deprecated('Use CreateHttpClient instead. This will be removed in 6.0.0')
 typedef OnHttpClientCreate = HttpClient? Function(HttpClient client);
 
+/// The signature of [IOHttpClientAdapter.createHttpClient].
 /// Can be used to provide a custom [HttpClient] for Dio.
 typedef CreateHttpClient = HttpClient Function();
 
+/// The signature of [IOHttpClientAdapter.validateCertificate].
 typedef ValidateCertificate = bool Function(
   X509Certificate? certificate,
   String host,
   int port,
 );
 
+/// Creates an [IOHttpClientAdapter].
 HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for native platforms.
@@ -53,7 +57,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   ValidateCertificate? validateCertificate;
 
   HttpClient? _cachedHttpClient;
-
   bool _closed = false;
 
   @override
@@ -64,7 +67,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   ) async {
     if (_closed) {
       throw StateError(
-        "Can't establish connection after the adapter was closed!",
+        "Can't establish connection after the adapter was closed.",
       );
     }
     final operation = CancelableOperation.fromFuture(_fetch(
@@ -112,14 +115,18 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         if (v != null) request.headers.set(k, v);
       });
     } on SocketException catch (e) {
-      if (!e.message.contains('timed out')) {
-        rethrow;
+      if (e.message.contains('timed out')) {
+        throw DioException.connectionTimeout(
+          requestOptions: options,
+          timeout: options.connectTimeout ??
+              httpClient.connectionTimeout ??
+              Duration.zero,
+          error: e,
+        );
       }
-      throw DioException.connectionTimeout(
+      throw DioException.connectionError(
         requestOptions: options,
-        timeout: options.connectTimeout ??
-            httpClient.connectionTimeout ??
-            Duration.zero,
+        reason: e.message,
         error: e,
       );
     }
@@ -236,6 +243,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       return createHttpClient!();
     }
     final client = HttpClient()..idleTimeout = Duration(seconds: 3);
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
     return onHttpClientCreate?.call(client) ?? client;
   }
 }

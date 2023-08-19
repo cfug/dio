@@ -4,6 +4,10 @@
 
 *None.*
 
+## 1.0.0+2
+
+- Add topics to packages.
+
 ## 1.0.0+1
 
 - Update dependencies to make use of stable versions.

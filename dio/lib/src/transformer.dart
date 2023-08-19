@@ -8,10 +8,10 @@ import 'utils.dart';
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
 ///
-/// Dio has already implemented a [DefaultTransformer], and as the default
+/// Dio has already implemented a [BackgroundTransformer], and as the default
 /// [Transformer]. If you want to custom the transformation of
 /// request/response data, you can provide a [Transformer] by your self, and
-/// replace the [DefaultTransformer] by setting the [dio.Transformer].
+/// replace the [BackgroundTransformer] by setting the [Dio.Transformer].
 abstract class Transformer {
   /// [transformRequest] allows changes to the request data before it is
   /// sent to the server, but **after** the [RequestInterceptor].
@@ -27,8 +27,8 @@ abstract class Transformer {
   // TODO(AlexV525): Add generic type for the method in v6.0.0.
   Future transformResponse(RequestOptions options, ResponseBody responseBody);
 
-  /// Deep encode the [Map<String, dynamic>] to percent-encoding.
-  /// It is mostly used with the "application/x-www-form-urlencoded" content-type.
+  /// Recursively encode the [Map<String, dynamic>] to percent-encoding.
+  /// Generally used with the "application/x-www-form-urlencoded" content-type.
   static String urlEncodeMap(
     Map<String, dynamic> map, [
     ListFormat listFormat = ListFormat.multi,
@@ -59,7 +59,7 @@ abstract class Transformer {
     );
   }
 
-  /// Following: https://mimesniff.spec.whatwg.org/#json-mime-type
+  /// See https://mimesniff.spec.whatwg.org/#json-mime-type.
   static bool isJsonMimeType(String? contentType) {
     if (contentType == null) return false;
     final mediaType = MediaType.parse(contentType);

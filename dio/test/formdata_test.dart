@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
@@ -35,6 +36,7 @@ void main() async {
               headers: {
                 'test': <String>['c']
               },
+              contentType: MediaType.parse('text/plain'),
             ),
           ]
         });
@@ -86,6 +88,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
+              contentType: MediaType.parse('text/plain'),
             ),
           ),
         );
@@ -94,95 +97,57 @@ void main() async {
       testOn: 'vm',
     );
 
-    // Cloned multipart files should be able to be read again and be the same
-    // as the original ones.
     test(
-      'complex with cloning',
+      'complex cloning FormData object',
       () async {
-        final multipartFile1 = MultipartFile.fromString(
-          'hello world.',
-          headers: {
-            'test': <String>['a']
-          },
-        );
-        final multipartFile2 = await MultipartFile.fromFile(
-          'test/mock/_testfile',
-          filename: '1.txt',
-          headers: {
-            'test': <String>['b']
-          },
-        );
-        final multipartFile3 = MultipartFile.fromFileSync(
-          'test/mock/_testfile',
-          filename: '2.txt',
-          headers: {
-            'test': <String>['c']
-          },
-        );
-
         final fm = FormData.fromMap({
           'name': 'wendux',
           'age': 25,
           'path': '/图片空间/地址',
-          'file': multipartFile1,
+          'file': MultipartFile.fromString(
+            'hello world.',
+            headers: {
+              'test': <String>['a']
+            },
+          ),
           'files': [
-            multipartFile2,
-            multipartFile3,
+            await MultipartFile.fromFile(
+              'test/mock/_testfile',
+              filename: '1.txt',
+              headers: {
+                'test': <String>['b']
+              },
+            ),
+            MultipartFile.fromFileSync(
+              'test/mock/_testfile',
+              filename: '2.txt',
+              headers: {
+                'test': <String>['c']
+              },
+              contentType: MediaType.parse('text/plain'),
+            ),
           ]
         });
         final fmStr = await fm.readAsBytes();
+        final f = File('test/mock/_formdata');
+        String content = f.readAsStringSync();
+        content = content.replaceAll('--dio-boundary-3788753558', fm.boundary);
+        String actual = utf8.decode(fmStr, allowMalformed: true);
 
-        // Files are finalized after being read.
-        try {
-          multipartFile1.finalize();
-          fail('Should not be able to finalize a file twice.');
-        } catch (e) {
-          expect(e, isA<StateError>());
-          expect(
-            (e as StateError).message,
-            'The MultipartFile has already been finalized. This typically '
-            'means you are using the same MultipartFile in repeated requests.',
-          );
-        }
+        actual = actual.replaceAll('\r\n', '\n');
+        content = content.replaceAll('\r\n', '\n');
 
-        final fm1 = FormData();
-        fm1.fields.add(MapEntry('name', 'wendux'));
-        fm1.fields.add(MapEntry('age', '25'));
-        fm1.fields.add(MapEntry('path', '/图片空间/地址'));
-        fm1.files.add(
-          MapEntry(
-            'file',
-            multipartFile1.clone(),
-          ),
-        );
-        fm1.files.add(
-          MapEntry(
-            'files',
-            multipartFile2.clone(),
-          ),
-        );
-        fm1.files.add(
-          MapEntry(
-            'files',
-            multipartFile3.clone(),
-          ),
-        );
-        expect(fmStr.length, fm1.length);
+        expect(actual, content);
+        expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
-        // The cloned multipart files should be able to be read again.
-        expect(fm.files[0].value.isFinalized, true);
-        expect(fm.files[1].value.isFinalized, true);
-        expect(fm.files[2].value.isFinalized, true);
-        expect(fm1.files[0].value.isFinalized, false);
-        expect(fm1.files[1].value.isFinalized, false);
-        expect(fm1.files[2].value.isFinalized, false);
-
-        // The cloned multipart files' properties should be the same as the
-        // original ones.
-        expect(fm1.files[0].value.filename, multipartFile1.filename);
-        expect(fm1.files[0].value.contentType, multipartFile1.contentType);
-        expect(fm1.files[0].value.length, multipartFile1.length);
-        expect(fm1.files[0].value.headers, multipartFile1.headers);
+        final fm1 = fm.clone();
+        expect(fm1.isFinalized, false);
+        final fm1Str = await fm1.readAsBytes();
+        expect(fmStr.length, fm1Str.length);
+        expect(fm1.isFinalized, true);
+        expect(fm1 != fm, true);
+        expect(fm1.files[0].value.filename, fm.files[0].value.filename);
+        expect(fm1.fields, fm.fields);
       },
       testOn: 'vm',
     );
