@@ -94,12 +94,15 @@ class Http2Adapter implements HttpClientAdapter {
       }).asFuture();
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
-        await requestStreamFuture.timeout(sendTimeout, onTimeout: () {
-          throw DioException.sendTimeout(
-            timeout: sendTimeout,
-            requestOptions: options,
-          );
-        });
+        await requestStreamFuture.timeout(
+          sendTimeout,
+          onTimeout: () {
+            throw DioException.sendTimeout(
+              timeout: sendTimeout,
+              requestOptions: options,
+            );
+          },
+        );
       } else {
         await requestStreamFuture;
       }

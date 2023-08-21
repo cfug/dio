@@ -78,14 +78,17 @@ void main() {
   });
 
   test('catch DioException when receiveTimeout', () {
-    final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
-      ..httpClientAdapter = Http2Adapter(
-        ConnectionManager(
-          idleTimeout: Duration(milliseconds: 10),
-        ),
-      );
-    dio.options.receiveTimeout = Duration(seconds: 5);
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://httpbun.com/',
+        receiveTimeout: Duration(seconds: 5),
+      ),
+    );
+    dio.httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: Duration(milliseconds: 10),
+      ),
+    );
 
     expectLater(
       dio.get('/drip?delay=10&numbytes=1'),
@@ -100,14 +103,17 @@ void main() {
   }, testOn: 'vm');
 
   test('no DioException when receiveTimeout > request duration', () async {
-    final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
-      ..httpClientAdapter = Http2Adapter(
-        ConnectionManager(
-          idleTimeout: Duration(milliseconds: 10),
-        ),
-      );
-    dio.options.receiveTimeout = Duration(seconds: 5);
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://httpbun.com/',
+        receiveTimeout: Duration(seconds: 5),
+      ),
+    );
+    dio.httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        idleTimeout: Duration(milliseconds: 10),
+      ),
+    );
 
     await dio.get('/drip?delay=1&numbytes=1');
   });
