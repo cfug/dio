@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add send timeout and receive timeout
+- Implement `sendTimeout` and `receiveTimeout` for the adapter.
 
 ## 2.3.1+1
 
