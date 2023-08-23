@@ -100,7 +100,7 @@ void main() {
             (DioException e) => e.message!.contains('0:00:05.000000'))),
       ]),
     );
-  }, testOn: 'vm');
+  });
 
   test('no DioException when receiveTimeout > request duration', () async {
     final dio = Dio(
