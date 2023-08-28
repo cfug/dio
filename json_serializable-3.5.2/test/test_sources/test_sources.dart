@@ -1,4 +1,4 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 
 @JsonSerializable()
 class ConfigurationImplicitDefaults {

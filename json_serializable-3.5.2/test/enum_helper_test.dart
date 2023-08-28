@@ -5,7 +5,7 @@
 @TestOn('vm')
 
 import 'package:test/test.dart';
-import 'package:json_serializable/src/type_helpers/enum_helper.dart';
+import 'package:json_serializable_3_5_2/src/type_helpers/enum_helper.dart';
 
 void main() {
   group('expression test', () {

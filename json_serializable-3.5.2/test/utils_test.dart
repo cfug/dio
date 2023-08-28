@@ -6,7 +6,7 @@
 
 import 'package:test/test.dart';
 
-import 'package:json_serializable/src/utils.dart';
+import 'package:json_serializable_3_5_2/src/utils.dart';
 
 const _kebabItems = {
   'simple': 'simple',

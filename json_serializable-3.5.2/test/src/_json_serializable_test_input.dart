@@ -4,8 +4,8 @@
 
 import 'dart:collection';
 
-import 'package:json_annotation/json_annotation.dart';
-import 'package:json_serializable/src/helper_core.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
+import 'package:json_serializable_3_5_2/src/helper_core.dart';
 import 'package:source_gen_test/annotations.dart';
 
 part 'checked_test_input.dart';

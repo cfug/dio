@@ -6,9 +6,9 @@
 import 'dart:io';
 
 import 'package:build/build.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:json_serializable/builder.dart';
-import 'package:json_serializable/src/json_serializable_generator.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
+import 'package:json_serializable_3_5_2/builder.dart';
+import 'package:json_serializable_3_5_2/src/json_serializable_generator.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
@@ -68,7 +68,7 @@ void main() {
       'targets',
       r'$default',
       'builders',
-      'json_serializable',
+      'json_serializable_3_5_2',
       'options'
     ]) {
       yaml = yaml[key] as YamlMap;
@@ -92,7 +92,7 @@ void main() {
     final matcher = isA<StateError>().having(
       (v) => v.message,
       'message',
-      'Could not parse the options provided for `json_serializable`.\n'
+      'Could not parse the options provided for `json_serializable_3_5_2`.\n'
           'Unrecognized keys: [unsupported]; '
           'supported keys: [${_invalidConfig.keys.join(', ')}]',
     );
@@ -120,7 +120,7 @@ void main() {
           (v) => v.message,
           'message',
           '''
-Could not parse the options provided for `json_serializable`.
+Could not parse the options provided for `json_serializable_3_5_2`.
 There is a problem with "${entry.key}".
 $lastLine''',
         );

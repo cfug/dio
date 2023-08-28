@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 // ignore_for_file: annotate_overrides, hash_and_equals
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 
 import 'json_converters.dart';
 import 'kitchen_sink_interface.dart' as k;

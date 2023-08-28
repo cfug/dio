@@ -6,7 +6,7 @@ import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'json_literal_generator.dart';
@@ -120,7 +120,7 @@ JsonKey _from(FieldElement element, JsonSerializable classAnnotation) {
     throwUnsupported(
       element,
       'The provided value is not supported: $badType. '
-      'This may be an error in package:json_serializable. '
+      'This may be an error in package:json_serializable_3_5_2. '
       'Please rerun your build with `--verbose` and file an issue.',
     );
   }
@@ -152,7 +152,7 @@ JsonKey _from(FieldElement element, JsonSerializable classAnnotation) {
         }
         assert(targetEnumType != null);
         final annotatedEnumType = annotationValue.objectValue.type;
-        if (annotatedEnumType != targetEnumType) {
+        if (!_interfaceTypesEqual(annotatedEnumType, targetEnumType)) {
           throwUnsupported(
             element,
             '`$fieldName` has type '
@@ -276,4 +276,12 @@ bool _includeIfNull(
     return false;
   }
   return keyIncludeIfNull ?? classIncludeIfNull;
+}
+
+bool _interfaceTypesEqual(DartType a, DartType b) {
+  if (a is InterfaceType && b is InterfaceType) {
+    // Handle nullability case. Pretty sure this is fine for enums.
+    return a.element == b.element;
+  }
+  return a == b;
 }

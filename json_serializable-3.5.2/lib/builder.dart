@@ -13,7 +13,7 @@
 library json_serializable.builder;
 
 import 'package:build/build.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 
 import 'src/json_part_builder.dart';
 
@@ -27,7 +27,7 @@ Builder jsonSerializable(BuilderOptions options) {
     return jsonPartBuilder(config: config);
   } on CheckedFromJsonException catch (e) {
     final lines = <String>[
-      'Could not parse the options provided for `json_serializable`.'
+      'Could not parse the options provided for `json_serializable_3_5_2`.'
     ];
 
     if (e.key != null) {

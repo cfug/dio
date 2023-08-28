@@ -183,7 +183,7 @@ List<String> get _fileConfigurations => _fileConfigurationMap.values
     .followedBy(['.factories.dart'])
     .toSet()
     .toList()
-      ..sort();
+  ..sort();
 
 const _kitchenSinkBaseName = 'kitchen_sink';
 

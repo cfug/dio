@@ -5,7 +5,7 @@
 import 'dart:collection';
 
 import 'package:collection/collection.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 
 enum Category {
   top,

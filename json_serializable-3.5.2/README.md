@@ -26,7 +26,7 @@ Given a library `example.dart` with an `Person` class annotated with
 `@JsonSerializable()`:
 
 ```dart
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 
 part 'example.g.dart';
 
@@ -136,7 +136,7 @@ configure code generation by setting values in `build.yaml`.
 targets:
   $default:
     builders:
-      json_serializable:
+      json_serializable_3_5_2:
         options:
           # Options configure how source code is generated for every
           # `@JsonSerializable`-annotated class in the package.

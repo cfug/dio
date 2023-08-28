@@ -58,9 +58,8 @@ class _FieldSet implements Comparable<_FieldSet> {
     /// Returns the offset of given field/property in its source file – with a
     /// preference for the getter if it's defined.
     int _offsetFor(FieldElement e) {
-      if (e.getter != null && e.getter.nameOffset != e.nameOffset) {
-        assert(e.nameOffset == -1);
-        return e.getter.nameOffset;
+      if (e.isSynthetic) {
+        return (e.getter ?? e.setter).nameOffset;
       }
       return e.nameOffset;
     }
@@ -103,7 +102,7 @@ Iterable<FieldElement> createSortedFieldSet(ClassElement element) {
   final fields = allFields
       .map((e) => _FieldSet(elementInstanceFields[e], inheritedFields[e]))
       .toList()
-        ..sort();
+    ..sort();
 
   return fields.map((fs) => fs.field).toList();
 }

@@ -5,7 +5,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 import 'package:meta/meta.dart' show alwaysThrows, required;
 import 'package:source_gen/source_gen.dart';
 

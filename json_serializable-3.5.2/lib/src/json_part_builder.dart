@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:build/build.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'json_literal_generator.dart';
@@ -26,7 +26,7 @@ Builder jsonPartBuilder({
       JsonSerializableGenerator.fromSettings(settings),
       const JsonLiteralGenerator(),
     ],
-    'json_serializable',
+    'json_serializable_3_5_2',
     formatOutput: formatOutput,
   );
 }

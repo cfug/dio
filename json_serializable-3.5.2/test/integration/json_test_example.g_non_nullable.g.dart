@@ -191,7 +191,8 @@ UnknownEnumValue _$UnknownEnumValueFromJson(Map<String, dynamic> json) {
     ..enumValue = _$enumDecode(_$CategoryEnumMap, json['enumValue'],
         unknownValue: Category.notDiscoveredYet)
     ..enumIterable = (json['enumIterable'] as List).map((e) => _$enumDecode(
-        _$CategoryEnumMap, e, unknownValue: Category.notDiscoveredYet))
+        _$CategoryEnumMap, e,
+        unknownValue: Category.notDiscoveredYet))
     ..enumList = (json['enumList'] as List)
         .map((e) => _$enumDecode(_$CategoryEnumMap, e,
             unknownValue: Category.notDiscoveredYet))

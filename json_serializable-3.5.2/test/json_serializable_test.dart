@@ -3,7 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 @TestOn('vm')
-import 'package:json_serializable/json_serializable.dart';
+import 'package:json_serializable_3_5_2/json_serializable.dart';
 import 'package:path/path.dart' as p;
 import 'package:source_gen_test/source_gen_test.dart';
 import 'package:test/test.dart';

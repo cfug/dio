@@ -4,7 +4,7 @@
 
 // ignore_for_file: annotate_overrides
 
-import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation_3_1_1/json_annotation.dart';
 
 import 'default_value_interface.dart' as dvi hide Greek;
 import 'default_value_interface.dart' show Greek;

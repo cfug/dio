@@ -2,7 +2,7 @@
 targets:
   $default:
     builders:
-      json_serializable:
+      json_serializable_3_5_2:
         generate_for:
         - example/*
         - test/default_value/*
@@ -16,7 +16,7 @@ targets:
         generate_for:
         - test/**/**.browser_test.dart
 
-      json_serializable|_test_builder:
+      json_serializable_3_5_2|_test_builder:
         generate_for:
         - test/default_value/default_value.dart
         - test/generic_files/generic_class.dart
@@ -25,11 +25,11 @@ targets:
         - test/integration/json_test_example.non_nullable.dart
         - test/kitchen_sink/kitchen_sink.dart
 
-      json_serializable|_type_builder:
+      json_serializable_3_5_2|_type_builder:
         generate_for:
         - test/supported_types/input.dart
 
-      json_serializable|_type_test_builder:
+      json_serializable_3_5_2|_type_test_builder:
         generate_for:
         - test/supported_types/type_test.dart
 
@@ -49,7 +49,7 @@ builders:
       - .g_explicit_to_json.dart
       - .g_non_nullable.dart
     build_to: source
-    runs_before: ["json_serializable"]
+    runs_before: ["json_serializable_3_5_2"]
 
   _type_builder:
     import: 'tool/test_type_builder.dart'
@@ -72,7 +72,7 @@ builders:
       - .type_string.dart
       - .type_uri.dart
     build_to: source
-    runs_before: ["json_serializable"]
+    runs_before: ["json_serializable_3_5_2"]
 
   _type_test_builder:
     import: 'tool/test_type_builder.dart'
@@ -95,7 +95,7 @@ builders:
       - .string_test.dart
       - .uri_test.dart
     build_to: source
-    runs_before: ["json_serializable"]
+    runs_before: ["json_serializable_3_5_2"]
 
   _doc_builder:
     import: "tool/doc_builder.dart"
@@ -103,13 +103,13 @@ builders:
     build_extensions: {"lib/json_serializable.dart": ["doc/doc.md"]}
     build_to: source
     auto_apply: root_package
-    runs_before: ["json_serializable"]
+    runs_before: ["json_serializable_3_5_2"]
     required_inputs: ["doc/json_annotation_version.txt"]
 
-  json_serializable:
-    import: "package:json_serializable/builder.dart"
+  json_serializable_3_5_2:
+    import: "package:json_serializable_3_5_2/builder.dart"
     builder_factories: ["jsonSerializable"]
-    build_extensions: {".dart": ["json_serializable.g.part"]}
+    build_extensions: {".dart": ["json_serializable_3_5_2.g.part"]}
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]

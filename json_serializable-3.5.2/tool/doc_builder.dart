@@ -5,7 +5,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:json_serializable/src/utils.dart';
+import 'package:json_serializable_3_5_2/src/utils.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:yaml/yaml.dart';
@@ -23,7 +23,7 @@ class _DocBuilder extends Builder {
     final lockFileYaml =
         loadYaml(lockFileContent, sourceUrl: lockFileAssetId.uri);
     final pkgMap = lockFileYaml['packages'] as YamlMap;
-    final jsonAnnotationMap = pkgMap['json_annotation'] as YamlMap;
+    final jsonAnnotationMap = pkgMap['json_annotation_3_1_1'] as YamlMap;
     final jsonAnnotationVersionString = jsonAnnotationMap['version'] as String;
 
     final jsonAnnotationVersion =
@@ -34,7 +34,7 @@ class _DocBuilder extends Builder {
         : jsonAnnotationVersion.toString();
 
     final lib = LibraryReader(await buildStep.resolver.libraryFor(
-        AssetId.resolve('package:json_annotation/json_annotation.dart')));
+        resolveAssetId('package:json_annotation_3_1_1/json_annotation.dart')));
 
     final descriptionMap = <String, _FieldInfo>{};
 
@@ -188,4 +188,26 @@ class _FieldInfo implements Comparable<_FieldInfo> {
 
   @override
   String toString() => '_FieldThing($_keyField)';
+}
+
+// Copied from https://github.com/Workiva/over_react/blob/ab689643a0c06b921ce84872bd7cee37a08cf11f/lib/src/builder/builder.dart#L226C1-L245C2
+/// A compatibility layer for [AssetId.resolve],
+/// which in build <2.0.0 accepts a String for the first argument and
+/// and in build >=2.0.0 accepts a Uri for the first argument.
+///
+/// This function allows us to support build 1.x and 2.x
+///
+// TODO remove once we're off of build 1.x
+AssetId resolveAssetId(String uri, {AssetId from}) {
+  try {
+    // `as dynamic` is necessary to prevent compile errors.
+    // This ignore is to prevent analysis implicit cast errors.
+    // ignore: argument_type_not_assignable
+    return AssetId.resolve(uri as dynamic, from: from);
+  } catch (_) {
+    // `as dynamic` is necessary to prevent compile errors.
+    // This ignore is to prevent analysis implicit cast errors.
+    // ignore: argument_type_not_assignable
+    return AssetId.resolve(Uri.parse(uri) as dynamic, from: from);
+  }
 }
