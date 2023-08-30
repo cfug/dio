@@ -86,7 +86,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    final httpClient = _configHttpClient(options.connectTimeout);
+    final httpClient = _configHttpClient(
+      options.connectTimeout,
+      newClient: options.responseType == ResponseType.stream,
+    );
     final reqFuture = httpClient.openUrl(options.method, options.uri);
 
     late HttpClientRequest request;
@@ -107,7 +110,17 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
 
       if (cancelFuture != null) {
-        cancelFuture.whenComplete(() => request.abort());
+        cancelFuture.whenComplete(() async {
+          // Abort request
+          request.abort();
+
+          if (options.responseType == ResponseType.stream) {
+            // Close the HttpClient, in the stream mode, there is a problem that cannot be canceled
+            httpClient.close(force: true);
+            // Reset HttpClient cache
+            _cachedHttpClient = null;
+          }
+        });
       }
 
       // Set Headers
@@ -227,7 +240,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     );
   }
 
-  HttpClient _configHttpClient(Duration? connectionTimeout) {
+  HttpClient _configHttpClient(Duration? connectionTimeout,
+      {bool newClient = false}) {
+    if (newClient) {
+      final client = _createHttpClient();
+      return client..connectionTimeout = connectionTimeout;
+    }
+
     return (_cachedHttpClient ??= _createHttpClient())
       ..connectionTimeout = connectionTimeout;
   }
