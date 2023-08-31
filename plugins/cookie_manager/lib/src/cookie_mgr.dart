@@ -123,7 +123,9 @@ class CookieManager extends Interceptor {
     // users will be available to handle cookies themselves.
     final isRedirectRequest = statusCode >= 300 && statusCode < 400;
     // Saving cookies for the original site.
-    await cookieJar.saveFromResponse(response.realUri, cookies);
+    if (response.realUri.isNotEmpty) {
+      await cookieJar.saveFromResponse(response.realUri, cookies);
+    }
     if (isRedirectRequest && locations.isNotEmpty) {
       final originalUri = response.realUri;
       await Future.wait(
