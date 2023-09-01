@@ -112,4 +112,38 @@ void main() {
       ),
     ]);
   });
+  test(
+      'CookieJar.saveFromResponse() saves cookies only for final destination upon non-relative redirects',
+      () async {
+    final cookieJar = _FakeCookieJar();
+    final dio = Dio()
+      ..httpClientAdapter = _TestAdapter(
+        fetch: (options, requestStream, cancelFuture) async => ResponseBody(
+          Stream.value(Uint8List.fromList(utf8.encode(''))),
+          HttpStatus.ok,
+          redirects: [
+            RedirectRecord(
+              HttpStatus.found,
+              'GET',
+              Uri.parse('https://example.com/redirect'),
+            ),
+          ],
+          headers: {
+            HttpHeaders.setCookieHeader: ['Cookie1=value1; Path=/'],
+          },
+        ),
+      )
+      ..interceptors.add(CookieManager(cookieJar))
+      ..options.validateStatus =
+          (status) => status != null && status >= 200 && status < 400;
+
+    await dio.get('https://test.com');
+
+    expect(cookieJar.saveCalls, [
+      _SaveCall(
+        'https://example.com/redirect',
+        'Cookie1=value1; Path=/',
+      ),
+    ]);
+  });
 }
