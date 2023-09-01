@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Fix `FileSystemException: Cannot open file ... (OS Error: Is a directory, errno = 21)`
 
 ## 3.1.0+1
 
