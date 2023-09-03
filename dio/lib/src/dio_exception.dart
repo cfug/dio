@@ -1,6 +1,9 @@
 import 'options.dart';
 import 'response.dart';
 
+
+/// The exception enumeration indicates what type of exception
+/// has happened during requests.
 enum DioExceptionType {
   /// Caused by a connection timeout.
   connectionTimeout,
@@ -141,13 +144,14 @@ class DioException implements Exception {
   factory DioException.connectionError({
     required RequestOptions requestOptions,
     required String reason,
+    Object? error,
   }) =>
       DioException(
         type: DioExceptionType.connectionError,
         message: 'The connection errored: $reason',
         requestOptions: requestOptions,
         response: null,
-        error: null,
+        error: error,
       );
 
   /// The request info for the request that throws exception.

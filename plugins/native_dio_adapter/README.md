@@ -5,10 +5,8 @@
 [![popularity](https://img.shields.io/pub/popularity/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
 [![pub points](https://img.shields.io/pub/points/native_dio_adapter)](https://pub.dev/packages/native_dio_adapter/score)
 
-> Note: Experimental
-
-The underlying technology is still considered experimental, therefore this
-is also considered experimental.
+> Note: This uses the native http implementation on macOS, iOS and Android. Other platforms still use the Dart http stack.
+> Please keep in mind that Android is still considered experimental.
 
 If you encounter bugs, consider fixing it by opening a PR or at least contribute a failing test case.
 
@@ -21,7 +19,7 @@ Inspired by the [Dart 2.18 release blog](https://medium.com/dartlang/dart-2-18-f
 
 # Motivation
 
-Using the native platform implementation, rather than the socket-based [`dart:io` HttpClient](https://api.dart.dev/stable/dart-io/HttpClient-class.html) implemententation, has several advantages:
+Using the native platform implementation, rather than the socket-based [`dart:io` HttpClient](https://api.dart.dev/stable/dart-io/HttpClient-class.html) implementation, has several advantages:
 
 - It automatically supports platform features such VPNs and HTTP proxies.
 - It supports many more configuration options such as only allowing access through WiFi and blocking cookies.
@@ -31,7 +29,7 @@ Using the native platform implementation, rather than the socket-based [`dart:io
 
 ```dart
 final dioClient = Dio();
-if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
+if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
   dioClient.httpClientAdapter = NativeAdapter();
 }
 ```

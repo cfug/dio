@@ -13,23 +13,25 @@ import 'mock/http_mock.mocks.dart';
 void main() async {
   group('$DioException.stackTrace', () {
     test(DioExceptionType.badResponse, () async {
-      final dio = Dio(BaseOptions())
+      final dio = Dio()
         ..httpClientAdapter = MockAdapter()
         ..options.baseUrl = MockAdapter.mockBase;
 
       await expectLater(
         dio.get('/foo'),
-        throwsA(allOf([
-          isA<DioException>(),
-          (DioException e) => e.type == DioExceptionType.badResponse,
-          (DioException e) =>
-              e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-        ])),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.type == DioExceptionType.badResponse,
+            (e) =>
+                e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+          ]),
+        ),
       );
     });
 
     test(DioExceptionType.cancel, () async {
-      final dio = Dio(BaseOptions())
+      final dio = Dio()
         ..httpClientAdapter = MockAdapter()
         ..options.baseUrl = MockAdapter.mockBase;
 
@@ -41,12 +43,14 @@ void main() async {
 
       await expectLater(
         dio.get('/test-timeout', cancelToken: token),
-        throwsA(allOf([
-          isA<DioException>(),
-          (DioException e) => e.type == DioExceptionType.cancel,
-          (DioException e) =>
-              e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-        ])),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.type == DioExceptionType.cancel,
+            (e) =>
+                e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+          ]),
+        ),
       );
     });
 
@@ -55,25 +59,31 @@ void main() async {
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
-          final dio = Dio(BaseOptions()
-            ..connectTimeout = timeout
-            ..baseUrl = 'https://does.not.exist');
+          final dio = Dio()
+            ..options.connectTimeout = timeout
+            ..options.baseUrl = 'https://does.not.exist';
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
-            final request = MockHttpClientRequest();
-            await Future.delayed(
-                Duration(milliseconds: timeout.inMilliseconds + 10));
-            return request;
-          });
+          when(httpClientMock.openUrl('GET', any)).thenAnswer(
+            (_) async {
+              final request = MockHttpClientRequest();
+              await Future.delayed(
+                Duration(milliseconds: timeout.inMilliseconds + 10),
+              );
+              return request;
+            },
+          );
 
           await expectLater(
             dio.get('/test'),
-            throwsA(allOf([
-              isA<DioException>(),
-              (DioException e) => e.type == DioExceptionType.connectionTimeout,
-              (DioException e) =>
-                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-            ])),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (e) => e.type == DioExceptionType.connectionTimeout,
+                (e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
           );
         }, MockHttpOverrides());
       },
@@ -85,28 +95,35 @@ void main() async {
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
-          final dio = Dio(BaseOptions()
-            ..receiveTimeout = timeout
-            ..baseUrl = 'https://does.not.exist');
+          final dio = Dio()
+            ..options.receiveTimeout = timeout
+            ..options.baseUrl = 'https://does.not.exist';
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
-            final request = MockHttpClientRequest();
-            final response = MockHttpClientResponse();
-            when(request.close()).thenAnswer((_) => Future.delayed(
+          when(httpClientMock.openUrl('GET', any)).thenAnswer(
+            (_) async {
+              final request = MockHttpClientRequest();
+              final response = MockHttpClientResponse();
+              when(request.close()).thenAnswer(
+                (_) => Future.delayed(
                   Duration(milliseconds: timeout.inMilliseconds + 10),
                   () => response,
-                ));
-            return request;
-          });
+                ),
+              );
+              return request;
+            },
+          );
 
           await expectLater(
             dio.get('/test'),
-            throwsA(allOf([
-              isA<DioException>(),
-              (DioException e) => e.type == DioExceptionType.receiveTimeout,
-              (DioException e) =>
-                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-            ])),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (DioException e) => e.type == DioExceptionType.receiveTimeout,
+                (DioException e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
           );
         }, MockHttpOverrides());
       },
@@ -118,29 +135,34 @@ void main() async {
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
-          final dio = Dio(BaseOptions()
-            ..sendTimeout = timeout
-            ..baseUrl = 'https://does.not.exist');
+          final dio = Dio()
+            ..options.sendTimeout = timeout
+            ..options.baseUrl = 'https://does.not.exist';
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
-            final request = MockHttpClientRequest();
-            when(request.addStream(any)).thenAnswer(
-              (_) async => Future.delayed(
-                Duration(milliseconds: timeout.inMilliseconds + 10),
-              ),
-            );
-            when(request.headers).thenReturn(MockHttpHeaders());
-            return request;
-          });
+          when(httpClientMock.openUrl('GET', any)).thenAnswer(
+            (_) async {
+              final request = MockHttpClientRequest();
+              when(request.addStream(any)).thenAnswer(
+                (_) async => Future.delayed(
+                  Duration(milliseconds: timeout.inMilliseconds + 10),
+                ),
+              );
+              when(request.headers).thenReturn(MockHttpHeaders());
+              return request;
+            },
+          );
 
           await expectLater(
             dio.get('/test', data: 'some data'),
-            throwsA(allOf([
-              isA<DioException>(),
-              (DioException e) => e.type == DioExceptionType.sendTimeout,
-              (DioException e) =>
-                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-            ])),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (DioException e) => e.type == DioExceptionType.sendTimeout,
+                (DioException e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
           );
         }, MockHttpOverrides());
       },
@@ -151,59 +173,135 @@ void main() async {
       DioExceptionType.badCertificate,
       () async {
         await HttpOverrides.runWithHttpOverrides(() async {
-          final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist')
-            ..httpClientAdapter = (IOHttpClientAdapter()
-              ..validateCertificate = (certificate, host, port) => false);
+          final dio = Dio()
+            ..options.baseUrl = 'https://does.not.exist'
+            ..httpClientAdapter = IOHttpClientAdapter(
+              validateCertificate: (_, __, ___) => false,
+            );
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer((_) async {
-            final request = MockHttpClientRequest();
-            final response = MockHttpClientResponse();
-            when(request.close()).thenAnswer((_) => Future.value(response));
-            when(response.certificate).thenReturn(null);
-            return request;
-          });
+          when(httpClientMock.openUrl('GET', any)).thenAnswer(
+            (_) async {
+              final request = MockHttpClientRequest();
+              final response = MockHttpClientResponse();
+              when(request.close()).thenAnswer((_) => Future.value(response));
+              when(response.certificate).thenReturn(null);
+              return request;
+            },
+          );
 
           await expectLater(
             dio.get('/test'),
-            throwsA(allOf([
-              isA<DioException>(),
-              (DioException e) => e.type == DioExceptionType.badCertificate,
-              (DioException e) =>
-                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-            ])),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (DioException e) => e.type == DioExceptionType.badCertificate,
+                (DioException e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
           );
         }, MockHttpOverrides());
       },
       testOn: '!browser',
     );
+    group('DioExceptionType.connectionError', () {
+      test(
+        'SocketException on request',
+        () async {
+          final dio = Dio()
+            ..options.baseUrl = 'https://does.not.exist'
+            ..httpClientAdapter = IOHttpClientAdapter();
+          await expectLater(
+            dio.get('/test', data: 'test'),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (e) => e.type == DioExceptionType.connectionError,
+                (e) => e.error is SocketException,
+                (e) => (e.error as SocketException)
+                    .message
+                    .contains("Failed host lookup: 'does.not.exist'"),
+                (e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
+    });
+    group('DioExceptionType.unknown', () {
+      test(
+        JsonUnsupportedObjectError,
+        () async {
+          final dio = Dio()..options.baseUrl = 'https://does.not.exist';
 
-    test(
-      DioExceptionType.unknown,
-      () async {
-        final dio = Dio(BaseOptions()..baseUrl = 'https://does.not.exist');
+          await expectLater(
+            dio.get(
+              '/test',
+              options: Options(contentType: Headers.jsonContentType),
+              data: Object(),
+            ),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (DioException e) => e.type == DioExceptionType.unknown,
+                (DioException e) => e.error is JsonUnsupportedObjectError,
+                (DioException e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
+          );
+        },
+        testOn: '!browser',
+      );
 
-        await expectLater(
-          dio.get(
-            '/test',
-            options: Options(contentType: Headers.jsonContentType),
-            data: Object(),
-          ),
-          throwsA(allOf([
-            isA<DioException>(),
-            (DioException e) => e.type == DioExceptionType.unknown,
-            (DioException e) => e.error is JsonUnsupportedObjectError,
-            (DioException e) =>
-                e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-          ])),
-        );
-      },
-      testOn: '!browser',
-    );
+      test(
+        'SocketException on response',
+        () async {
+          final dio = Dio()
+            ..options.baseUrl = 'https://does.not.exist'
+            ..httpClientAdapter = IOHttpClientAdapter(
+              createHttpClient: () {
+                final request = MockHttpClientRequest();
+                final client = MockHttpClient();
+                when(client.openUrl(any, any)).thenAnswer((_) async => request);
+                when(request.headers).thenReturn(MockHttpHeaders());
+                when(request.addStream(any)).thenAnswer((_) => Future.value());
+                when(request.close()).thenAnswer(
+                  (_) => Future.delayed(Duration(milliseconds: 50), () {
+                    throw SocketException('test');
+                  }),
+                );
+                return client;
+              },
+            );
+
+          await expectLater(
+            dio.get('/test', data: 'test'),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (e) => e.type == DioExceptionType.unknown,
+                (e) => e.error is SocketException,
+                (e) => e.stackTrace
+                    .toString()
+                    .contains('test/stacktrace_test.dart'),
+              ]),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
+    });
 
     test('Interceptor gets stacktrace in onError', () async {
-      final dio = Dio();
-      dio.options.baseUrl = EchoAdapter.mockBase;
-      dio.httpClientAdapter = EchoAdapter();
+      final dio = Dio()
+        ..options.baseUrl = EchoAdapter.mockBase
+        ..httpClientAdapter = EchoAdapter();
 
       StackTrace? caughtStackTrace;
       dio.interceptors.addAll([
@@ -213,31 +311,32 @@ void main() async {
             handler.next(err);
           },
         ),
-        InterceptorsWrapper(onRequest: (options, handler) {
-          final error = DioException(
-            error: Error(),
-            requestOptions: options,
-          );
-          handler.reject(error, true);
-        }),
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            final error = DioException(error: Error(), requestOptions: options);
+            handler.reject(error, true);
+          },
+        ),
       ]);
 
       await expectLater(
         dio.get('/error'),
-        throwsA(allOf([
-          isA<DioException>(),
-          (DioException e) => e.stackTrace == caughtStackTrace,
-          (DioException e) =>
-              e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-        ])),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.stackTrace == caughtStackTrace,
+            (e) =>
+                e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+          ]),
+        ),
         reason: 'Stacktrace should be available in onError',
       );
     });
 
     test('QueuedInterceptor gets stacktrace in onError', () async {
-      final dio = Dio();
-      dio.options.baseUrl = EchoAdapter.mockBase;
-      dio.httpClientAdapter = EchoAdapter();
+      final dio = Dio()
+        ..options.baseUrl = EchoAdapter.mockBase
+        ..httpClientAdapter = EchoAdapter();
 
       StackTrace? caughtStackTrace;
       dio.interceptors.addAll([
@@ -247,23 +346,27 @@ void main() async {
             handler.next(err);
           },
         ),
-        QueuedInterceptorsWrapper(onRequest: (options, handler) {
-          final error = DioException(
-            error: Error(),
-            requestOptions: options,
-          );
-          handler.reject(error, true);
-        }),
+        QueuedInterceptorsWrapper(
+          onRequest: (options, handler) {
+            final error = DioException(
+              error: Error(),
+              requestOptions: options,
+            );
+            handler.reject(error, true);
+          },
+        ),
       ]);
 
       await expectLater(
         dio.get('/error'),
-        throwsA(allOf([
-          isA<DioException>(),
-          (DioException e) => e.stackTrace == caughtStackTrace,
-          (DioException e) =>
-              e.stackTrace.toString().contains('test/stacktrace_test.dart'),
-        ])),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.stackTrace == caughtStackTrace,
+            (e) =>
+                e.stackTrace.toString().contains('test/stacktrace_test.dart'),
+          ]),
+        ),
         reason: 'Stacktrace should be available in onError',
       );
     });

@@ -5,8 +5,8 @@
 
 文档语言： 简体中文 | [English](README.md)
 
-dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、FormData、拦截器、
-请求取消、Cookie 管理、文件上传/下载、超时以及自定义适配器等。
+dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API、FormData、拦截器、
+请求取消、Cookie 管理、文件上传/下载、超时、自定义适配器、转换器等。
 
 <details>
   <summary>内容列表</summary>
@@ -46,13 +46,11 @@ dio 是一个强大的 Dart HTTP 请求库，支持全局配置、Restful API、
   * [HTTP/2 支持](#http2-支持)
   * [请求取消](#请求取消)
   * [继承 Dio class](#继承-dio-class)
-  * [Web 平台跨域资源共享 (CORS)](#web-平台跨域资源共享--cors-)
+  * [Web 平台跨域资源共享 (CORS)](#web-平台跨域资源共享-cors)
 <!-- TOC -->
 </details>
 
 ## 开始使用
-
-> 查看 [迁移指南](migration_guide.md) 以了解各个版本之间的重大变更。
 
 ### 添加依赖
 
@@ -71,6 +69,9 @@ dependencies:
 
 最新稳定版本为：![Pub](https://img.shields.io/pub/v/dio.svg)
 最新包含开发版的版本为：![Pub](https://img.shields.io/pub/v/dio?include_prereleases)
+
+**在你更新之前：大版本和次要版本可能会包含不兼容的重大改动。<br/>
+请阅读 [迁移指南][] 了解完整的重大变更内容。**
 
 ## 一个极简的示例
 
@@ -387,6 +388,8 @@ print(response.headers);
 print(response.requestOptions);
 print(response.statusCode);
 ```
+
+注意，`Response.extra` 与 `RequestOptions.extra` 是不同的实例，互相之间无关。
 
 ### 拦截器
 
@@ -867,5 +870,6 @@ class MyDio with DioMixin implements Dio {
 
 你可以参考简单请求的定义修改你的请求，或者为你的服务加上 CORS 中间件进行跨域处理。
 
+[迁移指南]: ./migration_guide.md
 [简单请求]: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS#%E7%AE%80%E5%8D%95%E8%AF%B7%E6%B1%82
 [CORS 预检]: https://developer.mozilla.org/zh-CN/docs/Glossary/Preflight_request

@@ -13,11 +13,9 @@ typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
 /// The callback definition for encoding a JSON object.
 typedef JsonEncodeCallback = FutureOr<String> Function(Object);
 
-/// The default [Transformer] for [Dio].
-///
 /// If you want to custom the transformation of request/response data,
 /// you can provide a [Transformer] by your self, and replace
-/// the [BackgroundTransformer] by setting the [dio.transformer].
+/// the transformer by setting the [Dio.transformer].
 class SyncTransformer extends Transformer {
   SyncTransformer({
     this.jsonDecodeCallback = jsonDecode,
@@ -39,86 +37,97 @@ class SyncTransformer extends Transformer {
     }
   }
 
-  /// As an agreement, we return the [response] when the
-  /// Options.responseType is [ResponseType.stream].
   @override
   Future<dynamic> transformResponse(
     RequestOptions options,
-    ResponseBody response,
+    ResponseBody responseBody,
   ) async {
-    if (options.responseType == ResponseType.stream) {
-      return response;
+    final responseType = options.responseType;
+    // Do not handled the body for streams.
+    if (responseType == ResponseType.stream) {
+      return responseBody;
     }
-    int length = 0;
-    int received = 0;
+
     final showDownloadProgress = options.onReceiveProgress != null;
+    final int totalLength;
     if (showDownloadProgress) {
-      length = int.parse(
-        response.headers[Headers.contentLengthHeader]?.first ?? '-1',
+      totalLength = int.parse(
+        responseBody.headers[Headers.contentLengthHeader]?.first ?? '-1',
       );
+    } else {
+      totalLength = 0;
     }
-    final completer = Completer();
-    final stream = response.stream.transform<Uint8List>(
+
+    int received = 0;
+    final stream = responseBody.stream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           sink.add(data);
           if (showDownloadProgress) {
             received += data.length;
-            options.onReceiveProgress?.call(received, length);
+            options.onReceiveProgress?.call(received, totalLength);
           }
         },
       ),
     );
+
+    final streamCompleter = Completer<void>();
+    int finalLength = 0;
     // Keep references to the data chunks and concatenate them later.
     final chunks = <Uint8List>[];
-    int finalSize = 0;
-    final StreamSubscription subscription = stream.listen(
+    final subscription = stream.listen(
       (chunk) {
-        finalSize += chunk.length;
+        finalLength += chunk.length;
         chunks.add(chunk);
       },
       onError: (Object error, StackTrace stackTrace) {
-        completer.completeError(error, stackTrace);
+        streamCompleter.completeError(error, stackTrace);
       },
-      onDone: () => completer.complete(),
+      onDone: () {
+        streamCompleter.complete();
+      },
       cancelOnError: true,
     );
     options.cancelToken?.whenCancel.then((_) {
       return subscription.cancel();
     });
-    await completer.future;
-    // Copy all chunks into a final Uint8List.
-    final responseBytes = Uint8List(finalSize);
+    await streamCompleter.future;
+
+    // Copy all chunks into the final bytes.
+    final responseBytes = Uint8List(finalLength);
     int chunkOffset = 0;
     for (final chunk in chunks) {
       responseBytes.setAll(chunkOffset, chunk);
       chunkOffset += chunk.length;
     }
 
-    if (options.responseType == ResponseType.bytes) {
+    // Return the finalized bytes if the response type is bytes.
+    if (responseType == ResponseType.bytes) {
       return responseBytes;
     }
 
-    final String? responseBody;
+    final isJsonContent = Transformer.isJsonMimeType(
+      responseBody.headers[Headers.contentTypeHeader]?.first,
+    );
+    final String? response;
     if (options.responseDecoder != null) {
-      responseBody = options.responseDecoder!(
+      response = options.responseDecoder!(
         responseBytes,
         options,
-        response..stream = Stream.empty(),
+        responseBody..stream = Stream.empty(),
       );
-    } else if (responseBytes.isNotEmpty) {
-      responseBody = utf8.decode(responseBytes, allowMalformed: true);
+    } else if (!isJsonContent || responseBytes.isNotEmpty) {
+      response = utf8.decode(responseBytes, allowMalformed: true);
     } else {
-      responseBody = null;
+      response = null;
     }
-    if (responseBody != null &&
-        responseBody.isNotEmpty &&
-        options.responseType == ResponseType.json &&
-        Transformer.isJsonMimeType(
-          response.headers[Headers.contentTypeHeader]?.first,
-        )) {
-      return jsonDecodeCallback(responseBody);
+
+    if (response != null &&
+        response.isNotEmpty &&
+        responseType == ResponseType.json &&
+        isJsonContent) {
+      return jsonDecodeCallback(response);
     }
-    return responseBody;
+    return response;
   }
 }

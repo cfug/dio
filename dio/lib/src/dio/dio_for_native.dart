@@ -11,8 +11,10 @@ import '../headers.dart';
 import '../options.dart';
 import '../adapters/io_adapter.dart';
 
+/// Create the [Dio] instance for native platforms.
 Dio createDio([BaseOptions? baseOptions]) => DioForNative(baseOptions);
 
+/// Implements features for [Dio] on native platforms.
 class DioForNative with DioMixin implements Dio {
   /// Create Dio instance with default [BaseOptions].
   /// It is recommended that an application use only the same DIO singleton.
@@ -80,7 +82,7 @@ class DioForNative with DioMixin implements Dio {
       );
     }
 
-    // If the directory (or file) doesn't exist yet, the entire method fails.
+    // If the file already exists, the method fails.
     file.createSync(recursive: true);
 
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
@@ -115,9 +117,9 @@ class DioForNative with DioMixin implements Dio {
       if (!closed) {
         closed = true;
         await asyncWrite;
-        await raf.close();
+        await raf.close().catchError((_) => raf);
         if (deleteOnError && file.existsSync()) {
-          await file.delete();
+          await file.delete().catchError((_) => file);
         }
       }
     }
@@ -138,6 +140,11 @@ class DioForNative with DioMixin implements Dio {
         }).catchError((Object e) async {
           try {
             await subscription.cancel();
+            closed = true;
+            await raf.close().catchError((_) => raf);
+            if (deleteOnError && file.existsSync()) {
+              await file.delete().catchError((_) => file);
+            }
           } finally {
             completer.completeError(
               DioMixin.assureDioException(e, response.requestOptions),
@@ -149,7 +156,7 @@ class DioForNative with DioMixin implements Dio {
         try {
           await asyncWrite;
           closed = true;
-          await raf.close();
+          await raf.close().catchError((_) => raf);
           completer.complete(response);
         } catch (e) {
           completer.completeError(

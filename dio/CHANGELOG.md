@@ -1,5 +1,8 @@
 # CHANGELOG
 
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
+
 ## Unreleased 6.0.0
 
 - The minimum supported Dart version has been bumped from `2.15.0` to `2.16.0`.
@@ -10,12 +13,52 @@
 
 ## Unreleased
 
+- Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
+- Removes the accidentally added `options` argument for `Options.compose`.
+- Fix wrong formatting of multi-value header in `BrowserHttpClientAdapter`.
+- Add warning in debug mode when trying to send data with a `GET` request in web.
+
+## 5.3.2
+
+- Revert removed `download` for `DioMixin`.
+- Fix for `Dio.download` not cleaning the file on data handling error.
+
+## 5.3.1
+
+- Improve package descriptions and code formats.
+- Improve comments.
+- Fix error when cloning `MultipartFile` from `FormData` with regression test.
+- Deprecate `MultipartFile` constructor in favor `MultipartFile.fromStream`.
+- Add `FormData.clone`.
+
+## 5.3.0
+
+- Remove `http` from `dev_dependencies`.
+- Add support for cloning `MultipartFile` from `FormData`.
+- Only produce null response body when `ResponseType.json`.
+
+## 5.2.1+1
+
+- Fix changelog on pub.dev.
+
+## 5.2.1
+
+- Revert changes to handling of `List<int>` body data.
+
+## 5.2.0+1
+
+- Fix `DioErrorType` deprecation hint.
+
+## 5.2.0
+
 - Make `LogInterceptor` prints in DEBUG mode (when the assertion is enabled) by default.
 - Deprecate `DioError` in favor of `DioException`.
 - Fix `IOHttpClientAdapter.onHttpClientCreate` Repeated calls
 - `IOHttpClientAdapter.onHttpClientCreate` has been deprecated and is scheduled for removal in
   Dio 6.0.0 - Please use the replacement `IOHttpClientAdapter.createHttpClient` instead.
-- Using `CancelToken` no longer closes and re-creates `HttpClient` for each request when `IOHttpClientAdapter` is used. 
+- Using `CancelToken` no longer closes and re-creates `HttpClient` for each request when `IOHttpClientAdapter` is used.
+- Fix timeout handling for browser `receiveTimeout`.
+- Improve performance when sending binary data (`List<int>`/`Uint8List`).
 
 ## 5.1.2
 
@@ -57,14 +100,14 @@
 
 - Add `ImplyContentTypeInterceptor` as a default interceptor.
 - Add `Headers.multipartFormDataContentType` for headers usage.
-- Fix variable shadowing of `withCredentials` in `browser_adapers.dart`.
+- Fix variable shadowing of `withCredentials` in `browser_adapter.dart`.
 
 ## 5.0.0
 
 - Raise the min Dart SDK version to 2.15.0 to support `BackgroundTransformer`.
 - Change `Dio.transformer` from `DefaultTransformer` to `BackgroundTransformer`.
 - Remove plain ASCII check in `FormData`.
-- Allow asynchronized method with `savePath`.
+- Allow asynchronous method with `savePath`.
 - Allow `data` in all request methods.
 - A platform independent `HttpClientAdapter` can now be instantiated by doing
   `dio.httpClientAdapter = HttpClientAdapter();`.
@@ -149,7 +192,7 @@ the subsequent interceptors processing logic more finely (whether to skip them o
 ## 4.0.0-beta3
 
 - rename CollectionFormat to ListFormat
-- change default value of Options.listFormat from `mutiComptible` to `multi`
+- change default value of Options.listFormat from `multiCompatible` to `multi`
 - add upload_stream_test.dart
 
 ## 4.0.0-beta2
@@ -332,3 +375,5 @@ First Stable version for 2.x
 ## 0.0.1
 
 - Initial version, created by Stagehand
+
+[Migration Guide]: ./migration_guide.md

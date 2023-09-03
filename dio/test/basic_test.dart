@@ -41,15 +41,13 @@ void main() {
   test('send with an invalid URL', () async {
     await expectLater(
       Dio().get('http://http.invalid'),
-      throwsA(allOf([
-        isA<DioException>(),
-        (DioException e) =>
-            e.type ==
-            (isWeb
-                ? DioExceptionType.connectionError
-                : DioExceptionType.unknown),
-        if (!isWeb) (DioException e) => e.error is SocketException,
-      ])),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (DioException e) => e.type == (DioExceptionType.connectionError),
+          if (!isWeb) (DioException e) => e.error is SocketException,
+        ]),
+      ),
     );
   });
 
