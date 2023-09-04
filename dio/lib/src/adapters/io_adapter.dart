@@ -117,8 +117,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           if (options.responseType == ResponseType.stream) {
             // Close the HttpClient, in the stream mode, there is a problem that cannot be canceled
             httpClient.close(force: true);
-            // Reset HttpClient cache
-            _cachedHttpClient = null;
           }
         });
       }
