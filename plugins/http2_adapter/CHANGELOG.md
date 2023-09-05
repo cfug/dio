@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Implement `sendTimeout` and `receiveTimeout` for the adapter.
+- Fix redirect not working when requestStream is null.
 
 ## 2.3.1+1
 

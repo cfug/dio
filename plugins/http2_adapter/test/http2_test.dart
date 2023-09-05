@@ -117,4 +117,13 @@ void main() {
 
     await dio.get('/drip?delay=1&numbytes=1');
   });
+
+  test('request with redirect', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.com/'
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+
+    final res = await dio.get('absolute-redirect/2');
+    expect(res.statusCode, 200);
+  });
 }
