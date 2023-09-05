@@ -1,7 +1,6 @@
 import 'options.dart';
 import 'response.dart';
 
-
 /// The exception enumeration indicates what type of exception
 /// has happened during requests.
 enum DioExceptionType {
