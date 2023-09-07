@@ -117,38 +117,40 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     final uploadStopwatch = Stopwatch();
-    xhr.upload.onProgress.listen((event) {
-      // This event will only be triggered if a request body exists.
-      if (connectTimeoutTimer != null) {
-        connectTimeoutTimer!.cancel();
-        connectTimeoutTimer = null;
-      }
-
-      final sendTimeout = options.sendTimeout;
-      if (sendTimeout != null) {
-        if (!uploadStopwatch.isRunning) {
-          uploadStopwatch.start();
+    if (requestStream != null) {
+      xhr.upload.onProgress.listen((event) {
+        // This event will only be triggered if a request body exists.
+        if (connectTimeoutTimer != null) {
+          connectTimeoutTimer!.cancel();
+          connectTimeoutTimer = null;
         }
-
-        final duration = uploadStopwatch.elapsed;
-        if (duration > sendTimeout) {
-          uploadStopwatch.stop();
-          completer.completeError(
-            DioException.sendTimeout(
-              timeout: sendTimeout,
-              requestOptions: options,
-            ),
-            StackTrace.current,
-          );
-          xhr.abort();
+  
+        final sendTimeout = options.sendTimeout;
+        if (sendTimeout != null) {
+          if (!uploadStopwatch.isRunning) {
+            uploadStopwatch.start();
+          }
+  
+          final duration = uploadStopwatch.elapsed;
+          if (duration > sendTimeout) {
+            uploadStopwatch.stop();
+            completer.completeError(
+              DioException.sendTimeout(
+                timeout: sendTimeout,
+                requestOptions: options,
+              ),
+              StackTrace.current,
+            );
+            xhr.abort();
+          }
         }
-      }
-      if (options.onSendProgress != null &&
-          event.loaded != null &&
-          event.total != null) {
-        options.onSendProgress!(event.loaded!, event.total!);
-      }
-    });
+        if (options.onSendProgress != null &&
+            event.loaded != null &&
+            event.total != null) {
+          options.onSendProgress!(event.loaded!, event.total!);
+        }
+      });
+    }
 
     final downloadStopwatch = Stopwatch();
     xhr.onProgress.listen((event) {
