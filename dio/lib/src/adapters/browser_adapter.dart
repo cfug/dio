@@ -124,13 +124,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           connectTimeoutTimer!.cancel();
           connectTimeoutTimer = null;
         }
-  
+
         final sendTimeout = options.sendTimeout;
         if (sendTimeout != null) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
-  
+
           final duration = uploadStopwatch.elapsed;
           if (duration > sendTimeout) {
             uploadStopwatch.stop();
