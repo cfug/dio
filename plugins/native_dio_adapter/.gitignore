@@ -3,7 +3,6 @@
 .packages
 
 # IntelliJ related
-*.iml
 *.ipr
 *.iws
 .idea/
@@ -15,3 +14,4 @@ build/
 # https://dart.dev/guides/libraries/private-files#pubspeclock.
 pubspec.lock
 .DS_Store
+/pubspec_overrides.yaml
