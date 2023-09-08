@@ -2,7 +2,17 @@
 
 ## Unreleased
 
+*None.*
+
+## 1.0.0+2
+
+- Add topics to packages.
+
+## 1.0.0+1
+
+- Update dependencies to make use of stable versions.
 - Replace `DioError` with `DioException`.
+- Fix `onReceiveProgress` callback.
 
 ## 0.1.0
 

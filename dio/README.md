@@ -5,9 +5,10 @@
 
 Language: English | [简体中文](README-ZH.md)
 
-A powerful HTTP client for Dart/Flutter, which supports global configuration,
-interceptors, FormData, request cancellation, file uploading/downloading,
-timeout, and custom adapters etc. 
+A powerful HTTP networking package for Dart/Flutter,
+supports Global configuration, Interceptors, FormData,
+Request cancellation, File uploading/downloading,
+Timeout, Custom adapters, Transformers, etc. 
 
 <details>
   <summary>Table of content</summary>
@@ -37,7 +38,7 @@ timeout, and custom adapters etc.
   * [Using application/x-www-form-urlencoded format](#using-applicationx-www-form-urlencoded-format)
   * [Sending FormData](#sending-formdata)
     * [Multiple files upload](#multiple-files-upload)
-    * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdata-s-and-multipartfile-s)
+    * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdatas-and-multipartfiles)
   * [Transformer](#transformer)
     * [In Flutter](#in-flutter)
     * [Other example](#other-example)
@@ -47,13 +48,11 @@ timeout, and custom adapters etc.
   * [HTTP/2 support](#http2-support)
   * [Cancellation](#cancellation)
   * [Extends Dio class](#extends-dio-class)
-  * [Cross-Origin Resource Sharing on Web (CORS)](#cross-origin-resource-sharing-on-web--cors-)
+  * [Cross-Origin Resource Sharing on Web (CORS)](#cross-origin-resource-sharing-on-web-cors)
 <!-- TOC -->
 </details>
 
 ## Get started
-
-> Checkout the [Migration Guide](migration_guide.md) for breaking changes between versions.
 
 ### Add dependency
 
@@ -72,6 +71,9 @@ dependencies:
 
 The latest version is: ![Pub](https://img.shields.io/pub/v/dio.svg)
 The latest version including pre-releases is: ![Pub](https://img.shields.io/pub/v/dio?include_prereleases)
+
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
 
 ### Super simple to use
 
@@ -344,8 +346,8 @@ ResponseType? responseType;
 /// the request will be perceived as successful; otherwise, considered as failed.
 ValidateStatus? validateStatus;
 
-/// Custom field that you can retrieve it later in
-/// [Interceptor], [Transformer] and the [Response] object.
+/// Custom field that you can retrieve it later in [Interceptor],
+/// [Transformer] and the [Response.requestOptions] object.
 Map<String, dynamic>? extra;
 
 /// Common query parameters.
@@ -390,7 +392,7 @@ bool isRedirect;
 /// implementation of the adapter supports it or not.
 List<RedirectRecord> redirects;
 
-/// Custom fields that are constructed in the [RequestOptions].
+/// Custom fields that only for the [Response].
 Map<String, dynamic> extra;
 
 /// Response headers.
@@ -406,6 +408,9 @@ print(response.headers);
 print(response.requestOptions);
 print(response.statusCode);
 ```
+
+Be aware, the `Response.extra` is different from `RequestOptions.extra`,
+they are not related to each other.
 
 ### Interceptors
 
@@ -782,7 +787,7 @@ Unlike other methods, this one works with the certificate of the server itself.
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
   dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient = () {
+    createHttpClient: () {
       // Don't trust any certificate just because their root cert is trusted.
       final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
       // You can test the intermediate / root cert here. We just ignore it.
@@ -918,5 +923,6 @@ and a server is aware using specific methods and headers.
 You can modify your requests to match the definition of simple request,
 or add a CORS middleware for your service to handle CORS requests.
 
+[Migration Guide]: ./migration_guide.md
 [simple request]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
 [CORS preflight request]: https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request

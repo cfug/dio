@@ -45,7 +45,12 @@ class _ConnectionManager implements ConnectionManager {
       if (initFuture == null) {
         _connectFutures[domain] = initFuture = _connect(options);
       }
-      transportState = await initFuture;
+      try {
+        transportState = await initFuture;
+      } catch (e) {
+        _connectFutures.remove(domain);
+        rethrow;
+      }
       if (_forceClosed) {
         transportState.dispose();
       } else {

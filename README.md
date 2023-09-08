@@ -3,12 +3,15 @@
 Language: English | [简体中文](README-ZH.md)
 
 This is the base repo of the **dio** project.
-Please move specific paths for projects instructions.
+Please move specific paths for project instructions.
 
 ### dio
 
 - dio: [link](dio)
   [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
+
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide](dio/migration_guide.md) for the complete breaking changes list.**
 
 ### Plugins
 
@@ -26,7 +29,7 @@ Please move specific paths for projects instructions.
 
 ## Copyright & License
 
-The project and it's underlying projects
+The project and its underlying projects
 are originally authored by
 [@wendux](https://github.com/wendux)
 with the organization
@@ -36,3 +39,13 @@ started being maintained by
 since 2023.
 
 The project consents [the MIT license](LICENSE).
+
+## Star History
+
+<a href="https://star-history.com/#cfug/dio&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=cfug/dio&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=cfug/dio&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=cfug/dio&type=Date" />
+  </picture>
+</a>

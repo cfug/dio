@@ -2,12 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
+import 'dart:developer' as dev;
 
 import 'package:meta/meta.dart';
+
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../headers.dart';
 import '../options.dart';
+
+// For the web platform, an inline `bool.fromEnvironment` translates to
+// `core.bool.fromEnvironment` instead of correctly being replaced by the
+// constant value found in the environment at build time.
+//
+// See https://github.com/flutter/flutter/issues/51186.
+const _kReleaseMode = bool.fromEnvironment('dart.vm.product');
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -24,7 +33,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   ///
   /// Defaults to `false`.
   ///
-  /// You can also override this value in Options.extra['withCredentials'] for each request
+  /// You can also override this value using `Options.extra['withCredentials']`
+  /// for each request.
   bool withCredentials;
 
   @override
@@ -47,14 +57,22 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     options.headers.remove(Headers.contentLengthHeader);
-    options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
+    options.headers.forEach((key, v) {
+      if (v is Iterable) {
+        xhr.setRequestHeader(key, v.join(', '));
+      } else {
+        xhr.setRequestHeader(key, v.toString());
+      }
+    });
 
     final connectTimeout = options.connectTimeout;
     final receiveTimeout = options.receiveTimeout;
+    int xhrTimeout = 0;
     if (connectTimeout != null &&
         receiveTimeout != null &&
         receiveTimeout > Duration.zero) {
-      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
+      xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
+      xhr.timeout = xhrTimeout;
     }
 
     final completer = Completer<ResponseBody>();
@@ -67,7 +85,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           xhr.status!,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
-          isRedirect: xhr.status == 302 || xhr.status == 301,
+          isRedirect: xhr.status == 302 ||
+              xhr.status == 301 ||
+              options.uri.toString() != xhr.responseUrl,
         ),
       );
     });
@@ -178,15 +198,28 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
+    xhr.onTimeout.first.then((_) {
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer?.cancel();
+      }
+      if (!completer.isCompleted) {
+        completer.completeError(
+          DioException.receiveTimeout(
+            timeout: Duration(milliseconds: xhrTimeout),
+            requestOptions: options,
+          ),
+          StackTrace.current,
+        );
+      }
+    });
+
     cancelFuture?.then((_) {
-      if (xhr.readyState < 4 && xhr.readyState > 0) {
+      if (xhr.readyState < HttpRequest.DONE &&
+          xhr.readyState > HttpRequest.UNSENT) {
         connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
         } catch (_) {}
-        // xhr.onError will not triggered when xhr.abort() called.
-        // so need to manual throw the cancel error to avoid Future hang ups.
-        // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
           completer.completeError(
             DioException.requestCancelled(
@@ -199,6 +232,15 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     if (requestStream != null) {
+      if (!_kReleaseMode && options.method == 'GET') {
+        dev.log(
+          'GET request with a body data are not support on the '
+          'web platform. Use POST/PUT instead.',
+          level: 900,
+          name: '🔔 Dio',
+          stackTrace: StackTrace.current,
+        );
+      }
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
         (bytes) => completer.complete(Uint8List.fromList(bytes)),
