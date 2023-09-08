@@ -9,6 +9,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Removes the accidentally added `options` argument for `Options.compose`.
 - Fix wrong formatting of multi-value header in `BrowserHttpClientAdapter`.
 - Add warning in debug mode when trying to send data with a `GET` request in web.
+- Fix CORS issue caused by listening to upload events when request body is empty.
 
 ## 5.3.2
 
