@@ -8,7 +8,7 @@ environment:
   sdk: '>=2.11.99 <3.0.0'
 
 dependencies:
-  analyzer: '>=1.7.0 <3.0.0'
+  analyzer: ^5.0.0 #'>=1.7.0 <3.0.0'
   build: '>=0.12.6 <3.0.0'
   build_config: '>=0.2.6 <2.0.0'
 
@@ -35,3 +35,6 @@ dev_dependencies:
   source_gen_test: '>=0.1.0 <2.0.0'
   test: ^1.6.0
   yaml: ^3.0.0
+
+dependency_overrides:
+  source_gen_test: 1.0.4
