@@ -162,6 +162,9 @@ class DioException implements Exception {
       );
 
   /// The request info for the request that throws exception.
+  ///
+  /// The info can be empty (e.g. `uri` equals to "")
+  /// if the request was never submitted.
   final RequestOptions requestOptions;
 
   /// Response info, it may be `null` if the request can't reach to the
