@@ -4,9 +4,11 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/dio/melos_dio.iml" filepath="$PROJECT_DIR$/dio/melos_dio.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/cookie_manager/melos_dio_cookie_manager.iml" filepath="$PROJECT_DIR$/plugins/cookie_manager/melos_dio_cookie_manager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/melos_dio_example.iml" filepath="$PROJECT_DIR$/example/melos_dio_example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example_flutter_app/melos_dio_flutter_example.iml" filepath="$PROJECT_DIR$/example_flutter_app/melos_dio_flutter_example.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/http2_adapter/melos_dio_http2_adapter.iml" filepath="$PROJECT_DIR$/plugins/http2_adapter/melos_dio_http2_adapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/native_dio_adapter/melos_native_dio_adapter.iml" filepath="$PROJECT_DIR$/plugins/native_dio_adapter/melos_native_dio_adapter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/melos_dio.iml" filepath="$PROJECT_DIR$/melos_dio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/melos_dio_workspace.iml" filepath="$PROJECT_DIR$/melos_dio_workspace.iml" />
     </modules>
   </component>
 </project>
