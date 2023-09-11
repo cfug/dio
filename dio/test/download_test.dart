@@ -99,7 +99,7 @@ void main() {
             deleteOnError: true,
             onReceiveProgress: (count, total) => throw AssertionError(),
           )
-          .catchError((e) => throw (e as DioException).error!),
+          .catchError((e) => throw (e as DioException).cause!),
       throwsA(isA<AssertionError>()),
     );
     expect(f.existsSync(), isFalse);

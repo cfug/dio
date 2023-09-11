@@ -103,7 +103,7 @@ class _ConnectionManager implements ConnectionManager {
         throw DioException(
           requestOptions: options,
           type: DioExceptionType.badCertificate,
-          error: socket.peerCertificate,
+          cause: socket.peerCertificate,
           message: 'The certificate of the response is not approved.',
         );
       }
@@ -177,7 +177,7 @@ class _ConnectionManager implements ConnectionManager {
     Never onProxyError(Object? error, StackTrace stackTrace) {
       throw DioException(
         requestOptions: options,
-        error: error,
+        cause: error,
         type: DioExceptionType.connectionError,
         stackTrace: stackTrace,
       );

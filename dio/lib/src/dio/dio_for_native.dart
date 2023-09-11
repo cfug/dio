@@ -147,7 +147,7 @@ class DioForNative with DioMixin implements Dio {
             }
           } finally {
             completer.completeError(
-              DioMixin.assureDioException(e, response.requestOptions),
+              assureDioException(e, response.requestOptions),
             );
           }
         });
@@ -160,7 +160,7 @@ class DioForNative with DioMixin implements Dio {
           completer.complete(response);
         } catch (e) {
           completer.completeError(
-            DioMixin.assureDioException(e, response.requestOptions),
+            assureDioException(e, response.requestOptions),
           );
         }
       },
@@ -169,7 +169,7 @@ class DioForNative with DioMixin implements Dio {
           await closeAndDelete();
         } finally {
           completer.completeError(
-            DioMixin.assureDioException(e, response.requestOptions),
+            assureDioException(e, response.requestOptions),
           );
         }
       },
@@ -190,10 +190,10 @@ class DioForNative with DioMixin implements Dio {
             throw DioException.receiveTimeout(
               timeout: timeout,
               requestOptions: response.requestOptions,
-              error: e,
+              cause: e,
             );
           } else {
-            throw e;
+            throw assureDioException(e, response.requestOptions);
           }
         },
       );

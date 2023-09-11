@@ -12,7 +12,7 @@ class MyTransformer extends BackgroundTransformer {
   Future<String> transformRequest(RequestOptions options) async {
     if (options.data is List<String>) {
       throw DioException(
-        error: "Can't send List to sever directly",
+        cause: "Can't send List to sever directly",
         requestOptions: options,
       );
     } else {

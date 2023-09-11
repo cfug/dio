@@ -25,7 +25,7 @@ void main() async {
             return handler.reject(
               DioException(
                 requestOptions: options,
-                error: 'test error',
+                cause: 'test error',
               ),
             );
           default:

@@ -45,7 +45,7 @@ void main() {
         allOf([
           isA<DioException>(),
           (DioException e) => e.type == (DioExceptionType.connectionError),
-          if (!isWeb) (DioException e) => e.error is SocketException,
+          if (!isWeb) (DioException e) => e.cause is SocketException,
         ]),
       ),
     );

@@ -345,7 +345,6 @@ abstract class DioMixin implements Dio {
       onReceiveProgress: onReceiveProgress,
       onSendProgress: onSendProgress,
       cancelToken: cancelToken,
-      sourceStackTrace: StackTrace.current,
     );
 
     if (_closed) {
@@ -370,83 +369,6 @@ abstract class DioMixin implements Dio {
       }
     }
 
-    // Convert the request interceptor to a functional callback in which
-    // we can handle the return value of interceptor callback.
-    FutureOr Function(dynamic) requestInterceptorWrapper(
-      InterceptorSendCallback interceptor,
-    ) {
-      return (dynamic incomingState) async {
-        final state = incomingState as InterceptorState;
-        if (state.type == InterceptorResultType.next) {
-          return listenCancelForAsyncTask(
-            requestOptions.cancelToken,
-            Future(() {
-              final requestHandler = RequestInterceptorHandler();
-              interceptor(state.data as RequestOptions, requestHandler);
-              return requestHandler.future;
-            }),
-          );
-        } else {
-          return state;
-        }
-      };
-    }
-
-    // Convert the response interceptor to a functional callback in which
-    // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(dynamic) responseInterceptorWrapper(
-      InterceptorSuccessCallback interceptor,
-    ) {
-      return (dynamic incomingState) async {
-        final state = incomingState as InterceptorState;
-        if (state.type == InterceptorResultType.next ||
-            state.type == InterceptorResultType.resolveCallFollowing) {
-          return listenCancelForAsyncTask(
-            requestOptions.cancelToken,
-            Future(() {
-              final responseHandler = ResponseInterceptorHandler();
-              interceptor(state.data as Response, responseHandler);
-              return responseHandler.future;
-            }),
-          );
-        } else {
-          return state;
-        }
-      };
-    }
-
-    // Convert the error interceptor to a functional callback in which
-    // we can handle the return value of interceptor callback.
-    FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
-      InterceptorErrorCallback interceptor,
-    ) {
-      return (err) {
-        final state = err is InterceptorState
-            ? err
-            : InterceptorState(assureDioException(err, requestOptions));
-        Future<InterceptorState> handleError() async {
-          final errorHandler = ErrorInterceptorHandler();
-          interceptor(state.data, errorHandler);
-          return errorHandler.future;
-        }
-
-        // The request has already been cancelled,
-        // there is no need to listen for another cancellation.
-        if (state.data is DioException &&
-            state.data.type == DioExceptionType.cancel) {
-          return handleError();
-        } else if (state.type == InterceptorResultType.next ||
-            state.type == InterceptorResultType.rejectCallFollowing) {
-          return listenCancelForAsyncTask(
-            requestOptions.cancelToken,
-            Future(handleError),
-          );
-        } else {
-          throw err;
-        }
-      };
-    }
-
     // Build a request flow in which the processors(interceptors)
     // execute in FIFO order.
     Future<dynamic> future = Future<dynamic>(
@@ -458,22 +380,28 @@ abstract class DioMixin implements Dio {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleRequest
           : interceptor.onRequest;
-      future = future.then(requestInterceptorWrapper(fun));
+      future = future.then(_requestInterceptorWrapper(
+        fun,
+        requestOptions.cancelToken,
+      ));
     }
 
     // Add dispatching callback into the request flow.
     future = future.then(
-      requestInterceptorWrapper((
-        RequestOptions reqOpt,
-        RequestInterceptorHandler handler,
-      ) {
-        requestOptions = reqOpt;
-        _dispatchRequest<T>(reqOpt)
-            .then((value) => handler.resolve(value, true))
-            .catchError((e) {
-          handler.reject(e as DioException, true);
-        });
-      }),
+      _requestInterceptorWrapper(
+        (
+          RequestOptions reqOpt,
+          RequestInterceptorHandler handler,
+        ) {
+          requestOptions = reqOpt;
+          _dispatchRequest<T>(reqOpt)
+              .then((value) => handler.resolve(value, true))
+              .catchError((e) {
+            handler.reject(e as DioException, true);
+          });
+        },
+        requestOptions.cancelToken,
+      ),
     );
 
     // Add response interceptors into the request flow
@@ -481,7 +409,10 @@ abstract class DioMixin implements Dio {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleResponse
           : interceptor.onResponse;
-      future = future.then(responseInterceptorWrapper(fun));
+      future = future.then(_responseInterceptorWrapper(
+        fun,
+        requestOptions.cancelToken,
+      ));
     }
 
     // Add error handlers into the request flow.
@@ -489,9 +420,21 @@ abstract class DioMixin implements Dio {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleError
           : interceptor.onError;
-      future = future.catchError(errorInterceptorWrapper(fun));
+      future = future.catchError(_errorInterceptorWrapper(
+        fun,
+        requestOptions,
+      ));
     }
-    // Normalize errors, converts errors to [DioException].
+
+    /// This is the deepest point where we can capture the stack trace for
+    /// the request. The stack trace is attached to any error that occurs
+    /// after this point.
+    /// Capturing a stack trace after this point will cause it to start
+    /// behind the async gap of the first interceptor or the request
+    /// dispatching callback. In that case all the information about the
+    /// original call site, where the request was created, is lost.
+    final stackTrace = StackTrace.current;
+
     return future.then<Response<T>>((data) {
       return assureResponse<T>(
         data is InterceptorState ? data.data : data,
@@ -504,7 +447,13 @@ abstract class DioMixin implements Dio {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
-      throw assureDioException(isState ? e.data : e, requestOptions);
+
+      /// Convert all errors to [DioException] and rethrow
+      /// them with the stack trace that was captured before.
+      Error.throwWithStackTrace(
+        assureDioException(isState ? e.data : e, requestOptions),
+        stackTrace,
+      );
     });
   }
 
@@ -557,8 +506,12 @@ abstract class DioMixin implements Dio {
           response: ret,
         );
       }
-    } catch (e) {
-      throw assureDioException(e, reqOpt);
+    } catch (e, stackTrace) {
+      throw assureDioException(
+        e,
+        reqOpt,
+        causeStackTrace: stackTrace,
+      );
     }
   }
 
@@ -652,6 +605,86 @@ abstract class DioMixin implements Dio {
     return null;
   }
 
+  // Convert the request interceptor to a functional callback in which
+  // we can handle the return value of interceptor callback.
+  FutureOr Function(dynamic) _requestInterceptorWrapper(
+    InterceptorSendCallback interceptor,
+    CancelToken? cancelToken,
+  ) {
+    return (dynamic incomingState) async {
+      final state = incomingState as InterceptorState;
+      if (state.type == InterceptorResultType.next) {
+        return listenCancelForAsyncTask(
+          cancelToken,
+          Future(() {
+            final requestHandler = RequestInterceptorHandler();
+            interceptor(state.data as RequestOptions, requestHandler);
+            return requestHandler.future;
+          }),
+        );
+      } else {
+        return state;
+      }
+    };
+  }
+
+  // Convert the response interceptor to a functional callback in which
+  // we can handle the return value of interceptor callback.
+  FutureOr<dynamic> Function(dynamic) _responseInterceptorWrapper(
+    InterceptorSuccessCallback interceptor,
+    CancelToken? cancelToken,
+  ) {
+    return (dynamic incomingState) async {
+      final state = incomingState as InterceptorState;
+      if (state.type == InterceptorResultType.next ||
+          state.type == InterceptorResultType.resolveCallFollowing) {
+        return listenCancelForAsyncTask(
+          cancelToken,
+          Future(() {
+            final responseHandler = ResponseInterceptorHandler();
+            interceptor(state.data as Response, responseHandler);
+            return responseHandler.future;
+          }),
+        );
+      } else {
+        return state;
+      }
+    };
+  }
+
+  // Convert the error interceptor to a functional callback in which
+  // we can handle the return value of interceptor callback.
+  FutureOr<dynamic> Function(Object) _errorInterceptorWrapper(
+    InterceptorErrorCallback interceptor,
+    RequestOptions requestOptions,
+  ) {
+    return (err) {
+      final state = err is InterceptorState
+          ? err
+          : InterceptorState(assureDioException(err, requestOptions));
+      Future<InterceptorState> handleError() async {
+        final errorHandler = ErrorInterceptorHandler();
+        interceptor(state.data, errorHandler);
+        return errorHandler.future;
+      }
+
+      // The request has already been cancelled,
+      // there is no need to listen for another cancellation.
+      if (state.data is DioException &&
+          state.data.type == DioExceptionType.cancel) {
+        return handleError();
+      } else if (state.type == InterceptorResultType.next ||
+          state.type == InterceptorResultType.rejectCallFollowing) {
+        return listenCancelForAsyncTask(
+          requestOptions.cancelToken,
+          Future(handleError),
+        );
+      } else {
+        throw err;
+      }
+    };
+  }
+
   // If the request has been cancelled, stop the request and throw error.
   @internal
   static void checkCancelled(CancelToken? cancelToken) {
@@ -680,16 +713,18 @@ abstract class DioMixin implements Dio {
   }
 
   @internal
-  static DioException assureDioException(
-    Object err,
-    RequestOptions requestOptions,
-  ) {
-    if (err is DioException) {
-      return err;
+  DioException assureDioException(
+    Object cause,
+    RequestOptions requestOptions, {
+    StackTrace? causeStackTrace,
+  }) {
+    if (cause is DioException) {
+      return cause;
     }
     return DioException(
       requestOptions: requestOptions,
-      error: err,
+      cause: cause,
+      causeStackTrace: causeStackTrace,
     );
   }
 
