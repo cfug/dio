@@ -17,7 +17,7 @@ to delegate HTTP requests to the native platform instead of the `dart:io` platfo
 
 Inspired by the [Dart 2.18 release blog](https://medium.com/dartlang/dart-2-18-f4b3101f146c).
 
-# Motivation
+## Motivation
 
 Using the native platform implementation, rather than the socket-based [`dart:io` HttpClient](https://api.dart.dev/stable/dart-io/HttpClient-class.html) implementation, has several advantages:
 
@@ -25,7 +25,13 @@ Using the native platform implementation, rather than the socket-based [`dart:io
 - It supports many more configuration options such as only allowing access through WiFi and blocking cookies.
 - It supports more HTTP features such as HTTP/3 and custom redirect handling.
 
-# Example
+## Get started
+
+### Install
+
+Add the `native_dio_adapter` package to your [pubspec dependencies](https://pub.dev/packages/native_dio_adapter/install).
+
+### Example
 
 ```dart
 final dioClient = Dio();
