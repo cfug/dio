@@ -54,23 +54,10 @@ Timeout, Custom adapters, Transformers, etc.
 
 ## Get started
 
-### Add dependency
+### Install
 
-You can use the command to add dio as a dependency with the latest stable version:
+Add the `dio` package to your [pubspec dependencies](https://pub.dev/packages/dio/install).
 
-```console
-$ dart pub add dio
-```
-
-Or you can manually add dio into the dependencies section in your pubspec.yaml:
-
-```yaml
-dependencies:
-  dio: ^replace-with-latest-version
-```
-
-The latest version is: ![Pub](https://img.shields.io/pub/v/dio.svg)
-The latest version including pre-releases is: ![Pub](https://img.shields.io/pub/v/dio?include_prereleases)
 
 **Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
 See the [Migration Guide][] for the complete breaking changes list.**
