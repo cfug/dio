@@ -330,5 +330,64 @@ void main() {
         expect(response.data![0], 1);
       });
     });
+
+    // Test that browsers can correctly classify requests as
+    // either "simple" or "preflighted". Reference:
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+    group('CORS preflight', () {
+      test('empty GET is not preflighted', () async {
+        // If there is no preflight (OPTIONS) request, the main request
+        // successfully completes with status 418.
+        final response = await dio.get(
+          '/status/418',
+          options: Options(
+            validateStatus: (status) => true,
+          ),
+        );
+        expect(response.statusCode, 418);
+      });
+
+      test('GET with headers is preflighted', () async {
+        // If there is a preflight (OPTIONS) request, the server fails it
+        // by responding with status 418. This fails CORS, so the browser
+        // never sends the main request and this code throws.
+        await expectLater(() async {
+          final _ = await dio.get(
+            '/status/418',
+            options: Options(
+              headers: {
+                'x-request-header': 'value',
+              },
+            ),
+          );
+        }, throwsDioExceptionConnectionError);
+      });
+
+      test('POST with plain text body is not preflighted', () async {
+        // If there is no preflight (OPTIONS) request, the main request
+        // successfully completes with status 418.
+        final response = await dio.post(
+          '/status/418',
+          data: 'body text',
+          options: Options(
+            validateStatus: (status) => true,
+            contentType: Headers.textPlainContentType,
+          ),
+        );
+        expect(response.statusCode, 418);
+      }, skip: 'Currently not implemented');
+
+      test('POST with json body is preflighted', () async {
+        // If there is a preflight (OPTIONS) request, the server fails it
+        // by responding with status 418. This fails CORS, so the browser
+        // never sends the main request and this code throws.
+        await expectLater(() async {
+          final _ = await dio.post(
+            '/status/418',
+            data: {'key': 'value'},
+          );
+        }, throwsDioExceptionConnectionError);
+      });
+    }, testOn: 'browser');
   });
 }
