@@ -161,8 +161,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
       final receiveTimeout = options.receiveTimeout;
       if (receiveTimeout != null) {
-        if (!uploadStopwatch.isRunning) {
-          uploadStopwatch.start();
+        if (!downloadStopwatch.isRunning) {
+          downloadStopwatch.start();
         }
 
         final duration = downloadStopwatch.elapsed;
