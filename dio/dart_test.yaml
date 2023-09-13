@@ -1,2 +1,7 @@
 file_reporters:
   json: build/reports/test-results.json
+
+override_platforms:
+  firefox:
+    settings:
+      arguments: -headless
