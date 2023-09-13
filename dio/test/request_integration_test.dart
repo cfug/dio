@@ -375,7 +375,7 @@ void main() {
           ),
         );
         expect(response.statusCode, 418);
-      }, skip: 'Currently not implemented');
+      });
 
       test('POST with json body is preflighted', () async {
         // If there is a preflight (OPTIONS) request, the server fails it

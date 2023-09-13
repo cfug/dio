@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:html';
 import 'dart:typed_data';
-import 'dart:developer' as dev;
 
 import 'package:meta/meta.dart';
 
@@ -116,17 +116,25 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    final uploadStopwatch = Stopwatch();
+    // This code is structured to call `xhr.upload.onProgress.listen` only when
+    // absolutely necessary, because registering an xhr upload listener prevents
+    // the request from being classified as a "simple request" by the CORS spec.
+    // Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
     if (requestStream != null) {
-      xhr.upload.onProgress.listen((event) {
-        // This event will only be triggered if a request body exists.
-        if (connectTimeoutTimer != null) {
-          connectTimeoutTimer!.cancel();
+      // XMLHttpRequestUpload progress events only get triggered if
+      // the request body isn't empty, so we can check it beforehand.
+      // TODO: Does this mean that sendTimeout doesn't work in these cases?
+      if (connectTimeoutTimer != null) {
+        xhr.upload.onProgress.listen((event) {
+          connectTimeoutTimer?.cancel();
           connectTimeoutTimer = null;
-        }
+        });
+      }
 
-        final sendTimeout = options.sendTimeout;
-        if (sendTimeout != null) {
+      final sendTimeout = options.sendTimeout;
+      if (sendTimeout != null) {
+        final uploadStopwatch = Stopwatch();
+        xhr.upload.onProgress.listen((event) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
@@ -143,13 +151,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             );
             xhr.abort();
           }
-        }
-        if (options.onSendProgress != null &&
-            event.loaded != null &&
-            event.total != null) {
-          options.onSendProgress!(event.loaded!, event.total!);
-        }
-      });
+        });
+      }
+
+      final onSendProgress = options.onSendProgress;
+      if (onSendProgress != null) {
+        xhr.upload.onProgress.listen((event) {
+          if (event.loaded != null && event.total != null) {
+            onSendProgress(event.loaded!, event.total!);
+          }
+        });
+      }
     }
 
     final downloadStopwatch = Stopwatch();
