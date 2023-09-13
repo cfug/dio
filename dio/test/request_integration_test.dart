@@ -347,11 +347,11 @@ void main() {
         expect(response.statusCode, 418);
       });
 
-      test('GET with headers is preflighted', () async {
+      test('GET with custom headers is preflighted', () async {
         // If there is a preflight (OPTIONS) request, the server fails it
         // by responding with status 418. This fails CORS, so the browser
         // never sends the main request and this code throws.
-        await expectLater(() async {
+        expect(() async {
           final _ = await dio.get(
             '/status/418',
             options: Options(
@@ -363,7 +363,7 @@ void main() {
         }, throwsDioExceptionConnectionError);
       });
 
-      test('POST with plain text body is not preflighted', () async {
+      test('POST with text body is not preflighted', () async {
         // If there is no preflight (OPTIONS) request, the main request
         // successfully completes with status 418.
         final response = await dio.post(
@@ -377,14 +377,36 @@ void main() {
         expect(response.statusCode, 418);
       });
 
-      test('POST with json body is preflighted', () async {
+      test('POST with sendTimeout is preflighted', () async {
         // If there is a preflight (OPTIONS) request, the server fails it
         // by responding with status 418. This fails CORS, so the browser
         // never sends the main request and this code throws.
-        await expectLater(() async {
+        expect(() async {
           final _ = await dio.post(
             '/status/418',
-            data: {'key': 'value'},
+            data: 'body text',
+            options: Options(
+              validateStatus: (status) => true,
+              contentType: Headers.textPlainContentType,
+              sendTimeout: Duration(seconds: 1),
+            ),
+          );
+        }, throwsDioExceptionConnectionError);
+      });
+
+      test('POST with onSendProgress is preflighted', () async {
+        // If there is a preflight (OPTIONS) request, the server fails it
+        // by responding with status 418. This fails CORS, so the browser
+        // never sends the main request and this code throws.
+        expect(() async {
+          final _ = await dio.post(
+            '/status/418',
+            data: 'body text',
+            options: Options(
+              validateStatus: (status) => true,
+              contentType: Headers.textPlainContentType,
+            ),
+            onSendProgress: (_, __) {},
           );
         }, throwsDioExceptionConnectionError);
       });
