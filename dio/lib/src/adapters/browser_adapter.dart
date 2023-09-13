@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as dev;
 import 'dart:html';
 import 'dart:typed_data';
+import 'dart:developer' as dev;
 
 import 'package:meta/meta.dart';
 
@@ -120,9 +120,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // absolutely necessary, because registering an xhr upload listener prevents
     // the request from being classified as a "simple request" by the CORS spec.
     // Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+    // Upload progress events only get triggered if the request body exists,
+    // so we can check it beforehand.
     if (requestStream != null) {
-      // XMLHttpRequestUpload progress events only get triggered if
-      // the request body isn't empty, so we can check it beforehand.
       if (connectTimeoutTimer != null) {
         xhr.upload.onProgress.listen((event) {
           connectTimeoutTimer?.cancel();
