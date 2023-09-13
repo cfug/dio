@@ -123,7 +123,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (requestStream != null) {
       // XMLHttpRequestUpload progress events only get triggered if
       // the request body isn't empty, so we can check it beforehand.
-      // TODO: Does this mean that sendTimeout doesn't work in these cases?
       if (connectTimeoutTimer != null) {
         xhr.upload.onProgress.listen((event) {
           connectTimeoutTimer?.cancel();
@@ -161,6 +160,23 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             onSendProgress(event.loaded!, event.total!);
           }
         });
+      }
+    } else if (!_kReleaseMode) {
+      if (options.sendTimeout != null) {
+        dev.log(
+          'sendTimeout cannot be used without a request body to send',
+          level: 900,
+          name: '🔔 Dio',
+          stackTrace: StackTrace.current,
+        );
+      }
+      if (options.onSendProgress != null) {
+        dev.log(
+          'onSendProgress cannot be used without a request body to send',
+          level: 900,
+          name: '🔔 Dio',
+          stackTrace: StackTrace.current,
+        );
       }
     }
 
