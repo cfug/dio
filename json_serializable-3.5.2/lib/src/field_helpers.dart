@@ -36,8 +36,8 @@ class _FieldSet implements Comparable<_FieldSet> {
   int compareTo(_FieldSet other) => _sortByLocation(sortField, other.sortField);
 
   static int _sortByLocation(FieldElement a, FieldElement b) {
-    final checkerA =
-        TypeChecker.fromStatic((a.enclosingElement as ClassElement).thisType);
+    final checkerA = TypeChecker.fromStatic(
+        (a.enclosingElement as InterfaceElement).thisType);
 
     if (!checkerA.isExactly(b.enclosingElement)) {
       // in this case, you want to prioritize the enclosingElement that is more
@@ -47,8 +47,8 @@ class _FieldSet implements Comparable<_FieldSet> {
         return -1;
       }
 
-      final checkerB =
-          TypeChecker.fromStatic((b.enclosingElement as ClassElement).thisType);
+      final checkerB = TypeChecker.fromStatic(
+          (b.enclosingElement as InterfaceElement).thisType);
 
       if (checkerB.isAssignableFrom(a.enclosingElement)) {
         return 1;

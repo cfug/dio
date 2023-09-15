@@ -253,7 +253,7 @@ _ConstructorData _writeConstructorInvocation(
 
   for (final arg in ctor.parameters) {
     if (!availableConstructorParameters.contains(arg.name)) {
-      if (arg.isNotOptional) {
+      if (arg.isRequired) {
         var msg = 'Cannot populate the required constructor '
             'argument: ${arg.name}.';
 

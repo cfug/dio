@@ -5,6 +5,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:collection/collection.dart';
 import 'package:json_annotation_3_1_1/json_annotation.dart';
 import 'package:meta/meta.dart' show alwaysThrows, required;
 import 'package:source_gen/source_gen.dart';
@@ -70,7 +71,7 @@ T enumValueForDartObject<T>(
   List<T> items,
   String Function(T) name,
 ) =>
-    items.singleWhere((v) => source.getField(name(v)) != null);
+    items.singleWhere((v) => source.variable?.name == name(v));
 
 /// Return an instance of [JsonSerializable] corresponding to a the provided
 /// [reader].
@@ -125,7 +126,7 @@ JsonSerializable mergeConfig(
 }
 
 bool isEnum(DartType targetType) =>
-    targetType is InterfaceType && targetType.element.isEnum;
+    targetType is InterfaceType && targetType.element is EnumElement;
 
 final _enumMapExpando = Expando<Map<FieldElement, dynamic>>();
 
@@ -167,7 +168,7 @@ Map<FieldElement, dynamic> enumFieldsMap(DartType targetType) {
     return entry;
   }
 
-  if (targetType is InterfaceType && targetType.element.isEnum) {
+  if (targetType is InterfaceType && targetType.element is EnumElement) {
     return _enumMapExpando[targetType] ??=
         Map<FieldElement, dynamic>.fromEntries(targetType.element.fields
             .where((p) => !p.isSynthetic)

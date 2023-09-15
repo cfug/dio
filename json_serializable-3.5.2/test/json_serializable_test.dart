@@ -14,7 +14,6 @@ Future<void> main() async {
     p.join('test', 'src'),
     '_json_serializable_test_input.dart',
   );
-
   testAnnotatedElements(
     reader,
     JsonSerializableGenerator(),

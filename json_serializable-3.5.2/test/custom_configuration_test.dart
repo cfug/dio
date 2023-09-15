@@ -86,28 +86,26 @@ Future<void> main() async {
     });
 
     test(
-      'explicit values in annotation override corresponding settings in config',
-      () async {
-        await runWithConfigAndLogger(
-            JsonSerializable.fromJson(generatorConfigNonDefaultJson),
-            'ConfigurationExplicitDefaults');
+        'explicit values in annotation override corresponding settings in config',
+        () async {
+      await runWithConfigAndLogger(
+          JsonSerializable.fromJson(generatorConfigNonDefaultJson),
+          'ConfigurationExplicitDefaults');
 
-        expect(_ConfigLogger.configurations, hasLength(2));
-        expect(_ConfigLogger.configurations.first,
-            same(_ConfigLogger.configurations.last));
+      expect(_ConfigLogger.configurations, hasLength(2));
+      expect(_ConfigLogger.configurations.first,
+          same(_ConfigLogger.configurations.last));
 
-        // The effective configuration should be non-Default configuration, but
-        // with all fields set from JsonSerializable as the defaults
+      // The effective configuration should be non-Default configuration, but
+      // with all fields set from JsonSerializable as the defaults
 
-        final expected =
-            Map<String, dynamic>.from(generatorConfigNonDefaultJson);
-        for (var jsonSerialKey in jsonSerializableFields) {
-          expected[jsonSerialKey] = generatorConfigDefaultJson[jsonSerialKey];
-        }
+      final expected = Map<String, dynamic>.from(generatorConfigNonDefaultJson);
+      for (var jsonSerialKey in jsonSerializableFields) {
+        expected[jsonSerialKey] = generatorConfigDefaultJson[jsonSerialKey];
+      }
 
-        expect(_ConfigLogger.configurations.first.toJson(), expected);
-      },
-    );
+      expect(_ConfigLogger.configurations.first.toJson(), expected);
+    });
   });
 }
 
