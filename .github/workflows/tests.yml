@@ -85,7 +85,7 @@ jobs:
       fail-fast: false
       matrix:
         sdk: [ 2.15.0, stable, beta ]
-        platform: [ vm, chrome ]
+        platform: [ vm, chrome, firefox ]
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1.3
