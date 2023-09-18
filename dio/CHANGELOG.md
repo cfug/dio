@@ -9,6 +9,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Removes the accidentally added `options` argument for `Options.compose`.
 - Fix wrong formatting of multi-value header in `BrowserHttpClientAdapter`.
 - Add warning in debug mode when trying to send data with a `GET` request in web.
+- Reduce cases in which browsers would trigger a CORS preflight request.
+- Add warnings in debug mode when using `sendTimeout` and `onSendProgress` with an empty request body.
+- Fix `receiveTimeout` not working correctly on web.
 
 ## 5.3.2
 

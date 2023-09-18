@@ -4,5 +4,8 @@ file_reporters:
 override_platforms:
   chrome:
     settings:
-      # disable web security to allow CORS requests
-      arguments: --disable-web-security
+      headless: true
+  firefox:
+    settings:
+      # headless argument has to be set explicitly for non-chrome browsers
+      arguments: --headless
