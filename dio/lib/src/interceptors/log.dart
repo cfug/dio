@@ -4,9 +4,18 @@ import '../options.dart';
 import '../response.dart';
 
 /// [LogInterceptor] is used to print logs during network requests.
-/// It's better to add [LogInterceptor] to the tail of the interceptor queue,
-/// otherwise the changes made in the interceptor behind A will not be printed out.
+/// [LogInterceptor] should be the last interceptor added,
+/// otherwise modifications by following interceptors will not be logged.
 /// This is because the execution of interceptors is in the order of addition.
+///
+/// **Note**
+/// When used in Flutter, make sure to use `debugPrint` to print logs.
+///
+/// ```dart
+/// dio.interceptors.add(LogInterceptor(
+///  logPrint: (o) => debugPrint(o.toString()),
+/// ));
+/// ```
 class LogInterceptor extends Interceptor {
   LogInterceptor({
     this.request = true,

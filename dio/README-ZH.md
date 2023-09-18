@@ -475,6 +475,12 @@ print(response.data); // 'fake data'
 dio.interceptors.add(LogInterceptor(responseBody: false)); // 不输出响应内容体
 ```
 
+When using Flutter, you should use `debugPrint` to print logs:
+
+```dart
+dio.interceptors.add(LogInterceptor(logPrint: (o) => debugPrint(o.toString())));
+```
+
 **注意：** 由于拦截器队列是先进先出，`LogInterceptor` 应当在最后添加至 `Dio` 实例。
 
 **注意：** 日志默认仅在 DEBUG 模式（启用了断言）下打印。

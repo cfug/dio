@@ -490,7 +490,14 @@ You can apply the `LogInterceptor` to log requests and responses automatically i
 dio.interceptors.add(LogInterceptor(responseBody: false)); // Do not output responses body.
 ```
 
-**Note:** `LogInterceptor` should be the last to add since the interceptors are FIFO.
+When using Flutter, you should use `debugPrint` to print logs:
+
+```dart
+dio.interceptors.add(LogInterceptor(logPrint: (o) => debugPrint(o.toString())));
+```
+
+**Note:** `LogInterceptor` should be the last interceptor added, otherwise modifications by following interceptors
+will not be logged.
 
 **Note:** Logs will only be printed in the DEBUG mode (when the assertion is enabled).
 
