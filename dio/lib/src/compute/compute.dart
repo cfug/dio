@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'compute_io.dart' if (dart.library.html) 'compute_web.dart' as _c;
+import 'compute_io.dart' if (dart.library.html) 'compute_web.dart' as c;
 
 typedef ComputeCallback<Q, R> = FutureOr<R> Function(Q message);
 
@@ -10,4 +10,4 @@ typedef ComputeImpl = Future<R> Function<Q, R>(
   String? debugLabel,
 });
 
-const ComputeImpl compute = _c.compute;
+const ComputeImpl compute = c.compute;
