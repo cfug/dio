@@ -15,7 +15,7 @@ import '../adapters/io_adapter.dart';
 Dio createDio([BaseOptions? baseOptions]) => DioForNative(baseOptions);
 
 /// Implements features for [Dio] on native platforms.
-class DioForNative with DioMixin implements Dio {
+class DioForNative extends DioMixin implements Dio {
   /// Create Dio instance with default [BaseOptions].
   /// It is recommended that an application use only the same DIO singleton.
   DioForNative([BaseOptions? baseOptions]) {

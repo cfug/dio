@@ -10,7 +10,7 @@ import '../response.dart';
 Dio createDio([BaseOptions? options]) => DioForBrowser(options);
 
 /// Implements features for [Dio] on Web platforms.
-class DioForBrowser with DioMixin implements Dio {
+class DioForBrowser extends DioMixin implements Dio {
   /// Create Dio instance with default [Options].
   /// It's mostly just one Dio instance in your application.
   DioForBrowser([BaseOptions? options]) {
