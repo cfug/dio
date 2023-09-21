@@ -12,6 +12,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Reduce cases in which browsers would trigger a CORS preflight request.
 - Add warnings in debug mode when using `sendTimeout` and `onSendProgress` with an empty request body.
 - Fix `receiveTimeout` not working correctly on web.
+- Fix `ImplyContentTypeInterceptor` can be removed by `Interceptors.clear()` by default.
 
 ## 5.3.2
 
