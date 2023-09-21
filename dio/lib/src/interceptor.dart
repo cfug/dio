@@ -319,6 +319,8 @@ class Interceptors extends ListMixin<Interceptor> {
     }
   }
 
+  /// The default [ImplyContentTypeInterceptor] will be removed only if
+  /// [withImplyContentTypeInterceptor] is true.
   @override
   void clear({bool withImplyContentTypeInterceptor = false}) {
     if (withImplyContentTypeInterceptor) {
