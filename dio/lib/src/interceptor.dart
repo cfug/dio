@@ -319,6 +319,15 @@ class Interceptors extends ListMixin<Interceptor> {
     }
   }
 
+  @override
+  void clear({bool withImplyContentTypeInterceptor = false}) {
+    if (withImplyContentTypeInterceptor) {
+      super.clear();
+    } else {
+      _list.removeWhere((e) => e is! ImplyContentTypeInterceptor);
+    }
+  }
+
   /// Remove the default imply content type interceptor.
   void removeImplyContentTypeInterceptor() {
     _list.removeWhere((e) => e is ImplyContentTypeInterceptor);
