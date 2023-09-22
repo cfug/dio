@@ -372,4 +372,4 @@ First Stable version for 2.x
 
 - Initial version, created by Stagehand
 
-[Migration Guide]: ./migration_guide.md
+[Migration Guide]: doc/migration_guide.md
