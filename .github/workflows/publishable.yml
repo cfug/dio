@@ -27,6 +27,20 @@ jobs:
         directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_dio_adapter"]
     steps:
       - uses: actions/checkout@v3
+      - name: "Check documents file size < 128kb"
+        working-directory: ${{ matrix.directory }}
+        run: |
+          limit_size=$(expr 128 \* 1024) # Maximum 128kb.
+          readme_size=$(stat -c%s README.md)
+          changelog_size=$(stat -c%s CHANGELOG.md)
+          if [ $readme_size -gt $limit_size ]; then
+            echo "README.md exceeded the maximum size: $readme_size > $limit_size."
+            exit 1
+          fi
+          if [ $changelog_size -gt $limit_size ]; then
+            echo "CHANGELOG.md exceeded the maximum size: $changelog_size > $limit_size."
+            exit 1
+          fi
       - uses: subosito/flutter-action@v2
       - run: |
           if grep -q "flutter:" "${{ matrix.directory }}/pubspec.yaml"; then
