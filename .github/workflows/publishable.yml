@@ -27,10 +27,10 @@ jobs:
         directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_dio_adapter"]
     steps:
       - uses: actions/checkout@v3
-      - name: Publish dry run
-        uses: k-paxian/dart-package-publisher@master
-        with:
-          credentialJson: 'MockCredentialJson'
-          dryRunOnly: true
-          relativePath: ${{ matrix.directory }}
-          skipTests: true
+      - uses: subosito/flutter-action@v2
+      - run: |
+          if grep -q "flutter:" "${{ matrix.directory }}/pubspec.yaml"; then
+            flutter pub get
+          fi
+      - run: dart pub publish --dry-run
+        working-directory: ${{ matrix.directory }}
