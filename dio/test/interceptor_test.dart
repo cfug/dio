@@ -583,6 +583,7 @@ void main() {
       expect(tokenRequestCounts, 1);
       expect(result, 3);
       expect(myInter.requestCount, predicate((int e) => e > 0));
+      // The `ImplyContentTypeInterceptor` will be replaced.
       dio.interceptors[0] = myInter;
       dio.interceptors.clear();
       expect(dio.interceptors.isEmpty, true);
@@ -659,6 +660,9 @@ void main() {
     expect(interceptors.length, equals(2));
     expect(interceptors, isNotEmpty);
     interceptors.clear();
+    expect(interceptors.length, equals(1));
+    expect(interceptors.single, isA<ImplyContentTypeInterceptor>());
+    interceptors.clear(keepImplyContentTypeInterceptor: false);
     expect(interceptors.length, equals(0));
     expect(interceptors, isEmpty);
   });
