@@ -27,10 +27,8 @@ jobs:
         directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_dio_adapter"]
     steps:
       - uses: actions/checkout@v3
-      - name: Publish dry run
-        uses: k-paxian/dart-package-publisher@master
+      - uses: dart-lang/setup-dart@v1.3
         with:
-          credentialJson: 'MockCredentialJson'
-          dryRunOnly: true
-          relativePath: ${{ matrix.directory }}
-          skipTests: true
+          sdk: stable
+      - run: dart pub publish --dry-run
+        working-directory: ${{ matrix.directory }}
