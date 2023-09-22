@@ -32,17 +32,20 @@ jobs:
         run: |
           limit_size=$(expr 128 \* 1024) # Maximum 128kb.
           changelog_size=$(stat -c%s CHANGELOG.md)
+          echo "CHANGELOG.md file size: $changelog_size."
           if [ $changelog_size -gt $limit_size ]; then
             echo "CHANGELOG.md exceeded the maximum size: $changelog_size > $limit_size."
             exit 1
           fi
           readme_size=$(stat -c%s README.md)
+          echo "README.md file size: $readme_size."
           if [ $readme_size -gt $limit_size ]; then
             echo "README.md exceeded the maximum size: $readme_size > $limit_size."
             exit 1
           fi
           if [ -f README_ZH.md ]; then
             readme_zh_size=$(stat -c%s README_ZH.md)
+            echo "README_ZH.md file size: $readme_zh_size."
             if [ readme_zh_size -gt $limit_size ]; then
               echo "README_ZH.md exceeded the maximum size: $readme_zh_size > $limit_size."
               exit 1
