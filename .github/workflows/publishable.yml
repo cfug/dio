@@ -27,8 +27,10 @@ jobs:
         directory: ["dio", "plugins/cookie_manager", "plugins/http2_adapter", "plugins/native_dio_adapter"]
     steps:
       - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@v1.3
-        with:
-          sdk: stable
+      - uses: subosito/flutter-action@v2
+      - run: |
+          if grep -q "flutter:" "pubspec.yaml"; then
+            flutter pub get
+          fi
       - run: dart pub publish --dry-run
         working-directory: ${{ matrix.directory }}
