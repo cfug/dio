@@ -662,7 +662,7 @@ void main() {
     interceptors.clear();
     expect(interceptors.length, equals(1));
     expect(interceptors.single, isA<ImplyContentTypeInterceptor>());
-    interceptors.clear(withImplyContentTypeInterceptor: true);
+    interceptors.clear(keepImplyContentTypeInterceptor: false);
     expect(interceptors.length, equals(0));
     expect(interceptors, isEmpty);
   });
