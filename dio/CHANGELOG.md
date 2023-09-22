@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.3.3
+
 - Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
 - Removes the accidentally added `options` argument for `Options.compose`.
 - Fix wrong formatting of multi-value header in `BrowserHttpClientAdapter`.
