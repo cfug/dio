@@ -12,7 +12,7 @@ repository: https://github.com/cfug/dio/blob/main/plugins/http2_adapter
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
+  sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
   http2: ^2.0.0
