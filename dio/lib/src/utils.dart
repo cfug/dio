@@ -38,7 +38,7 @@ Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
 typedef DioEncodeHandler = String? Function(String key, Object? value);
 
 String encodeMap(
-  data,
+  Object data,
   DioEncodeHandler handler, {
   bool encode = true,
   bool isQuery = false,
@@ -51,7 +51,9 @@ String encodeMap(
   // When [encode] is false, for example for [FormData], nothing is encoded.
   final leftBracket = isQuery || !encode ? '[' : '%5B';
   final rightBracket = isQuery || !encode ? ']' : '%5D';
-  final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
+
+  final String Function(String) encodeComponent =
+      encode ? Uri.encodeQueryComponent : (e) => e;
   Object? maybeEncode(Object? value) {
     if (!isQuery || value == null || value is! String) {
       return value;
@@ -93,7 +95,7 @@ String encodeMap(
     } else if (sub is Map) {
       sub.forEach((k, v) {
         if (path == '') {
-          urlEncode(maybeEncode(v), '${encodeComponent(k)}');
+          urlEncode(maybeEncode(v), encodeComponent(k));
         } else {
           urlEncode(
             maybeEncode(v),
