@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
-import 'dart:developer' as dev;
 
 import 'package:meta/meta.dart';
 
@@ -10,13 +9,7 @@ import '../adapter.dart';
 import '../dio_exception.dart';
 import '../headers.dart';
 import '../options.dart';
-
-// For the web platform, an inline `bool.fromEnvironment` translates to
-// `core.bool.fromEnvironment` instead of correctly being replaced by the
-// constant value found in the environment at build time.
-//
-// See https://github.com/flutter/flutter/issues/51186.
-const _kReleaseMode = bool.fromEnvironment('dart.vm.product');
+import '../utils.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -161,21 +154,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           }
         });
       }
-    } else if (!_kReleaseMode) {
+    } else {
       if (options.sendTimeout != null) {
-        dev.log(
+        debugLog(
           'sendTimeout cannot be used without a request body to send',
-          level: 900,
-          name: '🔔 Dio',
-          stackTrace: StackTrace.current,
+          StackTrace.current,
         );
       }
       if (options.onSendProgress != null) {
-        dev.log(
+        debugLog(
           'onSendProgress cannot be used without a request body to send',
-          level: 900,
-          name: '🔔 Dio',
-          stackTrace: StackTrace.current,
+          StackTrace.current,
         );
       }
     }
@@ -262,13 +251,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     if (requestStream != null) {
-      if (!_kReleaseMode && options.method == 'GET') {
-        dev.log(
+      if (options.method == 'GET') {
+        debugLog(
           'GET request with a body data are not support on the '
           'web platform. Use POST/PUT instead.',
-          level: 900,
-          name: '🔔 Dio',
-          stackTrace: StackTrace.current,
+          StackTrace.current,
         );
       }
       final completer = Completer<Uint8List>();
