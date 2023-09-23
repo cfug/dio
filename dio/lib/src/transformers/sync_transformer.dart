@@ -39,8 +39,8 @@ class SyncTransformer extends Transformer {
         return Transformer.urlEncodeMap(data, options.listFormat);
       }
       debugLog(
-        'The data is a type of Map (${data.runtimeType}), '
-        'but the transformer can only encode Map<String, dynamic>.\n'
+        'The data is a type of `Map` (${data.runtimeType}), '
+        'but the transformer can only encode `Map<String, dynamic>`.\n'
         'If you are writing maps using `{}`, '
         'consider writing `<String, dynamic>{}`.',
         StackTrace.current,
