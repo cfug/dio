@@ -144,6 +144,7 @@ Map<String, V> caseInsensitiveKeyMap<V>([Map<String, V>? value]) {
   return map;
 }
 
+// TODO(Alex): Provide a configurable property on the Dio class once https://github.com/cfug/dio/discussions/1982 has made some progress.
 void debugLog(String message, StackTrace stackTrace) {
   if (!kReleaseMode) {
     dev.log(
