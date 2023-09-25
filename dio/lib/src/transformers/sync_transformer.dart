@@ -6,6 +6,7 @@ import '../adapter.dart';
 import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
+import '../utils.dart';
 
 @Deprecated('Use BackgroundTransformer instead')
 typedef DefaultTransformer = SyncTransformer;
@@ -30,11 +31,21 @@ class SyncTransformer extends Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
-    final dynamic data = options.data ?? '';
+    final Object data = options.data ?? '';
     if (data is! String && Transformer.isJsonMimeType(options.contentType)) {
       return jsonEncodeCallback(data);
-    } else if (data is Map<String, dynamic>) {
-      return Transformer.urlEncodeMap(data, options.listFormat);
+    } else if (data is Map) {
+      if (data is Map<String, dynamic>) {
+        return Transformer.urlEncodeMap(data, options.listFormat);
+      }
+      debugLog(
+        'The data is a type of `Map` (${data.runtimeType}), '
+        'but the transformer can only encode `Map<String, dynamic>`.\n'
+        'If you are writing maps using `{}`, '
+        'consider writing `<String, dynamic>{}`.',
+        StackTrace.current,
+      );
+      return data.toString();
     } else {
       return data.toString();
     }

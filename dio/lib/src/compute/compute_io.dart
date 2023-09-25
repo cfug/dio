@@ -22,9 +22,8 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:isolate';
 
+import '../utils.dart' show kReleaseMode;
 import 'compute.dart' as c;
-
-const _kReleaseMode = bool.fromEnvironment('dart.vm.product');
 
 /// The dart:io implementation of [c.compute].
 Future<R> compute<Q, R>(
@@ -32,7 +31,7 @@ Future<R> compute<Q, R>(
   Q message, {
   String? debugLabel,
 }) async {
-  debugLabel ??= _kReleaseMode ? 'compute' : callback.toString();
+  debugLabel ??= kReleaseMode ? 'compute' : callback.toString();
 
   final Flow flow = Flow.begin();
   Timeline.startSync('$debugLabel: start', flow: flow);
