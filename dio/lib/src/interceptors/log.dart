@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../dio_exception.dart';
 import '../dio_mixin.dart';
 import '../options.dart';
@@ -10,6 +12,7 @@ import '../response.dart';
 ///
 /// **Note**
 /// When used in Flutter, make sure to use `debugPrint` to print logs.
+/// Alternatively `dart:developer`'s `log` function can also be used.
 ///
 /// ```dart
 /// dio.interceptors.add(LogInterceptor(

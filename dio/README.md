@@ -484,22 +484,32 @@ For the complete code see [here](../example/lib/queued_interceptor_crsftoken.dar
 
 #### LogInterceptor
 
-You can apply the `LogInterceptor` to log requests and responses automatically in the DEBUG mode:
+You can apply the `LogInterceptor` to log requests and responses automatically.
+
+**Note:** `LogInterceptor` should always be the last interceptor added,
+otherwise modifications by following interceptors will not be logged.
+
+#### Dart
 
 ```dart
 dio.interceptors.add(LogInterceptor(responseBody: false)); // Do not output responses body.
 ```
 
-When using Flutter, you should use `debugPrint` to print logs:
+**Note:** When using the default `logPrint` function, logs will only be printed
+in DEBUG mode (when the assertion is enabled).
+
+
+Alternatively `dart:developer`'s log can also be used to log messages.
+
+#### Flutter
+
+When using Flutter, Flutters own `debugPrint` function should be used.
+This ensures, that debug messages are also available via `flutter logs`.
+
 
 ```dart
 dio.interceptors.add(LogInterceptor(logPrint: (o) => debugPrint(o.toString())));
 ```
-
-**Note:** `LogInterceptor` should be the last interceptor added, otherwise modifications by following interceptors
-will not be logged.
-
-**Note:** Logs will only be printed in the DEBUG mode (when the assertion is enabled).
 
 #### Custom Interceptor
 
