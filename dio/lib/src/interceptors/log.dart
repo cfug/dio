@@ -1,12 +1,10 @@
-import 'dart:developer';
-
 import '../dio_exception.dart';
 import '../dio_mixin.dart';
 import '../options.dart';
 import '../response.dart';
 
 /// [LogInterceptor] is used to print logs during network requests.
-/// [LogInterceptor] should be the last interceptor added,
+/// It should be the last interceptor added,
 /// otherwise modifications by following interceptors will not be logged.
 /// This is because the execution of interceptors is in the order of addition.
 ///
@@ -15,9 +13,11 @@ import '../response.dart';
 /// Alternatively `dart:developer`'s `log` function can also be used.
 ///
 /// ```dart
-/// dio.interceptors.add(LogInterceptor(
-///  logPrint: (o) => debugPrint(o.toString()),
-/// ));
+/// dio.interceptors.add(
+///   LogInterceptor(
+///    logPrint: (o) => debugPrint(o.toString()),
+///   ),
+/// );
 /// ```
 class LogInterceptor extends Interceptor {
   LogInterceptor({
