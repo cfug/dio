@@ -480,26 +480,27 @@ print(response.data); // 'fake data'
 dio.interceptors.add(LogInterceptor(responseBody: false)); // 不输出响应内容体
 ```
 
-**Note:** When using the default `logPrint` function, logs will only be printed
-in DEBUG mode (when the assertion is enabled).
-
 **注意：** 默认的 `logPrint` 只会在 DEBUG 模式（启用了断言）
 的情况下输出日志。
 
-你也可以使用 `dart:developer` 中的 `log` 来输出日志。
+你也可以使用 `dart:developer` 中的 `log` 来输出日志（在 Flutter 中也可以使用）。
 
 #### Flutter
 
 在 Flutter 中你应该使用 `debugPrint` 来打印日志。
 
-这样也会让调试日志能够使用 `flutter logs` 获取到。
+这样也会让调试日志能够通过 `flutter logs` 获取到。
 
 **注意：** `debugPrint` 的意义 **不是只在 DEBUG 模式下打印**，
 而是对输出内容进行节流，从而保证输出完整。
 请不要在生产模式使用，除非你有意输出相关日志。
 
 ```dart
-dio.interceptors.add(LogInterceptor(logPrint: (o) => debugPrint(o.toString())));
+dio.interceptors.add(
+  LogInterceptor(
+    logPrint: (o) => debugPrint(o.toString()),
+  ),
+);
 ```
 
 ### 自定义拦截器
