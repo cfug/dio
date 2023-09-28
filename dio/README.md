@@ -498,17 +498,24 @@ dio.interceptors.add(LogInterceptor(responseBody: false)); // Do not output resp
 **Note:** When using the default `logPrint` function, logs will only be printed
 in DEBUG mode (when the assertion is enabled).
 
-
-Alternatively `dart:developer`'s log can also be used to log messages.
+Alternatively `dart:developer`'s log can also be used to log messages (available in Flutter too).
 
 #### Flutter
 
 When using Flutter, Flutters own `debugPrint` function should be used.
+
 This ensures, that debug messages are also available via `flutter logs`.
 
+**Note:** `debugPrint` **does not mean print logs under the DEBUG mode**,
+it's a throttled function which helps to print full logs without truncation.
+Do not use it under any production environment unless you're intended to.
 
 ```dart
-dio.interceptors.add(LogInterceptor(logPrint: (o) => debugPrint(o.toString())));
+dio.interceptors.add(
+  LogInterceptor(
+    logPrint: (o) => debugPrint(o.toString()),
+  ),
+);
 ```
 
 #### Custom Interceptor
