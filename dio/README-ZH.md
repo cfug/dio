@@ -475,7 +475,7 @@ print(response.data); // 'fake data'
 dio.interceptors.add(LogInterceptor(responseBody: false)); // 不输出响应内容体
 ```
 
-When using Flutter, you should use `debugPrint` to print logs:
+在 Flutter 中你应该使用 `debugPrint` 来打印日志：
 
 ```dart
 dio.interceptors.add(LogInterceptor(logPrint: (o) => debugPrint(o.toString())));
