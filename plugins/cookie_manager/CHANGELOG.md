@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fix `FileSystemException: Cannot open file ... (OS Error: Is a directory, errno = 21)`
+- Fix `FileSystemException` when saving redirect cookies without a proper `host`.
 
 ## 3.1.0+1
 
