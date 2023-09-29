@@ -1,7 +1,10 @@
 import 'dart:async';
 
-Future<R> compute<R>(
-  FutureOr<R> Function() callback, {
-  String? debugName,
+import 'package:dio/src/compute/compute.dart';
+
+Future<R> compute<Q, R>(
+  ComputeCallback<Q, R> callback,
+  Q message, {
+  String? debugLabel,
 }) async =>
-    callback();
+    callback(message);
