@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:dio/src/compute/compute.dart';
 import 'package:dio/src/transformers/sync_transformer.dart';
+import 'package:dio/src/transformer.dart';
+import 'package:dio/src/dio.dart';
 
 /// The default [Transformer] for [Dio].
 ///

@@ -25,4 +25,4 @@ void main() {
   });
 }
 
-class _TestDioMixin with DioMixin implements Dio {}
+class _TestDioMixin extends DioMixin implements Dio {}
