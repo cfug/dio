@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Fix `FileSystemException` when saving redirect cookies without a proper `host`.
 
 ## 3.1.0+1
 
