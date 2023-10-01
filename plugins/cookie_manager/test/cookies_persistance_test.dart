@@ -61,6 +61,7 @@ class _SaveCall {
 
 class _FakeCookieJar extends Fake implements CookieJar {
   final _saveCalls = <_SaveCall>[];
+
   List<_SaveCall> get saveCalls => UnmodifiableListView(_saveCalls);
 
   @override
@@ -78,72 +79,75 @@ class _FakeCookieJar extends Fake implements CookieJar {
 }
 
 void main() {
-  test(
-      'CookieJar.saveFromResponse() is called with a full Uri for requests that had relative redirects',
+  group('CookieJar.saveFromResponse()', () {
+    test(
+      'is called with a full Uri for requests that had relative redirects',
       () async {
-    final cookieJar = _FakeCookieJar();
-    final dio = Dio()
-      ..httpClientAdapter = _TestAdapter(
-        fetch: (options, requestStream, cancelFuture) async => ResponseBody(
-          Stream.value(Uint8List.fromList(utf8.encode(''))),
-          HttpStatus.ok,
-          redirects: [
-            RedirectRecord(
-              HttpStatus.found,
-              'GET',
-              Uri(path: 'redirect'),
+        final cookieJar = _FakeCookieJar();
+        final dio = Dio()
+          ..httpClientAdapter = _TestAdapter(
+            fetch: (options, requestStream, cancelFuture) async => ResponseBody(
+              Stream.value(Uint8List.fromList(utf8.encode(''))),
+              HttpStatus.ok,
+              redirects: [
+                RedirectRecord(
+                  HttpStatus.found,
+                  'GET',
+                  Uri(path: 'redirect'),
+                ),
+              ],
+              headers: {
+                HttpHeaders.setCookieHeader: ['Cookie1=value1; Path=/'],
+              },
             ),
-          ],
-          headers: {
-            HttpHeaders.setCookieHeader: ['Cookie1=value1; Path=/'],
-          },
-        ),
-      )
-      ..interceptors.add(CookieManager(cookieJar))
-      ..options.validateStatus =
-          (status) => status != null && status >= 200 && status < 400;
+          )
+          ..interceptors.add(CookieManager(cookieJar))
+          ..options.validateStatus =
+              (status) => status != null && status >= 200 && status < 400;
 
-    await dio.get('https://test.com');
+        await dio.get('https://test.com');
+        expect(cookieJar.saveCalls, [
+          _SaveCall(
+            'https://test.com/redirect',
+            'Cookie1=value1; Path=/',
+          ),
+        ]);
+      },
+    );
 
-    expect(cookieJar.saveCalls, [
-      _SaveCall(
-        'https://test.com/redirect',
-        'Cookie1=value1; Path=/',
-      ),
-    ]);
-  });
-  test(
-      'CookieJar.saveFromResponse() saves cookies only for final destination upon non-relative redirects',
+    test(
+      'saves cookies only for final destination upon non-relative redirects',
       () async {
-    final cookieJar = _FakeCookieJar();
-    final dio = Dio()
-      ..httpClientAdapter = _TestAdapter(
-        fetch: (options, requestStream, cancelFuture) async => ResponseBody(
-          Stream.value(Uint8List.fromList(utf8.encode(''))),
-          HttpStatus.ok,
-          redirects: [
-            RedirectRecord(
-              HttpStatus.found,
-              'GET',
-              Uri.parse('https://example.com/redirect'),
+        final cookieJar = _FakeCookieJar();
+        final dio = Dio()
+          ..httpClientAdapter = _TestAdapter(
+            fetch: (options, requestStream, cancelFuture) async => ResponseBody(
+              Stream.value(Uint8List.fromList(utf8.encode(''))),
+              HttpStatus.ok,
+              redirects: [
+                RedirectRecord(
+                  HttpStatus.found,
+                  'GET',
+                  Uri.parse('https://example.com/redirect'),
+                ),
+              ],
+              headers: {
+                HttpHeaders.setCookieHeader: ['Cookie1=value1; Path=/'],
+              },
             ),
-          ],
-          headers: {
-            HttpHeaders.setCookieHeader: ['Cookie1=value1; Path=/'],
-          },
-        ),
-      )
-      ..interceptors.add(CookieManager(cookieJar))
-      ..options.validateStatus =
-          (status) => status != null && status >= 200 && status < 400;
+          )
+          ..interceptors.add(CookieManager(cookieJar))
+          ..options.validateStatus =
+              (status) => status != null && status >= 200 && status < 400;
 
-    await dio.get('https://test.com');
-
-    expect(cookieJar.saveCalls, [
-      _SaveCall(
-        'https://example.com/redirect',
-        'Cookie1=value1; Path=/',
-      ),
-    ]);
+        await dio.get('https://test.com');
+        expect(cookieJar.saveCalls, [
+          _SaveCall(
+            'https://example.com/redirect',
+            'Cookie1=value1; Path=/',
+          ),
+        ]);
+      },
+    );
   });
 }
