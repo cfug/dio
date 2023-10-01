@@ -63,7 +63,7 @@ class CookieManager extends Interceptor {
     }).catchError((dynamic e, StackTrace s) {
       final err = DioException(
         requestOptions: options,
-        error: e,
+        cause: e,
         stackTrace: s,
       );
       handler.reject(err, true);
@@ -76,7 +76,7 @@ class CookieManager extends Interceptor {
       (dynamic e, StackTrace s) {
         final err = DioException(
           requestOptions: response.requestOptions,
-          error: e,
+          cause: e,
           stackTrace: s,
         );
         handler.reject(err, true);
@@ -91,7 +91,7 @@ class CookieManager extends Interceptor {
         (dynamic e, StackTrace s) {
           final error = DioException(
             requestOptions: err.response!.requestOptions,
-            error: e,
+            cause: e,
             stackTrace: s,
           );
           handler.next(error);

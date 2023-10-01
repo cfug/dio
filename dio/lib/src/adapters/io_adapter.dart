@@ -107,13 +107,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           timeout: options.connectTimeout ??
               httpClient.connectionTimeout ??
               Duration.zero,
-          error: e,
+          cause: e,
         );
       }
       throw DioException.connectionError(
         requestOptions: options,
         reason: e.message,
-        error: e,
+        cause: e,
       );
     }
 
@@ -169,7 +169,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         throw DioException(
           requestOptions: options,
           type: DioExceptionType.badCertificate,
-          error: responseStream.certificate,
+          cause: responseStream.certificate,
           message: 'The certificate of the response is not approved.',
         );
       }

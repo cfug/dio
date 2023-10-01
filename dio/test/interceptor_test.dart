@@ -56,23 +56,23 @@ void main() {
                   break;
                 case '/reject':
                   handler
-                      .reject(DioException(requestOptions: reqOpt, error: 3));
+                      .reject(DioException(requestOptions: reqOpt, cause: 3));
                   break;
                 case '/reject-next':
                   handler.reject(
-                    DioException(requestOptions: reqOpt, error: 4),
+                    DioException(requestOptions: reqOpt, cause: 4),
                     true,
                   );
                   break;
                 case '/reject-next/reject':
                   handler.reject(
-                    DioException(requestOptions: reqOpt, error: 5),
+                    DioException(requestOptions: reqOpt, cause: 5),
                     true,
                   );
                   break;
                 case '/reject-next-response':
                   handler.reject(
-                    DioException(requestOptions: reqOpt, error: 5),
+                    DioException(requestOptions: reqOpt, cause: 5),
                     true,
                   );
                   break;
@@ -97,13 +97,13 @@ void main() {
                   handler.reject(
                     DioException(
                       requestOptions: options,
-                      error: '/resolve-next/reject',
+                      cause: '/resolve-next/reject',
                     ),
                   );
                   break;
                 case '/resolve-next/reject-next':
                   handler.reject(
-                    DioException(requestOptions: options, error: ''),
+                    DioException(requestOptions: options, cause: ''),
                     true,
                   );
                   break;
@@ -121,14 +121,14 @@ void main() {
                 );
               } else if (err.requestOptions.path ==
                   '/resolve-next/reject-next') {
-                handler.next(err.copyWith(error: 1));
+                handler.next(err.copyWith(cause: 1));
               } else {
                 if (err.requestOptions.path == '/reject-next/reject') {
                   handler.reject(err);
                 } else {
-                  int count = err.error as int;
+                  int count = err.cause as int;
                   count++;
-                  handler.next(err.copyWith(error: count));
+                  handler.next(err.copyWith(cause: count));
                 }
               }
             },
@@ -150,13 +150,13 @@ void main() {
             },
             onError: (err, handler) {
               if (err.requestOptions.path == '/resolve-next/reject-next') {
-                int count = err.error as int;
+                int count = err.cause as int;
                 count++;
-                handler.next(err.copyWith(error: count));
+                handler.next(err.copyWith(cause: count));
               } else {
-                int count = err.error as int;
+                int count = err.cause as int;
                 count++;
-                handler.next(err.copyWith(error: count));
+                handler.next(err.copyWith(cause: count));
               }
             },
           ),
@@ -177,31 +177,31 @@ void main() {
       expect(response.data, 100);
 
       expect(
-        dio.get('/reject').catchError((e) => throw e.error as num),
+        dio.get('/reject').catchError((e) => throw e.cause as num),
         throwsA(3),
       );
 
       expect(
-        dio.get('/reject-next').catchError((e) => throw e.error as num),
+        dio.get('/reject-next').catchError((e) => throw e.cause as num),
         throwsA(6),
       );
 
       expect(
-        dio.get('/reject-next/reject').catchError((e) => throw e.error as num),
+        dio.get('/reject-next/reject').catchError((e) => throw e.cause as num),
         throwsA(5),
       );
 
       expect(
         dio
             .get('/resolve-next/reject')
-            .catchError((e) => throw e.error as Object),
+            .catchError((e) => throw e.cause as Object),
         throwsA('/resolve-next/reject'),
       );
 
       expect(
         dio
             .get('/resolve-next/reject-next')
-            .catchError((e) => throw e.error as num),
+            .catchError((e) => throw e.cause as num),
         throwsA(2),
       );
     });
@@ -219,13 +219,13 @@ void main() {
             handler.next(reqOpt.copyWith(path: '/xxx'));
           },
           onError: (err, handler) {
-            handler.next(err.copyWith(error: 'unexpected error'));
+            handler.next(err.copyWith(cause: 'unexpected error'));
           },
         ),
       );
 
       expect(
-        dio.get('/error').catchError((e) => throw e.error as String),
+        dio.get('/error').catchError((e) => throw e.cause as String),
         throwsA('unexpected error'),
       );
 
@@ -264,7 +264,7 @@ void main() {
                 handler.reject(
                   DioException(
                     requestOptions: options,
-                    error: 'test error',
+                    cause: 'test error',
                   ),
                 );
                 break;
@@ -272,7 +272,7 @@ void main() {
                 handler.reject(
                   DioException(
                     requestOptions: options,
-                    error: 'test error',
+                    cause: 'test error',
                   ),
                 );
                 break;
@@ -443,7 +443,7 @@ void main() {
                 case urlNotFound3:
                   return handler.next(
                     e.copyWith(
-                      error: 'custom error info [${e.response!.statusCode}]',
+                      cause: 'custom error info [${e.response!.statusCode}]',
                     ),
                   );
               }

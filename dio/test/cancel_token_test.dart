@@ -17,7 +17,7 @@ void main() {
           (error) {
             return error is DioException &&
                 error.type == DioExceptionType.cancel &&
-                error.error == reason;
+                error.cause == reason;
           },
         ),
       );
@@ -63,7 +63,7 @@ void main() {
           throwsA((error) =>
               error is DioException &&
               error.type == DioExceptionType.cancel &&
-              error.error == reason),
+              error.cause == reason),
         );
       }
 

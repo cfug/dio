@@ -43,10 +43,10 @@ void main() {
       error = e;
     }
     expect(error, isNotNull);
-    expect(error.error, isA<HandshakeException>());
-    expect((error.error as HandshakeException).osError, isNotNull);
+    expect(error.cause, isA<HandshakeException>());
+    expect((error.cause as HandshakeException).osError, isNotNull);
     expect(
-      ((error.error as HandshakeException).osError as OSError).message,
+      ((error.cause as HandshakeException).osError as OSError).message,
       contains('Hostname mismatch'),
     );
   });

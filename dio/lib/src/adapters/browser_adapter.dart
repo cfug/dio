@@ -110,7 +110,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
               requestOptions: options,
               timeout: connectionTimeout,
             ),
-            StackTrace.current,
           );
         },
       );
@@ -224,7 +223,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           completer.completeError(
             DioException.requestCancelled(
               requestOptions: options,
-              reason: 'The XMLHttpRequest was aborted.',
+              cause: 'The XMLHttpRequest was aborted.',
             ),
           );
         }

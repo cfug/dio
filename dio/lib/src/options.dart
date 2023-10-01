@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'headers.dart';
@@ -296,7 +294,6 @@ class Options {
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-    StackTrace? sourceStackTrace,
   }) {
     final query = <String, dynamic>{};
     query.addAll(baseOpt.queryParameters);
@@ -322,7 +319,6 @@ class Options {
       baseUrl: baseOpt.baseUrl,
       path: path,
       data: data,
-      sourceStackTrace: sourceStackTrace ?? StackTrace.current,
       connectTimeout: baseOpt.connectTimeout,
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
       receiveTimeout: receiveTimeout ?? baseOpt.receiveTimeout,
@@ -483,7 +479,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
     bool? setRequestContentTypeWhenNoPayload,
-    StackTrace? sourceStackTrace,
   })  : assert(connectTimeout == null || !connectTimeout.isNegative),
         super(
           method: method,
@@ -502,7 +497,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
           responseDecoder: responseDecoder,
           listFormat: listFormat,
         ) {
-    this.sourceStackTrace = sourceStackTrace ?? StackTrace.current;
     this.queryParameters = queryParameters ?? {};
     this.baseUrl = baseUrl ?? '';
     this.connectTimeout = connectTimeout;
@@ -569,7 +563,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
-      sourceStackTrace: sourceStackTrace,
     );
 
     if (contentType != null) {
@@ -581,13 +574,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
 
     return ro;
   }
-
-  /// The source [StackTrace] which should always point to the invocation of
-  /// [DioMixin.request] or if not provided, to the construction of the
-  /// [RequestOptions] instance. In both instances the source context should
-  /// still be available before it is lost due to asynchronous operations.
-  @internal
-  StackTrace? sourceStackTrace;
 
   /// Generate the requesting [Uri] from the options.
   Uri get uri {

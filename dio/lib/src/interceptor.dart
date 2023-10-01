@@ -77,7 +77,6 @@ class RequestInterceptorHandler extends _BaseHandler {
             ? InterceptorResultType.rejectCallFollowing
             : InterceptorResultType.reject,
       ),
-      error.stackTrace,
     );
     _processNextInQueue?.call();
   }
@@ -123,7 +122,6 @@ class ResponseInterceptorHandler extends _BaseHandler {
             ? InterceptorResultType.rejectCallFollowing
             : InterceptorResultType.reject,
       ),
-      error.stackTrace,
     );
     _processNextInQueue?.call();
   }
@@ -138,7 +136,6 @@ class ErrorInterceptorHandler extends _BaseHandler {
   void next(DioException error) {
     _completer.completeError(
       InterceptorState<DioException>(error),
-      error.stackTrace,
     );
     _processNextInQueue?.call();
   }
@@ -158,7 +155,6 @@ class ErrorInterceptorHandler extends _BaseHandler {
   void reject(DioException error) {
     _completer.completeError(
       InterceptorState<DioException>(error, InterceptorResultType.reject),
-      error.stackTrace,
     );
     _processNextInQueue?.call();
   }
@@ -200,6 +196,8 @@ class Interceptor {
   /// Called when an exception was occurred during the request.
   void onError(
     DioException err,
+
+    /// TODO should the correct StackTrace be handed to the interceptor here?
     ErrorInterceptorHandler handler,
   ) {
     handler.next(err);
