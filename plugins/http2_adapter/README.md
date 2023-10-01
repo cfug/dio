@@ -8,7 +8,8 @@ An adapter that combines HTTP/2 and dio. Supports reusing connections, header co
 
 ### Install
 
-Add the `dio_http2_adapter` package to your [pubspec dependencies](https://pub.dev/packages/dio_http2_adapter/install).
+Add the `dio_http2_adapter` package to your
+[pubspec dependencies](https://pub.dev/packages/dio_http2_adapter/install).
 
 ### Usage
 
