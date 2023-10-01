@@ -8,7 +8,8 @@ A cookie manager combines cookie_jar and dio, based on the interceptor algorithm
 
 ### Install
 
-Add the `dio_cookie_manager` package to your [pubspec dependencies](https://pub.dev/packages/dio_cookie_manager/install).
+Add the `dio_cookie_manager` package to your
+[pubspec dependencies](https://pub.dev/packages/dio_cookie_manager/install).
 
 ### Usage
 

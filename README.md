@@ -11,7 +11,9 @@ Please move specific paths for project instructions.
   [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
 
 **Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
-See the [Migration Guide](dio/migration_guide.md) for the complete breaking changes list.**
+See the [Migration Guide][] for the complete breaking changes list.**
+
+[Migration Guide]: https://pub.dev/documentation/dio/latest/topics/Migration%20Guide-topic.html
 
 ### Plugins
 
