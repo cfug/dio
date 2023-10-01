@@ -1,5 +1,5 @@
 name: dio_cookie_manager
-version: 3.1.0+1
+version: 3.1.1
 
 description: A cookie manager combines cookie_jar and dio, based on the interceptor algorithm.
 topics:
