@@ -7,4 +7,6 @@ packages:
   - example*
 
 ide:
-  intellij: true
+  intellij:
+    enabled: true
+    moduleNamePrefix: ''
