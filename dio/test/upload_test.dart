@@ -114,7 +114,6 @@ void main() {
       onSendProgress: (a, b) {
         expect(b, 10);
         collected.add(a);
-        print(a);
       },
       options: Options(
         contentType: Headers.textPlainContentType,
