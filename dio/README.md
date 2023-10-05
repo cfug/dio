@@ -16,11 +16,10 @@ Timeout, Custom adapters, Transformers, etc.
 <!-- TOC -->
 * [dio](#dio)
   * [Get started](#get-started)
-    * [Add dependency](#add-dependency)
+    * [Install](#install)
     * [Super simple to use](#super-simple-to-use)
   * [Awesome dio](#awesome-dio)
     * [Plugins](#plugins)
-    * [Related Projects](#related-projects)
   * [Examples](#examples)
   * [Dio APIs](#dio-apis)
     * [Creating an instance and set default configs.](#creating-an-instance-and-set-default-configs)
@@ -31,6 +30,8 @@ Timeout, Custom adapters, Transformers, etc.
       * [QueuedInterceptor](#queuedinterceptor)
         * [Example](#example)
       * [LogInterceptor](#loginterceptor)
+      * [Dart](#dart)
+      * [Flutter](#flutter)
       * [Custom Interceptor](#custom-interceptor)
   * [Handling Errors](#handling-errors)
     * [DioException](#dioexception)
@@ -56,11 +57,13 @@ Timeout, Custom adapters, Transformers, etc.
 
 ### Install
 
-Add the `dio` package to your [pubspec dependencies](https://pub.dev/packages/dio/install).
-
+Add the `dio` package to your
+[pubspec dependencies](https://pub.dev/packages/dio/install).
 
 **Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
-See the [Migration Guide](https://pub.dev/documentation/dio/latest/topics/Migration%20Guide-topic.html) for the complete breaking changes list.**
+See the [Migration Guide][] for the complete breaking changes list.**
+
+[Migration Guide]: https://pub.dev/documentation/dio/latest/topics/Migration%20Guide-topic.html
 
 ### Super simple to use
 
@@ -601,7 +604,7 @@ and it supports uploading files.
 final formData = FormData.fromMap({
   'name': 'dio',
   'date': DateTime.now().toIso8601String(),
-  'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt'),
+  'file': await MultipartFile.fromFile('./text.txt', filename: 'upload.txt'),
 });
 final response = await dio.post('/info', data: formData);
 ```
