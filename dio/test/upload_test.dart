@@ -97,6 +97,36 @@ void main() {
     },
     testOn: 'vm',
   );
+
+  test('send progress', () async {
+    final data = <Uint8List>[
+      Uint8List.fromList([10, 1]),
+      Uint8List.fromList([1, 4]),
+      Uint8List.fromList([5, 1]),
+      Uint8List.fromList([1, 1]),
+      Uint8List.fromList([2, 4]),
+    ];
+    final stream = Stream.fromIterable(data);
+    final List<int> collected = [];
+    final _ = await dio.put(
+      '/put',
+      data: stream,
+      onSendProgress: (a, b) {
+        expect(b, 10);
+        collected.add(a);
+        print(a);
+      },
+      options: Options(
+        contentType: Headers.textPlainContentType,
+        headers: {
+          Headers.contentLengthHeader: data.length * 2, // set content-length
+        },
+      ),
+    );
+    for (int i = 0; i < data.length; i++) {
+      expect(collected[i], (i + 1) * 2);
+    }
+  });
 }
 
 class _TestTransformer extends BackgroundTransformer {
