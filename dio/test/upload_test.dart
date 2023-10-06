@@ -109,7 +109,7 @@ void main() {
       onSendProgress: (a, b) {
         expect(b, expanded.length);
         expect(a <= b, isTrue);
-        if (a==b){
+        if (a == b) {
           fullFilled = true;
         }
       },
