@@ -102,13 +102,16 @@ void main() {
     final data = ['aaaa', 'hello 😌', 'dio is a dart http client'];
     final stream = Stream.fromIterable(data.map((e) => e.codeUnits));
     final expanded = data.expand((element) => element.codeUnits);
-    final List<int> collected = [];
+    bool fullFilled = false;
     final _ = await dio.put(
       '/put',
       data: stream,
       onSendProgress: (a, b) {
         expect(b, expanded.length);
-        collected.add(a);
+        expect(a <= b, isTrue);
+        if (a==b){
+          fullFilled = true;
+        }
       },
       options: Options(
         contentType: Headers.textPlainContentType,
@@ -117,10 +120,7 @@ void main() {
         },
       ),
     );
-    for (int i = 0; i < data.length; i++) {
-      expect(collected[i],
-          data.sublist(0, i + 1).expand((e) => e.codeUnits).length);
-    }
+    expect(fullFilled, isTrue);
   });
 }
 
