@@ -99,13 +99,9 @@ void main() {
   );
 
   test('send progress', () async {
-    final data = [
-      'aaaa',
-      'hello 😌',
-      'dio is a dart http client'
-    ];
+    final data = ['aaaa', 'hello 😌', 'dio is a dart http client'];
     final stream = Stream.fromIterable(data.map((e) => e.codeUnits));
-    final expanded = data.expand((element) =>element.codeUnits);
+    final expanded = data.expand((element) => element.codeUnits);
     final List<int> collected = [];
     final _ = await dio.put(
       '/put',
@@ -122,7 +118,8 @@ void main() {
       ),
     );
     for (int i = 0; i < data.length; i++) {
-      expect(collected[i], data.sublist(0, i + 1).expand((e) => e.codeUnits).length);
+      expect(collected[i],
+          data.sublist(0, i + 1).expand((e) => e.codeUnits).length);
     }
   });
 }
