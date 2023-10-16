@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Raise warning for `Map`s other than `Map<String, dynamic>` when encoding request data.
+- Improve exception messages
 
 ## 5.3.3
 

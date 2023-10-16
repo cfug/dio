@@ -86,8 +86,7 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.badResponse,
-        message: 'The request returned an '
-            'invalid status code of $statusCode.',
+        message: _badResponseExceptionMessage(statusCode),
         requestOptions: requestOptions,
         response: response,
         error: null,
@@ -210,5 +209,39 @@ class DioException implements Exception {
       msg += '\nError: $error';
     }
     return msg;
+  }
+
+  /// Because of [ValidateStatus] we need to consider all status codes when
+  /// creating a [DioException.badResponse].
+  static String _badResponseExceptionMessage(int statusCode) {
+    var message = '';
+    if (statusCode >= 100 && statusCode < 200) {
+      message =
+          'This is an informational response - the request was received, continuing processing';
+    } else if (statusCode >= 200 && statusCode < 300) {
+      message =
+          'The request was successfully received, understood, and accepted';
+    } else if (statusCode >= 300 && statusCode < 400) {
+      message =
+          'Redirection: further action needs to be taken in order to complete the request';
+    } else if (statusCode >= 400 && statusCode < 500) {
+      message =
+          'Client error - the request contains bad syntax or cannot be fulfilled';
+    } else if (statusCode >= 500 && statusCode < 600) {
+      message =
+          'Server error - the server failed to fulfil an apparently valid request';
+    } else {
+      message =
+          'A response with a status code that is not within the range of inclusive 100 to exclusive 600'
+          'is a non-standard response, possibly due to the server\'s software.';
+    }
+
+    return ''
+        'This exception was thrown because the response has a status code of $statusCode '
+        'and RequestOptions.validateStatus was configured to throw for this status code.\n'
+        'The status code of $statusCode has the following meaning: "$message"\n.'
+        'Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status\n'
+        'In order to resolve this exception you typically have either to verify '
+        'and fix your request code or you have to fix the server code.';
   }
 }
