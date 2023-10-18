@@ -99,8 +99,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.connectionTimeout,
-        message: 'The request connection took '
-            'longer than $timeout. It was aborted.',
+        message: 'The request connection took longer than $timeout '
+            'and it was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.connectTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
         requestOptions: requestOptions,
         response: null,
         error: error,
@@ -112,8 +115,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.sendTimeout,
-        message: 'The request took '
-            'longer than $timeout to send data. It was aborted.',
+        message: 'The request took longer than $timeout to send data. '
+            'It was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.sendTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
         requestOptions: requestOptions,
         response: null,
         error: null,
@@ -126,8 +132,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.receiveTimeout,
-        message: 'The request took '
-            'longer than $timeout to receive data. It was aborted.',
+        message: 'The request took longer than $timeout to receive data. '
+            'It was aborted.'
+            'To get rid of this exception, try raising the '
+            'RequestOptions.receiveTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
         requestOptions: requestOptions,
         response: null,
         error: error,
@@ -140,7 +149,7 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.cancel,
-        message: 'The request was cancelled.',
+        message: 'The request was manually cancelled by the user.',
         requestOptions: requestOptions,
         response: null,
         error: reason,
@@ -154,7 +163,8 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.connectionError,
-        message: 'The connection errored: $reason',
+        message: 'The connection errored: $reason. '
+            'This indicates an error which most likely cannot be solved by the library.',
         requestOptions: requestOptions,
         response: null,
         error: error,
@@ -214,7 +224,7 @@ class DioException implements Exception {
   /// Because of [ValidateStatus] we need to consider all status codes when
   /// creating a [DioException.badResponse].
   static String _badResponseExceptionMessage(int statusCode) {
-    var message = '';
+    final String message;
     if (statusCode >= 100 && statusCode < 200) {
       message =
           'This is an informational response - the request was received, continuing processing';
@@ -233,15 +243,26 @@ class DioException implements Exception {
     } else {
       message =
           'A response with a status code that is not within the range of inclusive 100 to exclusive 600'
-          'is a non-standard response, possibly due to the server\'s software.';
+          'is a non-standard response, possibly due to the server\'s software';
     }
 
-    return ''
-        'This exception was thrown because the response has a status code of $statusCode '
-        'and RequestOptions.validateStatus was configured to throw for this status code.\n'
-        'The status code of $statusCode has the following meaning: "$message"\n.'
-        'Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status\n'
-        'In order to resolve this exception you typically have either to verify '
-        'and fix your request code or you have to fix the server code.';
+    final buffer = StringBuffer();
+
+    buffer.writeln(
+      'This exception was thrown because the response has a status code of $statusCode '
+      'and RequestOptions.validateStatus was configured to throw for this status code.',
+    );
+    buffer.writeln(
+      'The status code of $statusCode has the following meaning: "$message"',
+    );
+    buffer.writeln(
+      'Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status',
+    );
+    buffer.writeln(
+      'In order to resolve this exception you typically have either to verify '
+      'and fix your request code or you have to fix the server code.',
+    );
+
+    return buffer.toString();
   }
 }
