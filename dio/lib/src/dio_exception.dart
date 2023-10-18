@@ -166,7 +166,7 @@ class DioException implements Exception {
       DioException(
         type: DioExceptionType.connectionError,
         message: 'The connection errored: $reason. '
-            'This indicates an error which most likely can\'t be solved with DIO.',
+            'This indicates an error which most likely cannot be solved by the library.',
         requestOptions: requestOptions,
         response: null,
         error: error,
