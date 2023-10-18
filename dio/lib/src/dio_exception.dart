@@ -96,20 +96,18 @@ class DioException implements Exception {
     required Duration timeout,
     required RequestOptions requestOptions,
     Object? error,
-  }) {
-    final message = 'The request connection took longer than $timeout '
-        'and it was aborted. '
-        'To get rid of this exception, try raising the '
-        'RequestOptions.connectTimeout above the duration of $timeout or '
-        'improve the response time of the server.';
-    return DioException(
-      type: DioExceptionType.connectionTimeout,
-      message: message,
-      requestOptions: requestOptions,
-      response: null,
-      error: error,
-    );
-  }
+  }) =>
+      DioException(
+        type: DioExceptionType.connectionTimeout,
+        message: 'The request connection took longer than $timeout '
+            'and it was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.connectTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
+      );
 
   factory DioException.sendTimeout({
     required Duration timeout,
