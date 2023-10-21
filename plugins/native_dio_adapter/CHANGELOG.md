@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Bump `cronet_http` version.
 
 ## 1.0.0+2
 
