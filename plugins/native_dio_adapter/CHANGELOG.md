@@ -3,8 +3,8 @@
 ## Unreleased
 
 - Bump `cronet_http` version.
-- Minimal required Dart version is now 3.1
-- Minimal required Flutter version is now 3.13.0
+- Minimal required Dart version is now 3.1.
+- Minimal required Flutter version is now 3.13.0.
 
 ## 1.0.0+2
 
