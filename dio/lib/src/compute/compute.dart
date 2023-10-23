@@ -2,25 +2,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// This file corresponds to Flutter's
-/// [`foundation/isolates.dart`](https://github.com/flutter/flutter/blob/stable/packages/flutter/lib/src/foundation/isolates.dart).
-///
-/// Changes are only synced with the `stable` branch.
-///
-/// Last synced commit:
-/// [3d46ab9](https://github.com/flutter/flutter/commit/3d46ab920b47a2ecb250c6f890f3559ef913cb0b)
-///
-/// The changes are currently manually synced. If you noticed that the Flutter's
-/// original `compute` function (and any of the related files) have changed
-/// on the `stable` branch and you would like to see those changes in the `compute` package
-/// please open an [issue](https://github.com/dartsidedev/compute/issues),
-/// and I'll try my best to "merge".
-///
-/// The file is intentionally not refactored so that it is easier to keep the
-/// compute package up to date with Flutter's implementation.
-///
-/// When this library supports just Dart 3, we can delete most of this code
-/// an make use of `Isolate.run()`
+// This file corresponds to Flutter's
+// [`foundation/isolates.dart`](https://github.com/flutter/flutter/blob/stable/packages/flutter/lib/src/foundation/isolates.dart).
+//
+// Changes are only synced with the `stable` branch.
+//
+// Last synced commit:
+// [3d46ab9](https://github.com/flutter/flutter/commit/3d46ab920b47a2ecb250c6f890f3559ef913cb0b)
+//
+// The changes are currently manually synced. If you noticed that the Flutter's
+// original `compute` function (and any of the related files) have changed
+// on the `stable` branch and you would like to see those changes in the `compute` package
+// please open an [issue](https://github.com/dartsidedev/compute/issues),
+// and I'll try my best to "merge".
+//
+// The file is intentionally not refactored so that it is easier to keep the
+// compute package up to date with Flutter's implementation.
+//
+// When this library supports just Dart 3, we can delete most of this code
+// an make use of `Isolate.run()`
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
 import 'dart:async';
