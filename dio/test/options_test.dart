@@ -3,12 +3,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
-import 'mock/http_mock.dart';
-import 'mock/http_mock.mocks.dart';
 import 'utils.dart';
 
 void main() {
@@ -485,33 +482,34 @@ void main() {
   });
 
   test('Headers can be case-sensitive', () async {
-    await HttpOverrides.runWithHttpOverrides(() async {
-      final client = MockHttpClient();
-      final adapter = IOHttpClientAdapter(createHttpClient: () => client);
-      final requestOptions = Options(
+    final dio = Dio()..options.baseUrl = 'https://httpbun.com/';
+    dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        return HttpClient()..findProxy = (_) => 'PROXY 192.168.0.10:8764';
+      },
+    );
+    final sensitiveResponse = await dio.get<Map<String, dynamic>>(
+      '/headers',
+      options: Options(
         caseSensitiveHeaders: true,
         headers: {
-          'Sensitive': 'foo-1',
-          'insensitive': 'foo-2',
+          'Sensitive': 'test',
+          'insensitive': 'test',
         },
-      ).compose(BaseOptions(), '');
-
-      late final MockHttpHeaders mockHeaders;
-      when(client.openUrl(any, any)).thenAnswer((_) async {
-        final request = MockHttpClientRequest();
-        final response = MockHttpClientResponse();
-        when(request.close()).thenAnswer((_) => Future.value(response));
-        when(request.addStream(any)).thenAnswer((_) async => null);
-        mockHeaders = MockHttpHeaders();
-        when(response.headers).thenReturn(mockHeaders);
-        when(response.statusCode).thenReturn(200);
-        when(response.reasonPhrase).thenReturn('OK');
-        return Future.value(request);
-      });
-
-      await adapter.fetch(requestOptions, Stream.empty(), null);
-      expect(mockHeaders.value('Sensitive'), 'foo-1');
-      expect(mockHeaders.value('insensitive'), 'foo-2');
-    }, MockHttpOverrides());
+      ),
+    );
+    expect(sensitiveResponse.data!['Sensitive'], 'test');
+    expect(sensitiveResponse.data!['insensitive'], 'test');
+    final inSensitiveResponse = await dio.get<Map<String, dynamic>>(
+      '/headers',
+      options: Options(
+        headers: {
+          'Sensitive': 'test',
+          'insensitive': 'test',
+        },
+      ),
+    );
+    expect(inSensitiveResponse.data!['sensitive'], 'test');
+    expect(inSensitiveResponse.data!['insensitive'], 'test');
   });
 }
