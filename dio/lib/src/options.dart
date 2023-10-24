@@ -128,7 +128,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
-    bool? caseInsensitiveHeaders,
+    bool caseSensitiveHeaders = false,
     ResponseType? responseType = ResponseType.json,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -147,7 +147,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
           sendTimeout: sendTimeout,
           extra: extra,
           headers: headers,
-          caseInsensitiveHeaders: caseInsensitiveHeaders,
+          caseSensitiveHeaders: caseSensitiveHeaders,
           responseType: responseType,
           contentType: contentType,
           validateStatus: validateStatus,
@@ -175,7 +175,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     Duration? sendTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
-    bool? caseInsensitiveHeaders,
+    bool? caseSensitiveHeaders,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -196,8 +196,8 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       sendTimeout: sendTimeout ?? this.sendTimeout,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
-      caseInsensitiveHeaders:
-          caseInsensitiveHeaders ?? this.caseInsensitiveHeaders,
+      caseSensitiveHeaders:
+          caseSensitiveHeaders ?? this.caseSensitiveHeaders,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -221,7 +221,7 @@ class Options {
     Duration? receiveTimeout,
     this.extra,
     this.headers,
-    this.caseInsensitiveHeaders,
+    this.caseSensitiveHeaders,
     this.responseType,
     this.contentType,
     this.validateStatus,
@@ -244,7 +244,7 @@ class Options {
     Duration? receiveTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
-    bool? caseInsensitiveHeaders,
+    bool? caseSensitiveHeaders,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -281,8 +281,8 @@ class Options {
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       extra: extra ?? effectiveExtra,
       headers: headers ?? effectiveHeaders,
-      caseInsensitiveHeaders:
-          caseInsensitiveHeaders ?? this.caseInsensitiveHeaders,
+      caseSensitiveHeaders:
+          caseSensitiveHeaders ?? this.caseSensitiveHeaders,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -331,8 +331,8 @@ class Options {
       baseUrl: baseOpt.baseUrl,
       path: path,
       data: data,
-      caseInsensitiveHeaders:
-          caseInsensitiveHeaders ?? baseOpt.caseInsensitiveHeaders,
+      caseSensitiveHeaders:
+          caseSensitiveHeaders ?? baseOpt.caseSensitiveHeaders,
       sourceStackTrace: sourceStackTrace ?? StackTrace.current,
       connectTimeout: baseOpt.connectTimeout,
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
@@ -367,15 +367,14 @@ class Options {
   /// e.g.: `content-type` and `Content-Type` will be treated as the same key.
   Map<String, dynamic>? headers;
 
-  /// Whether the header keys should be case-insensitive.
-  /// e.g.: `Content-Type` will be sent as `content-type` eventually.
+  /// Whether the header keys should be case-sensitive.
   ///
-  /// Defaults to true.
+  /// Defaults to false.
   ///
   /// This option WILL NOT take effect on these circumstances:
   /// - XHR ([HttpRequest]) does not support handling this explicitly.
   /// - The HTTP/2 standard only supports lowercase header keys.
-  bool? caseInsensitiveHeaders;
+  bool? caseSensitiveHeaders;
 
   /// Timeout when sending data.
   ///
@@ -493,7 +492,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     String? baseUrl,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
-    bool caseInsensitiveHeaders = true,
+    bool? caseSensitiveHeaders,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -513,7 +512,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
           receiveTimeout: receiveTimeout,
           extra: extra,
           headers: headers,
-          caseInsensitiveHeaders: caseInsensitiveHeaders,
+          caseSensitiveHeaders: caseSensitiveHeaders,
           responseType: responseType,
           contentType: contentType,
           validateStatus: validateStatus,
@@ -546,7 +545,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     CancelToken? cancelToken,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
-    bool? caseInsensitiveHeaders,
+    bool? caseSensitiveHeaders,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -583,8 +582,8 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       cancelToken: cancelToken ?? this.cancelToken,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
-      caseInsensitiveHeaders:
-          caseInsensitiveHeaders ?? this.caseInsensitiveHeaders,
+      caseSensitiveHeaders:
+          caseSensitiveHeaders ?? this.caseSensitiveHeaders,
       responseType: responseType ?? this.responseType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
@@ -662,7 +661,7 @@ class _RequestConfig {
     String? method,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
-    bool? caseInsensitiveHeaders,
+    bool? caseSensitiveHeaders,
     String? contentType,
     ListFormat? listFormat,
     bool? followRedirects,
@@ -678,7 +677,7 @@ class _RequestConfig {
         assert(sendTimeout == null || !sendTimeout.isNegative),
         _sendTimeout = sendTimeout,
         method = method ?? 'GET',
-        caseInsensitiveHeaders = caseInsensitiveHeaders ?? true,
+        caseSensitiveHeaders = caseSensitiveHeaders ?? false,
         listFormat = listFormat ?? ListFormat.multi,
         extra = extra ?? {},
         followRedirects = followRedirects ?? true,
@@ -718,7 +717,7 @@ class _RequestConfig {
     }
   }
 
-  late bool caseInsensitiveHeaders;
+  late bool caseSensitiveHeaders;
 
   Duration? get sendTimeout => _sendTimeout;
   Duration? _sendTimeout;

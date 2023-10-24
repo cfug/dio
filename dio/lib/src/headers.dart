@@ -8,13 +8,13 @@ typedef HeaderForEachCallback = void Function(String name, List<String> values);
 /// The headers class for requests and responses.
 class Headers {
   Headers({
-    this.caseInsensitive = true,
+    this.caseSensitive = false,
   }) : _map = caseInsensitiveKeyMap<List<String>>();
 
   /// Create the [Headers] from a [Map] instance.
   Headers.fromMap(
     Map<String, List<String>> map, {
-    this.caseInsensitive = true,
+    this.caseSensitive = false,
   }) : _map = caseInsensitiveKeyMap<List<String>>(
           map.map((k, v) => MapEntry(k.trim(), v)),
         );
@@ -32,10 +32,10 @@ class Headers {
 
   static final jsonMimeType = MediaType.parse(jsonContentType);
 
-  /// Whether the header key should be case-insensitive.
+  /// Whether the header key should be case-sensitive.
   ///
-  /// Defaults to true.
-  final bool caseInsensitive;
+  /// Defaults to false.
+  final bool caseSensitive;
 
   final Map<String, List<String>> _map;
 
@@ -44,9 +44,6 @@ class Headers {
   /// Returns the list of values for the header named [name]. If there
   /// is no header with the provided name, [:null:] will be returned.
   List<String>? operator [](String name) {
-    if (caseInsensitive) {
-      name = name.toLowerCase();
-    }
     return _map[name.trim()];
   }
 
@@ -75,9 +72,6 @@ class Headers {
   /// cleared before the value [value] is added as its value.
   void set(String name, dynamic value) {
     if (value == null) return;
-    if (caseInsensitive) {
-      name = name.toLowerCase();
-    }
     name = name.trim();
     if (value is List) {
       _map[name] = value.map<String>((e) => '$e').toList();

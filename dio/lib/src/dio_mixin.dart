@@ -517,7 +517,10 @@ abstract class DioMixin implements Dio {
         stream,
         cancelToken?.whenCancel,
       );
-      final headers = Headers.fromMap(responseBody.headers);
+      final headers = Headers.fromMap(
+        responseBody.headers,
+        caseSensitive: reqOpt.caseSensitiveHeaders,
+      );
       // Make sure headers and [ResponseBody.headers] are the same instance.
       responseBody.headers = headers.map;
       final ret = Response<dynamic>(
@@ -707,7 +710,10 @@ abstract class DioMixin implements Dio {
       final T? data = response.data as T?;
       final Headers headers;
       if (data is ResponseBody) {
-        headers = Headers.fromMap(data.headers);
+        headers = Headers.fromMap(
+          data.headers,
+          caseSensitive: requestOptions.caseSensitiveHeaders,
+        );
       } else {
         headers = response.headers;
       }
