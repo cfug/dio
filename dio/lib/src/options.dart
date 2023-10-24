@@ -196,8 +196,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       sendTimeout: sendTimeout ?? this.sendTimeout,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
-      caseSensitiveHeaders:
-          caseSensitiveHeaders ?? this.caseSensitiveHeaders,
+      caseSensitiveHeaders: caseSensitiveHeaders ?? this.caseSensitiveHeaders,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -281,8 +280,7 @@ class Options {
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       extra: extra ?? effectiveExtra,
       headers: headers ?? effectiveHeaders,
-      caseSensitiveHeaders:
-          caseSensitiveHeaders ?? this.caseSensitiveHeaders,
+      caseSensitiveHeaders: caseSensitiveHeaders ?? this.caseSensitiveHeaders,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -582,8 +580,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       cancelToken: cancelToken ?? this.cancelToken,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
-      caseSensitiveHeaders:
-          caseSensitiveHeaders ?? this.caseSensitiveHeaders,
+      caseSensitiveHeaders: caseSensitiveHeaders ?? this.caseSensitiveHeaders,
       responseType: responseType ?? this.responseType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
