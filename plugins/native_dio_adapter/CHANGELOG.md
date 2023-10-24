@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Bump `cronet_http` version.
+- Allow case-sensitive header keys with the `caseSensitiveHeaders` flag through options.
 
 ## 1.0.0+2
 

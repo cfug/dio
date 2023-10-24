@@ -6,7 +6,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Raise warning for `Map`s other than `Map<String, dynamic>` when encoding request data.
-- Improve exception messages
+- Improve exception messages.
+- Allow case-sensitive header keys with the `caseSensitiveHeaders` flag through options.
 
 ## 5.3.3
 
