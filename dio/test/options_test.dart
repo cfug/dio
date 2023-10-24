@@ -487,28 +487,31 @@ void main() {
   test('Headers can be case-sensitive', () async {
     await HttpOverrides.runWithHttpOverrides(() async {
       final client = MockHttpClient();
-      final dio = Dio();
-      dio.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () => client,
-      );
+      final adapter = IOHttpClientAdapter(createHttpClient: () => client);
+      final requestOptions = Options(
+        caseSensitiveHeaders: true,
+        headers: {
+          'Sensitive': 'foo-1',
+          'insensitive': 'foo-2',
+        },
+      ).compose(BaseOptions(), '');
 
-      late MockHttpClientRequest request;
+      late final MockHttpHeaders mockHeaders;
       when(client.openUrl(any, any)).thenAnswer((_) async {
-        request = MockHttpClientRequest();
-        return request;
+        final request = MockHttpClientRequest();
+        final response = MockHttpClientResponse();
+        when(request.close()).thenAnswer((_) => Future.value(response));
+        when(request.addStream(any)).thenAnswer((_) async => null);
+        mockHeaders = MockHttpHeaders();
+        when(response.headers).thenReturn(mockHeaders);
+        when(response.statusCode).thenReturn(200);
+        when(response.reasonPhrase).thenReturn('OK');
+        return Future.value(request);
       });
-      await dio.get(
-        'https://pub.dev',
-        options: Options(
-          caseSensitiveHeaders: true,
-          headers: {
-            'Sensitive': 'foo-1',
-            'insensitive': 'foo-2',
-          },
-        ),
-      );
-      expect(request.headers.value('Sensitive'), 'foo-1');
-      expect(request.headers.value('insensitive'), 'foo-2');
+
+      await adapter.fetch(requestOptions, Stream.empty(), null);
+      expect(mockHeaders.value('Sensitive'), 'foo-1');
+      expect(mockHeaders.value('insensitive'), 'foo-2');
     }, MockHttpOverrides());
   });
 }
