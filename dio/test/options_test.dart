@@ -1,8 +1,14 @@
 @TestOn('vm')
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
+import 'mock/http_mock.dart';
+import 'mock/http_mock.mocks.dart';
 import 'utils.dart';
 
 void main() {
@@ -476,5 +482,33 @@ void main() {
       );
       expect(response.data, 'test');
     }
+  });
+
+  test('Headers can be case-sensitive', () async {
+    await HttpOverrides.runWithHttpOverrides(() async {
+      final client = MockHttpClient();
+      final dio = Dio();
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () => client,
+      );
+
+      late MockHttpClientRequest request;
+      when(client.openUrl(any, any)).thenAnswer((_) async {
+        request = MockHttpClientRequest();
+        return request;
+      });
+      await dio.get(
+        'https://pub.dev',
+        options: Options(
+          caseSensitiveHeaders: true,
+          headers: {
+            'Sensitive': 'foo-1',
+            'insensitive': 'foo-2',
+          },
+        ),
+      );
+      expect(request.headers.value('Sensitive'), 'foo-1');
+      expect(request.headers.value('insensitive'), 'foo-2');
+    }, MockHttpOverrides());
   });
 }
