@@ -126,4 +126,16 @@ void main() {
     final res = await dio.get('absolute-redirect/2');
     expect(res.statusCode, 200);
   });
+
+  test('decodes gzip', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbin.org/'
+      ..options.responseType = ResponseType.json
+      ..options.headers['accept-encoding'] = 'gzip'
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+
+    final res = await dio.get<Map<String, Object?>>('gzip');
+    expect(res.headers.value(Headers.contentEncodingHeader), 'gzip');
+    expect(res.data!['gzipped'] as bool, true);
+  });
 }
