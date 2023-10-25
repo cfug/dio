@@ -8,13 +8,13 @@ typedef HeaderForEachCallback = void Function(String name, List<String> values);
 /// The headers class for requests and responses.
 class Headers {
   Headers({
-    this.caseSensitive = false,
+    this.preserveHeaderCase = false,
   }) : _map = caseInsensitiveKeyMap<List<String>>();
 
   /// Create the [Headers] from a [Map] instance.
   Headers.fromMap(
     Map<String, List<String>> map, {
-    this.caseSensitive = false,
+    this.preserveHeaderCase = false,
   }) : _map = caseInsensitiveKeyMap<List<String>>(
           map.map((k, v) => MapEntry(k.trim(), v)),
         );
@@ -35,7 +35,7 @@ class Headers {
   /// Whether the header key should be case-sensitive.
   ///
   /// Defaults to false.
-  final bool caseSensitive;
+  final bool preserveHeaderCase;
 
   final Map<String, List<String>> _map;
 

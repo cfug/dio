@@ -44,7 +44,7 @@ void main() {
           'content-length': ['200'],
           'Test': ['1', '2'],
         },
-        caseSensitive: true,
+        preserveHeaderCase: true,
       );
       expect(headers['SET-COOKIE']?.length, 2);
       // Although it's case-sensitive, we still use case-insensitive map.

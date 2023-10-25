@@ -43,7 +43,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
       Map.fromEntries(
         options.headers.entries.map(
           (e) => MapEntry(
-            options.caseSensitiveHeaders ? e.key : e.key.toLowerCase(),
+            options.preserveHeaderCase ? e.key : e.key.toLowerCase(),
             e.value.toString(),
           ),
         ),
@@ -75,7 +75,7 @@ extension on StreamedResponse {
   ResponseBody toDioResponseBody(RequestOptions options) {
     final dioHeaders = headers.entries.map(
       (e) => MapEntry(
-        options.caseSensitiveHeaders ? e.key : e.key.toLowerCase(),
+        options.preserveHeaderCase ? e.key : e.key.toLowerCase(),
         [e.value],
       ),
     );

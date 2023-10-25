@@ -20,7 +20,7 @@ class Response<T> {
     Map<String, dynamic>? extra,
     Headers? headers,
   })  : headers = headers ??
-            Headers(caseSensitive: requestOptions.caseSensitiveHeaders),
+            Headers(preserveHeaderCase: requestOptions.preserveHeaderCase),
         extra = extra ?? <String, dynamic>{};
 
   /// The response payload in specific type.

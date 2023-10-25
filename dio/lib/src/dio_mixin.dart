@@ -519,7 +519,7 @@ abstract class DioMixin implements Dio {
       );
       final headers = Headers.fromMap(
         responseBody.headers,
-        caseSensitive: reqOpt.caseSensitiveHeaders,
+        preserveHeaderCase: reqOpt.preserveHeaderCase,
       );
       // Make sure headers and [ResponseBody.headers] are the same instance.
       responseBody.headers = headers.map;
@@ -712,7 +712,7 @@ abstract class DioMixin implements Dio {
       if (data is ResponseBody) {
         headers = Headers.fromMap(
           data.headers,
-          caseSensitive: requestOptions.caseSensitiveHeaders,
+          preserveHeaderCase: requestOptions.preserveHeaderCase,
         );
       } else {
         headers = response.headers;

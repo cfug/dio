@@ -116,7 +116,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           request.headers.set(
             key,
             value,
-            preserveHeaderCase: options.caseSensitiveHeaders,
+            preserveHeaderCase: options.preserveHeaderCase,
           );
         }
       });

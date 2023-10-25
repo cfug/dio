@@ -491,7 +491,7 @@ void main() {
     final sensitiveResponse = await dio.get<Map<String, dynamic>>(
       '/headers',
       options: Options(
-        caseSensitiveHeaders: true,
+        preserveHeaderCase: true,
         headers: {
           'Sensitive': 'test',
           'insensitive': 'test',
