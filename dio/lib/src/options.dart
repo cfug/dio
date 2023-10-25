@@ -329,8 +329,7 @@ class Options {
       baseUrl: baseOpt.baseUrl,
       path: path,
       data: data,
-      preserveHeaderCase:
-          preserveHeaderCase ?? baseOpt.preserveHeaderCase,
+      preserveHeaderCase: preserveHeaderCase ?? baseOpt.preserveHeaderCase,
       sourceStackTrace: sourceStackTrace ?? StackTrace.current,
       connectTimeout: baseOpt.connectTimeout,
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
