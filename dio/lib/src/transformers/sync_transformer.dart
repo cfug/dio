@@ -125,7 +125,7 @@ class SyncTransformer extends Transformer {
     );
     final String? response;
     if (options.responseDecoder != null) {
-      response = options.responseDecoder!(
+      response = await options.responseDecoder!(
         responseBytes,
         options,
         responseBody..stream = Stream.empty(),
