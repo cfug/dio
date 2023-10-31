@@ -717,7 +717,7 @@ There is an example for [customizing Transformer](../example/lib/transformer.dar
 We can use any `HttpClient` not just `dart:io:HttpClient` to make HTTP requests.
 And all we need is providing a `HttpClientAdapter`.
 The default `HttpClientAdapter` for Dio is `IOHttpClientAdapter` on native platforms,
-and `BrowserClientAdapter` on the Web platform.
+and `BrowserHttpClientAdapter` on the Web platform.
 They can be initiated by calling the `HttpClientAdapter()`.
 
 ```dart
@@ -729,13 +729,13 @@ If you want to use platform adapters explicitly:
   ```dart
   import 'package:dio/browser.dart';
   // ...
-  dio.httpClientAdapter = BrowserClientAdapter();
+  dio.httpClientAdapter = BrowserHttpClientAdapter();
   ```
 - For native platforms:
   ```dart
   import 'package:dio/io.dart';
   // ...
-  dio.httpClientAdapter = IOClientAdapter();
+  dio.httpClientAdapter = IOHttpClientAdapter();
   ```
 
 [Here](../example/lib/adapter.dart) is a simple example to custom adapter. 
