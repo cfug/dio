@@ -399,6 +399,28 @@ void main() {
     expect(response.data, null);
   });
 
+  test('responseDecoder can return Future<String?>', () async {
+    final dio = Dio();
+    dio.options.responseDecoder = (_, __, ___) => Future.value('example');
+    dio.options.baseUrl = EchoAdapter.mockBase;
+    dio.httpClientAdapter = EchoAdapter();
+
+    final Response response = await dio.get('');
+
+    expect(response.data, 'example');
+  });
+
+  test('responseDecoder can return String?', () async {
+    final dio = Dio();
+    dio.options.responseDecoder = (_, __, ___) => 'example';
+    dio.options.baseUrl = EchoAdapter.mockBase;
+    dio.httpClientAdapter = EchoAdapter();
+
+    final Response response = await dio.get('');
+
+    expect(response.data, 'example');
+  });
+
   test('invalid response type throws exceptions', () async {
     final dio = Dio(
       BaseOptions(
