@@ -692,7 +692,7 @@ void main() {
 我们通过 `HttpClientAdapter` 将 `Dio` 和 `HttpClient` 解耦，
 这样一来便可以自由定制 HTTP 请求的底层实现。
 Dio 使用 `IOHttpClientAdapter` 作为原生平台默认的桥梁，
-`BrowserClientAdapter` 作为 Web 平台的桥梁。
+`BrowserHttpClientAdapter` 作为 Web 平台的桥梁。
 你可以通过 `HttpClientAdapter()` 来根据平台创建它们。
 
 ```dart
@@ -704,13 +704,13 @@ dio.httpClientAdapter = HttpClientAdapter();
   ```dart
   import 'package:dio/browser.dart';
   // ...
-  dio.httpClientAdapter = BrowserClientAdapter();
+  dio.httpClientAdapter = BrowserHttpClientAdapter();
   ```
 - 对于原生平台：
   ```dart
   import 'package:dio/io.dart';
   // ...
-  dio.httpClientAdapter = IOClientAdapter();
+  dio.httpClientAdapter = IOHttpClientAdapter();
   ```
 
 [示例](../example/lib/adapter.dart) 中包含了一个简单的自定义桥接。
