@@ -1,4 +1,4 @@
-name: Tests
+name: Format & Analyze & Dry-run & Test
 
 on:
   push:
@@ -15,135 +15,29 @@ on:
       - "**.md"
 
 jobs:
-  format:
-    name: Check formatting
+  workflows:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        directory: [
-          "dio",
-          "example",
-          "example_flutter_app",
-          "plugins/cookie_manager",
-          "plugins/http2_adapter",
-          "plugins/native_dio_adapter"
-        ]
-    defaults:
-      run:
-        working-directory: ${{ matrix.directory }}
+        sdk: [ min, stable, beta ]
     steps:
       - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@v1.3
-        with:
-          sdk: stable
-      - run: dart format --set-exit-if-changed .
-
-  analyze:
-    needs: format
-    name: Analyze Dart-only libraries
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        directory: ["dio", "example", "plugins/cookie_manager", "plugins/http2_adapter"]
-    defaults:
-      run:
-        working-directory: ${{ matrix.directory }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Prepare Dart SDK
-        uses: dart-lang/setup-dart@v1.3
-        with:
-          sdk: stable
-      - name: Analyze
-        run: dart pub get && dart analyze --fatal-infos
-
-  analyze_flutter:
-    needs: format
-    name: Analyze Flutter libraries
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        directory: ["example_flutter_app", "plugins/native_dio_adapter"]
-    defaults:
-      run:
-        working-directory: ${{ matrix.directory }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Prepare Flutter SDK
-        uses: subosito/flutter-action@v2.8.0
+      - uses: subosito/flutter-action@v2.8.0
         with:
           cache: true
-          channel: stable
-      - name: Analyze
-        run: flutter pub get && flutter analyze --fatal-infos
-
-  test_dio:
-    needs: [analyze, analyze_flutter]
-    name: Run unit tests with dio
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        sdk: [ 2.15.0, stable, beta ]
-        platform: [ vm, chrome, firefox ]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@v1.3
-        with:
-          sdk: ${{ matrix.sdk }}
+          flutter-version: ${{ matrix.sdk == 'min' && '2.8.0' || '' }}
+          channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
       - run: |
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
         shell: bash
-      - run: dart pub get
-        working-directory: dio
-      - run: dart test --chain-stack-traces --platform=${{ matrix.platform }}
-        working-directory: dio
-
-  test_plugins:
-    needs: [analyze, analyze_flutter]
-    name: Run unit tests with plugins
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        sdk: [ 2.15.0, stable, beta ]
-        directory: ["plugins/cookie_manager", "plugins/http2_adapter"]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@v1.3
-        with:
-          sdk: ${{ matrix.sdk }}
-      - run: |
-          chmod +x ./scripts/prepare_pinning_certs.sh
-          ./scripts/prepare_pinning_certs.sh
-        shell: bash
-      - name: Install proxy
-        if: matrix.directory == 'plugins/http2_adapter'
+      - name: Install proxy for tests
         run: sudo apt-get install -y squid
       - run: dart pub get
-        working-directory: ${{ matrix.directory }}
-      - run: dart test --chain-stack-traces
-        working-directory: ${{ matrix.directory }}
-
-  test_flutter_plugins:
-    needs: [analyze, analyze_flutter]
-    name: Run unit tests with Flutter plugins
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        channel: [ min, stable, beta ]
-        directory: ["plugins/native_dio_adapter"]
-    defaults:
-      run:
-        working-directory: ${{ matrix.directory }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Prepare Flutter SDK
-        uses: subosito/flutter-action@v2.8.0
+      - uses: bluefireteam/melos-action@v2
         with:
-          cache: true
-          flutter-version: ${{ matrix.channel == 'min' && '3.13.0' || '' }}
-          channel: ${{ matrix.channel == 'min' && 'stable' || matrix.channel }}
-      - run: flutter test
+          run-bootstrap: false
+      - run: melos run files-patch
+      - run: melos run pre-bootstrap
+      - run: melos run github-ci
