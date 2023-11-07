@@ -1,4 +1,4 @@
-name: Format & Analyze & Dry-run & Test
+name: Verify packages abilities
 
 on:
   push:
@@ -13,6 +13,10 @@ on:
       - '6.0.0'
     paths-ignore:
       - "**.md"
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
 
 jobs:
   workflows:
@@ -31,13 +35,29 @@ jobs:
       - run: |
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
-        shell: bash
       - name: Install proxy for tests
         run: sudo apt-get install -y squid
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
         with:
           run-bootstrap: false
-      - run: melos run files-patch
-      - run: melos run pre-bootstrap
-      - run: melos run github-ci
+      - name: Patching files for Flutter ${{ matrix.sdk }}
+        run: dart ./scripts/files_patch.dart
+      - name: Check satisfied packages
+        run: |
+          dart ./scripts/melos_ignored_packages.dart
+          echo $(cat .melos_ignored_packages) >> ~/.bash_profile
+      - name: Bootstrap
+        run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
+      - name: Format
+        run: melos exec $(eval echo $IGNORED_PACKAGES) -- "dart format --set-exit-if-changed ."
+      - name: Analyze Dart packages
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --no-flutter -- "dart analyze --fatal-infos"
+      - name: Analyze Flutter packages
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
+      - name: Publish dry-run
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
+      - name: Test Dart packages
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "dart test --chain-stack-traces --platform=vm,chrome,firefox"
+      - name: Test Flutter packages
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"

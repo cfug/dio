@@ -41,6 +41,7 @@ plugins/http2_adapter/test/*_pinning.txt
 
 # Miscellaneous
 .DS_Store
+.melos*packages
 
 # IDEA configurations
 /.idea/*

@@ -14,23 +14,3 @@ ide:
 command:
   bootstrap:
     runPubGetInParallel: false
-
-scripts:
-  files-patch: # Apply files patches for different versions of SDKs.
-    run: |
-      dart $MELOS_ROOT_PATH/scripts/files_patch.dart
-
-  pre-bootstrap: # Filtering available packages that need to be bootstrapped.
-    run: |
-      export MELOS_PACKAGES=$(dart $MELOS_ROOT_PATH/scripts/melos_packages.dart true)
-      melos bootstrap
-
-  github-ci: # Executions for GitHub Action runners.
-    run: |
-      export MELOS_IGNORE_PACKAGES=$(dart $MELOS_ROOT_PATH/scripts/melos_packages.dart false)
-      melos exec $(eval echo $MELOS_IGNORE_PACKAGES) -- "dart format --set-exit-if-changed ."
-      melos exec $(eval echo $MELOS_IGNORE_PACKAGES) --no-flutter -- "dart analyze --fatal-infos"
-      melos exec $(eval echo $MELOS_IGNORE_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
-      melos exec $(eval echo $MELOS_IGNORE_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
-      melos exec $(eval echo $MELOS_IGNORE_PACKAGES) --ignore="*example*" --no-flutter -- "dart test --chain-stack-traces --platform=vm,chrome,firefox"
-      melos exec $(eval echo $MELOS_IGNORE_PACKAGES) --ignore="*example*" --flutter -- "flutter test"

@@ -6,8 +6,9 @@ import 'package:melos/melos.dart'
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
-void main(List<String> arguments) async {
-  final root = Platform.environment['MELOS_ROOT_PATH'] as String;
+void main() async {
+  final root =
+      Platform.environment['MELOS_ROOT_PATH'] ?? Directory.current.path;
   final config = MelosWorkspaceConfig.fromYaml(
     loadYamlNode(
       File('$root/melos.yaml').readAsStringSync(),
@@ -22,34 +23,13 @@ void main(List<String> arguments) async {
   final current = Version.parse(
     RegExp(r'\d*\.\d*\.\d*').firstMatch(Platform.version)!.group(0)!,
   );
-  if (arguments.first == 'true') {
-    final satisfiedPackages = packages
-        .map(
-          (package) {
-            if (package.pubSpec.environment!.sdkConstraint!.allows(current)) {
-              return package.name;
-            }
-            return null;
-          },
-        )
-        .whereType<String>()
-        .join(',');
-    print(satisfiedPackages);
-  } else {
-    final ignoresPackages = packages
-        .map(
-          (package) {
-            if (package.pubSpec.environment!.sdkConstraint!.allows(current)) {
-              return null;
-            }
-            return package.name;
-          },
-        )
-        .whereType<String>()
-        .map((e) => '--ignore="$e"')
-        .join(' ');
-    print(ignoresPackages);
-  }
+  final ignoredPackages = packages
+      .where((e) => !e.pubSpec.environment!.sdkConstraint!.allows(current))
+      .map((e) => e.name);
+  File('$root/.melos_ignored_packages').writeAsStringSync(
+    'IGNORED_PACKAGES='
+    "'${ignoredPackages.map((e) => '--ignore="$e"').join(' ')}'",
+  );
 }
 
 extension YamlUtils on YamlNode {
