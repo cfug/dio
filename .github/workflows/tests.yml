@@ -49,15 +49,15 @@ jobs:
           echo $(cat .melos_ignored_packages) >> ~/.bash_profile
       - name: Bootstrap
         run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
-      - name: Format
+      - name: '[Verify step] Format'
         run: melos exec $(eval echo $IGNORED_PACKAGES) -- "dart format --set-exit-if-changed ."
-      - name: Analyze Dart packages
+      - name: '[Verify step] Analyze Dart packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --no-flutter -- "dart analyze --fatal-infos"
-      - name: Analyze Flutter packages
+      - name: '[Verify step] Analyze Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
-      - name: Publish dry-run
+      - name: '[Verify step] Publish dry-run'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
-      - name: Test Dart packages
+      - name: '[Verify step] Test Dart packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "dart test --chain-stack-traces --platform=vm,chrome,firefox"
-      - name: Test Flutter packages
+      - name: '[Verify step] Test Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"
