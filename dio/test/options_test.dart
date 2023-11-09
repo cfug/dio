@@ -1,4 +1,6 @@
 @TestOn('vm')
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
@@ -419,6 +421,28 @@ void main() {
     final Response response = await dio.get('');
 
     expect(response.data, 'example');
+  });
+
+  test('requestEncoder can return Future<List<int>>', () async {
+    final dio = Dio();
+    dio.options.requestEncoder = (data, _) => Future.value(utf8.encode(data));
+    dio.options.baseUrl = EchoAdapter.mockBase;
+    dio.httpClientAdapter = EchoAdapter();
+
+    final Response response = await dio.get('');
+
+    expect(response.statusCode, 200);
+  });
+
+  test('requestEncoder can return List<int>', () async {
+    final dio = Dio();
+    dio.options.requestEncoder = (data, _) => utf8.encode(data);
+    dio.options.baseUrl = EchoAdapter.mockBase;
+    dio.httpClientAdapter = EchoAdapter();
+
+    final Response response = await dio.get('');
+
+    expect(response.statusCode, 200);
   });
 
   test('invalid response type throws exceptions', () async {

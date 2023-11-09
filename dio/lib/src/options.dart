@@ -85,7 +85,7 @@ typedef ResponseDecoder = FutureOr<String?> Function(
 );
 
 /// The type of a response encoding callback.
-typedef RequestEncoder = List<int> Function(
+typedef RequestEncoder = FutureOr<List<int>> Function(
   String request,
   RequestOptions options,
 );
