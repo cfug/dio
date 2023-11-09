@@ -59,6 +59,9 @@ class Http2Adapter implements HttpClientAdapter {
       Header.ascii(':authority', uri.host),
     ];
 
+    final requestEncoding =
+        options.headers[Headers.contentEncodingHeader] as String?;
+
     // Add custom headers
     headers.addAll(
       options.headers.keys
@@ -90,7 +93,12 @@ class Http2Adapter implements HttpClientAdapter {
 
     if (hasRequestData) {
       final requestStreamFuture = requestStream!.listen((data) {
-        stream.outgoingMessages.add(DataStreamMessage(data));
+        Uint8List newData = data;
+        if (requestEncoding == 'gzip') {
+          newData = Uint8List.fromList(gzip.encode(newData));
+        }
+
+        stream.outgoingMessages.add(DataStreamMessage(newData));
       }).asFuture();
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
@@ -116,14 +124,18 @@ class Http2Adapter implements HttpClientAdapter {
     bool needRedirect = false;
     late StreamSubscription subscription;
     bool needResponse = false;
+    String? responseEncoding;
     subscription = stream.incomingMessages.listen(
-      (message) async {
+      (message) {
         if (message is HeadersStreamMessage) {
           for (final header in message.headers) {
             final name = utf8.decode(header.name);
             final value = utf8.decode(header.value);
             responseHeaders.add(name, value);
           }
+
+          responseEncoding =
+              responseHeaders.value(Headers.contentEncodingHeader);
 
           final status = responseHeaders.value(':status');
           if (status != null) {
@@ -137,7 +149,16 @@ class Http2Adapter implements HttpClientAdapter {
           }
         } else if (message is DataStreamMessage) {
           if (needResponse) {
-            sc.add(Uint8List.fromList(message.bytes));
+            List<int> bytes = message.bytes;
+            if (responseEncoding == 'gzip') {
+              try {
+                bytes = gzip.decode(bytes);
+              } on FormatException {
+                // Incase it was already decoded?
+              }
+            }
+
+            sc.add(Uint8List.fromList(bytes));
           } else {
             subscription.cancel().whenComplete(() => sc.close());
           }
