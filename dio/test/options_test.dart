@@ -1,8 +1,5 @@
 @TestOn('vm')
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
@@ -483,11 +480,6 @@ void main() {
 
   test('Headers can be case-sensitive', () async {
     final dio = Dio()..options.baseUrl = 'https://httpbun.com/';
-    dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () {
-        return HttpClient()..findProxy = (_) => 'PROXY 192.168.0.10:8764';
-      },
-    );
     final sensitiveResponse = await dio.get<Map<String, dynamic>>(
       '/headers',
       options: Options(
