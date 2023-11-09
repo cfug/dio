@@ -3,8 +3,11 @@ publish_to: 'none'
 repository: https://github.com/cfug/dio
 
 environment:
-  sdk: '>=2.16.0 <4.0.0'
+  sdk: '>=2.15.0 <4.0.0'
 
 dev_dependencies:
   lints: any
-  melos: ^3.1.0
+  melos: any
+  cli_util: any # Required by custom melos command.
+  pub_semver: any # Required by custom melos command.
+  yaml: any # Required by custom melos command.

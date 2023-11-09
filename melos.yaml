@@ -10,3 +10,7 @@ ide:
   intellij:
     enabled: true
     moduleNamePrefix: ''
+
+command:
+  bootstrap:
+    runPubGetInParallel: false
