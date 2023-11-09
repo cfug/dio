@@ -23,4 +23,3 @@ dependency_overrides:
 
 dev_dependencies:
   lints: any
-  test: ^1.22.1

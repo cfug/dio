@@ -5,7 +5,7 @@
 .example/flutter.png
 build/
 # Remove the following pattern if you wish to check in your lock file
-**/pubspec.lock
+pubspec.lock
 
 # Directory created by dartdoc
 doc/api/
@@ -41,6 +41,7 @@ plugins/http2_adapter/test/*_pinning.txt
 
 # Miscellaneous
 .DS_Store
+.melos*packages
 
 # IDEA configurations
 /.idea/*
