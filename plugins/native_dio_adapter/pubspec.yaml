@@ -1,5 +1,5 @@
 name: native_dio_adapter
-version: 1.0.0+2
+version: 1.1.0
 
 description: A client for dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform.
 topics:
@@ -13,10 +13,13 @@ repository: https://github.com/cfug/dio/blob/main/plugins/native_dio_adapter
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
-  flutter: ">=3.13.0"
+  sdk: '>=3.1.0 <4.0.0'
+  flutter: '>=3.13.0'
 
 dependencies:
+  flutter:
+    sdk: flutter
+
   dio: ^5.2.0
   cupertino_http: ^1.0.0
   cronet_http: ^0.4.0

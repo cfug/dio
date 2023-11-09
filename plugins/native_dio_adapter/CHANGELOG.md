@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Adds the missing `flutter` dependency.
+
+## 1.1.0
+
 - Bump `cronet_http` version.
 - Minimal required Dart version is now 3.1.
 - Minimal required Flutter version is now 3.13.0.
