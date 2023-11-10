@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import 'adapter.dart';
@@ -76,14 +78,14 @@ enum ListFormat {
 typedef ValidateStatus = bool Function(int? status);
 
 /// The type of a response decoding callback.
-typedef ResponseDecoder = String? Function(
+typedef ResponseDecoder = FutureOr<String?> Function(
   List<int> responseBytes,
   RequestOptions options,
   ResponseBody responseBody,
 );
 
 /// The type of a response encoding callback.
-typedef RequestEncoder = List<int> Function(
+typedef RequestEncoder = FutureOr<List<int>> Function(
   String request,
   RequestOptions options,
 );

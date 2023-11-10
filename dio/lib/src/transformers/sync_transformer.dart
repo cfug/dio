@@ -125,11 +125,17 @@ class SyncTransformer extends Transformer {
     );
     final String? response;
     if (options.responseDecoder != null) {
-      response = options.responseDecoder!(
+      final decodeResponse = options.responseDecoder!(
         responseBytes,
         options,
         responseBody..stream = Stream.empty(),
       );
+
+      if (decodeResponse is Future) {
+        response = await decodeResponse;
+      } else {
+        response = decodeResponse;
+      }
     } else if (!isJsonContent || responseBytes.isNotEmpty) {
       response = utf8.decode(responseBytes, allowMalformed: true);
     } else {

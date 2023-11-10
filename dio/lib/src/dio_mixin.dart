@@ -627,7 +627,13 @@ abstract class DioMixin implements Dio {
           // Call the request transformer.
           final transformed = await transformer.transformRequest(options);
           if (options.requestEncoder != null) {
-            bytes = options.requestEncoder!(transformed, options);
+            final encoded = options.requestEncoder!(transformed, options);
+
+            if (encoded is Future) {
+              bytes = await encoded;
+            } else {
+              bytes = encoded;
+            }
           } else {
             // Converts the data to UTF-8 by default.
             bytes = utf8.encode(transformed);
