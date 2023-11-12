@@ -58,13 +58,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
-    final connectTimeout = options.connectTimeout;
-    final receiveTimeout = options.receiveTimeout;
-    int xhrTimeout = 0;
-    if (connectTimeout != null &&
-        receiveTimeout != null &&
-        receiveTimeout > Duration.zero) {
-      xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
+    final sendTimeout = options.sendTimeout ?? Duration.zero;
+    final connectTimeout = options.connectTimeout ?? Duration.zero;
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
+    if (xhrTimeout > 0) {
       xhr.timeout = xhrTimeout;
     }
 
@@ -86,22 +84,19 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     Timer? connectTimeoutTimer;
-
-    final connectionTimeout = options.connectTimeout;
-    if (connectionTimeout != null) {
+    if (connectTimeout > Duration.zero) {
       connectTimeoutTimer = Timer(
-        connectionTimeout,
+        connectTimeout,
         () {
           if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
             return;
           }
-
           xhr.abort();
           completer.completeError(
             DioException.connectionTimeout(
               requestOptions: options,
-              timeout: connectionTimeout,
+              timeout: connectTimeout,
             ),
             StackTrace.current,
           );
@@ -123,14 +118,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         });
       }
 
-      final sendTimeout = options.sendTimeout;
-      if (sendTimeout != null) {
+      if (sendTimeout > Duration.zero) {
         final uploadStopwatch = Stopwatch();
         xhr.upload.onProgress.listen((event) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
-
           final duration = uploadStopwatch.elapsed;
           if (duration > sendTimeout) {
             uploadStopwatch.stop();
@@ -155,7 +148,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         });
       }
     } else {
-      if (options.sendTimeout != null) {
+      if (sendTimeout > Duration.zero) {
         debugLog(
           'sendTimeout cannot be used without a request body to send',
           StackTrace.current,
@@ -176,18 +169,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         connectTimeoutTimer = null;
       }
 
-      final receiveTimeout = options.receiveTimeout;
-      if (receiveTimeout != null) {
+      if (receiveTimeout > Duration.zero) {
         if (!downloadStopwatch.isRunning) {
           downloadStopwatch.start();
         }
-
         final duration = downloadStopwatch.elapsed;
         if (duration > receiveTimeout) {
           downloadStopwatch.stop();
           completer.completeError(
             DioException.receiveTimeout(
-              timeout: options.receiveTimeout!,
+              timeout: receiveTimeout,
               requestOptions: options,
             ),
             StackTrace.current,
@@ -195,6 +186,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           xhr.abort();
         }
       }
+
       if (options.onReceiveProgress != null) {
         if (event.loaded != null && event.total != null) {
           options.onReceiveProgress!(event.loaded!, event.total!);
