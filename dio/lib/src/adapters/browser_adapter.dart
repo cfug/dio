@@ -88,6 +88,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       connectTimeoutTimer = Timer(
         connectTimeout,
         () {
+          connectTimeoutTimer = null;
           if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
             return;
@@ -210,17 +211,27 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     xhr.onTimeout.first.then((_) {
+      final isConnectTimeout = connectTimeoutTimer != null;
       if (connectTimeoutTimer != null) {
         connectTimeoutTimer?.cancel();
       }
       if (!completer.isCompleted) {
-        completer.completeError(
-          DioException.receiveTimeout(
-            timeout: Duration(milliseconds: xhrTimeout),
-            requestOptions: options,
-          ),
-          StackTrace.current,
-        );
+        if (isConnectTimeout) {
+          completer.completeError(
+            DioException.connectionTimeout(
+              timeout: connectTimeout,
+              requestOptions: options,
+            ),
+          );
+        } else {
+          completer.completeError(
+            DioException.receiveTimeout(
+              timeout: Duration(milliseconds: xhrTimeout),
+              requestOptions: options,
+            ),
+            StackTrace.current,
+          );
+        }
       }
     });
 
