@@ -89,11 +89,25 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     final httpClient = _configHttpClient(options.connectTimeout);
     final reqFuture = httpClient.openUrl(options.method, options.uri);
 
-    late HttpClientRequest request;
+    HttpClientRequest? clientRequest;
+    HttpClientResponse? clientResponse;
+    EventSink<Uint8List>? responseSink;
+
+    if (cancelFuture != null) {
+      cancelFuture.whenComplete(() {
+        clientRequest?.abort();
+        clientResponse?.detachSocket().then((socket) => socket.destroy());
+        responseSink?.addError(
+          DioException.requestCancelled(requestOptions: options, reason: null),
+        );
+        responseSink = null;
+      });
+    }
+
     try {
       final connectionTimeout = options.connectTimeout;
       if (connectionTimeout != null) {
-        request = await reqFuture.timeout(
+        clientRequest = await reqFuture.timeout(
           connectionTimeout,
           onTimeout: () {
             throw DioException.connectionTimeout(
@@ -103,16 +117,14 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           },
         );
       } else {
-        request = await reqFuture;
-      }
-
-      if (cancelFuture != null) {
-        cancelFuture.whenComplete(() => request.abort());
+        clientRequest = await reqFuture;
       }
 
       // Set Headers
       options.headers.forEach((k, v) {
-        if (v != null) request.headers.set(k, v);
+        if (v != null) {
+          clientRequest?.headers.set(k, v);
+        }
       });
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
@@ -131,19 +143,19 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    request.followRedirects = options.followRedirects;
-    request.maxRedirects = options.maxRedirects;
-    request.persistentConnection = options.persistentConnection;
+    clientRequest.followRedirects = options.followRedirects;
+    clientRequest.maxRedirects = options.maxRedirects;
+    clientRequest.persistentConnection = options.persistentConnection;
 
     if (requestStream != null) {
       // Transform the request data.
-      Future<dynamic> future = request.addStream(requestStream);
+      Future<dynamic> future = clientRequest.addStream(requestStream);
       final sendTimeout = options.sendTimeout;
       if (sendTimeout != null) {
         future = future.timeout(
           sendTimeout,
           onTimeout: () {
-            request.abort();
+            clientRequest?.abort();
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -155,7 +167,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     final stopwatch = Stopwatch()..start();
-    Future<HttpClientResponse> future = request.close();
+    Future<HttpClientResponse> future = clientRequest.close();
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {
       future = future.timeout(
@@ -169,13 +181,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    final responseStream = await future;
+    clientResponse = await future;
 
     if (validateCertificate != null) {
       final host = options.uri.host;
       final port = options.uri.port;
       final bool isCertApproved = validateCertificate!(
-        responseStream.certificate,
+        clientResponse.certificate,
         host,
         port,
       );
@@ -183,15 +195,16 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         throw DioException(
           requestOptions: options,
           type: DioExceptionType.badCertificate,
-          error: responseStream.certificate,
+          error: clientResponse.certificate,
           message: 'The certificate of the response is not approved.',
         );
       }
     }
 
-    final stream = responseStream.transform<Uint8List>(
+    final stream = clientResponse.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
+          responseSink ??= sink;
           stopwatch.stop();
           final duration = stopwatch.elapsed;
           final receiveTimeout = options.receiveTimeout;
@@ -202,29 +215,39 @@ class IOHttpClientAdapter implements HttpClientAdapter {
                 requestOptions: options,
               ),
             );
-            responseStream.detachSocket().then((socket) => socket.destroy());
+            clientResponse?.detachSocket().then((socket) => socket.destroy());
           } else {
             sink.add(Uint8List.fromList(data));
           }
+        },
+        handleError: (error, stackTrace, sink) {
+          responseSink = null;
+        },
+        handleDone: (sink) {
+          responseSink = null;
         },
       ),
     );
 
     final headers = <String, List<String>>{};
-    responseStream.headers.forEach((key, values) {
+    clientResponse.headers.forEach((key, values) {
       headers[key] = values;
     });
-    return ResponseBody(
+
+    final body = ResponseBody(
       stream,
-      responseStream.statusCode,
+      clientResponse.statusCode,
       headers: headers,
       isRedirect:
-          responseStream.isRedirect || responseStream.redirects.isNotEmpty,
-      redirects: responseStream.redirects
+          clientResponse.isRedirect || clientResponse.redirects.isNotEmpty,
+      redirects: clientResponse.redirects
           .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
           .toList(),
-      statusMessage: responseStream.reasonPhrase,
+      statusMessage: clientResponse.reasonPhrase,
     );
+    clientRequest = null;
+    clientResponse = null;
+    return body;
   }
 
   HttpClient _configHttpClient(Duration? connectionTimeout) {
