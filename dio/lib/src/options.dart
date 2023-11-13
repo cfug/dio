@@ -107,7 +107,7 @@ mixin OptionsMixin {
   /// [Dio] will throw the [DioException] with
   /// [DioExceptionType.connectionTimeout] type when time out.
   ///
-  /// `null` meanings no timeout limit.
+  /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get connectTimeout => _connectTimeout;
   Duration? _connectTimeout;
 
@@ -363,7 +363,7 @@ class Options {
   /// [Dio] will throw the [DioException] with
   /// [DioExceptionType.sendTimeout] type when timed out.
   ///
-  /// `null` meanings no timeout limit.
+  /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get sendTimeout => _sendTimeout;
   Duration? _sendTimeout;
 
@@ -382,7 +382,7 @@ class Options {
   /// [Dio] will throw the [DioException] with
   /// [DioExceptionType.receiveTimeout] type when time out.
   ///
-  /// `null` meanings no timeout limit.
+  /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
   Duration? _receiveTimeout;
 
