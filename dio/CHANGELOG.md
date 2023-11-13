@@ -6,8 +6,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Raise warning for `Map`s other than `Map<String, dynamic>` when encoding request data.
-- Improve exception messages
-- Allow `ResponseDecoder` and `RequestEncoder` to be async
+- Improve exception messages.
+- Allow `ResponseDecoder` and `RequestEncoder` to be async.
+- Ignores `Duration.zero` timeouts.
 
 ## 5.3.3
 
