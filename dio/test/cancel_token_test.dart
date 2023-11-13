@@ -29,6 +29,33 @@ void main() {
       CancelToken().cancel();
     });
 
+    test(
+      'cancels streamed responses',
+      () async {
+        final dio = Dio()..options.baseUrl = 'https://httpbun.com/';
+
+        final cancelToken = CancelToken();
+        final response = await dio.get(
+          'bytes/${1024 * 1024 * 10}',
+          options: Options(responseType: ResponseType.stream),
+          cancelToken: cancelToken,
+        );
+
+        Future.delayed(const Duration(milliseconds: 750), () {
+          cancelToken.cancel();
+        });
+
+        await expectLater(
+          (response.data as ResponseBody).stream.last,
+          throwsA(predicate((DioException e) =>
+              e.type == DioExceptionType.cancel &&
+              e.message!
+                  .contains('The request was manually cancelled by the user'))),
+        );
+      },
+      testOn: 'vm',
+    );
+
     test('cancels multiple requests', () async {
       final client = MockHttpClient();
       final token = CancelToken();

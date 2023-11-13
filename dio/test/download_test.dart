@@ -11,10 +11,23 @@ import 'utils.dart';
 void main() {
   setUp(startServer);
   tearDown(stopServer);
+
   test('download1', () async {
     const savePath = 'test/_download_test.md';
     final dio = Dio()..options.baseUrl = serverUrl.toString();
-    await dio.download('/download', savePath);
+
+    int? total;
+    int? count;
+    await dio.download(
+      '/download',
+      savePath,
+      onReceiveProgress: (c, t) {
+        total = t;
+        count = c;
+      },
+    );
+
+    expect(count, total);
 
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));

@@ -75,9 +75,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       requestStream,
       cancelFuture,
     ));
-    if (cancelFuture != null) {
-      cancelFuture.whenComplete(() => operation.cancel());
-    }
+    cancelFuture?.whenComplete(() => operation.cancel());
     return operation.value;
   }
 
@@ -106,9 +104,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      if (cancelFuture != null) {
-        cancelFuture.whenComplete(() => request.abort());
-      }
+      cancelFuture?.whenComplete(() => request.abort());
 
       // Set Headers
       options.headers.forEach((k, v) {
@@ -189,23 +185,48 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
+    /// Get the cancellation exception here so it can be used
+    /// to cancel the stream on the next stream event.
+    DioException? cancellation;
+    cancelFuture?.whenComplete(() async {
+      cancellation = await (cancelFuture as Future<DioException>);
+    });
+
+    /// A helper function to add an error to the stream
+    /// and close the underlying socket.
+    void close(EventSink<Uint8List> sink, DioException exception) {
+      sink.addError(exception);
+      responseStream.detachSocket().then((socket) => socket.destroy());
+    }
+
+    int dataLength = 0;
     final stream = responseStream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          stopwatch.stop();
-          final duration = stopwatch.elapsed;
-          final receiveTimeout = options.receiveTimeout;
-          if (receiveTimeout != null && duration > receiveTimeout) {
-            sink.addError(
-              DioException.receiveTimeout(
-                timeout: receiveTimeout,
-                requestOptions: options,
-              ),
-            );
-            responseStream.detachSocket().then((socket) => socket.destroy());
-          } else {
-            sink.add(Uint8List.fromList(data));
+          if (cancellation != null) {
+            /// Close the stream upon a cancellation.
+            return close(sink, cancellation!);
           }
+          if (stopwatch.isRunning) {
+            stopwatch.stop();
+            final duration = stopwatch.elapsed;
+            final receiveTimeout = options.receiveTimeout;
+            if (receiveTimeout != null && duration > receiveTimeout) {
+              /// Close the stream upon a timeout.
+              return close(
+                sink,
+                DioException.receiveTimeout(
+                  timeout: receiveTimeout,
+                  requestOptions: options,
+                ),
+              );
+            }
+          }
+          options.onReceiveProgress?.call(
+            dataLength += data.length,
+            responseStream.contentLength,
+          );
+          sink.add(Uint8List.fromList(data));
         },
       ),
     );
