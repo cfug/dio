@@ -45,6 +45,8 @@ void main() {
           cancelToken.cancel();
         });
 
+        expect(response.statusCode, 200);
+
         await expectLater(
           (response.data as ResponseBody).stream.last,
           throwsA(predicate((DioException e) =>

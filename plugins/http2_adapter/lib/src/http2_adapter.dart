@@ -74,13 +74,6 @@ class Http2Adapter implements HttpClientAdapter {
     // Creates a new outgoing stream.
     final stream = transport.makeRequest(headers);
 
-    // ignore: unawaited_futures
-    cancelFuture?.whenComplete(() {
-      Future(() {
-        stream.terminate();
-      });
-    });
-
     List<Uint8List>? list;
     final hasRequestData = requestStream != null;
     if (!excludeMethods.contains(options.method) && hasRequestData) {
@@ -110,6 +103,7 @@ class Http2Adapter implements HttpClientAdapter {
     await stream.outgoingMessages.close();
 
     final sc = StreamController<Uint8List>();
+
     final responseHeaders = Headers();
     final completer = Completer();
     late int statusCode;
@@ -157,6 +151,14 @@ class Http2Adapter implements HttpClientAdapter {
       },
       cancelOnError: true,
     );
+
+    /// Cancel any up/download streams if the [CancelToken] is cancelled
+    /// and propagate the [DioException] to the response stream.
+    cancelFuture?.whenComplete(() {
+      stream.terminate();
+      sc.addError(options.cancelToken!.cancelError!);
+      subscription.cancel();
+    });
 
     final receiveTimeout = options.receiveTimeout;
     if (receiveTimeout != null) {
