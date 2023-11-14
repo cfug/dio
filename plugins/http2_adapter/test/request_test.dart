@@ -47,6 +47,7 @@ void main() {
 
       // TODO: disabled pending https://github.com/sharat87/httpbun/issues/13
       // expect(count, total);
+      expect(-1, total);
     });
 
     test('cancels request', () async {
@@ -71,7 +72,7 @@ void main() {
     test('cancels streamed responses', () async {
       final cancelToken = CancelToken();
       final response = await dio.get(
-        'bytes/${1024 * 1024 * 10}',
+        'bytes/${1024 * 1024 * 20}',
         options: Options(responseType: ResponseType.stream),
         cancelToken: cancelToken,
       );

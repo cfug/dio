@@ -152,12 +152,17 @@ class Http2Adapter implements HttpClientAdapter {
       cancelOnError: true,
     );
 
-    /// Cancel any up/download streams if the [CancelToken] is cancelled
+    /// Cancel any up/download streams and connections
+    /// if the [CancelToken] is cancelled
     /// and propagate the [DioException] to the response stream.
     cancelFuture?.whenComplete(() {
       stream.terminate();
+      transport.terminate();
+
       sc.addError(options.cancelToken!.cancelError!);
+
       subscription.cancel();
+      sc.close();
     });
 
     final receiveTimeout = options.receiveTimeout;
