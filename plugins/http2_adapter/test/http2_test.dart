@@ -127,4 +127,28 @@ void main() {
     final res = await dio.get('absolute-redirect/2');
     expect(res.statusCode, 200);
   });
+
+  test('header supports dynamic', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.com/'
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+
+    final res = await dio.post(
+      'post',
+      data: 'TEST',
+      options: Options(
+        headers: {
+          'ListKey': ['1', '2'],
+          'StringKey': '1',
+          'NumKey': 2,
+          'BooleanKey': false,
+        },
+      ),
+    );
+    expect(res.data.toString(), contains('TEST'));
+    expect(res.data.toString(), contains('Listkey: 1,2'));
+    expect(res.data.toString(), contains('Stringkey: 1'));
+    expect(res.data.toString(), contains('Numkey: 2'));
+    expect(res.data.toString(), contains('Booleankey: false'));
+  });
 }

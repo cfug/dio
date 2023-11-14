@@ -61,14 +61,18 @@ class Http2Adapter implements HttpClientAdapter {
 
     // Add custom headers
     headers.addAll(
-      options.headers.keys
-          .map(
-            (key) => Header.ascii(
-              key.toLowerCase(),
-              options.headers[key] as String? ?? '',
-            ),
-          )
-          .toList(),
+      options.headers.keys.map(
+        (key) {
+          final String v;
+          final value = options.headers[key];
+          if (value is Iterable) {
+            v = value.join(', ');
+          } else {
+            v = '$value'.trim();
+          }
+          return Header.ascii(key.toLowerCase(), v);
+        },
+      ).toList(),
     );
 
     // Creates a new outgoing stream.
