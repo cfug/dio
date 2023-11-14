@@ -200,7 +200,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     int dataLength = 0;
-    final stream = responseStream.transform<Uint8List>(
+
+    /// Casting the stream to Uint8List is safe due to [_HttpClientResponse]
+    /// working on a Uint8List.
+    final stream = responseStream.cast<Uint8List>().transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
           if (cancellation != null) {
@@ -226,7 +229,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
             dataLength += data.length,
             responseStream.contentLength,
           );
-          sink.add(Uint8List.fromList(data));
+          sink.add(data);
         },
       ),
     );
