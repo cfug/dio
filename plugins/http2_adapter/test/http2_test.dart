@@ -146,7 +146,7 @@ void main() {
       ),
     );
     expect(res.data.toString(), contains('TEST'));
-    expect(res.data.toString(), contains('Listkey: 1,2'));
+    expect(res.data.toString(), contains('Listkey: 1, 2'));
     expect(res.data.toString(), contains('Stringkey: 1'));
     expect(res.data.toString(), contains('Numkey: 2'));
     expect(res.data.toString(), contains('Booleankey: false'));
