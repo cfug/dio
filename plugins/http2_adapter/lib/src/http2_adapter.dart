@@ -92,8 +92,8 @@ class Http2Adapter implements HttpClientAdapter {
       final requestStreamFuture = requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
       }).asFuture();
-      final sendTimeout = options.sendTimeout;
-      if (sendTimeout != null) {
+      final sendTimeout = options.sendTimeout ?? Duration.zero;
+      if (sendTimeout > Duration.zero) {
         await requestStreamFuture.timeout(
           sendTimeout,
           onTimeout: () {
@@ -158,8 +158,8 @@ class Http2Adapter implements HttpClientAdapter {
       cancelOnError: true,
     );
 
-    final receiveTimeout = options.receiveTimeout;
-    if (receiveTimeout != null) {
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    if (receiveTimeout > Duration.zero) {
       await completer.future.timeout(
         receiveTimeout,
         onTimeout: () {

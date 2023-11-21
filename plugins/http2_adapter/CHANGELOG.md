@@ -4,6 +4,7 @@
 
 - Implement `sendTimeout` and `receiveTimeout` for the adapter.
 - Fix redirect not working when requestStream is null.
+- Ignores `Duration.zero` timeouts.
 
 ## 2.3.1+1
 
