@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 1.1.1
+
 - Adds the missing `flutter` dependency.
 
 ## 1.1.0

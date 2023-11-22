@@ -1,5 +1,5 @@
 name: native_dio_adapter
-version: 1.1.0
+version: 1.1.1
 
 description: A client for dio which makes use of cupertino_http and cronet_http to delegate HTTP requests to the native platform.
 topics:
