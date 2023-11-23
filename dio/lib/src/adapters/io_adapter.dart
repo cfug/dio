@@ -206,11 +206,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     void watchReceiveTimeout(EventSink<Uint8List> sink) {
-      receiveTimer?.cancel();
-      receiveTimer = null;
+      receiveStopwatch.reset();
       if (!receiveStopwatch.isRunning) {
         receiveStopwatch.start();
       }
+      receiveTimer?.cancel();
       receiveTimer = Timer(receiveTimeout, () {
         sink.addError(
           DioException.receiveTimeout(
@@ -227,14 +227,12 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     final stream = responseStream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          if (receiveTimeout > Duration.zero && receiveTimer == null) {
+          if (receiveTimeout > Duration.zero) {
             watchReceiveTimeout(sink);
           }
-          if (receiveTimeout == Duration.zero ||
-              receiveStopwatch.elapsed <= receiveTimeout) {
-            watchReceiveTimeout(sink);
+          // Always true if the receive timeout was not set.
+          if (receiveStopwatch.elapsed <= receiveTimeout) {
             sink.add(data is Uint8List ? data : Uint8List.fromList(data));
-            receiveStopwatch.reset();
           }
         },
         handleDone: (_) {
