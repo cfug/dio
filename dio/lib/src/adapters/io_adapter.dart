@@ -162,10 +162,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       await future;
     }
 
-    final stopwatch = Stopwatch()..start();
     Future<HttpClientResponse> future = request.close();
-    final receiveTimeout = options.receiveTimeout;
-    if (receiveTimeout != null && receiveTimeout > Duration.zero) {
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    if (receiveTimeout > Duration.zero) {
       future = future.timeout(
         receiveTimeout,
         onTimeout: () {
@@ -197,25 +196,49 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
+    final receiveStopwatch = Stopwatch();
+    Timer? receiveTimer;
+
+    void stopWatchReceiveTimeout() {
+      receiveTimer?.cancel();
+      receiveTimer = null;
+      receiveStopwatch.stop();
+    }
+
+    void watchReceiveTimeout(EventSink<Uint8List> sink) {
+      receiveTimer?.cancel();
+      receiveTimer = null;
+      if (!receiveStopwatch.isRunning) {
+        receiveStopwatch.start();
+      }
+      receiveTimer = Timer(receiveTimeout, () {
+        sink.addError(
+          DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          ),
+        );
+        sink.close();
+        responseStream.detachSocket().then((socket) => socket.destroy());
+        stopWatchReceiveTimeout();
+      });
+    }
+
     final stream = responseStream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          stopwatch.stop();
-          final duration = stopwatch.elapsed;
-          final receiveTimeout = options.receiveTimeout;
-          if (receiveTimeout != null &&
-              receiveTimeout > Duration.zero &&
-              duration > receiveTimeout) {
-            sink.addError(
-              DioException.receiveTimeout(
-                timeout: receiveTimeout,
-                requestOptions: options,
-              ),
-            );
-            responseStream.detachSocket().then((socket) => socket.destroy());
-          } else {
-            sink.add(Uint8List.fromList(data));
+          if (receiveTimeout > Duration.zero && receiveTimer == null) {
+            watchReceiveTimeout(sink);
           }
+          if (receiveTimeout == Duration.zero ||
+              receiveStopwatch.elapsed <= receiveTimeout) {
+            watchReceiveTimeout(sink);
+            sink.add(data is Uint8List ? data : Uint8List.fromList(data));
+            receiveStopwatch.reset();
+          }
+        },
+        handleDone: (_) {
+          stopWatchReceiveTimeout();
         },
       ),
     );
