@@ -13,7 +13,7 @@ void main() {
   tearDown(stopServer);
 
   test('download does not change the response type', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     final options = Options(responseType: ResponseType.plain);
     await dio.download('/download', savePath, options: options);
@@ -21,7 +21,7 @@ void main() {
   });
 
   test('download1', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     await dio.download('/download', savePath);
 
@@ -31,7 +31,7 @@ void main() {
   });
 
   test('download2', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     await dio.downloadUri(
       serverUrl.replace(path: '/download'),
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('download error', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     Response response = await dio
         .download('/error', savePath)
@@ -72,9 +72,11 @@ void main() {
     ]);
     await expectLater(
       dio.downloadUri(
-        Uri.parse('$serverUrl/download'),
-        'test/_download_test.md',
-        options: Options(receiveTimeout: Duration(milliseconds: 1)),
+        Uri.parse('$serverUrl/download').replace(
+          queryParameters: {'count': '3', 'gap': '2'},
+        ),
+        'test/download/_test.md',
+        options: Options(receiveTimeout: Duration(seconds: 1)),
       ),
       timeoutMatcher,
     );
@@ -87,7 +89,7 @@ void main() {
   });
 
   test('download cancellation', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final cancelToken = CancelToken();
     Future.delayed(Duration(milliseconds: 100), () {
       cancelToken.cancel();
@@ -105,7 +107,7 @@ void main() {
   });
 
   test('delete on error', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final f = File(savePath)..createSync(recursive: true);
     expect(f.existsSync(), isTrue);
 
@@ -125,7 +127,7 @@ void main() {
   });
 
   test('delete on cancel', () async {
-    const savePath = 'test/_download_test.md';
+    const savePath = 'test/download/_test.md';
     final f = File(savePath)..createSync(recursive: true);
     expect(f.existsSync(), isTrue);
 
