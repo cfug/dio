@@ -206,6 +206,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     void watchReceiveTimeout(EventSink<Uint8List> sink) {
+      if (receiveTimeout <= Duration.zero) {
+        return;
+      }
       receiveStopwatch.reset();
       if (!receiveStopwatch.isRunning) {
         receiveStopwatch.start();
@@ -227,16 +230,15 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     final stream = responseStream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          if (receiveTimeout > Duration.zero) {
-            watchReceiveTimeout(sink);
-          }
+          watchReceiveTimeout(sink);
           // Always true if the receive timeout was not set.
           if (receiveStopwatch.elapsed <= receiveTimeout) {
             sink.add(data is Uint8List ? data : Uint8List.fromList(data));
           }
         },
-        handleDone: (_) {
+        handleDone: (sink) {
           stopWatchReceiveTimeout();
+          sink.close();
         },
       ),
     );

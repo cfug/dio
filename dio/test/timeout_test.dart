@@ -76,25 +76,51 @@ void main() {
       BaseOptions(
         baseUrl: 'https://httpbun.com/',
         connectTimeout: Duration.zero,
-        sendTimeout: Duration.zero,
         receiveTimeout: Duration.zero,
       ),
     );
     // Ignores zero duration timeouts from the base options.
     await dio.get('/drip-lines?delay=1');
     // Reset the base options.
-    dio.options
-      ..connectTimeout = Duration(seconds: 10)
-      ..sendTimeout = Duration(seconds: 10)
-      ..receiveTimeout = Duration(seconds: 10);
+    dio.options.receiveTimeout = Duration(milliseconds: 10);
+    await expectLater(
+      dio.get('/drip-lines?delay=1'),
+      allOf([
+        throwsA(isA<DioException>()),
+        throwsA(
+          predicate<DioException>(
+            (e) => e.type == DioExceptionType.receiveTimeout,
+          ),
+        ),
+        throwsA(
+          predicate<DioException>(
+            (e) => e.message!.contains('0:00:00.010000'),
+          ),
+        ),
+      ]),
+    );
+    dio.options.connectTimeout = Duration(milliseconds: 10);
+    await expectLater(
+      dio.get('/drip-lines?delay=1'),
+      allOf([
+        throwsA(isA<DioException>()),
+        throwsA(
+          predicate<DioException>(
+            (e) => e.type == DioExceptionType.connectionTimeout,
+          ),
+        ),
+        throwsA(
+          predicate<DioException>(
+            (e) => e.message!.contains('0:00:00.010000'),
+          ),
+        ),
+      ]),
+    );
+    dio.options.connectTimeout = Duration.zero;
     // Override with request options.
     await dio.get(
       '/drip-lines?delay=1',
-      options: Options(
-        sendTimeout: Duration.zero,
-        receiveTimeout: Duration.zero,
-      ),
+      options: Options(receiveTimeout: Duration.zero),
     );
-    await dio.get('/drip-lines?delay=1');
   });
 }
