@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 void main() {
   test('adds one to input values', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://pub.dev/'
+      ..options.baseUrl = 'https://httpbun.com/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
@@ -16,7 +16,7 @@ void main() {
       );
 
     Response<String> response;
-    response = await dio.get('?xx=6');
+    response = await dio.get('get');
     assert(response.statusCode == 200);
     response = await dio.get(
       'nkjnjknjn.html',
