@@ -52,18 +52,36 @@ void main() {
   });
 
   test('download timeout', () async {
-    const savePath = 'test/_download_test.md';
-    final dio = Dio(
-      BaseOptions(
-        receiveTimeout: Duration(milliseconds: 1),
-        baseUrl: serverUrl.toString(),
+    final dio = Dio();
+    final timeoutMatcher = allOf([
+      throwsA(isA<DioException>()),
+      throwsA(
+        predicate<DioException>(
+          (e) => e.type == DioExceptionType.receiveTimeout,
+        ),
       ),
+    ]);
+    await expectLater(
+      dio.downloadUri(
+        Uri.parse('$serverUrl/download'),
+        'test/_download_test.md',
+        options: Options(receiveTimeout: Duration(milliseconds: 1)),
+      ),
+      timeoutMatcher,
     );
-    expect(
-      dio
-          .download('/download', savePath)
-          .catchError((e) => throw (e as DioException).type),
-      throwsA(DioExceptionType.receiveTimeout),
+    await expectLater(
+      dio.download(
+        'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
+        'test/download/main.zip',
+        options: Options(receiveTimeout: Duration(milliseconds: 500)),
+      ),
+      timeoutMatcher,
+    );
+    // Throws nothing if it constantly gets response bytes.
+    await dio.download(
+      'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
+      'test/download/main.zip',
+      options: Options(receiveTimeout: Duration(seconds: 2)),
     );
   });
 
