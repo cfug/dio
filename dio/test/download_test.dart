@@ -11,6 +11,15 @@ import 'utils.dart';
 void main() {
   setUp(startServer);
   tearDown(stopServer);
+
+  test('download does not change the response type', () async {
+    const savePath = 'test/_download_test.md';
+    final dio = Dio()..options.baseUrl = serverUrl.toString();
+    final options = Options(responseType: ResponseType.plain);
+    await dio.download('/download', savePath, options: options);
+    expect(options.responseType, ResponseType.plain);
+  });
+
   test('download1', () async {
     const savePath = 'test/_download_test.md';
     final dio = Dio()..options.baseUrl = serverUrl.toString();
