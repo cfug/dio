@@ -36,13 +36,12 @@ class DioForNative with DioMixin implements Dio {
     Object? data,
     Options? options,
   }) async {
-    // We set the `responseType` to [ResponseType.STREAM] to retrieve the
-    // response stream.
     options ??= DioMixin.checkOptions('GET', options);
-
-    // Receive data with stream.
-    options.responseType = ResponseType.stream;
-    Response<ResponseBody> response;
+    // Manually set the `responseType` to [ResponseType.stream]
+    // to retrieve the response stream.
+    // Do not modify previous options.
+    options = options.copyWith(responseType: ResponseType.stream);
+    final Response<ResponseBody> response;
     try {
       response = await request<ResponseBody>(
         urlPath,
@@ -53,14 +52,22 @@ class DioForNative with DioMixin implements Dio {
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
-        if (e.response!.requestOptions.receiveDataWhenStatusError == true) {
+        final response = e.response!;
+        if (response.requestOptions.receiveDataWhenStatusError == true) {
+          final ResponseType implyResponseType;
+          final contentType = response.headers.value(Headers.contentTypeHeader);
+          if (contentType != null && contentType.startsWith('text/')) {
+            implyResponseType = ResponseType.plain;
+          } else {
+            implyResponseType = ResponseType.json;
+          }
           final res = await transformer.transformResponse(
-            e.response!.requestOptions..responseType = ResponseType.json,
-            e.response!.data as ResponseBody,
+            response.requestOptions.copyWith(responseType: implyResponseType),
+            response.data as ResponseBody,
           );
-          e.response!.data = res;
+          response.data = res;
         } else {
-          e.response!.data = null;
+          response.data = null;
         }
       }
       rethrow;
@@ -92,7 +99,6 @@ class DioForNative with DioMixin implements Dio {
 
     // Create a Completer to notify the success/error state.
     final completer = Completer<Response>();
-    Future<Response> future = completer.future;
     int received = 0;
 
     // Stream<Uint8List>
@@ -139,7 +145,7 @@ class DioForNative with DioMixin implements Dio {
           }
         }).catchError((Object e) async {
           try {
-            await subscription.cancel();
+            await subscription.cancel().catchError((_) {});
             closed = true;
             await raf.close().catchError((_) => raf);
             if (deleteOnError && file.existsSync()) {
@@ -179,25 +185,6 @@ class DioForNative with DioMixin implements Dio {
       await subscription.cancel();
       await closeAndDelete();
     });
-
-    final timeout = response.requestOptions.receiveTimeout;
-    if (timeout != null) {
-      future = future.timeout(timeout).catchError(
-        (dynamic e, StackTrace s) async {
-          await subscription.cancel();
-          await closeAndDelete();
-          if (e is TimeoutException) {
-            throw DioException.receiveTimeout(
-              timeout: timeout,
-              requestOptions: response.requestOptions,
-              error: e,
-            );
-          } else {
-            throw e;
-          }
-        },
-      );
-    }
-    return DioMixin.listenCancelForAsyncTask(cancelToken, future);
+    return DioMixin.listenCancelForAsyncTask(cancelToken, completer.future);
   }
 }
