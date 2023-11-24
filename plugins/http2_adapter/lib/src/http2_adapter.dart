@@ -98,6 +98,7 @@ class Http2Adapter implements HttpClientAdapter {
         requestStreamFuture = requestStreamFuture.timeout(
           sendTimeout,
           onTimeout: () {
+            stream.terminate();
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -142,7 +143,7 @@ class Http2Adapter implements HttpClientAdapter {
           ),
         );
         sc.close();
-        transport.terminate();
+        stream.terminate();
         stopWatchReceiveTimeout();
       });
     }
@@ -178,7 +179,10 @@ class Http2Adapter implements HttpClientAdapter {
             );
           } else {
             stopWatchReceiveTimeout();
-            subscription.cancel().whenComplete(() => sc.close());
+            subscription.cancel().whenComplete(() {
+              stream.terminate();
+              sc.close();
+            });
           }
         }
       },

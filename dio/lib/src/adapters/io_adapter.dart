@@ -168,6 +168,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       future = future.timeout(
         receiveTimeout,
         onTimeout: () {
+          request.abort();
           throw DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
@@ -175,7 +176,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         },
       );
     }
-
     final responseStream = await future;
 
     if (validateCertificate != null) {
