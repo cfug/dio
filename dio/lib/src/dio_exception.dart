@@ -133,7 +133,7 @@ class DioException implements Exception {
       DioException(
         type: DioExceptionType.receiveTimeout,
         message: 'The request took longer than $timeout to receive data. '
-            'It was aborted.'
+            'It was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.receiveTimeout above the duration of $timeout or '
             'improve the response time of the server.',
