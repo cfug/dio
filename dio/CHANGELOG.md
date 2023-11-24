@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `receiveTimeout` for the `IOHttpClientAdapter`.
 
 ## 5.3.4
 

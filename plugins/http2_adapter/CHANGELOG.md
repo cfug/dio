@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Improve the implementation of `receiveTimeout`.
 
 ## 2.3.2
 
