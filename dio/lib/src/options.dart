@@ -84,7 +84,7 @@ typedef ResponseDecoder = FutureOr<String?> Function(
   ResponseBody responseBody,
 );
 
-/// The type of a response encoding callback.
+/// The type of a request encoding callback.
 typedef RequestEncoder = FutureOr<List<int>> Function(
   String request,
   RequestOptions options,
@@ -100,11 +100,11 @@ mixin OptionsMixin {
   /// List values use the default [ListFormat.multiCompatible].
   /// The value can be overridden per parameter by adding a [ListParam]
   /// object wrapping the actual List value and the desired format.
-  late Map<String, dynamic> queryParameters;
+  late Map<String, dynamic /*String|Iterable<String>*/ > queryParameters;
 
-  /// Timeout when opening url.
+  /// Timeout when opening a request.
   ///
-  /// [Dio] will throw the [DioException] with
+  /// Throws the [DioException] with
   /// [DioExceptionType.connectionTimeout] type when time out.
   ///
   /// `null` or `Duration.zero` meanings no timeout limit.
@@ -355,12 +355,12 @@ class Options {
   /// HTTP request headers.
   ///
   /// The keys of the header are case-insensitive,
-  /// e.g.: content-type and Content-Type will be treated as the same key.
+  /// e.g.: `content-type` and `Content-Type` will be treated as the same key.
   Map<String, dynamic>? headers;
 
   /// Timeout when sending data.
   ///
-  /// [Dio] will throw the [DioException] with
+  /// Throws the [DioException] with
   /// [DioExceptionType.sendTimeout] type when timed out.
   ///
   /// `null` or `Duration.zero` meanings no timeout limit.
@@ -376,11 +376,13 @@ class Options {
 
   /// Timeout when receiving data.
   ///
-  /// The timeout represents the timeout during data transfer of each bytes,
-  /// rather than the overall timing during the receiving.
+  /// The timeout represents:
+  ///  - the timeout during connection established and responded.
+  ///  - the timeout during data transfer of each bytes event,
+  ///    rather than the overall timing during the receiving.
   ///
-  /// [Dio] will throw the [DioException] with
-  /// [DioExceptionType.receiveTimeout] type when time out.
+  /// Throws the [DioException] with
+  /// [DioExceptionType.receiveTimeout] type when timed out.
   ///
   /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
@@ -398,17 +400,16 @@ class Options {
   /// {@macro dio.interceptors.ImplyContentTypeInterceptor}
   String? contentType;
 
-  /// Indicates the type of data that the server will respond with options.
+  /// The type of data that [Dio] handles with options.
   ///
-  /// The default value is [ResponseType.json], [Dio] will parse response string
-  /// to JSON object automatically when the content-type of response is
-  /// [Headers.jsonContentType].
+  /// The default value is [ResponseType.json].
+  /// [Dio] will parse response string to JSON object automatically
+  /// when the content-type of response is [Headers.jsonContentType].
   ///
-  /// If you want to receive response data with binary bytes, use `stream`.
-  ///
-  /// If you want to receive the response data with String, use `plain`.
-  ///
-  /// If you want to receive the response data with original bytes, use `bytes`.
+  /// See also:
+  ///  - `plain` if you want to receive the data as `String`.
+  ///  - `bytes` if you want to receive the data as the complete bytes.
+  ///  - `stream` if you want to receive the data as streamed binary bytes.
   ResponseType? responseType;
 
   /// Defines whether the request is succeed with the given status code.
@@ -442,12 +443,14 @@ class Options {
   /// Defaults to true.
   bool? persistentConnection;
 
-  /// The default request encoder is utf8encoder, you can set custom
-  /// encoder by this option.
+  /// The type of a request encoding callback.
+  ///
+  /// Defaults to [Utf8Encoder].
   RequestEncoder? requestEncoder;
 
-  /// The default response decoder is utf8decoder, you can set custom
-  /// decoder by this option, it will be used in [Transformer].
+  /// The type of a response decoding callback.
+  ///
+  /// Defaults to [Utf8Decoder].
   ResponseDecoder? responseDecoder;
 
   /// Indicates the format of collection data in request query parameters and

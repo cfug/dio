@@ -262,74 +262,103 @@ final response = await dio.request(
 
 ### Request Options
 
-The `Options` class describes the http request information and configuration.
+The `Options` class describes the HTTP request information and configuration.
 Each Dio instance has a base config for all requests made by itself,
 and we can override the base config with `Options` when make a single request.
 The `Options` declaration as follows:
 
 ```dart
-/// Http method.
+/// The HTTP request method.
 String method;
 
-/// Request base url, it can contain sub path, like: https://dart.dev/api/.
-String? baseUrl;
+/// Timeout when sending data.
+///
+/// Throws the [DioException] with
+/// [DioExceptionType.sendTimeout] type when timed out.
+///
+/// `null` or `Duration.zero` meanings no timeout limit.
+Duration? sendTimeout;
 
-/// Http request headers.
-Map<String, dynamic>? headers;
-
-/// Timeout for opening url.
-Duration? connectTimeout;
-
-/// Whenever more than [receiveTimeout] passes between two events from response stream,
-/// [Dio] will throw the [DioException] with [DioExceptionType.RECEIVE_TIMEOUT].
-/// Note: This is not the receiving time limitation.
+/// Timeout when receiving data.
+///
+/// The timeout represents:
+///  - the timeout during connection established and responded.
+///  - the timeout during data transfer of each bytes event,
+///    rather than the overall timing during the receiving.
+///
+/// Throws the [DioException] with
+/// [DioExceptionType.receiveTimeout] type when timed out.
+///
+/// `null` or `Duration.zero` meanings no timeout limit.
 Duration? receiveTimeout;
-
-/// Request data, can be any type.
-dynamic data;
-
-/// If the `path` starts with 'http(s)', the `baseURL` will be ignored, otherwise,
-/// it will be combined and then resolved with the baseUrl.
-String path;
-
-/// The request Content-Type.
-///
-/// The default `content-type` for requests will be implied by the
-/// [ImplyContentTypeInterceptor] according to the type of the request payload.
-/// The interceptor can be removed by
-/// [Interceptors.removeImplyContentTypeInterceptor].
-///
-/// If you want to encode request body with 'application/x-www-form-urlencoded',
-/// you can set [Headers.formUrlEncodedContentType], and [Dio]
-/// will automatically encode the request body.
-String? contentType;
-
-/// [responseType] indicates the type of data that the server will respond with
-/// options which defined in [ResponseType] are `json`, `stream`, `plain`.
-///
-/// The default value is `json`, dio will parse response string to json object automatically
-/// when the content-type of response is 'application/json'.
-///
-/// If you want to receive response data with binary bytes, for example,
-/// downloading a image, use `stream`.
-///
-/// If you want to receive the response data with String, use `plain`.
-ResponseType? responseType;
-
-/// `validateStatus` defines whether the request is successful for a given
-/// HTTP response status code. If `validateStatus` returns `true` ,
-/// the request will be perceived as successful; otherwise, considered as failed.
-ValidateStatus? validateStatus;
 
 /// Custom field that you can retrieve it later in [Interceptor],
 /// [Transformer] and the [Response.requestOptions] object.
 Map<String, dynamic>? extra;
 
-/// Common query parameters.
-Map<String, dynamic /*String|Iterable<String>*/ >? queryParameters;
+/// HTTP request headers.
+///
+/// The keys of the header are case-insensitive,
+/// e.g.: `content-type` and `Content-Type` will be treated as the same key.
+Map<String, dynamic>? headers;
 
-/// [listFormat] indicates the format of collection data in request options。
-/// The default value is `multiCompatible`
+/// The type of data that [Dio] handles with options.
+///
+/// The default value is [ResponseType.json].
+/// [Dio] will parse response string to JSON object automatically
+/// when the content-type of response is [Headers.jsonContentType].
+///
+/// See also:
+///  - `plain` if you want to receive the data as `String`.
+///  - `bytes` if you want to receive the data as the complete bytes.
+///  - `stream` if you want to receive the data as streamed binary bytes.
+ResponseType? responseType;
+
+/// The request content-type.
+///
+/// The default `content-type` for requests will be implied by the
+/// [ImplyContentTypeInterceptor] according to the type of the request payload.
+/// The interceptor can be removed by
+/// [Interceptors.removeImplyContentTypeInterceptor].
+String? contentType;
+
+/// Defines whether the request is succeed with the given status code.
+/// The request will be treated as succeed if the callback returns true.
+ValidateStatus? validateStatus;
+
+/// Whether to retrieve the data if status code indicates a failed request.
+///
+/// Defaults to true.
+bool? receiveDataWhenStatusError;
+
+/// See [HttpClientRequest.followRedirects].
+///
+/// Defaults to true.
+bool? followRedirects;
+
+/// The maximum number of redirects when [followRedirects] is `true`.
+/// [RedirectException] will be thrown if redirects exceeded the limit.
+///
+/// Defaults to 5.
+int? maxRedirects;
+
+/// See [HttpClientRequest.persistentConnection].
+///
+/// Defaults to true.
+bool? persistentConnection;
+
+/// The default request encoder is [Utf8Encoder], you can set custom
+/// encoder by this option.
+RequestEncoder? requestEncoder;
+
+/// The default response decoder is [Utf8Decoder], you can set custom
+/// decoder by this option, it will be used in [Transformer].
+ResponseDecoder? responseDecoder;
+
+/// Indicates the format of collection data in request query parameters and
+/// `x-www-url-encoded` body data.
+///
+/// Defaults to [ListFormat.multi].
 ListFormat? listFormat;
 ```
 
