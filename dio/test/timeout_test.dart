@@ -80,10 +80,6 @@ void main() {
         receiveTimeout: Duration.zero,
       ),
     );
-    dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () =>
-          HttpClient()..findProxy = (_) => 'PROXY 192.168.0.10:8764',
-    );
     // Ignores zero duration timeouts from the base options.
     await dio.get('/drip-lines?delay=1');
     // Reset the base options.
