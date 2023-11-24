@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -13,7 +12,7 @@ void main() {
     dio.options.baseUrl = 'https://httpbun.com/';
   });
 
-  test('catch DioException when connect timeout', () {
+  test('catch DioException when connectTimeout', () {
     dio.options.connectTimeout = Duration(milliseconds: 3);
 
     expectLater(
