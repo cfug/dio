@@ -7,6 +7,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Improve `SyncTransformer`'s stream transform.
 - Fix `receiveTimeout` for the `IOHttpClientAdapter`.
+- Fix `receiveTimeout` for the `download` method of `DioForNative`.
 
 ## 5.3.4
 
