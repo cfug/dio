@@ -262,8 +262,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
 
   HttpClient _configHttpClient(Duration? connectionTimeout) {
     _cachedHttpClient ??= _createHttpClient();
-    if (connectionTimeout != _cachedHttpClient!.connectionTimeout) {
+    connectionTimeout ??= Duration.zero;
+    if (connectionTimeout > Duration.zero) {
       _cachedHttpClient!.connectionTimeout = connectionTimeout;
+    } else {
+      _cachedHttpClient!.connectionTimeout = null;
     }
     return _cachedHttpClient!;
   }
