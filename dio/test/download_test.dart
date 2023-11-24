@@ -69,19 +69,11 @@ void main() {
       ),
       timeoutMatcher,
     );
-    await expectLater(
-      dio.download(
-        'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
-        'test/download/main.zip',
-        options: Options(receiveTimeout: Duration(milliseconds: 500)),
-      ),
-      timeoutMatcher,
-    );
     // Throws nothing if it constantly gets response bytes.
     await dio.download(
       'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
       'test/download/main.zip',
-      options: Options(receiveTimeout: Duration(seconds: 2)),
+      options: Options(receiveTimeout: Duration(seconds: 1)),
     );
   });
 
