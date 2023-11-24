@@ -26,21 +26,34 @@ void main() {
     );
   });
 
-  test('catch DioException when receiveTimeout', () {
-    dio.options.receiveTimeout = Duration(milliseconds: 10);
+  test('catch DioException when receiveTimeout', () async {
+    dio.options.receiveTimeout = Duration(seconds: 1);
 
-    expectLater(
+    final matcher = allOf([
+      throwsA(isA<DioException>()),
+      throwsA(
+        predicate<DioException>(
+          (e) => e.type == DioExceptionType.receiveTimeout,
+        ),
+      ),
+      throwsA(
+        predicate<DioException>((e) => e.message!.contains('0:00:01.000000')),
+      ),
+    ]);
+    await expectLater(
       dio.get(
-        '/bytes/${1024 * 1024 * 20}',
+        '/drip',
+        queryParameters: {'delay': 2},
+      ),
+      matcher,
+    );
+    await expectLater(
+      dio.get(
+        '/drip',
+        queryParameters: {'delay': 0, 'duration:': 1},
         options: Options(responseType: ResponseType.stream),
       ),
-      allOf([
-        throwsA(isA<DioException>()),
-        throwsA(predicate(
-            (DioException e) => e.type == DioExceptionType.receiveTimeout)),
-        throwsA(predicate(
-            (DioException e) => e.message!.contains('0:00:00.010000'))),
-      ]),
+      matcher,
     );
   }, testOn: 'vm');
 
