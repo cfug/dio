@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Improve `SyncTransformer`'s stream transform.
 
 ## 5.3.4
 
