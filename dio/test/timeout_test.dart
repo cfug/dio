@@ -55,7 +55,7 @@ void main() {
       ),
       matcher,
     );
-  }, testOn: 'vm');
+  });
 
   test('no DioException when receiveTimeout > request duration', () async {
     dio.options.receiveTimeout = Duration(seconds: 5);
