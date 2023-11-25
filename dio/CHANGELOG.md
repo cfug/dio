@@ -5,9 +5,15 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Improve `SyncTransformer`'s stream transform.
+- Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
+
+## 5.3.4
+
 - Raise warning for `Map`s other than `Map<String, dynamic>` when encoding request data.
 - Improve exception messages.
-- Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
+- Allow `ResponseDecoder` and `RequestEncoder` to be async.
+- Ignores `Duration.zero` timeouts.
 
 ## 5.3.3
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import 'adapter.dart';
@@ -76,14 +78,14 @@ enum ListFormat {
 typedef ValidateStatus = bool Function(int? status);
 
 /// The type of a response decoding callback.
-typedef ResponseDecoder = String? Function(
+typedef ResponseDecoder = FutureOr<String?> Function(
   List<int> responseBytes,
   RequestOptions options,
   ResponseBody responseBody,
 );
 
 /// The type of a response encoding callback.
-typedef RequestEncoder = List<int> Function(
+typedef RequestEncoder = FutureOr<List<int>> Function(
   String request,
   RequestOptions options,
 );
@@ -105,7 +107,7 @@ mixin OptionsMixin {
   /// [Dio] will throw the [DioException] with
   /// [DioExceptionType.connectionTimeout] type when time out.
   ///
-  /// `null` meanings no timeout limit.
+  /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get connectTimeout => _connectTimeout;
   Duration? _connectTimeout;
 
@@ -378,7 +380,7 @@ class Options {
   /// [Dio] will throw the [DioException] with
   /// [DioExceptionType.sendTimeout] type when timed out.
   ///
-  /// `null` meanings no timeout limit.
+  /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get sendTimeout => _sendTimeout;
   Duration? _sendTimeout;
 
@@ -397,7 +399,7 @@ class Options {
   /// [Dio] will throw the [DioException] with
   /// [DioExceptionType.receiveTimeout] type when time out.
   ///
-  /// `null` meanings no timeout limit.
+  /// `null` or `Duration.zero` meanings no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
   Duration? _receiveTimeout;
 

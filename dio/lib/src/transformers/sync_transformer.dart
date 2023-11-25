@@ -62,9 +62,8 @@ class SyncTransformer extends Transformer {
       return responseBody;
     }
 
-    final showDownloadProgress = options.onReceiveProgress != null;
     final int totalLength;
-    if (showDownloadProgress) {
+    if (options.onReceiveProgress != null) {
       totalLength = int.parse(
         responseBody.headers[Headers.contentLengthHeader]?.first ?? '-1',
       );
@@ -72,27 +71,15 @@ class SyncTransformer extends Transformer {
       totalLength = 0;
     }
 
-    int received = 0;
-    final stream = responseBody.stream.transform<Uint8List>(
-      StreamTransformer.fromHandlers(
-        handleData: (data, sink) {
-          sink.add(data);
-          if (showDownloadProgress) {
-            received += data.length;
-            options.onReceiveProgress?.call(received, totalLength);
-          }
-        },
-      ),
-    );
-
     final streamCompleter = Completer<void>();
     int finalLength = 0;
     // Keep references to the data chunks and concatenate them later.
     final chunks = <Uint8List>[];
-    final subscription = stream.listen(
-      (chunk) {
+    final subscription = responseBody.stream.listen(
+      (Uint8List chunk) {
         finalLength += chunk.length;
         chunks.add(chunk);
+        options.onReceiveProgress?.call(finalLength, totalLength);
       },
       onError: (Object error, StackTrace stackTrace) {
         streamCompleter.completeError(error, stackTrace);
@@ -125,11 +112,17 @@ class SyncTransformer extends Transformer {
     );
     final String? response;
     if (options.responseDecoder != null) {
-      response = options.responseDecoder!(
+      final decodeResponse = options.responseDecoder!(
         responseBytes,
         options,
         responseBody..stream = Stream.empty(),
       );
+
+      if (decodeResponse is Future) {
+        response = await decodeResponse;
+      } else {
+        response = decodeResponse;
+      }
     } else if (!isJsonContent || responseBytes.isNotEmpty) {
       response = utf8.decode(responseBytes, allowMalformed: true);
     } else {

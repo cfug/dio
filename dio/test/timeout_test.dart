@@ -70,4 +70,31 @@ void main() {
     } on DioException catch (_) {}
     expect(http.connectionTimeout?.inSeconds == 1, isTrue);
   }, testOn: 'vm');
+
+  test('ignores zero duration timeouts', () async {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://httpbun.com/',
+        connectTimeout: Duration.zero,
+        sendTimeout: Duration.zero,
+        receiveTimeout: Duration.zero,
+      ),
+    );
+    // Ignores zero duration timeouts from the base options.
+    await dio.get('/drip-lines?delay=1');
+    // Reset the base options.
+    dio.options
+      ..connectTimeout = Duration(seconds: 10)
+      ..sendTimeout = Duration(seconds: 10)
+      ..receiveTimeout = Duration(seconds: 10);
+    // Override with request options.
+    await dio.get(
+      '/drip-lines?delay=1',
+      options: Options(
+        sendTimeout: Duration.zero,
+        receiveTimeout: Duration.zero,
+      ),
+    );
+    await dio.get('/drip-lines?delay=1');
+  });
 }

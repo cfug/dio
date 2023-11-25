@@ -36,7 +36,7 @@ jobs:
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
       - name: Install proxy for tests
-        run: sudo apt-get install -y squid
+        run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
         with:
@@ -57,7 +57,11 @@ jobs:
         run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
       - name: '[Verify step] Publish dry-run'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
-      - name: '[Verify step] Test Dart packages'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "dart test --chain-stack-traces --platform=vm,chrome,firefox"
+      - name: '[Verify step] Test Dart packages [VM]'
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
+      - name: '[Verify step] Test Dart packages [Chrome]'
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
+      - name: '[Verify step] Test Dart packages [Firefox]'
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
       - name: '[Verify step] Test Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"
