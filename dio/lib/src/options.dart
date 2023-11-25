@@ -107,7 +107,7 @@ mixin OptionsMixin {
   /// Throws the [DioException] with
   /// [DioExceptionType.connectionTimeout] type when time out.
   ///
-  /// `null` or `Duration.zero` meanings no timeout limit.
+  /// `null` or `Duration.zero` means no timeout limit.
   Duration? get connectTimeout => _connectTimeout;
   Duration? _connectTimeout;
 
@@ -363,7 +363,7 @@ class Options {
   /// Throws the [DioException] with
   /// [DioExceptionType.sendTimeout] type when timed out.
   ///
-  /// `null` or `Duration.zero` meanings no timeout limit.
+  /// `null` or `Duration.zero` means no timeout limit.
   Duration? get sendTimeout => _sendTimeout;
   Duration? _sendTimeout;
 
@@ -384,7 +384,7 @@ class Options {
   /// Throws the [DioException] with
   /// [DioExceptionType.receiveTimeout] type when timed out.
   ///
-  /// `null` or `Duration.zero` meanings no timeout limit.
+  /// `null` or `Duration.zero` means no timeout limit.
   Duration? get receiveTimeout => _receiveTimeout;
   Duration? _receiveTimeout;
 
@@ -412,7 +412,8 @@ class Options {
   ///  - `stream` if you want to receive the data as streamed binary bytes.
   ResponseType? responseType;
 
-  /// Defines whether the request is succeed with the given status code.
+  /// Defines whether the request is considered to be successful
+  /// with the given status code.
   /// The request will be treated as succeed if the callback returns true.
   ValidateStatus? validateStatus;
 

@@ -276,7 +276,7 @@ String method;
 /// Throws the [DioException] with
 /// [DioExceptionType.sendTimeout] type when timed out.
 ///
-/// `null` or `Duration.zero` meanings no timeout limit.
+/// `null` or `Duration.zero` means no timeout limit.
 Duration? sendTimeout;
 
 /// Timeout when receiving data.
@@ -289,7 +289,7 @@ Duration? sendTimeout;
 /// Throws the [DioException] with
 /// [DioExceptionType.receiveTimeout] type when timed out.
 ///
-/// `null` or `Duration.zero` meanings no timeout limit.
+/// `null` or `Duration.zero` means no timeout limit.
 Duration? receiveTimeout;
 
 /// Custom field that you can retrieve it later in [Interceptor],
@@ -322,7 +322,8 @@ ResponseType? responseType;
 /// [Interceptors.removeImplyContentTypeInterceptor].
 String? contentType;
 
-/// Defines whether the request is succeed with the given status code.
+/// Defines whether the request is considered to be successful
+/// with the given status code.
 /// The request will be treated as succeed if the callback returns true.
 ValidateStatus? validateStatus;
 
