@@ -302,6 +302,15 @@ Map<String, dynamic>? extra;
 /// e.g.: `content-type` and `Content-Type` will be treated as the same key.
 Map<String, dynamic>? headers;
 
+/// Whether the case of header keys should be preserved.
+///
+/// Defaults to false.
+///
+/// This option WILL NOT take effect on these circumstances:
+/// - XHR ([HttpRequest]) does not support handling this explicitly.
+/// - The HTTP/2 standard only supports lowercase header keys.
+bool? preserveHeaderCase;
+
 /// The type of data that [Dio] handles with options.
 ///
 /// The default value is [ResponseType.json].

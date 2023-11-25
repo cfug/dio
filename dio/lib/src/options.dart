@@ -130,6 +130,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
+    bool preserveHeaderCase = false,
     ResponseType? responseType = ResponseType.json,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -148,6 +149,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
           sendTimeout: sendTimeout,
           extra: extra,
           headers: headers,
+          preserveHeaderCase: preserveHeaderCase,
           responseType: responseType,
           contentType: contentType,
           validateStatus: validateStatus,
@@ -175,6 +177,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     Duration? sendTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
+    bool? preserveHeaderCase,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -195,6 +198,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       sendTimeout: sendTimeout ?? this.sendTimeout,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
+      preserveHeaderCase: preserveHeaderCase ?? this.preserveHeaderCase,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -218,6 +222,7 @@ class Options {
     Duration? receiveTimeout,
     this.extra,
     this.headers,
+    this.preserveHeaderCase,
     this.responseType,
     this.contentType,
     this.validateStatus,
@@ -240,6 +245,7 @@ class Options {
     Duration? receiveTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
+    bool? preserveHeaderCase,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -276,6 +282,7 @@ class Options {
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       extra: extra ?? effectiveExtra,
       headers: headers ?? effectiveHeaders,
+      preserveHeaderCase: preserveHeaderCase ?? this.preserveHeaderCase,
       responseType: responseType ?? this.responseType,
       contentType: contentType ?? this.contentType,
       validateStatus: validateStatus ?? this.validateStatus,
@@ -324,6 +331,7 @@ class Options {
       baseUrl: baseOpt.baseUrl,
       path: path,
       data: data,
+      preserveHeaderCase: preserveHeaderCase ?? baseOpt.preserveHeaderCase,
       sourceStackTrace: sourceStackTrace ?? StackTrace.current,
       connectTimeout: baseOpt.connectTimeout,
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
@@ -357,6 +365,15 @@ class Options {
   /// The keys of the header are case-insensitive,
   /// e.g.: `content-type` and `Content-Type` will be treated as the same key.
   Map<String, dynamic>? headers;
+
+  /// Whether the case of header keys should be preserved.
+  ///
+  /// Defaults to false.
+  ///
+  /// This option WILL NOT take effect on these circumstances:
+  /// - XHR ([HttpRequest]) does not support handling this explicitly.
+  /// - The HTTP/2 standard only supports lowercase header keys.
+  bool? preserveHeaderCase;
 
   /// Timeout when sending data.
   ///
@@ -478,6 +495,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     String? baseUrl,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
+    bool? preserveHeaderCase,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -497,6 +515,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
           receiveTimeout: receiveTimeout,
           extra: extra,
           headers: headers,
+          preserveHeaderCase: preserveHeaderCase,
           responseType: responseType,
           contentType: contentType,
           validateStatus: validateStatus,
@@ -529,6 +548,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     CancelToken? cancelToken,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
+    bool? preserveHeaderCase,
     ResponseType? responseType,
     String? contentType,
     ValidateStatus? validateStatus,
@@ -565,6 +585,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       cancelToken: cancelToken ?? this.cancelToken,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
+      preserveHeaderCase: preserveHeaderCase ?? this.preserveHeaderCase,
       responseType: responseType ?? this.responseType,
       validateStatus: validateStatus ?? this.validateStatus,
       receiveDataWhenStatusError:
@@ -642,6 +663,7 @@ class _RequestConfig {
     String? method,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
+    bool? preserveHeaderCase,
     String? contentType,
     ListFormat? listFormat,
     bool? followRedirects,
@@ -657,6 +679,7 @@ class _RequestConfig {
         assert(sendTimeout == null || !sendTimeout.isNegative),
         _sendTimeout = sendTimeout,
         method = method ?? 'GET',
+        preserveHeaderCase = preserveHeaderCase ?? false,
         listFormat = listFormat ?? ListFormat.multi,
         extra = extra ?? {},
         followRedirects = followRedirects ?? true,
@@ -695,6 +718,8 @@ class _RequestConfig {
       _headers[Headers.contentTypeHeader] = _defaultContentType;
     }
   }
+
+  late bool preserveHeaderCase;
 
   Duration? get sendTimeout => _sendTimeout;
   Duration? _sendTimeout;
