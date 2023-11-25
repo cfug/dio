@@ -180,14 +180,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
       receiveTimer?.cancel();
       receiveTimer = Timer(receiveTimeout, () {
-        xhr.abort();
-        completer.completeError(
-          DioException.receiveTimeout(
-            timeout: receiveTimeout,
-            requestOptions: options,
-          ),
-          StackTrace.current,
-        );
+        if (!completer.isCompleted) {
+          xhr.abort();
+          completer.completeError(
+            DioException.receiveTimeout(
+              timeout: receiveTimeout,
+              requestOptions: options,
+            ),
+            StackTrace.current,
+          );
+        }
         stopWatchReceiveTimeout();
       });
     }
