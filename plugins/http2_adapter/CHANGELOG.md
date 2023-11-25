@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Support non-TLS connection requests.
 
 ## 2.3.2
 
