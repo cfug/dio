@@ -68,7 +68,7 @@ class Http2Adapter implements HttpClientAdapter {
           if (value is Iterable) {
             v = value.join(', ');
           } else {
-            v = '$value'.trim();
+            v = '$value';
           }
           return Header.ascii(key.toLowerCase(), v);
         },
