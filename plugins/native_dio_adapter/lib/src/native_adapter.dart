@@ -21,12 +21,14 @@ class NativeAdapter implements HttpClientAdapter {
     URLSessionConfiguration Function()? createCupertinoConfiguration,
     @Deprecated(
       'Use createCronetEngine instead. '
-      'This will cause platform exception on iOS/macOS platforms',
+      'This will cause platform exception on iOS/macOS platforms. '
+      'This will be removed in v2.0.0',
     )
     CronetEngine? androidCronetEngine,
     @Deprecated(
       'Use createCupertinoConfiguration instead. '
-      'This will cause platform exception on the Android platform',
+      'This will cause platform exception on the Android platform. '
+      'This will be removed in v2.0.0',
     )
     URLSessionConfiguration? cupertinoConfiguration,
   }) {
