@@ -161,37 +161,52 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    final downloadStopwatch = Stopwatch();
-    xhr.onProgress.listen((event) {
-      if (connectTimeoutTimer != null) {
-        connectTimeoutTimer!.cancel();
-        connectTimeoutTimer = null;
-      }
+    final receiveStopwatch = Stopwatch();
+    Timer? receiveTimer;
 
-      if (receiveTimeout > Duration.zero) {
-        if (!downloadStopwatch.isRunning) {
-          downloadStopwatch.start();
-        }
-        final duration = downloadStopwatch.elapsed;
-        if (duration > receiveTimeout) {
-          downloadStopwatch.stop();
-          completer.completeError(
-            DioException.receiveTimeout(
-              timeout: receiveTimeout,
-              requestOptions: options,
-            ),
-            StackTrace.current,
-          );
-          xhr.abort();
-        }
-      }
+    void stopWatchReceiveTimeout() {
+      receiveTimer?.cancel();
+      receiveTimer = null;
+      receiveStopwatch.stop();
+    }
 
-      if (options.onReceiveProgress != null) {
-        if (event.loaded != null && event.total != null) {
+    void watchReceiveTimeout() {
+      if (receiveTimeout <= Duration.zero) {
+        return;
+      }
+      receiveStopwatch.reset();
+      if (!receiveStopwatch.isRunning) {
+        receiveStopwatch.start();
+      }
+      receiveTimer?.cancel();
+      receiveTimer = Timer(receiveTimeout, () {
+        xhr.abort();
+        completer.completeError(
+          DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          ),
+          StackTrace.current,
+        );
+        stopWatchReceiveTimeout();
+      });
+    }
+
+    xhr.onProgress.listen(
+      (ProgressEvent event) {
+        if (connectTimeoutTimer != null) {
+          connectTimeoutTimer!.cancel();
+          connectTimeoutTimer = null;
+        }
+        watchReceiveTimeout();
+        if (options.onReceiveProgress != null &&
+            event.loaded != null &&
+            event.total != null) {
           options.onReceiveProgress!(event.loaded!, event.total!);
         }
-      }
-    });
+      },
+      onDone: () => stopWatchReceiveTimeout(),
+    );
 
     xhr.onError.first.then((_) {
       connectTimeoutTimer?.cancel();
