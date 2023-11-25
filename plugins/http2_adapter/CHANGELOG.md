@@ -9,6 +9,7 @@
 - Implement `sendTimeout` and `receiveTimeout` for the adapter.
 - Fix redirect not working when requestStream is null.
 - Ignores `Duration.zero` timeouts.
+- `Http2Adapter` header supports dynamic
 
 ## 2.3.1+1
 
