@@ -291,7 +291,19 @@ String method;
 String? baseUrl;
 
 /// HTTP 请求头。
+///
+/// 请求头的键是否相等的判断大小写不敏感的。
+/// 例如：`content-type` 和 `Content-Type` 会视为同样的请求头键。
 Map<String, dynamic>? headers;
+
+/// 是否保留请求头的大小写。
+///
+/// 默认值为 false。
+///
+/// 该选项在以下场景无效：
+///  - XHR 不支持直接处理。
+///  - 按照 HTTP/2 的标准，只支持小写请求头键。
+bool? preserveHeaderCase;
 
 /// 连接服务器超时时间.
 Duration? connectTimeout;

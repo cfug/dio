@@ -1,10 +1,15 @@
 @TestOn('vm')
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:dio/src/utils.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
+import 'mock/http_mock.mocks.dart';
 import 'utils.dart';
 
 void main() {
@@ -522,5 +527,63 @@ void main() {
       );
       expect(response.data, 'test');
     }
+  });
+
+  test('Headers can be case-sensitive', () async {
+    final dio = Dio();
+    final client = MockHttpClient();
+    dio.httpClientAdapter = IOHttpClientAdapter(createHttpClient: () => client);
+
+    final headerMap = caseInsensitiveKeyMap();
+    late MockHttpHeaders mockRequestHeaders;
+    when(client.openUrl(any, any)).thenAnswer((_) async {
+      final request = MockHttpClientRequest();
+      final response = MockHttpClientResponse();
+      mockRequestHeaders = MockHttpHeaders();
+      when(
+        mockRequestHeaders.set(
+          any,
+          any,
+          preserveHeaderCase: anyNamed('preserveHeaderCase'),
+        ),
+      ).thenAnswer((invocation) {
+        final args = invocation.positionalArguments.cast<String>();
+        final preserveHeaderCase =
+            invocation.namedArguments[#preserveHeaderCase] as bool;
+        headerMap[preserveHeaderCase ? args[0] : args[0].toLowerCase()] =
+            args[1];
+      });
+      when(request.headers).thenAnswer((_) => mockRequestHeaders);
+      when(request.close()).thenAnswer((_) => Future.value(response));
+      when(request.addStream(any)).thenAnswer((_) async => null);
+      when(response.headers).thenReturn(MockHttpHeaders());
+      when(response.statusCode).thenReturn(200);
+      when(response.reasonPhrase).thenReturn('OK');
+      when(response.isRedirect).thenReturn(false);
+      when(response.redirects).thenReturn([]);
+      when(response.transform(any))
+          .thenAnswer((_) => Stream<Uint8List>.empty());
+      return Future.value(request);
+    });
+
+    await dio.get(
+      '',
+      options: Options(
+        preserveHeaderCase: true,
+        headers: {'Sensitive': 'test', 'insensitive': 'test'},
+      ),
+    );
+    expect(headerMap['Sensitive'], 'test');
+    expect(headerMap['insensitive'], 'test');
+    headerMap.clear();
+
+    await dio.get(
+      '',
+      options: Options(
+        headers: {'Sensitive': 'test', 'insensitive': 'test'},
+      ),
+    );
+    expect(headerMap['sensitive'], 'test');
+    expect(headerMap['insensitive'], 'test');
   });
 }
