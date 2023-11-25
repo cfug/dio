@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-*None.*
+- Adds `createCronetEngine` and `createCupertinoConfiguration`
+  to deprecate `cronetEngine` and `cupertinoConfiguration`
+  for the `NativeAdapter`, to avoid platform exceptions.
 
 ## 1.1.1
 
