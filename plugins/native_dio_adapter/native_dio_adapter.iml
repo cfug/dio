@@ -10,9 +10,22 @@
       <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral/.plugin_symlinks/jni/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral/.plugin_symlinks/jni/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral/.plugin_symlinks/jni/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral/.plugin_symlinks/jni/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral/.plugin_symlinks/jni/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/linux/flutter/ephemeral/.plugin_symlinks/jni/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral/.plugin_symlinks/jni/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral/.plugin_symlinks/jni/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral/.plugin_symlinks/jni/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral/.plugin_symlinks/jni/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral/.plugin_symlinks/jni/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/windows/flutter/ephemeral/.plugin_symlinks/jni/example/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
     <orderEntry type="library" name="Dart Packages" level="project" />
+    <orderEntry type="library" name="Flutter Plugins" level="project" />
   </component>
 </module>
