@@ -56,7 +56,9 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     if (requestStream != null) {
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(Uint8List.fromList(bytes)),
+        (bytes) => completer.complete(
+          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+        ),
       );
       requestStream.listen(
         sink.add,

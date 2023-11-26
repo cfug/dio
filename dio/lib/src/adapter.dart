@@ -75,7 +75,9 @@ class ResponseBody {
     this.statusMessage,
     this.isRedirect = false,
     Map<String, List<String>>? headers,
-  })  : stream = Stream.value(Uint8List.fromList(bytes)),
+  })  : stream = Stream.value(
+          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+        ),
         headers = headers ?? {};
 
   /// Whether this response is a redirect.

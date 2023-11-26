@@ -5,6 +5,7 @@
 - Adds `createCronetEngine` and `createCupertinoConfiguration`
   to deprecate `cronetEngine` and `cupertinoConfiguration`
   for the `NativeAdapter`, to avoid platform exceptions.
+- Improve the request stream byte conversion.
 
 ## 1.1.1
 
