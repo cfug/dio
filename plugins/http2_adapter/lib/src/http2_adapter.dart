@@ -1,3 +1,4 @@
+// ignore_for_file: void_checks
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -89,35 +90,68 @@ class Http2Adapter implements HttpClientAdapter {
     }
 
     if (hasRequestData) {
-      final requestStreamFuture = requestStream!.listen((data) {
+      Future<void> requestStreamFuture = requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
       }).asFuture();
       final sendTimeout = options.sendTimeout ?? Duration.zero;
       if (sendTimeout > Duration.zero) {
-        await requestStreamFuture.timeout(
+        requestStreamFuture = requestStreamFuture.timeout(
           sendTimeout,
           onTimeout: () {
+            stream.terminate();
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
             );
           },
         );
-      } else {
-        await requestStreamFuture;
       }
+      await requestStreamFuture;
     }
     await stream.outgoingMessages.close();
 
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
-    final completer = Completer();
-    late int statusCode;
+    final responseCompleter = Completer<void>();
     bool needRedirect = false;
-    late StreamSubscription subscription;
     bool needResponse = false;
+
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    final receiveStopwatch = Stopwatch();
+    Timer? receiveTimer;
+
+    void stopWatchReceiveTimeout() {
+      receiveTimer?.cancel();
+      receiveTimer = null;
+      receiveStopwatch.stop();
+    }
+
+    void watchReceiveTimeout() {
+      if (receiveTimeout <= Duration.zero) {
+        return;
+      }
+      receiveStopwatch.reset();
+      if (!receiveStopwatch.isRunning) {
+        receiveStopwatch.start();
+      }
+      receiveTimer?.cancel();
+      receiveTimer = Timer(receiveTimeout, () {
+        sc.addError(
+          DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          ),
+        );
+        sc.close();
+        stream.terminate();
+        stopWatchReceiveTimeout();
+      });
+    }
+
+    late int statusCode;
+    late StreamSubscription subscription;
     subscription = stream.incomingMessages.listen(
-      (message) async {
+      (StreamMessage message) async {
         if (message is HeadersStreamMessage) {
           for (final header in message.headers) {
             final name = utf8.decode(header.name);
@@ -133,34 +167,47 @@ class Http2Adapter implements HttpClientAdapter {
             needResponse =
                 !needRedirect && options.validateStatus(statusCode) ||
                     options.receiveDataWhenStatusError;
-            completer.complete();
+            responseCompleter.complete();
           }
         } else if (message is DataStreamMessage) {
           if (needResponse) {
-            sc.add(Uint8List.fromList(message.bytes));
+            watchReceiveTimeout();
+            sc.add(
+              message.bytes is Uint8List
+                  ? message.bytes as Uint8List
+                  : Uint8List.fromList(message.bytes),
+            );
           } else {
-            subscription.cancel().whenComplete(() => sc.close());
+            stopWatchReceiveTimeout();
+            subscription.cancel().whenComplete(() {
+              stream.terminate();
+              sc.close();
+            });
           }
         }
       },
-      onDone: () => sc.close(),
+      onDone: () {
+        stopWatchReceiveTimeout();
+        sc.close();
+      },
       onError: (Object error, StackTrace stackTrace) {
-        // If connection is being forcefully terminated, remove the connection
+        // If connection is being forcefully terminated, remove the connection.
         if (error is TransportConnectionException) {
           _connectionMgr.removeConnection(transport);
         }
-        if (!completer.isCompleted) {
-          completer.completeError(error, stackTrace);
+        if (!responseCompleter.isCompleted) {
+          responseCompleter.completeError(error, stackTrace);
         } else {
           sc.addError(error, stackTrace);
         }
+        stopWatchReceiveTimeout();
       },
       cancelOnError: true,
     );
 
-    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    Future<void> responseFuture = responseCompleter.future;
     if (receiveTimeout > Duration.zero) {
-      await completer.future.timeout(
+      responseFuture = responseFuture.timeout(
         receiveTimeout,
         onTimeout: () {
           subscription.cancel().whenComplete(() => sc.close());
@@ -170,11 +217,10 @@ class Http2Adapter implements HttpClientAdapter {
           );
         },
       );
-    } else {
-      await completer.future;
     }
+    await responseFuture;
 
-    // Handle redirection
+    // Handle redirection.
     if (needRedirect) {
       final url = responseHeaders.value('location');
       redirects.add(

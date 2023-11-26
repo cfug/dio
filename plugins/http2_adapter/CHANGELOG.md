@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Support non-TLS connection requests.
+- Improve the implementation of `receiveTimeout`.
 
 ## 2.3.2
 
