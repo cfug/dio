@@ -394,9 +394,10 @@ class Options {
   /// Timeout when receiving data.
   ///
   /// The timeout represents:
-  ///  - the timeout during connection established and responded.
-  ///  - the timeout during data transfer of each bytes event,
-  ///    rather than the overall timing during the receiving.
+  ///  - a timeout before the connection is established
+  ///    and the first received response bytes.
+  ///  - the duration during data transfer of each byte event,
+  ///    rather than the total duration of the receiving.
   ///
   /// Throws the [DioException] with
   /// [DioExceptionType.receiveTimeout] type when timed out.
