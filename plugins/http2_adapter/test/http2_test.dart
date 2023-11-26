@@ -4,6 +4,12 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('works with non-TLS requests', () async {
+    final dio = Dio()..httpClientAdapter = Http2Adapter(ConnectionManager());
+    await dio.get('http://flutter.cn/');
+    await dio.get('https://flutter.cn/non-exist-destination');
+  });
+
   test('adds one to input values', () async {
     final dio = Dio()
       ..options.baseUrl = 'https://httpbun.com/'

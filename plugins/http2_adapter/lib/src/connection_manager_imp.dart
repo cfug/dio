@@ -77,8 +77,9 @@ class _ConnectionManager implements ConnectionManager {
       onClientCreate!(uri, clientConfig);
     }
 
-    late final SecureSocket socket;
-
+    // Allow [Socket] for non-TLS connections
+    // or [SecureSocket] for TLS connections.
+    late final Socket socket;
     try {
       socket = await _createSocket(uri, options, clientConfig);
     } on SocketException catch (e) {
@@ -94,8 +95,10 @@ class _ConnectionManager implements ConnectionManager {
     }
 
     if (clientConfig.validateCertificate != null) {
+      final certificate =
+          socket is SecureSocket ? socket.peerCertificate : null;
       final isCertApproved = clientConfig.validateCertificate!(
-        socket.peerCertificate,
+        certificate,
         uri.host,
         uri.port,
       );
@@ -103,7 +106,7 @@ class _ConnectionManager implements ConnectionManager {
         throw DioException(
           requestOptions: options,
           type: DioExceptionType.badCertificate,
-          error: socket.peerCertificate,
+          error: certificate,
           message: 'The certificate of the response is not approved.',
         );
       }
@@ -119,7 +122,6 @@ class _ConnectionManager implements ConnectionManager {
       }
     };
 
-    //
     transportState.delayClose(
       _closed ? Duration(milliseconds: 50) : _idleTimeout,
       () {
@@ -130,7 +132,7 @@ class _ConnectionManager implements ConnectionManager {
     return transportState;
   }
 
-  Future<SecureSocket> _createSocket(
+  Future<Socket> _createSocket(
     Uri target,
     RequestOptions options,
     ClientSetting clientConfig,
@@ -141,6 +143,13 @@ class _ConnectionManager implements ConnectionManager {
     final proxy = clientConfig.proxy;
 
     if (proxy == null) {
+      if (target.scheme != 'https') {
+        return Socket.connect(
+          target.host,
+          target.port,
+          timeout: timeout,
+        );
+      }
       return SecureSocket.connect(
         target.host,
         target.port,
