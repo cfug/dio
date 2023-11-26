@@ -9,6 +9,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
 - Fix `receiveTimeout` for the `IOHttpClientAdapter`.
 - Fix `receiveTimeout` for the `download` method of `DioForNative`.
+- Improve the request stream byte conversion on Web.
 
 ## 5.3.4
 
