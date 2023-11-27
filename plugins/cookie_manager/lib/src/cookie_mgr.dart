@@ -61,12 +61,12 @@ class CookieManager extends Interceptor {
           newCookies.isNotEmpty ? newCookies : null;
       handler.next(options);
     }).catchError((dynamic e, StackTrace s) {
-      final err = DioException(
+      final error = DioException(
         requestOptions: options,
         error: e,
         stackTrace: s,
       );
-      handler.reject(err, true);
+      handler.reject(error, true);
     });
   }
 
@@ -74,23 +74,24 @@ class CookieManager extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     _saveCookies(response).then((_) => handler.next(response)).catchError(
       (dynamic e, StackTrace s) {
-        final err = DioException(
+        final error = DioException(
           requestOptions: response.requestOptions,
           error: e,
           stackTrace: s,
         );
-        handler.reject(err, true);
+        handler.reject(error, true);
       },
     );
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response != null) {
-      _saveCookies(err.response!).then((_) => handler.next(err)).catchError(
+  void onError(DioException error, ErrorInterceptorHandler handler) {
+    final response = error.response;
+    if (response != null) {
+      _saveCookies(response).then((_) => handler.next(error)).catchError(
         (dynamic e, StackTrace s) {
           final error = DioException(
-            requestOptions: err.response!.requestOptions,
+            requestOptions: response.requestOptions,
             error: e,
             stackTrace: s,
           );
@@ -98,7 +99,7 @@ class CookieManager extends Interceptor {
         },
       );
     } else {
-      handler.next(err);
+      handler.next(error);
     }
   }
 

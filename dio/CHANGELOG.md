@@ -10,6 +10,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fix `receiveTimeout` for the `IOHttpClientAdapter`.
 - Fix `receiveTimeout` for the `download` method of `DioForNative`.
 - Improve the stream byte conversion.
+- Change the signature of `Interceptor.onError` from `void onError(DioException err, ErrorInterceptorHandler handler)` to `void onError(DioException error, ErrorInterceptorHandler handler)`.
 
 ## 5.3.4
 

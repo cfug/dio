@@ -450,11 +450,11 @@ dio.interceptors.add(
       // you can reject a `DioException` object using `handler.reject(dioError)`.
       return handler.next(response);
     },
-    onError: (DioException err, ErrorInterceptorHandler handler) {
+    onError: (DioException error, ErrorInterceptorHandler handler) {
       // Do something with response error.
       // If you want to resolve the request with some custom data,
       // you can resolve a `Response` object using `handler.resolve(response)`.
-      return handler.next(err);
+      return handler.next(error);
     },
   ),
 );
@@ -478,9 +478,9 @@ class CustomInterceptors extends Interceptor {
   }
 
   @override
-  Future onError(DioException err, ErrorInterceptorHandler handler) async {
-    print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
-    super.onError(err, handler);
+  Future onError(DioException error, ErrorInterceptorHandler handler) async {
+    print('ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
+    super.onError(error, handler);
   }
 }
 ```
@@ -913,9 +913,9 @@ When a token's `cancel()` is invoked, all requests with this token will be cance
 
 ```dart
 final cancelToken = CancelToken();
-dio.get(url, cancelToken: cancelToken).catchError((DioException err) {
-  if (CancelToken.isCancel(err)) {
-    print('Request canceled: ${err.message}');
+dio.get(url, cancelToken: cancelToken).catchError((DioException error) {
+  if (CancelToken.isCancel(error)) {
+    print('Request canceled: ${error.message}');
   } else {
     // handle error.
   }

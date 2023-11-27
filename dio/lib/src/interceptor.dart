@@ -199,10 +199,10 @@ class Interceptor {
 
   /// Called when an exception was occurred during the request.
   void onError(
-    DioException err,
+    DioException error,
     ErrorInterceptorHandler handler,
   ) {
-    handler.next(err);
+    handler.next(error);
   }
 }
 
@@ -220,7 +220,7 @@ typedef InterceptorSuccessCallback = void Function(
 
 /// The signature of [Interceptor.onError].
 typedef InterceptorErrorCallback = void Function(
-  DioException err,
+  DioException error,
   ErrorInterceptorHandler handler,
 );
 
@@ -255,13 +255,13 @@ mixin _InterceptorWrapperMixin on Interceptor {
 
   @override
   void onError(
-    DioException err,
+    DioException error,
     ErrorInterceptorHandler handler,
   ) {
     if (_onError != null) {
-      _onError!(err, handler);
+      _onError!(error, handler);
     } else {
-      handler.next(err);
+      handler.next(error);
     }
   }
 }
@@ -371,10 +371,10 @@ class QueuedInterceptor extends Interceptor {
   }
 
   void _handleError(
-    DioException err,
+    DioException error,
     ErrorInterceptorHandler handler,
   ) {
-    _handleQueue(_errorQueue, err, handler, onError);
+    _handleQueue(_errorQueue, error, handler, onError);
   }
 
   void _handleQueue<T, V extends _BaseHandler>(
