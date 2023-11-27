@@ -134,7 +134,7 @@ void main() {
     expect(res.statusCode, 200);
   });
 
-  test('header supports dynamic', () async {
+  test('header value types implicit support', () async {
     final dio = Dio()
       ..options.baseUrl = 'https://httpbun.com/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
@@ -151,10 +151,11 @@ void main() {
         },
       ),
     );
-    expect(res.data.toString(), contains('TEST'));
-    expect(res.data.toString(), contains('Listkey: 1, 2'));
-    expect(res.data.toString(), contains('Stringkey: 1'));
-    expect(res.data.toString(), contains('Numkey: 2'));
-    expect(res.data.toString(), contains('Booleankey: false'));
+    final content = res.data.toString();
+    expect(content, contains('TEST'));
+    expect(content, contains('Listkey: 1, 2'));
+    expect(content, contains('Stringkey: 1'));
+    expect(content, contains('Numkey: 2'));
+    expect(content, contains('Booleankey: false'));
   });
 }
