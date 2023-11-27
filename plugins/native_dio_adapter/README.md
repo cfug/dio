@@ -39,9 +39,7 @@ Add the `native_dio_adapter` package to your
 
 ```dart
 final dioClient = Dio();
-if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
-  dioClient.httpClientAdapter = NativeAdapter();
-}
+dioClient.httpClientAdapter = NativeAdapter();
 ```
 
 ## 📣 About the author

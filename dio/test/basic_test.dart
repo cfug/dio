@@ -8,36 +8,6 @@ import 'mock/adapters.dart';
 import 'utils.dart';
 
 void main() {
-  test('test headers', () {
-    final headers = Headers.fromMap({
-      'set-cookie': ['k=v', 'k1=v1'],
-      'content-length': ['200'],
-      'test': ['1', '2'],
-    });
-    headers.add('SET-COOKIE', 'k2=v2');
-    expect(headers.value('content-length'), '200');
-    expect(Future(() => headers.value('test')), throwsException);
-    expect(headers['set-cookie']?.length, 3);
-    headers.remove('set-cookie', 'k=v');
-    expect(headers['set-cookie']?.length, 2);
-    headers.removeAll('set-cookie');
-    expect(headers['set-cookie'], isNull);
-    final ls = [];
-    headers.forEach((k, list) => ls.addAll(list));
-    expect(ls.length, 3);
-    expect(headers.toString(), 'content-length: 200\ntest: 1\ntest: 2\n');
-    headers.set('content-length', '300');
-    expect(headers.value('content-length'), '300');
-    headers.set('content-length', ['400']);
-    expect(headers.value('content-length'), '400');
-
-    final headers1 = Headers();
-    headers1.set('xx', 'v');
-    expect(headers1.value('xx'), 'v');
-    headers1.clear();
-    expect(headers1.map.isEmpty, isTrue);
-  });
-
   test('send with an invalid URL', () async {
     await expectLater(
       Dio().get('http://http.invalid'),

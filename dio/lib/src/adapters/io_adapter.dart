@@ -111,8 +111,14 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
 
       // Set Headers
-      options.headers.forEach((k, v) {
-        if (v != null) request.headers.set(k, v);
+      options.headers.forEach((key, value) {
+        if (value != null) {
+          request.headers.set(
+            key,
+            value,
+            preserveHeaderCase: options.preserveHeaderCase,
+          );
+        }
       });
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
@@ -162,13 +168,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       await future;
     }
 
-    final stopwatch = Stopwatch()..start();
     Future<HttpClientResponse> future = request.close();
-    final receiveTimeout = options.receiveTimeout;
-    if (receiveTimeout != null && receiveTimeout > Duration.zero) {
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    if (receiveTimeout > Duration.zero) {
       future = future.timeout(
         receiveTimeout,
         onTimeout: () {
+          request.abort();
           throw DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
@@ -176,7 +182,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         },
       );
     }
-
     final responseStream = await future;
 
     if (validateCertificate != null) {
@@ -197,25 +202,49 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
+    final receiveStopwatch = Stopwatch();
+    Timer? receiveTimer;
+
+    void stopWatchReceiveTimeout() {
+      receiveTimer?.cancel();
+      receiveTimer = null;
+      receiveStopwatch.stop();
+    }
+
+    void watchReceiveTimeout(EventSink<Uint8List> sink) {
+      if (receiveTimeout <= Duration.zero) {
+        return;
+      }
+      receiveStopwatch.reset();
+      if (!receiveStopwatch.isRunning) {
+        receiveStopwatch.start();
+      }
+      receiveTimer?.cancel();
+      receiveTimer = Timer(receiveTimeout, () {
+        sink.addError(
+          DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          ),
+        );
+        sink.close();
+        responseStream.detachSocket().then((socket) => socket.destroy());
+        stopWatchReceiveTimeout();
+      });
+    }
+
     final stream = responseStream.transform<Uint8List>(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
-          stopwatch.stop();
-          final duration = stopwatch.elapsed;
-          final receiveTimeout = options.receiveTimeout;
-          if (receiveTimeout != null &&
-              receiveTimeout > Duration.zero &&
-              duration > receiveTimeout) {
-            sink.addError(
-              DioException.receiveTimeout(
-                timeout: receiveTimeout,
-                requestOptions: options,
-              ),
-            );
-            responseStream.detachSocket().then((socket) => socket.destroy());
-          } else {
-            sink.add(Uint8List.fromList(data));
+          watchReceiveTimeout(sink);
+          // Always true if the receive timeout was not set.
+          if (receiveStopwatch.elapsed <= receiveTimeout) {
+            sink.add(data is Uint8List ? data : Uint8List.fromList(data));
           }
+        },
+        handleDone: (sink) {
+          stopWatchReceiveTimeout();
+          sink.close();
         },
       ),
     );
@@ -239,8 +268,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
 
   HttpClient _configHttpClient(Duration? connectionTimeout) {
     _cachedHttpClient ??= _createHttpClient();
-    if (connectionTimeout != null && connectionTimeout > Duration.zero) {
+    connectionTimeout ??= Duration.zero;
+    if (connectionTimeout > Duration.zero) {
       _cachedHttpClient!.connectionTimeout = connectionTimeout;
+    } else {
+      _cachedHttpClient!.connectionTimeout = null;
     }
     return _cachedHttpClient!;
   }

@@ -17,8 +17,6 @@ dio/.pub/
 dio/.idea/
 dio/.exampl
 dio/coverage
-dio/test/_download_test.md
-dio/test/*_pinning.txt
 
 # plugins
 plugins/cookie_manager/.packages

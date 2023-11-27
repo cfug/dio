@@ -6,6 +6,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Improve `SyncTransformer`'s stream transform.
+- Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
+- Fix `receiveTimeout` for the `IOHttpClientAdapter`.
+- Fix `receiveTimeout` for the `download` method of `DioForNative`.
+- Improve the stream byte conversion.
 
 ## 5.3.4
 
