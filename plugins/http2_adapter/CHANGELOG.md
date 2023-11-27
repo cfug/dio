@@ -4,13 +4,13 @@
 
 - Support non-TLS connection requests.
 - Improve the implementation of `receiveTimeout`.
+- Add more header value types implicit support.
 
 ## 2.3.2
 
 - Implement `sendTimeout` and `receiveTimeout` for the adapter.
 - Fix redirect not working when requestStream is null.
 - Ignores `Duration.zero` timeouts.
-- `Http2Adapter` header supports dynamic
 
 ## 2.3.1+1
 
