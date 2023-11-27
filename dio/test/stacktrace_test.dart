@@ -306,9 +306,9 @@ void main() async {
       StackTrace? caughtStackTrace;
       dio.interceptors.addAll([
         InterceptorsWrapper(
-          onError: (error, handler) {
-            caughtStackTrace = error.stackTrace;
-            handler.next(error);
+          onError: (err, handler) {
+            caughtStackTrace = err.stackTrace;
+            handler.next(err);
           },
         ),
         InterceptorsWrapper(
@@ -341,9 +341,9 @@ void main() async {
       StackTrace? caughtStackTrace;
       dio.interceptors.addAll([
         QueuedInterceptorsWrapper(
-          onError: (error, handler) {
-            caughtStackTrace = error.stackTrace;
-            handler.next(error);
+          onError: (err, handler) {
+            caughtStackTrace = err.stackTrace;
+            handler.next(err);
           },
         ),
         QueuedInterceptorsWrapper(

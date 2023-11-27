@@ -104,18 +104,18 @@ class LogInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException error, ErrorInterceptorHandler handler) async {
-    if (this.error) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (error) {
       logPrint('*** DioException ***:');
-      logPrint('uri: ${error.requestOptions.uri}');
-      logPrint('$error');
-      if (error.response != null) {
-        _printResponse(error.response!);
+      logPrint('uri: ${err.requestOptions.uri}');
+      logPrint('$err');
+      if (err.response != null) {
+        _printResponse(err.response!);
       }
       logPrint('');
     }
 
-    handler.next(error);
+    handler.next(err);
   }
 
   void _printResponse(Response response) {

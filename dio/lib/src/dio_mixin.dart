@@ -420,10 +420,10 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
-      return (error) {
-        final state = error is InterceptorState
-            ? error
-            : InterceptorState(assureDioException(error, requestOptions));
+      return (err) {
+        final state = err is InterceptorState
+            ? err
+            : InterceptorState(assureDioException(err, requestOptions));
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
           interceptor(state.data, errorHandler);
@@ -442,7 +442,7 @@ abstract class DioMixin implements Dio {
             Future(handleError),
           );
         } else {
-          throw error;
+          throw err;
         }
       };
     }
@@ -690,15 +690,15 @@ abstract class DioMixin implements Dio {
 
   @internal
   static DioException assureDioException(
-    Object error,
+    Object err,
     RequestOptions requestOptions,
   ) {
-    if (error is DioException) {
-      return error;
+    if (err is DioException) {
+      return err;
     }
     return DioException(
       requestOptions: requestOptions,
-      error: error,
+      error: err,
     );
   }
 

@@ -25,9 +25,9 @@ class CacheInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException error, ErrorInterceptorHandler handler) {
-    print('onError: $error');
-    super.onError(error, handler);
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    print('onError: $err');
+    super.onError(err, handler);
   }
 }
 

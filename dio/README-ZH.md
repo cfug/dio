@@ -447,9 +447,9 @@ dio.interceptors.add(
       // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(response);
     },
-    onError: (DioException error, ErrorInterceptorHandler handler) {
+    onError: (DioException err, ErrorInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
-      return handler.next(error);
+      return handler.next(err);
     },
   ),
 );
@@ -473,9 +473,9 @@ class CustomInterceptors extends Interceptor {
   }
 
   @override
-  Future onError(DioException error, ErrorInterceptorHandler handler) async {
-    print('ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
-    super.onError(error, handler);
+  Future onError(DioException err, ErrorInterceptorHandler handler) async {
+    print('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
+    super.onError(err, handler);
   }
 }
 ```
@@ -886,9 +886,9 @@ void initAdapter() {
 
 ```dart
 final cancelToken = CancelToken();
-dio.get(url, cancelToken: cancelToken).catchError((DioException error) {
-  if (CancelToken.isCancel(error)) {
-    print('Request canceled: ${error.message}');
+dio.get(url, cancelToken: cancelToken).catchError((DioException err) {
+  if (CancelToken.isCancel(err)) {
+    print('Request canceled: ${err.message}');
   } else {
     // handle error.
   }

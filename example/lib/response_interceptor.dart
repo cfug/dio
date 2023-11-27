@@ -15,35 +15,38 @@ void main() async {
         response.data = json.decode(response.data['data']);
         handler.next(response);
       },
-      onError: (DioException error, ErrorInterceptorHandler handler) {
-        final response = error.response;
-        if (response != null) {
-          switch (response.requestOptions.path) {
+      onError: (DioException err, handler) {
+        if (err.response != null) {
+          switch (err.response!.requestOptions.path) {
             case urlNotFound:
-              return handler.next(error);
+              return handler.next(err);
             case urlNotFound1:
-              return handler.resolve(
+              handler.resolve(
                 Response(
-                  requestOptions: error.requestOptions,
+                  requestOptions: err.requestOptions,
                   data: 'fake data',
                 ),
               );
+              break;
             case urlNotFound2:
-              return handler.resolve(
+              handler.resolve(
                 Response(
-                  requestOptions: error.requestOptions,
+                  requestOptions: err.requestOptions,
                   data: 'fake data',
                 ),
               );
+              break;
             case urlNotFound3:
-              return handler.next(
-                error.copyWith(
-                  error: 'custom error info [${response.statusCode}]',
+              handler.next(
+                err.copyWith(
+                  error: 'custom error info [${err.response!.statusCode}]',
                 ),
               );
+              break;
           }
+        } else {
+          handler.next(err);
         }
-        handler.next(error);
       },
     ),
   );
