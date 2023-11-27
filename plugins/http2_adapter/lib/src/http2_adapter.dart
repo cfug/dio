@@ -61,16 +61,15 @@ class Http2Adapter implements HttpClientAdapter {
 
     // Add custom headers
     headers.addAll(
-      options.headers.keys.map(
-        (key) {
+      options.headers.entries.map(
+        (entry) {
           final String v;
-          final value = options.headers[key];
-          if (value is Iterable) {
-            v = value.join(', ');
+          if (entry.value is Iterable) {
+            v = entry.value.join(', ');
           } else {
-            v = '$value';
+            v = '${entry.value}';
           }
-          return Header.ascii(key.toLowerCase(), v);
+          return Header.ascii(entry.key.toLowerCase(), v);
         },
       ).toList(),
     );
