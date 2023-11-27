@@ -447,9 +447,9 @@ dio.interceptors.add(
       // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
       return handler.next(response);
     },
-    onError: (DioException e, ErrorInterceptorHandler handler) {
+    onError: (DioException err, ErrorInterceptorHandler handler) {
       // 如果你想完成请求并返回一些自定义数据，你可以使用 `handler.resolve(response)`。
-      return handler.next(e);
+      return handler.next(err);
     },
   ),
 );

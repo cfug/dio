@@ -421,15 +421,15 @@ void main() {
             response.data = response.data['data'];
             handler.next(response);
           },
-          onError: (DioException e, ErrorInterceptorHandler handler) {
-            if (e.response?.requestOptions != null) {
-              switch (e.response!.requestOptions.path) {
+          onError: (DioException err, ErrorInterceptorHandler handler) {
+            if (err.response?.requestOptions != null) {
+              switch (err.response!.requestOptions.path) {
                 case urlNotFound:
-                  return handler.next(e);
+                  return handler.next(err);
                 case urlNotFound1:
                   return handler.resolve(
                     Response(
-                      requestOptions: e.requestOptions,
+                      requestOptions: err.requestOptions,
                       data: 'fake data',
                     ),
                   );
@@ -437,18 +437,18 @@ void main() {
                   return handler.resolve(
                     Response(
                       data: 'fake data',
-                      requestOptions: e.requestOptions,
+                      requestOptions: err.requestOptions,
                     ),
                   );
                 case urlNotFound3:
                   return handler.next(
-                    e.copyWith(
-                      error: 'custom error info [${e.response!.statusCode}]',
+                    err.copyWith(
+                      error: 'custom error info [${err.response!.statusCode}]',
                     ),
                   );
               }
             }
-            handler.next(e);
+            handler.next(err);
           },
         ),
       );
@@ -514,17 +514,17 @@ void main() {
         ..options.baseUrl = MockAdapter.mockBase
         ..interceptors.add(
           InterceptorsWrapper(
-            onError: (DioException e, ErrorInterceptorHandler handler) {
-              iError = e;
-              handler.next(e);
+            onError: (DioException err, ErrorInterceptorHandler handler) {
+              iError = err;
+              handler.next(err);
             },
           ),
         )
         ..interceptors.add(
           QueuedInterceptorsWrapper(
-            onError: (DioException e, ErrorInterceptorHandler handler) {
-              qError = e;
-              handler.next(e);
+            onError: (DioException err, ErrorInterceptorHandler handler) {
+              qError = err;
+              handler.next(err);
             },
           ),
         );

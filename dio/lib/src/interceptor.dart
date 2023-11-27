@@ -214,13 +214,13 @@ typedef InterceptorSendCallback = void Function(
 
 /// The signature of [Interceptor.onResponse].
 typedef InterceptorSuccessCallback = void Function(
-  Response<dynamic> e,
+  Response<dynamic> response,
   ResponseInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onError].
 typedef InterceptorErrorCallback = void Function(
-  DioException e,
+  DioException err,
   ErrorInterceptorHandler handler,
 );
 

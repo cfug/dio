@@ -450,11 +450,11 @@ dio.interceptors.add(
       // you can reject a `DioException` object using `handler.reject(dioError)`.
       return handler.next(response);
     },
-    onError: (DioException e, ErrorInterceptorHandler handler) {
+    onError: (DioException err, ErrorInterceptorHandler handler) {
       // Do something with response error.
       // If you want to resolve the request with some custom data,
       // you can resolve a `Response` object using `handler.resolve(response)`.
-      return handler.next(e);
+      return handler.next(err);
     },
   ),
 );
