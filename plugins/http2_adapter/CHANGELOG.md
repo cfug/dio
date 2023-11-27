@@ -4,6 +4,7 @@
 
 - Support non-TLS connection requests.
 - Improve the implementation of `receiveTimeout`.
+- Add more header value types implicit support.
 
 ## 2.3.2
 

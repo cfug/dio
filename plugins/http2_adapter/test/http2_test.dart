@@ -133,4 +133,29 @@ void main() {
     final res = await dio.get('absolute-redirect/2');
     expect(res.statusCode, 200);
   });
+
+  test('header value types implicit support', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.com/'
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+
+    final res = await dio.post(
+      'post',
+      data: 'TEST',
+      options: Options(
+        headers: {
+          'ListKey': ['1', '2'],
+          'StringKey': '1',
+          'NumKey': 2,
+          'BooleanKey': false,
+        },
+      ),
+    );
+    final content = res.data.toString();
+    expect(content, contains('TEST'));
+    expect(content, contains('Listkey: 1, 2'));
+    expect(content, contains('Stringkey: 1'));
+    expect(content, contains('Numkey: 2'));
+    expect(content, contains('Booleankey: false'));
+  });
 }
