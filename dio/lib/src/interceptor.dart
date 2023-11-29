@@ -214,13 +214,13 @@ typedef InterceptorSendCallback = void Function(
 
 /// The signature of [Interceptor.onResponse].
 typedef InterceptorSuccessCallback = void Function(
-  Response<dynamic> e,
+  Response<dynamic> response,
   ResponseInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onError].
 typedef InterceptorErrorCallback = void Function(
-  DioException e,
+  DioException error,
   ErrorInterceptorHandler handler,
 );
 
@@ -371,10 +371,10 @@ class QueuedInterceptor extends Interceptor {
   }
 
   void _handleError(
-    DioException err,
+    DioException error,
     ErrorInterceptorHandler handler,
   ) {
-    _handleQueue(_errorQueue, err, handler, onError);
+    _handleQueue(_errorQueue, error, handler, onError);
   }
 
   void _handleQueue<T, V extends _BaseHandler>(

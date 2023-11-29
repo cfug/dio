@@ -111,24 +111,24 @@ void main() {
                   handler.next(response); //continue
               }
             },
-            onError: (err, handler) {
-              if (err.requestOptions.path == '/reject-next-response') {
+            onError: (error, handler) {
+              if (error.requestOptions.path == '/reject-next-response') {
                 handler.resolve(
                   Response(
-                    requestOptions: err.requestOptions,
+                    requestOptions: error.requestOptions,
                     data: 100,
                   ),
                 );
-              } else if (err.requestOptions.path ==
+              } else if (error.requestOptions.path ==
                   '/resolve-next/reject-next') {
-                handler.next(err.copyWith(error: 1));
+                handler.next(error.copyWith(error: 1));
               } else {
-                if (err.requestOptions.path == '/reject-next/reject') {
-                  handler.reject(err);
+                if (error.requestOptions.path == '/reject-next/reject') {
+                  handler.reject(error);
                 } else {
-                  int count = err.error as int;
+                  int count = error.error as int;
                   count++;
-                  handler.next(err.copyWith(error: count));
+                  handler.next(error.copyWith(error: count));
                 }
               }
             },
@@ -148,15 +148,15 @@ void main() {
                   handler.next(response); //continue
               }
             },
-            onError: (err, handler) {
-              if (err.requestOptions.path == '/resolve-next/reject-next') {
-                int count = err.error as int;
+            onError: (error, handler) {
+              if (error.requestOptions.path == '/resolve-next/reject-next') {
+                int count = error.error as int;
                 count++;
-                handler.next(err.copyWith(error: count));
+                handler.next(error.copyWith(error: count));
               } else {
-                int count = err.error as int;
+                int count = error.error as int;
                 count++;
-                handler.next(err.copyWith(error: count));
+                handler.next(error.copyWith(error: count));
               }
             },
           ),
@@ -218,8 +218,8 @@ void main() {
             }
             handler.next(reqOpt.copyWith(path: '/xxx'));
           },
-          onError: (err, handler) {
-            handler.next(err.copyWith(error: 'unexpected error'));
+          onError: (error, handler) {
+            handler.next(error.copyWith(error: 'unexpected error'));
           },
         ),
       );
@@ -421,15 +421,16 @@ void main() {
             response.data = response.data['data'];
             handler.next(response);
           },
-          onError: (DioException e, ErrorInterceptorHandler handler) {
-            if (e.response?.requestOptions != null) {
-              switch (e.response!.requestOptions.path) {
+          onError: (DioException error, ErrorInterceptorHandler handler) {
+            final response = error.response;
+            if (response != null) {
+              switch (response.requestOptions.path) {
                 case urlNotFound:
-                  return handler.next(e);
+                  return handler.next(error);
                 case urlNotFound1:
                   return handler.resolve(
                     Response(
-                      requestOptions: e.requestOptions,
+                      requestOptions: error.requestOptions,
                       data: 'fake data',
                     ),
                   );
@@ -437,18 +438,18 @@ void main() {
                   return handler.resolve(
                     Response(
                       data: 'fake data',
-                      requestOptions: e.requestOptions,
+                      requestOptions: error.requestOptions,
                     ),
                   );
                 case urlNotFound3:
                   return handler.next(
-                    e.copyWith(
-                      error: 'custom error info [${e.response!.statusCode}]',
+                    error.copyWith(
+                      error: 'custom error info [${response.statusCode}]',
                     ),
                   );
               }
             }
-            handler.next(e);
+            handler.next(error);
           },
         ),
       );
@@ -514,17 +515,17 @@ void main() {
         ..options.baseUrl = MockAdapter.mockBase
         ..interceptors.add(
           InterceptorsWrapper(
-            onError: (DioException e, ErrorInterceptorHandler handler) {
-              iError = e;
-              handler.next(e);
+            onError: (DioException error, ErrorInterceptorHandler handler) {
+              iError = error;
+              handler.next(error);
             },
           ),
         )
         ..interceptors.add(
           QueuedInterceptorsWrapper(
-            onError: (DioException e, ErrorInterceptorHandler handler) {
-              qError = e;
-              handler.next(e);
+            onError: (DioException error, ErrorInterceptorHandler handler) {
+              qError = error;
+              handler.next(error);
             },
           ),
         );
