@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.4.0
+
 - Improve `SyncTransformer`'s stream transform.
 - Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
 - Fix `receiveTimeout` for the `IOHttpClientAdapter`.
