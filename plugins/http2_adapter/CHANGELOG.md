@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.4.0
+
 - Support non-TLS connection requests.
 - Improve the implementation of `receiveTimeout`.
 - Add more header value types implicit support.
