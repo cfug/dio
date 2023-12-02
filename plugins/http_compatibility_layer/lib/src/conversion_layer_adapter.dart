@@ -5,6 +5,10 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart';
 
+const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
+    ? bool.fromEnvironment('dart.library.js_util')
+    : identical(0, 0.0);
+
 /// A conversion layer which translates Dio HTTP requests to
 /// [http](https://pub.dev/packages/http) compatible requests.
 /// This way there's no need to implement custom [HttpClientAdapter]
@@ -42,18 +46,12 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
   ) async {
-    final request = Request(options.method, options.uri);
-    request.headers.addAll(
-      Map.fromEntries(
-        options.headers.entries.map(
-          (e) => MapEntry(e.key, e.value.toString().trim()),
-        ),
-      ),
-    );
-    request.followRedirects = options.followRedirects;
-    request.maxRedirects = options.maxRedirects;
-
-    if (requestStream != null) {
+    final BaseRequest request;
+    if (_kIsWeb && requestStream != null) {
+      final normalRequest = request = Request(
+        options.method,
+        options.uri,
+      );
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
         (bytes) => completer.complete(
@@ -67,9 +65,25 @@ class ConversionLayerAdapter implements HttpClientAdapter {
         cancelOnError: true,
       );
       final bytes = await completer.future;
-      request.bodyBytes = bytes;
+      normalRequest.bodyBytes = bytes;
+    } else if (requestStream != null) {
+      final streamedRequest = request = StreamedRequest(
+        options.method,
+        options.uri,
+      );
+      requestStream.listen(streamedRequest.sink.add);
+    } else {
+      request = Request(options.method, options.uri);
     }
-
+    request.headers.addAll(
+      Map.fromEntries(
+        options.headers.entries.map(
+          (e) => MapEntry(e.key, e.value.toString().trim()),
+        ),
+      ),
+    );
+    request.followRedirects = options.followRedirects;
+    request.maxRedirects = options.maxRedirects;
     return request;
   }
 }
