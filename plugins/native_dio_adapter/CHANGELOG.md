@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Provide fix suggestions for `dart fix`.
 
 ## 1.2.0
 
