@@ -5,7 +5,7 @@ transforms:
   - title: "Migrate to 'IOHttpClientAdapter'"
     date: 2022-11-07
     element:
-      uris: ['dio.dart', 'adapter.dart', 'adapters/io_adapter.dart']
+      uris: ['dio.dart', 'src/adapter.dart', 'src/adapters/io_adapter.dart']
       class: 'DefaultHttpClientAdapter'
     changes:
       - kind: 'rename'
@@ -15,7 +15,7 @@ transforms:
   - title: "Migrate to 'BackgroundTransformer'"
     date: 2023-01-31
     element:
-      uris: ['dio.dart', 'transformer.dart']
+      uris: ['dio.dart', 'src/transformer.dart']
       class: 'DefaultTransformer'
     changes:
       - kind: 'rename'
@@ -25,7 +25,7 @@ transforms:
   - title: "Migrate to 'CreateHttpClient'"
     date: 2023-05-14
     element:
-      uris: ['dio.dart', 'adapters/io_adapter.dart']
+      uris: ['dio.dart', 'src/adapters/io_adapter.dart']
       typedef: 'OnHttpClientCreate'
     changes:
       - kind: 'rename'
@@ -35,7 +35,7 @@ transforms:
   - title: "Migrate to 'createHttpClient'"
     date: 2023-05-14
     element:
-      uris: ['dio.dart', 'adapters/io_adapter.dart']
+      uris: ['dio.dart', 'src/adapters/io_adapter.dart']
       constructor: ''
       inClass: 'IOHttpClientAdapter'
     changes:
@@ -47,7 +47,7 @@ transforms:
   - title: "Migrate to 'DioException'"
     date: 2023-05-15
     element:
-      uris: ['dio.dart', 'dio_exception.dart', 'dio_error.dart']
+      uris: ['dio.dart', 'src/dio_exception.dart', 'src/dio_error.dart']
       class: 'DioError'
     changes:
       - kind: 'rename'
@@ -57,7 +57,7 @@ transforms:
   - title: "Migrate to 'DioExceptionType'"
     date: 2023-05-15
     element:
-      uris: ['dio.dart', 'dio_exception.dart', 'dio_error.dart']
+      uris: ['dio.dart', 'src/dio_exception.dart', 'src/dio_error.dart']
       class: 'DioErrorType'
     changes:
       - kind: 'rename'
@@ -67,7 +67,7 @@ transforms:
   - title: "Migrate to 'MultipartFile.fromStream'"
     date: 2023-06-25
     element:
-      uris: ['dio.dart', 'multipart_file.dart']
+      uris: ['dio.dart', 'src/multipart_file.dart']
       constructor: ''
       inClass: 'MultipartFile'
     changes:
