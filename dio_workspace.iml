@@ -16,6 +16,9 @@
       <excludeFolder url="file://$MODULE_DIR$/example_flutter_app/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example_flutter_app/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example_flutter_app/build" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/http_compatibility_layer/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/http_compatibility_layer/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/http_compatibility_layer/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
