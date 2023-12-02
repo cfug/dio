@@ -1,7 +1,7 @@
 version: 1
 
 transforms:
-  # Changes made in https://github.com/cfug/diox/pull/14/files
+  # Changes made in https://github.com/cfug/diox/pull/14
   - title: "Migrate to 'IOHttpClientAdapter'"
     date: 2022-11-07
     element:
@@ -11,7 +11,7 @@ transforms:
       - kind: 'rename'
         newName: 'IOHttpClientAdapter'
 
-  # Changes made in https://github.com/cfug/diox/pull/62/files
+  # Changes made in https://github.com/cfug/diox/pull/62
   - title: "Migrate to 'BackgroundTransformer'"
     date: 2023-01-31
     element:
