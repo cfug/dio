@@ -9,14 +9,11 @@ class CloseClientMock implements Client {
   }
 
   @override
-  void noSuchMethod(Invocation invocation) {
-    throw UnimplementedError();
-  }
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
 
 class ClientMock implements Client {
   StreamedResponse? response;
-
   BaseRequest? request;
 
   @override
@@ -26,7 +23,5 @@ class ClientMock implements Client {
   }
 
   @override
-  void noSuchMethod(Invocation invocation) {
-    throw UnimplementedError();
-  }
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
 }
