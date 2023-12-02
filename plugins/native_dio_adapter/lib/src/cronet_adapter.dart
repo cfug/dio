@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cronet_http/cronet_http.dart';
 import 'package:dio/dio.dart';
-import 'conversion_layer_adapter.dart';
+import 'package:dio_http_compatibility_layer/dio_http_compatibility_layer.dart';
 
 /// A [HttpClientAdapter] for Dio which delegates HTTP requests
 /// to the native platform by making use of
