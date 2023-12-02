@@ -12,9 +12,9 @@ import 'package:http/http.dart';
 /// to a minimum. Since `CupertinoClient` and `CronetClient` depend anyway on
 /// `http` this also doesn't add any additional dependency.
 class ConversionLayerAdapter implements HttpClientAdapter {
-  final Client client;
-
   ConversionLayerAdapter(this.client);
+
+  final Client client;
 
   @override
   Future<ResponseBody> fetch(
@@ -24,7 +24,15 @@ class ConversionLayerAdapter implements HttpClientAdapter {
   ) async {
     final request = await _fromOptionsAndStream(options, requestStream);
     final response = await client.send(request);
-    return response.toDioResponseBody();
+    return ResponseBody(
+      response.stream.cast<Uint8List>(),
+      response.statusCode,
+      isRedirect: response.isRedirect,
+      statusMessage: response.reasonPhrase,
+      headers: Map.fromEntries(
+        response.headers.entries.map((e) => MapEntry(e.key, [e.value])),
+      ),
+    );
   }
 
   @override
@@ -34,24 +42,23 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
   ) async {
-    final request = Request(
-      options.method,
-      options.uri,
-    );
-
+    final request = Request(options.method, options.uri);
     request.headers.addAll(
       Map.fromEntries(
-        options.headers.entries.map((e) => MapEntry(e.key, e.value.toString())),
+        options.headers.entries.map(
+          (e) => MapEntry(e.key, e.value.toString().trim()),
+        ),
       ),
     );
-
     request.followRedirects = options.followRedirects;
     request.maxRedirects = options.maxRedirects;
 
     if (requestStream != null) {
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(Uint8List.fromList(bytes)),
+        (bytes) => completer.complete(
+          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+        ),
       );
       requestStream.listen(
         sink.add,
@@ -62,19 +69,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
       final bytes = await completer.future;
       request.bodyBytes = bytes;
     }
-    return request;
-  }
-}
 
-extension on StreamedResponse {
-  ResponseBody toDioResponseBody() {
-    final dioHeaders = headers.entries.map((e) => MapEntry(e.key, [e.value]));
-    return ResponseBody(
-      stream.cast<Uint8List>(),
-      statusCode,
-      headers: Map.fromEntries(dioHeaders),
-      isRedirect: isRedirect,
-      statusMessage: reasonPhrase,
-    );
+    return request;
   }
 }
