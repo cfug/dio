@@ -4,6 +4,7 @@ repository: https://github.com/cfug/dio
 packages:
   - 'dio'
   - 'plugins/*'
+  - 'example*'
   - '**/example*'
 
 ide:
