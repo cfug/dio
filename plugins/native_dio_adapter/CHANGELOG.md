@@ -4,6 +4,24 @@
 
 *None.*
 
+## 1.2.0
+
+- Adds `createCronetEngine` and `createCupertinoConfiguration`
+  to deprecate `cronetEngine` and `cupertinoConfiguration`
+  for the `NativeAdapter`, to avoid platform exceptions.
+- Improve the request stream byte conversion.
+
+## 1.1.1
+
+- Adds the missing `flutter` dependency.
+
+## 1.1.0
+
+- Bump `cronet_http` version.
+- Minimal required Dart version is now 3.1.
+- Minimal required Flutter version is now 3.13.0.
+- Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
+
 ## 1.0.0+2
 
 - Add topics to packages.

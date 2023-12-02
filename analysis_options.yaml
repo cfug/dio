@@ -2,11 +2,12 @@ include: package:lints/recommended.yaml
 
 analyzer:
   errors:
+    deprecated_member_use_from_same_package: ignore
     todo: ignore
 
 linter:
   rules:
-    - prefer_final_locals
-    - prefer_final_in_for_each
-    - prefer_single_quotes
-    - unnecessary_parenthesis
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    prefer_single_quotes: true
+    unnecessary_parenthesis: true

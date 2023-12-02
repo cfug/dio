@@ -1,11 +1,18 @@
+@TestOn('vm')
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('works with non-TLS requests', () async {
+    final dio = Dio()..httpClientAdapter = Http2Adapter(ConnectionManager());
+    await dio.get('http://flutter.cn/');
+    await dio.get('https://flutter.cn/non-exist-destination');
+  });
+
   test('adds one to input values', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://pub.dev/'
+      ..options.baseUrl = 'https://httpbun.com/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
@@ -15,7 +22,7 @@ void main() {
       );
 
     Response<String> response;
-    response = await dio.get('?xx=6');
+    response = await dio.get('get');
     assert(response.statusCode == 200);
     response = await dio.get(
       'nkjnjknjn.html',
@@ -125,5 +132,30 @@ void main() {
 
     final res = await dio.get('absolute-redirect/2');
     expect(res.statusCode, 200);
+  });
+
+  test('header value types implicit support', () async {
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.com/'
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+
+    final res = await dio.post(
+      'post',
+      data: 'TEST',
+      options: Options(
+        headers: {
+          'ListKey': ['1', '2'],
+          'StringKey': '1',
+          'NumKey': 2,
+          'BooleanKey': false,
+        },
+      ),
+    );
+    final content = res.data.toString();
+    expect(content, contains('TEST'));
+    expect(content, contains('Listkey: 1, 2'));
+    expect(content, contains('Stringkey: 1'));
+    expect(content, contains('Numkey: 2'));
+    expect(content, contains('Booleankey: false'));
   });
 }

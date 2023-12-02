@@ -214,13 +214,13 @@ typedef InterceptorSendCallback = void Function(
 
 /// The signature of [Interceptor.onResponse].
 typedef InterceptorSuccessCallback = void Function(
-  Response<dynamic> e,
+  Response<dynamic> response,
   ResponseInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onError].
 typedef InterceptorErrorCallback = void Function(
-  DioException e,
+  DioException error,
   ErrorInterceptorHandler handler,
 );
 
@@ -319,6 +319,17 @@ class Interceptors extends ListMixin<Interceptor> {
     }
   }
 
+  /// The default [ImplyContentTypeInterceptor] will be removed only if
+  /// [keepImplyContentTypeInterceptor] is false.
+  @override
+  void clear({bool keepImplyContentTypeInterceptor = true}) {
+    if (keepImplyContentTypeInterceptor) {
+      _list.removeWhere((e) => e is! ImplyContentTypeInterceptor);
+    } else {
+      super.clear();
+    }
+  }
+
   /// Remove the default imply content type interceptor.
   void removeImplyContentTypeInterceptor() {
     _list.removeWhere((e) => e is ImplyContentTypeInterceptor);
@@ -360,10 +371,10 @@ class QueuedInterceptor extends Interceptor {
   }
 
   void _handleError(
-    DioException err,
+    DioException error,
     ErrorInterceptorHandler handler,
   ) {
-    _handleQueue(_errorQueue, err, handler, onError);
+    _handleQueue(_errorQueue, error, handler, onError);
   }
 
   void _handleQueue<T, V extends _BaseHandler>(

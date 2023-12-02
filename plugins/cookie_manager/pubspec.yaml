@@ -1,5 +1,5 @@
 name: dio_cookie_manager
-version: 3.1.0+1
+version: 3.1.1
 
 description: A cookie manager combines cookie_jar and dio, based on the interceptor algorithm.
 topics:
@@ -13,7 +13,7 @@ repository: https://github.com/cfug/dio/blob/main/plugins/cookie_manager
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
+  sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
   cookie_jar: ^4.0.0

@@ -2,29 +2,28 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// This file corresponds to Flutter's
-/// [`foundation/_isolates_io.dart`](https://github.com/flutter/flutter/blob/stable/packages/flutter/lib/src/foundation/_isolates_io.dart).
-///
-/// Changes are only synced with the `stable` branch.
-///
-/// Last synced commit:
-/// [3420b9c](https://github.com/flutter/flutter/commit/3420b9c50ea19489dd74b024705bb010c5763d0a)
-///
-/// The changes are currently manually synced. If you noticed that the Flutter's
-/// original `compute` function (and any of the related files) have changed
-/// on the `stable` branch and you would like to see those changes in the `compute` package
-/// please open an [issue](https://github.com/dartsidedev/compute/issues),
-/// and I'll try my best to "merge".
-///
-/// The file is intentionally not refactored so that it is easier to keep the
-/// compute package up to date with Flutter's implementation.
+// This file corresponds to Flutter's
+// [`foundation/_isolates_io.dart`](https://github.com/flutter/flutter/blob/stable/packages/flutter/lib/src/foundation/_isolates_io.dart).
+//
+// Changes are only synced with the `stable` branch.
+//
+// Last synced commit:
+// [3420b9c](https://github.com/flutter/flutter/commit/3420b9c50ea19489dd74b024705bb010c5763d0a)
+//
+// The changes are currently manually synced. If you noticed that the Flutter's
+// original `compute` function (and any of the related files) have changed
+// on the `stable` branch and you would like to see those changes in the `compute` package
+// please open an [issue](https://github.com/dartsidedev/compute/issues),
+// and I'll try my best to "merge".
+//
+// The file is intentionally not refactored so that it is easier to keep the
+// compute package up to date with Flutter's implementation.
 import 'dart:async';
 import 'dart:developer';
 import 'dart:isolate';
 
+import '../utils.dart' show kReleaseMode;
 import 'compute.dart' as c;
-
-const _kReleaseMode = bool.fromEnvironment('dart.vm.product');
 
 /// The dart:io implementation of [c.compute].
 Future<R> compute<Q, R>(
@@ -32,7 +31,7 @@ Future<R> compute<Q, R>(
   Q message, {
   String? debugLabel,
 }) async {
-  debugLabel ??= _kReleaseMode ? 'compute' : callback.toString();
+  debugLabel ??= kReleaseMode ? 'compute' : callback.toString();
 
   final Flow flow = Flow.begin();
   Timeline.startSync('$debugLabel: start', flow: flow);

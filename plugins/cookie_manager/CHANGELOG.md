@@ -4,6 +4,10 @@
 
 *None.*
 
+## 3.1.1
+
+- Fix `FileSystemException` when saving redirect cookies without a proper `host`.
+
 ## 3.1.0+1
 
 - Add topics to packages.

@@ -8,7 +8,6 @@
 .pub-cache/
 .pub/
 /build/
-pubspec_overrides.yaml
 
 # IntelliJ related
 *.ipr
@@ -19,4 +18,3 @@ pubspec_overrides.yaml
 # https://dart.dev/guides/libraries/private-files#pubspeclock.
 pubspec.lock
 .DS_Store
-/pubspec_overrides.yaml

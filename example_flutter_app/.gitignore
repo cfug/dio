@@ -10,7 +10,6 @@
 .svn/
 
 # IntelliJ related
-*.iml
 *.ipr
 *.iws
 .idea/
@@ -30,7 +29,6 @@
 .pub-cache/
 .pub/
 /build/
-pubspec_overrides.yaml
 
 # Web related
 lib/generated_plugin_registrant.dart

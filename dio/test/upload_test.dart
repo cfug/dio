@@ -97,6 +97,31 @@ void main() {
     },
     testOn: 'vm',
   );
+
+  test('send progress', () async {
+    final data = ['aaaa', 'hello 😌', 'dio is a dart http client'];
+    final stream = Stream.fromIterable(data.map((e) => e.codeUnits));
+    final expanded = data.expand((element) => element.codeUnits);
+    bool fullFilled = false;
+    final _ = await dio.put(
+      '/put',
+      data: stream,
+      onSendProgress: (a, b) {
+        expect(b, expanded.length);
+        expect(a <= b, isTrue);
+        if (a == b) {
+          fullFilled = true;
+        }
+      },
+      options: Options(
+        contentType: Headers.textPlainContentType,
+        headers: {
+          Headers.contentLengthHeader: expanded.length, // set content-length
+        },
+      ),
+    );
+    expect(fullFilled, isTrue);
+  });
 }
 
 class _TestTransformer extends BackgroundTransformer {

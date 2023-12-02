@@ -19,7 +19,8 @@ class Response<T> {
     this.redirects = const [],
     Map<String, dynamic>? extra,
     Headers? headers,
-  })  : headers = headers ?? Headers(),
+  })  : headers = headers ??
+            Headers(preserveHeaderCase: requestOptions.preserveHeaderCase),
         extra = extra ?? <String, dynamic>{};
 
   /// The response payload in specific type.

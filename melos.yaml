@@ -2,9 +2,16 @@ name: dio_workspace
 repository: https://github.com/cfug/dio
 
 packages:
-  - dio
-  - plugins/*
-  - example*
+  - 'dio'
+  - 'plugins/*'
+  - 'example*'
+  - '**/example*'
 
 ide:
-  intellij: true
+  intellij:
+    enabled: true
+    moduleNamePrefix: ''
+
+command:
+  bootstrap:
+    runPubGetInParallel: false
