@@ -4,6 +4,10 @@ Language: [English](README.md) | 简体中文
 
 此处是 **dio** 项目的基础仓库。请前往项目各自的路径查看指引。
 
+> 别忘了为你发布的与 dio 相关的 package 添加
+> [#dio](https://pub.flutter-io.cn/packages?q=topic%3Adio) 分类标签！
+> 了解更多：https://dart.cn/tools/pub/pubspec#topics
+
 ### dio
 
 - dio: [链接](dio)

@@ -5,6 +5,10 @@ Language: English | [简体中文](README-ZH.md)
 This is the base repo of the **dio** project.
 Please move specific paths for project instructions.
 
+> Don't forget to add [#dio](https://pub.dev/packages?q=topic%3Adio)
+> topic to your published dio related packages!
+> See more: https://dart.dev/tools/pub/pubspec#topics
+
 ### dio
 
 - dio: [link](dio)
