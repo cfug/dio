@@ -24,10 +24,11 @@ dependencies:
   cupertino_http: ^1.0.0
   cronet_http: ^0.4.0
   http: ^1.0.0
-  dio_http_compatibility_layer: ^0.0.1
 
 dev_dependencies:
   lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
 
 platforms:
   android:
