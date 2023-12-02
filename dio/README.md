@@ -10,6 +10,10 @@ supports Global configuration, Interceptors, FormData,
 Request cancellation, File uploading/downloading,
 Timeout, Custom adapters, Transformers, etc. 
 
+> Don't forget to add [#dio](https://pub.dev/packages?q=topic%3Adio)
+> topic to your published dio related packages!
+> See more: https://dart.dev/tools/pub/pubspec#topics
+
 <details>
   <summary>Table of content</summary>
 

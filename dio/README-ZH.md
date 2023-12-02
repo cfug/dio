@@ -8,6 +8,10 @@
 dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API、FormData、拦截器、
 请求取消、Cookie 管理、文件上传/下载、超时、自定义适配器、转换器等。
 
+> 别忘了为你发布的与 dio 相关的 package 添加
+> [#dio](https://pub.flutter-io.cn/packages?q=topic%3Adio) 分类标签！
+> 了解更多：https://dart.cn/tools/pub/pubspec#topics
+
 <details>
   <summary>内容列表</summary>
 
