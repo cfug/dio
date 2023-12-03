@@ -1,6 +1,7 @@
 name: Verify packages abilities
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
