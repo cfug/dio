@@ -48,11 +48,6 @@ jobs:
         run: |
           dart ./scripts/melos_ignored_packages.dart
           echo $(cat .melos_ignored_packages) >> ~/.bash_profile
-      - name: Start httpbun
-        run: |
-          docker run --name httpbun --publish 80:80 --pull always sharat87/httpbun
-          sleep 1
-          curl --include --fail localhost/any
       - name: Bootstrap
         run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
       - name: Start local httpbun
