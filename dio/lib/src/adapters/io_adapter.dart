@@ -238,12 +238,12 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       });
     }
 
-    responseSubscription = responseStream.listen(
+    responseSubscription = responseStream.cast<Uint8List>().listen(
       (data) {
         watchReceiveTimeout();
         // Always true if the receive timeout was not set.
         if (receiveStopwatch.elapsed <= receiveTimeout) {
-          responseSink.add(data is Uint8List ? data : Uint8List.fromList(data));
+          responseSink.add(data);
         }
       },
       onError: (error, stackTrace) {
