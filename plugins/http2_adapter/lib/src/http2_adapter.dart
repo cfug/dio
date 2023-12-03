@@ -116,6 +116,7 @@ class Http2Adapter implements HttpClientAdapter {
     final sc = StreamController<Uint8List>();
     final responseHeaders = Headers();
     final responseCompleter = Completer<void>();
+    late StreamSubscription subscription;
     bool needRedirect = false;
     bool needResponse = false;
 
@@ -152,7 +153,6 @@ class Http2Adapter implements HttpClientAdapter {
     }
 
     late int statusCode;
-    late StreamSubscription subscription;
     subscription = stream.incomingMessages.listen(
       (StreamMessage message) async {
         if (message is HeadersStreamMessage) {
@@ -191,6 +191,7 @@ class Http2Adapter implements HttpClientAdapter {
       },
       onDone: () {
         stopWatchReceiveTimeout();
+        subscription.cancel();
         sc.close();
       },
       onError: (Object error, StackTrace stackTrace) {
@@ -204,6 +205,8 @@ class Http2Adapter implements HttpClientAdapter {
           sc.addError(error, stackTrace);
         }
         stopWatchReceiveTimeout();
+        subscription.cancel();
+        sc.close();
       },
       cancelOnError: true,
     );
