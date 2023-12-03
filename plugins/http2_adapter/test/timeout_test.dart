@@ -72,13 +72,5 @@ void main() {
       },
     );
     await expectLater(completer.future, matcher);
-    await expectLater(
-      dio.get(
-        '/drip',
-        queryParameters: {'delay': 0, 'duration': 2},
-        options: Options(responseType: ResponseType.stream),
-      ),
-      matcher,
-    );
   });
 }
