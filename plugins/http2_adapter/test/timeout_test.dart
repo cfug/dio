@@ -59,7 +59,7 @@ void main() {
       options: Options(responseType: ResponseType.stream),
     );
     (streamedResponse.data as ResponseBody).stream.listen(
-          (event) {},
+      (event) {},
       onError: (error) {
         if (!completer.isCompleted) {
           completer.completeError(error);
