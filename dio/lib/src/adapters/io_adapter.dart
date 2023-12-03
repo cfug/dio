@@ -247,6 +247,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         }
       },
       onError: (error, stackTrace) {
+        stopWatchReceiveTimeout();
         responseSink.addError(error, stackTrace);
         responseSink.close();
       },

@@ -113,10 +113,10 @@ class Http2Adapter implements HttpClientAdapter {
     }
     await stream.outgoingMessages.close();
 
-    final sc = StreamController<Uint8List>();
+    final responseSink = StreamController<Uint8List>();
     final responseHeaders = Headers();
     final responseCompleter = Completer<void>();
-    late StreamSubscription subscription;
+    late StreamSubscription responseSubscription;
     bool needRedirect = false;
     bool needResponse = false;
 
@@ -140,20 +140,21 @@ class Http2Adapter implements HttpClientAdapter {
       }
       receiveTimer?.cancel();
       receiveTimer = Timer(receiveTimeout, () {
-        sc.addError(
+        responseSink.addError(
           DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
           ),
         );
-        sc.close();
+        responseSink.close();
+        responseSubscription.cancel();
         stream.terminate();
         stopWatchReceiveTimeout();
       });
     }
 
     late int statusCode;
-    subscription = stream.incomingMessages.listen(
+    responseSubscription = stream.incomingMessages.listen(
       (StreamMessage message) async {
         if (message is HeadersStreamMessage) {
           for (final header in message.headers) {
@@ -175,24 +176,19 @@ class Http2Adapter implements HttpClientAdapter {
         } else if (message is DataStreamMessage) {
           if (needResponse) {
             watchReceiveTimeout();
-            sc.add(
+            responseSink.add(
               message.bytes is Uint8List
                   ? message.bytes as Uint8List
                   : Uint8List.fromList(message.bytes),
             );
           } else {
             stopWatchReceiveTimeout();
-            subscription.cancel().whenComplete(() {
+            responseSubscription.cancel().whenComplete(() {
               stream.terminate();
-              sc.close();
+              responseSink.close();
             });
           }
         }
-      },
-      onDone: () {
-        stopWatchReceiveTimeout();
-        subscription.cancel();
-        sc.close();
       },
       onError: (Object error, StackTrace stackTrace) {
         // If connection is being forcefully terminated, remove the connection.
@@ -202,11 +198,16 @@ class Http2Adapter implements HttpClientAdapter {
         if (!responseCompleter.isCompleted) {
           responseCompleter.completeError(error, stackTrace);
         } else {
-          sc.addError(error, stackTrace);
+          responseSink.addError(error, stackTrace);
         }
         stopWatchReceiveTimeout();
-        subscription.cancel();
-        sc.close();
+        responseSubscription.cancel();
+        responseSink.close();
+      },
+      onDone: () {
+        stopWatchReceiveTimeout();
+        responseSubscription.cancel();
+        responseSink.close();
       },
       cancelOnError: true,
     );
@@ -216,7 +217,9 @@ class Http2Adapter implements HttpClientAdapter {
       responseFuture = responseFuture.timeout(
         receiveTimeout,
         onTimeout: () {
-          subscription.cancel().whenComplete(() => sc.close());
+          responseSubscription
+              .cancel()
+              .whenComplete(() => responseSink.close());
           throw DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
@@ -240,7 +243,7 @@ class Http2Adapter implements HttpClientAdapter {
       );
     }
     return ResponseBody(
-      sc.stream,
+      responseSink.stream,
       statusCode,
       headers: responseHeaders.map,
       redirects: redirects,

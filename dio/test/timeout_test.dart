@@ -38,7 +38,9 @@ void main() {
         ),
       ),
       throwsA(
-        predicate<DioException>((e) => e.message!.contains('0:00:01.000000')),
+        predicate<DioException>(
+          (e) => e.message!.contains(dio.options.receiveTimeout.toString()),
+        ),
       ),
     ]);
     await expectLater(
