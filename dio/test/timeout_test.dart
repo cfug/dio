@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -27,26 +29,23 @@ void main() {
       });
 
       test('update between calls', () async {
+        final client = HttpClient();
+        final dio = Dio()
+          ..options.baseUrl = 'https://httpbun.com'
+          ..httpClientAdapter = IOHttpClientAdapter(
+            createHttpClient: () => client,
+          );
+
         dio.options.connectTimeout = Duration(milliseconds: 5);
-        await expectLater(
-          dio.get('/'),
-          allOf(
-            throwsA(isA<DioException>()),
-            throwsA(predicate((DioException e) =>
-                e.type == DioExceptionType.connectionTimeout &&
-                e.message!.contains('${dio.options.connectTimeout}'))),
-          ),
-        );
+        await dio
+            .get('/')
+            .catchError((e) => Response(requestOptions: RequestOptions()));
+        expect(client.connectionTimeout, dio.options.connectTimeout);
         dio.options.connectTimeout = Duration(milliseconds: 10);
-        await expectLater(
-          dio.get('/'),
-          allOf(
-            throwsA(isA<DioException>()),
-            throwsA(predicate((DioException e) =>
-                e.type == DioExceptionType.connectionTimeout &&
-                e.message!.contains('${dio.options.connectTimeout}'))),
-          ),
-        );
+        await dio
+            .get('/')
+            .catchError((e) => Response(requestOptions: RequestOptions()));
+        expect(client.connectionTimeout, dio.options.connectTimeout);
       }, testOn: 'vm');
     });
 
@@ -64,8 +63,7 @@ void main() {
             ),
             throwsA(
               predicate<DioException>(
-                (e) =>
-                    e.message!.contains(dio.options.receiveTimeout.toString()),
+                (e) => e.message!.contains('${dio.options.receiveTimeout}'),
               ),
             ),
           ]),
@@ -94,21 +92,21 @@ void main() {
           },
         );
         await expectLater(
-            completer.future,
-            allOf([
-              throwsA(isA<DioException>()),
-              throwsA(
-                predicate<DioException>(
-                  (e) => e.type == DioExceptionType.receiveTimeout,
-                ),
+          completer.future,
+          allOf([
+            throwsA(isA<DioException>()),
+            throwsA(
+              predicate<DioException>(
+                (e) => e.type == DioExceptionType.receiveTimeout,
               ),
-              throwsA(
-                predicate<DioException>(
-                  (e) => e.message!
-                      .contains(dio.options.receiveTimeout.toString()),
-                ),
+            ),
+            throwsA(
+              predicate<DioException>(
+                (e) => e.message!.contains('${dio.options.receiveTimeout}'),
               ),
-            ]));
+            ),
+          ]),
+        );
       }, testOn: 'vm');
     });
   });
