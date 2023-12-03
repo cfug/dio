@@ -561,8 +561,7 @@ void main() {
       when(response.reasonPhrase).thenReturn('OK');
       when(response.isRedirect).thenReturn(false);
       when(response.redirects).thenReturn([]);
-      when(response.transform(any))
-          .thenAnswer((_) => Stream<Uint8List>.empty());
+      when(response.cast()).thenAnswer((_) => Stream<Uint8List>.empty());
       return Future.value(request);
     });
 
