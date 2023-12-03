@@ -36,8 +36,8 @@ jobs:
       - name: Install browsers, proxy, and mkcert for tests
         run: |
           sudo apt-get update && sudo apt-get install -y google-chrome-stable firefox squid mkcert libnss3-tools
-          google-chrome-stable --headless https://httpbun.local
-          firefox --headless https://httpbun.local
+          echo "Headless Chrome..." && google-chrome-stable --headless --disable-gpu --no-sandbox --dump-dom "https://httpbun.com" && pkill chrome
+          echo "Headless Firefox..." && firefox --headless --screenshot --window-size=1280,1024 "https://httpbun.com" && pkill firefox
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
         with:
