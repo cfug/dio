@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -47,14 +48,27 @@ void main() {
       ),
       matcher,
     );
-    await expectLater(
-      dio.get(
-        '/drip',
-        queryParameters: {'delay': 0, 'duration:': 1},
-        options: Options(responseType: ResponseType.stream),
-      ),
-      matcher,
+
+    final completer = Completer<void>();
+    final streamedResponse = await dio.get(
+      '/drip',
+      queryParameters: {'delay': 0, 'duration': 20},
+      options: Options(responseType: ResponseType.stream),
     );
+    (streamedResponse.data as ResponseBody).stream.listen(
+      (event) {},
+      onError: (error) {
+        if (!completer.isCompleted) {
+          completer.completeError(error);
+        }
+      },
+      onDone: () {
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      },
+    );
+    await expectLater(completer.future, matcher);
   });
 
   test('no DioException when receiveTimeout > request duration', () async {

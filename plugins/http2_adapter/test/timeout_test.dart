@@ -1,4 +1,6 @@
 @TestOn('vm')
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
@@ -49,10 +51,31 @@ void main() {
       ),
       matcher,
     );
+
+    final completer = Completer<void>();
+    final streamedResponse = await dio.get(
+      '/drip',
+      queryParameters: {'delay': 0, 'duration': 20},
+      options: Options(responseType: ResponseType.stream),
+    );
+    (streamedResponse.data as ResponseBody).stream.listen(
+          (event) {},
+      onError: (error) {
+        if (!completer.isCompleted) {
+          completer.completeError(error);
+        }
+      },
+      onDone: () {
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      },
+    );
+    await expectLater(completer.future, matcher);
     await expectLater(
       dio.get(
         '/drip',
-        queryParameters: {'delay': 0, 'duration:': 1},
+        queryParameters: {'delay': 0, 'duration': 2},
         options: Options(responseType: ResponseType.stream),
       ),
       matcher,
