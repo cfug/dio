@@ -33,11 +33,11 @@ jobs:
           cache: true
           flutter-version: ${{ matrix.sdk == 'min' && '2.8.0' || '' }}
           channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
-      - run: |
-          chmod +x ./scripts/prepare_pinning_certs.sh
-          ./scripts/prepare_pinning_certs.sh
       - name: Install browsers, proxy, and mkcert for tests
-        run: sudo apt-get update && sudo apt-get install -y google-chrome-stable firefox squid mkcert libnss3-tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y google-chrome-stable firefox squid mkcert libnss3-tools
+          google-chrome-stable --headless https://httpbun.local
+          firefox --headless https://httpbun.local
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
         with:
@@ -52,8 +52,8 @@ jobs:
         run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
       - name: Start local httpbun
         run: |
-          mkcert -install
-          mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
+          sudo mkcert -install
+          sudo mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
           echo '127.0.0.1 httpbun.local' | sudo tee --append /etc/hosts
           docker run \
             --name httpbun \
@@ -66,6 +66,10 @@ jobs:
             sharat87/httpbun
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
+      - name: Setup SSL Pinning certs
+        run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
       - name: '[Verify step] Format'
         run: melos exec $(eval echo $IGNORED_PACKAGES) -- "dart format --set-exit-if-changed ."
       - name: '[Verify step] Analyze Dart packages'
