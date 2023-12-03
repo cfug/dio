@@ -19,7 +19,7 @@ void main() {
 
   group('SSL pinning', () {
     final Dio dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..interceptors.add(
         QueuedInterceptorsWrapper(
           onRequest: (options, handler) async {
@@ -29,7 +29,7 @@ void main() {
           },
         ),
       );
-    final expectedHostString = 'httpbun.com';
+    final expectedHostString = 'httpbun.local';
 
     test('trusted host allowed with no approver', () async {
       dio.httpClientAdapter = Http2Adapter(
