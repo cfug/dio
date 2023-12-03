@@ -54,8 +54,8 @@ jobs:
         run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
       - name: Start local httpbun
         run: |
-          sudo mkcert -install
-          sudo mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
+          mkcert -install
+          mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
           echo '127.0.0.1 httpbun.local' | sudo tee --append /etc/hosts
           docker run \
             --name httpbun \
