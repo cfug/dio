@@ -5,6 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Provide fix suggestions for `dart fix`.
 - Fix `receiveTimeout` for streamed responses.
 
 ## 5.4.0
