@@ -1,0 +1,17 @@
+version: 1
+
+transforms:
+  # Changes made in https://github.com/cfug/dio/pull/2040
+  - title: "Migrate to create configuration"
+    date: 2023-11-25
+    element:
+      uris: ['native_dio_adapter.dart', 'src/native_adapter.dart']
+      constructor: ''
+      inClass: 'NativeAdapter'
+    changes:
+      - kind: 'renameParameter'
+        oldName: 'androidCronetEngine'
+        newName: 'createCronetEngine'
+      - kind: 'renameParameter'
+        oldName: 'cupertinoConfiguration'
+        newName: 'createCupertinoConfiguration'

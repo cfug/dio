@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Provide fix suggestions for `dart fix`.
 
 ## 5.4.0
 
