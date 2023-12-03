@@ -8,7 +8,7 @@ void main() {
 
   setUp(() {
     dio = Dio();
-    dio.options.baseUrl = 'https://httpbun.com/';
+    dio.options.baseUrl = 'https://httpbun.local/';
     dio.httpClientAdapter = Http2Adapter(
       ConnectionManager(idleTimeout: Duration(seconds: 30)),
     );

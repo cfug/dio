@@ -12,7 +12,7 @@ void main() {
 
   test('adds one to input values', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
@@ -33,7 +33,7 @@ void main() {
 
   test('request with payload', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
           idleTimeout: Duration(milliseconds: 10),
@@ -46,7 +46,7 @@ void main() {
 
   test('request with payload via proxy', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager(
         idleTimeout: Duration(milliseconds: 10),
         onClientCreate: (uri, settings) =>
@@ -60,7 +60,7 @@ void main() {
   test('request without network and restore', () async {
     bool needProxy = true;
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager(
         idleTimeout: Duration(milliseconds: 10),
         onClientCreate: (uri, settings) {
@@ -87,7 +87,7 @@ void main() {
   test('catch DioException when receiveTimeout', () {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'https://httpbun.com/',
+        baseUrl: 'https://httpbun.local/',
         receiveTimeout: Duration(seconds: 5),
       ),
     );
@@ -112,7 +112,7 @@ void main() {
   test('no DioException when receiveTimeout > request duration', () async {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'https://httpbun.com/',
+        baseUrl: 'https://httpbun.local/',
         receiveTimeout: Duration(seconds: 5),
       ),
     );
@@ -127,7 +127,7 @@ void main() {
 
   test('request with redirect', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
 
     final res = await dio.get('absolute-redirect/2');
@@ -136,7 +136,7 @@ void main() {
 
   test('header value types implicit support', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = 'https://httpbun.local/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
 
     final res = await dio.post(

@@ -9,7 +9,7 @@ void main() {
 
   setUp(() {
     dio = Dio();
-    dio.options.baseUrl = 'https://httpbun.com/';
+    dio.options.baseUrl = 'https://httpbun.local/';
   });
 
   test('catch DioException when connectTimeout', () {
@@ -87,7 +87,7 @@ void main() {
   test('ignores zero duration timeouts', () async {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'https://httpbun.com/',
+        baseUrl: 'https://httpbun.local/',
         connectTimeout: Duration.zero,
         receiveTimeout: Duration.zero,
       ),

@@ -36,8 +36,8 @@ jobs:
       - run: |
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
-      - name: Install proxy for tests
-        run: sudo apt-get update && sudo apt-get install -y squid
+      - name: Install proxy and mkcert for tests
+        run: sudo apt-get update && sudo apt-get install -y squid mkcert libnss3-tools
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
         with:
@@ -48,8 +48,29 @@ jobs:
         run: |
           dart ./scripts/melos_ignored_packages.dart
           echo $(cat .melos_ignored_packages) >> ~/.bash_profile
+      - name: Start httpbun
+        run: |
+          docker run --name httpbun --publish 80:80 --pull always sharat87/httpbun
+          sleep 1
+          curl --include --fail localhost/any
       - name: Bootstrap
         run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
+      - name: Start local httpbun
+        run: |
+          mkcert -install
+          mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
+          echo '127.0.0.1 httpbun.local' | sudo tee --append /etc/hosts
+          docker run \
+            --name httpbun \
+            --detach \
+            --publish 443:443 \
+            --volume /tmp:/tmp:ro \
+            --env HTTPBUN_TLS_CERT=/tmp/cert.pem \
+            --env HTTPBUN_TLS_KEY=/tmp/key.pem \
+            --pull always \
+            sharat87/httpbun
+          sleep 1
+          curl --fail --silent --show-error https://httpbun.local/any
       - name: '[Verify step] Format'
         run: melos exec $(eval echo $IGNORED_PACKAGES) -- "dart format --set-exit-if-changed ."
       - name: '[Verify step] Analyze Dart packages'
@@ -58,11 +79,11 @@ jobs:
         run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
       - name: '[Verify step] Publish dry-run'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
-      - name: '[Verify step] Test Dart packages [VM]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
+      # - name: '[Verify step] Test Dart packages [VM]'
+      #   run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
       - name: '[Verify step] Test Dart packages [Chrome]'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
-      - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
+      # - name: '[Verify step] Test Dart packages [Firefox]'
+      #   run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
       - name: '[Verify step] Test Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"

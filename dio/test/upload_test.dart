@@ -10,7 +10,7 @@ void main() {
   late Dio dio;
 
   setUp(() {
-    dio = Dio()..options.baseUrl = 'https://httpbun.com/';
+    dio = Dio()..options.baseUrl = 'https://httpbun.local/';
   });
 
   test('Uint8List should not be transformed', () async {

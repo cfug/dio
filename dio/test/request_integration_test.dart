@@ -9,7 +9,7 @@ void main() {
 
     setUp(() {
       dio = Dio();
-      dio.options.baseUrl = 'https://httpbun.com/';
+      dio.options.baseUrl = 'https://httpbun.local/';
     });
 
     group('restful APIs', () {
@@ -236,7 +236,7 @@ void main() {
       test('single', () async {
         final response = await dio.get(
           '/redirect',
-          queryParameters: {'url': 'https://httpbun.com/get'},
+          queryParameters: {'url': 'https://httpbun.local/get'},
           onReceiveProgress: (received, total) {
             // ignore progress
           },
