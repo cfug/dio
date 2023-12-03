@@ -203,7 +203,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     // Use a StreamController to explicitly handle receive timeouts.
-    final responseSink = StreamController<Uint8List>.broadcast();
+    final responseSink = StreamController<Uint8List>();
     late StreamSubscription<List<int>> responseSubscription;
 
     final receiveStopwatch = Stopwatch();
