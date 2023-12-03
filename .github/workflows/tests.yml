@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ min, stable, beta ]
+        sdk: [ stable ]
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2.8.0
