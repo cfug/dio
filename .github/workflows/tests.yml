@@ -36,8 +36,8 @@ jobs:
       - run: |
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
-      - name: Install proxy and mkcert for tests
-        run: sudo apt-get update && sudo apt-get install -y squid mkcert libnss3-tools
+      - name: Install browsers, proxy, and mkcert for tests
+        run: sudo apt-get update && sudo apt-get install -y google-chrome-stable firefox squid mkcert libnss3-tools
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
         with:
