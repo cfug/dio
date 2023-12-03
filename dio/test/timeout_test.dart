@@ -13,8 +13,6 @@ void main() {
 
   group('Timeout exception of', () {
     group('connectTimeout', () {
-      final dio = Dio()..options.baseUrl = 'http://127.1.2.3:1234';
-
       test('with response', () async {
         dio.options.connectTimeout = Duration(milliseconds: 3);
         await expectLater(

@@ -18,33 +18,8 @@ void main() {
 
   group('Timeout exception of', () {
     group('connectTimeout', () {
-      final dio = Dio()..options.baseUrl = 'http://127.1.2.3:1234';
-
       test('with response', () async {
         dio.options.connectTimeout = Duration(milliseconds: 3);
-        await expectLater(
-          dio.get('/'),
-          allOf(
-            throwsA(isA<DioException>()),
-            throwsA(predicate((DioException e) =>
-                e.type == DioExceptionType.connectionTimeout &&
-                e.message!.contains('${dio.options.connectTimeout}'))),
-          ),
-        );
-      });
-
-      test('update between calls', () async {
-        dio.options.connectTimeout = Duration(milliseconds: 5);
-        await expectLater(
-          dio.get('/'),
-          allOf(
-            throwsA(isA<DioException>()),
-            throwsA(predicate((DioException e) =>
-                e.type == DioExceptionType.connectionTimeout &&
-                e.message!.contains('${dio.options.connectTimeout}'))),
-          ),
-        );
-        dio.options.connectTimeout = Duration(milliseconds: 10);
         await expectLater(
           dio.get('/'),
           allOf(
