@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `receiveTimeout` for streamed responses.
 
 ## 5.4.0
 
