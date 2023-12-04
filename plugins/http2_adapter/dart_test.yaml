@@ -4,9 +4,11 @@ file_reporters:
 tags:
   tls:
     skip: "Skipping TLS test with specific setup requirements by default. Use '-P all' to run all tests."
+    presets:
+      all:
+        skip: false
   proxy:
     skip: "Skipping proxy test with specific setup requirements by default. Use '-P all' to run all tests."
-
-presets:
-  all:
-    run_skipped: true
+    presets:
+      all:
+        skip: false
