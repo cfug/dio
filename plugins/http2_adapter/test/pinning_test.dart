@@ -13,7 +13,7 @@ void main() {
     // OpenSSL output like: SHA256 Fingerprint=EE:5C:E1:DF:A7:A4...
     // All badssl.com hosts have the same cert, they just have TLS
     // setting or other differences (like host name) that make them bad.
-    final lines = File('test/_pinning.txt').readAsLinesSync();
+    final lines = File('test/_pinning_http2.txt').readAsLinesSync();
     return lines.first.split('=').last.toLowerCase().replaceAll(':', '');
   }
 
