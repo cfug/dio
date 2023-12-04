@@ -38,7 +38,6 @@ void main() {
 
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
-    f.deleteSync(recursive: false);
   });
 
   test('download2', () async {
