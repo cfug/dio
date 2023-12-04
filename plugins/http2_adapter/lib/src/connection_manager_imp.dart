@@ -204,7 +204,7 @@ class _ConnectionManager implements ConnectionManager {
         final lines = response.split(crlf);
         final statusLine = lines.first;
 
-        if (statusLine.startsWith('HTTP/1.1 200')) {
+        if (statusLine.startsWith(RegExp(r'HTTP/1.\d 200'))) {
           completerProxyInitialization.complete();
         } else {
           completerProxyInitialization.completeError(
