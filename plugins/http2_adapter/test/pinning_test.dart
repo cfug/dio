@@ -149,10 +149,10 @@ void main() {
         expect(approved, true);
         expect(badCertSubject, isNotNull);
         expect(badCertSubject, isNot(contains(expectedHostString)));
-        expect(badCertSha256, isNot(fingerprint));
+        expect(badCertSha256, isNot(fingerprint()));
         expect(approverSubject, isNotNull);
         expect(approverSubject, contains(expectedHostString));
-        expect(approverSha256, fingerprint);
+        expect(approverSha256, fingerprint());
         expect(approverSubject, isNot(badCertSubject));
         expect(approverSha256, isNot(badCertSha256));
         expect(res, isNotNull);
