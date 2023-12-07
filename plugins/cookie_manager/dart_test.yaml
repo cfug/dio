@@ -1,2 +1,6 @@
 file_reporters:
   json: build/reports/test-results.json
+
+presets:
+  # empty placeholder required in CI scripts
+  all:

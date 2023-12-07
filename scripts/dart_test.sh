@@ -21,7 +21,7 @@ if [ -z "$PLATFORM" ]; then
   exit 1
 fi
 
-dart test --chain-stack-traces --platform="$PLATFORM"
+dart test --chain-stack-traces --platform="$PLATFORM" -P all
 
 exit_code=$?
 

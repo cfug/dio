@@ -34,22 +34,26 @@ void main() {
     expect(error, isNotNull);
   });
 
-  test('catch DioException: hostname mismatch', () async {
-    DioException? error;
-    try {
-      await Dio().get('https://wrong.host.badssl.com/');
-      fail('did not throw');
-    } on DioException catch (e) {
-      error = e;
-    }
-    expect(error, isNotNull);
-    expect(error.error, isA<HandshakeException>());
-    expect((error.error as HandshakeException).osError, isNotNull);
-    expect(
-      ((error.error as HandshakeException).osError as OSError).message,
-      contains('Hostname mismatch'),
-    );
-  });
+  test(
+    'catch DioException: hostname mismatch',
+    () async {
+      DioException? error;
+      try {
+        await Dio().get('https://wrong.host.badssl.com/');
+        fail('did not throw');
+      } on DioException catch (e) {
+        error = e;
+      }
+      expect(error, isNotNull);
+      expect(error.error, isA<HandshakeException>());
+      expect((error.error as HandshakeException).osError, isNotNull);
+      expect(
+        ((error.error as HandshakeException).osError as OSError).message,
+        contains('Hostname mismatch'),
+      );
+    },
+    tags: ['tls'],
+  );
 
   test(
     'allow badssl',
