@@ -5,6 +5,7 @@ class _ConnectionManager implements ConnectionManager {
   _ConnectionManager({
     Duration? idleTimeout,
     this.onClientCreate,
+    this.proxyConnectedPredicate = defaultProxyConnectedPredicate,
   }) : _idleTimeout = idleTimeout ?? const Duration(seconds: 1);
 
   /// Callback when socket created.
@@ -12,6 +13,9 @@ class _ConnectionManager implements ConnectionManager {
   /// We can set trusted certificates and handler
   /// for unverifiable certificates.
   final void Function(Uri uri, ClientSetting)? onClientCreate;
+
+  /// {@macro dio_http2_adapter.ProxyConnectedPredicate}
+  final ProxyConnectedPredicate proxyConnectedPredicate;
 
   /// Sets the idle timeout(milliseconds) of non-active persistent
   /// connections. For the sake of socket reuse feature with http/2,
@@ -173,7 +177,9 @@ class _ConnectionManager implements ConnectionManager {
     // Use CRLF as the end of the line https://www.ietf.org/rfc/rfc2616.txt
     const crlf = '\r\n';
 
-    proxySocket.write('CONNECT ${target.host}:${target.port} HTTP/1.1');
+    // TODO(EVERYONE): Figure out why we can only use an HTTP/1.x proxy here.
+    const proxyProtocol = 'HTTP/1.1';
+    proxySocket.write('CONNECT ${target.host}:${target.port} $proxyProtocol');
     proxySocket.write(crlf);
     proxySocket.write('Host: ${target.host}:${target.port}');
 
@@ -203,16 +209,24 @@ class _ConnectionManager implements ConnectionManager {
         final response = ascii.decode(event);
         final lines = response.split(crlf);
         final statusLine = lines.first;
-
-        if (statusLine.startsWith(RegExp(r'HTTP/1.\d 200'))) {
-          completerProxyInitialization.complete();
-        } else {
-          completerProxyInitialization.completeError(
-            SocketException('Proxy cannot be initialized'),
-          );
+        if (!completerProxyInitialization.isCompleted) {
+          if (proxyConnectedPredicate(proxyProtocol, statusLine)) {
+            completerProxyInitialization.complete();
+          } else {
+            completerProxyInitialization.completeError(
+              SocketException(
+                'Proxy cannot be initialized: '
+                'host = ${target.host}, port = ${target.port}',
+              ),
+            );
+          }
         }
       },
-      onError: completerProxyInitialization.completeError,
+      onError: (e, s) {
+        if (!completerProxyInitialization.isCompleted) {
+          completerProxyInitialization.completeError(e, s);
+        }
+      },
     );
 
     await completerProxyInitialization.future;

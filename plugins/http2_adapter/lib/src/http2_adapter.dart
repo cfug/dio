@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:http2/http2.dart';
+import 'package:meta/meta.dart';
 
 part 'client_setting.dart';
 
