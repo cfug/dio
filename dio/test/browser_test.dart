@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 void main() {
   test('with credentials', () async {
     final browserAdapter = BrowserHttpClientAdapter(withCredentials: true);
-    final opts = RequestOptions();
+    final opts = RequestOptions(baseUrl: 'https://httpbun.local/');
     final testStream = Stream<Uint8List>.periodic(
       Duration(seconds: 1),
       (x) => Uint8List(x),
