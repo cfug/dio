@@ -9,11 +9,22 @@ import 'mock/adapters.dart';
 import 'utils.dart';
 
 void main() {
+  late Directory tmp;
+
+  setUpAll(() {
+    tmp = Directory.systemTemp.createTempSync('dio_test_');
+    addTearDown(() {
+      tmp.deleteSync(recursive: true);
+    });
+    print(tmp.path);
+  });
+
   setUp(startServer);
   tearDown(stopServer);
 
   test('download does not change the response type', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'download0.md');
+
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     final options = Options(responseType: ResponseType.plain);
     await dio.download('/download', savePath, options: options);
@@ -21,17 +32,16 @@ void main() {
   });
 
   test('download1', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'download1.md');
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     await dio.download('/download', savePath);
 
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
-    f.deleteSync(recursive: false);
   });
 
   test('download2', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'download2.md');
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     await dio.downloadUri(
       serverUrl.replace(path: '/download'),
@@ -40,11 +50,10 @@ void main() {
 
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
-    f.deleteSync(recursive: false);
   });
 
   test('download error', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'download_error.md');
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     Response response = await dio
         .download('/error', savePath)
@@ -75,7 +84,7 @@ void main() {
         Uri.parse('$serverUrl/download').replace(
           queryParameters: {'count': '3', 'gap': '2'},
         ),
-        'test/download/_test.md',
+        p.join(tmp.path, 'download_timeout.md'),
         options: Options(receiveTimeout: Duration(seconds: 1)),
       ),
       timeoutMatcher,
@@ -83,13 +92,13 @@ void main() {
     // Throws nothing if it constantly gets response bytes.
     await dio.download(
       'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
-      'test/download/main.zip',
+      p.join(tmp.path, 'main.zip'),
       options: Options(receiveTimeout: Duration(seconds: 1)),
     );
   });
 
   test('download cancellation', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'download_cancellation.md');
     final cancelToken = CancelToken();
     Future.delayed(Duration(milliseconds: 100), () {
       cancelToken.cancel();
@@ -107,7 +116,7 @@ void main() {
   });
 
   test('delete on error', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'delete_on_error.md');
     final f = File(savePath)..createSync(recursive: true);
     expect(f.existsSync(), isTrue);
 
@@ -127,7 +136,7 @@ void main() {
   });
 
   test('delete on cancel', () async {
-    const savePath = 'test/download/_test.md';
+    final savePath = p.join(tmp.path, 'delete_on_cancel.md');
     final f = File(savePath)..createSync(recursive: true);
     expect(f.existsSync(), isTrue);
 
@@ -150,7 +159,7 @@ void main() {
   });
 
   test('`savePath` types', () async {
-    final testPath = p.join(Directory.systemTemp.path, 'dio', 'testPath');
+    final testPath = p.join(tmp.path, 'savePath');
 
     final dio = Dio()
       ..options.baseUrl = EchoAdapter.mockBase
