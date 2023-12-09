@@ -85,6 +85,7 @@ void main() {
         String? approverSha256;
 
         final dio = Dio();
+        dio.options.baseUrl = 'https://httpbun.local/';
         dio.httpClientAdapter = Http2Adapter(
           ConnectionManager(
             idleTimeout: Duration(seconds: 10),
@@ -108,7 +109,7 @@ void main() {
         );
 
         final res = await dio.get(
-          'https://wrong.host.badssl.com/',
+          'get',
           options: Options(validateStatus: (status) => true),
         );
         expect(badCert, true);
