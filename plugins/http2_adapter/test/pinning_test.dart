@@ -85,7 +85,7 @@ void main() {
         String? approverSha256;
 
         final dio = Dio();
-        dio.options.baseUrl = 'https://httpbun.local/';
+        dio.options.baseUrl = 'https://httpbun.com/';
         dio.httpClientAdapter = Http2Adapter(
           ConnectionManager(
             idleTimeout: Duration(seconds: 10),
