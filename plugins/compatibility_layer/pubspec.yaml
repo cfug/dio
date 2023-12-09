@@ -1,4 +1,4 @@
-name: dio_http_compatibility_layer
+name: dio_compatibility_layer
 version: 0.0.1
 
 description: Enables dio to make use of http packages.
@@ -9,7 +9,7 @@ topics:
   - native
   - cronet
 homepage: https://github.com/cfug/dio
-repository: https://github.com/cfug/dio/blob/main/plugins/http_compatibility_layer
+repository: https://github.com/cfug/dio/blob/main/plugins/compatibility_layer
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:

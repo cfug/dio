@@ -3,22 +3,23 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
     ? bool.fromEnvironment('dart.library.js_util')
     : identical(0, 0.0);
 
-/// A conversion layer which translates Dio HTTP requests to
-/// [http](https://pub.dev/packages/http) compatible requests.
-/// This way there's no need to implement custom [HttpClientAdapter]
-/// for each platform. Therefore, the required effort to add tests is kept
-/// to a minimum. Since `CupertinoClient` and `CronetClient` depend anyway on
-/// `http` this also doesn't add any additional dependency.
+/// A conversion layer which translates [Dio] requests to
+/// [`http`](https://pub.dev/packages/http) compatible requests.
+/// This enables you to use
+/// [`cronet_http`](https://pub.dev/packages/cronet_http),
+/// [`cupertino_http`](https://pub.dev/packages/cupertino_http),
+/// and other `http` compatible packages with [Dio].
 class ConversionLayerAdapter implements HttpClientAdapter {
   ConversionLayerAdapter(this.client);
 
-  final Client client;
+  /// The client instance from the `http` package.
+  final http.Client client;
 
   @override
   Future<ResponseBody> fetch(
@@ -42,13 +43,13 @@ class ConversionLayerAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) => client.close();
 
-  Future<BaseRequest> _fromOptionsAndStream(
+  Future<http.BaseRequest> _fromOptionsAndStream(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
   ) async {
-    final BaseRequest request;
+    final http.BaseRequest request;
     if (_kIsWeb && requestStream != null) {
-      final normalRequest = request = Request(
+      final normalRequest = request = http.Request(
         options.method,
         options.uri,
       );
@@ -67,13 +68,13 @@ class ConversionLayerAdapter implements HttpClientAdapter {
       final bytes = await completer.future;
       normalRequest.bodyBytes = bytes;
     } else if (requestStream != null) {
-      final streamedRequest = request = StreamedRequest(
+      final streamedRequest = request = http.StreamedRequest(
         options.method,
         options.uri,
       );
       requestStream.listen(streamedRequest.sink.add);
     } else {
-      request = Request(options.method, options.uri);
+      request = http.Request(options.method, options.uri);
     }
     request.headers.addAll(
       Map.fromEntries(

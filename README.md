@@ -19,8 +19,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - cookie_manager: [link](plugins/cookie_manager)
   [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_cookie_manager)
-- http_compatibility_layer: [link](plugins/http_compatibility_layer)
-  [![Pub](https://img.shields.io/pub/v/dio_http_compatibility_layer.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_http_compatibility_layer)
+- compatibility_layer: [link](plugins/compatibility_layer)
+  [![Pub](https://img.shields.io/pub/v/dio_compatibility_layer.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_compatibility_layer)
 - http2_adapter: [link](plugins/http2_adapter)
   [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_http2_adapter)
 - native_dio_adapter: [link](plugins/native_dio_adapter)

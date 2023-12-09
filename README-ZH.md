@@ -18,8 +18,8 @@ Language: [English](README.md) | 简体中文
 
 - cookie_manager: [链接](plugins/cookie_manager)
   [![Pub](https://img.shields.io/pub/v/dio_cookie_manager.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_cookie_manager)
-- http_compatibility_layer: [链接](plugins/http_compatibility_layer)
-  [![Pub](https://img.shields.io/pub/v/dio_http_compatibility_layer.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_http_compatibility_layer)
+- compatibility_layer: [链接](plugins/compatibility_layer)
+  [![Pub](https://img.shields.io/pub/v/dio_compatibility_layer.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_compatibility_layer)
 - http2_adapter: [链接](plugins/http2_adapter)
   [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_http2_adapter)
 - native_dio_adapter: [链接](plugins/native_dio_adapter)
