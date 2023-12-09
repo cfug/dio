@@ -46,6 +46,8 @@ jobs:
           run-bootstrap: false
       - name: Patching files for Flutter ${{ matrix.sdk }}
         run: dart ./scripts/files_patch.dart
+      - name: Setup SSL Pinning certs
+        run: ./scripts/prepare_pinning_certs.sh
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_ignored_packages.dart
@@ -68,10 +70,6 @@ jobs:
             sharat87/httpbun
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
-      - name: Setup SSL Pinning certs
-        run: |
-          chmod +x ./scripts/prepare_pinning_certs.sh
-          ./scripts/prepare_pinning_certs.sh
       - name: '[Verify step] Format'
         run: melos exec $(eval echo $IGNORED_PACKAGES) -- "dart format --set-exit-if-changed ."
       - name: '[Verify step] Analyze Dart packages'
