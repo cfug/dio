@@ -6,17 +6,12 @@ import 'package:dio/io.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late Dio dio;
-
-  setUp(() {
-    dio = Dio();
-    dio.options.baseUrl = 'https://httpbun.local/';
-  });
-
   group('Timeout exception of', () {
     group('connectTimeout', () {
       test('with response', () async {
-        dio.options.connectTimeout = Duration(milliseconds: 3);
+        final dio = Dio()
+          ..options.baseUrl = 'https://pub.dev/'
+          ..options.connectTimeout = Duration(milliseconds: 3);
         await expectLater(
           dio.get('/'),
           allOf(
@@ -31,7 +26,7 @@ void main() {
       test('update between calls', () async {
         final client = HttpClient();
         final dio = Dio()
-          ..options.baseUrl = 'https://httpbun.com'
+          ..options.baseUrl = 'https://pub.dev/'
           ..httpClientAdapter = IOHttpClientAdapter(
             createHttpClient: () => client,
           );
@@ -51,7 +46,9 @@ void main() {
 
     group('receiveTimeout', () {
       test('with normal response', () async {
-        dio.options.receiveTimeout = Duration(seconds: 1);
+        final dio = Dio()
+          ..options.baseUrl = 'https://httpbun.local/'
+          ..options.receiveTimeout = Duration(seconds: 1);
         await expectLater(
           dio.get('/drip', queryParameters: {'delay': 2}),
           allOf([
@@ -71,7 +68,9 @@ void main() {
       });
 
       test('with streamed response', () async {
-        dio.options.receiveTimeout = Duration(seconds: 1);
+        final dio = Dio()
+          ..options.baseUrl = 'https://httpbun.local/'
+          ..options.receiveTimeout = Duration(seconds: 1);
         final completer = Completer<void>();
         final streamedResponse = await dio.get(
           '/drip',
@@ -112,8 +111,9 @@ void main() {
   });
 
   test('no DioException when receiveTimeout > request duration', () async {
-    dio.options.receiveTimeout = Duration(seconds: 5);
-
+    final dio = Dio()
+      ..options.baseUrl = 'https://httpbun.local/'
+      ..options.receiveTimeout = Duration(seconds: 5);
     await dio.get('/drip?delay=1&numbytes=1');
   });
 
