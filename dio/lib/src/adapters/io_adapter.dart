@@ -202,6 +202,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
+    // Use a StreamController to explicitly handle receive timeouts.
+    final responseSink = StreamController<Uint8List>();
+    late StreamSubscription<List<int>> responseSubscription;
+
     final receiveStopwatch = Stopwatch();
     Timer? receiveTimer;
 
@@ -211,7 +215,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       receiveStopwatch.stop();
     }
 
-    void watchReceiveTimeout(EventSink<Uint8List> sink) {
+    void watchReceiveTimeout() {
       if (receiveTimeout <= Duration.zero) {
         return;
       }
@@ -221,32 +225,38 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
       receiveTimer?.cancel();
       receiveTimer = Timer(receiveTimeout, () {
-        sink.addError(
+        responseSink.addError(
           DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
           ),
         );
-        sink.close();
+        responseSink.close();
+        responseSubscription.cancel();
         responseStream.detachSocket().then((socket) => socket.destroy());
         stopWatchReceiveTimeout();
       });
     }
 
-    final stream = responseStream.transform<Uint8List>(
-      StreamTransformer.fromHandlers(
-        handleData: (data, sink) {
-          watchReceiveTimeout(sink);
-          // Always true if the receive timeout was not set.
-          if (receiveStopwatch.elapsed <= receiveTimeout) {
-            sink.add(data is Uint8List ? data : Uint8List.fromList(data));
-          }
-        },
-        handleDone: (sink) {
-          stopWatchReceiveTimeout();
-          sink.close();
-        },
-      ),
+    responseSubscription = responseStream.cast<Uint8List>().listen(
+      (data) {
+        watchReceiveTimeout();
+        // Always true if the receive timeout was not set.
+        if (receiveStopwatch.elapsed <= receiveTimeout) {
+          responseSink.add(data);
+        }
+      },
+      onError: (error, stackTrace) {
+        stopWatchReceiveTimeout();
+        responseSink.addError(error, stackTrace);
+        responseSink.close();
+      },
+      onDone: () {
+        stopWatchReceiveTimeout();
+        responseSubscription.cancel();
+        responseSink.close();
+      },
+      cancelOnError: true,
     );
 
     final headers = <String, List<String>>{};
@@ -254,7 +264,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       headers[key] = values;
     });
     return ResponseBody(
-      stream,
+      responseSink.stream,
       responseStream.statusCode,
       headers: headers,
       isRedirect:

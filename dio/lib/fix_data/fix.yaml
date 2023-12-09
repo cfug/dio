@@ -1,0 +1,75 @@
+version: 1
+
+transforms:
+  # Changes made in https://github.com/cfug/diox/pull/14
+  - title: "Migrate to 'IOHttpClientAdapter'"
+    date: 2022-11-07
+    element:
+      uris: ['dio.dart', 'src/adapter.dart', 'src/adapters/io_adapter.dart']
+      class: 'DefaultHttpClientAdapter'
+    changes:
+      - kind: 'rename'
+        newName: 'IOHttpClientAdapter'
+
+  # Changes made in https://github.com/cfug/diox/pull/62
+  - title: "Migrate to 'BackgroundTransformer'"
+    date: 2023-01-31
+    element:
+      uris: ['dio.dart', 'src/transformer.dart']
+      class: 'DefaultTransformer'
+    changes:
+      - kind: 'rename'
+        newName: 'BackgroundTransformer'
+
+  # Changes made in https://github.com/cfug/dio/pull/1812
+  - title: "Migrate to 'CreateHttpClient'"
+    date: 2023-05-14
+    element:
+      uris: ['dio.dart', 'src/adapters/io_adapter.dart']
+      typedef: 'OnHttpClientCreate'
+    changes:
+      - kind: 'rename'
+        newName: 'CreateHttpClient'
+      - kind: 'removeParameter'
+        index: 0
+  - title: "Migrate to 'createHttpClient'"
+    date: 2023-05-14
+    element:
+      uris: ['dio.dart', 'src/adapters/io_adapter.dart']
+      constructor: ''
+      inClass: 'IOHttpClientAdapter'
+    changes:
+      - kind: 'renameParameter'
+        oldName: 'onHttpClientCreate'
+        newName: 'createHttpClient'
+
+  # Changes made in https://github.com/cfug/dio/pull/1803
+  - title: "Migrate to 'DioException'"
+    date: 2023-05-15
+    element:
+      uris: ['dio.dart', 'src/dio_exception.dart', 'src/dio_error.dart']
+      class: 'DioError'
+    changes:
+      - kind: 'rename'
+        newName: 'DioException'
+
+  # Changes made in https://github.com/cfug/dio/pull/1803
+  - title: "Migrate to 'DioExceptionType'"
+    date: 2023-05-15
+    element:
+      uris: ['dio.dart', 'src/dio_exception.dart', 'src/dio_error.dart']
+      class: 'DioErrorType'
+    changes:
+      - kind: 'rename'
+        newName: 'DioExceptionType'
+
+  # Changes made in https://github.com/cfug/dio/pull/1903
+  - title: "Migrate to 'MultipartFile.fromStream'"
+    date: 2023-06-25
+    element:
+      uris: ['dio.dart', 'src/multipart_file.dart']
+      constructor: ''
+      inClass: 'MultipartFile'
+    changes:
+      - kind: 'rename'
+        newName: 'fromStream'

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -12,49 +13,102 @@ void main() {
     dio.options.baseUrl = 'https://httpbun.com/';
   });
 
-  test('catch DioException when connectTimeout', () {
-    dio.options.connectTimeout = Duration(milliseconds: 3);
+  group('Timeout exception of', () {
+    group('connectTimeout', () {
+      test('with response', () async {
+        dio.options.connectTimeout = Duration(milliseconds: 3);
+        await expectLater(
+          dio.get('/'),
+          allOf(
+            throwsA(isA<DioException>()),
+            throwsA(predicate((DioException e) =>
+                e.type == DioExceptionType.connectionTimeout &&
+                e.message!.contains('${dio.options.connectTimeout}'))),
+          ),
+        );
+      });
 
-    expectLater(
-      dio.get('/drip-lines?delay=2'),
-      allOf(
-        throwsA(isA<DioException>()),
-        throwsA(predicate((DioException e) =>
-            e.type == DioExceptionType.connectionTimeout &&
-            e.message!.contains('0:00:00.003000'))),
-      ),
-    );
-  });
+      test('update between calls', () async {
+        final client = HttpClient();
+        final dio = Dio()
+          ..options.baseUrl = 'https://httpbun.com'
+          ..httpClientAdapter = IOHttpClientAdapter(
+            createHttpClient: () => client,
+          );
 
-  test('catch DioException when receiveTimeout', () async {
-    dio.options.receiveTimeout = Duration(seconds: 1);
+        dio.options.connectTimeout = Duration(milliseconds: 5);
+        await dio
+            .get('/')
+            .catchError((e) => Response(requestOptions: RequestOptions()));
+        expect(client.connectionTimeout, dio.options.connectTimeout);
+        dio.options.connectTimeout = Duration(milliseconds: 10);
+        await dio
+            .get('/')
+            .catchError((e) => Response(requestOptions: RequestOptions()));
+        expect(client.connectionTimeout, dio.options.connectTimeout);
+      }, testOn: 'vm');
+    });
 
-    final matcher = allOf([
-      throwsA(isA<DioException>()),
-      throwsA(
-        predicate<DioException>(
-          (e) => e.type == DioExceptionType.receiveTimeout,
-        ),
-      ),
-      throwsA(
-        predicate<DioException>((e) => e.message!.contains('0:00:01.000000')),
-      ),
-    ]);
-    await expectLater(
-      dio.get(
-        '/drip',
-        queryParameters: {'delay': 2},
-      ),
-      matcher,
-    );
-    await expectLater(
-      dio.get(
-        '/drip',
-        queryParameters: {'delay': 0, 'duration:': 1},
-        options: Options(responseType: ResponseType.stream),
-      ),
-      matcher,
-    );
+    group('receiveTimeout', () {
+      test('with normal response', () async {
+        dio.options.receiveTimeout = Duration(seconds: 1);
+        await expectLater(
+          dio.get('/drip', queryParameters: {'delay': 2}),
+          allOf([
+            throwsA(isA<DioException>()),
+            throwsA(
+              predicate<DioException>(
+                (e) => e.type == DioExceptionType.receiveTimeout,
+              ),
+            ),
+            throwsA(
+              predicate<DioException>(
+                (e) => e.message!.contains('${dio.options.receiveTimeout}'),
+              ),
+            ),
+          ]),
+        );
+      });
+
+      test('with streamed response', () async {
+        dio.options.receiveTimeout = Duration(seconds: 1);
+        final completer = Completer<void>();
+        final streamedResponse = await dio.get(
+          '/drip',
+          queryParameters: {'delay': 0, 'duration': 20},
+          options: Options(responseType: ResponseType.stream),
+        );
+        (streamedResponse.data as ResponseBody).stream.listen(
+          (event) {},
+          onError: (error) {
+            if (!completer.isCompleted) {
+              completer.completeError(error);
+            }
+          },
+          onDone: () {
+            if (!completer.isCompleted) {
+              completer.complete();
+            }
+          },
+        );
+        await expectLater(
+          completer.future,
+          allOf([
+            throwsA(isA<DioException>()),
+            throwsA(
+              predicate<DioException>(
+                (e) => e.type == DioExceptionType.receiveTimeout,
+              ),
+            ),
+            throwsA(
+              predicate<DioException>(
+                (e) => e.message!.contains('${dio.options.receiveTimeout}'),
+              ),
+            ),
+          ]),
+        );
+      }, testOn: 'vm');
+    });
   });
 
   test('no DioException when receiveTimeout > request duration', () async {
@@ -62,27 +116,6 @@ void main() {
 
     await dio.get('/drip?delay=1&numbytes=1');
   });
-
-  test('change connectTimeout in run time ', () async {
-    final dio = Dio();
-    final adapter = IOHttpClientAdapter();
-    final http = HttpClient();
-
-    adapter.createHttpClient = () => http;
-    dio.httpClientAdapter = adapter;
-    dio.options.connectTimeout = Duration(milliseconds: 200);
-
-    try {
-      await dio.get('/');
-    } on DioException catch (_) {}
-    expect(http.connectionTimeout?.inMilliseconds == 200, isTrue);
-
-    try {
-      dio.options.connectTimeout = Duration(seconds: 1);
-      await dio.get('/');
-    } on DioException catch (_) {}
-    expect(http.connectionTimeout?.inSeconds == 1, isTrue);
-  }, testOn: 'vm');
 
   test('ignores zero duration timeouts', () async {
     final dio = Dio(
