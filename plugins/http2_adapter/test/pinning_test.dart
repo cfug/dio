@@ -67,6 +67,7 @@ void main() {
     test(
       'untrusted certificate tested and allowed',
       () async {
+        final expectedHostString = 'pub.dev';
         // NOTE: Run scripts/prepare_pinning_certs.sh
         // to download the current certs to the file below.
         //
