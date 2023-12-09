@@ -35,10 +35,10 @@ jobs:
           channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
       - name: Install browsers, proxy, and mkcert for tests
         run: |
-          sudo apt-get update && sudo apt-get install -y xvfb google-chrome-stable firefox squid mkcert libnss3-tools
-          echo -e "\n\nHeadless Chrome..."
-          google-chrome-stable --headless --disable-gpu --no-sandbox --dump-dom "https://httpbun.com" > /dev/null
-          echo -e "\n\nHeadless Firefox..."
+          sudo apt-get update && sudo apt-get install -y squid mkcert libnss3-tools
+          echo "Headless Chrome..."
+          google-chrome --headless --disable-gpu --no-sandbox --dump-dom "https://httpbun.com" > /dev/null
+          echo "Headless Firefox..."
           firefox --headless --screenshot --window-size=1280,1024 "https://httpbun.com" > /dev/null
       - run: dart pub get
       - uses: bluefireteam/melos-action@v2
@@ -81,10 +81,12 @@ jobs:
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
+        run: |
+          killall google-chrome 2>/dev/null
+          melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
       - name: '[Verify step] Test Dart packages [Firefox]'
         run: |
-          Xvfb :99 & export DISPLAY=:99
+          killall firefox 2>/dev/null
           melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
       - name: '[Verify step] Test Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"
