@@ -145,6 +145,7 @@ void main() {
         ),
       ]),
     );
+    dio.options.receiveTimeout = Duration.zero;
     dio.options.connectTimeout = Duration(milliseconds: 10);
     await expectLater(
       dio.get('/drip-lines?delay=1'),

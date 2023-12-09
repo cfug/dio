@@ -7,28 +7,8 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
 void main() {
-  // NOTE: Run scripts/prepare_pinning_certs.sh
-  // to download the current certs to the file below.
-  //
-  // OpenSSL output like: SHA256 Fingerprint=EE:5C:E1:DF:A7:A4...
-  // All badssl.com hosts have the same cert, they just have TLS
-  // setting or other differences (like host name) that make them bad.
-  final lines = File('test/_pinning_http2.txt').readAsLinesSync();
-  final fingerprint =
-      lines.first.split('=').last.toLowerCase().replaceAll(':', '');
-
   group('SSL pinning', () {
-    final Dio dio = Dio()
-      ..options.baseUrl = 'https://httpbun.local/'
-      ..interceptors.add(
-        QueuedInterceptorsWrapper(
-          onRequest: (options, handler) async {
-            // Delay 1 second before requests to avoid request too frequently.
-            await Future.delayed(const Duration(seconds: 1));
-            handler.next(options);
-          },
-        ),
-      );
+    final Dio dio = Dio()..options.baseUrl = 'https://httpbun.local/';
     final expectedHostString = 'httpbun.local';
 
     test('trusted host allowed with no approver', () async {
@@ -85,34 +65,16 @@ void main() {
     });
 
     test('untrusted certificate tested and allowed', () async {
-      bool badCert = false;
-      bool approved = false;
-      dio.httpClientAdapter = Http2Adapter(
-        ConnectionManager(
-          idleTimeout: Duration(seconds: 10),
-          onClientCreate: (url, config) {
-            config.context = SecurityContext(withTrustedRoots: false);
-            config.onBadCertificate = (certificate) {
-              badCert = true;
-              return true;
-            };
-            config.validateCertificate = (certificate, host, port) {
-              approved = true;
-              return true;
-            };
-          },
-        ),
-      );
+      // NOTE: Run scripts/prepare_pinning_certs.sh
+      // to download the current certs to the file below.
+      //
+      // OpenSSL output like: SHA256 Fingerprint=EE:5C:E1:DF:A7:A4...
+      // All badssl.com hosts have the same cert, they just have TLS
+      // setting or other differences (like host name) that make them bad.
+      final lines = File('test/_pinning_http2.txt').readAsLinesSync();
+      final fingerprint =
+          lines.first.split('=').last.toLowerCase().replaceAll(':', '');
 
-      final res = await dio.get('get');
-      expect(badCert, true);
-      expect(approved, true);
-      expect(res, isNotNull);
-      expect(res.data, isNotNull);
-      expect(res.data.toString(), contains(expectedHostString));
-    });
-
-    test('untrusted certificate tested and allowed', () async {
       bool badCert = false;
       bool approved = false;
       String? badCertSubject;
@@ -120,6 +82,7 @@ void main() {
       String? badCertSha256;
       String? approverSha256;
 
+      final dio = Dio();
       dio.httpClientAdapter = Http2Adapter(
         ConnectionManager(
           idleTimeout: Duration(seconds: 10),
@@ -142,7 +105,10 @@ void main() {
         ),
       );
 
-      final res = await dio.get('get');
+      final res = await dio.get(
+        'https://wrong.host.badssl.com/',
+        options: Options(validateStatus: (status) => true),
+      );
       expect(badCert, true);
       expect(approved, true);
       expect(badCertSubject, isNotNull);
