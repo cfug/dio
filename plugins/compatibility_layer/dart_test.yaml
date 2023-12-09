@@ -1,3 +1,7 @@
+presets:
+  # empty placeholder required in CI scripts
+  all:
+
 override_platforms:
   chrome:
     settings:
