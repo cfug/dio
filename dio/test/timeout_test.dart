@@ -128,7 +128,7 @@ void main() {
     // Ignores zero duration timeouts from the base options.
     await dio.get('/drip-lines?delay=1');
     // Reset the base options.
-    dio.options.receiveTimeout = Duration(milliseconds: 10);
+    dio.options.receiveTimeout = Duration(milliseconds: 500);
     await expectLater(
       dio.get('/drip-lines?delay=1'),
       allOf([
@@ -140,13 +140,13 @@ void main() {
         ),
         throwsA(
           predicate<DioException>(
-            (e) => e.message!.contains('0:00:00.010000'),
+            (e) => e.message!.contains('0:00:00.500000'),
           ),
         ),
       ]),
     );
     dio.options.receiveTimeout = Duration.zero;
-    dio.options.connectTimeout = Duration(milliseconds: 10);
+    dio.options.connectTimeout = Duration(milliseconds: 1);
     await expectLater(
       dio.get('/drip-lines?delay=1'),
       allOf([
@@ -158,7 +158,7 @@ void main() {
         ),
         throwsA(
           predicate<DioException>(
-            (e) => e.message!.contains('0:00:00.010000'),
+            (e) => e.message!.contains('0:00:00.001000'),
           ),
         ),
       ]),
