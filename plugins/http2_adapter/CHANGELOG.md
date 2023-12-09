@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Allows `HTTP/1.0` when connecting to proxies.
 
 ## 2.4.0
 
