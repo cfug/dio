@@ -32,8 +32,8 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     return ResponseBody(
       response.stream.cast<Uint8List>(),
       response.statusCode,
-      isRedirect: response.isRedirect,
       statusMessage: response.reasonPhrase,
+      isRedirect: response.isRedirect,
       headers: Map.fromEntries(
         response.headers.entries.map((e) => MapEntry(e.key, [e.value])),
       ),
@@ -48,6 +48,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
   ) async {
     final http.BaseRequest request;
+    int? contentLength;
     if (_kIsWeb && requestStream != null) {
       final normalRequest = request = http.Request(
         options.method,
@@ -66,13 +67,19 @@ class ConversionLayerAdapter implements HttpClientAdapter {
         cancelOnError: true,
       );
       final bytes = await completer.future;
+      contentLength = bytes.length;
       normalRequest.bodyBytes = bytes;
     } else if (requestStream != null) {
       final streamedRequest = request = http.StreamedRequest(
         options.method,
         options.uri,
       );
-      requestStream.listen(streamedRequest.sink.add);
+      requestStream.listen(
+        streamedRequest.sink.add,
+        onError: streamedRequest.sink.addError,
+        onDone: streamedRequest.sink.close,
+        cancelOnError: true,
+      );
     } else {
       request = http.Request(options.method, options.uri);
     }
@@ -83,8 +90,11 @@ class ConversionLayerAdapter implements HttpClientAdapter {
         ),
       ),
     );
-    request.followRedirects = options.followRedirects;
-    request.maxRedirects = options.maxRedirects;
+    request
+      ..contentLength = contentLength
+      ..followRedirects = options.followRedirects
+      ..maxRedirects = options.maxRedirects
+      ..persistentConnection = options.persistentConnection;
     return request;
   }
 }
