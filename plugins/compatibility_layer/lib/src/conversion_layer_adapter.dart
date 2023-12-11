@@ -48,7 +48,6 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
   ) async {
     final http.BaseRequest request;
-    int? contentLength;
     if (_kIsWeb && requestStream != null) {
       final normalRequest = request = http.Request(
         options.method,
@@ -67,7 +66,6 @@ class ConversionLayerAdapter implements HttpClientAdapter {
         cancelOnError: true,
       );
       final bytes = await completer.future;
-      contentLength = bytes.length;
       normalRequest.bodyBytes = bytes;
     } else if (requestStream != null) {
       final streamedRequest = request = http.StreamedRequest(
@@ -91,7 +89,6 @@ class ConversionLayerAdapter implements HttpClientAdapter {
       ),
     );
     request
-      ..contentLength = contentLength
       ..followRedirects = options.followRedirects
       ..maxRedirects = options.maxRedirects
       ..persistentConnection = options.persistentConnection;
