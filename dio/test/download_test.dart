@@ -16,7 +16,6 @@ void main() {
     addTearDown(() {
       tmp.deleteSync(recursive: true);
     });
-    print(tmp.path);
   });
 
   setUp(startServer);
