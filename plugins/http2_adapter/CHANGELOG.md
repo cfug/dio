@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Fix cancellation for streamed responses and downloads.
 
 ## 2.4.0
 
