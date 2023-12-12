@@ -75,9 +75,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       requestStream,
       cancelFuture,
     ));
-    if (cancelFuture != null) {
-      cancelFuture.whenComplete(() => operation.cancel());
-    }
+    cancelFuture?.whenComplete(() => operation.cancel());
     return operation.value;
   }
 
@@ -106,9 +104,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      if (cancelFuture != null) {
-        cancelFuture.whenComplete(() => request.abort());
-      }
+      cancelFuture?.whenComplete(() => request.abort());
 
       // Set Headers
       options.headers.forEach((key, value) {
@@ -258,6 +254,17 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       },
       cancelOnError: true,
     );
+
+    cancelFuture?.whenComplete(() {
+      /// Close the stream upon a cancellation.
+      responseSubscription.cancel();
+      if (!responseSink.isClosed) {
+        /// If the request was aborted via [Request.abort], then the
+        /// [responseSubscription] may have emitted a done event already.
+        responseSink.addError(options.cancelToken!.cancelError!);
+        responseSink.close();
+      }
+    });
 
     final headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {

@@ -4,6 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'mock/http_mock.mocks.dart';
+import 'utils.dart';
 
 void main() {
   group(CancelToken, () {
@@ -28,6 +29,37 @@ void main() {
     test('cancel without use does not throw (#1765)', () async {
       CancelToken().cancel();
     });
+
+    test(
+      'cancels streamed responses',
+      () async {
+        final dio = Dio()..options.baseUrl = 'https://httpbun.com/';
+
+        final cancelToken = CancelToken();
+        final response = await dio.get(
+          'bytes/${1024 * 1024 * 10}',
+          options: Options(responseType: ResponseType.stream),
+          cancelToken: cancelToken,
+        );
+
+        expect(response.statusCode, 200);
+
+        Future.delayed(const Duration(milliseconds: 750), () {
+          cancelToken.cancel();
+        });
+
+        await expectLater(
+          (response.data as ResponseBody).stream.last,
+          throwsDioException(
+            DioExceptionType.cancel,
+            stackTraceContains: 'test/cancel_token_test.dart',
+            matcher: (DioException e) => e.message!
+                .contains('The request was manually cancelled by the user'),
+          ),
+        );
+      },
+      testOn: 'vm',
+    );
 
     test('cancels multiple requests', () async {
       final client = MockHttpClient();
