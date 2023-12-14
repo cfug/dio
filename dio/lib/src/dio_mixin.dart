@@ -23,7 +23,7 @@ import 'progress_stream/io_progress_stream.dart'
 
 part 'interceptor.dart';
 
-abstract class DioMixin implements Dio {
+mixin DioMixin implements Dio {
   /// The base request config for the instance.
   @override
   late BaseOptions options;
