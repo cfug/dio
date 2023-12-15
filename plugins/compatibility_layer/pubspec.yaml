@@ -1,5 +1,5 @@
 name: dio_compatibility_layer
-version: 0.0.1
+version: 0.1.0
 
 description: Enables dio to make use of http packages.
 topics:
