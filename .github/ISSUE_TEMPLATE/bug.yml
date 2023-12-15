@@ -19,6 +19,7 @@ body:
       description: Which package has a problem?
       options:
         - dio
+        - compatibility_layer
         - cookie_manager
         - http2_adapter
         - native_dio_adapter
