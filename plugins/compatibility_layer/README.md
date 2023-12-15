@@ -7,11 +7,11 @@
 
 If you encounter bugs, consider fixing it by opening a PR or at least contribute a failing test case.
 
-This is adapters for [Dio](https://pub.dev/packages/dio)
-which enables you to make use of other HTTP clients as underlying implementation.
+This package contains adapters for [Dio](https://pub.dev/packages/dio)
+which enables you to make use of other HTTP clients as the underlying implementation.
 
-Supported client base currently:
-- `http`
+Currently, it supports compatibility with
+- [`http`](https://pub.dev/packages/http)
 
 ## Get started
 
