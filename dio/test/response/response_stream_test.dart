@@ -1,0 +1,207 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+import 'package:dio/src/response/response_stream_handler.dart';
+import 'package:test/test.dart';
+
+import '../utils.dart';
+
+void main() {
+  group(handleResponseStream, () {
+    late StreamController<Uint8List> source;
+
+    setUp(() {
+      source = StreamController<Uint8List>();
+    });
+
+    test('completes', () async {
+      final stream = handleResponseStream(
+        RequestOptions(
+          cancelToken: CancelToken(),
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+        ),
+      );
+
+      expectLater(
+        stream,
+        emitsInOrder([
+          Uint8List.fromList([0]),
+          Uint8List.fromList([1, 2]),
+          emitsDone,
+        ]),
+      );
+
+      source.add(Uint8List.fromList([0]));
+      source.add(Uint8List.fromList([1, 2]));
+      source.close();
+    });
+
+    test('unsubscribes from source on cancel', () async {
+      final cancelToken = CancelToken();
+      final stream = handleResponseStream(
+        RequestOptions(
+          cancelToken: cancelToken,
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+        ),
+      );
+
+      expectLater(
+        stream,
+        emitsInOrder([
+          Uint8List.fromList([0]),
+          emitsError(matchesDioException(
+            DioExceptionType.cancel,
+            stackTraceContains: 'test/response/response_stream_test.dart',
+          )),
+          emitsDone,
+        ]),
+      );
+
+      source.add(Uint8List.fromList([0]));
+
+      expect(source.hasListener, isTrue);
+      cancelToken.cancel();
+
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(source.hasListener, isFalse);
+      });
+    });
+
+    test('sends progress with total', () async {
+      int count = 0;
+      int total = 0;
+
+      final stream = handleResponseStream(
+        RequestOptions(
+          cancelToken: CancelToken(),
+          onReceiveProgress: (c, t) {
+            count = c;
+            total = t;
+          },
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+          headers: {
+            Headers.contentLengthHeader: ['6'],
+          },
+        ),
+      );
+
+      expectLater(
+        stream,
+        emitsInOrder([
+          Uint8List.fromList([0]),
+          Uint8List.fromList([1, 2]),
+          Uint8List.fromList([3, 4, 5]),
+          emitsDone,
+        ]),
+      );
+
+      source.add(Uint8List.fromList([0]));
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(count, 1);
+        expect(total, 6);
+      });
+
+      source.add(Uint8List.fromList([1, 2]));
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(count, 3);
+        expect(total, 6);
+      });
+
+      source.add(Uint8List.fromList([3, 4, 5]));
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(count, 6);
+        expect(total, 6);
+      });
+
+      source.close();
+    });
+
+    test('sends progress without total', () async {
+      int count = 0;
+      int total = 0;
+
+      final stream = handleResponseStream(
+        RequestOptions(
+          cancelToken: CancelToken(),
+          onReceiveProgress: (c, t) {
+            count = c;
+            total = t;
+          },
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+        ),
+      );
+
+      expectLater(
+        stream,
+        emitsInOrder([
+          Uint8List.fromList([0]),
+          Uint8List.fromList([1, 2]),
+          Uint8List.fromList([3, 4, 5]),
+          emitsDone,
+        ]),
+      );
+
+      source.add(Uint8List.fromList([0]));
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(count, 1);
+        expect(total, -1);
+      });
+
+      source.add(Uint8List.fromList([1, 2]));
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(count, 3);
+        expect(total, -1);
+      });
+
+      source.add(Uint8List.fromList([3, 4, 5]));
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(count, 6);
+        expect(total, -1);
+      });
+
+      source.close();
+    });
+
+    test('emits error on source error', () async {
+      final stream = handleResponseStream(
+        RequestOptions(
+          cancelToken: CancelToken(),
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+        ),
+      );
+
+      expectLater(
+        stream,
+        emitsInOrder([
+          Uint8List.fromList([0]),
+          emitsError(isA<FormatException>()),
+          emitsDone,
+        ]),
+      );
+
+      source.add(Uint8List.fromList([0]));
+      source.addError(FormatException());
+      source.close();
+
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(source.hasListener, isFalse);
+      });
+    });
+  });
+}

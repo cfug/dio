@@ -15,6 +15,7 @@ import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'response.dart';
+import 'response/response_stream_handler.dart';
 import 'transformer.dart';
 import 'transformers/background_transformer.dart';
 
@@ -546,6 +547,9 @@ abstract class DioMixin implements Dio {
             T != String &&
             reqOpt.responseType == ResponseType.json) {
           data = null;
+        } else if (reqOpt.responseType == ResponseType.stream &&
+            data is ResponseBody) {
+          data.stream = handleResponseStream(reqOpt, data);
         }
         ret.data = data;
       } else {

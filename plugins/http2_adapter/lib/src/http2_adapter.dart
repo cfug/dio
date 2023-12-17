@@ -212,20 +212,6 @@ class Http2Adapter implements HttpClientAdapter {
       cancelOnError: true,
     );
 
-
-    /// Cancel any up/download streams and connections
-    /// if the [CancelToken] is cancelled
-    /// and propagate the [DioException] to the response stream.
-    cancelFuture?.whenComplete(() {
-      stream.terminate();
-      transport.terminate();
-
-      responseSink.addError(options.cancelToken!.cancelError!);
-
-      responseSubscription.cancel();
-      responseSink.close();
-    });
-
     Future<void> responseFuture = responseCompleter.future;
     if (receiveTimeout > Duration.zero) {
       responseFuture = responseFuture.timeout(

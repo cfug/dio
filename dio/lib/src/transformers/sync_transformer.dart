@@ -64,9 +64,7 @@ class SyncTransformer extends Transformer {
 
     final int totalLength;
     if (options.onReceiveProgress != null) {
-      totalLength = int.parse(
-        responseBody.headers[Headers.contentLengthHeader]?.first ?? '-1',
-      );
+      totalLength = responseBody.contentLength;
     } else {
       totalLength = 0;
     }

@@ -46,10 +46,10 @@ void main() {
       },
     );
 
-    expect(count, total);
-
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
+    expect(count, f.readAsBytesSync().length);
+    expect(count, total);
   });
 
   test('download2', () async {

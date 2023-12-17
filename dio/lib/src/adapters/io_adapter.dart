@@ -255,17 +255,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       cancelOnError: true,
     );
 
-    cancelFuture?.whenComplete(() {
-      /// Close the stream upon a cancellation.
-      responseSubscription.cancel();
-      if (!responseSink.isClosed) {
-        /// If the request was aborted via [Request.abort], then the
-        /// [responseSubscription] may have emitted a done event already.
-        responseSink.addError(options.cancelToken!.cancelError!);
-        responseSink.close();
-      }
-    });
-
     final headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {
       headers[key] = values;

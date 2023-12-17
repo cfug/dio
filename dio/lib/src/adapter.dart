@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'headers.dart';
 import 'options.dart';
 import 'redirect_record.dart';
 
@@ -88,6 +89,10 @@ class ResponseBody {
 
   /// HTTP status code.
   int statusCode;
+
+  /// Content length of the response or -1 if not specified
+  int get contentLength =>
+      int.parse(headers[Headers.contentLengthHeader]?.first ?? '-1');
 
   /// Returns the reason phrase corresponds to the status code.
   /// The message can be [HttpRequest.statusText]
