@@ -34,7 +34,6 @@ void main() {
         expect(response.data['args'], {'id': '12', 'name': 'wendu'});
       });
 
-      // TODO This is not supported on web, should we warn?
       test('GET with content', () async {
         final response = await dio.get(
           '/anything',

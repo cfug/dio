@@ -248,6 +248,11 @@ class Http2Adapter implements HttpClientAdapter {
       headers: responseHeaders.map,
       redirects: redirects,
       isRedirect: redirects.isNotEmpty,
+      onClose: () {
+        responseSubscription.cancel();
+        responseSink.close();
+        stream.terminate();
+      },
     );
   }
 

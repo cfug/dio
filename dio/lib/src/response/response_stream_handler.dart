@@ -43,6 +43,7 @@ Stream<Uint8List> handleResponseStream(
   options.cancelToken?.whenCancel.whenComplete(() {
     /// Close the response stream upon a cancellation.
     responseSubscription.cancel();
+    response.close();
     if (!responseSink.isClosed) {
       responseSink.addError(options.cancelToken!.cancelError!);
       responseSink.close();

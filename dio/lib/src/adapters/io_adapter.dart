@@ -269,6 +269,12 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
           .toList(),
       statusMessage: responseStream.reasonPhrase,
+      onClose: () {
+        responseSink.close();
+        responseSubscription.cancel();
+        responseStream.detachSocket().then((socket) => socket.destroy());
+        stopWatchReceiveTimeout();
+      },
     );
   }
 
