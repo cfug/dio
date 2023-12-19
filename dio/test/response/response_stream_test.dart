@@ -17,9 +17,7 @@ void main() {
 
     test('completes', () async {
       final stream = handleResponseStream(
-        RequestOptions(
-          cancelToken: CancelToken(),
-        ),
+        RequestOptions(),
         ResponseBody(
           source.stream,
           200,
@@ -80,7 +78,6 @@ void main() {
 
       final stream = handleResponseStream(
         RequestOptions(
-          cancelToken: CancelToken(),
           onReceiveProgress: (c, t) {
             count = c;
             total = t;
@@ -132,7 +129,6 @@ void main() {
 
       final stream = handleResponseStream(
         RequestOptions(
-          cancelToken: CancelToken(),
           onReceiveProgress: (c, t) {
             count = c;
             total = t;
@@ -177,9 +173,7 @@ void main() {
 
     test('emits error on source error', () async {
       final stream = handleResponseStream(
-        RequestOptions(
-          cancelToken: CancelToken(),
-        ),
+        RequestOptions(),
         ResponseBody(
           source.stream,
           200,
@@ -198,6 +192,43 @@ void main() {
       source.add(Uint8List.fromList([0]));
       source.addError(FormatException());
       source.close();
+
+      await Future.delayed(Duration(milliseconds: 100), () {
+        expect(source.hasListener, isFalse);
+      });
+    });
+
+    test('emits error on receiveTimeout', () async {
+      final stream = handleResponseStream(
+        RequestOptions(
+          receiveTimeout: Duration(milliseconds: 100),
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+        ),
+      );
+
+      expectLater(
+        stream,
+        emitsInOrder([
+          Uint8List.fromList([0]),
+          Uint8List.fromList([1]),
+          emitsError(matchesDioException(
+            DioExceptionType.receiveTimeout,
+            stackTraceContains: 'test/response/response_stream_test.dart',
+          )),
+          emitsDone,
+        ]),
+      );
+
+      source.add(Uint8List.fromList([0]));
+      await Future.delayed(Duration(milliseconds: 90), () {
+        source.add(Uint8List.fromList([1]));
+      });
+      await Future.delayed(Duration(milliseconds: 110), () {
+        source.add(Uint8List.fromList([2]));
+      });
 
       await Future.delayed(Duration(milliseconds: 100), () {
         expect(source.hasListener, isFalse);

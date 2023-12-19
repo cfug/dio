@@ -62,43 +62,8 @@ class SyncTransformer extends Transformer {
       return responseBody;
     }
 
-    final int totalLength;
-    if (options.onReceiveProgress != null) {
-      totalLength = responseBody.contentLength;
-    } else {
-      totalLength = 0;
-    }
-
-    final streamCompleter = Completer<void>();
-    int finalLength = 0;
-    // Keep references to the data chunks and concatenate them later.
-    final chunks = <Uint8List>[];
-    final subscription = responseBody.stream.listen(
-      (Uint8List chunk) {
-        finalLength += chunk.length;
-        chunks.add(chunk);
-        options.onReceiveProgress?.call(finalLength, totalLength);
-      },
-      onError: (Object error, StackTrace stackTrace) {
-        streamCompleter.completeError(error, stackTrace);
-      },
-      onDone: () {
-        streamCompleter.complete();
-      },
-      cancelOnError: true,
-    );
-    options.cancelToken?.whenCancel.then((_) {
-      return subscription.cancel();
-    });
-    await streamCompleter.future;
-
-    // Copy all chunks into the final bytes.
-    final responseBytes = Uint8List(finalLength);
-    int chunkOffset = 0;
-    for (final chunk in chunks) {
-      responseBytes.setAll(chunkOffset, chunk);
-      chunkOffset += chunk.length;
-    }
+    final chunks = await responseBody.stream.toList();
+    final responseBytes = Uint8List.fromList(chunks.expand((c) => c).toList());
 
     // Return the finalized bytes if the response type is bytes.
     if (responseType == ResponseType.bytes) {
