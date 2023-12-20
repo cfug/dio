@@ -23,6 +23,7 @@ import 'progress_stream/io_progress_stream.dart'
 
 part 'interceptor.dart';
 
+// TODO(EVERYONE): Use `mixin class` when the lower bound of SDK is raised to 3.0.0.
 abstract class DioMixin implements Dio {
   /// The base request config for the instance.
   @override
@@ -420,10 +421,10 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
       InterceptorErrorCallback interceptor,
     ) {
-      return (err) {
-        final state = err is InterceptorState
-            ? err
-            : InterceptorState(assureDioException(err, requestOptions));
+      return (error) {
+        final state = error is InterceptorState
+            ? error
+            : InterceptorState(assureDioException(error, requestOptions));
         Future<InterceptorState> handleError() async {
           final errorHandler = ErrorInterceptorHandler();
           interceptor(state.data, errorHandler);
@@ -442,7 +443,7 @@ abstract class DioMixin implements Dio {
             Future(handleError),
           );
         } else {
-          throw err;
+          throw error;
         }
       };
     }
@@ -517,7 +518,10 @@ abstract class DioMixin implements Dio {
         stream,
         cancelToken?.whenCancel,
       );
-      final headers = Headers.fromMap(responseBody.headers);
+      final headers = Headers.fromMap(
+        responseBody.headers,
+        preserveHeaderCase: reqOpt.preserveHeaderCase,
+      );
       // Make sure headers and [ResponseBody.headers] are the same instance.
       responseBody.headers = headers.map;
       final ret = Response<dynamic>(
@@ -627,7 +631,13 @@ abstract class DioMixin implements Dio {
           // Call the request transformer.
           final transformed = await transformer.transformRequest(options);
           if (options.requestEncoder != null) {
-            bytes = options.requestEncoder!(transformed, options);
+            final encoded = options.requestEncoder!(transformed, options);
+
+            if (encoded is Future) {
+              bytes = await encoded;
+            } else {
+              bytes = encoded;
+            }
           } else {
             // Converts the data to UTF-8 by default.
             bytes = utf8.encode(transformed);
@@ -681,15 +691,15 @@ abstract class DioMixin implements Dio {
 
   @internal
   static DioException assureDioException(
-    Object err,
+    Object error,
     RequestOptions requestOptions,
   ) {
-    if (err is DioException) {
-      return err;
+    if (error is DioException) {
+      return error;
     }
     return DioException(
       requestOptions: requestOptions,
-      error: err,
+      error: error,
     );
   }
 
@@ -707,7 +717,10 @@ abstract class DioMixin implements Dio {
       final T? data = response.data as T?;
       final Headers headers;
       if (data is ResponseBody) {
-        headers = Headers.fromMap(data.headers);
+        headers = Headers.fromMap(
+          data.headers,
+          preserveHeaderCase: requestOptions.preserveHeaderCase,
+        );
       } else {
         headers = response.headers;
       }

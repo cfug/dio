@@ -1,0 +1,7 @@
+dartdoc:
+  showUndocumentedCategories: true
+  categories:
+    "Migration Guide":
+      markdown: doc/migration_guide.md
+    "Plugins":
+      markdown: doc/plugins.md

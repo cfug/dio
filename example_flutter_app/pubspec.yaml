@@ -1,4 +1,4 @@
-name: flutter_app
+name: dio_flutter_example
 description: A new Flutter application for dio test
 
 # The following line prevents the package from being accidentally published to
@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
+  sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -30,8 +30,6 @@ dependencies:
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   lints: any
 
 # For information on the generic Dart part of this file, see the

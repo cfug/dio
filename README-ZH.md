@@ -4,13 +4,19 @@ Language: [English](README.md) | 简体中文
 
 此处是 **dio** 项目的基础仓库。请前往项目各自的路径查看指引。
 
+> 别忘了为你发布的与 dio 相关的 package 添加
+> [#dio](https://pub.flutter-io.cn/packages?q=topic%3Adio) 分类标签！
+> 了解更多：https://dart.cn/tools/pub/pubspec#topics
+
 ### dio
 
 - dio: [链接](dio)
   [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio)
 
 **在你更新之前：大版本和次要版本可能会包含不兼容的重大改动。<br/>
-请阅读 [迁移指南](dio/migration_guide.md) 了解完整的重大变更内容。**
+请阅读 [迁移指南][] 了解完整的重大变更内容。**
+
+[迁移指南]: https://pub.flutter-io.cn/documentation/dio/latest/topics/Migration%20Guide-topic.html
 
 ### 插件
 

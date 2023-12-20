@@ -111,7 +111,7 @@ Before:
 
 ```dart
 Never throwDioError() {
-  final error = DioError(request: requestOptions, error: err);
+  final error = DioError(request: requestOptions, error: e);
   error.message = 'Custom message.';
   error.stackTrace = StackTrace.current;
   throw error;
@@ -124,7 +124,7 @@ After:
 Never throwDioError() {
   DioError error = DioError(
     request: requestOptions,
-    error: err,
+    error: e,
     stackTrace: StackTrace.current
   );
   error = error.copyWith(message: 'Custom message.');

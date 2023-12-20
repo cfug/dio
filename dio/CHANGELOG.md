@@ -16,10 +16,34 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Provide fix suggestions for `dart fix`.
+- Fix `receiveTimeout` for streamed responses.
+
+## 5.4.0
+
+- Improve `SyncTransformer`'s stream transform.
+- Allow case-sensitive header keys with the `preserveHeaderCase` flag through options.
+- Fix `receiveTimeout` for the `IOHttpClientAdapter`.
+- Fix `receiveTimeout` for the `download` method of `DioForNative`.
+- Improve the stream byte conversion.
+
+## 5.3.4
+
+- Raise warning for `Map`s other than `Map<String, dynamic>` when encoding request data.
+- Improve exception messages.
+- Allow `ResponseDecoder` and `RequestEncoder` to be async.
+- Ignores `Duration.zero` timeouts.
+
+## 5.3.3
+
 - Fix failing requests throw `DioException`s with `.unknown` instead of `.connectionError` on `SocketException`.
 - Removes the accidentally added `options` argument for `Options.compose`.
 - Fix wrong formatting of multi-value header in `BrowserHttpClientAdapter`.
 - Add warning in debug mode when trying to send data with a `GET` request in web.
+- Reduce cases in which browsers would trigger a CORS preflight request.
+- Add warnings in debug mode when using `sendTimeout` and `onSendProgress` with an empty request body.
+- Fix `receiveTimeout` not working correctly on web.
+- Fix `ImplyContentTypeInterceptor` can be removed by `Interceptors.clear()` by default.
 
 ## 5.3.2
 
@@ -379,4 +403,4 @@ First Stable version for 2.x
 
 - Initial version, created by Stagehand
 
-[Migration Guide]: ./migration_guide.md
+[Migration Guide]: doc/migration_guide.md

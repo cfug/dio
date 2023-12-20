@@ -1,16 +1,16 @@
-name: example
+name: native_dio_adapter_example
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=3.1.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  dio: ^5.0.0-0
+  dio: ^5.0.0
   native_dio_adapter:
     path:
       ../

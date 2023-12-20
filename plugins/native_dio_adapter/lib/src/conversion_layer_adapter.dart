@@ -24,7 +24,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
   ) async {
     final request = await _fromOptionsAndStream(options, requestStream);
     final response = await client.send(request);
-    return response.toDioResponseBody();
+    return response.toDioResponseBody(options);
   }
 
   @override
@@ -41,7 +41,12 @@ class ConversionLayerAdapter implements HttpClientAdapter {
 
     request.headers.addAll(
       Map.fromEntries(
-        options.headers.entries.map((e) => MapEntry(e.key, e.value.toString())),
+        options.headers.entries.map(
+          (e) => MapEntry(
+            options.preserveHeaderCase ? e.key : e.key.toLowerCase(),
+            e.value.toString(),
+          ),
+        ),
       ),
     );
 
@@ -51,7 +56,9 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     if (requestStream != null) {
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(Uint8List.fromList(bytes)),
+        (bytes) => completer.complete(
+          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+        ),
       );
       requestStream.listen(
         sink.add,
@@ -67,8 +74,13 @@ class ConversionLayerAdapter implements HttpClientAdapter {
 }
 
 extension on StreamedResponse {
-  ResponseBody toDioResponseBody() {
-    final dioHeaders = headers.entries.map((e) => MapEntry(e.key, [e.value]));
+  ResponseBody toDioResponseBody(RequestOptions options) {
+    final dioHeaders = headers.entries.map(
+      (e) => MapEntry(
+        options.preserveHeaderCase ? e.key : e.key.toLowerCase(),
+        [e.value],
+      ),
+    );
     return ResponseBody(
       stream.cast<Uint8List>(),
       statusCode,
