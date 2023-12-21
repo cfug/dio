@@ -327,7 +327,7 @@ void main() {
         );
         expect(response.data, isA<List>());
         expect(response.data, isNotEmpty);
-        expect(response.data![0], 1);
+        expect(response.data[0], 1);
       });
     });
 
