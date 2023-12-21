@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 /// The current server instance.
@@ -89,16 +91,24 @@ Future<void> startServer() async {
       }
 
       if (path == '/download') {
+        final count = int.parse(request.uri.queryParameters['count'] ?? '1');
+        final gap = int.parse(request.uri.queryParameters['gap'] ?? '0');
         const content = 'I am a text file';
-        response.headers.set('content-encoding', 'plain');
+        final contentBytes = utf8.encode(content);
         response
-          ..statusCode = 200
-          ..contentLength = content.length
-          ..write(content);
-
-        Future.delayed(Duration(milliseconds: 300), () {
-          response.close();
-        });
+          ..bufferOutput = gap <= 0
+          ..contentLength = contentBytes.length * count
+          ..headers.set('content-encoding', 'plain')
+          ..statusCode = 200;
+        for (int i = 0; i < count; i++) {
+          response.add(contentBytes);
+          await response.flush();
+          if (i < count - 1 && gap > 0) {
+            await Future.delayed(Duration(seconds: gap));
+          }
+        }
+        await Future.delayed(const Duration(milliseconds: 300));
+        await response.close();
         return;
       }
 
@@ -176,9 +186,17 @@ void stopServer() {
 final Matcher throwsSocketException =
     throwsA(const TypeMatcher<SocketException>());
 
+/// A matcher for functions that throw DioException of type connectionError.
+final Matcher throwsDioExceptionConnectionError = throwsA(
+  allOf([
+    isA<DioException>(),
+    (DioException e) => e.type == DioExceptionType.connectionError,
+  ]),
+);
+
 /// A stream of chunks of bytes representing a single piece of data.
 class ByteStream extends StreamView<List<int>> {
-  ByteStream(Stream<List<int>> stream) : super(stream);
+  ByteStream(super.stream);
 
   /// Returns a single-subscription byte stream that will emit the given bytes
   /// in a single chunk.

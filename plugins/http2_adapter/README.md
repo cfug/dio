@@ -2,16 +2,14 @@
 
 [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg)](https://pub.dev/packages/dio_http2_adapter)
 
-An HTTP/2 adapter for [dio](https://github.com/cfug/dio).
+An adapter that combines HTTP/2 and dio. Supports reusing connections, header compression, etc.
 
 ## Getting Started
 
 ### Install
 
-```yaml
-dependencies:
-  dio_http2_adapter: ^2.0.0 # latest version
-```
+Add the `dio_http2_adapter` package to your
+[pubspec dependencies](https://pub.dev/packages/dio_http2_adapter/install).
 
 ### Usage
 

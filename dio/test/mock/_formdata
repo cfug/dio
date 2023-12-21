@@ -27,7 +27,7 @@ test: b
 
 ----dio-boundary-3788753558
 content-disposition: form-data; name="files"; filename="2.txt"
-content-type: application/octet-stream
+content-type: text/plain
 test: c
 
 你好世界，

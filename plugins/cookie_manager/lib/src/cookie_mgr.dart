@@ -61,12 +61,12 @@ class CookieManager extends Interceptor {
           newCookies.isNotEmpty ? newCookies : null;
       handler.next(options);
     }).catchError((dynamic e, StackTrace s) {
-      final err = DioException(
+      final error = DioException(
         requestOptions: options,
         error: e,
         stackTrace: s,
       );
-      handler.reject(err, true);
+      handler.reject(error, true);
     });
   }
 
@@ -74,12 +74,12 @@ class CookieManager extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     _saveCookies(response).then((_) => handler.next(response)).catchError(
       (dynamic e, StackTrace s) {
-        final err = DioException(
+        final error = DioException(
           requestOptions: response.requestOptions,
           error: e,
           stackTrace: s,
         );
-        handler.reject(err, true);
+        handler.reject(error, true);
       },
     );
   }
@@ -123,7 +123,10 @@ class CookieManager extends Interceptor {
     // users will be available to handle cookies themselves.
     final isRedirectRequest = statusCode >= 300 && statusCode < 400;
     // Saving cookies for the original site.
-    await cookieJar.saveFromResponse(response.realUri, cookies);
+    // Spec: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.2.
+    final originalUri = response.requestOptions.uri;
+    final realUri = originalUri.resolveUri(response.realUri);
+    await cookieJar.saveFromResponse(realUri, cookies);
     if (isRedirectRequest && locations.isNotEmpty) {
       final originalUri = response.realUri;
       await Future.wait(

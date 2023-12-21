@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final dio = Dio();
 
     dio.httpClientAdapter = NativeAdapter(
-      cupertinoConfiguration:
+      createCupertinoConfiguration: () =>
           URLSessionConfiguration.ephemeralSessionConfiguration()
             ..allowsCellularAccess = false
             ..allowsConstrainedNetworkAccess = false
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final dio = Dio();
 
     dio.httpClientAdapter = NativeAdapter(
-      cupertinoConfiguration:
+      createCupertinoConfiguration: () =>
           URLSessionConfiguration.ephemeralSessionConfiguration()
             ..allowsCellularAccess = false
             ..allowsConstrainedNetworkAccess = false

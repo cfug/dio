@@ -32,6 +32,21 @@ body:
       description: Which version of that package do you use?
     validations:
       required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating-System
+      description: On which OS does the problem occur?
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - Web
+        - MacOS
+        - Linux
+        - Windows
+    validations:
+      required: true
   - type: textarea
     id: flutter_info
     attributes:

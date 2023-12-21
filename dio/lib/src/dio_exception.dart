@@ -1,6 +1,8 @@
 import 'options.dart';
 import 'response.dart';
 
+/// The exception enumeration indicates what type of exception
+/// has happened during requests.
 enum DioExceptionType {
   /// Caused by a connection timeout.
   connectionTimeout,
@@ -76,8 +78,7 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.badResponse,
-        message: 'The request returned an '
-            'invalid status code of $statusCode.',
+        message: _badResponseExceptionMessage(statusCode),
         requestOptions: requestOptions,
         response: response,
         error: null,
@@ -90,8 +91,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.connectionTimeout,
-        message: 'The request connection took '
-            'longer than $timeout. It was aborted.',
+        message: 'The request connection took longer than $timeout '
+            'and it was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.connectTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
         requestOptions: requestOptions,
         response: null,
         error: error,
@@ -103,8 +107,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.sendTimeout,
-        message: 'The request took '
-            'longer than $timeout to send data. It was aborted.',
+        message: 'The request took longer than $timeout to send data. '
+            'It was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.sendTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
         requestOptions: requestOptions,
         response: null,
         error: null,
@@ -117,8 +124,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.receiveTimeout,
-        message: 'The request took '
-            'longer than $timeout to receive data. It was aborted.',
+        message: 'The request took longer than $timeout to receive data. '
+            'It was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.receiveTimeout above the duration of $timeout or '
+            'improve the response time of the server.',
         requestOptions: requestOptions,
         response: null,
         error: error,
@@ -131,7 +141,7 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.cancel,
-        message: 'The request was cancelled.',
+        message: 'The request was manually cancelled by the user.',
         requestOptions: requestOptions,
         response: null,
         error: reason,
@@ -141,16 +151,21 @@ class DioException implements Exception {
   factory DioException.connectionError({
     required RequestOptions requestOptions,
     required String reason,
+    Object? error,
   }) =>
       DioException(
         type: DioExceptionType.connectionError,
-        message: 'The connection errored: $reason',
+        message: 'The connection errored: $reason '
+            'This indicates an error which most likely cannot be solved by the library.',
         requestOptions: requestOptions,
         response: null,
-        error: null,
+        error: error,
       );
 
   /// The request info for the request that throws exception.
+  ///
+  /// The info can be empty (e.g. `uri` equals to "")
+  /// if the request was never submitted.
   final RequestOptions requestOptions;
 
   /// Response info, it may be `null` if the request can't reach to the
@@ -196,5 +211,50 @@ class DioException implements Exception {
       msg += '\nError: $error';
     }
     return msg;
+  }
+
+  /// Because of [ValidateStatus] we need to consider all status codes when
+  /// creating a [DioException.badResponse].
+  static String _badResponseExceptionMessage(int statusCode) {
+    final String message;
+    if (statusCode >= 100 && statusCode < 200) {
+      message =
+          'This is an informational response - the request was received, continuing processing';
+    } else if (statusCode >= 200 && statusCode < 300) {
+      message =
+          'The request was successfully received, understood, and accepted';
+    } else if (statusCode >= 300 && statusCode < 400) {
+      message =
+          'Redirection: further action needs to be taken in order to complete the request';
+    } else if (statusCode >= 400 && statusCode < 500) {
+      message =
+          'Client error - the request contains bad syntax or cannot be fulfilled';
+    } else if (statusCode >= 500 && statusCode < 600) {
+      message =
+          'Server error - the server failed to fulfil an apparently valid request';
+    } else {
+      message =
+          'A response with a status code that is not within the range of inclusive 100 to exclusive 600'
+          'is a non-standard response, possibly due to the server\'s software';
+    }
+
+    final buffer = StringBuffer();
+
+    buffer.writeln(
+      'This exception was thrown because the response has a status code of $statusCode '
+      'and RequestOptions.validateStatus was configured to throw for this status code.',
+    );
+    buffer.writeln(
+      'The status code of $statusCode has the following meaning: "$message"',
+    );
+    buffer.writeln(
+      'Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status',
+    );
+    buffer.writeln(
+      'In order to resolve this exception you typically have either to verify '
+      'and fix your request code or you have to fix the server code.',
+    );
+
+    return buffer.toString();
   }
 }

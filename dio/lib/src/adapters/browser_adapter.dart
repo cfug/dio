@@ -4,10 +4,12 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
+
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../headers.dart';
 import '../options.dart';
+import '../utils.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -24,7 +26,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   ///
   /// Defaults to `false`.
   ///
-  /// You can also override this value in Options.extra['withCredentials'] for each request
+  /// You can also override this value using `Options.extra['withCredentials']`
+  /// for each request.
   bool withCredentials;
 
   @override
@@ -47,15 +50,19 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     options.headers.remove(Headers.contentLengthHeader);
-    options.headers.forEach((key, v) => xhr.setRequestHeader(key, '$v'));
+    options.headers.forEach((key, v) {
+      if (v is Iterable) {
+        xhr.setRequestHeader(key, v.join(', '));
+      } else {
+        xhr.setRequestHeader(key, v.toString());
+      }
+    });
 
-    final connectTimeout = options.connectTimeout;
-    final receiveTimeout = options.receiveTimeout;
-    if (connectTimeout != null &&
-        receiveTimeout != null &&
-        receiveTimeout > Duration.zero) {
-      xhr.timeout = (connectTimeout + receiveTimeout).inMilliseconds;
-    }
+    final sendTimeout = options.sendTimeout ?? Duration.zero;
+    final connectTimeout = options.connectTimeout ?? Duration.zero;
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
+    xhr.timeout = xhrTimeout;
 
     final completer = Completer<ResponseBody>();
 
@@ -67,28 +74,28 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           xhr.status!,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
-          isRedirect: xhr.status == 302 || xhr.status == 301,
+          isRedirect: xhr.status == 302 ||
+              xhr.status == 301 ||
+              options.uri.toString() != xhr.responseUrl,
         ),
       );
     });
 
     Timer? connectTimeoutTimer;
-
-    final connectionTimeout = options.connectTimeout;
-    if (connectionTimeout != null) {
+    if (connectTimeout > Duration.zero) {
       connectTimeoutTimer = Timer(
-        connectionTimeout,
+        connectTimeout,
         () {
+          connectTimeoutTimer = null;
           if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
             return;
           }
-
           xhr.abort();
           completer.completeError(
             DioException.connectionTimeout(
               requestOptions: options,
-              timeout: connectionTimeout,
+              timeout: connectTimeout,
             ),
             StackTrace.current,
           );
@@ -96,72 +103,112 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
-    final uploadStopwatch = Stopwatch();
-    xhr.upload.onProgress.listen((event) {
-      // This event will only be triggered if a request body exists.
+    // This code is structured to call `xhr.upload.onProgress.listen` only when
+    // absolutely necessary, because registering an xhr upload listener prevents
+    // the request from being classified as a "simple request" by the CORS spec.
+    // Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+    // Upload progress events only get triggered if the request body exists,
+    // so we can check it beforehand.
+    if (requestStream != null) {
       if (connectTimeoutTimer != null) {
-        connectTimeoutTimer!.cancel();
-        connectTimeoutTimer = null;
+        xhr.upload.onProgress.listen((event) {
+          connectTimeoutTimer?.cancel();
+          connectTimeoutTimer = null;
+        });
       }
 
-      final sendTimeout = options.sendTimeout;
-      if (sendTimeout != null) {
-        if (!uploadStopwatch.isRunning) {
-          uploadStopwatch.start();
-        }
+      if (sendTimeout > Duration.zero) {
+        final uploadStopwatch = Stopwatch();
+        xhr.upload.onProgress.listen((event) {
+          if (!uploadStopwatch.isRunning) {
+            uploadStopwatch.start();
+          }
+          final duration = uploadStopwatch.elapsed;
+          if (duration > sendTimeout) {
+            uploadStopwatch.stop();
+            completer.completeError(
+              DioException.sendTimeout(
+                timeout: sendTimeout,
+                requestOptions: options,
+              ),
+              StackTrace.current,
+            );
+            xhr.abort();
+          }
+        });
+      }
 
-        final duration = uploadStopwatch.elapsed;
-        if (duration > sendTimeout) {
-          uploadStopwatch.stop();
-          completer.completeError(
-            DioException.sendTimeout(
-              timeout: sendTimeout,
-              requestOptions: options,
-            ),
-            StackTrace.current,
-          );
+      final onSendProgress = options.onSendProgress;
+      if (onSendProgress != null) {
+        xhr.upload.onProgress.listen((event) {
+          if (event.loaded != null && event.total != null) {
+            onSendProgress(event.loaded!, event.total!);
+          }
+        });
+      }
+    } else {
+      if (sendTimeout > Duration.zero) {
+        debugLog(
+          'sendTimeout cannot be used without a request body to send',
+          StackTrace.current,
+        );
+      }
+      if (options.onSendProgress != null) {
+        debugLog(
+          'onSendProgress cannot be used without a request body to send',
+          StackTrace.current,
+        );
+      }
+    }
+
+    final receiveStopwatch = Stopwatch();
+    Timer? receiveTimer;
+
+    void stopWatchReceiveTimeout() {
+      receiveTimer?.cancel();
+      receiveTimer = null;
+      receiveStopwatch.stop();
+    }
+
+    void watchReceiveTimeout() {
+      if (receiveTimeout <= Duration.zero) {
+        return;
+      }
+      receiveStopwatch.reset();
+      if (!receiveStopwatch.isRunning) {
+        receiveStopwatch.start();
+      }
+      receiveTimer?.cancel();
+      receiveTimer = Timer(receiveTimeout, () {
+        if (!completer.isCompleted) {
           xhr.abort();
-        }
-      }
-      if (options.onSendProgress != null &&
-          event.loaded != null &&
-          event.total != null) {
-        options.onSendProgress!(event.loaded!, event.total!);
-      }
-    });
-
-    final downloadStopwatch = Stopwatch();
-    xhr.onProgress.listen((event) {
-      if (connectTimeoutTimer != null) {
-        connectTimeoutTimer!.cancel();
-        connectTimeoutTimer = null;
-      }
-
-      final receiveTimeout = options.receiveTimeout;
-      if (receiveTimeout != null) {
-        if (!uploadStopwatch.isRunning) {
-          uploadStopwatch.start();
-        }
-
-        final duration = downloadStopwatch.elapsed;
-        if (duration > receiveTimeout) {
-          downloadStopwatch.stop();
           completer.completeError(
             DioException.receiveTimeout(
-              timeout: options.receiveTimeout!,
+              timeout: receiveTimeout,
               requestOptions: options,
             ),
             StackTrace.current,
           );
-          xhr.abort();
         }
-      }
-      if (options.onReceiveProgress != null) {
-        if (event.loaded != null && event.total != null) {
+        stopWatchReceiveTimeout();
+      });
+    }
+
+    xhr.onProgress.listen(
+      (ProgressEvent event) {
+        if (connectTimeoutTimer != null) {
+          connectTimeoutTimer!.cancel();
+          connectTimeoutTimer = null;
+        }
+        watchReceiveTimeout();
+        if (options.onReceiveProgress != null &&
+            event.loaded != null &&
+            event.total != null) {
           options.onReceiveProgress!(event.loaded!, event.total!);
         }
-      }
-    });
+      },
+      onDone: () => stopWatchReceiveTimeout(),
+    );
 
     xhr.onError.first.then((_) {
       connectTimeoutTimer?.cancel();
@@ -178,15 +225,38 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
+    xhr.onTimeout.first.then((_) {
+      final isConnectTimeout = connectTimeoutTimer != null;
+      if (connectTimeoutTimer != null) {
+        connectTimeoutTimer?.cancel();
+      }
+      if (!completer.isCompleted) {
+        if (isConnectTimeout) {
+          completer.completeError(
+            DioException.connectionTimeout(
+              timeout: connectTimeout,
+              requestOptions: options,
+            ),
+          );
+        } else {
+          completer.completeError(
+            DioException.receiveTimeout(
+              timeout: Duration(milliseconds: xhrTimeout),
+              requestOptions: options,
+            ),
+            StackTrace.current,
+          );
+        }
+      }
+    });
+
     cancelFuture?.then((_) {
-      if (xhr.readyState < 4 && xhr.readyState > 0) {
+      if (xhr.readyState < HttpRequest.DONE &&
+          xhr.readyState > HttpRequest.UNSENT) {
         connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
         } catch (_) {}
-        // xhr.onError will not triggered when xhr.abort() called.
-        // so need to manual throw the cancel error to avoid Future hang ups.
-        // or added xhr.onAbort like axios did https://github.com/axios/axios/blob/master/lib/adapters/xhr.js#L102-L111
         if (!completer.isCompleted) {
           completer.completeError(
             DioException.requestCancelled(
@@ -199,9 +269,18 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     if (requestStream != null) {
+      if (options.method == 'GET') {
+        debugLog(
+          'GET request with a body data are not support on the '
+          'web platform. Use POST/PUT instead.',
+          StackTrace.current,
+        );
+      }
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(Uint8List.fromList(bytes)),
+        (bytes) => completer.complete(
+          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+        ),
       );
       requestStream.listen(
         sink.add,

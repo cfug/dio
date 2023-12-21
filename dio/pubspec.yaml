@@ -1,18 +1,23 @@
 name: dio
+version: 5.4.0
 
 description: |
-  A powerful HTTP package for Dart/Flutter,
-  which supports Global settings, Interceptors,
-  FormData, Aborting and canceling a request,
-  Files uploading and downloading,
-  Requests timeout, Custom adapters, etc.
+  A powerful HTTP networking package,
+  supports Interceptors,
+  Aborting and canceling a request,
+  Custom adapters, Transformers, etc.
+topics:
+  - dio
+  - http
+  - network
+  - interceptor
+  - middleware
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/dio
 issue_tracker: https://github.com/cfug/dio/issues
-version: 5.1.2
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.19.0 <4.0.0'
 
 dependencies:
   async: ^2.8.2

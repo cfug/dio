@@ -2,17 +2,29 @@ import 'package:http_parser/http_parser.dart';
 
 import 'utils.dart';
 
+/// The signature that iterates header fields.
 typedef HeaderForEachCallback = void Function(String name, List<String> values);
 
+/// The headers class for requests and responses.
 class Headers {
-  // Header field name
+  Headers({
+    this.preserveHeaderCase = false,
+  }) : _map = caseInsensitiveKeyMap<List<String>>();
+
+  /// Create the [Headers] from a [Map] instance.
+  Headers.fromMap(
+    Map<String, List<String>> map, {
+    this.preserveHeaderCase = false,
+  }) : _map = caseInsensitiveKeyMap<List<String>>(
+          map.map((k, v) => MapEntry(k.trim(), v)),
+        );
+
   static const acceptHeader = 'accept';
   static const contentEncodingHeader = 'content-encoding';
   static const contentLengthHeader = 'content-length';
   static const contentTypeHeader = 'content-type';
   static const wwwAuthenticateHeader = 'www-authenticate';
 
-  // Header field value
   static const jsonContentType = 'application/json';
   static const formUrlEncodedContentType = 'application/x-www-form-urlencoded';
   static const textPlainContentType = 'text/plain';
@@ -20,21 +32,19 @@ class Headers {
 
   static final jsonMimeType = MediaType.parse(jsonContentType);
 
+  /// Whether the header key should be case-sensitive.
+  ///
+  /// Defaults to false.
+  final bool preserveHeaderCase;
+
   final Map<String, List<String>> _map;
 
   Map<String, List<String>> get map => _map;
 
-  Headers() : _map = caseInsensitiveKeyMap<List<String>>();
-
-  Headers.fromMap(Map<String, List<String>> map)
-      : _map = caseInsensitiveKeyMap<List<String>>(
-          map.map((k, v) => MapEntry(k.trim().toLowerCase(), v)),
-        );
-
   /// Returns the list of values for the header named [name]. If there
   /// is no header with the provided name, [:null:] will be returned.
   List<String>? operator [](String name) {
-    return _map[name.trim().toLowerCase()];
+    return _map[name.trim()];
   }
 
   /// Convenience method for the value for a single valued header. If
@@ -62,9 +72,9 @@ class Headers {
   /// cleared before the value [value] is added as its value.
   void set(String name, dynamic value) {
     if (value == null) return;
-    name = name.trim().toLowerCase();
+    name = name.trim();
     if (value is List) {
-      _map[name] = value.map<String>((e) => e.toString()).toList();
+      _map[name] = value.map<String>((e) => '$e').toList();
     } else {
       _map[name] = ['$value'.trim()];
     }
@@ -82,10 +92,12 @@ class Headers {
     _map.remove(name);
   }
 
+  /// Clearing all fields in the headers.
   void clear() {
     _map.clear();
   }
 
+  /// Whether the headers has no fields.
   bool get isEmpty => _map.isEmpty;
 
   /// Enumerates the headers, applying the function [f] to each

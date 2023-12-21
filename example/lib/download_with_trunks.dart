@@ -4,24 +4,20 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 void main() async {
-  final url = 'http://download.dcloud.net.cn/HBuilder.9.0.2.macosx_64.dmg';
-  final savePath = './example/HBuilder.9.0.2.macosx_64.dmg';
-
-//  final url = "https://www.baidu.com/img/bdlogo.gif";
-//  final savePath = "./example/bg.gif";
+  final url = 'https://avatars.githubusercontent.com/u/0';
+  final savePath = './example/avatar.png';
 
   await downloadWithChunks(
     url,
     savePath,
     onReceiveProgress: (received, total) {
-      if (total != -1) {
-        print('${(received / total * 100).floor()}%');
-      }
+      if (total <= 0) return;
+      print('${(received / total * 100).floor()}%');
     },
   );
 }
 
-/// Downloading by spiting as file in chunks
+/// Downloading by splitting as file in chunks
 Future downloadWithChunks(
   url,
   savePath, {

@@ -1,12 +1,19 @@
 name: dio_cookie_manager
-description: A cookie manager for Dio, which supports persistent cookies in RAM and file.
-version: 3.0.0
+version: 3.1.1
+
+description: A cookie manager combines cookie_jar and dio, based on the interceptor algorithm.
+topics:
+  - dio
+  - cookie
+  - network
+  - storage
+  - persistence
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/plugins/cookie_manager
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.19.0 <3.0.0"
 
 dependencies:
   cookie_jar: ^4.0.0

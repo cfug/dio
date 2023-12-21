@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.4.0
+
+- Support non-TLS connection requests.
+- Improve the implementation of `receiveTimeout`.
+- Add more header value types implicit support.
+
+## 2.3.2
+
+- Implement `sendTimeout` and `receiveTimeout` for the adapter.
+- Fix redirect not working when requestStream is null.
+- Ignores `Duration.zero` timeouts.
+
+## 2.3.1+1
+
+- Add topics to packages.
+
+## 2.3.1
+
+- Fix cached `initFuture` not remove when throw exception.
+
+## 2.3.0
+
 - Replace `DioError` with `DioException`.
 
 ## 2.2.0

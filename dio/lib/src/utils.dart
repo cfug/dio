@@ -1,9 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'options.dart';
 import 'parameter.dart';
+
+// For the web platform, an inline `bool.fromEnvironment` translates to
+// `core.bool.fromEnvironment` instead of correctly being replaced by the
+// constant value found in the environment at build time.
+//
+// See https://github.com/flutter/flutter/issues/51186.
+const kReleaseMode = bool.fromEnvironment('dart.vm.product');
 
 /// Pipes all data and errors from [stream] into [sink]. Completes [Future] once
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is
@@ -30,7 +38,7 @@ Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
 typedef DioEncodeHandler = String? Function(String key, Object? value);
 
 String encodeMap(
-  data,
+  Object data,
   DioEncodeHandler handler, {
   bool encode = true,
   bool isQuery = false,
@@ -43,7 +51,9 @@ String encodeMap(
   // When [encode] is false, for example for [FormData], nothing is encoded.
   final leftBracket = isQuery || !encode ? '[' : '%5B';
   final rightBracket = isQuery || !encode ? ']' : '%5D';
-  final encodeComponent = encode ? Uri.encodeQueryComponent : (e) => e;
+
+  final String Function(String) encodeComponent =
+      encode ? Uri.encodeQueryComponent : (e) => e;
   Object? maybeEncode(Object? value) {
     if (!isQuery || value == null || value is! String) {
       return value;
@@ -85,7 +95,7 @@ String encodeMap(
     } else if (sub is Map) {
       sub.forEach((k, v) {
         if (path == '') {
-          urlEncode(maybeEncode(v), '${encodeComponent(k)}');
+          urlEncode(maybeEncode(v), encodeComponent(k));
         } else {
           urlEncode(
             maybeEncode(v),
@@ -132,4 +142,16 @@ Map<String, V> caseInsensitiveKeyMap<V>([Map<String, V>? value]) {
   );
   if (value != null && value.isNotEmpty) map.addAll(value);
   return map;
+}
+
+// TODO(Alex): Provide a configurable property on the Dio class once https://github.com/cfug/dio/discussions/1982 has made some progress.
+void debugLog(String message, StackTrace stackTrace) {
+  if (!kReleaseMode) {
+    dev.log(
+      message,
+      level: 900,
+      name: '🔔 Dio',
+      stackTrace: stackTrace,
+    );
+  }
 }

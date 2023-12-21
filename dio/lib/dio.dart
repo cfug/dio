@@ -1,6 +1,8 @@
-/// A powerful Http client for Dart, which supports Interceptors,
-/// Global configuration, FormData, File downloading etc. and Dio is
-/// very easy to use.
+/// A powerful HTTP client for Dart and Flutter, which supports global settings,
+/// [Interceptors], [FormData], aborting and canceling a request,
+/// files uploading and downloading, requests timeout, custom adapters, etc.
+/// {@category Migration Guide}
+/// {@category Plugins}
 library dio;
 
 export 'src/adapter.dart';

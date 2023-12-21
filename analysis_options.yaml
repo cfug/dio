@@ -7,7 +7,7 @@ analyzer:
 
 linter:
   rules:
-    - prefer_final_locals
-    - prefer_final_in_for_each
-    - prefer_single_quotes
-    - unnecessary_parenthesis
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    prefer_single_quotes: true
+    unnecessary_parenthesis: true

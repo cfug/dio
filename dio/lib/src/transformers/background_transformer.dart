@@ -3,9 +3,13 @@ import 'dart:convert';
 
 import 'package:dio/src/compute/compute.dart';
 import 'package:dio/src/transformers/sync_transformer.dart';
+import 'package:dio/src/transformer.dart';
+import 'package:dio/src/dio.dart';
 
-/// [BackgroundTransformer] will do the deserialization of JSON
-/// in a background isolate if possible.
+/// The default [Transformer] for [Dio].
+///
+/// [BackgroundTransformer] will do the deserialization of JSON in
+/// a background isolate if possible.
 class BackgroundTransformer extends SyncTransformer {
   BackgroundTransformer() : super(jsonDecodeCallback: _decodeJson);
 }

@@ -46,9 +46,7 @@ void main() async {
     './example/xx.html',
     queryParameters: {'a': 1},
     onReceiveProgress: (received, total) {
-      if (total != -1) {
-        print('$received,$total');
-      }
+      print('received: $received, total: $total');
     },
   );
 
