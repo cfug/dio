@@ -210,9 +210,7 @@ class _ConnectionManager implements ConnectionManager {
           completerProxyInitialization.complete();
         } else {
           completerProxyInitialization.completeError(
-            SocketException(
-              'Proxy cannot be initialized with status: $statusLine',
-            ),
+            SocketException('Proxy cannot be initialized'),
           );
         }
       },
