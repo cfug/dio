@@ -56,7 +56,7 @@ jobs:
       - name: '[Verify step] Analyze Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
       - name: '[Verify step] Publish dry-run'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="dio_tests" -- "dart pub publish --dry-run"
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
       - name: '[Verify step] Test Dart packages [Chrome]'
