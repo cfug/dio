@@ -15,6 +15,7 @@ import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'response.dart';
+import 'response/response_stream_handler.dart';
 import 'transformer.dart';
 import 'transformers/background_transformer.dart';
 
@@ -23,6 +24,7 @@ import 'progress_stream/io_progress_stream.dart'
 
 part 'interceptor.dart';
 
+// TODO(EVERYONE): Use `mixin class` when the lower bound of SDK is raised to 3.0.0.
 abstract class DioMixin implements Dio {
   /// The base request config for the instance.
   @override
@@ -534,6 +536,8 @@ abstract class DioMixin implements Dio {
       );
       final statusOk = reqOpt.validateStatus(responseBody.statusCode);
       if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
+        responseBody.stream = handleResponseStream(reqOpt, responseBody);
+
         Object? data = await transformer.transformResponse(
           reqOpt,
           responseBody,
@@ -548,7 +552,7 @@ abstract class DioMixin implements Dio {
         }
         ret.data = data;
       } else {
-        await responseBody.stream.listen(null).cancel();
+        responseBody.close();
       }
       checkCancelled(cancelToken);
       if (statusOk) {

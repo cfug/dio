@@ -8,12 +8,8 @@ void main() {
   test('cookie-jar', () async {
     final dio = Dio();
     final cookieJar = CookieJar();
-    dio.interceptors
-      ..add(CookieManager(cookieJar))
-      ..add(LogInterceptor());
+    dio.interceptors.add(CookieManager(cookieJar));
     await dio.get('https://pub.dev/');
-    // Print cookies
-    print(cookieJar.loadForRequest(Uri.parse('https://pub.dev/')));
     // second request with the cookie
     await dio.get('https://pub.dev/');
   });

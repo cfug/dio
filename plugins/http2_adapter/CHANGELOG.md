@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix cancellation for streamed responses and downloads.
+- Fix progress for streamed responses and downloads.
+- Bump minimum Dart SDK to 3.0.0 as required by the `http2` package.
 - Allows `HTTP/1.0` when connecting to proxies.
 
 ## 2.4.0

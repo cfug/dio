@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 
 class HttpService extends DioForNative {
-  HttpService([BaseOptions? baseOptions]) : super(baseOptions) {
+  HttpService([super.baseOptions]) {
     options
       ..baseUrl = 'https://httpbin.org/'
       ..contentType = Headers.jsonContentType;

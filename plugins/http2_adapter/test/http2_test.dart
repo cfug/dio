@@ -13,7 +13,6 @@ void main() {
   test('adds one to input values', () async {
     final dio = Dio()
       ..options.baseUrl = 'https://httpbun.com/'
-      ..interceptors.add(LogInterceptor())
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
           idleTimeout: Duration(milliseconds: 10),
@@ -44,18 +43,22 @@ void main() {
     expect(res.data.toString(), contains('TEST'));
   });
 
-  test('request with payload via proxy', () async {
-    final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
-      ..httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(milliseconds: 10),
-        onClientCreate: (uri, settings) =>
-            settings.proxy = Uri.parse('http://localhost:3128'),
-      ));
+  test(
+    'request with payload via proxy',
+    () async {
+      final dio = Dio()
+        ..options.baseUrl = 'https://httpbun.com/'
+        ..httpClientAdapter = Http2Adapter(ConnectionManager(
+          idleTimeout: Duration(milliseconds: 10),
+          onClientCreate: (uri, settings) =>
+              settings.proxy = Uri.parse('http://localhost:3128'),
+        ));
 
-    final res = await dio.post('post', data: 'TEST');
-    expect(res.data.toString(), contains('TEST'));
-  });
+      final res = await dio.post('post', data: 'TEST');
+      expect(res.data.toString(), contains('TEST'));
+    },
+    tags: ['proxy'],
+  );
 
   test('request without network and restore', () async {
     bool needProxy = true;

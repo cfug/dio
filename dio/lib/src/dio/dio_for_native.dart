@@ -48,7 +48,7 @@ class DioForNative with DioMixin implements Dio {
         data: data,
         options: options,
         queryParameters: queryParameters,
-        cancelToken: cancelToken ?? CancelToken(),
+        cancelToken: cancelToken,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
