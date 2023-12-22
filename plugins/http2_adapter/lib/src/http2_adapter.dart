@@ -1,11 +1,12 @@
-// ignore_for_file: void_checks
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:http2/http2.dart';
+import 'package:meta/meta.dart';
 
 part 'client_setting.dart';
 
@@ -13,13 +14,21 @@ part 'connection_manager.dart';
 
 part 'connection_manager_imp.dart';
 
+@internal
+class H2NotSupportedSocketException extends SocketException {
+  const H2NotSupportedSocketException() : super('h2 protocol not supported');
+}
+
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter implements HttpClientAdapter {
   Http2Adapter(
-    ConnectionManager? connectionManager,
-  ) : _connectionMgr = connectionManager ?? ConnectionManager();
+    ConnectionManager? connectionManager, {
+    HttpClientAdapter? fallbackAdapter,
+  })  : _connectionMgr = connectionManager ?? ConnectionManager(),
+        _fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
 
   final ConnectionManager _connectionMgr;
+  final HttpClientAdapter _fallbackAdapter;
 
   @override
   Future<ResponseBody> fetch(
@@ -28,12 +37,17 @@ class Http2Adapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     final redirects = <RedirectRecord>[];
-    return _fetch(
-      options,
-      requestStream,
-      cancelFuture,
-      redirects,
-    );
+    try {
+      return await _fetch(options, requestStream, cancelFuture, redirects);
+    } on H2NotSupportedSocketException {
+      // Fallback to use another adapter (typically IOHttpClientAdapter)
+      // since the request can have a better handle by it.
+      return await _fallbackAdapter.fetch(
+        options,
+        requestStream,
+        cancelFuture,
+      );
+    }
   }
 
   Future<ResponseBody> _fetch(
@@ -78,7 +92,6 @@ class Http2Adapter implements HttpClientAdapter {
     // Creates a new outgoing stream.
     final stream = transport.makeRequest(headers);
 
-    // ignore: unawaited_futures
     cancelFuture?.whenComplete(() {
       Future(() {
         stream.terminate();

@@ -208,13 +208,14 @@ class _ConnectionManager implements ConnectionManager {
           completerProxyInitialization.complete();
         } else {
           completerProxyInitialization.completeError(
-            SocketException('Proxy cannot be initialized'),
+            SocketException(
+              'Proxy cannot be initialized with status: $statusLine',
+            ),
           );
         }
       },
       onError: completerProxyInitialization.completeError,
     );
-
     await completerProxyInitialization.future;
 
     final socket = await SecureSocket.secure(
@@ -224,6 +225,9 @@ class _ConnectionManager implements ConnectionManager {
       onBadCertificate: clientConfig.onBadCertificate,
       supportedProtocols: ['h2'],
     );
+    if (socket.selectedProtocol != 'h2') {
+      throw const H2NotSupportedSocketException();
+    }
 
     proxySubscription.cancel();
 
