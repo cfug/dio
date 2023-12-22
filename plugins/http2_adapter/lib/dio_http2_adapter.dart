@@ -1,3 +1,3 @@
 library dio_http2_adapter;
 
-export 'src/http2_adapter.dart' hide H2NotSupportedSocketException;
+export 'src/http2_adapter.dart';
