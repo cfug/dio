@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
+import 'headers.dart';
 import 'options.dart';
 import 'redirect_record.dart';
 
@@ -57,28 +60,34 @@ class ResponseBody {
     this.statusMessage,
     this.isRedirect = false,
     this.redirects,
+    void Function()? onClose,
     Map<String, List<String>>? headers,
-  }) : headers = headers ?? {};
+  })  : headers = headers ?? {},
+        _onClose = onClose;
 
   ResponseBody.fromString(
     String text,
     this.statusCode, {
     this.statusMessage,
     this.isRedirect = false,
+    void Function()? onClose,
     Map<String, List<String>>? headers,
   })  : stream = Stream.value(Uint8List.fromList(utf8.encode(text))),
-        headers = headers ?? {};
+        headers = headers ?? {},
+        _onClose = onClose;
 
   ResponseBody.fromBytes(
     List<int> bytes,
     this.statusCode, {
     this.statusMessage,
     this.isRedirect = false,
+    void Function()? onClose,
     Map<String, List<String>>? headers,
   })  : stream = Stream.value(
           bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
         ),
-        headers = headers ?? {};
+        headers = headers ?? {},
+        _onClose = onClose;
 
   /// Whether this response is a redirect.
   final bool isRedirect;
@@ -88,6 +97,10 @@ class ResponseBody {
 
   /// HTTP status code.
   int statusCode;
+
+  /// Content length of the response or -1 if not specified
+  int get contentLength =>
+      int.parse(headers[Headers.contentLengthHeader]?.first ?? '-1');
 
   /// Returns the reason phrase corresponds to the status code.
   /// The message can be [HttpRequest.statusText]
@@ -102,4 +115,10 @@ class ResponseBody {
 
   /// The extra field which will pass-through to the [Response.extra].
   Map<String, dynamic> extra = {};
+
+  final void Function()? _onClose;
+
+  /// Closes the request & frees the underlying resources.
+  @internal
+  void close() => _onClose?.call();
 }

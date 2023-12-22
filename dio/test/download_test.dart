@@ -35,8 +35,21 @@ void main() {
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     await dio.download('/download', savePath);
 
+    int? total;
+    int? count;
+    await dio.download(
+      '/download',
+      savePath,
+      onReceiveProgress: (c, t) {
+        total = t;
+        count = c;
+      },
+    );
+
     final f = File(savePath);
     expect(f.readAsStringSync(), equals('I am a text file'));
+    expect(count, f.readAsBytesSync().length);
+    expect(count, total);
   });
 
   test('download2', () async {
@@ -142,17 +155,48 @@ void main() {
     final cancelToken = CancelToken();
     final dio = Dio()..options.baseUrl = serverUrl.toString();
     await expectLater(
-      dio
-          .download(
-            '/download',
-            savePath,
-            deleteOnError: true,
-            cancelToken: cancelToken,
-            onReceiveProgress: (count, total) => cancelToken.cancel(),
-          )
-          .catchError((e) => throw (e as DioException).type),
-      throwsA(DioExceptionType.cancel),
+      dio.download(
+        '/download',
+        savePath,
+        deleteOnError: true,
+        cancelToken: cancelToken,
+        onReceiveProgress: (count, total) => cancelToken.cancel(),
+      ),
+      throwsDioException(
+        DioExceptionType.cancel,
+        stackTraceContains: 'test/download_test.dart',
+      ),
     );
+    await Future.delayed(const Duration(milliseconds: 100));
+    expect(f.existsSync(), isFalse);
+  });
+
+  test('cancel download mid stream', () async {
+    const savePath = 'test/download/_test.md';
+    final f = File(savePath)..createSync(recursive: true);
+    expect(f.existsSync(), isTrue);
+
+    final cancelToken = CancelToken();
+    final dio = Dio()..options.baseUrl = 'https://httpbun.com';
+
+    await expectLater(
+      dio.download(
+        '/bytes/10000',
+        savePath,
+        cancelToken: cancelToken,
+        deleteOnError: true,
+        onReceiveProgress: (c, t) {
+          if (c > 5000) {
+            cancelToken.cancel();
+          }
+        },
+      ),
+      throwsDioException(
+        DioExceptionType.cancel,
+        stackTraceContains: 'test/download_test.dart',
+      ),
+    );
+
     await Future.delayed(const Duration(milliseconds: 100));
     expect(f.existsSync(), isFalse);
   });
