@@ -1,0 +1,14 @@
+name: dio_tests
+version: 1.0.0
+
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  dio:
+    path: ../dio
+  dio_http2_adapter:
+    path: ../plugins/http2_adapter
+  test: ^1.5.1
