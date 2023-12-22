@@ -215,7 +215,7 @@ class _ConnectionManager implements ConnectionManager {
           } else {
             completerProxyInitialization.completeError(
               SocketException(
-                'Proxy cannot be initialized: '
+                'Proxy cannot be initialized with status = [$statusLine], '
                 'host = ${target.host}, port = ${target.port}',
               ),
             );
