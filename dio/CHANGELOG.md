@@ -7,6 +7,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Provide fix suggestions for `dart fix`.
 - Fix `receiveTimeout` for streamed responses.
+- Fix cancellation for streamed responses and downloads when using `IOHttpClientAdapter`.
+- Fix receive progress for streamed responses and downloads when using `IOHttpClientAdapter`.
 
 ## 5.4.0
 

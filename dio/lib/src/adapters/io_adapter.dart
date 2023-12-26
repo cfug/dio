@@ -75,9 +75,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       requestStream,
       cancelFuture,
     ));
-    if (cancelFuture != null) {
-      cancelFuture.whenComplete(() => operation.cancel());
-    }
+    cancelFuture?.whenComplete(() => operation.cancel());
     return operation.value;
   }
 
@@ -106,9 +104,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      if (cancelFuture != null) {
-        cancelFuture.whenComplete(() => request.abort());
-      }
+      cancelFuture?.whenComplete(() => request.abort());
 
       // Set Headers
       options.headers.forEach((key, value) {
@@ -202,69 +198,12 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
     }
 
-    // Use a StreamController to explicitly handle receive timeouts.
-    final responseSink = StreamController<Uint8List>();
-    late StreamSubscription<List<int>> responseSubscription;
-
-    final receiveStopwatch = Stopwatch();
-    Timer? receiveTimer;
-
-    void stopWatchReceiveTimeout() {
-      receiveTimer?.cancel();
-      receiveTimer = null;
-      receiveStopwatch.stop();
-    }
-
-    void watchReceiveTimeout() {
-      if (receiveTimeout <= Duration.zero) {
-        return;
-      }
-      receiveStopwatch.reset();
-      if (!receiveStopwatch.isRunning) {
-        receiveStopwatch.start();
-      }
-      receiveTimer?.cancel();
-      receiveTimer = Timer(receiveTimeout, () {
-        responseSink.addError(
-          DioException.receiveTimeout(
-            timeout: receiveTimeout,
-            requestOptions: options,
-          ),
-        );
-        responseSink.close();
-        responseSubscription.cancel();
-        responseStream.detachSocket().then((socket) => socket.destroy());
-        stopWatchReceiveTimeout();
-      });
-    }
-
-    responseSubscription = responseStream.cast<Uint8List>().listen(
-      (data) {
-        watchReceiveTimeout();
-        // Always true if the receive timeout was not set.
-        if (receiveStopwatch.elapsed <= receiveTimeout) {
-          responseSink.add(data);
-        }
-      },
-      onError: (error, stackTrace) {
-        stopWatchReceiveTimeout();
-        responseSink.addError(error, stackTrace);
-        responseSink.close();
-      },
-      onDone: () {
-        stopWatchReceiveTimeout();
-        responseSubscription.cancel();
-        responseSink.close();
-      },
-      cancelOnError: true,
-    );
-
     final headers = <String, List<String>>{};
     responseStream.headers.forEach((key, values) {
       headers[key] = values;
     });
     return ResponseBody(
-      responseSink.stream,
+      responseStream.cast(),
       responseStream.statusCode,
       headers: headers,
       isRedirect:
@@ -273,6 +212,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
           .toList(),
       statusMessage: responseStream.reasonPhrase,
+      onClose: () {
+        responseStream.detachSocket().then((socket) => socket.destroy());
+      },
     );
   }
 

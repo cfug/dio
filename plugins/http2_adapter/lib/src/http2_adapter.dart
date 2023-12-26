@@ -1,4 +1,3 @@
-// ignore_for_file: void_checks
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -121,37 +120,6 @@ class Http2Adapter implements HttpClientAdapter {
     bool needResponse = false;
 
     final receiveTimeout = options.receiveTimeout ?? Duration.zero;
-    final receiveStopwatch = Stopwatch();
-    Timer? receiveTimer;
-
-    void stopWatchReceiveTimeout() {
-      receiveTimer?.cancel();
-      receiveTimer = null;
-      receiveStopwatch.stop();
-    }
-
-    void watchReceiveTimeout() {
-      if (receiveTimeout <= Duration.zero) {
-        return;
-      }
-      receiveStopwatch.reset();
-      if (!receiveStopwatch.isRunning) {
-        receiveStopwatch.start();
-      }
-      receiveTimer?.cancel();
-      receiveTimer = Timer(receiveTimeout, () {
-        responseSink.addError(
-          DioException.receiveTimeout(
-            timeout: receiveTimeout,
-            requestOptions: options,
-          ),
-        );
-        responseSink.close();
-        responseSubscription.cancel();
-        stream.terminate();
-        stopWatchReceiveTimeout();
-      });
-    }
 
     late int statusCode;
     responseSubscription = stream.incomingMessages.listen(
@@ -175,14 +143,12 @@ class Http2Adapter implements HttpClientAdapter {
           }
         } else if (message is DataStreamMessage) {
           if (needResponse) {
-            watchReceiveTimeout();
             responseSink.add(
               message.bytes is Uint8List
                   ? message.bytes as Uint8List
                   : Uint8List.fromList(message.bytes),
             );
           } else {
-            stopWatchReceiveTimeout();
             responseSubscription.cancel().whenComplete(() {
               stream.terminate();
               responseSink.close();
@@ -200,12 +166,10 @@ class Http2Adapter implements HttpClientAdapter {
         } else {
           responseSink.addError(error, stackTrace);
         }
-        stopWatchReceiveTimeout();
         responseSubscription.cancel();
         responseSink.close();
       },
       onDone: () {
-        stopWatchReceiveTimeout();
         responseSubscription.cancel();
         responseSink.close();
       },
@@ -248,6 +212,11 @@ class Http2Adapter implements HttpClientAdapter {
       headers: responseHeaders.map,
       redirects: redirects,
       isRedirect: redirects.isNotEmpty,
+      onClose: () {
+        responseSubscription.cancel();
+        responseSink.close();
+        stream.terminate();
+      },
     );
   }
 

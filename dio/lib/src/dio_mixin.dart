@@ -15,6 +15,7 @@ import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'response.dart';
+import 'response/response_stream_handler.dart';
 import 'transformer.dart';
 import 'transformers/background_transformer.dart';
 
@@ -535,6 +536,8 @@ abstract class DioMixin implements Dio {
       );
       final statusOk = reqOpt.validateStatus(responseBody.statusCode);
       if (statusOk || reqOpt.receiveDataWhenStatusError == true) {
+        responseBody.stream = handleResponseStream(reqOpt, responseBody);
+
         Object? data = await transformer.transformResponse(
           reqOpt,
           responseBody,
@@ -549,7 +552,7 @@ abstract class DioMixin implements Dio {
         }
         ret.data = data;
       } else {
-        await responseBody.stream.listen(null).cancel();
+        responseBody.close();
       }
       checkCancelled(cancelToken);
       if (statusOk) {
