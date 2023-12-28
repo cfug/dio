@@ -738,13 +738,3 @@ abstract class DioMixin implements Dio {
     return response;
   }
 }
-
-/// A [TypeError] thrown by [_checkNotNullable].
-class NotNullableError<T> extends Error implements TypeError {
-  NotNullableError(this._name);
-
-  final String _name;
-
-  @override
-  String toString() => "Null is not a valid value for '$_name' of type '$T'";
-}
