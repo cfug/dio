@@ -23,6 +23,29 @@ When new content need to be added to the migration guide, make sure they're foll
 - `IOHttpClientAdapter.onHttpClientCreate` which was deprecated in `5.2.0` has been removed - use `IOHttpClientAdapter.createHttpClient` instead.
 - `DioError` and `DioErrorType` which was deprecated in `5.2.0` has been removed - use `DioException` and `DioExceptionType` instead.
 - `DefaultTransformer` which was deprecated in `5.0.0` has been removed - use `BackgroundTransformer` instead.
+- The nullability of the generic type parameter in `dio`s request methods is now respected for the responses' `data`.
+
+> [!WARNING]
+> The migration depends on your use case and API responses.
+> If in doubt make the type nullable and correctly handle the null case.
+> DO NOT just delete the null checks if they are shown to be redundant, but think about the impact.
+
+Before:
+```dart
+Response<String?> response = await Dio().get<String>('https://example.com');
+String data = response.data!;
+```
+
+After:
+```dart
+Response<String> response = await Dio().get<String>('https://example.com');
+String data = response.data;
+```
+Or:
+```dart
+Response<String?> response = await Dio().get<String?>('https://example.com');
+String? data = response.data;
+```
 
 ## 5.0.0
 

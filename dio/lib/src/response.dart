@@ -11,7 +11,7 @@ import 'redirect_record.dart';
 /// in anytime, typically by [Interceptor] and [Transformer].
 class Response<T> {
   Response({
-    this.data,
+    required this.data,
     required this.requestOptions,
     this.statusCode,
     this.statusMessage,
@@ -27,7 +27,7 @@ class Response<T> {
   ///
   /// The content could have been transformed by the [Transformer]
   /// before it can use eventually.
-  T? data;
+  T data;
 
   /// The [RequestOptions] used for the corresponding request.
   RequestOptions requestOptions;

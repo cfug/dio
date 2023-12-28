@@ -37,14 +37,16 @@ void main() {
           );
 
         dio.options.connectTimeout = Duration(milliseconds: 5);
-        await dio
-            .get('/')
-            .catchError((e) => Response(requestOptions: RequestOptions()));
+        await dio.get('/').catchError((e) => Response(
+              requestOptions: RequestOptions(),
+              data: null,
+            ));
         expect(client.connectionTimeout, dio.options.connectTimeout);
         dio.options.connectTimeout = Duration(milliseconds: 10);
-        await dio
-            .get('/')
-            .catchError((e) => Response(requestOptions: RequestOptions()));
+        await dio.get('/').catchError((e) => Response(
+              requestOptions: RequestOptions(),
+              data: null,
+            ));
         expect(client.connectionTimeout, dio.options.connectTimeout);
       }, testOn: 'vm');
     });

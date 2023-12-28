@@ -112,6 +112,25 @@ Future<void> startServer() async {
         return;
       }
 
+      if (path == '/null-response') {
+        response.headers.contentType = ContentType('text', 'plain');
+        response
+          ..statusCode = 200
+          ..contentLength = -1;
+        response.close();
+        return;
+      }
+
+      if (path == '/non-null-response') {
+        response.headers.contentType = ContentType('text', 'plain');
+        response
+          ..statusCode = 200
+          ..contentLength = -1
+          ..write('response');
+        response.close();
+        return;
+      }
+
       final requestBodyBytes = await ByteStream(request).toBytes();
       final encodingName = request.uri.queryParameters['response-encoding'];
       final outputEncoding = encodingName == null

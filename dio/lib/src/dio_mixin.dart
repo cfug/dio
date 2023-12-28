@@ -525,6 +525,7 @@ abstract class DioMixin implements Dio {
       // Make sure headers and [ResponseBody.headers] are the same instance.
       responseBody.headers = headers.map;
       final ret = Response<dynamic>(
+        data: null,
         headers: headers,
         requestOptions: reqOpt,
         redirects: responseBody.redirects ?? [],
@@ -713,7 +714,7 @@ abstract class DioMixin implements Dio {
         requestOptions: requestOptions,
       );
     } else if (response is! Response<T>) {
-      final T? data = response.data as T?;
+      final T data = response.data as T;
       final Headers headers;
       if (data is ResponseBody) {
         headers = Headers.fromMap(

@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return AlertDialog(
           title: Text('Response ${response.statusCode}'),
           content: SingleChildScrollView(
-            child: Text(response.data ?? 'No response'),
+            child: Text(response.data),
           ),
           actions: [
             MaterialButton(
@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return AlertDialog(
           title: Text('Response ${response.statusCode}'),
           content: SingleChildScrollView(
-            child: Text(response.data ?? 'No response'),
+            child: Text(response.data),
           ),
           actions: [
             MaterialButton(

@@ -42,6 +42,7 @@ void main() {
     final firstRequestOptions = RequestOptions(baseUrl: exampleUrl);
 
     final mockResponse = Response(
+      data: null,
       requestOptions: firstRequestOptions,
       headers: Headers.fromMap(
         {HttpHeaders.setCookieHeader: mockFirstRequestCookies},
@@ -77,6 +78,7 @@ void main() {
       final requestOptions = RequestOptions(baseUrl: exampleUrl);
 
       final mockResponse = Response(
+        data: null,
         requestOptions: requestOptions,
         headers: Headers.fromMap(
           {HttpHeaders.setCookieHeader: mockResponseCookies},
