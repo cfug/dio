@@ -1,5 +1,5 @@
+import '../dio.dart';
 import '../dio_exception.dart';
-import '../dio_mixin.dart';
 import '../options.dart';
 import '../response.dart';
 

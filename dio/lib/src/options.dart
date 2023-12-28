@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import 'adapter.dart';
+import 'adapters/adapter.dart';
 import 'cancel_token.dart';
 import 'headers.dart';
 import 'transformer.dart';

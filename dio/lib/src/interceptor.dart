@@ -1,4 +1,4 @@
-part of 'dio_mixin.dart';
+part of 'dio.dart';
 
 /// @nodoc
 enum InterceptorResultType {
@@ -297,7 +297,7 @@ class InterceptorsWrapper extends Interceptor with _InterceptorWrapperMixin {
 /// Interceptors will be executed with FIFO.
 class Interceptors extends ListMixin<Interceptor> {
   /// Define a nullable list to be capable with growable elements.
-  final List<Interceptor?> _list = [const ImplyContentTypeInterceptor()];
+  final List<Interceptor?> _list = [ImplyContentTypeInterceptor()];
 
   @override
   int get length => _list.length;

@@ -1,4 +1,4 @@
-import '../dio_mixin.dart';
+import '../dio.dart';
 import '../form_data.dart';
 import '../headers.dart';
 import '../options.dart';

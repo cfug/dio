@@ -1,33 +1,25 @@
 import 'dart:async';
 import 'dart:io';
 
+import '../../dio.dart';
 import '../adapter.dart';
-import '../cancel_token.dart';
-import '../dio_exception.dart';
-import '../dio_mixin.dart';
-import '../response.dart';
-import '../dio.dart';
-import '../headers.dart';
-import '../options.dart';
-import '../adapters/io_adapter.dart';
+import '../../cancel_token.dart';
+import '../../dio_exception.dart';
+import '../../headers.dart';
+import '../../options.dart';
+import '../../response.dart';
+import '../../transformer.dart';
+import 'download_adapter.dart';
 
-/// Create the [Dio] instance for native platforms.
-Dio createDio([BaseOptions? baseOptions]) => DioForNative(baseOptions);
+DownloadAdapter createAdapter() => IODownloadAdapter();
 
-/// Implements features for [Dio] on native platforms.
-class DioForNative extends DioMixin implements Dio {
-  /// Create Dio instance with default [BaseOptions].
-  /// It is recommended that an application use only the same DIO singleton.
-  DioForNative([BaseOptions? baseOptions]) {
-    options = baseOptions ?? BaseOptions();
-    httpClientAdapter = IOHttpClientAdapter();
-  }
-
-  /// {@macro dio.Dio.download}
+class IODownloadAdapter implements DownloadAdapter {
   @override
   Future<Response> download(
     String urlPath,
     dynamic savePath, {
+    required RequestCallback request,
+    required Transformer transformer,
     ProgressCallback? onReceiveProgress,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
@@ -36,14 +28,14 @@ class DioForNative extends DioMixin implements Dio {
     Object? data,
     Options? options,
   }) async {
-    options ??= DioMixin.checkOptions('GET', options);
+    options ??= Dio.checkOptions('GET', options);
     // Manually set the `responseType` to [ResponseType.stream]
     // to retrieve the response stream.
     // Do not modify previous options.
     options = options.copyWith(responseType: ResponseType.stream);
     final Response<ResponseBody> response;
     try {
-      response = await request<ResponseBody>(
+      response = await request(
         urlPath,
         data: data,
         options: options,
@@ -153,7 +145,7 @@ class DioForNative extends DioMixin implements Dio {
             }
           } finally {
             completer.completeError(
-              DioMixin.assureDioException(e, response.requestOptions),
+              Dio.assureDioException(e, response.requestOptions),
             );
           }
         });
@@ -166,7 +158,7 @@ class DioForNative extends DioMixin implements Dio {
           completer.complete(response);
         } catch (e) {
           completer.completeError(
-            DioMixin.assureDioException(e, response.requestOptions),
+            Dio.assureDioException(e, response.requestOptions),
           );
         }
       },
@@ -175,7 +167,7 @@ class DioForNative extends DioMixin implements Dio {
           await closeAndDelete();
         } finally {
           completer.completeError(
-            DioMixin.assureDioException(e, response.requestOptions),
+            Dio.assureDioException(e, response.requestOptions),
           );
         }
       },
@@ -185,6 +177,6 @@ class DioForNative extends DioMixin implements Dio {
       await subscription.cancel();
       await closeAndDelete();
     });
-    return DioMixin.listenCancelForAsyncTask(cancelToken, completer.future);
+    return Dio.listenCancelForAsyncTask(cancelToken, completer.future);
   }
 }

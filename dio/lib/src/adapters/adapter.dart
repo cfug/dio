@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'options.dart';
-import 'redirect_record.dart';
+import '../options.dart';
+import '../redirect_record.dart';
 
-import 'adapters/io_adapter.dart'
-    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
+import 'io_adapter.dart'
+    if (dart.library.html) 'browser_adapter.dart' as adapter;
 
 /// [HttpAdapter] is a bridge between [Dio] and [HttpClient].
 ///

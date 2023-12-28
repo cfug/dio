@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../adapter.dart';
+import '../adapters/adapter.dart';
 import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
