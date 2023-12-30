@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 1.3.0
+
 - Provide fix suggestions for `dart fix`.
 - Bump cronet_http version to `>=0.4.0 <=2.0.0`.
 
