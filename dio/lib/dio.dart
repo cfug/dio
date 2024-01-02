@@ -5,11 +5,11 @@
 /// {@category Plugins}
 library dio;
 
-export 'src/adapter.dart';
+export 'src/adapters/adapter.dart';
+export 'src/adapters/download/download_adapter.dart';
 export 'src/cancel_token.dart';
-export 'src/dio.dart';
+export 'src/dio.dart' hide InterceptorState, InterceptorResultType;
 export 'src/dio_exception.dart';
-export 'src/dio_mixin.dart' hide InterceptorState, InterceptorResultType;
 export 'src/form_data.dart';
 export 'src/headers.dart';
 export 'src/interceptors/log.dart';

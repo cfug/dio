@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart';
 
-import '../adapter.dart';
+import 'adapter.dart';
 import '../dio_exception.dart';
 import '../options.dart';
 import '../redirect_record.dart';

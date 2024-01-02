@@ -7,7 +7,7 @@ import 'dart:async' as _i4;
 import 'dart:convert' as _i3;
 import 'dart:io' as _i2;
 
-import 'package:dio/src/adapter.dart' as _i7;
+import 'package:dio/src/adapters/adapter.dart' as _i7;
 import 'package:dio/src/options.dart' as _i6;
 import 'package:dio/src/transformer.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
