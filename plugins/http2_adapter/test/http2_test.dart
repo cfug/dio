@@ -1,5 +1,6 @@
 @TestOn('vm')
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
@@ -8,6 +9,59 @@ void main() {
     final dio = Dio()..httpClientAdapter = Http2Adapter(ConnectionManager());
     await dio.get('http://flutter.cn/');
     await dio.get('https://flutter.cn/non-exist-destination');
+  });
+
+  test('fallbacks to the specified adapter if H2 is not supported', () async {
+    const destinationHost = 'www.baidu.com';
+    final destination = Uri.https(destinationHost);
+    String? validatedHost;
+    final dioWithNothing = Dio()
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(),
+        onNotSupported: (e) => throw e,
+      );
+    await expectLater(
+      dioWithNothing.getUri(destination),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (e) => e.error is DioH2NotSupportedException,
+          (e) =>
+              (e.error as DioH2NotSupportedException).uri.host ==
+              destinationHost,
+        ]),
+      ),
+    );
+    final dioWithCallback = Dio()
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(),
+        onNotSupported: (e) {
+          validatedHost = e.uri.host;
+          return Future.value(ResponseBody.fromString('', 200));
+        },
+      );
+    await expectLater(
+      await dioWithCallback.getUri(destination),
+      allOf([
+        isA<Response>(),
+        (Response r) => r.data == '',
+      ]),
+    );
+    final dioWithFallback = Dio()
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(),
+        fallbackAdapter: IOHttpClientAdapter(
+          validateCertificate: (_, host, __) {
+            validatedHost = host;
+            return true;
+          },
+        ),
+      );
+    await expectLater(
+      await dioWithFallback.getUri(destination),
+      isA<Response>(),
+    );
+    expect(validatedHost, destinationHost);
   });
 
   test('adds one to input values', () async {
