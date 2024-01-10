@@ -158,7 +158,7 @@ class _ConnectionManager implements ConnectionManager {
         onBadCertificate: clientConfig.onBadCertificate,
         supportedProtocols: ['h2'],
       );
-      _throwIfH2NotSelected(socket);
+      _throwIfH2NotSelected(target, socket);
       return socket;
     }
 
@@ -225,7 +225,7 @@ class _ConnectionManager implements ConnectionManager {
       onBadCertificate: clientConfig.onBadCertificate,
       supportedProtocols: ['h2'],
     );
-    _throwIfH2NotSelected(socket);
+    _throwIfH2NotSelected(target, socket);
 
     proxySubscription.cancel();
 
@@ -254,9 +254,9 @@ class _ConnectionManager implements ConnectionManager {
     }
   }
 
-  void _throwIfH2NotSelected(SecureSocket socket) {
+  void _throwIfH2NotSelected(Uri target, SecureSocket socket) {
     if (socket.selectedProtocol != 'h2') {
-      throw const _H2NotSupportedSocketException();
+      throw DioH2NotSupportedException(target, socket.selectedProtocol);
     }
   }
 }

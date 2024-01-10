@@ -1,8 +1,10 @@
 part of 'http2_adapter.dart';
 
+/// {@template dio_http2_adapter.ConnectionManager}
 /// ConnectionManager is used to manager the connections that should be reusable.
 /// The main responsibility of ConnectionManager is to implement a connection reuse
 /// strategy for http2.
+/// {@endtemplate}
 abstract class ConnectionManager {
   factory ConnectionManager({
     Duration idleTimeout = const Duration(seconds: 15),

@@ -14,20 +14,39 @@ part 'connection_manager.dart';
 
 part 'connection_manager_imp.dart';
 
-class _H2NotSupportedSocketException extends SocketException {
-  const _H2NotSupportedSocketException() : super('h2 protocol not supported');
+/// The signature of [Http2Adapter.onNotSupported].
+typedef H2NotSupportedCallback = Future<ResponseBody> Function(
+  DioH2NotSupportedException exception,
+);
+
+/// The exception when a connected socket for the [uri]
+/// does not support HTTP/2.
+class DioH2NotSupportedException extends SocketException {
+  const DioH2NotSupportedException(
+    this.uri,
+    this.selectedProtocol,
+  ) : super('h2 protocol not supported');
+
+  final Uri uri;
+  final String? selectedProtocol;
 }
 
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter implements HttpClientAdapter {
   Http2Adapter(
-    ConnectionManager? connectionManager, {
+    this.connectionManager, {
     HttpClientAdapter? fallbackAdapter,
-  })  : _connectionMgr = connectionManager ?? ConnectionManager(),
-        _fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
+    this.onNotSupported,
+  }) : fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
 
-  final ConnectionManager _connectionMgr;
-  final HttpClientAdapter _fallbackAdapter;
+  /// {@macro dio_http2_adapter.ConnectionManager}
+  ConnectionManager connectionManager;
+
+  /// {@macro dio.HttpClientAdapter}
+  HttpClientAdapter fallbackAdapter;
+
+  /// Handles [DioH2NotSupportedException] and returns a [ResponseBody].
+  H2NotSupportedCallback? onNotSupported;
 
   @override
   Future<ResponseBody> fetch(
@@ -38,14 +57,12 @@ class Http2Adapter implements HttpClientAdapter {
     final redirects = <RedirectRecord>[];
     try {
       return await _fetch(options, requestStream, cancelFuture, redirects);
-    } on _H2NotSupportedSocketException {
-      // Fallback to use another adapter (typically IOHttpClientAdapter)
+    } on DioH2NotSupportedException catch (e) {
+      // Fallback to use the callback
+      // or to another adapter (typically IOHttpClientAdapter)
       // since the request can have a better handle by it.
-      return await _fallbackAdapter.fetch(
-        options,
-        requestStream,
-        cancelFuture,
-      );
+      return await onNotSupported?.call(e) ??
+          await fallbackAdapter.fetch(options, requestStream, cancelFuture);
     }
   }
 
@@ -55,7 +72,7 @@ class Http2Adapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
     List<RedirectRecord> redirects,
   ) async {
-    final transport = await _connectionMgr.getConnection(options);
+    final transport = await connectionManager.getConnection(options);
     final uri = options.uri;
     String path = uri.path;
     const excludeMethods = ['PUT', 'POST', 'PATCH'];
@@ -205,7 +222,7 @@ class Http2Adapter implements HttpClientAdapter {
       onError: (Object error, StackTrace stackTrace) {
         // If connection is being forcefully terminated, remove the connection.
         if (error is TransportConnectionException) {
-          _connectionMgr.removeConnection(transport);
+          connectionManager.removeConnection(transport);
         }
         if (!responseCompleter.isCompleted) {
           responseCompleter.completeError(error, stackTrace);
@@ -272,6 +289,6 @@ class Http2Adapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {
-    _connectionMgr.close(force: force);
+    connectionManager.close(force: force);
   }
 }
