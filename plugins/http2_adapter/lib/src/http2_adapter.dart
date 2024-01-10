@@ -34,10 +34,11 @@ class DioH2NotSupportedException extends SocketException {
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter implements HttpClientAdapter {
   Http2Adapter(
-    this.connectionManager, {
+    ConnectionManager? connectionManager, {
     HttpClientAdapter? fallbackAdapter,
     this.onNotSupported,
-  }) : fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
+  })  : connectionManager = connectionManager ?? ConnectionManager(),
+        fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
 
   /// {@macro dio_http2_adapter.ConnectionManager}
   ConnectionManager connectionManager;
