@@ -18,18 +18,6 @@ typedef H2NotSupportedCallback = Future<ResponseBody> Function(
   DioH2NotSupportedException exception,
 );
 
-/// The exception when a connected socket for the [uri]
-/// does not support HTTP/2.
-class DioH2NotSupportedException extends SocketException {
-  const DioH2NotSupportedException(
-    this.uri,
-    this.selectedProtocol,
-  ) : super('h2 protocol not supported');
-
-  final Uri uri;
-  final String? selectedProtocol;
-}
-
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter implements HttpClientAdapter {
   Http2Adapter(
@@ -260,5 +248,38 @@ class Http2Adapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     connectionManager.close(force: force);
+  }
+}
+
+/// The exception when a connected socket for the [uri]
+/// does not support HTTP/2.
+class DioH2NotSupportedException extends SocketException {
+  const DioH2NotSupportedException(
+    this.uri,
+    this.selectedProtocol,
+  ) : super('h2 protocol not supported');
+
+  final Uri uri;
+  final String? selectedProtocol;
+
+  @override
+  String toString() {
+    final sb = StringBuffer();
+    sb.write('DioH2NotSupportedException');
+    if (message.isNotEmpty) {
+      sb.write(': $message');
+      if (osError != null) {
+        sb.write(' ($osError)');
+      }
+    } else if (osError != null) {
+      sb.write(': $osError');
+    }
+    if (address != null) {
+      sb.write(', address = ${address!.host}');
+    }
+    if (port != null) {
+      sb.write(', port = $port');
+    }
+    return sb.toString();
   }
 }
