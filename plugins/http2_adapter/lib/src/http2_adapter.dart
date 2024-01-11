@@ -45,6 +45,7 @@ class Http2Adapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    // Recursive fetching.
     final redirects = <RedirectRecord>[];
     try {
       return await _fetch(options, requestStream, cancelFuture, redirects);
