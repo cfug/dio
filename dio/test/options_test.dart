@@ -470,18 +470,23 @@ void main() {
   });
 
   test('option invalid base url', () {
-    final opt1 = 'blob:http://localhost/xyz123';
-    final opt2 = 'https://pub.dev';
-    final opt3 = 'https://';
-    final opt4 = 'https://loremipsum/';
-    final opt5 = '';
-    final opt6 = 'pub.dev';
-    expect(Uri.parse(opt1).host.isNotEmpty, false);
-    expect(Uri.parse(opt2).host.isNotEmpty, true);
-    expect(Uri.parse(opt3).host.isNotEmpty, false);
-    expect(Uri.parse(opt4).host.isNotEmpty, true);
-    expect(Uri.parse(opt5).host.isNotEmpty, false);
-    expect(Uri.parse(opt6).host.isNotEmpty, false);
+    final invalidUrls = <String>[
+      'blob:http://localhost/xyz123',
+      'https://',
+      'pub.dev',
+    ];
+    final validUrls = <String>[
+      '',
+      'https://pub.dev',
+      'https://loremipsum/',
+      if (kIsWeb) 'api/',
+    ];
+    for (final url in invalidUrls) {
+      expect(() => BaseOptions(baseUrl: url), throwsA(isA<AssertionError>()));
+    }
+    for (final url in validUrls) {
+      expect(BaseOptions(baseUrl: url), isA<BaseOptions>());
+    }
   });
 
   test('Throws when using invalid methods', () async {
