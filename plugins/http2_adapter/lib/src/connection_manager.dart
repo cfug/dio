@@ -28,7 +28,7 @@ abstract class ConnectionManager {
 /// {@endtemplate}
 typedef ProxyConnectedPredicate = bool Function(String protocol, String status);
 
-@visibleForTesting
+/// Accepts HTTP/1.x connections for proxies.
 bool defaultProxyConnectedPredicate(String protocol, String status) {
   return status.startsWith(RegExp(r'HTTP/1+\.\d 200'));
 }
