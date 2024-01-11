@@ -5,6 +5,8 @@
 - Fix cancellation for streamed responses and downloads.
 - Fix progress for streamed responses and downloads.
 - Bump minimum Dart SDK to 3.0.0 as required by the `http2` package.
+- Add the ability to use a fallback `HttpClientAdapter`
+  when HTTP/2 is unavailable for the current request.
 
 ## 2.4.0
 
