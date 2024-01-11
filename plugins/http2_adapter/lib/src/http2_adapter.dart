@@ -15,6 +15,9 @@ part 'connection_manager_imp.dart';
 
 /// The signature of [Http2Adapter.onNotSupported].
 typedef H2NotSupportedCallback = Future<ResponseBody> Function(
+  RequestOptions options,
+  Stream<Uint8List>? requestStream,
+  Future<void>? cancelFuture,
   DioH2NotSupportedException exception,
 );
 
@@ -49,8 +52,10 @@ class Http2Adapter implements HttpClientAdapter {
       // Fallback to use the callback
       // or to another adapter (typically IOHttpClientAdapter)
       // since the request can have a better handle by it.
-      return await onNotSupported?.call(e) ??
-          await fallbackAdapter.fetch(options, requestStream, cancelFuture);
+      if (onNotSupported != null) {
+        return await onNotSupported!(options, requestStream, cancelFuture, e);
+      }
+      return await fallbackAdapter.fetch(options, requestStream, cancelFuture);
     }
   }
 

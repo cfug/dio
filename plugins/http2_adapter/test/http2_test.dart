@@ -1,6 +1,5 @@
 @TestOn('vm')
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
@@ -11,32 +10,22 @@ void main() {
     await dio.get('https://flutter.cn/non-exist-destination');
   });
 
-  test('fallbacks to the specified adapter if H2 is not supported', () async {
+  test('handles gracefully if H2 is not supported', () async {
     const destinationHost = 'www.baidu.com';
     final destination = Uri.https(destinationHost);
-    String? validatedHost;
     final dioWithNothing = Dio()
-      ..httpClientAdapter = Http2Adapter(
-        ConnectionManager(),
-        onNotSupported: (e) => throw e,
-      );
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
     await expectLater(
-      dioWithNothing.getUri(destination),
-      throwsA(
-        allOf([
-          isA<DioException>(),
-          (e) => e.error is DioH2NotSupportedException,
-          (e) =>
-              (e.error as DioH2NotSupportedException).uri.host ==
-              destinationHost,
-        ]),
-      ),
+      await dioWithNothing.getUri(destination),
+      allOf([
+        isA<Response>(),
+        (Response r) => r.realUri.host == destinationHost,
+      ]),
     );
     final dioWithCallback = Dio()
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(),
-        onNotSupported: (e) {
-          validatedHost = e.uri.host;
+        onNotSupported: (_, __, ___, e) {
           return Future.value(ResponseBody.fromString('', 200));
         },
       );
@@ -47,21 +36,23 @@ void main() {
         (Response r) => r.data == '',
       ]),
     );
-    final dioWithFallback = Dio()
+    final dioWithThrows = Dio()
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(),
-        fallbackAdapter: IOHttpClientAdapter(
-          validateCertificate: (_, host, __) {
-            validatedHost = host;
-            return true;
-          },
-        ),
+        onNotSupported: (_, __, ___, e) => throw e,
       );
     await expectLater(
-      await dioWithFallback.getUri(destination),
-      isA<Response>(),
+      dioWithThrows.getUri(destination),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (e) => e.error is DioH2NotSupportedException,
+          (e) =>
+              (e.error as DioH2NotSupportedException).uri.host ==
+              destinationHost,
+        ]),
+      ),
     );
-    expect(validatedHost, destinationHost);
   });
 
   test('adds one to input values', () async {
