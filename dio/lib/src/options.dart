@@ -92,8 +92,16 @@ typedef RequestEncoder = FutureOr<List<int>> Function(
 
 /// The mixin class for options that provides common attributes.
 mixin OptionsMixin {
-  /// Request base url, it can contain sub paths like: https://pub.dev/api/.
-  late String baseUrl;
+  /// Request base url, it can be multiple forms:
+  ///  - Contains sub paths, e.g. `https://pub.dev/api/`.
+  ///  - Relative path on Web, e.g. `api/`.
+  String get baseUrl => _baseUrl;
+  late String _baseUrl;
+
+  set baseUrl(String value) {
+    assert(value.isEmpty || kIsWeb || Uri.parse(value).host.isNotEmpty);
+    _baseUrl = value;
+  }
 
   /// Common query parameters.
   ///
@@ -141,9 +149,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
-  })  : assert(connectTimeout == null || !connectTimeout.isNegative),
-        assert(baseUrl.isEmpty || Uri.parse(baseUrl).host.isNotEmpty),
-        super(
+  }) : super(
           method: method,
           receiveTimeout: receiveTimeout,
           sendTimeout: sendTimeout,
@@ -161,8 +167,8 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
           responseDecoder: responseDecoder,
           listFormat: listFormat,
         ) {
-    this.queryParameters = queryParameters ?? {};
     this.baseUrl = baseUrl;
+    this.queryParameters = queryParameters ?? {};
     this.connectTimeout = connectTimeout;
   }
 
