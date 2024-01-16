@@ -161,4 +161,22 @@ void main() {
     expect(content, contains('Numkey: 2'));
     expect(content, contains('Booleankey: false'));
   });
+
+  group(ProxyConnectedPredicate, () {
+    group('defaultProxyConnectedPredicate', () {
+      test(
+        'accepts HTTP/1.x for HTTP/1.1 proxy',
+        () {
+          expect(
+            defaultProxyConnectedPredicate('HTTP/1.1', 'HTTP/1.1 200'),
+            true,
+          );
+          expect(
+            defaultProxyConnectedPredicate('HTTP/1.1', 'HTTP/1.0 200'),
+            true,
+          );
+        },
+      );
+    });
+  });
 }
