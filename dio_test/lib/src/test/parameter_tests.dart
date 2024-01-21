@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
-import '../utils.dart';
-
 void parameterTests(
   Dio Function() create,
 ) {

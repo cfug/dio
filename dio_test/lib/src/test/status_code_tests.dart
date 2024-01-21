@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dio_test/src/utils.dart';
 import 'package:test/test.dart';
 
 import '../matcher.dart';
@@ -19,7 +20,7 @@ void statusCodeTests(
           dio.get('/status/$code'),
           throwsDioException(
             DioExceptionType.badResponse,
-            stackTraceContains: 'test/status_code_tests.dart',
+            stackTraceContains: kIsWeb ? null : 'test/status_code_tests.dart',
             matcher: isA<DioException>().having(
               (e) => e.response!.statusCode,
               'statusCode',

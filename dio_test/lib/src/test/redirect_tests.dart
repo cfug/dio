@@ -23,7 +23,7 @@ void redirectTests(
       );
       expect(response.isRedirect, isTrue);
 
-      if (!isWeb) {
+      if (!kIsWeb) {
         // Redirects are not supported in web.
         // Rhe browser will follow the redirects automatically.
         expect(response.redirects.length, 1);
@@ -40,7 +40,7 @@ void redirectTests(
       );
       expect(response.isRedirect, isTrue);
 
-      if (!isWeb) {
+      if (!kIsWeb) {
         // Redirects are not supported in web.
         // The browser will follow the redirects automatically.
         expect(response.redirects.length, 3);
