@@ -196,11 +196,34 @@ class Http2Adapter implements HttpClientAdapter {
     // Handle redirection.
     if (needRedirect) {
       final url = responseHeaders.value('location');
+      if (url == null) {
+        throw DioException.connectionError(
+          requestOptions: options,
+          reason: 'Received redirect without location header.',
+        );
+      }
+      final uri = Uri.parse(url);
       redirects.add(
-        RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')),
+        RedirectRecord(
+          statusCode,
+          options.method,
+          uri,
+        ),
       );
+      final String path;
+      if (uri.hasScheme) {
+        /// This is a full URL which has to be redirected to as is.
+        path = uri.toString();
+      } else {
+        /// This is relative with or without leading slash and is
+        /// resolved against the URL of the original request.
+        path = options.uri.resolveUri(uri).path;
+      }
       return _fetch(
-        options.copyWith(path: url, maxRedirects: --options.maxRedirects),
+        options.copyWith(
+          path: path,
+          maxRedirects: --options.maxRedirects,
+        ),
         list != null ? Stream.fromIterable(list) : null,
         cancelFuture,
         redirects,
