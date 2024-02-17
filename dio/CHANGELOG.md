@@ -10,6 +10,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fix cancellation for streamed responses and downloads when using `IOHttpClientAdapter`.
 - Fix receive progress for streamed responses and downloads when using `IOHttpClientAdapter`.
 - Support relative `baseUrl` on the Web platform.
+- Avoid fake uncaught exceptions during debugging with IDEs.
 
 ## 5.4.0
 
