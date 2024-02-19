@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:http2/http2.dart';
 
 part 'client_setting.dart';
@@ -12,13 +13,31 @@ part 'connection_manager.dart';
 
 part 'connection_manager_imp.dart';
 
+/// The signature of [Http2Adapter.onNotSupported].
+typedef H2NotSupportedCallback = Future<ResponseBody> Function(
+  RequestOptions options,
+  Stream<Uint8List>? requestStream,
+  Future<void>? cancelFuture,
+  DioH2NotSupportedException exception,
+);
+
 /// A Dio HttpAdapter which implements Http/2.0.
 class Http2Adapter implements HttpClientAdapter {
   Http2Adapter(
-    ConnectionManager? connectionManager,
-  ) : _connectionMgr = connectionManager ?? ConnectionManager();
+    ConnectionManager? connectionManager, {
+    HttpClientAdapter? fallbackAdapter,
+    this.onNotSupported,
+  })  : connectionManager = connectionManager ?? ConnectionManager(),
+        fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
 
-  final ConnectionManager _connectionMgr;
+  /// {@macro dio_http2_adapter.ConnectionManager}
+  ConnectionManager connectionManager;
+
+  /// {@macro dio.HttpClientAdapter}
+  HttpClientAdapter fallbackAdapter;
+
+  /// Handles [DioH2NotSupportedException] and returns a [ResponseBody].
+  H2NotSupportedCallback? onNotSupported;
 
   @override
   Future<ResponseBody> fetch(
@@ -26,13 +45,19 @@ class Http2Adapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    // Recursive fetching.
     final redirects = <RedirectRecord>[];
-    return _fetch(
-      options,
-      requestStream,
-      cancelFuture,
-      redirects,
-    );
+    try {
+      return await _fetch(options, requestStream, cancelFuture, redirects);
+    } on DioH2NotSupportedException catch (e) {
+      // Fallback to use the callback
+      // or to another adapter (typically IOHttpClientAdapter)
+      // since the request can have a better handle by it.
+      if (onNotSupported != null) {
+        return await onNotSupported!(options, requestStream, cancelFuture, e);
+      }
+      return await fallbackAdapter.fetch(options, requestStream, cancelFuture);
+    }
   }
 
   Future<ResponseBody> _fetch(
@@ -41,7 +66,7 @@ class Http2Adapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
     List<RedirectRecord> redirects,
   ) async {
-    final transport = await _connectionMgr.getConnection(options);
+    final transport = await connectionManager.getConnection(options);
     final uri = options.uri;
     String path = uri.path;
     const excludeMethods = ['PUT', 'POST', 'PATCH'];
@@ -77,7 +102,6 @@ class Http2Adapter implements HttpClientAdapter {
     // Creates a new outgoing stream.
     final stream = transport.makeRequest(headers);
 
-    // ignore: unawaited_futures
     cancelFuture?.whenComplete(() {
       Future(() {
         stream.terminate();
@@ -159,7 +183,7 @@ class Http2Adapter implements HttpClientAdapter {
       onError: (Object error, StackTrace stackTrace) {
         // If connection is being forcefully terminated, remove the connection.
         if (error is TransportConnectionException) {
-          _connectionMgr.removeConnection(transport);
+          connectionManager.removeConnection(transport);
         }
         if (!responseCompleter.isCompleted) {
           responseCompleter.completeError(error, stackTrace);
@@ -229,6 +253,39 @@ class Http2Adapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {
-    _connectionMgr.close(force: force);
+    connectionManager.close(force: force);
+  }
+}
+
+/// The exception when a connected socket for the [uri]
+/// does not support HTTP/2.
+class DioH2NotSupportedException extends SocketException {
+  const DioH2NotSupportedException(
+    this.uri,
+    this.selectedProtocol,
+  ) : super('h2 protocol not supported');
+
+  final Uri uri;
+  final String? selectedProtocol;
+
+  @override
+  String toString() {
+    final sb = StringBuffer();
+    sb.write('DioH2NotSupportedException');
+    if (message.isNotEmpty) {
+      sb.write(': $message');
+      if (osError != null) {
+        sb.write(' ($osError)');
+      }
+    } else if (osError != null) {
+      sb.write(': $osError');
+    }
+    if (address != null) {
+      sb.write(', address = ${address!.host}');
+    }
+    if (port != null) {
+      sb.write(', port = $port');
+    }
+    return sb.toString();
   }
 }

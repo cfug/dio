@@ -10,6 +10,51 @@ void main() {
     await dio.get('https://flutter.cn/non-exist-destination');
   });
 
+  test('handles gracefully if H2 is not supported', () async {
+    const destinationHost = 'www.baidu.com';
+    final destination = Uri.https(destinationHost);
+    final dioWithNothing = Dio()
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+    await expectLater(
+      await dioWithNothing.getUri(destination),
+      allOf([
+        isA<Response>(),
+        (Response r) => r.realUri.host == destinationHost,
+      ]),
+    );
+    final dioWithCallback = Dio()
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(),
+        onNotSupported: (_, __, ___, e) {
+          return Future.value(ResponseBody.fromString('', 200));
+        },
+      );
+    await expectLater(
+      await dioWithCallback.getUri(destination),
+      allOf([
+        isA<Response>(),
+        (Response r) => r.data == '',
+      ]),
+    );
+    final dioWithThrows = Dio()
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(),
+        onNotSupported: (_, __, ___, e) => throw e,
+      );
+    await expectLater(
+      dioWithThrows.getUri(destination),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (e) => e.error is DioH2NotSupportedException,
+          (e) =>
+              (e.error as DioH2NotSupportedException).uri.host ==
+              destinationHost,
+        ]),
+      ),
+    );
+  });
+
   test('adds one to input values', () async {
     final dio = Dio()
       ..options.baseUrl = 'https://httpbun.com/'

@@ -154,7 +154,7 @@ class _ConnectionManager implements ConnectionManager {
           timeout: timeout,
         );
       }
-      return SecureSocket.connect(
+      final socket = await SecureSocket.connect(
         target.host,
         target.port,
         timeout: timeout,
@@ -162,6 +162,8 @@ class _ConnectionManager implements ConnectionManager {
         onBadCertificate: clientConfig.onBadCertificate,
         supportedProtocols: ['h2'],
       );
+      _throwIfH2NotSelected(target, socket);
+      return socket;
     }
 
     final proxySocket = await Socket.connect(
@@ -228,7 +230,6 @@ class _ConnectionManager implements ConnectionManager {
         }
       },
     );
-
     await completerProxyInitialization.future;
 
     final socket = await SecureSocket.secure(
@@ -238,6 +239,7 @@ class _ConnectionManager implements ConnectionManager {
       onBadCertificate: clientConfig.onBadCertificate,
       supportedProtocols: ['h2'],
     );
+    _throwIfH2NotSelected(target, socket);
 
     proxySubscription.cancel();
 
@@ -263,6 +265,12 @@ class _ConnectionManager implements ConnectionManager {
     _forceClosed = force;
     if (force) {
       _transportsMap.forEach((key, value) => value.dispose());
+    }
+  }
+
+  void _throwIfH2NotSelected(Uri target, SecureSocket socket) {
+    if (socket.selectedProtocol != 'h2') {
+      throw DioH2NotSupportedException(target, socket.selectedProtocol);
     }
   }
 }
