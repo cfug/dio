@@ -182,30 +182,40 @@ void main() {
       final response = await dio.get(
         '/redirect',
         queryParameters: {'url': 'https://httpbun.com/get'},
-        onReceiveProgress: (received, total) {
-          // ignore progress
-        },
       );
       expect(response.isRedirect, isTrue);
-
-      // Redirects are not supported in web.
-      // Rhe browser will follow the redirects automatically.
       expect(response.redirects.length, 1);
+
       final ri = response.redirects.first;
       expect(ri.statusCode, 302);
       expect(ri.location.path, '/get');
       expect(ri.method, 'GET');
     });
 
+    test(
+      'empty location',
+      () async {
+        final response = await dio.get(
+          '/redirect',
+        );
+        expect(response.isRedirect, isTrue);
+        expect(response.redirects.length, 1);
+
+        final ri = response.redirects.first;
+        expect(ri.statusCode, 302);
+        expect(ri.location.path, '/get');
+        expect(ri.method, 'GET');
+      },
+      skip: 'Httpbun does not support empty location redirects',
+    );
+
     test('multiple', () async {
       final response = await dio.get(
         '/redirect/3',
       );
       expect(response.isRedirect, isTrue);
-
-      // Redirects are not supported in web.
-      // The browser will follow the redirects automatically.
       expect(response.redirects.length, 3);
+
       final ri = response.redirects.first;
       expect(ri.statusCode, 302);
       expect(ri.method, 'GET');
