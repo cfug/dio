@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:meta/meta.dart';
 
 /// An internal helper which handles functionality
 /// common to all adapters. This function ensures that
@@ -13,8 +14,9 @@ import 'package:dio/dio.dart';
 /// - [options.cancelToken] for cancellation while receiving
 Stream<Uint8List> handleResponseStream(
   RequestOptions options,
-  ResponseBody response,
-) {
+  ResponseBody response, {
+  @visibleForTesting void Function()? onReceiveTimeoutWatchCancelled,
+}) {
   final source = response.stream;
   final responseSink = StreamController<Uint8List>();
   late StreamSubscription<List<int>> responseSubscription;
@@ -30,20 +32,20 @@ Stream<Uint8List> handleResponseStream(
   Timer? receiveTimer;
 
   void stopWatchReceiveTimeout() {
+    onReceiveTimeoutWatchCancelled?.call();
     receiveTimer?.cancel();
     receiveTimer = null;
-    receiveStopwatch.stop();
+    receiveStopwatch
+      ..stop()
+      ..reset();
   }
 
   void watchReceiveTimeout() {
     if (receiveTimeout <= Duration.zero) {
       return;
     }
-    receiveStopwatch.reset();
-    if (!receiveStopwatch.isRunning) {
-      receiveStopwatch.start();
-    }
-    receiveTimer?.cancel();
+    stopWatchReceiveTimeout();
+    receiveStopwatch.start();
     receiveTimer = Timer(receiveTimeout, () {
       stopWatchReceiveTimeout();
       response.close();
