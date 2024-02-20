@@ -44,8 +44,10 @@ Stream<Uint8List> handleResponseStream(
     if (receiveTimeout <= Duration.zero) {
       return;
     }
-    stopWatchReceiveTimeout();
-    receiveStopwatch.start();
+    receiveTimer?.cancel();
+    receiveStopwatch
+      ..reset()
+      ..start();
     receiveTimer = Timer(receiveTimeout, () {
       stopWatchReceiveTimeout();
       response.close();
