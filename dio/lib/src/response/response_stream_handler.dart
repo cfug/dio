@@ -44,6 +44,9 @@ Stream<Uint8List> handleResponseStream(
     if (receiveTimeout <= Duration.zero) {
       return;
     }
+    // Not calling `stopWatchReceiveTimeout` to follow the semantic:
+    // Watching the new receive timeout does not indicate the watch
+    // has been cancelled.
     receiveTimer?.cancel();
     receiveStopwatch
       ..reset()
