@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:meta/meta.dart';
 
 /// An internal helper which handles functionality
 /// common to all adapters. This function ensures that
@@ -13,8 +14,9 @@ import 'package:dio/dio.dart';
 /// - [options.cancelToken] for cancellation while receiving
 Stream<Uint8List> handleResponseStream(
   RequestOptions options,
-  ResponseBody response,
-) {
+  ResponseBody response, {
+  @visibleForTesting void Function()? onReceiveTimeoutWatchCancelled,
+}) {
   final source = response.stream;
   final responseSink = StreamController<Uint8List>();
   late StreamSubscription<List<int>> responseSubscription;
@@ -30,31 +32,35 @@ Stream<Uint8List> handleResponseStream(
   Timer? receiveTimer;
 
   void stopWatchReceiveTimeout() {
+    onReceiveTimeoutWatchCancelled?.call();
     receiveTimer?.cancel();
     receiveTimer = null;
-    receiveStopwatch.stop();
+    receiveStopwatch
+      ..stop()
+      ..reset();
   }
 
   void watchReceiveTimeout() {
     if (receiveTimeout <= Duration.zero) {
       return;
     }
-    receiveStopwatch.reset();
-    if (!receiveStopwatch.isRunning) {
-      receiveStopwatch.start();
-    }
+    // Not calling `stopWatchReceiveTimeout` to follow the semantic:
+    // Watching the new receive timeout does not indicate the watch
+    // has been cancelled.
     receiveTimer?.cancel();
+    receiveStopwatch
+      ..reset()
+      ..start();
     receiveTimer = Timer(receiveTimeout, () {
-      responseSink.addError(
+      stopWatchReceiveTimeout();
+      response.close();
+      responseSubscription.cancel();
+      responseSink.addErrorAndClose(
         DioException.receiveTimeout(
           timeout: receiveTimeout,
           requestOptions: options,
         ),
       );
-      response.close();
-      responseSink.close();
-      responseSubscription.cancel();
-      stopWatchReceiveTimeout();
     });
   }
 
@@ -72,8 +78,7 @@ Stream<Uint8List> handleResponseStream(
     },
     onError: (error, stackTrace) {
       stopWatchReceiveTimeout();
-      responseSink.addError(error, stackTrace);
-      responseSink.close();
+      responseSink.addErrorAndClose(error, stackTrace);
     },
     onDone: () {
       stopWatchReceiveTimeout();
@@ -84,13 +89,20 @@ Stream<Uint8List> handleResponseStream(
   );
 
   options.cancelToken?.whenCancel.whenComplete(() {
-    /// Close the response stream upon a cancellation.
-    responseSubscription.cancel();
+    stopWatchReceiveTimeout();
+    // Close the response stream upon a cancellation.
     response.close();
-    if (!responseSink.isClosed) {
-      responseSink.addError(options.cancelToken!.cancelError!);
-      responseSink.close();
-    }
+    responseSubscription.cancel();
+    responseSink.addErrorAndClose(options.cancelToken!.cancelError!);
   });
   return responseSink.stream;
+}
+
+extension on StreamController<Uint8List> {
+  void addErrorAndClose(Object error, [StackTrace? stackTrace]) {
+    if (!isClosed) {
+      addError(error, stackTrace);
+      close();
+    }
+  }
 }

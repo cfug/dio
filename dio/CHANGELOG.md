@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `receiveTimeout` throws exception after the request has been cancelled.
 
 ## 5.4.1
 
