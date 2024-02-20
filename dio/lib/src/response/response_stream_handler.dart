@@ -45,16 +45,15 @@ Stream<Uint8List> handleResponseStream(
     }
     receiveTimer?.cancel();
     receiveTimer = Timer(receiveTimeout, () {
-      responseSink.addError(
+      stopWatchReceiveTimeout();
+      response.close();
+      responseSubscription.cancel();
+      responseSink.addErrorAndClose(
         DioException.receiveTimeout(
           timeout: receiveTimeout,
           requestOptions: options,
         ),
       );
-      response.close();
-      responseSink.close();
-      responseSubscription.cancel();
-      stopWatchReceiveTimeout();
     });
   }
 
@@ -72,8 +71,7 @@ Stream<Uint8List> handleResponseStream(
     },
     onError: (error, stackTrace) {
       stopWatchReceiveTimeout();
-      responseSink.addError(error, stackTrace);
-      responseSink.close();
+      responseSink.addErrorAndClose(error, stackTrace);
     },
     onDone: () {
       stopWatchReceiveTimeout();
@@ -88,10 +86,16 @@ Stream<Uint8List> handleResponseStream(
     // Close the response stream upon a cancellation.
     response.close();
     responseSubscription.cancel();
-    if (!responseSink.isClosed) {
-      responseSink.addError(options.cancelToken!.cancelError!);
-      responseSink.close();
-    }
+    responseSink.addErrorAndClose(options.cancelToken!.cancelError!);
   });
   return responseSink.stream;
+}
+
+extension on StreamController<Uint8List> {
+  void addErrorAndClose(Object error, [StackTrace? stackTrace]) {
+    if (!isClosed) {
+      addError(error, stackTrace);
+      close();
+    }
+  }
 }
