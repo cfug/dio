@@ -1,4 +1,3 @@
-@TestOn('vm')
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
@@ -173,13 +172,58 @@ void main() {
     await dio.get('/drip?delay=1&numbytes=1');
   });
 
-  test('request with redirect', () async {
+  group('redirects', () {
     final dio = Dio()
       ..options.baseUrl = 'https://httpbun.com/'
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
 
-    final res = await dio.get('absolute-redirect/2');
-    expect(res.statusCode, 200);
+    test('single', () async {
+      final response = await dio.get(
+        '/redirect',
+        queryParameters: {'url': 'https://httpbun.com/get'},
+      );
+      expect(response.isRedirect, isTrue);
+      expect(response.redirects.length, 1);
+
+      final ri = response.redirects.first;
+      expect(ri.statusCode, 302);
+      expect(ri.location.path, '/get');
+      expect(ri.method, 'GET');
+    });
+
+    test(
+      'empty location',
+      () async {
+        final response = await dio.get(
+          '/redirect',
+        );
+        expect(response.isRedirect, isTrue);
+        expect(response.redirects.length, 1);
+
+        final ri = response.redirects.first;
+        expect(ri.statusCode, 302);
+        expect(ri.location.path, '/get');
+        expect(ri.method, 'GET');
+      },
+      skip: 'Httpbun does not support empty location redirects',
+    );
+
+    test('multiple', () async {
+      final response = await dio.get(
+        '/redirect/3',
+      );
+      expect(response.isRedirect, isTrue);
+      expect(response.redirects.length, 3);
+
+      final ri = response.redirects.first;
+      expect(ri.statusCode, 302);
+      expect(ri.method, 'GET');
+    });
+
+    test('request with redirect', () async {
+      final res = await dio.get('absolute-redirect/2');
+      expect(res.statusCode, 200);
+    });
   });
 
   test('header value types implicit support', () async {

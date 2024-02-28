@@ -60,8 +60,8 @@ jobs:
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
       - name: '[Verify step] Test Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"

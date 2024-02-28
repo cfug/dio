@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:http2/http2.dart';
+import 'package:meta/meta.dart';
 
 part 'client_setting.dart';
 
@@ -219,12 +220,29 @@ class Http2Adapter implements HttpClientAdapter {
 
     // Handle redirection.
     if (needRedirect) {
+      if (responseHeaders['location'] == null) {
+        // Redirect without location is illegal.
+        throw DioException.connectionError(
+          requestOptions: options,
+          reason: 'Received redirect without location header.',
+        );
+      }
       final url = responseHeaders.value('location');
+      // An empty `location` header is considered a self redirect.
+      final uri = Uri.parse(url ?? '');
       redirects.add(
-        RedirectRecord(statusCode, options.method, Uri.parse(url ?? '')),
+        RedirectRecord(
+          statusCode,
+          options.method,
+          uri,
+        ),
       );
+      final String path = resolveRedirectUri(options.uri, uri);
       return _fetch(
-        options.copyWith(path: url, maxRedirects: --options.maxRedirects),
+        options.copyWith(
+          path: path,
+          maxRedirects: --options.maxRedirects,
+        ),
         list != null ? Stream.fromIterable(list) : null,
         cancelFuture,
         redirects,
@@ -249,6 +267,18 @@ class Http2Adapter implements HttpClientAdapter {
     return options.followRedirects &&
         options.maxRedirects > 0 &&
         statusCodes.contains(status);
+  }
+
+  @visibleForTesting
+  static String resolveRedirectUri(Uri currentUri, Uri redirectUri) {
+    if (redirectUri.hasScheme) {
+      /// This is a full URL which has to be redirected to as is.
+      return redirectUri.toString();
+    }
+
+    /// This is relative with or without leading slash and is
+    /// resolved against the URL of the original request.
+    return currentUri.resolveUri(redirectUri).toString();
   }
 
   @override
