@@ -5,12 +5,14 @@ import 'package:test/test.dart';
 /// with an optional matcher for the stackTrace containing the specified text.
 Matcher throwsDioException(
   DioExceptionType type, {
+  String? messageContains,
   String? stackTraceContains,
   Object? matcher,
 }) =>
     throwsA(
       matchesDioException(
         type,
+        messageContains: messageContains,
         stackTraceContains: stackTraceContains,
         matcher: matcher,
       ),
@@ -18,6 +20,7 @@ Matcher throwsDioException(
 
 Matcher matchesDioException(
   DioExceptionType type, {
+  String? messageContains,
   String? stackTraceContains,
   Object? matcher,
 }) {
@@ -26,6 +29,13 @@ Matcher matchesDioException(
     'type',
     equals(type),
   );
+  if (messageContains != null) {
+    base = base.having(
+      (e) => e.message,
+      'message',
+      contains(messageContains),
+    );
+  }
   if (stackTraceContains != null) {
     base = base.having(
       (e) => e.stackTrace.toString(),
