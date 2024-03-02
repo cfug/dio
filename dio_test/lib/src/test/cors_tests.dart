@@ -2,14 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
-// Test that browsers can correctly classify requests as
-// either "simple" or "preflighted". Reference:
-// https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
-void main() {
+/// Test that browsers can correctly classify requests as
+/// either "simple" or "preflighted". Reference:
+/// https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+void corsTests(
+  Dio Function() create,
+) {
   late Dio dio;
 
-  setUpAll(() {
-    dio = Dio(BaseOptions(baseUrl: 'https://httpbun.com/'));
+  setUp(() {
+    dio = create();
   });
 
   group('CORS preflight', () {
@@ -42,7 +44,7 @@ void main() {
         },
         throwsDioException(
           DioExceptionType.connectionError,
-          stackTraceContains: 'test/request_integration_test.dart',
+          stackTraceContains: 'test/test_suite_test.dart',
         ),
       );
     });
@@ -79,7 +81,7 @@ void main() {
         },
         throwsDioException(
           DioExceptionType.connectionError,
-          stackTraceContains: 'test/request_integration_test.dart',
+          stackTraceContains: 'test/test_suite_test.dart',
         ),
       );
     });
@@ -102,7 +104,7 @@ void main() {
         },
         throwsDioException(
           DioExceptionType.connectionError,
-          stackTraceContains: 'test/request_integration_test.dart',
+          stackTraceContains: 'test/test_suite_test.dart',
         ),
       );
     });
