@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:dio/src/response/response_stream_handler.dart';
 import 'package:test/test.dart';
-
-import '../utils.dart';
 
 void main() {
   group(handleResponseStream, () {

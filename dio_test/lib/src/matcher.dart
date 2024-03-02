@@ -28,12 +28,7 @@ Matcher matchesDioException(
   );
   if (stackTraceContains != null) {
     base = base.having(
-      (e) {
-        print('########');
-        print(e.stackTrace);
-        print('########');
-        return e.stackTrace.toString();
-      },
+      (e) => e.stackTrace.toString(),
       'stackTrace',
       contains(stackTraceContains),
     );

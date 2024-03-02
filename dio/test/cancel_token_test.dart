@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:dio/src/adapters/io_adapter.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'mock/http_mock.mocks.dart';
-import 'utils.dart';
 
 void main() {
   group(CancelToken, () {
