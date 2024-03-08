@@ -103,7 +103,7 @@ mixin OptionsMixin {
       throw ArgumentError.value(
         value,
         'baseUrl',
-        'Must has a valid host on platforms other than the Web',
+        'Must be a valid URL on platforms other than Web.',
       );
     }
     _baseUrl = value;
