@@ -56,12 +56,12 @@ jobs:
       - name: '[Verify step] Analyze Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
       - name: '[Verify step] Publish dry-run'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" -- "dart pub publish --dry-run"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="dio_test" -- "dart pub publish --dry-run"
       - name: '[Verify step] Test Dart packages [VM]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="dio_test" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --ignore="dio_test" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
+        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --ignore="dio_test" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
       - name: '[Verify step] Test Flutter packages'
         run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"

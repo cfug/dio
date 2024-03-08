@@ -1,28 +1,29 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
-import 'utils.dart';
+import '../../util.dart';
 
-void main() {
-  late Directory tmp;
+void downloadStreamTests(
+  Dio Function() create,
+) {
+  group('download', () {
+    late Dio dio;
+    late Directory tmp;
 
-  final dio = Dio()
-    ..httpClientAdapter = Http2Adapter(null)
-    ..options.baseUrl = 'https://httpbun.com/';
-
-  setUpAll(() {
-    tmp = Directory.systemTemp.createTempSync('dio_test_');
-    addTearDown(() {
-      tmp.deleteSync(recursive: true);
+    setUp(() {
+      dio = create();
     });
-  });
 
-  group('requests >', () {
-    test('download bytes', () async {
+    setUpAll(() {
+      tmp = Directory.systemTemp.createTempSync('dio_test_');
+      addTearDown(() {
+        tmp.deleteSync(recursive: true);
+      });
+    });
+    test('bytes', () async {
       final path = p.join(tmp.path, 'bytes.txt');
 
       final size = 10000;
@@ -60,7 +61,7 @@ void main() {
         ),
         throwsDioException(
           DioExceptionType.cancel,
-          stackTraceContains: 'test/request_test.dart',
+          stackTraceContains: 'test/download_stream_tests.dart',
         ),
       );
     });
@@ -81,7 +82,7 @@ void main() {
         ),
         throwsDioException(
           DioExceptionType.cancel,
-          stackTraceContains: 'test/request_test.dart',
+          stackTraceContains: 'test/download_stream_tests.dart',
         ),
       );
 
@@ -106,7 +107,7 @@ void main() {
         (response.data as ResponseBody).stream.last,
         throwsDioException(
           DioExceptionType.cancel,
-          stackTraceContains: 'test/request_test.dart',
+          stackTraceContains: 'test/download_stream_tests.dart',
         ),
       );
     });
@@ -128,12 +129,12 @@ void main() {
         ),
         throwsDioException(
           DioExceptionType.cancel,
-          stackTraceContains: 'test/request_test.dart',
+          stackTraceContains: 'test/download_stream_tests.dart',
         ),
       );
 
       await Future.delayed(const Duration(milliseconds: 250), () {});
       expect(File(path).existsSync(), false);
     });
-  });
+  }, testOn: 'vm');
 }

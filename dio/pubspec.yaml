@@ -32,3 +32,5 @@ dev_dependencies:
   crypto: ^3.0.2
   mockito: ^5.2.0
   build_runner: any
+  dio_test:
+    path: ../dio_test

@@ -37,6 +37,7 @@ plugins/http2_adapter/test/*_pinning.txt
 
 # FVM
 .fvm
+.fmvrc
 
 # Miscellaneous
 .DS_Store
