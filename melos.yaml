@@ -6,6 +6,7 @@ packages:
   - 'plugins/*'
   - 'plugins/**/example*'
   - 'example*'
+  - 'dio_test'
 
 ide:
   intellij:

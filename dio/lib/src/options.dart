@@ -99,7 +99,13 @@ mixin OptionsMixin {
   late String _baseUrl;
 
   set baseUrl(String value) {
-    assert(value.isEmpty || kIsWeb || Uri.parse(value).host.isNotEmpty);
+    if (value.isNotEmpty && !kIsWeb && Uri.parse(value).host.isEmpty) {
+      throw ArgumentError.value(
+        value,
+        'baseUrl',
+        'Must be a valid URL on platforms other than Web.',
+      );
+    }
     _baseUrl = value;
   }
 

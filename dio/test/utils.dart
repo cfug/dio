@@ -16,10 +16,6 @@ Encoding requiredEncodingForCharset(String charset) =>
 /// The URL for the current server instance.
 Uri get serverUrl => Uri.parse('http://localhost:${_server?.port}');
 
-const isWeb = bool.hasEnvironment('dart.library.js_util')
-    ? bool.fromEnvironment('dart.library.js_util')
-    : identical(0, 0.0);
-
 /// Starts a new HTTP server.
 Future<void> startServer() async {
   _server = (await HttpServer.bind('localhost', 0))
@@ -174,35 +170,6 @@ final Matcher throwsDioExceptionConnectionError = throwsA(
     (DioException e) => e.type == DioExceptionType.connectionError,
   ]),
 );
-
-/// A matcher for functions that throw [DioException] of a specified type,
-/// with an optional matcher for the stackTrace containing the specified text.
-Matcher throwsDioException(
-  DioExceptionType type, {
-  String? stackTraceContains,
-  Object? matcher,
-}) =>
-    throwsA(
-      matchesDioException(
-        type,
-        stackTraceContains: stackTraceContains,
-        matcher: matcher,
-      ),
-    );
-
-Matcher matchesDioException(
-  DioExceptionType type, {
-  String? stackTraceContains,
-  Object? matcher,
-}) =>
-    allOf([
-      isA<DioException>(),
-      (DioException e) => e.type == type,
-      if (stackTraceContains != null)
-        (DioException e) =>
-            e.stackTrace.toString().contains(stackTraceContains),
-      if (matcher != null) matcher,
-    ]);
 
 /// A stream of chunks of bytes representing a single piece of data.
 class ByteStream extends StreamView<List<int>> {

@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
-import 'utils.dart';
 
 void main() {
   test('send with an invalid URL', () async {
@@ -15,7 +15,7 @@ void main() {
         allOf([
           isA<DioException>(),
           (DioException e) => e.type == (DioExceptionType.connectionError),
-          if (!isWeb) (DioException e) => e.error is SocketException,
+          if (!kIsWeb) (DioException e) => e.error is SocketException,
         ]),
       ),
     );

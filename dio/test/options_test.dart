@@ -482,7 +482,7 @@ void main() {
       if (kIsWeb) 'api/',
     ];
     for (final url in invalidUrls) {
-      expect(() => BaseOptions(baseUrl: url), throwsA(isA<AssertionError>()));
+      expect(() => BaseOptions(baseUrl: url), throwsA(isA<ArgumentError>()));
     }
     for (final url in validUrls) {
       expect(BaseOptions(baseUrl: url), isA<BaseOptions>());

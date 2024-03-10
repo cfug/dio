@@ -24,3 +24,5 @@ dev_dependencies:
   lints: any
   test: ^1.16.4
   path: ^1.8.0
+  dio_test:
+    path: ../../dio_test
