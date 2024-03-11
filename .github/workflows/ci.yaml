@@ -17,7 +17,7 @@ permissions:
 jobs:
     build-image:
         name: Build Image
-        runs-on: [self-hosted, xl, al2023]
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
             - uses: Workiva/gha-setup-credentials@v2.0.1
