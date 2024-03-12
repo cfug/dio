@@ -37,21 +37,37 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pwd
-          ls -alsh
           cd dio
           dart pub get
           cd ..
       - name: Make directory
-        run: |
-          mkdir pub_temp
+        run: mkdir dio
       - name: Generate tarball
         run: |
-          cp dio/CHANGELOG.md pub_temp/
-          cp dio/LICENSE pub_temp/
-          cp dio/README.md pub_temp/
-          cp dio/analysis_options.yaml pub_temp/
-          cp dio/pubspec.yaml pub_temp/
+          cp dio/CHANGELOG.md dio/
+          cp dio/LICENSE dio/
+          cp dio/lib dio/
+          cp dio/README.md dio/
+          cp dio/analysis_options.yaml dio/
+          cp dio/pubspec.yaml dio/
           echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C pub_temp .
-          rm -rf pub_temp
+          tar czf pub_package.pub.tgz -C dio .
+          rm -rf dio
+      - name: Install dependencies
+        run: |
+          cd json_annotation-3.1.1
+          dart pub get
+          cd ..
+      - name: Make directory
+        run: mkdir json_annotation-3.1.1
+      - name: Generate tarball for json_annotation-3.1.1
+        run: |
+          cp json_annotation-3.1.1/CHANGELOG.md json_annotation-3.1.1/
+          cp json_annotation-3.1.1/LICENSE json_annotation-3.1.1/
+          cp json_annotation-3.1.1/lib json_annotation-3.1.1/
+          cp json_annotation-3.1.1/README.md json_annotation-3.1.1/
+          cp json_annotation-3.1.1/pubspec.yaml json_annotation-3.1.1/
+          echo "tar czf pub_package.pub.tgz"
+          tar czf pub_package.pub.tgz -C json_annotation-3.1.1 .
+          rm -rf json_annotation-3.1.1
+
