@@ -151,6 +151,7 @@ jobs:
             dart test -p vm
           else
             echo No tests to run.
+          fi
 
       - name: Upload test artifacts for json_annotation-3.1.1
         uses: actions/upload-artifact@v4
@@ -198,6 +199,7 @@ jobs:
       - name: Runs Dart analysis and unit tests
         run: |
           cd json_serializable-3.5.2
+          dart pub get json_annotation_3_1_1 ^5.3.0 --hosted-url https://pub.workiva.org
           dart pub get
           cp pubspec.lock -r ../artifacts/
           dart analyze
@@ -206,5 +208,5 @@ jobs:
       - name: Upload test artifacts for json_annotation-3.1.1
         uses: actions/upload-artifact@v4
         with:
-            name: json_serializable-3.5.2-test-artifacts
-            path: artifacts/*
+          name: json_serializable-3.5.2-test-artifacts
+          path: artifacts/*
