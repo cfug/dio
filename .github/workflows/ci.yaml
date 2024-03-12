@@ -140,9 +140,11 @@ jobs:
         run: mkdir artifacts
       - name: Runs Dart analysis and unit tests
         run: |
+          ls
           cd json_annotation-3.1.1
+          ls
           dart pub get
-          cp -r pubspec.lock /artifacts/
+          cp -r pubspec.lock ../artifacts/
           dart analyze
           dart format --set-exit-if-changed .
           if [ -d ./test/ ]; then
@@ -175,7 +177,7 @@ jobs:
           echo -e '\ndependency_overrides:\n  json_annotation_3_1_1:\n    path: ../json_annotation-3.1.1' >> pubspec.yaml
           git diff pubspec.yaml
           dart pub get
-          cp pubspec.lock -r /artifacts/
+          cp pubspec.lock -r ../artifacts/
           dart analyze
           dart format --set-exit-if-changed .
           dart test -p vm
@@ -197,7 +199,7 @@ jobs:
         run: |
           cd json_serializable-3.5.2
           dart pub get
-          cp pubspec.lock -r /artifacts/
+          cp pubspec.lock -r ../artifacts/
           dart analyze
           dart format --set-exit-if-changed .
           dart test -p vm
