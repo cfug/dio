@@ -44,12 +44,12 @@ jobs:
         run: mkdir pub_temp
       - name: Generate tarball for dio
         run: |
-          cp dio/CHANGELOG.md pub_temp/
-          cp dio/LICENSE pub_temp/
-          cp dio/lib pub_temp/
-          cp dio/README.md pub_temp/
-          cp dio/analysis_options.yaml pub_temp/
-          cp dio/pubspec.yaml pub_temp/
+          cp -r dio/CHANGELOG.md pub_temp/
+          cp -r dio/LICENSE pub_temp/
+          cp -r dio/lib pub_temp/
+          cp -r dio/README.md pub_temp/
+          cp -r dio/analysis_options.yaml pub_temp/
+          cp -r dio/pubspec.yaml pub_temp/
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C pub_temp .
           rm -rf pub_temp
@@ -63,11 +63,11 @@ jobs:
         run: mkdir json_annotation
       - name: Generate tarball for json_annotation
         run: |
-          cp json_annotation-3.1.1/CHANGELOG.md json_annotation/
-          cp json_annotation-3.1.1/LICENSE json_annotation/
-          cp json_annotation-3.1.1/lib json_annotation/
-          cp json_annotation-3.1.1/README.md json_annotation/
-          cp json_annotation-3.1.1/pubspec.yaml json_annotation/
+          cp -r json_annotation-3.1.1/CHANGELOG.md json_annotation/
+          cp -r json_annotation-3.1.1/LICENSE json_annotation/
+          cp -r json_annotation-3.1.1/lib json_annotation/
+          cp -r json_annotation-3.1.1/README.md json_annotation/
+          cp -r json_annotation-3.1.1/pubspec.yaml json_annotation/
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C json_annotation .
           rm -rf json_annotation
@@ -81,14 +81,14 @@ jobs:
         run: mkdir json_serializable
       - name: Generate tarball for json_serializable-3.5.2
         run: |
-          cp json_serializable-3.5.2/example json_serializable/
-          cp json_serializable-3.5.2/lib json_serializable/
-          cp json_serializable-3.5.2/CHANGELOG.md json_serializable/
-          cp json_serializable-3.5.2/LICENSE json_serializable/
-          cp json_serializable-3.5.2/lib json_serializable/
-          cp json_serializable-3.5.2/README.md json_serializable/
-          cp json_serializable-3.5.2/build.yaml json_serializable/
-          cp json_serializable-3.5.2/pubspec.yaml json_serializable/
+          cp -r json_serializable-3.5.2/example json_serializable/
+          cp -r json_serializable-3.5.2/lib json_serializable/
+          cp -r json_serializable-3.5.2/CHANGELOG.md json_serializable/
+          cp -r json_serializable-3.5.2/LICENSE json_serializable/
+          cp -r json_serializable-3.5.2/lib json_serializable/
+          cp -r json_serializable-3.5.2/README.md json_serializable/
+          cp -r json_serializable-3.5.2/build.yaml json_serializable/
+          cp -r json_serializable-3.5.2/pubspec.yaml json_serializable/
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C json_serializable .
           rm -rf json_serializable
