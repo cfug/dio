@@ -51,7 +51,6 @@ jobs:
           cp dio/LICENSE pub_temp/
           cp dio/README.md pub_temp/
           cp dio/analysis_options.yaml pub_temp/
-          cp dio/build.yaml pub_temp/
           cp dio/pubspec.yaml pub_temp/
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C pub_temp .
