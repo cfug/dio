@@ -71,12 +71,7 @@ jobs:
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C json_annotation .
           rm -rf json_annotation
-
-      - name: Install dependencies
-        run: |
-          cd json_serializable-3.5.2
-          dart pub get
-          cd ..
+          
       - name: Make directory for json_serializable
         run: mkdir json_serializable
       - name: Generate tarball for json_serializable-3.5.2
