@@ -96,10 +96,62 @@ jobs:
         with:
           name: json_annotation-3.1.1-artifact
           path: pub_temp/*
-          
+
       - name: Upload artifacts for json_serializable-3.5.2
         uses: actions/upload-artifact@v4
         with:
           name: json_serializable-3.5.2-artifact
           path: pub_temp/*
+  dio_quality_checks:
+    name: Run Dio Quality Checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [2.19.6]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1.6.2
+        with:
+          sdk: ${{ matrix.sdk }}
+      - name: Runs Dart analysis and unit tests
+        run: |
+          cd dio
+          dart pub get
+          dart analyze
+          cd ..
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+          cd dio
+          dart test -p vm
+  json_annotation_quality_checks:
+    name: Run Json Annotation Quality Checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [2.19.6]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1.6.2
+        with:
+          sdk: ${{ matrix.sdk }}
+      - name: Make directory
+        run: mkdir artifacts
+      - name: Runs Dart analysis and unit tests
+        run: |
+          cd json_annotation-3.1.1
+          dart pub get
+          cp pubspec.lock /artifacts/
+          dart analyze
+          dart format --set-exit-if-changed .
+          if [ -d ./test/ ]; then
+            dart test -p vm
+          else
+            echo No tests to run.
 
+      - name: Upload test artifacts for json_annotation-3.1.1
+        uses: actions/upload-artifact@v4
+        with:
+          name: json_annotation-3.1.1-test-artifacts
+          path: artifacts/*
