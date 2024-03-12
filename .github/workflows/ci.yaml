@@ -50,8 +50,6 @@ jobs:
       - name: Generate tarball
         working-directory: ./dio
         run: |
-          cp -R -L example pub_temp/example
-          cp -R -L lib pub_temp/lib
           cp CHANGELOG.md pub_temp/
           cp LICENSE pub_temp/
           cp README.md pub_temp/
