@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd pub_temp
+          cd dio
           dart pub get
           cd ..
       - name: Make directory
