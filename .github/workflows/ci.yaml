@@ -15,18 +15,29 @@ permissions:
   id-token: write
 
 jobs:
-    build-image:
-        name: Build Image
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: dart-lang/setup-dart@v1.6.2
-            - name: Install tools
-              run: |
-                  sudo apt-get update -qq && \
-                  sudo apt-get dist-upgrade -y && \
-                  sudo apt-get install -y jq && \
-                  sudo apt-get autoremove -y && \
-                  sudo apt-get clean all
+  build-image:
+    name: Build Image
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [2.18.7, 2.19.6]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1.6.2
+        with:
+          sdk: ${{ matrix.sdk }}
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq && \
+          sudo apt-get dist-upgrade -y && \
+          sudo apt-get install -y jq && \
+          sudo apt-get autoremove -y && \
+          sudo apt-get clean all
 
-
+      - name: Install dependencies
+        run: |
+          pwd
+          ls -alsh
+          cd dio
+          dart pub get
