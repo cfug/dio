@@ -42,10 +42,14 @@ jobs:
           cd dio
           dart pub get
           cd ..
-      - name: Generate tarball
+      - name: Make directory
         run: |
           mkdir pub_temp
-          cp -R -L bin pub_temp/bin
+          mkdir pub_temp/example
+          mkdir pub_temp/lib
+      - name: Generate tarball
+        working-directory: ./dio
+        run: |
           cp -R -L example pub_temp/example
           cp -R -L lib pub_temp/lib
           cp CHANGELOG.md pub_temp/
