@@ -45,6 +45,9 @@ jobs:
       - name: Generate tarball
         run: |
           mkdir pub_temp
+          mkdir pub_temp/bin
+          mkdir pub_temp/example
+          mkdir pub_temp/lib
           cp -R -L bin pub_temp/bin
           cp -R -L example pub_temp/example
           cp -R -L lib pub_temp/lib
