@@ -20,12 +20,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            - uses: Workiva/gha-setup-credentials@v2.0.1
-            - name: Build Image
-              run: docker build . --file Dockerfile --tag w_dio
-            - name: Publish Image
-              uses: Workiva/gha-docker-push@v3.0.0
-              with:
-                local-tag: w_dio
+            - uses: dart-lang/setup-dart@v1.6.2
+            - name: Install tools
+              run: |
+                  sudo apt-get update -qq && \
+                  sudo apt-get dist-upgrade -y && \
+                  sudo apt-get install -y jq && \
+                  sudo apt-get autoremove -y && \
+                  sudo apt-get clean all
 
 
