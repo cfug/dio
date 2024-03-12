@@ -37,37 +37,37 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd dio
+          cd pub_temp
           dart pub get
           cd ..
       - name: Make directory
-        run: mkdir dio
+        run: mkdir pub_temp
       - name: Generate tarball
         run: |
-          cp dio/CHANGELOG.md dio/
-          cp dio/LICENSE dio/
-          cp dio/lib dio/
-          cp dio/README.md dio/
-          cp dio/analysis_options.yaml dio/
-          cp dio/pubspec.yaml dio/
+          cp pub_temp/CHANGELOG.md pub_temp/
+          cp pub_temp/LICENSE pub_temp/
+          cp pub_temp/lib pub_temp/
+          cp pub_temp/README.md pub_temp/
+          cp pub_temp/analysis_options.yaml pub_temp/
+          cp pub_temp/pubspec.yaml pub_temp/
           echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C dio .
-          rm -rf dio
+          tar czf pub_package.pub.tgz -C pub_temp .
+          rm -rf pub_temp
       - name: Install dependencies
         run: |
           cd json_annotation-3.1.1
           dart pub get
           cd ..
       - name: Make directory
-        run: mkdir json_annotation-3.1.1
-      - name: Generate tarball for json_annotation-3.1.1
+        run: mkdir json_annotation
+      - name: Generate tarball for json_annotation
         run: |
-          cp json_annotation-3.1.1/CHANGELOG.md json_annotation-3.1.1/
-          cp json_annotation-3.1.1/LICENSE json_annotation-3.1.1/
-          cp json_annotation-3.1.1/lib json_annotation-3.1.1/
-          cp json_annotation-3.1.1/README.md json_annotation-3.1.1/
-          cp json_annotation-3.1.1/pubspec.yaml json_annotation-3.1.1/
+          cp json_annotation/CHANGELOG.md json_annotation/
+          cp json_annotation/LICENSE json_annotation/
+          cp json_annotation/lib json_annotation/
+          cp json_annotation/README.md json_annotation/
+          cp json_annotation/pubspec.yaml json_annotation/
           echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C json_annotation-3.1.1 .
-          rm -rf json_annotation-3.1.1
+          tar czf pub_package.pub.tgz -C json_annotation .
+          rm -rf json_annotation
 
