@@ -51,8 +51,7 @@ jobs:
           cp -r dio/analysis_options.yaml pub_temp/
           cp -r dio/pubspec.yaml pub_temp/
           echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C pub_temp .
-          rm -rf pub_temp
+          tar czf pub_package.pub.tgz -C pub_temp
 
       - name: Install dependencies
         run: |
@@ -69,9 +68,8 @@ jobs:
           cp -r json_annotation-3.1.1/README.md json_annotation/
           cp -r json_annotation-3.1.1/pubspec.yaml json_annotation/
           echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C json_annotation .
-          rm -rf json_annotation
-          
+          tar czf pub_package.pub.tgz -C json_annotation
+
       - name: Make directory for json_serializable
         run: mkdir json_serializable
       - name: Generate tarball for json_serializable-3.5.2
@@ -85,5 +83,12 @@ jobs:
           cp -r json_serializable-3.5.2/build.yaml json_serializable/
           cp -r json_serializable-3.5.2/pubspec.yaml json_serializable/
           echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C json_serializable .
-          rm -rf json_serializable
+          tar czf pub_package.pub.tgz -C json_serializable
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            pub_temp/*
+            json_annotation/*
+            json_serializable/*
