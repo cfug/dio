@@ -182,31 +182,3 @@ jobs:
           dart analyze
           dart format --set-exit-if-changed .
           dart test -p vm
-  json_serializable_quality_checks:
-    name: Runs Dart analysis and unit tests
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        sdk: [2.19.6]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1.6.2
-        with:
-          sdk: ${{ matrix.sdk }}
-      - name: Make directory
-        run: mkdir artifacts
-      - name: Runs Dart analysis and unit tests
-        run: |
-          dart pub token add https://pub.workiva.org
-          cd json_serializable-3.5.2
-          dart pub get
-          cp pubspec.lock -r ../artifacts/
-          dart analyze
-          dart format --set-exit-if-changed .
-          dart test -p vm
-      - name: Upload test artifacts for json_annotation-3.1.1
-        uses: actions/upload-artifact@v4
-        with:
-          name: json_serializable-3.5.2-test-artifacts
-          path: artifacts/*
