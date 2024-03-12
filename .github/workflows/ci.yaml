@@ -45,17 +45,14 @@ jobs:
       - name: Make directory
         run: |
           mkdir pub_temp
-          mkdir pub_temp/example
-          mkdir pub_temp/lib
       - name: Generate tarball
-        working-directory: ./dio
         run: |
-          cp CHANGELOG.md pub_temp/
-          cp LICENSE pub_temp/
-          cp README.md pub_temp/
-          cp analysis_options.yaml pub_temp/
-          cp build.yaml pub_temp/
-          cp pubspec.yaml pub_temp/
+          cp dio/CHANGELOG.md pub_temp/
+          cp dio/LICENSE pub_temp/
+          cp dio/README.md pub_temp/
+          cp dio/analysis_options.yaml pub_temp/
+          cp dio/build.yaml pub_temp/
+          cp dio/pubspec.yaml pub_temp/
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C pub_temp .
           rm -rf pub_temp
