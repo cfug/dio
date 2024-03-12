@@ -198,6 +198,7 @@ jobs:
         run: mkdir artifacts
       - name: Runs Dart analysis and unit tests
         run: |
+          dart pub token add https://pub.workiva.org
           cd json_serializable-3.5.2
           dart pub get
           cp pubspec.lock -r ../artifacts/
