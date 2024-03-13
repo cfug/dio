@@ -6,6 +6,10 @@ import 'package:melos/melos.dart'
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
+/// Writes a `.melos_packages` file to the root of the workspace with the
+/// packages that are compatible with the current Dart SDK version.
+/// This is useful for CI scripts that need to know which packages to run
+/// melos for ny using the `MELOS_PACKAGES` environment variable.
 void main() async {
   final root =
       Platform.environment['MELOS_ROOT_PATH'] ?? Directory.current.path;
@@ -23,14 +27,13 @@ void main() async {
   final current = Version.parse(
     RegExp(r'\d*\.\d*\.\d*').firstMatch(Platform.version)!.group(0)!,
   );
-  final ignoredPackages = packages
-      .where((e) => !e.pubSpec.environment!.sdkConstraint!.allows(current))
-      .map((e) => e.name);
-  final content = StringBuffer('IGNORED_PACKAGES=');
-  if (ignoredPackages.isNotEmpty) {
-    content.write(ignoredPackages.map((e) => '--ignore="$e"').join(' '));
-  }
-  File('$root/.melos_ignored_packages').writeAsStringSync(content.toString());
+  final String validPackages = packages
+      .where((e) => e.pubSpec.environment!.sdkConstraint!.allows(current))
+      .map((e) => e.name)
+      .join(',');
+
+  File('$root/.melos_packages')
+      .writeAsStringSync('MELOS_PACKAGES=$validPackages');
 }
 
 extension YamlUtils on YamlNode {
