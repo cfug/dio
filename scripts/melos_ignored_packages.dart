@@ -26,10 +26,11 @@ void main() async {
   final ignoredPackages = packages
       .where((e) => !e.pubSpec.environment!.sdkConstraint!.allows(current))
       .map((e) => e.name);
-  File('$root/.melos_ignored_packages').writeAsStringSync(
-    'IGNORED_PACKAGES='
-    "'${ignoredPackages.map((e) => '--ignore="$e"').join(' ')}'",
-  );
+  final content = StringBuffer('IGNORED_PACKAGES=');
+  if (ignoredPackages.isNotEmpty) {
+    content.write(ignoredPackages.map((e) => '--ignore="$e"').join(' '));
+  }
+  File('$root/.melos_ignored_packages').writeAsStringSync(content.toString());
 }
 
 extension YamlUtils on YamlNode {
