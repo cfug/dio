@@ -37,6 +37,8 @@ jobs:
       - run: |
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh
+      - name: Install proxy for tests
+        run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
       - uses: bluefireteam/melos-action@v3
         with:
