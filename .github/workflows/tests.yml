@@ -14,6 +14,11 @@ on:
     paths-ignore:
       - "**.md"
 
+# Ensure that new pushes/updates cancel running jobs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash -leo pipefail {0}
