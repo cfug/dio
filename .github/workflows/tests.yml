@@ -53,7 +53,9 @@ jobs:
           dart ./scripts/melos_ignored_packages.dart
           echo $(cat .melos_ignored_packages) >> $GITHUB_ENV
       - name: Melos Bootstrap
-        run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
+        run: melos bootstrap $IGNORED_PACKAGES
+        env:
+          IGNORED_PACKAGES: ${{ env.IGNORED_PACKAGES }}
       - name: '[Verify step] Format'
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run format --no-select
@@ -62,19 +64,27 @@ jobs:
         run: melos run analyze --no-select
       - name: '[Verify step] Publish dry-run'
         if: ${{ matrix.sdk == 'stable' }}
-        run: melos run publish-dry-run --no-select $(eval echo $IGNORED_PACKAGES)
-      - name: '[Verify step] Test Dart packages [VM]'
-        run: melos run test:dart --no-select $(eval echo $IGNORED_PACKAGES)
-      - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos run test:web --no-select $(eval echo $IGNORED_PACKAGES)
+        run: melos run publish-dry-run --no-select $IGNORED_PACKAGES
         env:
+          IGNORED_PACKAGES: ${{ env.IGNORED_PACKAGES }}
+      - name: '[Verify step] Test Dart packages [VM]'
+        run: melos run test:dart --no-select $IGNORED_PACKAGES
+        env:
+          IGNORED_PACKAGES: ${{ env.IGNORED_PACKAGES }}
+      - name: '[Verify step] Test Dart packages [Chrome]'
+        run: melos run test:web --no-select $IGNORED_PACKAGES
+        env:
+          IGNORED_PACKAGES: ${{ env.IGNORED_PACKAGES }}
           TEST_PLATFORM: chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos run test:web --no-select $(eval echo $IGNORED_PACKAGES)
+        run: melos run test:web --no-select $IGNORED_PACKAGES
         env:
+          IGNORED_PACKAGES: ${{ env.IGNORED_PACKAGES }}
           TEST_PLATFORM: firefox
       - name: '[Verify step] Test Flutter packages'
-        run: melos run test:flutter --no-select $(eval echo $IGNORED_PACKAGES)
+        run: melos run test:flutter --no-select $IGNORED_PACKAGES
+        env:
+          IGNORED_PACKAGES: ${{ env.IGNORED_PACKAGES }}
       - name: '[Verify step] Format & print test coverage'
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run coverage:show
