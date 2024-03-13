@@ -16,3 +16,86 @@ ide:
 command:
   bootstrap:
     runPubGetInParallel: false
+    hooks:
+      post: |
+        dart pub global activate coverage
+        dart pub global activate combine_coverage
+        dart pub global activate cobertura
+  clean:
+    hooks:
+      post: |
+        # Clean all flutter projects
+        melos exec --flutter -- "flutter clean"
+        # Clean coverage files
+        rm -rf coverage
+        melos exec --dir-exists coverage -- "rm -rf coverage"
+
+scripts:
+  analyze:
+    description: Analyze all packages
+    exec: dart analyze --fatal-infos
+  format:
+    description: Format check all packages
+    exec: dart format --set-exit-if-changed .
+  format:fix:
+    description: Format all packages
+    exec: dart format .
+  publish-dry-run:
+    description: Publish dry-run all packages
+    exec: dart pub publish --dry-run
+    ignore:
+      - 'dio_test'
+      - '*example*'
+  test:
+    name: All tests
+    run: |
+      melos run test:dart --no-select
+      TEST_PLATFORM=chrome melos run test:web --no-select
+      TEST_PLATFORM=firefox melos run test:web --no-select
+      melos run test:flutter --no-select
+  test:dart:
+    name: Dart VM tests
+    exec: dart test --preset ${TEST_PRESET:-default} --coverage coverage/vm --chain-stack-traces
+    packageFilters:
+      flutter: false
+      dirExists: test
+  test:web:
+    name: Dart Web tests
+    exec: dart test --platform ${TEST_PLATFORM:-chrome} --coverage coverage/${TEST_PLATFORM:-chrome} --preset ${TEST_PRESET:-default} --chain-stack-traces
+    packageFilters:
+      flutter: false
+      dirExists: test
+      ignore:
+        - '*http2*'
+        - '*cookie*'
+  test:flutter:
+    name: Flutter tests
+    exec: flutter test
+    packageFilters:
+      flutter: true
+      dirExists: test
+  test:coverage:
+    name: Run all tests and display coverage
+    run: |
+      melos run test
+      melos run coverage:format --no-select
+      melos run coverage:show
+  coverage:format:
+    name: Format coverage
+    exec: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+    concurrency: 1
+    packageFilters:
+      flutter: false
+      dirExists: coverage
+  coverage:combine:
+    name: Combine & convert coverage report
+    run: |
+      rm -rf coverage
+      melos run coverage:format --no-select
+      dart pub global run combine_coverage --repo-path=$pwd
+      dart pub global run cobertura convert --pubspec dio/pubspec.yaml
+  coverage:show:
+    name: Show coverage report
+    run: |
+      melos run coverage:combine
+      dart pub global run cobertura show
