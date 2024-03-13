@@ -46,8 +46,8 @@ jobs:
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_ignored_packages.dart
-          IGNORED_PACKAGES=$(cat .melos_ignored_packages)
-          echo "IGNORED_PACKAGES=$IGNORED_PACKAGES" >> $GITHUB_ENV
+          IGNORED=$(cat .melos_ignored_packages)
+          echo "IGNORED_PACKAGES=$IGNORED" >> $GITHUB_ENV
       - name: Bootstrap
         run: melos bootstrap $IGNORED_PACKAGES
       - name: '[Verify step] Format'
