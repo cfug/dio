@@ -55,6 +55,11 @@ scripts:
     packageFilters:
       flutter: false
       dirExists: test
+      # dirExists doesn't seem to be supported in the min SDK version,
+      # so we have to use the ignore filter instead for now.
+      ignore:
+        - '*example*'
+        - 'dio_test'
   test:web:
     name: Dart Web tests
     exec: dart test --platform ${TEST_PLATFORM:-chrome} --coverage coverage/${TEST_PLATFORM:-chrome} --preset ${TEST_PRESET:-default} --chain-stack-traces
@@ -64,12 +69,18 @@ scripts:
       ignore:
         - '*http2*'
         - '*cookie*'
+        # dirExists doesn't seem to be supported in the min SDK version,
+        # so we have to use the ignore filter instead for now.
+        - '*example*'
+        - 'dio_test'
   test:flutter:
     name: Flutter tests
     exec: flutter test
     packageFilters:
       flutter: true
       dirExists: test
+      ignore:
+        - '*example*'
   test:coverage:
     name: Run all tests and display coverage
     run: |
