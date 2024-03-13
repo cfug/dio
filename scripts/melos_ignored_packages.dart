@@ -28,7 +28,7 @@ void main() async {
       .map((e) => e.name);
   final content = StringBuffer('IGNORED_PACKAGES=');
   if (ignoredPackages.isNotEmpty) {
-    content.write(ignoredPackages.map((e) => '--ignore="$e"').join(' '));
+    content.write("'${ignoredPackages.map((e) => '--ignore="$e"').join(' ')}'");
   }
   File('$root/.melos_ignored_packages').writeAsStringSync(content.toString());
 }

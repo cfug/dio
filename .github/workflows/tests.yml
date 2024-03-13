@@ -45,7 +45,7 @@ jobs:
         run: |
           dart ./scripts/melos_ignored_packages.dart
           echo $(cat .melos_ignored_packages) >> $GITHUB_ENV
-      - name: Bootstrap
+      - name: Melos Bootstrap
         run: melos bootstrap $IGNORED_PACKAGES
       - name: '[Verify step] Format'
         if: ${{ matrix.sdk == 'stable' }}
