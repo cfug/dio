@@ -16,11 +16,6 @@ ide:
 command:
   bootstrap:
     runPubGetInParallel: false
-    hooks:
-      post: |
-        dart pub global activate coverage
-        dart pub global activate combine_coverage
-        dart pub global activate cobertura
   clean:
     hooks:
       post: |
@@ -51,8 +46,8 @@ scripts:
     name: All tests
     run: |
       melos run test:dart --no-select
-      TEST_PLATFORM=chrome melos run test:web --no-select
-      TEST_PLATFORM=firefox melos run test:web --no-select
+      TEST_PLATFORM=chrome melos run test:web
+      TEST_PLATFORM=firefox melos run test:web
       melos run test:flutter --no-select
   test:dart:
     name: Dart VM tests
@@ -79,12 +74,16 @@ scripts:
     name: Run all tests and display coverage
     run: |
       melos run test
-      melos run coverage:format --no-select
+      melos run coverage:format
       melos run coverage:show
   coverage:format:
     name: Format coverage
+    run: |
+      dart pub global activate coverage
+      melos run coverage:format:package
+  coverage:format:package:
+    name: Format coverage for each package
     exec: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
-    concurrency: 1
     packageFilters:
       flutter: false
       dirExists: coverage
@@ -92,7 +91,9 @@ scripts:
     name: Combine & convert coverage report
     run: |
       rm -rf coverage
-      melos run coverage:format --no-select
+      dart pub global activate combine_coverage
+      dart pub global activate cobertura
+      melos run coverage:format
       dart pub global run combine_coverage --repo-path=$pwd
       dart pub global run cobertura convert --pubspec dio/pubspec.yaml
   coverage:show:
