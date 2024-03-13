@@ -43,8 +43,6 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
-      - name: Patching files for Flutter ${{ matrix.sdk }}
-        run: dart ./scripts/files_patch.dart
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_ignored_packages.dart
@@ -53,10 +51,13 @@ jobs:
       - name: Bootstrap
         run: melos bootstrap $IGNORED_PACKAGES
       - name: '[Verify step] Format'
-        run: melos run format --no-select $IGNORED_PACKAGES
+        if: ${{ matrix.sdk == 'stable' }}
+        run: melos run format --no-select
       - name: '[Verify step] Analyze packages'
-        run: melos run analyze --no-select $IGNORED_PACKAGES
+        if: ${{ matrix.sdk == 'stable' }}
+        run: melos run analyze --no-select
       - name: '[Verify step] Publish dry-run'
+        if: ${{ matrix.sdk == 'stable' }}
         run: melos run publish-dry-run --no-select $IGNORED_PACKAGES
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos run test:dart --no-select $IGNORED_PACKAGES
