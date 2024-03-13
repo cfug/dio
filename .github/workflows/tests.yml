@@ -51,7 +51,7 @@ jobs:
           IGNORED_PACKAGES=$(cat .melos_ignored_packages)
           echo "IGNORED_PACKAGES=$IGNORED_PACKAGES" >> $GITHUB_ENV
       - name: Bootstrap
-        run: melos bootstrap --no-select $IGNORED_PACKAGES
+        run: melos bootstrap $IGNORED_PACKAGES
       - name: '[Verify step] Format'
         run: melos run format --no-select $IGNORED_PACKAGES
       - name: '[Verify step] Analyze packages'
