@@ -43,9 +43,10 @@ scripts:
   publish-dry-run:
     description: Publish dry-run all packages
     exec: dart pub publish --dry-run
-    ignore:
-      - 'dio_test'
-      - '*example*'
+    packageFilters:
+      ignore:
+        - 'dio_test'
+        - '*example*'
   test:
     name: All tests
     run: |
