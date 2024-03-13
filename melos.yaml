@@ -80,7 +80,7 @@ scripts:
         - '*cookie*'
   test:flutter:
     name: Flutter tests
-    exec: flutter test
+    exec: flutter test --coverage
     packageFilters:
       flutter: true
       dirExists: test

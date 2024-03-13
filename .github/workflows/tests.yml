@@ -56,25 +56,25 @@ jobs:
         run: melos bootstrap
       - name: '[Verify step] Format'
         if: ${{ matrix.sdk == 'stable' }}
-        run: melos run format --no-select
+        run: melos run format
       - name: '[Verify step] Analyze packages'
         if: ${{ matrix.sdk == 'stable' }}
-        run: melos run analyze --no-select
+        run: melos run analyze
       - name: '[Verify step] Publish dry-run'
         if: ${{ matrix.sdk == 'stable' }}
-        run: melos run publish-dry-run --no-select
+        run: melos run publish-dry-run
       - name: '[Verify step] Test Dart packages [VM]'
-        run: melos run test:dart --no-select
+        run: melos run test:dart
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos run test:web --no-select
+        run: melos run test:web
         env:
           TEST_PLATFORM: chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos run test:web --no-select
+        run: melos run test:web
         env:
           TEST_PLATFORM: firefox
       - name: '[Verify step] Test Flutter packages'
-        run: melos run test:flutter --no-select
+        run: melos run test:flutter
       - name: '[Coverage] Format & print test coverage'
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run coverage:show
