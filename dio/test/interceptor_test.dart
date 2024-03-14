@@ -324,7 +324,7 @@ void main() {
       const errorMsg = 'interceptor error';
 
       dio.interceptors.add(InterceptorsWrapper(
-        onResponse: (response, handler) {
+        onRequest: (response, handler) {
           throw UnsupportedError(errorMsg);
         },
       ));
