@@ -325,7 +325,7 @@ void main() {
 
       dio.interceptors.add(InterceptorsWrapper(
         onResponse: (response, handler) {
-          throw UnsupportedError('interceptor error');
+          throw UnsupportedError(errorMsg);
         },
       ));
 
