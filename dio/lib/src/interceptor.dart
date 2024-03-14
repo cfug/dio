@@ -207,7 +207,7 @@ class Interceptor {
 }
 
 /// The signature of [Interceptor.onRequest].
-typedef InterceptorSendCallback = void Function(
+typedef InterceptorSendCallback = FutureOr<void> Function(
   RequestOptions options,
   RequestInterceptorHandler handler,
 );
