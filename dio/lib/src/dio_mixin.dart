@@ -384,7 +384,11 @@ abstract class DioMixin implements Dio {
             requestOptions.cancelToken,
             Future(() async {
               final requestHandler = RequestInterceptorHandler();
-              await interceptor(state.data as RequestOptions, requestHandler);
+              final res =
+                  interceptor(state.data as RequestOptions, requestHandler);
+              if (res is Future) {
+                await res;
+              }
               return requestHandler.future;
             }),
           );
