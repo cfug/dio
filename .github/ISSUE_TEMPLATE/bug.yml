@@ -48,6 +48,19 @@ body:
         - Windows
     validations:
       required: true
+  - type: dropdown
+    id: adapter
+    attributes:
+      label: Adapter
+      description: Which adapter(s) are used?
+      multiple: true
+      options:
+        - Default Dio
+        - NativeAdapter
+        - Http2Adapter
+        - ConversionLayerAdapter
+    validations:
+      required: true
   - type: textarea
     id: flutter_info
     attributes:
