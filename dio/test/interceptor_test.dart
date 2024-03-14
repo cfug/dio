@@ -318,6 +318,29 @@ void main() {
       expect(response.data['errCode'], 0);
     });
 
+    test('throw error on request', () async {
+      final dio = Dio();
+
+      const errorMsg = 'interceptor error';
+
+      dio.interceptors.add(InterceptorsWrapper(
+        onResponse: (response, handler) {
+          throw UnsupportedError('interceptor error');
+        },
+      ));
+
+      expect(
+        dio.get('https://www.cloudflare.com'),
+        throwsA(
+          isA<DioException>().having(
+              (dioException) => dioException.error,
+              'Exception',
+              isA<UnsupportedError>()
+                  .having((p0) => p0.message, 'message', errorMsg)),
+        ),
+      );
+    });
+
     group(ImplyContentTypeInterceptor, () {
       Dio createDio() {
         final dio = Dio();
