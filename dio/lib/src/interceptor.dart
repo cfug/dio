@@ -213,13 +213,13 @@ typedef InterceptorSendCallback = FutureOr<void> Function(
 );
 
 /// The signature of [Interceptor.onResponse].
-typedef InterceptorSuccessCallback = void Function(
+typedef InterceptorSuccessCallback = FutureOr<void> Function(
   Response<dynamic> response,
   ResponseInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onError].
-typedef InterceptorErrorCallback = void Function(
+typedef InterceptorErrorCallback = FutureOr<void> Function(
   DioException error,
   ErrorInterceptorHandler handler,
 );

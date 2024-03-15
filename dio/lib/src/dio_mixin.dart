@@ -375,7 +375,7 @@ abstract class DioMixin implements Dio {
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr Function(dynamic) requestInterceptorWrapper(
-      InterceptorSendCallback interceptor,
+      InterceptorSendCallback cb,
     ) {
       return (dynamic incomingState) async {
         final state = incomingState as InterceptorState;
@@ -383,25 +383,23 @@ abstract class DioMixin implements Dio {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() async {
-              final requestHandler = RequestInterceptorHandler();
-              final res =
-                  interceptor(state.data as RequestOptions, requestHandler);
-              if (res is Future) {
-                await res;
+              final handler = RequestInterceptorHandler();
+              final callback = cb(state.data as RequestOptions, handler);
+              if (callback is Future) {
+                await callback;
               }
-              return requestHandler.future;
+              return handler.future;
             }),
           );
-        } else {
-          return state;
         }
+        return state;
       };
     }
 
     // Convert the response interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic) responseInterceptorWrapper(
-      InterceptorSuccessCallback interceptor,
+      InterceptorSuccessCallback cb,
     ) {
       return (dynamic incomingState) async {
         final state = incomingState as InterceptorState;
@@ -409,10 +407,13 @@ abstract class DioMixin implements Dio {
             state.type == InterceptorResultType.resolveCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
-            Future(() {
-              final responseHandler = ResponseInterceptorHandler();
-              interceptor(state.data as Response, responseHandler);
-              return responseHandler.future;
+            Future(() async {
+              final handler = ResponseInterceptorHandler();
+              final callback = cb(state.data as Response, handler);
+              if (callback is Future) {
+                await callback;
+              }
+              return handler.future;
             }),
           );
         } else {
@@ -424,16 +425,19 @@ abstract class DioMixin implements Dio {
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
-      InterceptorErrorCallback interceptor,
+      InterceptorErrorCallback cb,
     ) {
       return (error) {
         final state = error is InterceptorState
             ? error
             : InterceptorState(assureDioException(error, requestOptions));
         Future<InterceptorState> handleError() async {
-          final errorHandler = ErrorInterceptorHandler();
-          interceptor(state.data, errorHandler);
-          return errorHandler.future;
+          final handler = ErrorInterceptorHandler();
+          final callback = cb(state.data, handler);
+          if (callback is Future) {
+            await callback;
+          }
+          return handler.future;
         }
 
         // The request has already been cancelled,
@@ -441,15 +445,15 @@ abstract class DioMixin implements Dio {
         if (state.data is DioException &&
             state.data.type == DioExceptionType.cancel) {
           return handleError();
-        } else if (state.type == InterceptorResultType.next ||
+        }
+        if (state.type == InterceptorResultType.next ||
             state.type == InterceptorResultType.rejectCallFollowing) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(handleError),
           );
-        } else {
-          throw error;
         }
+        throw error;
       };
     }
 
