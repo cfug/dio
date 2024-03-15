@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -17,7 +18,7 @@ void main() {
       test('update between calls', () async {
         final client = HttpClient();
         final dio = Dio()
-          ..options.baseUrl = 'https://httpbun.com'
+          ..options.baseUrl = nonRoutableUrl
           ..httpClientAdapter = IOHttpClientAdapter(
             createHttpClient: () => client,
           );
