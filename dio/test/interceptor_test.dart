@@ -318,25 +318,27 @@ void main() {
       expect(response.data['errCode'], 0);
     });
 
-    test('throw error on request', () async {
+    test('Caught exceptions before handler called', () async {
       final dio = Dio();
-
       const errorMsg = 'interceptor error';
-
-      dio.interceptors.add(InterceptorsWrapper(
-        onRequest: (response, handler) {
-          throw UnsupportedError(errorMsg);
-        },
-      ));
-
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          // TODO(EVERYONE): Remove the ignorance once we migrated to a higher version of Dart.
+          // ignore: void_checks
+          onRequest: (response, handler) {
+            throw UnsupportedError(errorMsg);
+          },
+        ),
+      );
       expect(
         dio.get('https://www.cloudflare.com'),
         throwsA(
           isA<DioException>().having(
-              (dioException) => dioException.error,
-              'Exception',
-              isA<UnsupportedError>()
-                  .having((p0) => p0.message, 'message', errorMsg)),
+            (dioException) => dioException.error,
+            'Exception',
+            isA<UnsupportedError>()
+                .having((e) => e.message, 'message', errorMsg),
+          ),
         ),
       );
     });
