@@ -49,13 +49,14 @@ void downloadStreamTests(
     test('cancels request', () async {
       final cancelToken = CancelToken();
 
-      Future.delayed(const Duration(milliseconds: 10), () {
+      Future.delayed(const Duration(milliseconds: 50), () {
         cancelToken.cancel();
       });
 
       await expectLater(
         dio.get(
-          '/bytes/10000',
+          '/drip',
+          queryParameters: {'duration': '5', 'delay': '0'},
           options: Options(responseType: ResponseType.stream),
           cancelToken: cancelToken,
         ),
@@ -76,8 +77,9 @@ void downloadStreamTests(
 
       await expectLater(
         dio.download(
-          '/bytes/5000',
+          '/drip',
           path,
+          queryParameters: {'duration': '5', 'delay': '0'},
           cancelToken: cancelToken,
         ),
         throwsDioException(
