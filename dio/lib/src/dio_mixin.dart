@@ -503,12 +503,13 @@ abstract class DioMixin implements Dio {
       future = future.catchError(errorInterceptorWrapper(fun));
     }
     // Normalize errors, converts errors to [DioException].
-    return future.then<Response<T>>((data) {
+    try {
+      final data = await future;
       return assureResponse<T>(
         data is InterceptorState ? data.data : data,
         requestOptions,
       );
-    }).catchError((Object e) {
+    } catch (e) {
       final isState = e is InterceptorState;
       if (isState) {
         if (e.type == InterceptorResultType.resolve) {
@@ -516,7 +517,7 @@ abstract class DioMixin implements Dio {
         }
       }
       throw assureDioException(isState ? e.data : e, requestOptions);
-    });
+    }
   }
 
   Future<Response<dynamic>> _dispatchRequest<T>(RequestOptions reqOpt) async {
