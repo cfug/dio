@@ -64,15 +64,11 @@ jobs:
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run publish-dry-run
       - name: '[Verify step] Test Dart packages [VM]'
-        run: melos run test:dart
+        run: melos run test:vm
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos run test:web
-        env:
-          TEST_PLATFORM: chrome
+        run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos run test:web
-        env:
-          TEST_PLATFORM: firefox
+        run: melos run test:web:firefox
       - name: '[Verify step] Test Flutter packages'
         run: melos run test:flutter
       - name: '[Coverage] Format & print test coverage'

@@ -44,11 +44,11 @@ scripts:
   test:
     name: All tests
     run: |
-      melos run test:dart
+      melos run test:vm
       TEST_PLATFORM=chrome melos run test:web
       TEST_PLATFORM=firefox melos run test:web
       melos run test:flutter
-  test:dart:
+  test:vm:
     name: Dart VM tests
     exec: dart test --preset ${TEST_PRESET:-default} --coverage coverage/vm --chain-stack-traces
     packageFilters:
@@ -63,7 +63,22 @@ scripts:
         - 'dio_http2_adapter'
   test:web:
     name: Dart Web tests
-    exec: dart test --platform ${TEST_PLATFORM:-chrome} --coverage coverage/${TEST_PLATFORM:-chrome} --preset ${TEST_PRESET:-default} --chain-stack-traces
+    run: |
+      melos run test:web:chrome
+      melos run test:web:firefox
+  test:web:chrome:
+    name: Dart Web tests in chrome
+    run: melos run test:web:single
+    env:
+      TEST_PLATFORM: chrome
+  test:web:firefox:
+    name: Dart Web tests in firefox
+    run: melos run test:web:single
+    env:
+      TEST_PLATFORM: firefox
+  test:web:single:
+    name: Dart Web tests in a browser
+    exec: dart test --platform ${TEST_PLATFORM} --coverage coverage/${TEST_PLATFORM} --preset ${TEST_PRESET:-default} --chain-stack-traces
     packageFilters:
       flutter: false
       dirExists: test

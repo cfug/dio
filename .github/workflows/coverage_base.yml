@@ -18,7 +18,7 @@ on:
       - main
 
 jobs:
-  cron:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,15 +34,11 @@ jobs:
       - run: dart pub get
       - uses: bluefireteam/melos-action@v3
       - name: '[Verify step] Test Dart packages [VM]'
-        run: melos run test:dart
+        run: melos run test:vm
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos run test:web
-        env:
-          TEST_PLATFORM: chrome
+        run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos run test:web
-        env:
-          TEST_PLATFORM: firefox
+        run: melos run test:web:firefox
       - name: '[Verify step] Test Flutter packages'
         run: melos run test:flutter
       - name: '[Coverage] Generate report'
