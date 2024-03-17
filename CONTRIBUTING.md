@@ -38,10 +38,7 @@ When requesting a new feature, please include the following information:
 
 > [!TIP]
 > Remember, the more information you provide, the easier it is for us to understand and address the issue. Thank you for your contributions!
-
-# Contributing Guidelines
-
-...
+> Please refrain from commenting on old, closed tickets. If an old issue seems related but doesn't fully address your problem, it's best to open a new ticket and reference the old one instead.
 
 ## Development
 
@@ -59,7 +56,7 @@ dart pub global activate melos
 After installing Melos, you can clone the repository and install the dependencies:
 
 ```bash
-git clone
+git clone https://github.com/cfug/dio.git
 cd dio
 melos bootstrap
 ```
