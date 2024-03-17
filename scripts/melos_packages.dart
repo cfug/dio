@@ -9,7 +9,7 @@ import 'package:yaml/yaml.dart';
 /// Writes a `.melos_packages` file to the root of the workspace with the
 /// packages that are compatible with the current Dart SDK version.
 /// This is useful for CI scripts that need to know which packages to run
-/// melos for ny using the `MELOS_PACKAGES` environment variable.
+/// melos for using the `MELOS_PACKAGES` environment variable.
 void main() async {
   final root =
       Platform.environment['MELOS_ROOT_PATH'] ?? Directory.current.path;
