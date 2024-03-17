@@ -26,6 +26,15 @@ abstract class _BaseHandler {
   Future<InterceptorState> get future => _completer.future;
 
   bool get isCompleted => _completer.isCompleted;
+
+  void _throwIfCompleted() {
+    if (_completer.isCompleted) {
+      throw StateError(
+        'The `handler` has already been called, '
+        'make sure each handler gets called only once.',
+      );
+    }
+  }
 }
 
 /// The handler for interceptors to handle before the request has been sent.
@@ -35,6 +44,7 @@ class RequestInterceptorHandler extends _BaseHandler {
   /// Typically, the method should be called once interceptors done
   /// manipulating the [requestOptions].
   void next(RequestOptions requestOptions) {
+    _throwIfCompleted();
     _completer.complete(InterceptorState<RequestOptions>(requestOptions));
     _processNextInQueue?.call();
   }
@@ -50,6 +60,7 @@ class RequestInterceptorHandler extends _BaseHandler {
     Response response, [
     bool callFollowingResponseInterceptor = false,
   ]) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -68,8 +79,11 @@ class RequestInterceptorHandler extends _BaseHandler {
   /// unless [callFollowingErrorInterceptor] is true
   /// which delivers [InterceptorResultType.rejectCallFollowing]
   /// to the [InterceptorState].
-  void reject(DioException error,
-      [bool callFollowingErrorInterceptor = false]) {
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(
         error,
@@ -90,6 +104,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
   /// Typically, the method should be called once interceptors done
   /// manipulating the [response].
   void next(Response response) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(response),
     );
@@ -98,6 +113,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
 
   /// Completes the request by resolves the [response] as the result.
   void resolve(Response response) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -114,8 +130,11 @@ class ResponseInterceptorHandler extends _BaseHandler {
   /// unless [callFollowingErrorInterceptor] is true
   /// which delivers [InterceptorResultType.rejectCallFollowing]
   /// to the [InterceptorState].
-  void reject(DioException error,
-      [bool callFollowingErrorInterceptor = false]) {
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(
         error,
@@ -136,6 +155,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
   /// Typically, the method should be called once interceptors done
   /// manipulating the [error].
   void next(DioException error) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(error),
       error.stackTrace,
@@ -145,6 +165,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
 
   /// Completes the request by resolves the [response] as the result.
   void resolve(Response response) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -156,6 +177,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
 
   /// Completes the request by reject with the [error] as the result.
   void reject(DioException error) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(error, InterceptorResultType.reject),
       error.stackTrace,
@@ -207,19 +229,19 @@ class Interceptor {
 }
 
 /// The signature of [Interceptor.onRequest].
-typedef InterceptorSendCallback = void Function(
+typedef InterceptorSendCallback = FutureOr<void> Function(
   RequestOptions options,
   RequestInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onResponse].
-typedef InterceptorSuccessCallback = void Function(
+typedef InterceptorSuccessCallback = FutureOr<void> Function(
   Response<dynamic> response,
   ResponseInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onError].
-typedef InterceptorErrorCallback = void Function(
+typedef InterceptorErrorCallback = FutureOr<void> Function(
   DioException error,
   ErrorInterceptorHandler handler,
 );
