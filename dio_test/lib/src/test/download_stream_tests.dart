@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -49,16 +50,24 @@ void downloadStreamTests(
     test('cancels request', () async {
       final cancelToken = CancelToken();
 
-      Future.delayed(const Duration(milliseconds: 10), () {
+      final res = await dio.get<ResponseBody>(
+        '/drip',
+        queryParameters: {'duration': '5', 'delay': '0'},
+        options: Options(responseType: ResponseType.stream),
+        cancelToken: cancelToken,
+      );
+
+      Future.delayed(const Duration(seconds: 2), () {
         cancelToken.cancel();
       });
 
+      final completer = Completer();
+      res.data!.stream.listen((event) {}, onError: (e, s) {
+        completer.completeError(e, s);
+      });
+
       await expectLater(
-        dio.get(
-          '/bytes/10000',
-          options: Options(responseType: ResponseType.stream),
-          cancelToken: cancelToken,
-        ),
+        completer.future,
         throwsDioException(
           DioExceptionType.cancel,
           stackTraceContains: 'test/download_stream_tests.dart',
@@ -76,8 +85,9 @@ void downloadStreamTests(
 
       await expectLater(
         dio.download(
-          '/bytes/5000',
+          '/drip',
           path,
+          queryParameters: {'duration': '5', 'delay': '0'},
           cancelToken: cancelToken,
         ),
         throwsDioException(
