@@ -17,6 +17,74 @@ class MyInterceptor extends Interceptor {
 }
 
 void main() {
+  test('Throws precise StateError for duplicate calls', () async {
+    const message = 'The `handler` has already been called, '
+        'make sure each handler gets called only once.';
+    final duplicateRequestCallsDio = Dio()
+      ..options.baseUrl = MockAdapter.mockBase
+      ..httpClientAdapter = MockAdapter()
+      ..interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.next(options);
+            handler.next(options);
+          },
+        ),
+      );
+    final duplicateResponseCalls = Dio()
+      ..options.baseUrl = MockAdapter.mockBase
+      ..httpClientAdapter = MockAdapter()
+      ..interceptors.add(
+        InterceptorsWrapper(
+          onResponse: (response, handler) {
+            handler.resolve(response);
+            handler.resolve(response);
+          },
+        ),
+      );
+    final duplicateErrorCalls = Dio()
+      ..options.baseUrl = MockAdapter.mockBase
+      ..httpClientAdapter = MockAdapter()
+      ..interceptors.add(
+        InterceptorsWrapper(
+          onError: (error, handler) {
+            handler.resolve(Response(requestOptions: error.requestOptions));
+            handler.resolve(Response(requestOptions: error.requestOptions));
+          },
+        ),
+      );
+    await expectLater(
+      duplicateRequestCallsDio.get('/test'),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (DioException e) => e.error is StateError,
+          (DioException e) => (e.error as StateError).message == message,
+        ]),
+      ),
+    );
+    await expectLater(
+      duplicateResponseCalls.get('/test'),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (DioException e) => e.error is StateError,
+          (DioException e) => (e.error as StateError).message == message,
+        ]),
+      ),
+    );
+    await expectLater(
+      duplicateErrorCalls.get('/'),
+      throwsA(
+        allOf([
+          isA<DioException>(),
+          (DioException e) => e.error is StateError,
+          (DioException e) => (e.error as StateError).message == message,
+        ]),
+      ),
+    );
+  });
+
   group('Request Interceptor', () {
     test('interceptor chain', () async {
       final dio = Dio();
@@ -318,6 +386,31 @@ void main() {
       expect(response.data['errCode'], 0);
     });
 
+    test('Caught exceptions before handler called', () async {
+      final dio = Dio();
+      const errorMsg = 'interceptor error';
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          // TODO(EVERYONE): Remove the ignorance once we migrated to a higher version of Dart.
+          // ignore: void_checks
+          onRequest: (response, handler) {
+            throw UnsupportedError(errorMsg);
+          },
+        ),
+      );
+      expect(
+        dio.get('https://www.cloudflare.com'),
+        throwsA(
+          isA<DioException>().having(
+            (dioException) => dioException.error,
+            'Exception',
+            isA<UnsupportedError>()
+                .having((e) => e.message, 'message', errorMsg),
+          ),
+        ),
+      );
+    });
+
     group(ImplyContentTypeInterceptor, () {
       Dio createDio() {
         final dio = Dio();
@@ -403,7 +496,7 @@ void main() {
     });
   });
 
-  group('response interceptor', () {
+  group('Response interceptor', () {
     Dio dio;
     test('Response Interceptor', () async {
       const urlNotFound = '/404/';

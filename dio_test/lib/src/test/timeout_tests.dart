@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:dio_test/src/matcher.dart';
 import 'package:test/test.dart';
 
+import '../utils.dart';
+
 void timeoutTests(
   Dio Function() create,
 ) {
@@ -15,10 +17,10 @@ void timeoutTests(
 
   group('Timeout exception of', () {
     group('connectTimeout', () {
-      test('with response', () async {
+      test('throws', () async {
         dio.options.connectTimeout = Duration(milliseconds: 3);
         await expectLater(
-          dio.get('/'),
+          dio.get(nonRoutableUrl),
           throwsDioException(
             DioExceptionType.connectionTimeout,
             messageContains: dio.options.connectTimeout.toString(),
@@ -98,7 +100,7 @@ void timeoutTests(
     );
     dio.options.connectTimeout = Duration(milliseconds: 10);
     await expectLater(
-      dio.get('/drip-lines?delay=1'),
+      dio.get(nonRoutableUrl),
       throwsDioException(
         DioExceptionType.connectionTimeout,
         messageContains: '0:00:00.010000',
