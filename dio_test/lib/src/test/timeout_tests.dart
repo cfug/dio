@@ -17,7 +17,7 @@ void timeoutTests(
 
   group('Timeout exception of', () {
     group('connectTimeout', () {
-      test('with response', () async {
+      test('throws', () async {
         dio.options.connectTimeout = Duration(milliseconds: 3);
         await expectLater(
           dio.get(nonRoutableUrl),
