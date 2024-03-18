@@ -1,5 +1,7 @@
 # Contributing Guidelines
 
+Language: English | [简体中文](CONTRIBUTING-ZH.md)
+
 First of all, thank you for considering contributing to the `dio` project! Open source projects like this one grow and thrive thanks to the contributions from people like you. Whether you're fixing bugs, adding new features, improving the documentation, or even reporting issues, every contribution is valuable and appreciated.
 
 This document provides some guidelines to help ensure that your contributions are as effective as possible. Please take a moment to read through these guidelines before submitting your contribution.
