@@ -33,3 +33,5 @@ build/
 
 # Project related.
 test/*_pinning.txt
+
+coverage

@@ -14,6 +14,11 @@ on:
     paths-ignore:
       - "**.md"
 
+# Ensure that new pushes/updates cancel running jobs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash -leo pipefail {0}
@@ -25,9 +30,11 @@ jobs:
       fail-fast: false
       matrix:
         sdk: [ min, stable, beta ]
+    env:
+      TEST_PRESET: all
     steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.8.0
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
           cache: true
           flutter-version: ${{ matrix.sdk == 'min' && '2.8.0' || '' }}
@@ -38,30 +45,38 @@ jobs:
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
-      - uses: bluefireteam/melos-action@v2
+      - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
-      - name: Patching files for Flutter ${{ matrix.sdk }}
-        run: dart ./scripts/files_patch.dart
       - name: Check satisfied packages
         run: |
-          dart ./scripts/melos_ignored_packages.dart
-          echo $(cat .melos_ignored_packages) >> ~/.bash_profile
-      - name: Bootstrap
-        run: melos bootstrap $(eval echo $IGNORED_PACKAGES)
+          dart ./scripts/melos_packages.dart
+          echo $(cat .melos_packages) >> $GITHUB_ENV
+      - name: Melos Bootstrap
+        run: melos bootstrap
       - name: '[Verify step] Format'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) -- "dart format --set-exit-if-changed ."
-      - name: '[Verify step] Analyze Dart packages'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --no-flutter -- "dart analyze --fatal-infos"
-      - name: '[Verify step] Analyze Flutter packages'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --flutter -- "flutter analyze --fatal-infos"
+        if: ${{ matrix.sdk == 'stable' }}
+        run: melos run format
+      - name: '[Verify step] Analyze packages'
+        if: ${{ matrix.sdk == 'stable' }}
+        run: melos run analyze
       - name: '[Verify step] Publish dry-run'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="dio_test" -- "dart pub publish --dry-run"
+        if: ${{ matrix.sdk == 'stable' }}
+        run: melos run publish-dry-run
       - name: '[Verify step] Test Dart packages [VM]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="dio_test" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=vm"
+        run: melos run test:vm
       - name: '[Verify step] Test Dart packages [Chrome]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --ignore="dio_test" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=chrome"
+        run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --ignore="*http2*" --ignore="dio_test" --no-flutter -- "MELOS_ROOT_PATH/scripts/dart_test.sh --platform=firefox"
+        run: melos run test:web:firefox
       - name: '[Verify step] Test Flutter packages'
-        run: melos exec $(eval echo $IGNORED_PACKAGES) --ignore="*example*" --flutter -- "flutter test"
+        run: melos run test:flutter
+      - name: '[Coverage] Format & print test coverage'
+        if: ${{ matrix.sdk == 'stable' }}
+        run: melos run coverage:show
+      - name: '[Coverage] Coverage Report'
+        uses: clearlyip/code-coverage-report-action@v4
+        if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
+        with:
+          artifact_download_workflow_names: 'tests,coverage_base'
+          filename: 'coverage/cobertura.xml'
