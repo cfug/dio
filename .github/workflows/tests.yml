@@ -78,5 +78,5 @@ jobs:
         uses: clearlyip/code-coverage-report-action@v4
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         with:
-          artifact_download_workflow_names: 'tests,coverage_base'
+          artifact_download_workflow_names: 'Verify packages abilities,coverage_baseline'
           filename: 'coverage/cobertura.xml'
