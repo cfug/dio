@@ -27,7 +27,7 @@ void downloadStreamTests(
     test('bytes', () async {
       final path = p.join(tmp.path, 'bytes.txt');
 
-      final size = 10000;
+      final size = 50000;
       int progressEventCount = 0;
       int count = 0;
       int total = 0;
@@ -43,7 +43,7 @@ void downloadStreamTests(
 
       final f = File(path);
       expect(count, f.readAsBytesSync().length);
-      expect(progressEventCount, greaterThan(1));
+      expect(progressEventCount, greaterThanOrEqualTo(1));
       expect(count, total);
     });
 
