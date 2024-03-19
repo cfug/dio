@@ -78,10 +78,12 @@ jobs:
             sharat87/httpbun
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
-      - name: Use local httpbun in tests
+      - name: Use httpbun.local for tests
         run: melos run httpbun:local
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos run test:vm
+      - name: Use httpbun.com for VM/Flutter tests
+        run: melos run httpbun:com
       - name: '[Verify step] Test Dart packages [Chrome]'
         run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
