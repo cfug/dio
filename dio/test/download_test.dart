@@ -178,7 +178,7 @@ void main() {
     expect(f.existsSync(), isTrue);
 
     final cancelToken = CancelToken();
-    final dio = Dio()..options.baseUrl = 'https://httpbun.com';
+    final dio = Dio()..options.baseUrl = httpbunBaseUrl;
 
     await expectLater(
       dio.download(

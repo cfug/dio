@@ -2,20 +2,19 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
-import '../../util.dart';
-
 void downloadStreamTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   group('download', () {
     late Dio dio;
     late Directory tmp;
 
     setUp(() {
-      dio = create();
+      dio = create(httpbunBaseUrl);
     });
 
     setUpAll(() {
@@ -24,6 +23,7 @@ void downloadStreamTests(
         tmp.deleteSync(recursive: true);
       });
     });
+
     test('bytes', () async {
       final path = p.join(tmp.path, 'bytes.txt');
 
@@ -103,7 +103,7 @@ void downloadStreamTests(
     test('cancels streamed response mid request', () async {
       final cancelToken = CancelToken();
       final response = await dio.get(
-        'bytes/${1024 * 1024 * 100}',
+        '/bytes/${1024 * 1024 * 100}',
         options: Options(responseType: ResponseType.stream),
         cancelToken: cancelToken,
         onReceiveProgress: (c, t) {
@@ -128,7 +128,7 @@ void downloadStreamTests(
 
       await expectLater(
         dio.download(
-          'bytes/${1024 * 1024 * 10}',
+          '/bytes/${1024 * 1024 * 10}',
           path,
           cancelToken: cancelToken,
           onReceiveProgress: (c, t) {

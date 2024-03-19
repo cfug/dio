@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('works with non-TLS requests', () async {
     final dio = Dio()..httpClientAdapter = Http2Adapter(ConnectionManager());
-    await dio.get('http://flutter.cn/');
+    await dio.get('https://flutter.cn/');
     await dio.get('https://flutter.cn/non-exist-destination');
   });
 
@@ -56,7 +57,7 @@ void main() {
 
   test('adds one to input values', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = httpbunBaseUrl
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
           idleTimeout: Duration(milliseconds: 10),
@@ -65,10 +66,10 @@ void main() {
       );
 
     Response<String> response;
-    response = await dio.get('get');
+    response = await dio.get('/get');
     assert(response.statusCode == 200);
     response = await dio.get(
-      'nkjnjknjn.html',
+      '/nkjnjknjn.html',
       options: Options(validateStatus: (status) => true),
     );
     assert(response.statusCode == 404);
@@ -76,14 +77,14 @@ void main() {
 
   test('request with payload', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = httpbunBaseUrl
       ..httpClientAdapter = Http2Adapter(
         ConnectionManager(
           idleTimeout: Duration(milliseconds: 10),
         ),
       );
 
-    final res = await dio.post('post', data: 'TEST');
+    final res = await dio.post('/post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));
   });
 
@@ -91,14 +92,14 @@ void main() {
     'request with payload via proxy',
     () async {
       final dio = Dio()
-        ..options.baseUrl = 'https://httpbun.com/'
+        ..options.baseUrl = httpbunBaseUrl
         ..httpClientAdapter = Http2Adapter(ConnectionManager(
           idleTimeout: Duration(milliseconds: 10),
           onClientCreate: (uri, settings) =>
               settings.proxy = Uri.parse('http://localhost:3128'),
         ));
 
-      final res = await dio.post('post', data: 'TEST');
+      final res = await dio.post('/post', data: 'TEST');
       expect(res.data.toString(), contains('TEST'));
     },
     tags: ['proxy'],
@@ -107,7 +108,7 @@ void main() {
   test('request without network and restore', () async {
     bool needProxy = true;
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = httpbunBaseUrl
       ..httpClientAdapter = Http2Adapter(ConnectionManager(
         idleTimeout: Duration(milliseconds: 10),
         onClientCreate: (uri, settings) {
@@ -123,18 +124,18 @@ void main() {
       ));
     try {
       // will throw SocketException
-      await dio.post('post', data: 'TEST');
+      await dio.post('/post', data: 'TEST');
     } on DioException {
       // ignore
     }
-    final res = await dio.post('post', data: 'TEST');
+    final res = await dio.post('/post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));
   });
 
   test('catch DioException when receiveTimeout', () {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'https://httpbun.com/',
+        baseUrl: httpbunBaseUrl,
         receiveTimeout: Duration(seconds: 5),
       ),
     );
@@ -159,7 +160,7 @@ void main() {
   test('no DioException when receiveTimeout > request duration', () async {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'https://httpbun.com/',
+        baseUrl: httpbunBaseUrl,
         receiveTimeout: Duration(seconds: 5),
       ),
     );
@@ -174,13 +175,13 @@ void main() {
 
   group('redirects', () {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = httpbunBaseUrl
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
 
     test('single', () async {
       final response = await dio.get(
         '/redirect',
-        queryParameters: {'url': 'https://httpbun.com/get'},
+        queryParameters: {'url': '$httpbunBaseUrl/get'},
       );
       expect(response.isRedirect, isTrue);
       expect(response.redirects.length, 1);
@@ -221,18 +222,18 @@ void main() {
     });
 
     test('request with redirect', () async {
-      final res = await dio.get('absolute-redirect/2');
+      final res = await dio.get('/absolute-redirect/2');
       expect(res.statusCode, 200);
     });
   });
 
   test('header value types implicit support', () async {
     final dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = httpbunBaseUrl
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
 
     final res = await dio.post(
-      'post',
+      '/post',
       data: 'TEST',
       options: Options(
         headers: {

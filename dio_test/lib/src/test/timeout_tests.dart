@@ -1,18 +1,16 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:dio_test/src/matcher.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
-import '../utils.dart';
-
 void timeoutTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   late Dio dio;
 
   setUp(() {
-    dio = create();
+    dio = create(httpbunBaseUrl);
   });
 
   group('Timeout exception of', () {
@@ -80,30 +78,26 @@ void timeoutTests(
   });
 
   test('ignores zero duration timeouts', () async {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: 'https://httpbun.com/',
-        connectTimeout: Duration.zero,
-        receiveTimeout: Duration.zero,
-      ),
-    );
+    dio.options
+      ..connectTimeout = Duration.zero
+      ..receiveTimeout = Duration.zero;
     // Ignores zero duration timeouts from the base options.
     await dio.get('/drip-lines?delay=1');
     // Reset the base options.
-    dio.options.receiveTimeout = Duration(milliseconds: 10);
+    dio.options.receiveTimeout = Duration(milliseconds: 1);
     await expectLater(
       dio.get('/drip-lines?delay=1'),
       throwsDioException(
         DioExceptionType.receiveTimeout,
-        messageContains: '0:00:00.010000',
+        messageContains: dio.options.receiveTimeout.toString(),
       ),
     );
-    dio.options.connectTimeout = Duration(milliseconds: 10);
+    dio.options.connectTimeout = Duration(milliseconds: 1);
     await expectLater(
       dio.get(nonRoutableUrl),
       throwsDioException(
         DioExceptionType.connectionTimeout,
-        messageContains: '0:00:00.010000',
+        messageContains: dio.options.connectTimeout.toString(),
       ),
     );
     dio.options.connectTimeout = Duration.zero;

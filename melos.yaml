@@ -41,6 +41,12 @@ scripts:
     exec: dart pub publish --dry-run
     packageFilters:
       noPrivate: true
+  httpbun:local:
+    description: Run httpbun locally
+    run: echo "const httpbunBaseUrl = 'https://httpbun.local';" > dio_test/lib/src/httpbun.dart
+  httpbun:com:
+    description: Run httpbun locally
+    run: echo "const httpbunBaseUrl = 'https://httpbun.com';" > dio_test/lib/src/httpbun.dart
   test:
     name: All tests
     run: |

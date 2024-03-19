@@ -4,13 +4,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
   late Dio dio;
 
   setUp(() {
-    dio = Dio()..options.baseUrl = 'https://httpbun.com/';
+    dio = Dio()..options.baseUrl = httpbunBaseUrl;
   });
 
   test('Uint8List should not be transformed', () async {

@@ -10,7 +10,7 @@ void main() {
 
   setUp(() {
     dio = Dio();
-    dio.options.baseUrl = 'https://httpbun.com/';
+    dio.options.baseUrl = httpbunBaseUrl;
   });
 
   group('Timeout exception of', () {

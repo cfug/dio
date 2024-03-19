@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void httpMethodTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   const data = {'content': 'I am payload'};
 
   late Dio dio;
-  setUpAll(() {
-    dio = create();
+
+  setUp(() {
+    dio = create(httpbunBaseUrl);
   });
 
   group('HTTP method', () {
