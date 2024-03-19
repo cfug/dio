@@ -12,32 +12,11 @@ pubspec_overrides.yaml
 doc/api/
 .cookies/
 
-dio/.packages
-dio/.dart_tool/
-dio/.pub/
-dio/.idea/
-dio/.exampl
-dio/coverage
-
-# plugins
-plugins/cookie_manager/.packages
-plugins/cookie_manager/.dart_tool/
-plugins/cookie_manager/.pub/
-plugins/cookie_manager/.idea/
-plugins/cookie_manager/.exampl
-
-plugins/http2_adapter/.packages
-plugins/http2_adapter/.dart_tool/
-plugins/http2_adapter/.pub/
-plugins/http2_adapter/.idea/
-plugins/http2_adapter/.exampl
-plugins/http2_adapter/test/*_pinning.txt
-
 .vscode/
 
 # FVM
 .fvm
-.fmvrc
+.fvmrc
 
 # Miscellaneous
 .DS_Store
@@ -47,3 +26,5 @@ plugins/http2_adapter/test/*_pinning.txt
 /.idea/*
 !/.idea/dio.iml
 !/.idea/modules.xml
+
+coverage
