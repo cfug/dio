@@ -82,33 +82,39 @@ void main() {
     expect(response.data, null);
   });
 
-  test('download timeout', () async {
-    final dio = Dio();
-    final timeoutMatcher = allOf([
-      throwsA(isA<DioException>()),
-      throwsA(
-        predicate<DioException>(
-          (e) => e.type == DioExceptionType.receiveTimeout,
+  test(
+    'download timeout',
+    () async {
+      final dio = Dio();
+      final timeoutMatcher = allOf([
+        throwsA(isA<DioException>()),
+        throwsA(
+          predicate<DioException>(
+            (e) => e.type == DioExceptionType.receiveTimeout,
+          ),
         ),
-      ),
-    ]);
-    await expectLater(
-      dio.downloadUri(
-        Uri.parse('$serverUrl/download').replace(
-          queryParameters: {'count': '3', 'gap': '2'},
+      ]);
+      await expectLater(
+        dio.downloadUri(
+          Uri.parse('$serverUrl/download').replace(
+            queryParameters: {'count': '3', 'gap': '2'},
+          ),
+          p.join(tmp.path, 'download_timeout.md'),
+          options: Options(receiveTimeout: Duration(seconds: 1)),
         ),
-        p.join(tmp.path, 'download_timeout.md'),
+        timeoutMatcher,
+      );
+      // Throws nothing if it constantly gets response bytes.
+      await dio.download(
+        'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
+        p.join(tmp.path, 'main.zip'),
         options: Options(receiveTimeout: Duration(seconds: 1)),
-      ),
-      timeoutMatcher,
-    );
-    // Throws nothing if it constantly gets response bytes.
-    await dio.download(
-      'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
-      p.join(tmp.path, 'main.zip'),
-      options: Options(receiveTimeout: Duration(seconds: 1)),
-    );
-  });
+      );
+    },
+    // The download of the main.zip file can be slow,
+    // so we need to increase the timeout.
+    timeout: Timeout(Duration(minutes: 1)),
+  );
 
   test('download cancellation', () async {
     final savePath = p.join(tmp.path, 'download_cancellation.md');
