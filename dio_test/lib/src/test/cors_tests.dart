@@ -6,12 +6,12 @@ import 'package:test/test.dart';
 /// either "simple" or "preflighted". Reference:
 /// https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
 void corsTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   late Dio dio;
 
   setUp(() {
-    dio = create();
+    dio = create(httpbunBaseUrl);
   });
 
   group('CORS preflight', () {

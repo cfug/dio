@@ -1,22 +1,21 @@
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
-import '../utils.dart';
-
 void redirectTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   late Dio dio;
 
-  setUpAll(() {
-    dio = create();
+  setUp(() {
+    dio = create(httpbunBaseUrl);
   });
 
   group('redirects', () {
     test('single', () async {
       final response = await dio.get(
         '/redirect',
-        queryParameters: {'url': 'https://httpbun.com/get'},
+        queryParameters: {'url': '$httpbunBaseUrl/get'},
         onReceiveProgress: (received, total) {
           // ignore progress
         },

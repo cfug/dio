@@ -1,16 +1,14 @@
 import 'package:dio/dio.dart';
-import 'package:dio_test/src/utils.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
-import '../matcher.dart';
-
 void statusCodeTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   late Dio dio;
 
-  setUpAll(() {
-    dio = create();
+  setUp(() {
+    dio = create(httpbunBaseUrl);
   });
 
   group('status code', () {
