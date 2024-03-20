@@ -87,7 +87,7 @@ jobs:
       - name: '[Coverage] Add PR comment'
         uses: marocchino/sticky-pull-request-comment@v2
         #Make sure the report was generated and that the event is actually a pull request, run if failed or success
-        if: ${{  matrix.sdk == 'stable' && github.actor != 'dependabot[bot]' && steps.code_coverage_report.outputs.file != '' && github.event_name == 'pull_request' && (success() || failure()) }}
+        if: ${{  matrix.sdk == 'stable' && github.actor != 'dependabot[bot]' && steps.code_coverage_report.outputs.file != '' && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && (success() || failure()) }}
         with:
           recreate: true
           path: code-coverage-results.md
