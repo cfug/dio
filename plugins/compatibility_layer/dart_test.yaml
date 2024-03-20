@@ -11,3 +11,6 @@ override_platforms:
     settings:
       # headless argument has to be set explicitly for non-chrome browsers
       arguments: --headless
+      executable:
+        # https://github.com/dart-lang/test/pull/2195
+        mac_os: '/Applications/Firefox.app/Contents/MacOS/firefox'
