@@ -39,35 +39,39 @@ void timeoutTests(
         );
       });
 
-      test('with streamed response', () async {
-        dio.options.receiveTimeout = Duration(seconds: 1);
-        final completer = Completer<void>();
-        final streamedResponse = await dio.get(
-          '/drip',
-          queryParameters: {'delay': 0, 'duration': 20},
-          options: Options(responseType: ResponseType.stream),
-        );
-        (streamedResponse.data as ResponseBody).stream.listen(
-          (event) {},
-          onError: (error) {
-            if (!completer.isCompleted) {
-              completer.completeError(error);
-            }
-          },
-          onDone: () {
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          },
-        );
-        await expectLater(
-          completer.future,
-          throwsDioException(
-            DioExceptionType.receiveTimeout,
-            messageContains: dio.options.receiveTimeout.toString(),
-          ),
-        );
-      }, testOn: 'vm');
+      test(
+        'with streamed response',
+        () async {
+          dio.options.receiveTimeout = Duration(seconds: 1);
+          final completer = Completer<void>();
+          final streamedResponse = await dio.get(
+            '/drip',
+            queryParameters: {'delay': 0, 'duration': 20},
+            options: Options(responseType: ResponseType.stream),
+          );
+          (streamedResponse.data as ResponseBody).stream.listen(
+            (event) {},
+            onError: (error) {
+              if (!completer.isCompleted) {
+                completer.completeError(error);
+              }
+            },
+            onDone: () {
+              if (!completer.isCompleted) {
+                completer.complete();
+              }
+            },
+          );
+          await expectLater(
+            completer.future,
+            throwsDioException(
+              DioExceptionType.receiveTimeout,
+              messageContains: dio.options.receiveTimeout.toString(),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
     });
   });
 
