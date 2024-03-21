@@ -58,6 +58,26 @@ class Http2Adapter implements HttpClientAdapter {
         return await onNotSupported!(options, requestStream, cancelFuture, e);
       }
       return await fallbackAdapter.fetch(options, requestStream, cancelFuture);
+    } on SocketException catch (e) {
+      if (e.message.contains('timed out')) {
+        final Duration effectiveTimeout;
+        if (options.connectTimeout != null &&
+            options.connectTimeout! > Duration.zero) {
+          effectiveTimeout = options.connectTimeout!;
+        } else {
+          effectiveTimeout = Duration.zero;
+        }
+        throw DioException.connectionTimeout(
+          requestOptions: options,
+          timeout: effectiveTimeout,
+          error: e,
+        );
+      }
+      throw DioException.connectionError(
+        requestOptions: options,
+        reason: e.message,
+        error: e,
+      );
     }
   }
 

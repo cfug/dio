@@ -34,22 +34,26 @@ void httpMethodTests(
         expect(response.data['args'], {'id': '12', 'name': 'wendu'});
       });
 
-      test('GET with content', () async {
-        final response = await dio.get(
-          '/anything',
-          queryParameters: {'id': '12', 'name': 'wendu'},
-          data: data,
-        );
-        expect(response.statusCode, 200);
-        expect(response.isRedirect, isFalse);
-        expect(response.data['method'], 'GET');
-        expect(response.data['args'], {'id': '12', 'name': 'wendu'});
-        expect(response.data['json'], data);
-        expect(
-          response.data['headers']['Content-Type'],
-          Headers.jsonContentType,
-        );
-      }, testOn: '!browser');
+      test(
+        'GET with content',
+        () async {
+          final response = await dio.get(
+            '/anything',
+            queryParameters: {'id': '12', 'name': 'wendu'},
+            data: data,
+          );
+          expect(response.statusCode, 200);
+          expect(response.isRedirect, isFalse);
+          expect(response.data['method'], 'GET');
+          expect(response.data['args'], {'id': '12', 'name': 'wendu'});
+          expect(response.data['json'], data);
+          expect(
+            response.data['headers']['Content-Type'],
+            Headers.jsonContentType,
+          );
+        },
+        testOn: '!browser',
+      );
 
       test('POST', () async {
         final response = await dio.post(
@@ -141,23 +145,27 @@ void httpMethodTests(
       });
 
       // Not supported on web
-      test('GET with content', () async {
-        final response = await dio.getUri(
-          Uri(
-            path: '/anything',
-            queryParameters: {'id': '12', 'name': 'wendu'},
-          ),
-          data: data,
-        );
-        expect(response.statusCode, 200);
-        expect(response.isRedirect, isFalse);
-        expect(response.data['args'], {'id': '12', 'name': 'wendu'});
-        expect(response.data['json'], data);
-        expect(
-          response.data['headers']['Content-Type'],
-          Headers.jsonContentType,
-        );
-      }, testOn: '!browser');
+      test(
+        'GET with content',
+        () async {
+          final response = await dio.getUri(
+            Uri(
+              path: '/anything',
+              queryParameters: {'id': '12', 'name': 'wendu'},
+            ),
+            data: data,
+          );
+          expect(response.statusCode, 200);
+          expect(response.isRedirect, isFalse);
+          expect(response.data['args'], {'id': '12', 'name': 'wendu'});
+          expect(response.data['json'], data);
+          expect(
+            response.data['headers']['Content-Type'],
+            Headers.jsonContentType,
+          );
+        },
+        testOn: '!browser',
+      );
 
       test('POST', () async {
         final response = await dio.postUri(

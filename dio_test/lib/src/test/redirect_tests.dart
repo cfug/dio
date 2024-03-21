@@ -48,5 +48,27 @@ void redirectTests(
         expect(ri.method, 'GET');
       }
     });
+
+    test(
+      'empty location',
+      () async {
+        final response = await dio.get(
+          '/redirect',
+        );
+        expect(response.isRedirect, isTrue);
+        expect(response.redirects.length, 1);
+
+        final ri = response.redirects.first;
+        expect(ri.statusCode, 302);
+        expect(ri.location.path, '/get');
+        expect(ri.method, 'GET');
+      },
+      skip: 'Httpbun does not support empty location redirects',
+    );
+
+    test('request with redirect', () async {
+      final res = await dio.get('/absolute-redirect/2');
+      expect(res.statusCode, 200);
+    });
   });
 }
