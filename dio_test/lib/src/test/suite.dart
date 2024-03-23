@@ -16,6 +16,7 @@ const _tests = [
   redirectTests,
   statusCodeTests,
   timeoutTests,
+  uploadTests,
 ];
 
 void dioAdapterTestSuite(

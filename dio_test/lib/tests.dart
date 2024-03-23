@@ -9,3 +9,4 @@ export 'src/test/redirect_tests.dart';
 export 'src/test/status_code_tests.dart';
 export 'src/test/suite.dart';
 export 'src/test/timeout_tests.dart';
+export 'src/test/upload_tests.dart';
