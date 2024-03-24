@@ -32,7 +32,7 @@ class FormData {
     _init(fromMap: map, listFormat: listFormat);
   }
 
-  /// Provides the boundary name that will be used to construct boundaries
+  /// Provides the boundary name which will be used to construct boundaries
   /// in the [FormData] with additional prefix and suffix.
   final String boundaryName;
 

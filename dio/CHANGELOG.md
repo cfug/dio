@@ -8,6 +8,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fix `receiveTimeout` throws exception after the request has been cancelled.
 - Catch sync/async exceptions in interceptors' handlers.
 - Throws precise `StateError` for handler's duplicated calls.
+- Allows to define `FormData.boundaryName` instead of the default `--dio-boundary-`.
 
 ## 5.4.1
 
