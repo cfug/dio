@@ -7,7 +7,7 @@ import 'multipart_file.dart';
 import 'options.dart';
 import 'utils.dart';
 
-const _boundaryPrefix = '--dio-boundary-';
+const _boundaryName = '--dio-boundary-';
 const _secureRandomSeedBound = 4294967296;
 const _rn = '\r\n';
 final _rnU8 = Uint8List.fromList([13, 10]);
@@ -16,6 +16,7 @@ final _rnU8 = Uint8List.fromList([13, 10]);
 /// It can be used to submit forms and file uploads to http server.
 class FormData {
   FormData({
+    this.boundaryName = _boundaryName,
     this.camelCaseContentDisposition = false,
   }) {
     _init();
@@ -26,9 +27,14 @@ class FormData {
     Map<String, dynamic> map, [
     ListFormat listFormat = ListFormat.multi,
     this.camelCaseContentDisposition = false,
+    this.boundaryName = _boundaryName,
   ]) {
     _init(fromMap: map, listFormat: listFormat);
   }
+
+  /// Provides the boundary name that will be used to construct boundaries
+  /// in the [FormData] with additional prefix and suffix.
+  final String boundaryName;
 
   /// Whether the 'content-disposition' header can be 'Content-Disposition'.
   final bool camelCaseContentDisposition;
@@ -39,7 +45,7 @@ class FormData {
   }) {
     // Assure the boundary unpredictable and unique.
     final r = math.Random();
-    _boundary = _boundaryPrefix +
+    _boundary = boundaryName +
         r.nextInt(_secureRandomSeedBound).toString().padLeft(10, '0');
     if (fromMap != null) {
       // Use [encodeMap] to recursively add fields and files.
@@ -60,9 +66,10 @@ class FormData {
     }
   }
 
-  /// The boundary of FormData, it consists of a constant prefix and a random
-  /// postfix to assure the the boundary unpredictable and unique, each FormData
-  /// instance will be different.
+  /// The Content-Type field for multipart entities requires one parameter,
+  /// "boundary", which is used to specify the encapsulation boundary.
+  ///
+  /// See also: https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
   String get boundary => _boundary;
   late final String _boundary;
 
