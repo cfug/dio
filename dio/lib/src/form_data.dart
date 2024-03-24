@@ -7,10 +7,15 @@ import 'multipart_file.dart';
 import 'options.dart';
 import 'utils.dart';
 
-const _boundaryName = '--dio-boundary-';
-const _secureRandomSeedBound = 4294967296;
+const _boundaryName = '--dio-boundary';
 const _rn = '\r\n';
 final _rnU8 = Uint8List.fromList([13, 10]);
+
+const _secureRandomSeedBound = 4294967296;
+final _random = math.Random();
+
+String get _nextRandomId =>
+    _random.nextInt(_secureRandomSeedBound).toString().padLeft(10, '0');
 
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
@@ -43,10 +48,8 @@ class FormData {
     Map<String, dynamic>? fromMap,
     ListFormat listFormat = ListFormat.multi,
   }) {
-    // Assure the boundary unpredictable and unique.
-    final r = math.Random();
-    _boundary = boundaryName +
-        r.nextInt(_secureRandomSeedBound).toString().padLeft(10, '0');
+    // Get an unique boundary for the instance.
+    _boundary = '$boundaryName-$_nextRandomId';
     if (fromMap != null) {
       // Use [encodeMap] to recursively add fields and files.
       // TODO(Alex): Write a proper/elegant implementation.
