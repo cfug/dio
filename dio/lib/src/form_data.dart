@@ -7,6 +7,8 @@ import 'multipart_file.dart';
 import 'options.dart';
 import 'utils.dart';
 
+const _boundaryPrefix = '--dio-boundary-';
+const _secureRandomSeedBound = 4294967296;
 const _rn = '\r\n';
 final _rnU8 = Uint8List.fromList([13, 10]);
 
@@ -22,36 +24,41 @@ class FormData {
   /// Create [FormData] from a [Map].
   FormData.fromMap(
     Map<String, dynamic> map, [
-    ListFormat collectionFormat = ListFormat.multi,
+    ListFormat listFormat = ListFormat.multi,
     this.camelCaseContentDisposition = false,
   ]) {
-    _init();
-    encodeMap(
-      map,
-      (key, value) {
-        if (value is MultipartFile) {
-          files.add(MapEntry(key, value));
-        } else {
-          fields.add(MapEntry(key, value?.toString() ?? ''));
-        }
-        return null;
-      },
-      listFormat: collectionFormat,
-      encode: false,
-    );
+    _init(fromMap: map, listFormat: listFormat);
   }
 
   /// Whether the 'content-disposition' header can be 'Content-Disposition'.
   final bool camelCaseContentDisposition;
 
-  void _init() {
+  void _init({
+    Map<String, dynamic>? fromMap,
+    ListFormat listFormat = ListFormat.multi,
+  }) {
     // Assure the boundary unpredictable and unique.
-    final random = math.Random();
+    final r = math.Random();
     _boundary = _boundaryPrefix +
-        random.nextInt(4294967296).toString().padLeft(10, '0');
+        r.nextInt(_secureRandomSeedBound).toString().padLeft(10, '0');
+    if (fromMap != null) {
+      // Use [encodeMap] to recursively add fields and files.
+      // TODO(Alex): Write a proper/elegant implementation.
+      encodeMap(
+        fromMap,
+        (key, value) {
+          if (value is MultipartFile) {
+            files.add(MapEntry(key, value));
+          } else {
+            fields.add(MapEntry(key, value?.toString() ?? ''));
+          }
+          return null;
+        },
+        listFormat: listFormat,
+        encode: false,
+      );
+    }
   }
-
-  static const String _boundaryPrefix = '--dio-boundary-';
 
   /// The boundary of FormData, it consists of a constant prefix and a random
   /// postfix to assure the the boundary unpredictable and unique, each FormData
