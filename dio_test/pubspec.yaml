@@ -11,7 +11,3 @@ dependencies:
 
 dev_dependencies:
   test: ^1.5.1
-
-dependency_overrides:
-  dio:
-    path: ../dio
