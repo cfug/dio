@@ -10,7 +10,6 @@ import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
 import 'mock/http_mock.mocks.dart';
-import 'utils.dart';
 
 void main() {
   test('options', () {

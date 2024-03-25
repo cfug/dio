@@ -1,7 +1,7 @@
 export 'src/test/basic_tests.dart';
 export 'src/test/cancellation_tests.dart';
 export 'src/test/cors_tests.dart';
-export 'src/test/download_stream_tests.dart';
+export 'src/test/download_tests.dart';
 export 'src/test/headers_tests.dart';
 export 'src/test/http_method_tests.dart';
 export 'src/test/parameter_tests.dart';

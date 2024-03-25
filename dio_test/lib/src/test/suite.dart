@@ -9,7 +9,7 @@ const _tests = [
   basicTests,
   cancellationTests,
   corsTests,
-  downloadStreamTests,
+  downloadTests,
   headerTests,
   httpMethodTests,
   parameterTests,
