@@ -7,6 +7,11 @@ environment:
   sdk: '>=2.15.0 <4.0.0'
 
 dependencies:
+  dio: any
+
+dev_dependencies:
+  test: ^1.5.1
+
+dependency_overrides:
   dio:
     path: ../dio
-  test: ^1.5.1
