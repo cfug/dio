@@ -85,7 +85,7 @@ jobs:
         run: melos run httpbun:local
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos run test:vm
-      - name: Use httpbun.com for VM/Flutter tests
+      - name: Use httpbun.com for Web/Flutter tests
         run: melos run httpbun:com
       - name: '[Verify step] Test Dart packages [Chrome]'
         run: melos run test:web:chrome
