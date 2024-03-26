@@ -1,12 +1,15 @@
 name: dio_test
 version: 1.0.0
-
 publish_to: none
+homepage: https://github.com/cfug/dio
+repository: https://github.com/cfug/dio/blob/main/dio_test
+issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
   sdk: '>=2.15.0 <4.0.0'
 
 dependencies:
-  dio:
-    path: ../dio
+  dio: any
+
+dev_dependencies:
   test: ^1.5.1
