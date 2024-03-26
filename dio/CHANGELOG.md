@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.4.2
+
 - Fix `receiveTimeout` throws exception after the request has been cancelled.
 - Catch sync/async exceptions in interceptors' handlers.
 - Throws precise `StateError` for handler's duplicated calls.
