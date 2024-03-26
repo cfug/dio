@@ -28,8 +28,13 @@ dependencies:
 dev_dependencies:
   lints: any
   test: ^1.5.1
+  build_runner: any
   coverage: ^1.0.3
   crypto: ^3.0.2
   mockito: ^5.2.0
-  build_runner: any
-  dio_test: any
+
+  # Shared test package.
+  dio_test:
+    git:
+      url: https://github.com/cfug/dio
+      path: dio_test

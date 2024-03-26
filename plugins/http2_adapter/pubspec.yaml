@@ -15,13 +15,18 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  dio: ^5.2.0
   http2: ^2.1.0
   meta: ^1.9.1
-  dio: ^5.2.0
 
 dev_dependencies:
-  crypto: ^3.0.2
   lints: any
   test: ^1.16.4
+  crypto: ^3.0.2
   path: ^1.8.0
-  dio_test: any
+
+  # Shared test package.
+  dio_test:
+    git:
+      url: https://github.com/cfug/dio
+      path: dio_test
