@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.5.1
+
 - Wrap `SocketException` in `DioExceptionType.connectionError`
   instead of `DioExceptionType.unknown`.
 
