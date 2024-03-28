@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Revert "Catch sync/async exceptions in interceptors' handlers".
 
 ## 5.4.2
 
