@@ -491,7 +491,8 @@ void main() {
 
   test('Throws when using invalid methods', () async {
     final dio = Dio();
-    void testInvalidArgumentException(String method) async {
+
+    Future<void> testInvalidArgumentException(String method) async {
       await expectLater(
         dio.fetch(RequestOptions(path: 'http://127.0.0.1', method: method)),
         throwsA((e) => e is DioException && e.error is ArgumentError),
@@ -501,11 +502,11 @@ void main() {
     const String separators = '\t\n\r()<>@,;:\\/[]?={}';
     for (int i = 0; i < separators.length; i++) {
       final String separator = separators.substring(i, i + 1);
-      testInvalidArgumentException(separator);
-      testInvalidArgumentException('${separator}CONNECT');
-      testInvalidArgumentException('CONN${separator}ECT');
-      testInvalidArgumentException('CONN$separator${separator}ECT');
-      testInvalidArgumentException('CONNECT$separator');
+      await testInvalidArgumentException(separator);
+      await testInvalidArgumentException('${separator}CONNECT');
+      await testInvalidArgumentException('CONN${separator}ECT');
+      await testInvalidArgumentException('CONN$separator${separator}ECT');
+      await testInvalidArgumentException('CONNECT$separator');
     }
   });
 
