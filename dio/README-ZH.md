@@ -642,6 +642,15 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
+你也可以指定封边 (boundary) 的名称，
+封边名称会与额外的前缀和后缀一并组装成 `FormData` 的封边。
+
+```dart
+final formDataWithBoundaryName = FormData(
+  boundaryName: 'my-boundary-name',
+);
+```
+
 > 通常情况下只有 POST 方法支持发送 FormData。
 
 这里有一个完整的 [示例](../example/lib/formdata.dart)。

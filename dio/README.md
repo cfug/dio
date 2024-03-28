@@ -653,6 +653,15 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
+You can also specify your desired boundary name which will be used
+to construct boundaries of every `FormData` with additional prefix and suffix.
+
+```dart
+final formDataWithBoundaryName = FormData(
+  boundaryName: 'my-boundary-name',
+);
+```
+
 > `FormData` is supported with the POST method typically.
 
 There is a complete example [here](../example/lib/formdata.dart).

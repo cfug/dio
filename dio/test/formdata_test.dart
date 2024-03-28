@@ -285,5 +285,22 @@ void main() async {
       expect(result, contains('name="items[2][name]"'));
       expect(result, contains('name="items[2][value]"'));
     });
+
+    test('has the correct boundary', () async {
+      final fd1 = FormData();
+      expect(fd1.boundary, matches(RegExp(r'dio-boundary-\d{10}')));
+      const name = 'test-boundary';
+      final fd2 = FormData(boundaryName: name);
+      expect(fd2.boundary, matches(RegExp('$name-\\d{10}')));
+      expect(fd2.boundary.length, name.length + 11);
+      final fd3 = FormData.fromMap(
+        {'test-key': 'test-value'},
+        ListFormat.multi,
+        false,
+        name,
+      );
+      final fd3Data = utf8.decode(await fd3.readAsBytes()).trim();
+      expect(fd3Data, matches(RegExp('.*--$name-\\d{10}--\\s?\$')));
+    });
   });
 }
