@@ -384,10 +384,7 @@ abstract class DioMixin implements Dio {
             requestOptions.cancelToken,
             Future(() async {
               final handler = RequestInterceptorHandler();
-              final callback = cb(state.data as RequestOptions, handler);
-              if (callback is Future) {
-                await callback;
-              }
+              cb(state.data as RequestOptions, handler);
               return handler.future;
             }),
           );
@@ -409,16 +406,12 @@ abstract class DioMixin implements Dio {
             requestOptions.cancelToken,
             Future(() async {
               final handler = ResponseInterceptorHandler();
-              final callback = cb(state.data as Response, handler);
-              if (callback is Future) {
-                await callback;
-              }
+              cb(state.data as Response, handler);
               return handler.future;
             }),
           );
-        } else {
-          return state;
         }
+        return state;
       };
     }
 
@@ -433,10 +426,7 @@ abstract class DioMixin implements Dio {
             : InterceptorState(assureDioException(error, requestOptions));
         Future<InterceptorState> handleError() async {
           final handler = ErrorInterceptorHandler();
-          final callback = cb(state.data, handler);
-          if (callback is Future) {
-            await callback;
-          }
+          cb(state.data, handler);
           return handler.future;
         }
 

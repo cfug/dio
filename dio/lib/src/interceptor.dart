@@ -229,19 +229,19 @@ class Interceptor {
 }
 
 /// The signature of [Interceptor.onRequest].
-typedef InterceptorSendCallback = FutureOr<void> Function(
+typedef InterceptorSendCallback = void Function(
   RequestOptions options,
   RequestInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onResponse].
-typedef InterceptorSuccessCallback = FutureOr<void> Function(
+typedef InterceptorSuccessCallback = void Function(
   Response<dynamic> response,
   ResponseInterceptorHandler handler,
 );
 
 /// The signature of [Interceptor.onError].
-typedef InterceptorErrorCallback = FutureOr<void> Function(
+typedef InterceptorErrorCallback = void Function(
   DioException error,
   ErrorInterceptorHandler handler,
 );
