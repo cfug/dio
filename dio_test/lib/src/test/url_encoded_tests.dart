@@ -1,9 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
-import 'mock/adapters.dart';
+void urlEncodedTests(
+  Dio Function(String baseUrl) create,
+) {
+  late Dio dio;
 
-void main() async {
+  setUp(() {
+    dio = create(httpbunBaseUrl);
+  });
+
   group('x-www-url-encoded', () {
     test('posts maps correctly', () async {
       final data = {
@@ -22,12 +29,8 @@ void main() async {
         },
       };
 
-      final dio = Dio()
-        ..options.baseUrl = EchoAdapter.mockBase
-        ..httpClientAdapter = EchoAdapter();
-
       final response = await dio.post(
-        '/post',
+        '/payload',
         data: data,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,

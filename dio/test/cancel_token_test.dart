@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dio/src/adapters/io_adapter.dart';
+import 'package:dio_test/util.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -60,16 +61,18 @@ void main() {
       for (final future in futures) {
         expectLater(
           future,
-          throwsA(
-            (error) =>
-                error is DioException &&
-                error.type == DioExceptionType.cancel &&
-                error.error == reason,
+          throwsDioException(
+            DioExceptionType.cancel,
+            matcher: isA<DioException>().having(
+              (e) => e.error,
+              'error',
+              reason,
+            ),
           ),
         );
       }
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 100));
       token.cancel(reason);
 
       expect(requests, hasLength(2));

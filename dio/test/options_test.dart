@@ -10,42 +10,8 @@ import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
 import 'mock/http_mock.mocks.dart';
-import 'utils.dart';
 
 void main() {
-  setUp(startServer);
-  tearDown(stopServer);
-
-  test('headers are kept after redirects', () async {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: serverUrl.toString(),
-        headers: {'x-test-base': 'test-base'},
-      ),
-    );
-    final response = await dio.get(
-      '/redirect',
-      options: Options(headers: {'x-test-header': 'test-value'}),
-    );
-    expect(response.isRedirect, isTrue);
-    expect(
-      response.data['headers']['x-test-base'].single,
-      equals('test-base'),
-    );
-    expect(
-      response.data['headers']['x-test-header'].single,
-      equals('test-value'),
-    );
-    expect(
-      response.requestOptions.headers['x-test-base'],
-      equals('test-base'),
-    );
-    expect(
-      response.requestOptions.headers['x-test-header'],
-      equals('test-value'),
-    );
-  });
-
   test('options', () {
     final map = {'a': '5'};
     final mapOverride = {'b': '6'};
@@ -254,113 +220,6 @@ void main() {
 
     final ro3 = RequestOptions(path: '');
     ro3.copyWith();
-  });
-
-  test('default content-type', () async {
-    final dio = Dio();
-    dio.options.baseUrl = EchoAdapter.mockBase;
-    dio.httpClientAdapter = EchoAdapter();
-
-    final r1 = await dio.get('');
-    expect(
-      r1.requestOptions.headers[Headers.contentTypeHeader],
-      null,
-    );
-
-    final r2 = await dio.get(
-      '',
-      options: Options(contentType: Headers.jsonContentType),
-    );
-    expect(
-      r2.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.jsonContentType,
-    );
-
-    final r3 = await dio.get(
-      '',
-      options: Options(
-        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
-      ),
-    );
-    expect(
-      r3.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.jsonContentType,
-    );
-
-    final r4 = await dio.post('', data: '');
-    expect(
-      r4.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.jsonContentType,
-    );
-
-    final r5 = await dio.get(
-      '',
-      options: Options(
-        // Final result should respect this.
-        contentType: Headers.textPlainContentType,
-        // Rather than this.
-        headers: {Headers.contentTypeHeader: Headers.formUrlEncodedContentType},
-      ),
-    );
-    expect(
-      r5.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.textPlainContentType,
-    );
-
-    final r6 = await dio.get(
-      '',
-      data: '',
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
-      ),
-    );
-    expect(
-      r6.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.formUrlEncodedContentType,
-    );
-
-    // Update the base option.
-    dio.options.contentType = Headers.textPlainContentType;
-    final r7 = await dio.get('');
-    expect(
-      r7.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.textPlainContentType,
-    );
-
-    final r8 = await dio.get(
-      '',
-      options: Options(contentType: Headers.jsonContentType),
-    );
-    expect(
-      r8.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.jsonContentType,
-    );
-
-    final r9 = await dio.get(
-      '',
-      options: Options(
-        headers: {Headers.contentTypeHeader: Headers.jsonContentType},
-      ),
-    );
-    expect(
-      r9.requestOptions.headers[Headers.contentTypeHeader],
-      Headers.jsonContentType,
-    );
-
-    final r10 = await dio.post('', data: FormData());
-    expect(
-      r10.requestOptions.contentType,
-      startsWith(Headers.multipartFormDataContentType),
-    );
-
-    // Regression: https://github.com/cfug/dio/issues/1834
-    final r11 = await dio.get('');
-    expect(r11.data, '');
-    final r12 = await dio.get<Map>('');
-    expect(r12.data, null);
-    final r13 = await dio.get<Map<String, Object>>('');
-    expect(r13.data, null);
   });
 
   test('default content-type 2', () async {

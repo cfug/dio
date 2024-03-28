@@ -18,11 +18,13 @@ void statusCodeTests(
           dio.get('/status/$code'),
           throwsDioException(
             DioExceptionType.badResponse,
-            stackTraceContains: kIsWeb ? null : 'test/status_code_tests.dart',
+            stackTraceContains: kIsWeb
+                ? 'test/test_suite_test.dart'
+                : 'test/status_code_tests.dart',
             matcher: isA<DioException>().having(
               (e) => e.response!.statusCode,
               'statusCode',
-              equals(code),
+              code,
             ),
           ),
         );
@@ -39,11 +41,13 @@ void statusCodeTests(
         ),
         throwsDioException(
           DioExceptionType.badResponse,
-          stackTraceContains: kIsWeb ? null : 'test/status_code_tests.dart',
+          stackTraceContains: kIsWeb
+              ? 'test/test_suite_test.dart'
+              : 'test/status_code_tests.dart',
           matcher: isA<DioException>().having(
             (e) => e.response!.statusCode,
             'statusCode',
-            equals(200),
+            200,
           ),
         ),
       );
