@@ -7,14 +7,17 @@ typedef TestSuiteFunction = void Function(
 
 const _tests = [
   basicTests,
+  cancellationTests,
   corsTests,
-  downloadStreamTests,
+  downloadTests,
   headerTests,
   httpMethodTests,
   parameterTests,
   redirectTests,
   statusCodeTests,
   timeoutTests,
+  uploadTests,
+  urlEncodedTests,
 ];
 
 void dioAdapterTestSuite(
