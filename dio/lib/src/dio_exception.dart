@@ -86,10 +86,10 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.badResponse,
-        message: _badResponseExceptionMessage(statusCode),
         requestOptions: requestOptions,
         response: response,
         error: null,
+        message: _badResponseExceptionMessage(statusCode),
       );
 
   factory DioException.connectionTimeout({
@@ -99,14 +99,14 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.connectionTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
         message: 'The request connection took longer than $timeout '
             'and it was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.connectTimeout above the duration of $timeout or '
             'improve the response time of the server.',
-        requestOptions: requestOptions,
-        response: null,
-        error: error,
       );
 
   factory DioException.sendTimeout({
@@ -115,14 +115,14 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.sendTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: null,
         message: 'The request took longer than $timeout to send data. '
             'It was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.sendTimeout above the duration of $timeout or '
             'improve the response time of the server.',
-        requestOptions: requestOptions,
-        response: null,
-        error: null,
       );
 
   factory DioException.receiveTimeout({
@@ -132,14 +132,14 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.receiveTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
         message: 'The request took longer than $timeout to receive data. '
             'It was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.receiveTimeout above the duration of $timeout or '
             'improve the response time of the server.',
-        requestOptions: requestOptions,
-        response: null,
-        error: error,
       );
 
   factory DioException.badCertificate({
@@ -148,10 +148,10 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.badCertificate,
-        message: 'The certificate of the response is not approved.',
         requestOptions: requestOptions,
         response: null,
         error: error,
+        message: 'The certificate of the response is not approved.',
       );
 
   factory DioException.requestCancelled({
@@ -161,11 +161,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.cancel,
-        message: 'The request was manually cancelled by the user.',
         requestOptions: requestOptions,
         response: null,
         error: reason,
         stackTrace: stackTrace,
+        message: 'The request was manually cancelled by the user.',
       );
 
   factory DioException.connectionError({
