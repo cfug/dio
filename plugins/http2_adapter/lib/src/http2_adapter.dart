@@ -123,14 +123,14 @@ class Http2Adapter implements HttpClientAdapter {
     // Creates a new outgoing stream.
     final stream = transport.makeRequest(headers);
 
-    cancelFuture?.whenComplete(() {
-      Future(() {
-        stream.terminate();
+    final hasRequestData = requestStream != null;
+    if (hasRequestData) {
+      cancelFuture?.whenComplete(() {
+        stream.outgoingMessages.close();
       });
-    });
+    }
 
     List<Uint8List>? list;
-    final hasRequestData = requestStream != null;
     if (!excludeMethods.contains(options.method) && hasRequestData) {
       list = await requestStream.toList();
       requestStream = Stream.fromIterable(list);
@@ -145,7 +145,7 @@ class Http2Adapter implements HttpClientAdapter {
         requestStreamFuture = requestStreamFuture.timeout(
           sendTimeout,
           onTimeout: () {
-            stream.terminate();
+            stream.outgoingMessages.close();
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -195,7 +195,6 @@ class Http2Adapter implements HttpClientAdapter {
             );
           } else {
             responseSubscription.cancel().whenComplete(() {
-              stream.terminate();
               responseSink.close();
             });
           }
@@ -277,7 +276,6 @@ class Http2Adapter implements HttpClientAdapter {
       onClose: () {
         responseSubscription.cancel();
         responseSink.close();
-        stream.terminate();
       },
     );
   }
