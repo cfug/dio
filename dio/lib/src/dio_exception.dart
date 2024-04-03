@@ -18,7 +18,7 @@ enum DioExceptionType {
   /// It occurs when url is sent timeout.
   sendTimeout,
 
-  ///It occurs when receiving timeout.
+  /// It occurs when receiving timeout.
   receiveTimeout,
 
   /// Caused by an incorrect certificate as configured by [ValidateCertificate].
@@ -137,6 +137,18 @@ class DioException implements Exception {
             'To get rid of this exception, try raising the '
             'RequestOptions.receiveTimeout above the duration of $timeout or '
             'improve the response time of the server.',
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
+      );
+
+  factory DioException.badCertificate({
+    required RequestOptions requestOptions,
+    Object? error,
+  }) =>
+      DioException(
+        type: DioExceptionType.badCertificate,
+        message: 'The certificate of the response is not approved.',
         requestOptions: requestOptions,
         response: null,
         error: error,
