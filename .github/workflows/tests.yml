@@ -40,7 +40,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-          flutter-version: ${{ matrix.sdk == 'min' && '2.8.0' || '' }}
+          flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
           channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
       - run: dart pub get
       - uses: bluefireteam/melos-action@v3
