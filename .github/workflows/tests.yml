@@ -52,6 +52,9 @@ jobs:
           echo $(cat .melos_packages) >> $GITHUB_ENV
       - name: Melos Bootstrap
         run: melos bootstrap
+      - run: melos -v
+      - run: ls -la dio
+      - run: cat dio/pubspec_overrides.yaml
       - name: '[Verify step] Format'
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run format
