@@ -14,10 +14,6 @@ doc/api/
 
 .vscode/
 
-# FVM
-.fvm
-.fvmrc
-
 # Miscellaneous
 .DS_Store
 .melos*packages
@@ -27,4 +23,12 @@ doc/api/
 !/.idea/dio.iml
 !/.idea/modules.xml
 
+# Coverage
 coverage
+
+# Melos
+melos_overrides.yaml
+
+# FVM Version Cache
+.fvm/
+.fvmrc
