@@ -272,7 +272,7 @@ void downloadTests(
         },
         // The download of the main.zip file can be slow,
         // so we need to increase the timeout.
-        timeout: Timeout(Duration(minutes: 1)),
+        timeout: Timeout(Duration(minutes: 2)),
       );
 
       test('delete on error', () async {
