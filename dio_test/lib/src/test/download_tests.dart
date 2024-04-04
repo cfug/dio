@@ -241,38 +241,32 @@ void downloadTests(
         );
       });
 
+      test('receiveTimeout triggers if gaps are too big', () {
+        expectLater(
+          dio.download(
+            '/drip?delay=0&duration=6&numbytes=6',
+            p.join(tmp.path, 'download_timeout.md'),
+            options: Options(receiveTimeout: Duration(seconds: 1)),
+          ),
+          throwsDioException(
+            DioExceptionType.receiveTimeout,
+            stackTraceContains: 'test/download_tests.dart',
+          ),
+        );
+      });
+
       test(
-        'timeout',
-        () async {
-          final timeoutMatcher = allOf([
-            throwsA(isA<DioException>()),
-            throwsA(
-              predicate<DioException>(
-                (e) => e.type == DioExceptionType.receiveTimeout,
-              ),
-            ),
-          ]);
-          await expectLater(
-            dio.downloadUri(
-              Uri.parse('/drip?delay=0&duration=6&numbytes=6').replace(
-                queryParameters: {'count': '3', 'gap': '2'},
-              ),
+        'receiveTimeout does not trigger if constantly getting response bytes',
+        () {
+          expectLater(
+            dio.download(
+              '/drip?delay=0&duration=6&numbytes=12',
               p.join(tmp.path, 'download_timeout.md'),
               options: Options(receiveTimeout: Duration(seconds: 1)),
             ),
-            timeoutMatcher,
-          );
-
-          // Throws nothing if it constantly gets response bytes.
-          await dio.download(
-            'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
-            p.join(tmp.path, 'main.zip'),
-            options: Options(receiveTimeout: Duration(seconds: 1)),
+            completes,
           );
         },
-        // The download of the main.zip file can be slow,
-        // so we need to increase the timeout.
-        timeout: Timeout(Duration(minutes: 2)),
       );
 
       test('delete on error', () async {
