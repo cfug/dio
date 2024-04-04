@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Raise the min Dart SDK version to 2.18.0.
 
 ## 5.4.2+1
 
