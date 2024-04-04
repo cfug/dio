@@ -244,7 +244,7 @@ void downloadTests(
       test('receiveTimeout triggers if gaps are too big', () {
         expectLater(
           dio.download(
-            '/drip?delay=0&duration=6&numbytes=6',
+            '/drip?delay=0&duration=6&numbytes=3',
             p.join(tmp.path, 'download_timeout.md'),
             options: Options(receiveTimeout: Duration(seconds: 1)),
           ),
