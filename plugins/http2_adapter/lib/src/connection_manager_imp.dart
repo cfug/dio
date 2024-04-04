@@ -107,6 +107,7 @@ class _ConnectionManager implements ConnectionManager {
         uri.port,
       );
       if (!isCertApproved) {
+        // TODO(EVERYONE): Replace with DioException.badCertificate once upgrade dependencies Dio above 5.4.2.
         throw DioException(
           requestOptions: options,
           type: DioExceptionType.badCertificate,
