@@ -60,13 +60,6 @@ scripts:
     packageFilters:
       flutter: false
       dirExists: test
-    # Old syntax for melos <= 2.9.0 - this can be removed once we bump the minimum Dart SDK.
-    select-package:
-      flutter: false
-      dir-exists: test
-      ignore:
-        - 'dio_compatibility_layer'
-        - 'dio_http2_adapter'
   test:web:
     name: Dart Web tests
     run: |
@@ -91,14 +84,6 @@ scripts:
       ignore:
         - '*http2*'
         - '*cookie*'
-    # Old syntax for melos <= 2.9.0 - this can be removed once we bump the minimum Dart SDK.
-    select-package:
-      flutter: false
-      dir-exists: test
-      ignore:
-        - 'dio_compatibility_layer'
-        - '*http2*'
-        - '*cookie*'
   test:flutter:
     name: Flutter tests
     exec: flutter test --coverage
@@ -107,13 +92,6 @@ scripts:
       dirExists: test
       ignore:
         - '*example*'
-    # Old syntax for melos <= 2.9.0 - this can be removed once we bump the minimum Dart SDK.
-    # There is no packages to run on min SDK for this command.
-    select-package:
-      flutter: true
-      dir-exists: test
-      ignore:
-        - '*'
   test:coverage:
     name: Run all tests and display coverage
     run: |
