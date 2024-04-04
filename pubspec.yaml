@@ -9,5 +9,6 @@ dev_dependencies:
   lints: any
   melos: any
   cli_util: any # Required by custom melos command.
+  path: any # Required by custom melos command.
   pub_semver: any # Required by custom melos command.
   yaml: any # Required by custom melos command.

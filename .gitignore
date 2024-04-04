@@ -16,7 +16,6 @@ doc/api/
 
 # Miscellaneous
 .DS_Store
-.melos*packages
 
 # IDEA configurations
 /.idea/*
@@ -27,6 +26,8 @@ doc/api/
 coverage
 
 # Melos
+**/.melos_package
+.melos_packages
 melos_overrides.yaml
 
 # FVM Version Cache

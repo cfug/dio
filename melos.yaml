@@ -60,6 +60,7 @@ scripts:
     packageFilters:
       flutter: false
       dirExists: test
+      fileExists: .melos_package
   test:web:
     name: Dart Web tests
     run: |
@@ -81,6 +82,7 @@ scripts:
     packageFilters:
       flutter: false
       dirExists: test
+      fileExists: .melos_package
       ignore:
         - '*http2*'
         - '*cookie*'
@@ -90,6 +92,7 @@ scripts:
     packageFilters:
       flutter: true
       dirExists: test
+      fileExists: .melos_package
       ignore:
         - '*example*'
   test:coverage:
