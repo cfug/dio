@@ -19,10 +19,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  pull-requests: write
-  contents: read
-
 defaults:
   run:
     shell: bash -leo pipefail {0}
@@ -105,10 +101,10 @@ jobs:
         with:
           artifact_download_workflow_names: 'Verify packages abilities,coverage_baseline'
           filename: 'coverage/cobertura.xml'
-      - name: '[Coverage] Add PR comment'
-        uses: marocchino/sticky-pull-request-comment@v2
-        #Make sure the report was generated and that the event is actually a pull request, run if failed or success
-        if: ${{  matrix.sdk == 'stable' && github.actor != 'dependabot[bot]' && steps.code_coverage_report.outputs.file != '' && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && (success() || failure()) }}
-        with:
-          recreate: true
-          path: code-coverage-results.md
+#      - name: '[Coverage] Add PR comment'
+#        uses: marocchino/sticky-pull-request-comment@v2
+#        #Make sure the report was generated and that the event is actually a pull request, run if failed or success
+#        if: ${{  matrix.sdk == 'stable' && github.actor != 'dependabot[bot]' && steps.code_coverage_report.outputs.file != '' && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && (success() || failure()) }}
+#        with:
+#          recreate: true
+#          path: code-coverage-results.md
