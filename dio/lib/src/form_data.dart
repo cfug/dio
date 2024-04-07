@@ -48,7 +48,7 @@ class FormData {
   late String _boundary;
 
   /// The boundary of FormData, it consists of a constant prefix and a random
-  /// postfix to assure the the boundary unpredictable and unique, each FormData
+  /// Postfix to assure the boundary is unpredictable and unique for each FormData
   /// instance will be different.
   String get boundary => _boundary;
 
