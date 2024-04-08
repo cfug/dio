@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Remove client stream termination in `Http2Adapter`.
 
 ## 2.5.1
 

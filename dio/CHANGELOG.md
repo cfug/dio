@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Remove sockets detach in `IOHttpClientAdapter`.
 
 ## 5.4.2+1
 
