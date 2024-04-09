@@ -276,6 +276,7 @@ class Http2Adapter implements HttpClientAdapter {
       onClose: () {
         responseSubscription.cancel();
         responseSink.close();
+        stream.outgoingMessages.close();
       },
     );
   }
