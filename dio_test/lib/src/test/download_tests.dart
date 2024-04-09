@@ -254,8 +254,12 @@ void downloadTests(
           ]);
           await expectLater(
             dio.downloadUri(
-              Uri.parse('/drip?delay=0&duration=6&numbytes=6').replace(
-                queryParameters: {'count': '3', 'gap': '2'},
+              Uri.parse('/drip').replace(
+                queryParameters: {
+                  'delay': '0',
+                  'duration': '4',
+                  'numbytes': '2',
+                },
               ),
               p.join(tmp.path, 'download_timeout.md'),
               options: Options(receiveTimeout: Duration(seconds: 1)),
@@ -264,10 +268,16 @@ void downloadTests(
           );
 
           // Throws nothing if it constantly gets response bytes.
-          await dio.download(
-            'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip',
-            p.join(tmp.path, 'main.zip'),
-            options: Options(receiveTimeout: Duration(seconds: 1)),
+          await dio.downloadUri(
+            Uri.parse('/drip').replace(
+              queryParameters: {
+                'delay': '0',
+                'duration': '5',
+                'numbytes': '5',
+              },
+            ),
+            p.join(tmp.path, 'download_timeout.md'),
+            options: Options(receiveTimeout: Duration(seconds: 2)),
           );
         },
         // The download of the main.zip file can be slow,
