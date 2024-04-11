@@ -113,5 +113,17 @@ void cancellationTests(
         ),
       );
     });
+
+    // Regression: https://github.com/cfug/dio/issues/2170
+    test(
+      'not closing sockets with requests that have same hosts',
+      () async {
+        final token = CancelToken();
+        await expectLater(dio.get('/get', cancelToken: token), completes);
+        expectLater(dio.get('/drip?duration=3'), completes);
+        Future.delayed(const Duration(seconds: 1), token.cancel);
+      },
+      testOn: '!browser',
+    );
   });
 }
