@@ -114,30 +114,14 @@ void cancellationTests(
       );
     });
 
+    // Regression: https://github.com/cfug/dio/issues/2170
     test(
       'not closing sockets with requests that have same hosts',
       () async {
         final token = CancelToken();
-        final completer = Completer<Response?>();
-        // Complete the first request with the cancel token.
-        await dio.get('/get', cancelToken: token);
-        // Request the second without any cancel token, but with the same host.
-        dio.get('/drip?duration=3').then(
-          (res) {
-            completer.complete(res);
-            return res;
-          },
-          onError: (e) {
-            completer.complete(null);
-            return Response(requestOptions: (e as DioException).requestOptions);
-          },
-        );
-        // Simulate connection established.
-        await Future.delayed(const Duration(seconds: 1));
-        token.cancel();
-        final response = await completer.future;
-        // Response should be obtained without exceptions.
-        expect(response, isNotNull);
+        await expectLater(dio.get('/get', cancelToken: token), completes);
+        expectLater(dio.get('/drip?duration=3'), completes);
+        Future.delayed(const Duration(seconds: 1), token.cancel);
       },
       testOn: '!browser',
     );
