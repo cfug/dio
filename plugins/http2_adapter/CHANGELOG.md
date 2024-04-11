@@ -2,7 +2,12 @@
 
 ## Unreleased
 
-*None.*
+- Remove client stream termination in `Http2Adapter`.
+
+## 2.5.1
+
+- Wrap `SocketException` in `DioExceptionType.connectionError`
+  instead of `DioExceptionType.unknown`.
 
 ## 2.5.0
 

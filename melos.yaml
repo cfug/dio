@@ -16,3 +16,132 @@ ide:
 command:
   bootstrap:
     runPubGetInParallel: false
+  clean:
+    hooks:
+      post: |
+        # Clean all flutter projects
+        melos exec --flutter -- "flutter clean"
+        # Clean coverage files
+        rm -rf coverage
+        rm -rf pubspec.lock
+        melos exec --dir-exists coverage -- "rm -rf coverage"
+
+scripts:
+  analyze:
+    description: Analyze all packages
+    exec: dart analyze --fatal-infos
+  format:
+    description: Format check all packages
+    exec: dart format --set-exit-if-changed .
+  format:fix:
+    description: Format all packages
+    exec: dart format .
+  publish-dry-run:
+    description: Publish dry-run all packages
+    exec: dart pub publish --dry-run
+    packageFilters:
+      noPrivate: true
+  httpbun:local:
+    description: Run httpbun locally
+    run: echo "const httpbunBaseUrl = 'https://httpbun.local';" > dio_test/lib/src/httpbun.dart
+  httpbun:com:
+    description: Run httpbun locally
+    run: echo "const httpbunBaseUrl = 'https://httpbun.com';" > dio_test/lib/src/httpbun.dart
+  test:
+    name: All tests
+    run: |
+      melos run test:vm
+      TEST_PLATFORM=chrome melos run test:web
+      TEST_PLATFORM=firefox melos run test:web
+      melos run test:flutter
+  test:vm:
+    name: Dart VM tests
+    exec: dart test --preset ${TEST_PRESET:-default} --coverage coverage/vm --chain-stack-traces
+    packageFilters:
+      flutter: false
+      dirExists: test
+    # Old syntax for melos <= 2.9.0 - this can be removed once we bump the minimum Dart SDK.
+    select-package:
+      flutter: false
+      dir-exists: test
+      ignore:
+        - 'dio_compatibility_layer'
+        - 'dio_http2_adapter'
+  test:web:
+    name: Dart Web tests
+    run: |
+      melos run test:web:chrome
+      melos run test:web:firefox
+  test:web:chrome:
+    name: Dart Web tests in chrome
+    run: melos run test:web:single
+    env:
+      TEST_PLATFORM: chrome
+  test:web:firefox:
+    name: Dart Web tests in firefox
+    run: melos run test:web:single
+    env:
+      TEST_PLATFORM: firefox
+  test:web:single:
+    name: Dart Web tests in a browser
+    exec: dart test --platform ${TEST_PLATFORM} --coverage coverage/${TEST_PLATFORM} --preset ${TEST_PRESET:-default} --chain-stack-traces
+    packageFilters:
+      flutter: false
+      dirExists: test
+      ignore:
+        - '*http2*'
+        - '*cookie*'
+    # Old syntax for melos <= 2.9.0 - this can be removed once we bump the minimum Dart SDK.
+    select-package:
+      flutter: false
+      dir-exists: test
+      ignore:
+        - 'dio_compatibility_layer'
+        - '*http2*'
+        - '*cookie*'
+  test:flutter:
+    name: Flutter tests
+    exec: flutter test --coverage
+    packageFilters:
+      flutter: true
+      dirExists: test
+      ignore:
+        - '*example*'
+    # Old syntax for melos <= 2.9.0 - this can be removed once we bump the minimum Dart SDK.
+    # There is no packages to run on min SDK for this command.
+    select-package:
+      flutter: true
+      dir-exists: test
+      ignore:
+        - '*'
+  test:coverage:
+    name: Run all tests and display coverage
+    run: |
+      melos run test
+      melos run coverage:format
+      melos run coverage:show
+  coverage:format:
+    name: Format coverage
+    run: |
+      dart pub global activate coverage
+      melos run coverage:format:package
+  coverage:format:package:
+    name: Format coverage for each package
+    exec: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+    packageFilters:
+      flutter: false
+      dirExists: coverage
+  coverage:combine:
+    name: Combine & convert coverage report
+    run: |
+      rm -rf coverage
+      dart pub global activate combine_coverage
+      dart pub global activate cobertura
+      melos run coverage:format
+      dart pub global run combine_coverage --repo-path=$pwd
+      dart pub global run cobertura convert --pubspec dio/pubspec.yaml
+  coverage:show:
+    name: Show coverage report
+    run: |
+      melos run coverage:combine
+      dart pub global run cobertura show

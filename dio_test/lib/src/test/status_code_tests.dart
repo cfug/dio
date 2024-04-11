@@ -1,34 +1,65 @@
 import 'package:dio/dio.dart';
-import 'package:dio_test/src/utils.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
-import '../matcher.dart';
-
 void statusCodeTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   late Dio dio;
 
-  setUpAll(() {
-    dio = create();
+  setUp(() {
+    dio = create(httpbunBaseUrl);
   });
 
   group('status code', () {
     for (final code in [400, 401, 404, 500, 503]) {
-      test('$code', () async {
+      test('$code', () {
         expect(
           dio.get('/status/$code'),
           throwsDioException(
             DioExceptionType.badResponse,
-            stackTraceContains: kIsWeb ? null : 'test/status_code_tests.dart',
+            stackTraceContains: kIsWeb
+                ? 'test/test_suite_test.dart'
+                : 'test/status_code_tests.dart',
             matcher: isA<DioException>().having(
               (e) => e.response!.statusCode,
               'statusCode',
-              equals(code),
+              code,
             ),
           ),
         );
       });
     }
+  });
+
+  group(ValidateStatus, () {
+    test('200 with validateStatus => false', () {
+      expect(
+        dio.get(
+          '/status/200',
+          options: Options(validateStatus: (status) => false),
+        ),
+        throwsDioException(
+          DioExceptionType.badResponse,
+          stackTraceContains: kIsWeb
+              ? 'test/test_suite_test.dart'
+              : 'test/status_code_tests.dart',
+          matcher: isA<DioException>().having(
+            (e) => e.response!.statusCode,
+            'statusCode',
+            200,
+          ),
+        ),
+      );
+    });
+
+    test('500 with validateStatus => true', () async {
+      final response = await dio.get(
+        '/status/500',
+        options: Options(validateStatus: (status) => true),
+      );
+
+      expect(response.statusCode, 500);
+    });
   });
 }

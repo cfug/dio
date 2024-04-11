@@ -338,7 +338,7 @@ abstract class DioMixin implements Dio {
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-  }) async {
+  }) {
     final requestOptions = (options ?? Options()).compose(
       this.options,
       path,
@@ -377,17 +377,14 @@ abstract class DioMixin implements Dio {
     FutureOr Function(dynamic) requestInterceptorWrapper(
       InterceptorSendCallback cb,
     ) {
-      return (dynamic incomingState) async {
+      return (dynamic incomingState) {
         final state = incomingState as InterceptorState;
         if (state.type == InterceptorResultType.next) {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() async {
               final handler = RequestInterceptorHandler();
-              final callback = cb(state.data as RequestOptions, handler);
-              if (callback is Future) {
-                await callback;
-              }
+              cb(state.data as RequestOptions, handler);
               return handler.future;
             }),
           );
@@ -401,7 +398,7 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(dynamic) responseInterceptorWrapper(
       InterceptorSuccessCallback cb,
     ) {
-      return (dynamic incomingState) async {
+      return (dynamic incomingState) {
         final state = incomingState as InterceptorState;
         if (state.type == InterceptorResultType.next ||
             state.type == InterceptorResultType.resolveCallFollowing) {
@@ -409,16 +406,12 @@ abstract class DioMixin implements Dio {
             requestOptions.cancelToken,
             Future(() async {
               final handler = ResponseInterceptorHandler();
-              final callback = cb(state.data as Response, handler);
-              if (callback is Future) {
-                await callback;
-              }
+              cb(state.data as Response, handler);
               return handler.future;
             }),
           );
-        } else {
-          return state;
         }
+        return state;
       };
     }
 
@@ -427,16 +420,13 @@ abstract class DioMixin implements Dio {
     FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
       InterceptorErrorCallback cb,
     ) {
-      return (error) {
+      return (dynamic error) {
         final state = error is InterceptorState
             ? error
             : InterceptorState(assureDioException(error, requestOptions));
         Future<InterceptorState> handleError() async {
           final handler = ErrorInterceptorHandler();
-          final callback = cb(state.data, handler);
-          if (callback is Future) {
-            await callback;
-          }
+          cb(state.data, handler);
           return handler.future;
         }
 
@@ -689,10 +679,10 @@ abstract class DioMixin implements Dio {
     CancelToken? cancelToken,
     Future<T> future,
   ) {
-    return Future.any([
-      if (cancelToken != null) cancelToken.whenCancel.then((e) => throw e),
-      future,
-    ]);
+    if (cancelToken == null) {
+      return future;
+    }
+    return Future.any([future, cancelToken.whenCancel.then((e) => throw e)]);
   }
 
   @internal

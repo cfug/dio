@@ -1,0 +1,48 @@
+name: 'coverage_baseline'
+
+# The code-coverage-report-action uses workflow artifacts to store the coverage report.
+# The action will upload the coverage report as an artifact,
+# and the action will also download the coverage report from the artifact in PRs.
+# The action will then compare the coverage report from the PR with the coverage report from the base branch.
+# For this to work, the action needs to be run on the base branch after each pushed commit
+# or at least once before the artifact retention period ends.
+
+on:
+  # Allow for manual runs
+  workflow_dispatch:
+  # Runs at 00:00, on day 1 of the month (every ~30 days)
+  schedule:
+    - cron: '0 0 1 * *'
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: stable
+      - run: |
+          chmod +x ./scripts/prepare_pinning_certs.sh
+          ./scripts/prepare_pinning_certs.sh
+      - name: Install proxy for tests
+        run: sudo apt-get update && sudo apt-get install -y squid
+      - run: dart pub get
+      - uses: bluefireteam/melos-action@v3
+      - name: '[Verify step] Test Dart packages [VM]'
+        run: melos run test:vm
+      - name: '[Verify step] Test Dart packages [Chrome]'
+        run: melos run test:web:chrome
+      - name: '[Verify step] Test Dart packages [Firefox]'
+        run: melos run test:web:firefox
+      - name: '[Verify step] Test Flutter packages'
+        run: melos run test:flutter
+      - name: '[Coverage] Generate report'
+        run: melos run coverage:combine
+      - uses: clearlyip/code-coverage-report-action@v4
+        with:
+          filename: 'coverage/cobertura.xml'

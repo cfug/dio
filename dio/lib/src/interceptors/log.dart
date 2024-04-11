@@ -64,7 +64,7 @@ class LogInterceptor extends Interceptor {
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
-  ) async {
+  ) {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -97,14 +97,14 @@ class LogInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) async {
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
     logPrint('*** Response ***');
     _printResponse(response);
     handler.next(response);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     if (error) {
       logPrint('*** DioException ***:');
       logPrint('uri: ${err.requestOptions.uri}');

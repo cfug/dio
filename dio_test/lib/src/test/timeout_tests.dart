@@ -1,24 +1,24 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:dio_test/src/matcher.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void timeoutTests(
-  Dio Function() create,
+  Dio Function(String baseUrl) create,
 ) {
   late Dio dio;
 
   setUp(() {
-    dio = create();
+    dio = create(httpbunBaseUrl);
   });
 
   group('Timeout exception of', () {
     group('connectTimeout', () {
-      test('with response', () async {
+      test('throws', () async {
         dio.options.connectTimeout = Duration(milliseconds: 3);
         await expectLater(
-          dio.get('/'),
+          dio.get(nonRoutableUrl),
           throwsDioException(
             DioExceptionType.connectionTimeout,
             messageContains: dio.options.connectTimeout.toString(),
@@ -39,35 +39,39 @@ void timeoutTests(
         );
       });
 
-      test('with streamed response', () async {
-        dio.options.receiveTimeout = Duration(seconds: 1);
-        final completer = Completer<void>();
-        final streamedResponse = await dio.get(
-          '/drip',
-          queryParameters: {'delay': 0, 'duration': 20},
-          options: Options(responseType: ResponseType.stream),
-        );
-        (streamedResponse.data as ResponseBody).stream.listen(
-          (event) {},
-          onError: (error) {
-            if (!completer.isCompleted) {
-              completer.completeError(error);
-            }
-          },
-          onDone: () {
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          },
-        );
-        await expectLater(
-          completer.future,
-          throwsDioException(
-            DioExceptionType.receiveTimeout,
-            messageContains: dio.options.receiveTimeout.toString(),
-          ),
-        );
-      }, testOn: 'vm');
+      test(
+        'with streamed response',
+        () async {
+          dio.options.receiveTimeout = Duration(seconds: 1);
+          final completer = Completer<void>();
+          final streamedResponse = await dio.get(
+            '/drip',
+            queryParameters: {'delay': 0, 'duration': 20},
+            options: Options(responseType: ResponseType.stream),
+          );
+          (streamedResponse.data as ResponseBody).stream.listen(
+            (event) {},
+            onError: (error) {
+              if (!completer.isCompleted) {
+                completer.completeError(error);
+              }
+            },
+            onDone: () {
+              if (!completer.isCompleted) {
+                completer.complete();
+              }
+            },
+          );
+          await expectLater(
+            completer.future,
+            throwsDioException(
+              DioExceptionType.receiveTimeout,
+              messageContains: dio.options.receiveTimeout.toString(),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
     });
   });
 
@@ -78,30 +82,26 @@ void timeoutTests(
   });
 
   test('ignores zero duration timeouts', () async {
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: 'https://httpbun.com/',
-        connectTimeout: Duration.zero,
-        receiveTimeout: Duration.zero,
-      ),
-    );
+    dio.options
+      ..connectTimeout = Duration.zero
+      ..receiveTimeout = Duration.zero;
     // Ignores zero duration timeouts from the base options.
     await dio.get('/drip-lines?delay=1');
     // Reset the base options.
-    dio.options.receiveTimeout = Duration(milliseconds: 10);
+    dio.options.receiveTimeout = Duration(milliseconds: 1);
     await expectLater(
       dio.get('/drip-lines?delay=1'),
       throwsDioException(
         DioExceptionType.receiveTimeout,
-        messageContains: '0:00:00.010000',
+        messageContains: dio.options.receiveTimeout.toString(),
       ),
     );
-    dio.options.connectTimeout = Duration(milliseconds: 10);
+    dio.options.connectTimeout = Duration(milliseconds: 1);
     await expectLater(
-      dio.get('/drip-lines?delay=1'),
+      dio.get(nonRoutableUrl),
       throwsDioException(
         DioExceptionType.connectionTimeout,
-        messageContains: '0:00:00.010000',
+        messageContains: dio.options.connectTimeout.toString(),
       ),
     );
     dio.options.connectTimeout = Duration.zero;

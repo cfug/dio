@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:dio_test/util.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -60,8 +61,8 @@ void main() async {
         await HttpOverrides.runWithHttpOverrides(() async {
           final timeout = Duration(milliseconds: 10);
           final dio = Dio()
-            ..options.connectTimeout = timeout
-            ..options.baseUrl = 'https://does.not.exist';
+            ..options.baseUrl = nonRoutableUrl
+            ..options.connectTimeout = timeout;
 
           when(httpClientMock.openUrl('GET', any)).thenAnswer(
             (_) async {

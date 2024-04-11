@@ -12,28 +12,6 @@ void main() {
     expect(error, isA<Exception>());
   });
 
-  test('catch DioException', () async {
-    DioException? error;
-    try {
-      await Dio().get('https://does.not.exist');
-      fail('did not throw');
-    } on DioException catch (e) {
-      error = e;
-    }
-    expect(error, isNotNull);
-  });
-
-  test('catch DioException as Exception', () async {
-    DioException? error;
-    try {
-      await Dio().get('https://does.not.exist');
-      fail('did not throw');
-    } on DioException catch (e) {
-      error = e;
-    }
-    expect(error, isNotNull);
-  });
-
   test(
     'catch DioException: hostname mismatch',
     () async {
