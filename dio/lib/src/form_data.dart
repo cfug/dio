@@ -183,12 +183,14 @@ class FormData {
       writeLine();
     }
 
-    Future.wait(files.map((file) async {
-      writeAscii('--$boundary$_rn');
-      writeAscii(_headerForFile(file));
-      await writeStreamToSink(file.value.finalize(), controller);
-      writeLine();
-    })).then((_) {
+    Future<void>(() async {
+      for (final file in files) {
+        writeAscii('--$boundary$_rn');
+        writeAscii(_headerForFile(file));
+        await writeStreamToSink(file.value.finalize(), controller);
+        writeLine();
+      }
+    }).then((_) {
       writeAscii('--$boundary--$_rn');
     }).whenComplete(() {
       controller.close();
