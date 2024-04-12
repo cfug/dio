@@ -201,7 +201,9 @@ class FormData {
 
   /// Transform the entire FormData contents as a list of bytes asynchronously.
   Future<Uint8List> readAsBytes() {
-    return finalize().reduce((a, b) => Uint8List.fromList([...a, ...b]));
+    return Future.sync(
+      () => finalize().reduce((a, b) => Uint8List.fromList([...a, ...b])),
+    );
   }
 
   // Convenience method to clone finalized FormData when retrying requests.
