@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Remove sockets detach in `IOHttpClientAdapter`.
+- Allows to define `FormData.boundaryName` instead of the default `--dio-boundary-`.
 
 ## 5.4.2+1
 
