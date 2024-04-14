@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.4.3+1
+
 - Fix type promotions for the UTF-8 encoder on previous Dart SDKs.
 
 ## 5.4.3
