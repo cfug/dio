@@ -173,14 +173,9 @@ class FormData {
 
     final controller = StreamController<Uint8List>(sync: false);
 
-    void writeUtf8(String s) {
-      final encoded = utf8.encode(s);
-      controller.add(
-        encoded is Uint8List ? encoded : Uint8List.fromList(encoded),
-      );
-    }
-
     void writeLine() => controller.add(_rnU8); // \r\n
+    void writeUtf8(String s) =>
+        controller.add(_effectiveU8Encoding(utf8.encode(s)));
 
     for (final entry in fields) {
       writeUtf8('--$boundary$_rn');
@@ -221,4 +216,8 @@ class FormData {
     }
     return clone;
   }
+}
+
+Uint8List _effectiveU8Encoding(List<int> encoded) {
+  return encoded is Uint8List ? encoded : Uint8List.fromList(encoded);
 }
