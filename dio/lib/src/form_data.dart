@@ -172,26 +172,32 @@ class FormData {
     _isFinalized = true;
 
     final controller = StreamController<Uint8List>(sync: false);
-    void writeAscii(String s) => controller.add(utf8.encode(s));
-    void writeUtf8(String string) => controller.add(utf8.encode(string));
+
+    void writeUtf8(String s) {
+      final encoded = utf8.encode(s);
+      controller.add(
+        encoded is Uint8List ? encoded : Uint8List.fromList(encoded),
+      );
+    }
+
     void writeLine() => controller.add(_rnU8); // \r\n
 
     for (final entry in fields) {
-      writeAscii('--$boundary$_rn');
-      writeAscii(_headerForField(entry.key, entry.value));
+      writeUtf8('--$boundary$_rn');
+      writeUtf8(_headerForField(entry.key, entry.value));
       writeUtf8(entry.value);
       writeLine();
     }
 
     Future<void>(() async {
       for (final file in files) {
-        writeAscii('--$boundary$_rn');
-        writeAscii(_headerForFile(file));
+        writeUtf8('--$boundary$_rn');
+        writeUtf8(_headerForFile(file));
         await writeStreamToSink(file.value.finalize(), controller);
         writeLine();
       }
     }).then((_) {
-      writeAscii('--$boundary--$_rn');
+      writeUtf8('--$boundary--$_rn');
     }).whenComplete(() {
       controller.close();
     });
