@@ -47,6 +47,7 @@ scripts:
   httpbun:com:
     description: Run httpbun locally
     run: echo "const httpbunBaseUrl = 'https://httpbun.com';" > dio_test/lib/src/httpbun.dart
+
   test:
     name: All tests
     run: |
@@ -120,6 +121,12 @@ scripts:
       melos run test
       melos run coverage:format
       melos run coverage:show
+
+  build:example:apk:
+    run: |
+      cd example_flutter_app
+      flutter build apk --debug
+
   coverage:format:
     name: Format coverage
     run: |
