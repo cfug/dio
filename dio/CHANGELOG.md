@@ -7,6 +7,15 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Raise the min Dart SDK version to 2.18.0.
 
+## 5.4.3+1
+
+- Fix type promotions for the UTF-8 encoder on previous Dart SDKs.
+
+## 5.4.3
+
+- Remove sockets detach in `IOHttpClientAdapter`.
+- Allows to define `FormData.boundaryName` instead of the default `--dio-boundary-`.
+
 ## 5.4.2+1
 
 - Revert "Catch sync/async exceptions in interceptors' handlers".
