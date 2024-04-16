@@ -37,24 +37,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd dio
-          dart pub get
-          cd ..
-      - name: Make directory for dio
-        run: mkdir pub_temp
-      - name: Generate tarball for dio
-        run: |
-          cp -r dio/CHANGELOG.md pub_temp/
-          cp -r dio/LICENSE pub_temp/
-          cp -r dio/lib pub_temp/
-          cp -r dio/README.md pub_temp/
-          cp -r dio/analysis_options.yaml pub_temp/
-          cp -r dio/pubspec.yaml pub_temp/
-          echo "tar czf pub_package.pub.tgz"
-          tar czf pub_package.pub.tgz -C pub_temp .
-
-      - name: Install dependencies
-        run: |
           cd json_annotation-3.1.1
           dart pub get
           cd ..
@@ -85,12 +67,6 @@ jobs:
           echo "tar czf pub_package.pub.tgz"
           tar czf pub_package.pub.tgz -C json_serializable .
 
-      - name: Upload artifacts for dio
-        uses: actions/upload-artifact@v4
-        with:
-          name: dio-artifact
-          path: pub_temp/*
-
       - name: Upload artifacts for json_annotation-3.1.1
         uses: actions/upload-artifact@v4
         with:
@@ -102,28 +78,6 @@ jobs:
         with:
           name: json_serializable-3.5.2-artifact
           path: pub_temp/*
-  dio_quality_checks:
-    name: Run Dio Quality Checks
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        sdk: [2.19.6]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1.6.2
-        with:
-          sdk: ${{ matrix.sdk }}
-      - name: Runs Dart analysis and unit tests
-        run: |
-          cd dio
-          dart pub get
-          dart analyze
-          cd ..
-          chmod +x ./scripts/prepare_pinning_certs.sh
-          ./scripts/prepare_pinning_certs.sh
-          cd dio
-          dart test -p vm
   json_annotation_quality_checks:
     name: Run Json Annotation Quality Checks
     runs-on: ubuntu-latest
