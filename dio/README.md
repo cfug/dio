@@ -45,8 +45,7 @@ Timeout, Custom adapters, Transformers, etc.
     * [Multiple files upload](#multiple-files-upload)
     * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdatas-and-multipartfiles)
   * [Transformer](#transformer)
-    * [In Flutter](#in-flutter)
-    * [Other example](#other-example)
+    * [Transformer example](#transformer-example)
   * [HttpClientAdapter](#httpclientadapter)
     * [Using proxy](#using-proxy)
     * [HTTPS certificate verification](#https-certificate-verification)
@@ -724,39 +723,17 @@ Future<void> _repeatedlyRequest() async {
 
 `Transformer` allows changes to the request/response data
 before it is sent/received to/from the server.
-This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
-Dio has already implemented a `DefaultTransformer` as default.
+Dio has already implemented a `BackgroundTransformer` as default, 
+which calls `jsonDecode` in an isolate if the response is larger than 50 KB.
 If you want to customize the transformation of request/response data,
 you can provide a `Transformer` by your self,
-and replace the `DefaultTransformer` by setting the `dio.transformer`.
+and replace the `BackgroundTransformer` by setting the `dio.transformer`.
 
 > `Transformer.transformRequest` only takes effect when request with `PUT`/`POST`/`PATCH`,
 > they're methods that can contain the request body.
 > `Transformer.transformResponse` however, can be applied to all types of responses.
 
-### In Flutter
-
-If you're using Dio in Flutter development,
-it's better to decode JSON in isolates with the `compute` function.
-
-```dart
-/// Must be top-level function
-Map<String, dynamic> _parseAndDecode(String response) {
-  return jsonDecode(response) as Map<String, dynamic>;
-}
-
-Future<Map<String, dynamic>> parseJson(String text) {
-  return compute(_parseAndDecode, text);
-}
-
-void main() {
-  // Custom `jsonDecodeCallback`.
-  dio.transformer = DefaultTransformer()..jsonDecodeCallback = parseJson;
-  runApp(MyApp());
-}
-```
-
-### Other example
+### Transformer example
 
 There is an example for [customizing Transformer](../example/lib/transformer.dart).
 
