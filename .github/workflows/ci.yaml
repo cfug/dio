@@ -15,6 +15,18 @@ permissions:
   id-token: write
 
 jobs:
+  build-image:
+    name: Build Image
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [2.19.6]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1.6.2
+        with:
+          sdk: ${{ matrix.sdk }}
 
       - name: Install dependencies
         run: |
@@ -52,13 +64,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: json_annotation-3.1.1-artifact
-          path: pub_temp/*
+          path: json_annotation/*
 
       - name: Upload artifacts for json_serializable-3.5.2
         uses: actions/upload-artifact@v4
         with:
           name: json_serializable-3.5.2-artifact
-          path: pub_temp/*
+          path: json_serializable/*
   json_annotation_quality_checks:
     name: Run Json Annotation Quality Checks
     runs-on: ubuntu-latest
