@@ -723,7 +723,6 @@ Future<void> _repeatedlyRequest() async {
 
 `Transformer` allows changes to the request/response data
 before it is sent/received to/from the server.
-This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
 Dio has already implemented a `BackgroundTransformer` as default, 
 which calls `jsonDecode` in an isolate if the response is larger than 50 KB.
 If you want to customize the transformation of request/response data,
