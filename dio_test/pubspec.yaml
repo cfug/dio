@@ -6,7 +6,7 @@ repository: https://github.com/cfug/dio/blob/main/dio_test
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: '>=2.15.0 <4.0.0'
+  sdk: '>=2.18.0 <4.0.0'
 
 dependencies:
   dio: any

@@ -63,7 +63,7 @@ void uploadTests(
       addTearDown(() => tmp.deleteSync(recursive: true));
 
       final f = File(p.join(tmp.path, 'flutter.png'));
-      f.createSync(exclusive: false);
+      f.createSync();
       f.writeAsBytesSync(base64Decode(_flutterLogPngBase64));
 
       final contentLength = f.lengthSync();
@@ -92,7 +92,7 @@ void uploadTests(
       addTearDown(() => tmp.deleteSync(recursive: true));
 
       final f = File(p.join(tmp.path, 'flutter.png'));
-      f.createSync(exclusive: false);
+      f.createSync();
       f.writeAsBytesSync(base64Decode(_flutterLogPngBase64));
 
       final contentLength = f.lengthSync();

@@ -137,7 +137,7 @@ class Http2Adapter implements HttpClientAdapter {
     }
 
     if (hasRequestData) {
-      Future<void> requestStreamFuture = requestStream!.listen((data) {
+      Future<dynamic> requestStreamFuture = requestStream!.listen((data) {
         stream.outgoingMessages.add(DataStreamMessage(data));
       }).asFuture();
       final sendTimeout = options.sendTimeout ?? Duration.zero;
@@ -145,7 +145,7 @@ class Http2Adapter implements HttpClientAdapter {
         requestStreamFuture = requestStreamFuture.timeout(
           sendTimeout,
           onTimeout: () {
-            stream.outgoingMessages.close();
+            stream.outgoingMessages.close().catchError((_) {});
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -159,7 +159,7 @@ class Http2Adapter implements HttpClientAdapter {
 
     final responseSink = StreamController<Uint8List>();
     final responseHeaders = Headers();
-    final responseCompleter = Completer<void>();
+    final responseCompleter = Completer();
     late StreamSubscription responseSubscription;
     bool needRedirect = false;
     bool needResponse = false;
@@ -220,14 +220,15 @@ class Http2Adapter implements HttpClientAdapter {
       cancelOnError: true,
     );
 
-    Future<void> responseFuture = responseCompleter.future;
+    Future<dynamic> responseFuture = responseCompleter.future;
     if (receiveTimeout > Duration.zero) {
       responseFuture = responseFuture.timeout(
         receiveTimeout,
         onTimeout: () {
           responseSubscription
               .cancel()
-              .whenComplete(() => responseSink.close());
+              .catchError((_) {})
+              .whenComplete(() => responseSink.close().catchError((_) {}));
           throw DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,

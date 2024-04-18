@@ -9,15 +9,22 @@ Please move specific paths for project instructions.
 > topic to your published dio related packages!
 > See more: https://dart.dev/tools/pub/pubspec#topics
 
-### dio
-
-- dio: [link](dio)
-  [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
+## Versioning
 
 **Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
 See the [Migration Guide][] for the complete breaking changes list.**
 
+To know about our compatibility policy, see the [Compatibility Policy][] doc.
+
 [Migration Guide]: https://pub.dev/documentation/dio/latest/topics/Migration%20Guide-topic.html
+[Compatibility Policy]: COMPATIBILITY_POLICY.md
+
+## All Packages
+
+### dio
+
+- dio: [link](dio)
+  [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
 
 ### Plugins
 

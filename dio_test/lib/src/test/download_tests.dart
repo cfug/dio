@@ -241,48 +241,32 @@ void downloadTests(
         );
       });
 
+      test('receiveTimeout triggers if gaps are too big', () {
+        expectLater(
+          dio.download(
+            '/drip?delay=0&duration=6&numbytes=3',
+            p.join(tmp.path, 'download_timeout.md'),
+            options: Options(receiveTimeout: Duration(seconds: 1)),
+          ),
+          throwsDioException(
+            DioExceptionType.receiveTimeout,
+            stackTraceContains: 'test/download_tests.dart',
+          ),
+        );
+      });
+
       test(
-        'timeout',
-        () async {
-          final timeoutMatcher = allOf([
-            throwsA(isA<DioException>()),
-            throwsA(
-              predicate<DioException>(
-                (e) => e.type == DioExceptionType.receiveTimeout,
-              ),
-            ),
-          ]);
-          await expectLater(
-            dio.downloadUri(
-              Uri.parse('/drip').replace(
-                queryParameters: {
-                  'delay': '0',
-                  'duration': '4',
-                  'numbytes': '2',
-                },
-              ),
+        'receiveTimeout does not trigger if constantly getting response bytes',
+        () {
+          expectLater(
+            dio.download(
+              '/drip?delay=0&duration=6&numbytes=12',
               p.join(tmp.path, 'download_timeout.md'),
               options: Options(receiveTimeout: Duration(seconds: 1)),
             ),
-            timeoutMatcher,
-          );
-
-          // Throws nothing if it constantly gets response bytes.
-          await dio.downloadUri(
-            Uri.parse('/drip').replace(
-              queryParameters: {
-                'delay': '0',
-                'duration': '5',
-                'numbytes': '5',
-              },
-            ),
-            p.join(tmp.path, 'download_timeout.md'),
-            options: Options(receiveTimeout: Duration(seconds: 2)),
+            completes,
           );
         },
-        // The download of the main.zip file can be slow,
-        // so we need to increase the timeout.
-        timeout: Timeout(Duration(minutes: 1)),
       );
 
       test('delete on error', () async {

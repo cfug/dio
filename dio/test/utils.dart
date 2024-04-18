@@ -173,7 +173,7 @@ final Matcher throwsDioExceptionConnectionError = throwsA(
 
 /// A stream of chunks of bytes representing a single piece of data.
 class ByteStream extends StreamView<List<int>> {
-  ByteStream(Stream<List<int>> stream) : super(stream);
+  ByteStream(super.stream);
 
   /// Returns a single-subscription byte stream that will emit the given bytes
   /// in a single chunk.
