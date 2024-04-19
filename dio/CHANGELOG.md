@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Raise the min Dart SDK version to 2.18.0.
+- Add constructor for `DioExceptionType.badCertificate`.
 
 ## 5.4.3+1
 

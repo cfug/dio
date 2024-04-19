@@ -189,11 +189,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         port,
       );
       if (!isCertApproved) {
-        throw DioException(
+        throw DioException.badCertificate(
           requestOptions: options,
-          type: DioExceptionType.badCertificate,
           error: responseStream.certificate,
-          message: 'The certificate of the response is not approved.',
         );
       }
     }
