@@ -22,10 +22,16 @@ jobs:
           workflow: tests.yml
           workflow_conclusion: success
           run_id: ${{ github.event.workflow_run.id }}
-          name: code-coverage-results.md
+          name: code-coverage-results
+      - name: Determine PR number
+        id: pr-number
+        run: |
+          PR_NUMBER=$(cat pr_number.txt)
+          echo "Found PR:$PR_NUMBER"
+          echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
       - name: Add PR comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          number: ${{ github.event.workflow_run.pull_requests[0].number }}
+          number: ${{ steps.pr-number.outputs.value }}
           recreate: true
           path: code-coverage-results.md
