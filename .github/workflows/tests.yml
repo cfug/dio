@@ -103,9 +103,14 @@ jobs:
         with:
           artifact_download_workflow_names: 'Verify packages abilities,coverage_baseline'
           filename: 'coverage/cobertura.xml'
+      - name: '[Coverage] Write PR number to file'
+        if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
+        run: echo ${{ github.event.number }} > pr_number.txt
       - name: '[Coverage] Upload'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         uses: actions/upload-artifact@v4
         with:
-          name: code-coverage-results.md
-          path: code-coverage-results.md
+          name: code-coverage-results
+          path: |
+            code-coverage-results.md
+            pr_number.txt
