@@ -5,6 +5,8 @@
 /// {@category Plugins}
 library dio;
 
+export 'package:http_parser/http_parser.dart' show MediaType;
+
 export 'src/adapter.dart';
 export 'src/cancel_token.dart';
 export 'src/dio.dart';
