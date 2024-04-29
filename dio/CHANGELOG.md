@@ -7,7 +7,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Raise the min Dart SDK version to 2.18.0.
 - Add constructor for `DioExceptionType.badCertificate`.
-- Export MediaType from http_parser
+- Export MediaType from http_parser.
 
 ## 5.4.3+1
 

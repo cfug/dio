@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';
 
 void main() async {
