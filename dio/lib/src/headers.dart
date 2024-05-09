@@ -53,8 +53,12 @@ class Headers {
   /// thrown.
   String? value(String name) {
     final arr = this[name];
-    if (arr == null) return null;
-    if (arr.length == 1) return arr.first;
+    if (arr == null) {
+      return null;
+    }
+    if (arr.length == 1) {
+      return arr.first;
+    }
     throw Exception(
       '"$name" header has more than one value, please use Headers[name]',
     );
@@ -64,14 +68,18 @@ class Headers {
   /// [value] added to its list of values.
   void add(String name, String value) {
     final arr = this[name];
-    if (arr == null) return set(name, value);
+    if (arr == null) {
+      return set(name, value);
+    }
     arr.add(value);
   }
 
   /// Sets a header. The header named [name] will have all its values
   /// cleared before the value [value] is added as its value.
   void set(String name, dynamic value) {
-    if (value == null) return;
+    if (value == null) {
+      return;
+    }
     name = name.trim();
     if (value is List) {
       _map[name] = value.map<String>((e) => '$e').toList();
@@ -83,7 +91,9 @@ class Headers {
   /// Removes a specific value for a header name.
   void remove(String name, String value) {
     final arr = this[name];
-    if (arr == null) return;
+    if (arr == null) {
+      return;
+    }
     arr.removeWhere((v) => v == value);
   }
 

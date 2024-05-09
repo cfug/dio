@@ -35,7 +35,9 @@ Future writeStreamToSink(Stream stream, EventSink sink) {
 /// [charset] is null or if no [Encoding] was found that corresponds to
 /// [charset].
 Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
-  if (charset == null) return fallback;
+  if (charset == null) {
+    return fallback;
+  }
   final encoding = Encoding.getByName(charset);
   return encoding ?? fallback;
 }
@@ -145,7 +147,9 @@ Map<String, V> caseInsensitiveKeyMap<V>([Map<String, V>? value]) {
     equals: (key1, key2) => key1.toLowerCase() == key2.toLowerCase(),
     hashCode: (key) => key.toLowerCase().hashCode,
   );
-  if (value != null && value.isNotEmpty) map.addAll(value);
+  if (value != null && value.isNotEmpty) {
+    map.addAll(value);
+  }
   return map;
 }
 

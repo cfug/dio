@@ -70,11 +70,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         "Can't establish connection after the adapter was closed.",
       );
     }
-    final operation = CancelableOperation.fromFuture(_fetch(
-      options,
-      requestStream,
-      cancelFuture,
-    ));
+    final operation = CancelableOperation.fromFuture(
+      _fetch(
+        options,
+        requestStream,
+        cancelFuture,
+      ),
+    );
     cancelFuture?.whenComplete(() => operation.cancel());
     return operation.value;
   }
@@ -234,7 +236,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     if (createHttpClient != null) {
       return createHttpClient!();
     }
-    final client = HttpClient()..idleTimeout = Duration(seconds: 3);
+    final client = HttpClient()..idleTimeout = const Duration(seconds: 3);
     // ignore: deprecated_member_use, deprecated_member_use_from_same_package
     return onHttpClientCreate?.call(client) ?? client;
   }

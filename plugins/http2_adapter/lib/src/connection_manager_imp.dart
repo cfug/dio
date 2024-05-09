@@ -128,7 +128,7 @@ class _ConnectionManager implements ConnectionManager {
     };
 
     transportState.delayClose(
-      _closed ? Duration(milliseconds: 50) : _idleTimeout,
+      _closed ? const Duration(milliseconds: 50) : _idleTimeout,
       () {
         _transportsMap.remove(domain);
         transportState.transport.finish();

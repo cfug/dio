@@ -58,35 +58,38 @@ void main() async {
     test(
       DioExceptionType.connectionTimeout,
       () async {
-        await HttpOverrides.runWithHttpOverrides(() async {
-          final timeout = Duration(milliseconds: 10);
-          final dio = Dio()
-            ..options.baseUrl = nonRoutableUrl
-            ..options.connectTimeout = timeout;
+        await HttpOverrides.runWithHttpOverrides(
+          () async {
+            final timeout = const Duration(milliseconds: 10);
+            final dio = Dio()
+              ..options.baseUrl = nonRoutableUrl
+              ..options.connectTimeout = timeout;
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer(
-            (_) async {
-              final request = MockHttpClientRequest();
-              await Future.delayed(
-                Duration(milliseconds: timeout.inMilliseconds + 10),
-              );
-              return request;
-            },
-          );
+            when(httpClientMock.openUrl('GET', any)).thenAnswer(
+              (_) async {
+                final request = MockHttpClientRequest();
+                await Future.delayed(
+                  Duration(milliseconds: timeout.inMilliseconds + 10),
+                );
+                return request;
+              },
+            );
 
-          await expectLater(
-            dio.get('/test'),
-            throwsA(
-              allOf([
-                isA<DioException>(),
-                (e) => e.type == DioExceptionType.connectionTimeout,
-                (e) => e.stackTrace
-                    .toString()
-                    .contains('test/stacktrace_test.dart'),
-              ]),
-            ),
-          );
-        }, MockHttpOverrides());
+            await expectLater(
+              dio.get('/test'),
+              throwsA(
+                allOf([
+                  isA<DioException>(),
+                  (e) => e.type == DioExceptionType.connectionTimeout,
+                  (e) => e.stackTrace
+                      .toString()
+                      .contains('test/stacktrace_test.dart'),
+                ]),
+              ),
+            );
+          },
+          MockHttpOverrides(),
+        );
       },
       testOn: '!browser',
     );
@@ -94,39 +97,42 @@ void main() async {
     test(
       DioExceptionType.receiveTimeout,
       () async {
-        await HttpOverrides.runWithHttpOverrides(() async {
-          final timeout = Duration(milliseconds: 10);
-          final dio = Dio()
-            ..options.receiveTimeout = timeout
-            ..options.baseUrl = 'https://does.not.exist';
+        await HttpOverrides.runWithHttpOverrides(
+          () async {
+            final timeout = const Duration(milliseconds: 10);
+            final dio = Dio()
+              ..options.receiveTimeout = timeout
+              ..options.baseUrl = 'https://does.not.exist';
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer(
-            (_) async {
-              final request = MockHttpClientRequest();
-              final response = MockHttpClientResponse();
-              when(request.close()).thenAnswer(
-                (_) => Future.delayed(
-                  Duration(milliseconds: timeout.inMilliseconds + 10),
-                  () => response,
-                ),
-              );
-              return request;
-            },
-          );
+            when(httpClientMock.openUrl('GET', any)).thenAnswer(
+              (_) async {
+                final request = MockHttpClientRequest();
+                final response = MockHttpClientResponse();
+                when(request.close()).thenAnswer(
+                  (_) => Future.delayed(
+                    Duration(milliseconds: timeout.inMilliseconds + 10),
+                    () => response,
+                  ),
+                );
+                return request;
+              },
+            );
 
-          await expectLater(
-            dio.get('/test'),
-            throwsA(
-              allOf([
-                isA<DioException>(),
-                (DioException e) => e.type == DioExceptionType.receiveTimeout,
-                (DioException e) => e.stackTrace
-                    .toString()
-                    .contains('test/stacktrace_test.dart'),
-              ]),
-            ),
-          );
-        }, MockHttpOverrides());
+            await expectLater(
+              dio.get('/test'),
+              throwsA(
+                allOf([
+                  isA<DioException>(),
+                  (DioException e) => e.type == DioExceptionType.receiveTimeout,
+                  (DioException e) => e.stackTrace
+                      .toString()
+                      .contains('test/stacktrace_test.dart'),
+                ]),
+              ),
+            );
+          },
+          MockHttpOverrides(),
+        );
       },
       testOn: '!browser',
     );
@@ -134,38 +140,41 @@ void main() async {
     test(
       DioExceptionType.sendTimeout,
       () async {
-        await HttpOverrides.runWithHttpOverrides(() async {
-          final timeout = Duration(milliseconds: 10);
-          final dio = Dio()
-            ..options.sendTimeout = timeout
-            ..options.baseUrl = 'https://does.not.exist';
+        await HttpOverrides.runWithHttpOverrides(
+          () async {
+            final timeout = const Duration(milliseconds: 10);
+            final dio = Dio()
+              ..options.sendTimeout = timeout
+              ..options.baseUrl = 'https://does.not.exist';
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer(
-            (_) async {
-              final request = MockHttpClientRequest();
-              when(request.addStream(any)).thenAnswer(
-                (_) async => Future.delayed(
-                  Duration(milliseconds: timeout.inMilliseconds + 10),
-                ),
-              );
-              when(request.headers).thenReturn(MockHttpHeaders());
-              return request;
-            },
-          );
+            when(httpClientMock.openUrl('GET', any)).thenAnswer(
+              (_) async {
+                final request = MockHttpClientRequest();
+                when(request.addStream(any)).thenAnswer(
+                  (_) async => Future.delayed(
+                    Duration(milliseconds: timeout.inMilliseconds + 10),
+                  ),
+                );
+                when(request.headers).thenReturn(MockHttpHeaders());
+                return request;
+              },
+            );
 
-          await expectLater(
-            dio.get('/test', data: 'some data'),
-            throwsA(
-              allOf([
-                isA<DioException>(),
-                (DioException e) => e.type == DioExceptionType.sendTimeout,
-                (DioException e) => e.stackTrace
-                    .toString()
-                    .contains('test/stacktrace_test.dart'),
-              ]),
-            ),
-          );
-        }, MockHttpOverrides());
+            await expectLater(
+              dio.get('/test', data: 'some data'),
+              throwsA(
+                allOf([
+                  isA<DioException>(),
+                  (DioException e) => e.type == DioExceptionType.sendTimeout,
+                  (DioException e) => e.stackTrace
+                      .toString()
+                      .contains('test/stacktrace_test.dart'),
+                ]),
+              ),
+            );
+          },
+          MockHttpOverrides(),
+        );
       },
       testOn: '!browser',
     );
@@ -173,36 +182,39 @@ void main() async {
     test(
       DioExceptionType.badCertificate,
       () async {
-        await HttpOverrides.runWithHttpOverrides(() async {
-          final dio = Dio()
-            ..options.baseUrl = 'https://does.not.exist'
-            ..httpClientAdapter = IOHttpClientAdapter(
-              validateCertificate: (_, __, ___) => false,
+        await HttpOverrides.runWithHttpOverrides(
+          () async {
+            final dio = Dio()
+              ..options.baseUrl = 'https://does.not.exist'
+              ..httpClientAdapter = IOHttpClientAdapter(
+                validateCertificate: (_, __, ___) => false,
+              );
+
+            when(httpClientMock.openUrl('GET', any)).thenAnswer(
+              (_) async {
+                final request = MockHttpClientRequest();
+                final response = MockHttpClientResponse();
+                when(request.close()).thenAnswer((_) => Future.value(response));
+                when(response.certificate).thenReturn(null);
+                return request;
+              },
             );
 
-          when(httpClientMock.openUrl('GET', any)).thenAnswer(
-            (_) async {
-              final request = MockHttpClientRequest();
-              final response = MockHttpClientResponse();
-              when(request.close()).thenAnswer((_) => Future.value(response));
-              when(response.certificate).thenReturn(null);
-              return request;
-            },
-          );
-
-          await expectLater(
-            dio.get('/test'),
-            throwsA(
-              allOf([
-                isA<DioException>(),
-                (DioException e) => e.type == DioExceptionType.badCertificate,
-                (DioException e) => e.stackTrace
-                    .toString()
-                    .contains('test/stacktrace_test.dart'),
-              ]),
-            ),
-          );
-        }, MockHttpOverrides());
+            await expectLater(
+              dio.get('/test'),
+              throwsA(
+                allOf([
+                  isA<DioException>(),
+                  (DioException e) => e.type == DioExceptionType.badCertificate,
+                  (DioException e) => e.stackTrace
+                      .toString()
+                      .contains('test/stacktrace_test.dart'),
+                ]),
+              ),
+            );
+          },
+          MockHttpOverrides(),
+        );
       },
       testOn: '!browser',
     );
@@ -273,8 +285,8 @@ void main() async {
                 when(request.headers).thenReturn(MockHttpHeaders());
                 when(request.addStream(any)).thenAnswer((_) => Future.value());
                 when(request.close()).thenAnswer(
-                  (_) => Future.delayed(Duration(milliseconds: 50), () {
-                    throw SocketException('test');
+                  (_) => Future.delayed(const Duration(milliseconds: 50), () {
+                    throw const SocketException('test');
                   }),
                 );
                 return client;

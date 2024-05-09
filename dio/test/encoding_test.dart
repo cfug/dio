@@ -10,9 +10,9 @@ void main() {
         'd': 8,
         'e': {
           'a': 5,
-          'b': [66, 8]
-        }
-      }
+          'b': [66, 8],
+        },
+      },
     };
     test('default ', () {
       // a=你好&b=5&b=6&c[d]=8&c[e][a]=5&c[e][b]=66&c[e][b]=8
@@ -76,18 +76,18 @@ void main() {
         Transformer.urlEncodeMap(
           {
             'a': '你好',
-            'b': ListParam<int>([5, 6], ListFormat.pipes),
+            'b': const ListParam<int>([5, 6], ListFormat.pipes),
             'c': {
               'd': 8,
               'e': {
                 'a': 5,
-                'b': ListParam<String>(['foo', 'bar'], ListFormat.csv),
-                'c': ListParam<String>(['foo', 'bar'], ListFormat.ssv),
-                'd': ListParam<String>(['foo', 'bar'], ListFormat.multi),
-                'e': ListParam<String>(['foo', 'bar'], ListFormat.tsv),
+                'b': const ListParam<String>(['foo', 'bar'], ListFormat.csv),
+                'c': const ListParam<String>(['foo', 'bar'], ListFormat.ssv),
+                'd': const ListParam<String>(['foo', 'bar'], ListFormat.multi),
+                'e': const ListParam<String>(['foo', 'bar'], ListFormat.tsv),
                 'f': [
                   'foo',
-                  'bar'
+                  'bar',
                 ], // this uses ListFormat.multiCompatible set below
               },
             },
@@ -103,7 +103,7 @@ void main() {
     test(ListFormat.csv, () {
       expect(
         Transformer.urlEncodeQueryMap({
-          'foo': ListParam(['1', '%', '\$'], ListFormat.csv)
+          'foo': const ListParam(['1', '%', '\$'], ListFormat.csv),
         }),
         'foo=1,%25,%24',
       );
@@ -114,24 +114,24 @@ void main() {
         Transformer.urlEncodeQueryMap(
           {
             'a': '你好',
-            'b': ListParam<int>([5, 6], ListFormat.pipes),
+            'b': const ListParam<int>([5, 6], ListFormat.pipes),
             'c': {
               'd': 8,
               'e': {
                 'a': 5,
-                'b': ListParam<Object>(
+                'b': const ListParam<Object>(
                   ['foo', 'bar', 1, 2.2],
                   ListFormat.csv,
                 ),
-                'c': ListParam<Object>(
+                'c': const ListParam<Object>(
                   ['foo', 'bar', 1, 2.2],
                   ListFormat.ssv,
                 ),
-                'd': ListParam<Object>(
+                'd': const ListParam<Object>(
                   ['foo', 'bar', 1, 2.2],
                   ListFormat.multi,
                 ),
-                'e': ListParam<Object>(
+                'e': const ListParam<Object>(
                   ['foo', 'bar', 1, 2.2],
                   ListFormat.tsv,
                 ),
@@ -139,7 +139,7 @@ void main() {
                   'foo',
                   'bar',
                   1,
-                  2.2
+                  2.2,
                 ], // this uses ListFormat.multiCompatible set below
               },
             },

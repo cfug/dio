@@ -6,8 +6,8 @@ void main() async {
   final dio = Dio();
   dio.options
     ..baseUrl = 'https://httpbin.org/'
-    ..connectTimeout = Duration(seconds: 5)
-    ..receiveTimeout = Duration(seconds: 5)
+    ..connectTimeout = const Duration(seconds: 5)
+    ..receiveTimeout = const Duration(seconds: 5)
     ..validateStatus = (int? status) {
       return status != null && status > 0;
     }
@@ -56,7 +56,7 @@ void main() async {
     'file': await MultipartFile.fromFile(
       './example/upload.txt',
       filename: 'upload.txt',
-    )
+    ),
   });
 
   // Send FormData
@@ -71,7 +71,7 @@ void main() async {
       'info': {
         'name': 'wendux',
         'age': 25,
-      }
+      },
     },
     options: Options(
       contentType: Headers.formUrlEncodedContentType,

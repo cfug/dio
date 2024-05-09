@@ -29,7 +29,9 @@ void main() async {
     validateCertificate: (cert, host, port) {
       // Check that the cert fingerprint matches the one we expect
       // We definitely require _some_ certificate
-      if (cert == null) return false;
+      if (cert == null) {
+        return false;
+      }
       // Validate it any way you want. Here we only check that
       // the fingerprint matches the OpenSSL SHA256.
       final f = sha256.convert(cert.der).toString();

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:dio_test/util.dart';
 import 'package:dio/src/response/response_stream_handler.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -53,10 +53,12 @@ void main() {
         stream,
         emitsInOrder([
           Uint8List.fromList([0]),
-          emitsError(matchesDioException(
-            DioExceptionType.cancel,
-            stackTraceContains: 'test/response/response_stream_test.dart',
-          )),
+          emitsError(
+            matchesDioException(
+              DioExceptionType.cancel,
+              stackTraceContains: 'test/response/response_stream_test.dart',
+            ),
+          ),
           emitsDone,
         ]),
       );
@@ -66,7 +68,7 @@ void main() {
       expect(source.hasListener, isTrue);
       cancelToken.cancel();
 
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(source.hasListener, isFalse);
       });
     });
@@ -102,19 +104,19 @@ void main() {
       );
 
       source.add(Uint8List.fromList([0]));
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(count, 1);
         expect(total, 6);
       });
 
       source.add(Uint8List.fromList([1, 2]));
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(count, 3);
         expect(total, 6);
       });
 
       source.add(Uint8List.fromList([3, 4, 5]));
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(count, 6);
         expect(total, 6);
       });
@@ -150,19 +152,19 @@ void main() {
       );
 
       source.add(Uint8List.fromList([0]));
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(count, 1);
         expect(total, -1);
       });
 
       source.add(Uint8List.fromList([1, 2]));
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(count, 3);
         expect(total, -1);
       });
 
       source.add(Uint8List.fromList([3, 4, 5]));
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(count, 6);
         expect(total, -1);
       });
@@ -189,10 +191,10 @@ void main() {
       );
 
       source.add(Uint8List.fromList([0]));
-      source.addError(FormatException());
+      source.addError(const FormatException());
       source.close();
 
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(source.hasListener, isFalse);
       });
     });
@@ -200,7 +202,7 @@ void main() {
     test('emits error on receiveTimeout', () async {
       final stream = handleResponseStream(
         RequestOptions(
-          receiveTimeout: Duration(milliseconds: 100),
+          receiveTimeout: const Duration(milliseconds: 100),
         ),
         ResponseBody(
           source.stream,
@@ -213,23 +215,25 @@ void main() {
         emitsInOrder([
           Uint8List.fromList([0]),
           Uint8List.fromList([1]),
-          emitsError(matchesDioException(
-            DioExceptionType.receiveTimeout,
-            stackTraceContains: 'test/response/response_stream_test.dart',
-          )),
+          emitsError(
+            matchesDioException(
+              DioExceptionType.receiveTimeout,
+              stackTraceContains: 'test/response/response_stream_test.dart',
+            ),
+          ),
           emitsDone,
         ]),
       );
 
       source.add(Uint8List.fromList([0]));
-      await Future.delayed(Duration(milliseconds: 90), () {
+      await Future.delayed(const Duration(milliseconds: 90), () {
         source.add(Uint8List.fromList([1]));
       });
-      await Future.delayed(Duration(milliseconds: 110), () {
+      await Future.delayed(const Duration(milliseconds: 110), () {
         source.add(Uint8List.fromList([2]));
       });
 
-      await Future.delayed(Duration(milliseconds: 100), () {
+      await Future.delayed(const Duration(milliseconds: 100), () {
         expect(source.hasListener, isFalse);
       });
     });
@@ -240,7 +244,7 @@ void main() {
       final stream = handleResponseStream(
         RequestOptions(
           cancelToken: cancelToken,
-          receiveTimeout: Duration(seconds: 1),
+          receiveTimeout: const Duration(seconds: 1),
         ),
         ResponseBody(source.stream, 200),
         onReceiveTimeoutWatchCancelled: () => timerCancelled = true,
@@ -250,10 +254,12 @@ void main() {
         stream,
         emitsInOrder([
           Uint8List.fromList([0]),
-          emitsError(matchesDioException(
-            DioExceptionType.cancel,
-            stackTraceContains: 'test/response/response_stream_test.dart',
-          )),
+          emitsError(
+            matchesDioException(
+              DioExceptionType.cancel,
+              stackTraceContains: 'test/response/response_stream_test.dart',
+            ),
+          ),
           emitsDone,
         ]),
       );

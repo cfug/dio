@@ -16,9 +16,9 @@ void main() {
     final map = {'a': '5'};
     final mapOverride = {'b': '6'};
     final baseOptions = BaseOptions(
-      connectTimeout: Duration(seconds: 2),
-      receiveTimeout: Duration(seconds: 2),
-      sendTimeout: Duration(seconds: 2),
+      connectTimeout: const Duration(seconds: 2),
+      receiveTimeout: const Duration(seconds: 2),
+      sendTimeout: const Duration(seconds: 2),
       baseUrl: 'http://localhost',
       queryParameters: map,
       extra: map,
@@ -29,16 +29,16 @@ void main() {
     );
     final opt1 = baseOptions.copyWith(
       method: 'post',
-      receiveTimeout: Duration(seconds: 3),
-      sendTimeout: Duration(seconds: 3),
+      receiveTimeout: const Duration(seconds: 3),
+      sendTimeout: const Duration(seconds: 3),
       baseUrl: 'https://pub.dev',
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
     expect(opt1.method, 'post');
-    expect(opt1.receiveTimeout, Duration(seconds: 3));
-    expect(opt1.connectTimeout, Duration(seconds: 2));
+    expect(opt1.receiveTimeout, const Duration(seconds: 3));
+    expect(opt1.connectTimeout, const Duration(seconds: 2));
     expect(opt1.followRedirects, false);
     expect(opt1.persistentConnection, false);
     expect(opt1.baseUrl, 'https://pub.dev');
@@ -49,8 +49,8 @@ void main() {
 
     final opt2 = Options(
       method: 'get',
-      receiveTimeout: Duration(seconds: 2),
-      sendTimeout: Duration(seconds: 2),
+      receiveTimeout: const Duration(seconds: 2),
+      sendTimeout: const Duration(seconds: 2),
       extra: map,
       headers: map,
       contentType: 'application/json',
@@ -60,15 +60,15 @@ void main() {
 
     final opt3 = opt2.copyWith(
       method: 'post',
-      receiveTimeout: Duration(seconds: 3),
-      sendTimeout: Duration(seconds: 3),
+      receiveTimeout: const Duration(seconds: 3),
+      sendTimeout: const Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
     );
 
     expect(opt3.method, 'post');
-    expect(opt3.receiveTimeout, Duration(seconds: 3));
+    expect(opt3.receiveTimeout, const Duration(seconds: 3));
     expect(opt3.followRedirects, false);
     expect(opt3.persistentConnection, false);
     expect(opt3.headers!['b'], '6');
@@ -77,14 +77,14 @@ void main() {
 
     final opt4 = RequestOptions(
       path: '/xxx',
-      sendTimeout: Duration(seconds: 2),
+      sendTimeout: const Duration(seconds: 2),
       followRedirects: false,
       persistentConnection: false,
     );
     final opt5 = opt4.copyWith(
       method: 'post',
-      receiveTimeout: Duration(seconds: 3),
-      sendTimeout: Duration(seconds: 3),
+      receiveTimeout: const Duration(seconds: 3),
+      sendTimeout: const Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       data: 'xx=5',
@@ -92,7 +92,7 @@ void main() {
       contentType: 'text/html',
     );
     expect(opt5.method, 'post');
-    expect(opt5.receiveTimeout, Duration(seconds: 3));
+    expect(opt5.receiveTimeout, const Duration(seconds: 3));
     expect(opt5.followRedirects, false);
     expect(opt5.persistentConnection, false);
     expect(opt5.contentType, 'text/html');
@@ -426,7 +426,7 @@ void main() {
       when(response.reasonPhrase).thenReturn('OK');
       when(response.isRedirect).thenReturn(false);
       when(response.redirects).thenReturn([]);
-      when(response.cast()).thenAnswer((_) => Stream<Uint8List>.empty());
+      when(response.cast()).thenAnswer((_) => const Stream<Uint8List>.empty());
       return Future.value(request);
     });
 

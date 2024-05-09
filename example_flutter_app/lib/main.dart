@@ -45,11 +45,11 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             ElevatedButton(
-              child: Text('Request'),
+              child: const Text('Request'),
               onPressed: () async {
                 try {
                   await dio
@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ElevatedButton(
-              child: Text('Open new page5'),
+              child: const Text('Open new page5'),
               onPressed: () {
                 Navigator.push(
                   context,

@@ -103,6 +103,16 @@ scripts:
       melos run coverage:format
       melos run coverage:show
 
+  upgrade:dart:
+    name: Upgrade Dart package deps
+    exec: dart pub upgrade
+    packageFilters:
+      flutter: false
+  upgrade:flutter:
+    name: Upgrade Flutter package deps
+    exec: flutter pub upgrade
+    packageFilters:
+      flutter: true
   build:example:apk:
     run: |
       cd example_flutter_app

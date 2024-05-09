@@ -15,25 +15,29 @@ void main() {
 
   group('Timeout exception of', () {
     group('connectTimeout', () {
-      test('update between calls', () async {
-        final client = HttpClient();
-        final dio = Dio()
-          ..options.baseUrl = nonRoutableUrl
-          ..httpClientAdapter = IOHttpClientAdapter(
-            createHttpClient: () => client,
-          );
+      test(
+        'update between calls',
+        () async {
+          final client = HttpClient();
+          final dio = Dio()
+            ..options.baseUrl = nonRoutableUrl
+            ..httpClientAdapter = IOHttpClientAdapter(
+              createHttpClient: () => client,
+            );
 
-        dio.options.connectTimeout = Duration(milliseconds: 5);
-        await dio
-            .get('/')
-            .catchError((e) => Response(requestOptions: RequestOptions()));
-        expect(client.connectionTimeout, dio.options.connectTimeout);
-        dio.options.connectTimeout = Duration(milliseconds: 10);
-        await dio
-            .get('/')
-            .catchError((e) => Response(requestOptions: RequestOptions()));
-        expect(client.connectionTimeout, dio.options.connectTimeout);
-      }, testOn: 'vm');
+          dio.options.connectTimeout = const Duration(milliseconds: 5);
+          await dio
+              .get('/')
+              .catchError((e) => Response(requestOptions: RequestOptions()));
+          expect(client.connectionTimeout, dio.options.connectTimeout);
+          dio.options.connectTimeout = const Duration(milliseconds: 10);
+          await dio
+              .get('/')
+              .catchError((e) => Response(requestOptions: RequestOptions()));
+          expect(client.connectionTimeout, dio.options.connectTimeout);
+        },
+        testOn: 'vm',
+      );
     });
   });
 }

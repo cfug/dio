@@ -77,7 +77,7 @@ void corsTests(
               options: Options(
                 validateStatus: (status) => true,
                 contentType: Headers.textPlainContentType,
-                sendTimeout: Duration(seconds: 1),
+                sendTimeout: const Duration(seconds: 1),
               ),
             );
           },

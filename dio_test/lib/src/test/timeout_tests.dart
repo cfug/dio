@@ -16,7 +16,7 @@ void timeoutTests(
   group('Timeout exception of', () {
     group('connectTimeout', () {
       test('throws', () async {
-        dio.options.connectTimeout = Duration(milliseconds: 3);
+        dio.options.connectTimeout = const Duration(milliseconds: 3);
         await expectLater(
           dio.get(nonRoutableUrl),
           throwsDioException(
@@ -29,7 +29,7 @@ void timeoutTests(
 
     group('receiveTimeout', () {
       test('with normal response', () async {
-        dio.options.receiveTimeout = Duration(seconds: 1);
+        dio.options.receiveTimeout = const Duration(seconds: 1);
         await expectLater(
           dio.get('/drip', queryParameters: {'delay': 2}),
           throwsDioException(
@@ -42,7 +42,7 @@ void timeoutTests(
       test(
         'with streamed response',
         () async {
-          dio.options.receiveTimeout = Duration(seconds: 1);
+          dio.options.receiveTimeout = const Duration(seconds: 1);
           final completer = Completer<void>();
           final streamedResponse = await dio.get(
             '/drip',
@@ -76,7 +76,7 @@ void timeoutTests(
   });
 
   test('no DioException when receiveTimeout > request duration', () async {
-    dio.options.receiveTimeout = Duration(seconds: 5);
+    dio.options.receiveTimeout = const Duration(seconds: 5);
 
     await dio.get('/drip?delay=1&numbytes=1');
   });
@@ -88,7 +88,7 @@ void timeoutTests(
     // Ignores zero duration timeouts from the base options.
     await dio.get('/drip-lines?delay=1');
     // Reset the base options.
-    dio.options.receiveTimeout = Duration(milliseconds: 1);
+    dio.options.receiveTimeout = const Duration(milliseconds: 1);
     await expectLater(
       dio.get('/drip-lines?delay=1'),
       throwsDioException(
@@ -96,7 +96,7 @@ void timeoutTests(
         messageContains: dio.options.receiveTimeout.toString(),
       ),
     );
-    dio.options.connectTimeout = Duration(milliseconds: 1);
+    dio.options.connectTimeout = const Duration(milliseconds: 1);
     await expectLater(
       dio.get(nonRoutableUrl),
       throwsDioException(

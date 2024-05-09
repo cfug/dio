@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'adapter.dart';
-import 'dio_mixin.dart';
-import 'options.dart';
-import 'headers.dart';
 import 'cancel_token.dart';
-import 'transformer.dart';
-import 'response.dart';
-
 import 'dio/dio_for_native.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
+import 'dio_mixin.dart';
+import 'headers.dart';
+import 'options.dart';
+import 'response.dart';
+import 'transformer.dart';
 
 /// Dio enables you to make HTTP requests easily.
 ///
