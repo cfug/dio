@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 void main() async {
   final dio = Dio();
   dio.options.baseUrl = 'https://httpbin.org/';
-  dio.options.connectTimeout = Duration(seconds: 5);
+  dio.options.connectTimeout = const Duration(seconds: 5);
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) {
@@ -20,7 +20,6 @@ void main() async {
                 .get('/get')
                 .then(handler.resolve)
                 .catchError((e) => handler.reject(e));
-            break;
           case '/fakepath3':
             return handler.reject(
               DioException(

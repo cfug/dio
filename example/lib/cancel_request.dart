@@ -8,7 +8,7 @@ void main() async {
   // Token can be shared with different requests.
   final token = CancelToken();
   // In one minute, we cancel!
-  Timer(Duration(milliseconds: 500), () {
+  Timer(const Duration(milliseconds: 500), () {
     token.cancel('cancelled');
   });
 
@@ -44,6 +44,6 @@ void main() async {
         print('$url3: $e');
       }
       print(e);
-    })
+    }),
   ]);
 }

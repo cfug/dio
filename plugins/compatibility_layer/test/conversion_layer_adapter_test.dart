@@ -27,12 +27,13 @@ void main() {
   });
 
   test('headers', () async {
-    final mock = ClientMock()..response = StreamedResponse(Stream.empty(), 200);
+    final mock = ClientMock()
+      ..response = StreamedResponse(const Stream.empty(), 200);
     final cla = ConversionLayerAdapter(mock);
 
     await cla.fetch(
       RequestOptions(path: '', headers: {'foo': 'bar'}),
-      Stream.empty(),
+      const Stream.empty(),
       null,
     );
 

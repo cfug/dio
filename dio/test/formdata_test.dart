@@ -19,7 +19,7 @@ void main() async {
           'file': MultipartFile.fromString(
             'hello world.',
             headers: {
-              'test': <String>['a']
+              'test': <String>['a'],
             },
           ),
           'files': [
@@ -27,18 +27,18 @@ void main() async {
               'test/mock/_testfile',
               filename: '1.txt',
               headers: {
-                'test': <String>['b']
+                'test': <String>['b'],
               },
             ),
             MultipartFile.fromFileSync(
               'test/mock/_testfile',
               filename: '2.txt',
               headers: {
-                'test': <String>['c']
+                'test': <String>['c'],
               },
               contentType: MediaType.parse('text/plain'),
             ),
-          ]
+          ],
         });
         final fmStr = await fm.readAsBytes();
         final f = File('test/mock/_formdata');
@@ -53,16 +53,16 @@ void main() async {
         expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
         final fm1 = FormData();
-        fm1.fields.add(MapEntry('name', 'wendux'));
-        fm1.fields.add(MapEntry('age', '25'));
-        fm1.fields.add(MapEntry('path', '/图片空间/地址'));
+        fm1.fields.add(const MapEntry('name', 'wendux'));
+        fm1.fields.add(const MapEntry('age', '25'));
+        fm1.fields.add(const MapEntry('path', '/图片空间/地址'));
         fm1.files.add(
           MapEntry(
             'file',
             MultipartFile.fromString(
               'hello world.',
               headers: {
-                'test': <String>['a']
+                'test': <String>['a'],
               },
             ),
           ),
@@ -107,7 +107,7 @@ void main() async {
           'file': MultipartFile.fromString(
             'hello world.',
             headers: {
-              'test': <String>['a']
+              'test': <String>['a'],
             },
           ),
           'files': [
@@ -115,18 +115,18 @@ void main() async {
               'test/mock/_testfile',
               filename: '1.txt',
               headers: {
-                'test': <String>['b']
+                'test': <String>['b'],
               },
             ),
             MultipartFile.fromFileSync(
               'test/mock/_testfile',
               filename: '2.txt',
               headers: {
-                'test': <String>['c']
+                'test': <String>['c'],
               },
               contentType: MediaType.parse('text/plain'),
             ),
-          ]
+          ],
         });
         final fmStr = await fm.readAsBytes();
         final f = File('test/mock/_formdata');
@@ -198,7 +198,7 @@ void main() async {
         'api': {
           'dest': '/',
           'data': dynamicData,
-        }
+        },
       };
 
       final fd = FormData.fromMap(request);

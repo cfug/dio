@@ -21,7 +21,7 @@ Future<FormData> formData1() async {
         './example/upload.txt',
         filename: 'upload.txt',
       ),
-    ]
+    ],
   });
 }
 
@@ -30,13 +30,13 @@ Future<FormData> formData2() async {
 
   formData.fields
     ..add(
-      MapEntry(
+      const MapEntry(
         'name',
         'wendux',
       ),
     )
     ..add(
-      MapEntry(
+      const MapEntry(
         'age',
         '25',
       ),
@@ -112,7 +112,9 @@ void main() async {
     'http://localhost:3000/upload',
     data: data3,
     onSendProgress: (sent, total) {
-      if (total <= 0) return;
+      if (total <= 0) {
+        return;
+      }
       print('percentage: ${(sent / total * 100).toStringAsFixed(0)}%');
     },
   );

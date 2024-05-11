@@ -72,10 +72,12 @@ class _FakeCookieJar extends Fake implements CookieJar {
 
   @override
   Future<void> saveFromResponse(Uri uri, List<Cookie> cookies) async {
-    _saveCalls.add(_SaveCall(
-      uri.toString(),
-      cookies.join('; '),
-    ));
+    _saveCalls.add(
+      _SaveCall(
+        uri.toString(),
+        cookies.join('; '),
+      ),
+    );
   }
 }
 

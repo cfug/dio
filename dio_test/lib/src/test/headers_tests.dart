@@ -122,7 +122,7 @@ void headerTests(
           contentType: Headers.textPlainContentType,
           // Rather than this.
           headers: {
-            Headers.contentTypeHeader: Headers.formUrlEncodedContentType
+            Headers.contentTypeHeader: Headers.formUrlEncodedContentType,
           },
         ),
       );

@@ -476,7 +476,7 @@ void main() {
           '/echo',
           data: [
             {'hello': 'here'},
-            {'hello': 'there'}
+            {'hello': 'there'},
           ],
         );
         expect(response.requestOptions.contentType, 'application/json');
@@ -666,13 +666,15 @@ void main() {
 
       int result = 0;
       void onResult(d) {
-        if (tokenRequestCounts > 0) ++result;
+        if (tokenRequestCounts > 0) {
+          ++result;
+        }
       }
 
       await Future.wait([
         dio.get('/test?tag=1').then(onResult),
         dio.get('/test?tag=2').then(onResult),
-        dio.get('/test?tag=3').then(onResult)
+        dio.get('/test?tag=3').then(onResult),
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);
@@ -733,13 +735,15 @@ void main() {
 
       int result = 0;
       void onResult(d) {
-        if (tokenRequestCounts > 0) ++result;
+        if (tokenRequestCounts > 0) {
+          ++result;
+        }
       }
 
       await Future.wait([
         dio.get('/test-auth?tag=1').then(onResult),
         dio.get('/test-auth?tag=2').then(onResult),
-        dio.get('/test-auth?tag=3').then(onResult)
+        dio.get('/test-auth?tag=3').then(onResult),
       ]);
       expect(tokenRequestCounts, 1);
       expect(result, 3);

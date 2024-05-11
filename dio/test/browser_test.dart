@@ -10,7 +10,7 @@ void main() {
     final browserAdapter = BrowserHttpClientAdapter(withCredentials: true);
     final opts = RequestOptions();
     final testStream = Stream<Uint8List>.periodic(
-      Duration(seconds: 1),
+      const Duration(seconds: 1),
       (x) => Uint8List(x),
     );
     final cancelFuture = opts.cancelToken?.whenCancel;

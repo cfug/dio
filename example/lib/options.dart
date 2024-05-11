@@ -6,8 +6,8 @@ void main() async {
   final dio = Dio(
     BaseOptions(
       baseUrl: 'https://httpbin.org/',
-      connectTimeout: Duration(seconds: 5),
-      receiveTimeout: Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 10),
       // 5s
       headers: {
         HttpHeaders.userAgentHeader: 'dio',
@@ -35,7 +35,7 @@ void main() async {
     '/post',
     data: {
       'id': 8,
-      'info': {'name': 'wendux', 'age': 25}
+      'info': {'name': 'wendux', 'age': 25},
     },
     // Send data with "application/x-www-form-urlencoded" format
     options: Options(

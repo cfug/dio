@@ -36,7 +36,9 @@ abstract class Transformer {
     return encodeMap(
       map,
       (key, value) {
-        if (value == null) return key;
+        if (value == null) {
+          return key;
+        }
         return '$key=${Uri.encodeQueryComponent(value.toString())}';
       },
       listFormat: listFormat,
@@ -51,7 +53,9 @@ abstract class Transformer {
     return encodeMap(
       map,
       (key, value) {
-        if (value == null) return key;
+        if (value == null) {
+          return key;
+        }
         return '$key=$value';
       },
       listFormat: listFormat,
@@ -61,7 +65,9 @@ abstract class Transformer {
 
   /// See https://mimesniff.spec.whatwg.org/#json-mime-type.
   static bool isJsonMimeType(String? contentType) {
-    if (contentType == null) return false;
+    if (contentType == null) {
+      return false;
+    }
     final mediaType = MediaType.parse(contentType);
     return mediaType.mimeType == 'application/json' ||
         mediaType.mimeType == 'text/json' ||
