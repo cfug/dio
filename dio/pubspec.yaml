@@ -24,6 +24,7 @@ dependencies:
   http_parser: ^4.0.0
   meta: ^1.5.0
   path: ^1.8.0
+  web: ^0.5.1
 
 dev_dependencies:
   lints: any

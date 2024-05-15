@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
+import 'package:web/web.dart' as web;
 
 import '../adapter.dart';
 import '../dio_exception.dart';
@@ -19,7 +20,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
   /// These are aborted if the client is closed.
   @visibleForTesting
-  final xhrs = <HttpRequest>{};
+  final xhrs = <web.XMLHttpRequest>{};
 
   /// Whether to send credentials such as cookies or authorization headers for
   /// cross-site requests.
@@ -36,7 +37,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    final xhr = HttpRequest();
+    final xhr = web.XMLHttpRequest();
     xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
@@ -71,12 +72,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       completer.complete(
         ResponseBody.fromBytes(
           body,
-          xhr.status!,
+          xhr.status,
           headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
           isRedirect: xhr.status == 302 ||
               xhr.status == 301 ||
-              options.uri.toString() != xhr.responseUrl,
+              options.uri.toString() != xhr.responseURL,
         ),
       );
     });
@@ -111,15 +112,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // so we can check it beforehand.
     if (requestStream != null) {
       if (connectTimeoutTimer != null) {
-        xhr.upload.onProgress.listen((event) {
+        void cancelConnectTimeoutTimer(web.ProgressEvent _) {
           connectTimeoutTimer?.cancel();
           connectTimeoutTimer = null;
-        });
+        }
+
+        xhr.upload.onprogress = cancelConnectTimeoutTimer.toJS;
       }
 
       if (sendTimeout > Duration.zero) {
         final uploadStopwatch = Stopwatch();
-        xhr.upload.onProgress.listen((event) {
+        void startStopwatch(web.ProgressEvent _) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
@@ -135,16 +138,18 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             );
             xhr.abort();
           }
-        });
+        }
+
+        xhr.upload.onprogress = startStopwatch.toJS;
       }
 
       final onSendProgress = options.onSendProgress;
       if (onSendProgress != null) {
-        xhr.upload.onProgress.listen((event) {
-          if (event.loaded != null && event.total != null) {
-            onSendProgress(event.loaded!, event.total!);
-          }
-        });
+        void onSendProgressWrap(web.ProgressEvent event) {
+          onSendProgress(event.loaded, event.total);
+        }
+
+        xhr.upload.onprogress = onSendProgressWrap.toJS;
       }
     } else {
       if (sendTimeout > Duration.zero) {
@@ -195,16 +200,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     xhr.onProgress.listen(
-      (ProgressEvent event) {
+      (web.ProgressEvent event) {
         if (connectTimeoutTimer != null) {
           connectTimeoutTimer!.cancel();
           connectTimeoutTimer = null;
         }
         watchReceiveTimeout();
-        if (options.onReceiveProgress != null &&
-            event.loaded != null &&
-            event.total != null) {
-          options.onReceiveProgress!(event.loaded!, event.total!);
+        if (options.onReceiveProgress != null) {
+          options.onReceiveProgress!(event.loaded, event.total);
         }
       },
       onDone: () => stopWatchReceiveTimeout(),
@@ -225,7 +228,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    xhr.onTimeout.first.then((_) {
+    void onTimeout() {
       final isConnectTimeout = connectTimeoutTimer != null;
       if (connectTimeoutTimer != null) {
         connectTimeoutTimer?.cancel();
@@ -248,11 +251,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           );
         }
       }
-    });
+    }
+
+    xhr.ontimeout = onTimeout.toJS;
 
     cancelFuture?.then((_) {
-      if (xhr.readyState < HttpRequest.DONE &&
-          xhr.readyState > HttpRequest.UNSENT) {
+      if (xhr.readyState < web.XMLHttpRequest.DONE &&
+          xhr.readyState > web.XMLHttpRequest.UNSENT) {
         connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
@@ -289,7 +294,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         cancelOnError: true,
       );
       final bytes = await completer.future;
-      xhr.send(bytes);
+      xhr.send(bytes.toJS);
     } else {
       xhr.send();
     }
@@ -309,5 +314,34 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     }
     xhrs.clear();
+  }
+}
+
+extension on web.XMLHttpRequest {
+  Map<String, String> get responseHeaders {
+    final headers = <String, String>{};
+    final headersString = getAllResponseHeaders();
+    if (headersString.isEmpty) {
+      return headers;
+    }
+    final headersList = headersString.split('\r\n');
+    for (final header in headersList) {
+      if (header.isEmpty) {
+        continue;
+      }
+
+      final splitIdx = header.indexOf(': ');
+      if (splitIdx == -1) {
+        continue;
+      }
+      final key = header.substring(0, splitIdx).toLowerCase();
+      final value = header.substring(splitIdx + 2);
+      if (headers.containsKey(key)) {
+        headers[key] = '${headers[key]}, $value';
+      } else {
+        headers[key] = value;
+      }
+    }
+    return headers;
   }
 }
