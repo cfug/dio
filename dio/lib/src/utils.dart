@@ -6,6 +6,9 @@ import 'dart:developer' as dev;
 import 'options.dart';
 import 'parameter.dart';
 
+const kIsWasm = bool.fromEnvironment('dart.library.js_util') &&
+    !bool.fromEnvironment('dart.library.html');
+
 // See https://github.com/flutter/flutter/pull/112122.
 const kIsWeb = bool.hasEnvironment('dart.library.js_util')
     ? bool.fromEnvironment('dart.library.js_util')
