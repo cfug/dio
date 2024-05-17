@@ -8,9 +8,7 @@ import 'package:dio_browser_adapter/src/utils.dart';
 import 'package:meta/meta.dart';
 
 /// The default [HttpClientAdapter] for Web platforms.
-class BrowserHttpClientAdapter implements HttpClientAdapter {
-  BrowserHttpClientAdapter({this.withCredentials = false});
-
+mixin BrowserHttpClientAdapterMixin implements HttpClientAdapter {
   /// These are aborted if the client is closed.
   @visibleForTesting
   final xhrs = <HttpRequest>{};
@@ -22,7 +20,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   ///
   /// You can also override this value using `Options.extra['withCredentials']`
   /// for each request.
-  bool withCredentials;
+  bool get withCredentials;
 
   @override
   Future<ResponseBody> fetch(

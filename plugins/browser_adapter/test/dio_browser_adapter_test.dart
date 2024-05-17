@@ -5,6 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:dio_browser_adapter/dio_browser_adapter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class BrowserHttpClientAdapter with BrowserHttpClientAdapterMixin {
+  BrowserHttpClientAdapter({this.withCredentials = false});
+
+  @override
+  bool withCredentials;
+}
+
 void main() {
   test('with credentials', () async {
     final browserAdapter = BrowserHttpClientAdapter(withCredentials: true);
