@@ -114,16 +114,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // so we can check it beforehand.
     if (requestStream != null) {
       if (connectTimeoutTimer != null) {
-        xhr.upload.onprogress = (web.ProgressEvent _) {
+        void cancelConnectTimeoutTimer(web.ProgressEvent _) {
           connectTimeoutTimer?.cancel();
           connectTimeoutTimer = null;
-        }.toJS;
+        }
+
+        xhr.upload.onprogress = cancelConnectTimeoutTimer.toJS;
       }
 
       if (sendTimeout > Duration.zero) {
         final uploadStopwatch = Stopwatch();
-
-        xhr.upload.onprogress = (web.ProgressEvent _) {
+        void startStopwatch(web.ProgressEvent _) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
@@ -139,14 +140,18 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             );
             xhr.abort();
           }
-        }.toJS;
+        }
+
+        xhr.upload.onprogress = startStopwatch.toJS;
       }
 
       final onSendProgress = options.onSendProgress;
       if (onSendProgress != null) {
-        xhr.upload.onprogress = (web.ProgressEvent event) {
+        void onSendProgressWrap(web.ProgressEvent event) {
           onSendProgress(event.loaded, event.total);
-        }.toJS;
+        }
+
+        xhr.upload.onprogress = onSendProgressWrap.toJS;
       }
     } else {
       if (sendTimeout > Duration.zero) {
@@ -225,7 +230,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    xhr.ontimeout = () {
+    void onTimeout() {
       final isConnectTimeout = connectTimeoutTimer != null;
       if (connectTimeoutTimer != null) {
         connectTimeoutTimer?.cancel();
@@ -248,7 +253,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           );
         }
       }
-    }.toJS;
+    }
+
+    xhr.ontimeout = onTimeout.toJS;
 
     cancelFuture?.then((_) {
       if (xhr.readyState < web.XMLHttpRequest.DONE &&
