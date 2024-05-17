@@ -97,12 +97,13 @@ jobs:
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run coverage:show
       - name: '[Coverage] Create Report'
-        uses: clearlyip/code-coverage-report-action@v4
+        uses: clearlyip/code-coverage-report-action@v5
         id: code_coverage_report
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         with:
           artifact_download_workflow_names: 'Verify packages abilities,coverage_baseline'
           filename: 'coverage/cobertura.xml'
+          only_list_changed_files: true
       - name: '[Coverage] Write PR number to file'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         run: echo ${{ github.event.number }} > pr_number.txt
