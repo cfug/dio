@@ -1,9 +1,9 @@
 @TestOn('browser')
 import 'dart:typed_data';
 
-import 'package:dio/browser.dart';
 import 'package:dio/dio.dart';
-import 'package:test/test.dart';
+import 'package:dio_browser_adapter/dio_browser_adapter.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('with credentials', () async {

@@ -24,6 +24,9 @@ dependencies:
   http_parser: ^4.0.0
   meta: ^1.5.0
   path: ^1.8.0
+  # TODO: Modify the version of the package after it is published.
+  dio_browser_adapter:
+    path: ../plugins/browser_adapter
 
 dev_dependencies:
   lints: any

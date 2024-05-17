@@ -1,4 +1,5 @@
-import '../adapters/browser_adapter.dart';
+import 'package:dio_browser_adapter/dio_browser_adapter.dart';
+
 import '../cancel_token.dart';
 import '../dio.dart';
 import '../dio_mixin.dart';

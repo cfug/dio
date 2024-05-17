@@ -1,0 +1,31 @@
+name: dio_browser_adapter
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=2.18.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  dio: ^5.0.0
+  meta: ^1.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  
+  # Shared test package.
+  dio_test:
+    git:
+      url: https://github.com/cfug/dio
+      path: dio_test
+
+# dependency_overrides:
+#   dio:
+#     path: ../../dio
+
+platforms:
+  web:
