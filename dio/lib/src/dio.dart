@@ -3,7 +3,8 @@ import 'dart:async';
 import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio/dio_for_native.dart'
-    if (dart.library.js_util) 'dio/dio_for_browser.dart';
+    if (dart.library.js_util) 'dio/dio_for_browser.dart'
+    if (dart.library.html) 'dio/dio_for_browser.dart';
 import 'dio_mixin.dart';
 import 'headers.dart';
 import 'options.dart';

@@ -4,7 +4,6 @@ import '../adapter.dart';
 
 HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
-
 class BrowserHttpClientAdapter with BrowserHttpClientAdapterMixin {
   BrowserHttpClientAdapter({this.withCredentials = false});
 
