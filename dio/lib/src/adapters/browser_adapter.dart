@@ -66,16 +66,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     xhr.timeout = xhrTimeout;
 
     final completer = Completer<ResponseBody>();
+
     xhr.onLoad.first.then((_) {
-      final Uint8List body =
-          (xhr.response as JSArrayBuffer).toDart.asUint8List();
+      final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
       completer.complete(
         ResponseBody.fromBytes(
           body,
           xhr.status,
-          headers:
-              _convertResponseHeadersString2Map(xhr.getAllResponseHeaders())
-                  .map((k, v) => MapEntry(k, v.split(','))),
+          headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
           statusMessage: xhr.statusText,
           isRedirect: xhr.status == 302 ||
               xhr.status == 301 ||
@@ -319,28 +317,31 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   }
 }
 
-Map<String, String> _convertResponseHeadersString2Map(String headersString) {
-  final headers = <String, String>{};
-  if (headersString.isEmpty) {
+extension on web.XMLHttpRequest {
+  Map<String, String> get responseHeaders {
+    final headers = <String, String>{};
+    final headersString = getAllResponseHeaders();
+    if (headersString.isEmpty) {
+      return headers;
+    }
+    final headersList = headersString.split('\r\n');
+    for (final header in headersList) {
+      if (header.isEmpty) {
+        continue;
+      }
+
+      final splitIdx = header.indexOf(': ');
+      if (splitIdx == -1) {
+        continue;
+      }
+      final key = header.substring(0, splitIdx).toLowerCase();
+      final value = header.substring(splitIdx + 2);
+      if (headers.containsKey(key)) {
+        headers[key] = '${headers[key]}, $value';
+      } else {
+        headers[key] = value;
+      }
+    }
     return headers;
   }
-  final headersList = headersString.split('\r\n');
-  for (final header in headersList) {
-    if (header.isEmpty) {
-      continue;
-    }
-
-    final splitIdx = header.indexOf(': ');
-    if (splitIdx == -1) {
-      continue;
-    }
-    final key = header.substring(0, splitIdx).toLowerCase();
-    final value = header.substring(splitIdx + 2);
-    if (headers.containsKey(key)) {
-      headers[key] = '${headers[key]}, $value';
-    } else {
-      headers[key] = value;
-    }
-  }
-  return headers;
 }
