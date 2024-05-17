@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/dio/dio.iml" filepath="$PROJECT_DIR$/dio/dio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/browser_adapter/dio_browser_adapter.iml" filepath="$PROJECT_DIR$/plugins/browser_adapter/dio_browser_adapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/compatibility_layer/dio_compatibility_layer.iml" filepath="$PROJECT_DIR$/plugins/compatibility_layer/dio_compatibility_layer.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/cookie_manager/dio_cookie_manager.iml" filepath="$PROJECT_DIR$/plugins/cookie_manager/dio_cookie_manager.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/dio_example.iml" filepath="$PROJECT_DIR$/example/dio_example.iml" />
