@@ -25,7 +25,7 @@
 
 import 'dart:async';
 
-import 'compute_io.dart' if (dart.library.js_util) 'compute_web.dart' as _c;
+import 'compute_io.dart' if (dart.library.html) 'compute_web.dart' as _c;
 
 /// Signature for the callback passed to [compute].
 ///
