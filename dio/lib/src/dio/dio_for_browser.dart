@@ -1,4 +1,4 @@
-import '../adapters/browser_adapter.dart';
+import '../adapters/web_adapters/web_adapter.dart';
 import '../cancel_token.dart';
 import '../dio.dart';
 import '../dio_mixin.dart';
@@ -15,7 +15,7 @@ class DioForBrowser with DioMixin implements Dio {
   /// It's mostly just one Dio instance in your application.
   DioForBrowser([BaseOptions? options]) {
     this.options = options ?? BaseOptions();
-    httpClientAdapter = BrowserHttpClientAdapter();
+    httpClientAdapter = createAdapter();
   }
 
   @override

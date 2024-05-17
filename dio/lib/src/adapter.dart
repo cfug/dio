@@ -4,7 +4,8 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 import 'adapters/io_adapter.dart'
-    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
+    if (dart.library.js_util) 'adapters/web_adapters/web_adapter.dart'
+    as adapter;
 import 'headers.dart';
 import 'options.dart';
 import 'redirect_record.dart';

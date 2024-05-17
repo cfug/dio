@@ -5,13 +5,13 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 
-import '../adapter.dart';
-import '../dio_exception.dart';
-import '../headers.dart';
-import '../options.dart';
-import '../utils.dart';
+import '../../adapter.dart';
+import '../../dio_exception.dart';
+import '../../headers.dart';
+import '../../options.dart';
+import '../../utils.dart';
 
-HttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
+HttpClientAdapter createWebAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
