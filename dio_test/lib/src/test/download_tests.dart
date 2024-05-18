@@ -65,9 +65,12 @@ void downloadTests(
         });
 
         final completer = Completer();
-        res.data!.stream.listen((event) {}, onError: (e, s) {
-          completer.completeError(e, s);
-        });
+        res.data!.stream.listen(
+          (event) {},
+          onError: (e, s) {
+            completer.completeError(e, s);
+          },
+        );
 
         await expectLater(
           completer.future,
@@ -246,7 +249,7 @@ void downloadTests(
           dio.download(
             '/drip?delay=0&duration=6&numbytes=3',
             p.join(tmp.path, 'download_timeout.md'),
-            options: Options(receiveTimeout: Duration(seconds: 1)),
+            options: Options(receiveTimeout: const Duration(seconds: 1)),
           ),
           throwsDioException(
             DioExceptionType.receiveTimeout,
@@ -262,7 +265,7 @@ void downloadTests(
             dio.download(
               '/drip?delay=0&duration=6&numbytes=12',
               p.join(tmp.path, 'download_timeout.md'),
-              options: Options(receiveTimeout: Duration(seconds: 1)),
+              options: Options(receiveTimeout: const Duration(seconds: 1)),
             ),
             completes,
           );

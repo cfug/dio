@@ -10,7 +10,7 @@ void main() async {
         RequestInterceptorHandler handler,
       ) {
         print(requestOptions.uri);
-        Future.delayed(Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 2), () {
           handler.next(requestOptions);
         });
       },
@@ -32,7 +32,7 @@ void main() async {
           RequestInterceptorHandler handler,
         ) {
           print(requestOptions.uri);
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             handler.next(requestOptions);
           });
         },

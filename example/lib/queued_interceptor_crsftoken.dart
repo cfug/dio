@@ -67,7 +67,9 @@ void main() async {
           },
 
           onError: (error, handler) async {
-            if (error.response == null) return handler.next(error);
+            if (error.response == null) {
+              return handler.next(error);
+            }
 
             /// When request fails with 401 status code, request new CSRF token
             if (error.response?.statusCode == 401) {

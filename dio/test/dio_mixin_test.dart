@@ -25,7 +25,7 @@ void main() {
   test('throws UnimplementedError when calling download', () {
     expectLater(
       () => _TestDioMixin().download('a', 'b'),
-      throwsA(TypeMatcher<UnimplementedError>()),
+      throwsA(const TypeMatcher<UnimplementedError>()),
     );
   });
 }

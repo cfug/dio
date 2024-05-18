@@ -25,21 +25,21 @@ void main() async {
         final multipartFile1 = MultipartFile.fromString(
           'hello world.',
           headers: {
-            'test': <String>['a']
+            'test': <String>['a'],
           },
         );
         final multipartFile2 = await MultipartFile.fromFile(
           'test/mock/_testfile',
           filename: '1.txt',
           headers: {
-            'test': <String>['b']
+            'test': <String>['b'],
           },
         );
         final multipartFile3 = MultipartFile.fromFileSync(
           'test/mock/_testfile',
           filename: '2.txt',
           headers: {
-            'test': <String>['c']
+            'test': <String>['c'],
           },
         );
 
@@ -51,7 +51,7 @@ void main() async {
           'files': [
             multipartFile2,
             multipartFile3,
-          ]
+          ],
         });
         final fmStr = await fm.readAsBytes();
 
@@ -69,9 +69,9 @@ void main() async {
         }
 
         final fm1 = FormData();
-        fm1.fields.add(MapEntry('name', 'wendux'));
-        fm1.fields.add(MapEntry('age', '25'));
-        fm1.fields.add(MapEntry('path', '/图片空间/地址'));
+        fm1.fields.add(const MapEntry('name', 'wendux'));
+        fm1.fields.add(const MapEntry('age', '25'));
+        fm1.fields.add(const MapEntry('path', '/图片空间/地址'));
         fm1.files.add(
           MapEntry(
             'file',

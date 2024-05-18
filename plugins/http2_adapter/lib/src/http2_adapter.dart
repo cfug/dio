@@ -55,9 +55,9 @@ class Http2Adapter implements HttpClientAdapter {
       // or to another adapter (typically IOHttpClientAdapter)
       // since the request can have a better handle by it.
       if (onNotSupported != null) {
-        return await onNotSupported!(options, requestStream, cancelFuture, e);
+        return onNotSupported!(options, requestStream, cancelFuture, e);
       }
-      return await fallbackAdapter.fetch(options, requestStream, cancelFuture);
+      return fallbackAdapter.fetch(options, requestStream, cancelFuture);
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
         final Duration effectiveTimeout;

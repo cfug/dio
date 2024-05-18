@@ -6,7 +6,7 @@ void main() async {
     ..options.baseUrl = 'https://pub.dev'
     ..interceptors.add(LogInterceptor())
     ..httpClientAdapter = Http2Adapter(
-      ConnectionManager(idleTimeout: Duration(seconds: 10)),
+      ConnectionManager(idleTimeout: const Duration(seconds: 10)),
     );
 
   Response<String> response;

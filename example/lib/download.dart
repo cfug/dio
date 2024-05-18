@@ -54,6 +54,8 @@ Future download2(Dio dio, String url, String savePath) async {
 }
 
 void showDownloadProgress(int received, int total) {
-  if (total <= 0) return;
+  if (total <= 0) {
+    return;
+  }
   print('percentage: ${(received / total * 100).toStringAsFixed(0)}%');
 }

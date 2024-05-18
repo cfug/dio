@@ -54,11 +54,13 @@ void main() {
     () async {
       final dio = Dio()
         ..options.baseUrl = httpbunBaseUrl
-        ..httpClientAdapter = Http2Adapter(ConnectionManager(
-          idleTimeout: Duration(milliseconds: 10),
-          onClientCreate: (uri, settings) =>
-              settings.proxy = Uri.parse('http://localhost:3128'),
-        ));
+        ..httpClientAdapter = Http2Adapter(
+          ConnectionManager(
+            idleTimeout: const Duration(milliseconds: 10),
+            onClientCreate: (uri, settings) =>
+                settings.proxy = Uri.parse('http://localhost:3128'),
+          ),
+        );
 
       final res = await dio.post('/post', data: 'TEST');
       expect(res.data.toString(), contains('TEST'));
@@ -70,19 +72,21 @@ void main() {
     bool needProxy = true;
     final dio = Dio()
       ..options.baseUrl = httpbunBaseUrl
-      ..httpClientAdapter = Http2Adapter(ConnectionManager(
-        idleTimeout: Duration(milliseconds: 10),
-        onClientCreate: (uri, settings) {
-          if (needProxy) {
-            // first request use bad proxy to simulate network error
-            settings.proxy = Uri.parse('http://localhost:1234');
-            needProxy = false;
-          } else {
-            // remove proxy to restore network
-            settings.proxy = null;
-          }
-        },
-      ));
+      ..httpClientAdapter = Http2Adapter(
+        ConnectionManager(
+          idleTimeout: const Duration(milliseconds: 10),
+          onClientCreate: (uri, settings) {
+            if (needProxy) {
+              // first request use bad proxy to simulate network error
+              settings.proxy = Uri.parse('http://localhost:1234');
+              needProxy = false;
+            } else {
+              // remove proxy to restore network
+              settings.proxy = null;
+            }
+          },
+        ),
+      );
     try {
       // will throw SocketException
       await dio.post('/post', data: 'TEST');

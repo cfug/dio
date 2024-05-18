@@ -78,7 +78,7 @@ class SyncTransformer extends Transformer {
       final decodeResponse = options.responseDecoder!(
         responseBytes,
         options,
-        responseBody..stream = Stream.empty(),
+        responseBody..stream = const Stream.empty(),
       );
 
       if (decodeResponse is Future) {

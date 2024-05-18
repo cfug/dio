@@ -12,9 +12,9 @@ import 'package:http/http.dart';
 /// to a minimum. Since `CupertinoClient` and `CronetClient` depend anyway on
 /// `http` this also doesn't add any additional dependency.
 class ConversionLayerAdapter implements HttpClientAdapter {
-  final Client client;
-
   ConversionLayerAdapter(this.client);
+
+  final Client client;
 
   @override
   Future<ResponseBody> fetch(

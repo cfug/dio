@@ -33,7 +33,7 @@ void main() {
     test('trusted host allowed with no approver', () async {
       dio.httpClientAdapter = Http2Adapter(
         ConnectionManager(
-          idleTimeout: Duration(seconds: 10),
+          idleTimeout: const Duration(seconds: 10),
         ),
       );
 
@@ -48,7 +48,7 @@ void main() {
       try {
         dio.httpClientAdapter = Http2Adapter(
           ConnectionManager(
-            idleTimeout: Duration(seconds: 10),
+            idleTimeout: const Duration(seconds: 10),
             onClientCreate: (url, config) {
               // Consider all hosts untrusted
               config.context = SecurityContext(withTrustedRoots: false);
@@ -67,7 +67,7 @@ void main() {
       bool approved = false;
       dio.httpClientAdapter = Http2Adapter(
         ConnectionManager(
-          idleTimeout: Duration(seconds: 10),
+          idleTimeout: const Duration(seconds: 10),
           onClientCreate: (url, config) {
             config.validateCertificate = (certificate, host, port) {
               approved = true;
@@ -88,7 +88,7 @@ void main() {
       bool approved = false;
       dio.httpClientAdapter = Http2Adapter(
         ConnectionManager(
-          idleTimeout: Duration(seconds: 10),
+          idleTimeout: const Duration(seconds: 10),
           onClientCreate: (url, config) {
             config.context = SecurityContext(withTrustedRoots: false);
             config.onBadCertificate = (certificate) {
@@ -123,7 +123,7 @@ void main() {
 
         dio.httpClientAdapter = Http2Adapter(
           ConnectionManager(
-            idleTimeout: Duration(seconds: 10),
+            idleTimeout: const Duration(seconds: 10),
             onClientCreate: (url, config) {
               config.context = SecurityContext(withTrustedRoots: false);
               config.onBadCertificate = (certificate) {
@@ -133,7 +133,9 @@ void main() {
                 return true;
               };
               config.validateCertificate = (certificate, host, port) {
-                if (certificate == null) fail('must include a certificate');
+                if (certificate == null) {
+                  fail('must include a certificate');
+                }
                 approved = true;
                 approverSubject = certificate.subject.toString();
                 approverSha256 = sha256.convert(certificate.der).toString();
@@ -166,7 +168,7 @@ void main() {
       dio.httpClientAdapter = Http2Adapter(
         ConnectionManager(
           // allow connection reuse
-          idleTimeout: Duration(seconds: 20),
+          idleTimeout: const Duration(seconds: 20),
           onClientCreate: (url, config) {
             config.validateCertificate = (certificate, host, port) {
               approvalCount++;
@@ -181,7 +183,7 @@ void main() {
       expect(approvalCount, 1);
       expect(res.data, isNotNull);
       expect(res.data.toString(), contains(expectedHostString));
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       res = await dio.get('get');
       final secondTime = res.headers['date'];
       expect(approvalCount, 1);

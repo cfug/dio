@@ -9,9 +9,9 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:test/test.dart';
 
 class MockRequestInterceptorHandler extends RequestInterceptorHandler {
-  final String expectResult;
-
   MockRequestInterceptorHandler(this.expectResult);
+
+  final String expectResult;
 
   @override
   void next(RequestOptions requestOptions) {
@@ -27,7 +27,7 @@ void main() {
   test('testing merge cookies', () async {
     const List<String> mockFirstRequestCookies = [
       'foo=bar; Path=/',
-      'a=c; Path=/'
+      'a=c; Path=/',
     ];
     const exampleUrl = 'https://example.com';
     const String mockSecondRequestCookies = 'd=e;e=f';

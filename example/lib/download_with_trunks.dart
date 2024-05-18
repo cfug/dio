@@ -11,7 +11,9 @@ void main() async {
     url,
     savePath,
     onReceiveProgress: (received, total) {
-      if (total <= 0) return;
+      if (total <= 0) {
+        return;
+      }
       print('${(received / total * 100).floor()}%');
     },
   );
