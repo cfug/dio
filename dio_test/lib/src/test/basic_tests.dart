@@ -17,8 +17,8 @@ void basicTests(
     test(
       'works with non-TLS requests',
       () async {
-        await dio.get('http://flutter.cn/');
-        await dio.get('https://flutter.cn/non-exist-destination');
+        await dio.get('http://flutter.dev/');
+        await dio.get('http://flutter.dev/404');
       },
       testOn: 'vm',
     );
