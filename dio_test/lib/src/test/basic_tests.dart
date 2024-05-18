@@ -20,6 +20,7 @@ void basicTests(
         await dio.get('http://flutter.cn/');
         await dio.get('http://flutter.cn/404');
       },
+      tags: ['tls'],
       testOn: 'vm',
     );
 
