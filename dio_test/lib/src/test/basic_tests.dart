@@ -16,10 +16,7 @@ void basicTests(
   group('basic request', () {
     test(
       'works with non-TLS requests',
-      () async {
-        await dio.get('http://flutter.cn/');
-        await dio.get('https://flutter.cn/non-exist-destination');
-      },
+      () => dio.get('http://neverssl.com/'),
       testOn: 'vm',
     );
 
