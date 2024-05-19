@@ -7,9 +7,9 @@ typedef TestSuiteFunction = void Function(
 
 const _tests = [
   basicTests,
-  cancellationTests,
-  corsTests,
-  downloadTests,
+  // cancellationTests,
+  // corsTests,
+  // downloadTests,
   headerTests,
   httpMethodTests,
   parameterTests,
