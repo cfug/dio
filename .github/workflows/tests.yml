@@ -113,5 +113,6 @@ jobs:
         with:
           name: code-coverage-results
           path: |
+            coverage/cobertura.xml
             code-coverage-results.md
             pr_number.txt

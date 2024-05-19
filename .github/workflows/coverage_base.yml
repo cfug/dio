@@ -33,8 +33,40 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
       - uses: bluefireteam/melos-action@v3
+        with:
+          run-bootstrap: false
+      - name: Check satisfied packages
+        run: |
+          dart ./scripts/melos_packages.dart
+          echo $(cat .melos_packages) >> $GITHUB_ENV
+      - name: Melos Bootstrap
+        run: melos bootstrap
+      # Tests
+      - run: ./scripts/prepare_pinning_certs.sh
+      - name: Install proxy for tests
+        run: sudo apt-get update && sudo apt-get install -y squid mkcert
+      - name: Start local httpbun
+        run: |
+          mkcert -install
+          mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
+          echo '127.0.0.1 httpbun.local' | sudo tee --append /etc/hosts
+          docker run \
+            --name httpbun \
+            --detach \
+            --publish 443:443 \
+            --volume /tmp:/tmp:ro \
+            --env HTTPBUN_TLS_CERT=/tmp/cert.pem \
+            --env HTTPBUN_TLS_KEY=/tmp/key.pem \
+            --pull always \
+            sharat87/httpbun
+          sleep 1
+          curl --fail --silent --show-error https://httpbun.local/any
+      - name: Use httpbun.local for tests
+        run: melos run httpbun:local
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos run test:vm
+      - name: Use httpbun.com for Web/Flutter tests
+        run: melos run httpbun:com
       - name: '[Verify step] Test Dart packages [Chrome]'
         run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
