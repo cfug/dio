@@ -35,7 +35,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ],
         });
@@ -87,7 +87,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ),
         );
@@ -123,7 +123,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ],
         });

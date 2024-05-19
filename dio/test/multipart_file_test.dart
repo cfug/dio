@@ -6,7 +6,7 @@ void main() async {
     test(
       'fromFile sets correct content-type',
       () async {
-        final mediaType = MediaType.parse('text/plain');
+        final mediaType = DioMediaType.parse('text/plain');
         final file = await MultipartFile.fromFile(
           'test/mock/_testfile',
           filename: '1.txt',

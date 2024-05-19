@@ -7,7 +7,7 @@ import 'multipart_file/io_multipart_file.dart'
     if (dart.library.html) 'multipart_file/browser_multipart_file.dart';
 import 'utils.dart';
 
-export 'package:http_parser/http_parser.dart' show MediaType;
+typedef DioMediaType = MediaType;
 
 /// A file to be uploaded as part of a [MultipartRequest]. This doesn't need to
 /// correspond to a physical file.
@@ -29,7 +29,7 @@ class MultipartFile {
     Stream<List<int>> stream,
     this.length, {
     this.filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     Map<String, List<String>>? headers,
   })  : _data = (() => stream),
         headers = caseInsensitiveKeyMap(headers),
@@ -45,7 +45,7 @@ class MultipartFile {
     Stream<List<int>> Function() data,
     this.length, {
     this.filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     Map<String, List<String>>? headers,
   })  : _data = data,
         headers = caseInsensitiveKeyMap(headers),
@@ -58,7 +58,7 @@ class MultipartFile {
   factory MultipartFile.fromBytes(
     List<int> value, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
     return MultipartFile.fromStream(
@@ -79,7 +79,7 @@ class MultipartFile {
   factory MultipartFile.fromString(
     String value, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
     contentType ??= MediaType('text', 'plain');
@@ -108,7 +108,7 @@ class MultipartFile {
   final Map<String, List<String>>? headers;
 
   /// The content-type of the file. Defaults to `application/octet-stream`.
-  final MediaType? contentType;
+  final DioMediaType? contentType;
 
   /// The stream builder that will emit the file's contents for every call.
   final Stream<List<int>> Function() _data;
@@ -127,7 +127,7 @@ class MultipartFile {
   static Future<MultipartFile> fromFile(
     String filePath, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) =>
       multipartFileFromPath(
@@ -140,7 +140,7 @@ class MultipartFile {
   static MultipartFile fromFileSync(
     String filePath, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) =>
       multipartFileFromPathSync(
