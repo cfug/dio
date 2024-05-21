@@ -7,6 +7,7 @@ import 'multipart_file/io_multipart_file.dart'
     if (dart.library.html) 'multipart_file/browser_multipart_file.dart';
 import 'utils.dart';
 
+/// The type (alias) for specifying the content-type of the `MultipartFile`. 
 typedef DioMediaType = MediaType;
 
 /// A file to be uploaded as part of a [MultipartRequest]. This doesn't need to
