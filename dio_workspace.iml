@@ -7,9 +7,9 @@
       <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
-      <excludeFolder url="file://$MODULE_DIR$/example/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/example/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example_dart/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example_dart/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example_dart/build" />
       <excludeFolder url="file://$MODULE_DIR$/example_flutter_app/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example_flutter_app/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example_flutter_app/build" />

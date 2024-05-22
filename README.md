@@ -41,7 +41,7 @@ To know about our compatibility policy, see the [Compatibility Policy][] doc.
 
 ### Examples
 
-- example: [link](example)
+- example: [link](example_dart)
 - example_flutter_app: [link](example_flutter_app)
 
 ## Copyright & License

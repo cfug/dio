@@ -40,7 +40,7 @@ Language: [English](README.md) | 简体中文
 
 ### 示例
 
-- example: [链接](example)
+- example: [链接](example_dart)
 - example_flutter_app: [链接](example_flutter_app)
 
 ## 版权 & 协议
