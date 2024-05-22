@@ -71,8 +71,7 @@ export '../html/adapter.dart';
 //         ResponseBody.fromBytes(
 //           body,
 //           xhr.status,
-//           headers:
-//               xhr.getResponseHeaders().map((k, v) => MapEntry(k, v.split(','))),
+//           headers: xhr.getResponseHeaders(),
 //           statusMessage: xhr.statusText,
 //           isRedirect: xhr.status == 302 ||
 //               xhr.status == 301 ||
@@ -309,9 +308,9 @@ export '../html/adapter.dart';
 // }
 //
 // extension on web.XMLHttpRequest {
-//   Map<String, String> getResponseHeaders() {
+//   Map<String, List<String>> getResponseHeaders() {
 //     final headersString = getAllResponseHeaders();
-//     final headers = <String, String>{};
+//     final headers = <String, List<String>>{};
 //     if (headersString.isEmpty) {
 //       return headers;
 //     }
@@ -327,11 +326,7 @@ export '../html/adapter.dart';
 //       }
 //       final key = header.substring(0, splitIdx).toLowerCase();
 //       final value = header.substring(splitIdx + 2);
-//       if (headers.containsKey(key)) {
-//         headers[key] = '${headers[key]},$value';
-//       } else {
-//         headers[key] = value;
-//       }
+//       (headers[key] ??= []).add(value);
 //     }
 //     return headers;
 //   }
