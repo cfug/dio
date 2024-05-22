@@ -39,7 +39,10 @@ jobs:
           cache: true
           flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
           channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
-      - run: dart pub get
+      - run: |
+          # Temporarily workaround with new packages.
+          echo -e "dependency_overrides:\n  dio_web_adapter:\n    path: ../plugins/web_adapter" >> example/pubspec_overrides.yaml
+          dart pub get
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false

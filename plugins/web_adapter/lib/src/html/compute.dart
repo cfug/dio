@@ -18,6 +18,9 @@
 //
 // The file is intentionally not refactored so that it is easier to keep the
 // compute package up to date with Flutter's implementation.
+
+// export '../js_interop/compute.dart';
+
 import 'package:dio/src/compute/compute.dart' as c;
 
 /// The dart:html implementation of [c.compute].

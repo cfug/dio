@@ -1,3 +1,5 @@
+// export '../js_interop/dio_impl.dart';
+
 import 'package:dio/dio.dart';
 
 import 'adapter.dart';
