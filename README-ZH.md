@@ -35,6 +35,8 @@ Language: [English](README.md) | 简体中文
   [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?label=dev&include_prereleases)](https://pub.flutter-io.cn/packages/dio_http2_adapter)
 - native_dio_adapter: [链接](plugins/native_dio_adapter)
   [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/native_dio_adapter)
+- web_adapter: [链接](plugins/web_adapter)
+  [![Pub](https://img.shields.io/pub/v/dio_web_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_web_adapter)
 
 ### 示例
 

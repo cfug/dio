@@ -1,39 +1,49 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# dio_web_adapter
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+[![pub package](https://img.shields.io/pub/v/dio_web_adapter.svg)](https://pub.dev/packages/dio_web_adapter)
+[![likes](https://img.shields.io/pub/likes/dio_web_adapter)](https://pub.dev/packages/dio_web_adapter/score)
+[![popularity](https://img.shields.io/pub/popularity/dio_web_adapter)](https://pub.dev/packages/dio_web_adapter/score)
+[![pub points](https://img.shields.io/pub/points/dio_web_adapter)](https://pub.dev/packages/dio_web_adapter/score)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
+If you encounter bugs, consider fixing it by opening a PR or at least contribute a failing test case.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This package contains adapters for [Dio](https://pub.dev/packages/dio)
+which enables you to use the library on the Web platform.
 
-## Features
+## Versions compatibility
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+| Version | Dart (min) | Flutter (min) |
+|---------|------------|---------------|
+| 1.x     | 2.18.0     | 3.3.0         |
+| 2.x     | 3.3.0      | 3.19.0        |
 
-## Getting started
+> Note: the resolvable version will be determined by the SDK you are using.
+> Run `dart pub upgrade` or `flutter pub upgrade` to get the latest resolvable version.
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+## Get started
 
-## Usage
+The package is embedded into the `package:dio`.
+You don't need to explicitly install the package unless you have other concerns.
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+### Install
+
+Add the `dio_web_adapter` package to your
+[pubspec dependencies](https://pub.dev/packages/dio_web_adapter/install).
+
+### Example
+
 
 ```dart
-const like = 'sample';
+import 'package:dio/dio.dart';
+// The import is not required and could produce lints.
+// import 'package:dio_web_adapter/dio_web_adapter.dart';
+
+void main() async {
+  final dio = Dio();
+  dio.httpClientAdapter = BrowserHttpClientAdapter(withCredentials: true);
+
+  // Make a request.
+  final response = await dio.get('https://dart.dev');
+  print(response);
+}
 ```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.

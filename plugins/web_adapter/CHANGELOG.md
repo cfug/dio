@@ -1,3 +1,3 @@
 ## 1.0.0
 
-- Initial version.
+- Split the Web ability from the `package:dio`.

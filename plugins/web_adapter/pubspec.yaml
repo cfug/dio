@@ -4,8 +4,10 @@ version: 1.0.0
 description: An adapter that supports Dio on Web.
 topics:
   - dio
+  - http
+  - network
   - web
-  - wasm
+#  - wasm
 homepage: https://github.com/cfug/dio
 repository: https://github.com/cfug/dio/blob/main/plugins/web_adapter
 issue_tracker: https://github.com/cfug/dio/issues

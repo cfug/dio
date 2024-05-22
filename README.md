@@ -36,6 +36,8 @@ To know about our compatibility policy, see the [Compatibility Policy][] doc.
   [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_http2_adapter)
 - native_dio_adapter: [link](plugins/native_dio_adapter)
   [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/native_dio_adapter)
+- web_adapter: [link](plugins/web_adapter)
+  [![Pub](https://img.shields.io/pub/v/dio_web_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_web_adapter)
 
 ### Examples
 
