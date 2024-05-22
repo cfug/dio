@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
 
 import 'multipart_file/io_multipart_file.dart'
+    if (dart.library.js_interop) 'multipart_file/browser_multipart_file.dart'
     if (dart.library.html) 'multipart_file/browser_multipart_file.dart';
 import 'utils.dart';
 

@@ -1,0 +1,23 @@
+name: dio_web_adapter
+version: 1.0.0
+
+description: An adapter that supports Dio on Web.
+topics:
+  - dio
+  - web
+  - wasm
+homepage: https://github.com/cfug/dio
+repository: https://github.com/cfug/dio/blob/main/plugins/web_adapter
+issue_tracker: https://github.com/cfug/dio/issues
+
+environment:
+  sdk: '>=2.18.0 <4.0.0'
+
+dependencies:
+  dio: ^5.0.0
+  http_parser: ^4.0.0
+  meta: ^1.5.0
+
+dev_dependencies:
+  lints: any
+  test: ^1.5.0
