@@ -220,7 +220,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    xhr.ontimeout = (_) {
+    xhr.ontimeout = (web.ProgressEvent event) {
       final isConnectTimeout = connectTimeoutTimer != null;
       if (connectTimeoutTimer != null) {
         connectTimeoutTimer?.cancel();
