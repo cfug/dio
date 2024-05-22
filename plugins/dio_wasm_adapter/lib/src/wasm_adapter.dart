@@ -75,8 +75,7 @@ class WasmHttpClientAdapter implements HttpClientAdapter {
           body,
           xhr.status,
           headers:
-              _convertResponseHeadersString2Map(xhr.getAllResponseHeaders())
-                  .map((k, v) => MapEntry(k, v.split(','))),
+              _convertResponseHeadersString2Map(xhr.getAllResponseHeaders()),
           statusMessage: xhr.statusText,
           isRedirect: xhr.status == 302 ||
               xhr.status == 301 ||
@@ -318,8 +317,10 @@ class WasmHttpClientAdapter implements HttpClientAdapter {
   }
 }
 
-Map<String, String> _convertResponseHeadersString2Map(String headersString) {
-  final headers = <String, String>{};
+Map<String, List<String>> _convertResponseHeadersString2Map(
+  String headersString,
+) {
+  final headers = <String, List<String>>{};
   if (headersString.isEmpty) {
     return headers;
   }
@@ -335,11 +336,7 @@ Map<String, String> _convertResponseHeadersString2Map(String headersString) {
     }
     final key = header.substring(0, splitIdx).toLowerCase();
     final value = header.substring(splitIdx + 2);
-    if (headers.containsKey(key)) {
-      headers[key] = '${headers[key]}, $value';
-    } else {
-      headers[key] = value;
-    }
+    (headers[key] ??= []).add(value);
   }
   return headers;
 }
