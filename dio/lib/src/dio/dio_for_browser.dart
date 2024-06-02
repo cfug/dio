@@ -18,20 +18,20 @@ class DioForBrowser with DioMixin implements Dio {
 
   @override
   Future<Response> download(
-      String urlPath,
-      dynamic savePath, {
-        ProgressCallback? onReceiveProgress,
-        Map<String, dynamic>? queryParameters,
-        CancelToken? cancelToken,
-        bool deleteOnError = true,
-        String lengthHeader = Headers.contentLengthHeader,
-        Object? data,
-        Options? options,
-      }) async {
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  }) async {
     options ??= DioMixin.checkOptions('GET', options);
 
     // Set receiveTimeout to 48 hours because `Duration.zero` not work!
-    options=options.copyWith(receiveTimeout: const Duration(hours: 48));
+    options = options.copyWith(receiveTimeout: const Duration(hours: 48));
 
     final Response response = await request(
       urlPath,
