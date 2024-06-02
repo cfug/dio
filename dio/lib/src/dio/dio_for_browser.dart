@@ -30,6 +30,8 @@ class DioForBrowser with DioMixin implements Dio {
   }) async {
     options ??= DioMixin.checkOptions('GET', options);
 
+    options = options.copyWith(responseType: ResponseType.bytes);
+
     // Set receiveTimeout to 48 hours because `Duration.zero` not work!
     options = options.copyWith(receiveTimeout: const Duration(hours: 48));
 
