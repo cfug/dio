@@ -1,10 +1,8 @@
+import 'dart:async';
+import 'dart:html';
+
+import '../../dio.dart';
 import '../adapters/browser_adapter.dart';
-import '../cancel_token.dart';
-import '../dio.dart';
-import '../dio_mixin.dart';
-import '../headers.dart';
-import '../options.dart';
-import '../response.dart';
 
 /// Create the [Dio] instance for Web platforms.
 Dio createDio([BaseOptions? options]) => DioForBrowser(options);
@@ -20,18 +18,38 @@ class DioForBrowser with DioMixin implements Dio {
 
   @override
   Future<Response> download(
-    String urlPath,
-    dynamic savePath, {
-    ProgressCallback? onReceiveProgress,
-    Map<String, dynamic>? queryParameters,
-    CancelToken? cancelToken,
-    bool deleteOnError = true,
-    String lengthHeader = Headers.contentLengthHeader,
-    Object? data,
-    Options? options,
-  }) {
-    throw UnsupportedError(
-      'The download method is not available in the Web environment.',
+      String urlPath,
+      dynamic savePath, {
+        ProgressCallback? onReceiveProgress,
+        Map<String, dynamic>? queryParameters,
+        CancelToken? cancelToken,
+        bool deleteOnError = true,
+        String lengthHeader = Headers.contentLengthHeader,
+        Object? data,
+        Options? options,
+      }) async {
+    options ??= DioMixin.checkOptions('GET', options);
+
+    // Set receiveTimeout to 48 hours because `Duration.zero` not work!
+    options=options.copyWith(receiveTimeout: const Duration(hours: 48));
+
+    final Response response = await request(
+      urlPath,
+      data: data,
+      options: options,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
     );
+
+    final completer = Completer<Response>();
+
+    // Create blob url from byte data
+    response.data = Url.createObjectUrlFromBlob(Blob([response.data]));
+
+    // Set response in Completer
+    completer.complete(response);
+
+    return DioMixin.listenCancelForAsyncTask(cancelToken, completer.future);
   }
 }
