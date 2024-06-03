@@ -66,10 +66,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
-      final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
+      final ByteBuffer body = (xhr.response as JSArrayBuffer).toDart;
       completer.complete(
         ResponseBody.fromBytes(
-          body,
+          body.asUint8List(),
           xhr.status,
           headers: xhr.getResponseHeaders(),
           statusMessage: xhr.statusText,
