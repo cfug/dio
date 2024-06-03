@@ -1,8 +1,12 @@
 import 'dart:async';
-import 'dart:html';
 
-import '../../dio.dart';
 import '../adapters/browser_adapter.dart';
+import '../cancel_token.dart';
+import '../dio.dart';
+import '../dio_mixin.dart';
+import '../headers.dart';
+import '../options.dart';
+import '../response.dart';
 
 /// Create the [Dio] instance for Web platforms.
 Dio createDio([BaseOptions? options]) => DioForBrowser(options);
@@ -28,26 +32,19 @@ class DioForBrowser with DioMixin implements Dio {
     Object? data,
     Options? options,
   }) async {
-    options ??= DioMixin.checkOptions('GET', options);
-
-    options = options.copyWith(responseType: ResponseType.bytes);
-
-    // Set receiveTimeout to 48 hours because `Duration.zero` not work!
-    options = options.copyWith(receiveTimeout: const Duration(hours: 48));
-
-    final Response response = await request(
-      urlPath,
-      data: data,
-      options: options,
-      queryParameters: queryParameters,
-      cancelToken: cancelToken,
-      onReceiveProgress: onReceiveProgress,
+    final Response response = await fetch(
+      RequestOptions(
+        baseUrl: urlPath,
+        data: data,
+        method: 'GET',
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+        blobUrl: true,
+      ),
     );
 
     final completer = Completer<Response>();
-
-    // Create blob url from byte data
-    response.data = Url.createObjectUrlFromBlob(Blob([response.data]));
 
     // Set response in Completer
     completer.complete(response);

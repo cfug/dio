@@ -40,7 +40,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
-      ..responseType = 'arraybuffer';
+      ..responseType = options.blobUrl ? 'blob' : 'arraybuffer';
 
     final withCredentialsOption = options.extra['withCredentials'];
     if (withCredentialsOption != null) {
@@ -67,18 +67,34 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
-      final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
-      completer.complete(
-        ResponseBody.fromBytes(
-          body,
-          xhr.status!,
-          headers: xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
-          statusMessage: xhr.statusText,
-          isRedirect: xhr.status == 302 ||
-              xhr.status == 301 ||
-              options.uri.toString() != xhr.responseUrl,
-        ),
-      );
+      if (options.blobUrl) {
+        completer.complete(
+          ResponseBody.fromString(
+            Url.createObjectUrl(xhr.response),
+            xhr.status!,
+            headers:
+                xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
+            statusMessage: xhr.statusText,
+            isRedirect: xhr.status == 302 ||
+                xhr.status == 301 ||
+                options.uri.toString() != xhr.responseUrl,
+          ),
+        );
+      } else {
+        final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
+        completer.complete(
+          ResponseBody.fromBytes(
+            body,
+            xhr.status!,
+            headers:
+                xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
+            statusMessage: xhr.statusText,
+            isRedirect: xhr.status == 302 ||
+                xhr.status == 301 ||
+                options.uri.toString() != xhr.responseUrl,
+          ),
+        );
+      }
     });
 
     Timer? connectTimeoutTimer;
