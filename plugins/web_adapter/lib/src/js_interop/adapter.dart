@@ -10,6 +10,9 @@ import 'package:dio/src/utils.dart';
 import 'package:meta/meta.dart';
 import 'package:web/web.dart' as web;
 
+const progressEventProvider =
+    web.EventStreamProvider<web.ProgressEvent>('progress');
+
 BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
@@ -109,16 +112,19 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // Upload progress events only get triggered if the request body exists,
     // so we can check it beforehand.
     if (requestStream != null) {
+      final xhrUploadProgressStream =
+          progressEventProvider.forTarget(xhr.upload);
+
       if (connectTimeoutTimer != null) {
-        xhr.upload.onprogress = (web.ProgressEvent event) {
+        xhrUploadProgressStream.listen((_) {
           connectTimeoutTimer?.cancel();
           connectTimeoutTimer = null;
-        }.toJS;
+        });
       }
 
       if (sendTimeout > Duration.zero) {
         final uploadStopwatch = Stopwatch();
-        xhr.upload.onprogress = (web.ProgressEvent event) {
+        xhrUploadProgressStream.listen((_) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
@@ -134,14 +140,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             );
             xhr.abort();
           }
-        }.toJS;
+        });
       }
 
       final onSendProgress = options.onSendProgress;
       if (onSendProgress != null) {
-        xhr.upload.onprogress = (web.ProgressEvent event) {
+        xhrUploadProgressStream.listen((web.ProgressEvent event) {
           onSendProgress(event.loaded, event.total);
-        }.toJS;
+        });
       }
     } else {
       if (sendTimeout > Duration.zero) {
