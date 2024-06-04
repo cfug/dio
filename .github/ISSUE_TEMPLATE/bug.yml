@@ -23,6 +23,7 @@ body:
         - cookie_manager
         - http2_adapter
         - native_dio_adapter
+        - web_adapter
     validations:
       required: true
   - type: input
