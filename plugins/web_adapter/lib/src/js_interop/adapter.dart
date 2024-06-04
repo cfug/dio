@@ -10,9 +10,6 @@ export '../html/adapter.dart';
 // import 'package:meta/meta.dart';
 // import 'package:web/web.dart' as web;
 //
-// const progressEventProvider =
-//     web.EventStreamProvider<web.ProgressEvent>('progress');
-//
 // BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 //
 // /// The default [HttpClientAdapter] for Web platforms.
@@ -113,7 +110,7 @@ export '../html/adapter.dart';
 //     // so we can check it beforehand.
 //     if (requestStream != null) {
 //       final xhrUploadProgressStream =
-//           progressEventProvider.forTarget(xhr.upload);
+//           web.EventStreamProviders.progressEvent.forTarget(xhr.upload);
 //
 //       if (connectTimeoutTimer != null) {
 //         xhrUploadProgressStream.listen((_) {
@@ -145,7 +142,7 @@ export '../html/adapter.dart';
 //
 //       final onSendProgress = options.onSendProgress;
 //       if (onSendProgress != null) {
-//         xhrUploadProgressStream.listen((web.ProgressEvent event) {
+//         xhrUploadProgressStream.listen((event) {
 //           onSendProgress(event.loaded, event.total);
 //         });
 //       }
@@ -198,7 +195,7 @@ export '../html/adapter.dart';
 //     }
 //
 //     xhr.onProgress.listen(
-//       (web.ProgressEvent event) {
+//       (event) {
 //         if (connectTimeoutTimer != null) {
 //           connectTimeoutTimer!.cancel();
 //           connectTimeoutTimer = null;
@@ -226,7 +223,7 @@ export '../html/adapter.dart';
 //       );
 //     });
 //
-//     xhr.ontimeout = (web.ProgressEvent event) {
+//     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
 //       final isConnectTimeout = connectTimeoutTimer != null;
 //       if (connectTimeoutTimer != null) {
 //         connectTimeoutTimer?.cancel();
@@ -249,7 +246,7 @@ export '../html/adapter.dart';
 //           );
 //         }
 //       }
-//     }.toJS;
+//     });
 //
 //     cancelFuture?.then((_) {
 //       if (xhr.readyState < web.XMLHttpRequest.DONE &&
