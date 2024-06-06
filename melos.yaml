@@ -118,6 +118,9 @@ scripts:
       cd example_flutter_app
       flutter build apk --debug
 
+  coverage:clean:
+    name: Clear coverage
+    exec: rm -rf coverage
   coverage:format:
     name: Format coverage
     run: |
