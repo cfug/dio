@@ -37,6 +37,14 @@ void main() async {
               },
               contentType: DioMediaType.parse('text/plain'),
             ),
+            MultipartFile.fromBytes(
+              utf8.encode('hello world again.').toList(),
+              filename: '3.txt',
+              headers: {
+                'test': <String>['d'],
+              },
+              contentType: DioMediaType.parse('text/plain'),
+            ),
           ],
         });
         final fmStr = await fm.readAsBytes();
@@ -91,6 +99,19 @@ void main() async {
             ),
           ),
         );
+        fm1.files.add(
+          MapEntry(
+            'files',
+            MultipartFile.fromBytes(
+              utf8.encode('hello world again.'),
+              filename: '3.txt',
+              headers: {
+                'test': <String>['d'],
+              },
+              contentType: DioMediaType.parse('text/plain'),
+            ),
+          ),
+        );
         expect(fmStr.length, fm1.length);
       },
       testOn: 'vm',
@@ -122,6 +143,14 @@ void main() async {
               filename: '2.txt',
               headers: {
                 'test': <String>['c'],
+              },
+              contentType: DioMediaType.parse('text/plain'),
+            ),
+            MultipartFile.fromBytes(
+              utf8.encode('hello world again.'),
+              filename: '3.txt',
+              headers: {
+                'test': <String>['d'],
               },
               contentType: DioMediaType.parse('text/plain'),
             ),
