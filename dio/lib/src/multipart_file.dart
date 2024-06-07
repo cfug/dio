@@ -1,7 +1,7 @@
-import 'dart:async';
-import 'dart:convert';
+import 'dart:convert' show utf8;
+import 'dart:typed_data' show Uint8List;
 
-import 'package:http_parser/http_parser.dart';
+import 'package:http_parser/http_parser.dart' show MediaType;
 
 import 'multipart_file/io_multipart_file.dart'
     if (dart.library.html) 'multipart_file/browser_multipart_file.dart';
@@ -32,7 +32,7 @@ class MultipartFile {
     this.filename,
     DioMediaType? contentType,
     Map<String, List<String>>? headers,
-  })  : _data = (() => stream),
+  })  : _dataBuilder = (() => stream),
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
@@ -48,7 +48,7 @@ class MultipartFile {
     this.filename,
     DioMediaType? contentType,
     Map<String, List<String>>? headers,
-  })  : _data = data,
+  })  : _dataBuilder = data,
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
@@ -112,7 +112,7 @@ class MultipartFile {
   final DioMediaType? contentType;
 
   /// The stream builder that will emit the file's contents for every call.
-  final Stream<List<int>> Function() _data;
+  final Stream<List<int>> Function() _dataBuilder;
 
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
@@ -153,7 +153,7 @@ class MultipartFile {
 
   bool _isFinalized = false;
 
-  Stream<List<int>> finalize() {
+  Stream<Uint8List> finalize() {
     if (isFinalized) {
       throw StateError(
         'The MultipartFile has already been finalized. '
@@ -162,7 +162,8 @@ class MultipartFile {
       );
     }
     _isFinalized = true;
-    return _data.call();
+    return _dataBuilder()
+        .map((e) => e is Uint8List ? e : Uint8List.fromList(e));
   }
 
   /// Clone MultipartFile, returning a new instance of the same object.
@@ -170,7 +171,7 @@ class MultipartFile {
   /// such as an unauthorized exception can be solved by refreshing the token.
   MultipartFile clone() {
     return MultipartFile.fromStream(
-      _data,
+      _dataBuilder,
       length,
       filename: filename,
       contentType: contentType,

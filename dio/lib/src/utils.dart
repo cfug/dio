@@ -21,7 +21,7 @@ const kReleaseMode = bool.fromEnvironment('dart.vm.product');
 /// Pipes all data and errors from [stream] into [sink]. Completes [Future] once
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is
 /// done.
-Future writeStreamToSink(Stream stream, EventSink sink) {
+Future<void> writeStreamToSink<T>(Stream<T> stream, EventSink<T> sink) {
   final completer = Completer();
   stream.listen(
     sink.add,
