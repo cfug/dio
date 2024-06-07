@@ -20,12 +20,13 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    env:
+      TEST_PRESET: all
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-          channel: stable
       - run: |
           chmod +x ./scripts/prepare_pinning_certs.sh
           ./scripts/prepare_pinning_certs.sh

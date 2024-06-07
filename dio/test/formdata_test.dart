@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
@@ -36,7 +35,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ],
         });
@@ -88,7 +87,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ),
         );
@@ -124,7 +123,7 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ],
         });
