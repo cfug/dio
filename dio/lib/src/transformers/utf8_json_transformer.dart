@@ -35,7 +35,9 @@ class Utf8JsonTransformer extends Transformer {
 
   @override
   Future<dynamic> transformResponse(
-      RequestOptions options, ResponseBody responseBody) async {
+    RequestOptions options,
+    ResponseBody responseBody,
+  ) async {
     final responseType = options.responseType;
     // Do not handle the body for streams.
     if (responseType == ResponseType.stream) {
@@ -60,10 +62,8 @@ class Utf8JsonTransformer extends Transformer {
     }
     final responseBytes = await _consolidateStream(responseBody.stream);
 
-
     // a custom response decoder overrides the default behavior
     final String? decodedResponse;
-
 
     if (customResponseDecoder != null) {
       final decodeResponse = customResponseDecoder(
@@ -105,18 +105,18 @@ class Utf8JsonTransformer extends Transformer {
         await _consolidateStream(responseBody.stream),
       );
     } else {
-      if(responseBody.contentLength <= 0) {
+      if (responseBody.contentLength <= 0) {
         // server did not provide a valid content length, so we first consolidate the stream
         // to get the full response body
         final responseBytes = await _consolidateStream(responseBody.stream);
-        if(responseBytes.isEmpty) {
+        if (responseBytes.isEmpty) {
           return null;
         }
         return _utf8JsonDecoder.convert(responseBytes);
       }
       final decodedStream = _utf8JsonDecoder.bind(responseBody.stream);
       final decoded = await decodedStream.toList();
-      if(decoded.isEmpty) {
+      if (decoded.isEmpty) {
         return null;
       }
       assert(decoded.length == 1);

@@ -59,7 +59,9 @@ void main() {
   });
 
   group(Utf8JsonTransformer(), () {
-    test('transformResponse transforms json without content-length set in response', () async {
+    test(
+        'transformResponse transforms json without content-length set in response',
+        () async {
       final transformer = Utf8JsonTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
@@ -84,13 +86,14 @@ void main() {
           200,
           headers: {
             Headers.contentTypeHeader: ['application/json'],
-            Headers.contentLengthHeader: [utf8.encode(jsonString).length.toString()],
+            Headers.contentLengthHeader: [
+              utf8.encode(jsonString).length.toString()
+            ],
           },
         ),
       );
       expect(response, {'foo': 'bar'});
     });
-
 
     test('transforms json in background isolate', () async {
       final transformer = Utf8JsonTransformer(contentLengthIsolateThreshold: 0);
@@ -102,13 +105,14 @@ void main() {
           200,
           headers: {
             Headers.contentTypeHeader: ['application/json'],
-            Headers.contentLengthHeader: [utf8.encode(jsonString).length.toString()],
+            Headers.contentLengthHeader: [
+              utf8.encode(jsonString).length.toString()
+            ],
           },
         ),
       );
       expect(response, {'foo': 'bar'});
     });
-
 
     test('transformResponse transforms that arrives in many chunks', () async {
       final transformer = Utf8JsonTransformer();

@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
 import 'options.dart';
+import 'transformers/sync_transformer.dart';
 import 'utils.dart';
 
 /// [Transformer] allows changes to the request/response data before
@@ -76,7 +76,9 @@ abstract class Transformer {
   }
 
   static FutureOr<String> defaultTransformRequest(
-      RequestOptions options, JsonEncodeCallback jsonEncodeCallback) {
+    RequestOptions options,
+    JsonEncodeCallback jsonEncodeCallback,
+  ) {
     final Object data = options.data ?? '';
     if (data is! String && Transformer.isJsonMimeType(options.contentType)) {
       return jsonEncodeCallback(data);
