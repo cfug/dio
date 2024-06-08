@@ -21,3 +21,4 @@ export 'src/response.dart';
 export 'src/transformer.dart';
 export 'src/transformers/background_transformer.dart';
 export 'src/transformers/sync_transformer.dart';
+export 'src/transformers/utf8_json_transformer.dart';
