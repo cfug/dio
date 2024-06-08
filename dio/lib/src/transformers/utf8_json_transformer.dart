@@ -97,30 +97,58 @@ class Utf8JsonTransformer extends Transformer {
   }
 
   Future<Object?> _fastUtf8JsonDecode(ResponseBody responseBody) async {
+    final contentLengthHeader =
+        responseBody.headers[Headers.contentLengthHeader];
+
+    final hasContentLengthHeader =
+        contentLengthHeader != null && contentLengthHeader.isNotEmpty;
+
+    // the content length of the response, either from the content-length header
+    // of the response or the length of the eagerly decoded response bytes
+    final int contentLength;
+
+    // the eagerly decoded response bytes
+    // which is set if the content length is not specified
+    // null otherwise (we'll feed the stream directly to the decoder in that case)
+    Uint8List? responseBytes;
+
+    // if the content length is not specified, we need to consolidate the stream
+    // and count the bytes to determine if we should use an isolate
+    // otherwise we use the content length header
+    if (!hasContentLengthHeader) {
+      responseBytes = await _consolidateStream(responseBody.stream);
+      contentLength = responseBytes.length;
+    } else {
+      contentLength = int.parse(contentLengthHeader.first);
+    }
+
     final shouldUseIsolate = !(contentLengthIsolateThreshold < 0) &&
-        responseBody.contentLength >= contentLengthIsolateThreshold;
+        contentLength >= contentLengthIsolateThreshold;
     if (shouldUseIsolate) {
+      // we can't send the stream to the isolate, so we need to decode the response bytes first
       return compute(
         _decodeUtf8ToJson,
-        await _consolidateStream(responseBody.stream),
+        responseBytes ?? await _consolidateStream(responseBody.stream),
       );
     } else {
-      if (responseBody.contentLength <= 0) {
-        // server did not provide a valid content length, so we first consolidate the stream
-        // to get the full response body
-        final responseBytes = await _consolidateStream(responseBody.stream);
+      if (!hasContentLengthHeader || contentLength == 0) {
+        responseBytes ??= await _consolidateStream(responseBody.stream);
+        // if the response is empty, return null, since the decoder would throw
         if (responseBytes.isEmpty) {
           return null;
         }
         return _utf8JsonDecoder.convert(responseBytes);
+      } else {
+        assert(responseBytes == null);
+        // the content length is specified and we can feed the stream directly to the decoder
+        final decodedStream = _utf8JsonDecoder.bind(responseBody.stream);
+        final decoded = await decodedStream.toList();
+        if (decoded.isEmpty) {
+          return null;
+        }
+        assert(decoded.length == 1);
+        return decoded.first;
       }
-      final decodedStream = _utf8JsonDecoder.bind(responseBody.stream);
-      final decoded = await decodedStream.toList();
-      if (decoded.isEmpty) {
-        return null;
-      }
-      assert(decoded.length == 1);
-      return decoded.first;
     }
   }
 
