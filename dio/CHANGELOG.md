@@ -9,6 +9,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Add constructor for `DioExceptionType.badCertificate`.
 - Create type alias `DioMediaType` for `http_parser`'s `MediaType`.
 - Fix the type conversion regression when using `MultipartFile.fromBytes`.
+- Add Utf8JsonTransformer for improved performance when decoding JSON.
 
 ## 5.4.3+1
 
