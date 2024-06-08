@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
-import 'dart:typed_data';
+import 'dart:typed_data' show Uint8List;
 
 import 'multipart_file.dart';
 import 'options.dart';
@@ -188,7 +188,7 @@ class FormData {
       for (final file in files) {
         writeUtf8('--$boundary$_rn');
         writeUtf8(_headerForFile(file));
-        await writeStreamToSink(file.value.finalize(), controller);
+        await writeStreamToSink<Uint8List>(file.value.finalize(), controller);
         writeLine();
       }
     }).then((_) {

@@ -64,7 +64,7 @@ void downloadTests(
           cancelToken.cancel();
         });
 
-        final completer = Completer();
+        final completer = Completer<Never>();
         res.data!.stream.listen(
           (event) {},
           onError: (e, s) {
