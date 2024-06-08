@@ -87,7 +87,7 @@ void main() {
           headers: {
             Headers.contentTypeHeader: ['application/json'],
             Headers.contentLengthHeader: [
-              utf8.encode(jsonString).length.toString()
+              utf8.encode(jsonString).length.toString(),
             ],
           },
         ),
@@ -106,7 +106,7 @@ void main() {
           headers: {
             Headers.contentTypeHeader: ['application/json'],
             Headers.contentLengthHeader: [
-              utf8.encode(jsonString).length.toString()
+              utf8.encode(jsonString).length.toString(),
             ],
           },
         ),
