@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
-import 'package:dio/src/compute/compute.dart';
+import '../adapter.dart';
+import '../compute/compute.dart';
+import '../headers.dart';
+import '../options.dart';
+import '../transformer.dart';
 
 /// A [Transformer] that has a fast path for decoding utf8-encoded JSON.
 /// If the response is utf8-encoded JSON and no custom decoder for a Request is specified, this transformer
