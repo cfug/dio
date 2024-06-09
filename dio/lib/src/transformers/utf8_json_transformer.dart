@@ -7,9 +7,9 @@ import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
 
-/// A [Transformer] that has a fast path for decoding utf8-encoded JSON.
-/// If the response is utf8-encoded JSON and no custom decoder for a Request is specified, this transformer
-/// is significantly faster than the default [SyncTransformer] or [BackgroundTransformer].
+/// A [Transformer] that has a fast path for decoding UTF8-encoded JSON.
+/// If the response is utf8-encoded JSON and no custom decoder is specified in the [RequestOptions], this transformer
+/// is significantly faster than the default [SyncTransformer] and the [BackgroundTransformer].
 /// This improvement is achieved by using a fused [Utf8Decoder] and [JsonDecoder] to decode the response,
 /// which is faster than decoding the utf8-encoded JSON in two separate steps, since
 /// Dart uses a special fast decoder for this case.
@@ -18,12 +18,12 @@ import '../transformer.dart';
 /// By default, this transformer will transform responses in the main isolate,
 /// but a custom threshold can be set to switch to an isolate for large responses by passing
 /// [contentLengthIsolateThreshold].
-class Utf8JsonTransformer extends Transformer {
-  Utf8JsonTransformer({this.contentLengthIsolateThreshold = -1});
+class FusedTransformer extends Transformer {
+  FusedTransformer({this.contentLengthIsolateThreshold = -1});
 
-  /// decode the response in the main isolate
-  factory Utf8JsonTransformer.sync() =>
-      Utf8JsonTransformer(contentLengthIsolateThreshold: -1);
+  /// Always decode the response in the same isolate
+  factory FusedTransformer.sync() =>
+      FusedTransformer(contentLengthIsolateThreshold: -1);
 
   // whether to switch decoding to an isolate for large responses
   // set to -1 to disable, 0 to always use isolate
@@ -58,14 +58,14 @@ class Utf8JsonTransformer extends Transformer {
 
     final customResponseDecoder = options.responseDecoder;
 
-    // no custom decoder was specified for the response,
+    // No custom decoder was specified for the response,
     // and the response is json -> use the fast path decoder
     if (isJsonContent && customResponseDecoder == null) {
       return _fastUtf8JsonDecode(responseBody);
     }
     final responseBytes = await _consolidateStream(responseBody.stream);
 
-    // a custom response decoder overrides the default behavior
+    // A custom response decoder overrides the default behavior
     final String? decodedResponse;
 
     if (customResponseDecoder != null) {
@@ -106,16 +106,16 @@ class Utf8JsonTransformer extends Transformer {
     final hasContentLengthHeader =
         contentLengthHeader != null && contentLengthHeader.isNotEmpty;
 
-    // the content length of the response, either from the content-length header
+    // The content length of the response, either from the content-length header
     // of the response or the length of the eagerly decoded response bytes
     final int contentLength;
 
-    // the eagerly decoded response bytes
-    // which is set if the content length is not specified
+    // The eagerly decoded response bytes
+    // which is set if the content length is not specified and
     // null otherwise (we'll feed the stream directly to the decoder in that case)
     Uint8List? responseBytes;
 
-    // if the content length is not specified, we need to consolidate the stream
+    // If the content length is not specified, we need to consolidate the stream
     // and count the bytes to determine if we should use an isolate
     // otherwise we use the content length header
     if (!hasContentLengthHeader) {
@@ -125,6 +125,11 @@ class Utf8JsonTransformer extends Transformer {
       contentLength = int.parse(contentLengthHeader.first);
     }
 
+    // The decoding in done on an isolate if
+    // - contentLengthIsolateThreshold is not -1
+    // - the content length, calculated from either
+    //   the content-length header if present or the eagerly decoded response bytes,
+    //   is greater than or equal to contentLengthIsolateThreshold
     final shouldUseIsolate = !(contentLengthIsolateThreshold < 0) &&
         contentLength >= contentLengthIsolateThreshold;
     if (shouldUseIsolate) {
@@ -135,15 +140,20 @@ class Utf8JsonTransformer extends Transformer {
       );
     } else {
       if (!hasContentLengthHeader || contentLength == 0) {
+        // This path is for backwards compatibility.
+        // If content-type indicates a json response,
+        // but the body is empty, null is returned.
+        // _utf8JsonDecoder.bind(responseBody.stream) would throw if the body is empty.
+        // So we need to check if the body is empty and return null in that case
         responseBytes ??= await _consolidateStream(responseBody.stream);
-        // if the response is empty, return null, since the decoder would throw
         if (responseBytes.isEmpty) {
           return null;
         }
         return _utf8JsonDecoder.convert(responseBytes);
       } else {
         assert(responseBytes == null);
-        // the content length is specified and we can feed the stream directly to the decoder
+        // The content length is specified and we can feed the stream directly to the decoder,
+        // without eagerly decoding the response bytes first.
         final decodedStream = _utf8JsonDecoder.bind(responseBody.stream);
         final decoded = await decodedStream.toList();
         if (decoded.isEmpty) {

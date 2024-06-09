@@ -10,12 +10,6 @@ import '../transformer.dart';
 @Deprecated('Use BackgroundTransformer instead')
 typedef DefaultTransformer = SyncTransformer;
 
-/// The callback definition for decoding a JSON string.
-typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
-
-/// The callback definition for encoding a JSON object.
-typedef JsonEncodeCallback = FutureOr<String> Function(Object);
-
 /// If you want to custom the transformation of request/response data,
 /// you can provide a [Transformer] by your self, and replace
 /// the transformer by setting the [Dio.transformer].

@@ -3,8 +3,13 @@ import 'package:http_parser/http_parser.dart';
 
 import 'adapter.dart';
 import 'options.dart';
-import 'transformers/sync_transformer.dart';
 import 'utils.dart';
+
+/// The callback definition for decoding a JSON string.
+typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
+
+/// The callback definition for encoding a JSON object.
+typedef JsonEncodeCallback = FutureOr<String> Function(Object);
 
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.

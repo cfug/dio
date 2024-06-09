@@ -58,11 +58,11 @@ void main() {
     expect(jsonResponse, null);
   });
 
-  group(Utf8JsonTransformer(), () {
+  group(FusedTransformer(), () {
     test(
         'transformResponse transforms json without content-length set in response',
         () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
         ResponseBody.fromString(
@@ -77,7 +77,7 @@ void main() {
     });
 
     test('transformResponse transforms json with content-length', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       const jsonString = '{"foo": "bar"}';
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('transforms json in background isolate', () async {
-      final transformer = Utf8JsonTransformer(contentLengthIsolateThreshold: 0);
+      final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
       final jsonString = '{"foo": "bar"}';
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
@@ -115,7 +115,7 @@ void main() {
     });
 
     test('transformResponse transforms that arrives in many chunks', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
         ResponseBody(
@@ -142,7 +142,7 @@ void main() {
     });
 
     test('transformResponse handles bytes', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.bytes),
         ResponseBody.fromBytes(
@@ -155,7 +155,7 @@ void main() {
 
     test('transformResponse handles when response stream has multiple chunks',
         () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.bytes),
         ResponseBody(
@@ -171,7 +171,7 @@ void main() {
     });
 
     test('transformResponse handles plain text', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.plain),
         ResponseBody.fromString(
@@ -186,7 +186,7 @@ void main() {
     });
 
     test('transformResponse handles streams', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.stream),
         ResponseBody.fromBytes(
@@ -198,7 +198,7 @@ void main() {
     });
 
     test('null response body only when the response is JSON', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
       for (final responseType in ResponseType.values) {
         final response = await transformer.transformResponse(
           RequestOptions(responseType: responseType),
@@ -233,7 +233,7 @@ void main() {
     });
 
     test('transform the request using urlencode', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
 
       final request = await transformer.transformRequest(
         RequestOptions(responseType: ResponseType.json, data: {'foo': 'bar'}),
@@ -242,7 +242,7 @@ void main() {
     });
 
     test('transform the request using json', () async {
-      final transformer = Utf8JsonTransformer();
+      final transformer = FusedTransformer();
 
       final request = await transformer.transformRequest(
         RequestOptions(
