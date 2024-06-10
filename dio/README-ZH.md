@@ -282,9 +282,9 @@ final response = await dio.request(
 
 ### 请求配置
 
-`BaseOptions` 描述的是 Dio 实例发起网络请求的的公共配置，
-而 `Options` 描述了每一个Http请求的配置信息，每一次请求都可以单独配置，
-单次请求的 `Options` 中的配置信息可以覆盖 `BaseOptions` 中的配置。
+在 Dio 中有两种配置概念：`BaseOptions` 和 `Options`。
+`BaseOptions` 描述的是 Dio 实例的一套基本配置，而 `Options` 描述了单独请求的配置信息。
+以上的配置会在发起请求时进行合并。
 下面是 `Options` 的配置项：
 
 ```dart
