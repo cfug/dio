@@ -265,10 +265,12 @@ final response = await dio.request(
 
 ### Request Options
 
-The `Options` class describes the HTTP request information and configuration.
-Each Dio instance has a base config for all requests made by itself,
-and we can override the base config with `Options` when make a single request.
-The `Options` declaration as follows:
+There are two request options concepts in the Dio library:
+`BaseOptions` and `Options`.
+The `BaseOptions` include a set of base settings for each `Dio()`,
+and the `Options` describes the configuration for a single request.
+These options will be merged when making requests.
+The `Options` declaration is as follows:
 
 ```dart
 /// The HTTP request method.
