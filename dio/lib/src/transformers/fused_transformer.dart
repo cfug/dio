@@ -181,5 +181,5 @@ Future<Uint8List> _consolidateStream(Stream<Uint8List> stream) async {
     builder.add(chunk);
   }
 
-  return builder.toBytes();
+  return builder.takeBytes();
 }
