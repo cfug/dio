@@ -175,23 +175,12 @@ class FusedTransformer extends Transformer {
 
 /// Consolidates a stream of [Uint8List] into a single [Uint8List]
 Future<Uint8List> _consolidateStream(Stream<Uint8List> stream) async {
-  final chunks = <Uint8List>[];
-  int totalLength = 0;
+
+  final builder = BytesBuilder(copy: false);
 
   await for (final chunk in stream) {
-    totalLength += chunk.length;
-    chunks.add(chunk);
+    builder.add(chunk);
   }
 
-  // Allocate a buffer with the total length
-  final result = Uint8List(totalLength);
-
-  // Copy each chunk into the buffer
-  int offset = 0;
-  for (final chunk in chunks) {
-    result.setRange(offset, offset + chunk.length, chunk);
-    offset += chunk.length;
-  }
-
-  return result;
+  return builder.toBytes();
 }
