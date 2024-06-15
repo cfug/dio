@@ -62,6 +62,8 @@ scripts:
       flutter: false
       dirExists: test
       fileExists: .melos_package
+      ignore:
+        - 'dio_web_adapter'
   test:web:
     name: Dart Web tests
     run: |
