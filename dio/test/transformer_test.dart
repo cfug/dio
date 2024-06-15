@@ -60,7 +60,9 @@ void main() {
   });
 
   group(FusedTransformer(), () {
-    test('transformResponse transforms json without content-length set in response', () async {
+    test(
+        'transformResponse transforms json without content-length set in response',
+        () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
@@ -152,7 +154,8 @@ void main() {
       expect(response, [1, 2, 3]);
     });
 
-    test('transformResponse handles when response stream has multiple chunks', () async {
+    test('transformResponse handles when response stream has multiple chunks',
+        () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.bytes),
