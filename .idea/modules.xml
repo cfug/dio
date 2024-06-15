@@ -5,10 +5,11 @@
       <module fileurl="file://$PROJECT_DIR$/dio/dio.iml" filepath="$PROJECT_DIR$/dio/dio.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/compatibility_layer/dio_compatibility_layer.iml" filepath="$PROJECT_DIR$/plugins/compatibility_layer/dio_compatibility_layer.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/cookie_manager/dio_cookie_manager.iml" filepath="$PROJECT_DIR$/plugins/cookie_manager/dio_cookie_manager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/example/dio_example.iml" filepath="$PROJECT_DIR$/example/dio_example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example_dart/dio_example.iml" filepath="$PROJECT_DIR$/example_dart/dio_example.iml" />
       <module fileurl="file://$PROJECT_DIR$/example_flutter_app/dio_flutter_example.iml" filepath="$PROJECT_DIR$/example_flutter_app/dio_flutter_example.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/http2_adapter/dio_http2_adapter.iml" filepath="$PROJECT_DIR$/plugins/http2_adapter/dio_http2_adapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/dio_test/dio_test.iml" filepath="$PROJECT_DIR$/dio_test/dio_test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/web_adapter/dio_web_adapter.iml" filepath="$PROJECT_DIR$/plugins/web_adapter/dio_web_adapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/native_dio_adapter/native_dio_adapter.iml" filepath="$PROJECT_DIR$/plugins/native_dio_adapter/native_dio_adapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/native_dio_adapter/example/native_dio_adapter_example.iml" filepath="$PROJECT_DIR$/plugins/native_dio_adapter/example/native_dio_adapter_example.iml" />
       <module fileurl="file://$PROJECT_DIR$/dio_workspace.iml" filepath="$PROJECT_DIR$/dio_workspace.iml" />

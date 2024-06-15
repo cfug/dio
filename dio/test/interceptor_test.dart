@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:dio/src/dio_mixin.dart';
 import 'package:dio/src/interceptors/imply_content_type.dart';
 import 'package:test/test.dart';
 
@@ -83,6 +84,20 @@ void main() {
         ]),
       ),
     );
+  });
+
+  group('InterceptorState', () {
+    test('toString()', () {
+      final data = DioException(requestOptions: RequestOptions());
+      final state = InterceptorState<DioException>(data);
+      expect(
+        state.toString(),
+        'InterceptorState<DioException>('
+        'type: InterceptorResultType.next, '
+        'data: DioException [unknown]: null'
+        ')',
+      );
+    });
   });
 
   group('Request Interceptor', () {

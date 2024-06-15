@@ -1,6 +1,6 @@
 part of 'dio_mixin.dart';
 
-/// @nodoc
+/// The result type after handled by the interceptor.
 enum InterceptorResultType {
   next,
   resolve,
@@ -10,12 +10,14 @@ enum InterceptorResultType {
 }
 
 /// Used to pass state between interceptors.
-/// @nodoc
 class InterceptorState<T> {
   const InterceptorState(this.data, [this.type = InterceptorResultType.next]);
 
   final T data;
   final InterceptorResultType type;
+
+  @override
+  String toString() => 'InterceptorState<$T>(type: $type, data: $data)';
 }
 
 abstract class _BaseHandler {

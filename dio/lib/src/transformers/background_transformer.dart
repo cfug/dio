@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dio/src/compute/compute.dart';
-import 'package:dio/src/transformers/sync_transformer.dart';
+import '../compute/compute.dart';
+import '../transformers/sync_transformer.dart';
 
 /// The default [Transformer] for [Dio].
 ///
