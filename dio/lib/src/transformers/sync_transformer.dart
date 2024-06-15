@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import '../adapter.dart';
 import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
+import 'util/consolidate_bytes.dart';
 
 @Deprecated('Use BackgroundTransformer instead')
 typedef DefaultTransformer = SyncTransformer;
@@ -38,8 +38,7 @@ class SyncTransformer extends Transformer {
       return responseBody;
     }
 
-    final chunks = await responseBody.stream.toList();
-    final responseBytes = Uint8List.fromList(chunks.expand((c) => c).toList());
+    final responseBytes = await consolidateBytes(responseBody.stream);
 
     // Return the finalized bytes if the response type is bytes.
     if (responseType == ResponseType.bytes) {

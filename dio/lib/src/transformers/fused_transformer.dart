@@ -6,6 +6,7 @@ import '../compute/compute.dart';
 import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
+import 'util/consolidate_bytes.dart';
 
 /// A [Transformer] that has a fast path for decoding UTF8-encoded JSON.
 /// If the response is utf8-encoded JSON and no custom decoder is specified in the [RequestOptions], this transformer
@@ -49,7 +50,7 @@ class FusedTransformer extends Transformer {
 
     // Return the finalized bytes if the response type is bytes.
     if (responseType == ResponseType.bytes) {
-      return _consolidateStream(responseBody.stream);
+      return consolidateBytes(responseBody.stream);
     }
 
     final isJsonContent = Transformer.isJsonMimeType(
@@ -63,7 +64,7 @@ class FusedTransformer extends Transformer {
     if (isJsonContent && customResponseDecoder == null) {
       return _fastUtf8JsonDecode(responseBody);
     }
-    final responseBytes = await _consolidateStream(responseBody.stream);
+    final responseBytes = await consolidateBytes(responseBody.stream);
 
     // A custom response decoder overrides the default behavior
     final String? decodedResponse;
@@ -119,7 +120,7 @@ class FusedTransformer extends Transformer {
     // and count the bytes to determine if we should use an isolate
     // otherwise we use the content length header
     if (!hasContentLengthHeader) {
-      responseBytes = await _consolidateStream(responseBody.stream);
+      responseBytes = await consolidateBytes(responseBody.stream);
       contentLength = responseBytes.length;
     } else {
       contentLength = int.parse(contentLengthHeader.first);
@@ -136,7 +137,7 @@ class FusedTransformer extends Transformer {
       // we can't send the stream to the isolate, so we need to decode the response bytes first
       return compute(
         _decodeUtf8ToJson,
-        responseBytes ?? await _consolidateStream(responseBody.stream),
+        responseBytes ?? await consolidateBytes(responseBody.stream),
       );
     } else {
       if (!hasContentLengthHeader || contentLength == 0) {
@@ -145,7 +146,7 @@ class FusedTransformer extends Transformer {
         // but the body is empty, null is returned.
         // _utf8JsonDecoder.bind(responseBody.stream) would throw if the body is empty.
         // So we need to check if the body is empty and return null in that case
-        responseBytes ??= await _consolidateStream(responseBody.stream);
+        responseBytes ??= await consolidateBytes(responseBody.stream);
         if (responseBytes.isEmpty) {
           return null;
         }
@@ -171,15 +172,4 @@ class FusedTransformer extends Transformer {
     }
     return _utf8JsonDecoder.convert(data);
   }
-}
-
-/// Consolidates a stream of [Uint8List] into a single [Uint8List]
-Future<Uint8List> _consolidateStream(Stream<Uint8List> stream) async {
-  final builder = BytesBuilder(copy: false);
-
-  await for (final chunk in stream) {
-    builder.add(chunk);
-  }
-
-  return builder.takeBytes();
 }
