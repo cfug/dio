@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio/src/transformers/util/consolidate_bytes.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -252,6 +253,30 @@ void main() {
         ),
       );
       expect(request, '{"foo":"bar"}');
+    });
+  });
+
+  group('consolidate bytes', () {
+    test('consolidates bytes from a stream', () async {
+      final stream = Stream.fromIterable([
+        Uint8List.fromList([1, 2, 3]),
+        Uint8List.fromList([4, 5, 6]),
+        Uint8List.fromList([7, 8, 9]),
+      ]);
+      final bytes = await consolidateBytes(stream);
+      expect(bytes, Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    });
+
+    test('handles empty stream', () async {
+      const stream = Stream<Uint8List>.empty();
+      final bytes = await consolidateBytes(stream);
+      expect(bytes, Uint8List(0));
+    });
+
+    test('handles empty lists', () async {
+      final stream = Stream.value(Uint8List(0));
+      final bytes = await consolidateBytes(stream);
+      expect(bytes, Uint8List(0));
     });
   });
 }
