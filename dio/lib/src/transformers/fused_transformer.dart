@@ -23,8 +23,7 @@ class FusedTransformer extends Transformer {
   FusedTransformer({this.contentLengthIsolateThreshold = -1});
 
   /// Always decode the response in the same isolate
-  factory FusedTransformer.sync() =>
-      FusedTransformer(contentLengthIsolateThreshold: -1);
+  factory FusedTransformer.sync() => FusedTransformer(contentLengthIsolateThreshold: -1);
 
   // whether to switch decoding to an isolate for large responses
   // set to -1 to disable, 0 to always use isolate
@@ -92,9 +91,6 @@ class FusedTransformer extends Transformer {
     } else if (customResponseDecoder != null) {
       return decodedResponse;
     } else {
-      if (responseBytes.isEmpty) {
-        return '';
-      }
       // If the response is not JSON and no custom decoder was specified,
       // assume it is an utf8 string
       return utf8.decode(
@@ -108,11 +104,9 @@ class FusedTransformer extends Transformer {
     RequestOptions options,
     ResponseBody responseBody,
   ) async {
-    final contentLengthHeader =
-        responseBody.headers[Headers.contentLengthHeader];
+    final contentLengthHeader = responseBody.headers[Headers.contentLengthHeader];
 
-    final hasContentLengthHeader =
-        contentLengthHeader != null && contentLengthHeader.isNotEmpty;
+    final hasContentLengthHeader = contentLengthHeader != null && contentLengthHeader.isNotEmpty;
 
     // The content length of the response, either from the content-length header
     // of the response or the length of the eagerly decoded response bytes
@@ -142,8 +136,8 @@ class FusedTransformer extends Transformer {
     // - the content length, calculated from either
     //   the content-length header if present or the eagerly decoded response bytes,
     //   is greater than or equal to contentLengthIsolateThreshold
-    final shouldUseIsolate = !(contentLengthIsolateThreshold < 0) &&
-        contentLength >= contentLengthIsolateThreshold;
+    final shouldUseIsolate =
+        !(contentLengthIsolateThreshold < 0) && contentLength >= contentLengthIsolateThreshold;
     if (shouldUseIsolate) {
       // we can't send the stream to the isolate, so we need to decode the response bytes first
       return compute(
