@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
+
+import '../../util.dart';
 
 /// Test that browsers can correctly classify requests as
 /// either "simple" or "preflighted". Reference:

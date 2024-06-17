@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
+
+import '../../util.dart';
 
 void cancellationTests(
   Dio Function(String baseUrl) create,

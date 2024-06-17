@@ -5,6 +5,10 @@ import 'adapter.dart';
 import 'options.dart';
 import 'utils.dart';
 
+export 'transformers/background_transformer.dart';
+export 'transformers/fused_transformer.dart';
+export 'transformers/sync_transformer.dart';
+
 /// The callback definition for decoding a JSON string.
 typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
 

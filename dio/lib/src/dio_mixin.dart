@@ -20,7 +20,6 @@ import 'progress_stream/io_progress_stream.dart'
 import 'response.dart';
 import 'response/response_stream_handler.dart';
 import 'transformer.dart';
-import 'transformers/background_transformer.dart';
 
 part 'interceptor.dart';
 

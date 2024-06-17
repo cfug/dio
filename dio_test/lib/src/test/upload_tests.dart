@@ -4,9 +4,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:dio_test/util.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
+
+import '../../util.dart';
 
 void uploadTests(
   Dio Function(String baseUrl) create,
