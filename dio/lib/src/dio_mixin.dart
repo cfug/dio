@@ -41,7 +41,8 @@ abstract class DioMixin implements Dio {
   /// The default [Transformer] that transfers requests and responses
   /// into corresponding content to send.
   @override
-  Transformer transformer = BackgroundTransformer();
+  Transformer transformer =
+      FusedTransformer(contentLengthIsolateThreshold: 50 * 1024);
 
   bool _closed = false;
 
