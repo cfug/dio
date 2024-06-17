@@ -40,9 +40,13 @@ abstract class DioMixin implements Dio {
 
   /// The default [Transformer] that transfers requests and responses
   /// into corresponding content to send.
+  /// For response bodies greater than 50KB, a new Isolate will be spawned to
+  /// decode the response body to JSON.
+  /// Taken from https://github.com/flutter/flutter/blob/135454af32477f815a7525073027a3ff9eff1bfd/packages/flutter/lib/src/services/asset_bundle.dart#L87-L93
+  /// 50 KB of data should take 2-3 ms to parse on a Moto G4, and about 400 μs
+  /// on a Pixel 4.
   @override
-  Transformer transformer =
-      FusedTransformer(contentLengthIsolateThreshold: 50 * 1024);
+  Transformer transformer = FusedTransformer(contentLengthIsolateThreshold: 50 * 1024);
 
   bool _closed = false;
 
@@ -432,8 +436,7 @@ abstract class DioMixin implements Dio {
 
         // The request has already been cancelled,
         // there is no need to listen for another cancellation.
-        if (state.data is DioException &&
-            state.data.type == DioExceptionType.cancel) {
+        if (state.data is DioException && state.data.type == DioExceptionType.cancel) {
           return handleError();
         }
         if (state.type == InterceptorResultType.next ||
@@ -455,9 +458,8 @@ abstract class DioMixin implements Dio {
 
     // Add request interceptors into the request flow.
     for (final interceptor in interceptors) {
-      final fun = interceptor is QueuedInterceptor
-          ? interceptor._handleRequest
-          : interceptor.onRequest;
+      final fun =
+          interceptor is QueuedInterceptor ? interceptor._handleRequest : interceptor.onRequest;
       future = future.then(requestInterceptorWrapper(fun));
     }
 
@@ -479,17 +481,14 @@ abstract class DioMixin implements Dio {
 
     // Add response interceptors into the request flow
     for (final interceptor in interceptors) {
-      final fun = interceptor is QueuedInterceptor
-          ? interceptor._handleResponse
-          : interceptor.onResponse;
+      final fun =
+          interceptor is QueuedInterceptor ? interceptor._handleResponse : interceptor.onResponse;
       future = future.then(responseInterceptorWrapper(fun));
     }
 
     // Add error handlers into the request flow.
     for (final interceptor in interceptors) {
-      final fun = interceptor is QueuedInterceptor
-          ? interceptor._handleError
-          : interceptor.onError;
+      final fun = interceptor is QueuedInterceptor ? interceptor._handleError : interceptor.onError;
       future = future.catchError(errorInterceptorWrapper(fun));
     }
     // Normalize errors, converts errors to [DioException].
@@ -585,8 +584,7 @@ abstract class DioMixin implements Dio {
         r' ABCDEFGHIJKLMNOPQRSTUVWXYZ   ^_'
         r'`abcdefghijklmnopqrstuvwxyz | ~ ';
     for (final int codeUnit in token.codeUnits) {
-      if (codeUnit >= validChars.length ||
-          validChars.codeUnitAt(codeUnit) == 0x20) {
+      if (codeUnit >= validChars.length || validChars.codeUnitAt(codeUnit) == 0x20) {
         return false;
       }
     }
@@ -619,8 +617,7 @@ abstract class DioMixin implements Dio {
           return false;
         });
       } else if (data is FormData) {
-        options.headers[Headers.contentTypeHeader] =
-            '${Headers.multipartFormDataContentType}; '
+        options.headers[Headers.contentTypeHeader] = '${Headers.multipartFormDataContentType}; '
             'boundary=${data.boundary}';
         stream = data.finalize();
         length = data.length;
