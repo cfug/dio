@@ -54,15 +54,16 @@ class FusedTransformer extends Transformer {
     }
 
     final isJsonContent = Transformer.isJsonMimeType(
-      responseBody.headers[Headers.contentTypeHeader]?.first,
-    );
+          responseBody.headers[Headers.contentTypeHeader]?.first,
+        ) &&
+        responseType == ResponseType.json;
 
     final customResponseDecoder = options.responseDecoder;
 
     // No custom decoder was specified for the response,
     // and the response is json -> use the fast path decoder
     if (isJsonContent && customResponseDecoder == null) {
-      return _fastUtf8JsonDecode(responseBody);
+      return _fastUtf8JsonDecode(options, responseBody);
     }
     final responseBytes = await consolidateBytes(responseBody.stream);
 
@@ -88,9 +89,12 @@ class FusedTransformer extends Transformer {
     if (isJsonContent && decodedResponse != null) {
       // slow path decoder, since there was a custom decoder specified
       return jsonDecode(decodedResponse);
-    } else if (decodedResponse != null) {
+    } else if (customResponseDecoder != null) {
       return decodedResponse;
     } else {
+      if (responseBytes.isEmpty) {
+        return '';
+      }
       // If the response is not JSON and no custom decoder was specified,
       // assume it is an utf8 string
       return utf8.decode(
@@ -100,7 +104,8 @@ class FusedTransformer extends Transformer {
     }
   }
 
-  Future<Object?> _fastUtf8JsonDecode(ResponseBody responseBody) async {
+  Future<Object?> _fastUtf8JsonDecode(
+      RequestOptions options, ResponseBody responseBody) async {
     final contentLengthHeader =
         responseBody.headers[Headers.contentLengthHeader];
 
@@ -111,6 +116,10 @@ class FusedTransformer extends Transformer {
     // of the response or the length of the eagerly decoded response bytes
     final int contentLength;
 
+    // Successful HEAD requests don't have a response body, even if the content-length header
+    // present.
+    final contentLengthHeaderImpliesContent = options.method != 'HEAD';
+
     // The eagerly decoded response bytes
     // which is set if the content length is not specified and
     // null otherwise (we'll feed the stream directly to the decoder in that case)
@@ -119,7 +128,7 @@ class FusedTransformer extends Transformer {
     // If the content length is not specified, we need to consolidate the stream
     // and count the bytes to determine if we should use an isolate
     // otherwise we use the content length header
-    if (!hasContentLengthHeader) {
+    if (!hasContentLengthHeader || !contentLengthHeaderImpliesContent) {
       responseBytes = await consolidateBytes(responseBody.stream);
       contentLength = responseBytes.length;
     } else {

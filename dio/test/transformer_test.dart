@@ -186,6 +186,21 @@ void main() {
       expect(response, 'plain text');
     });
 
+    test('ResponseType.plain takes precedence over content-type', () async {
+      final transformer = FusedTransformer();
+      final response = await transformer.transformResponse(
+        RequestOptions(responseType: ResponseType.plain),
+        ResponseBody.fromString(
+          '{"text": "plain text"}',
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        ),
+      );
+      expect(response, '{"text": "plain text"}');
+    });
+
     test('transformResponse handles streams', () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
@@ -253,6 +268,24 @@ void main() {
         ),
       );
       expect(request, '{"foo":"bar"}');
+    });
+
+    test(
+        'HEAD request with content-length but empty body should not return null',
+        () async {
+      final transformer = FusedTransformer();
+      final response = await transformer.transformResponse(
+        RequestOptions(responseType: ResponseType.json, method: 'HEAD'),
+        ResponseBody(
+          Stream.value(Uint8List(0)),
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+            Headers.contentLengthHeader: ['123'],
+          },
+        ),
+      );
+      expect(response, null);
     });
   });
 
