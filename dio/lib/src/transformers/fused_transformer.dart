@@ -105,7 +105,9 @@ class FusedTransformer extends Transformer {
   }
 
   Future<Object?> _fastUtf8JsonDecode(
-      RequestOptions options, ResponseBody responseBody) async {
+    RequestOptions options,
+    ResponseBody responseBody,
+  ) async {
     final contentLengthHeader =
         responseBody.headers[Headers.contentLengthHeader];
 
