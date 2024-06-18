@@ -1,0 +1,16 @@
+presets:
+  # empty placeholders required in CI scripts
+  all:
+  default:
+
+override_platforms:
+  chrome:
+    settings:
+      headless: true
+  firefox:
+    settings:
+      # headless argument has to be set explicitly for non-chrome browsers
+      arguments: --headless
+      executable:
+        # https://github.com/dart-lang/test/pull/2195
+        mac_os: '/Applications/Firefox.app/Contents/MacOS/firefox'

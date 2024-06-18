@@ -133,7 +133,11 @@ mixin OptionsMixin {
   }
 }
 
-/// The base config for the Dio instance, used by [Dio.options].
+/// A set of base settings for each `Dio()`.
+/// {@template dio.options.compose_merging}
+/// [BaseOptions] and [Options] will be merged into one [RequestOptions] before
+/// sending the requests. See [Options.compose].
+/// {@endtemplate}
 class BaseOptions extends _RequestConfig with OptionsMixin {
   BaseOptions({
     super.method,
@@ -209,7 +213,8 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
   }
 }
 
-/// Every request can pass an [Options] object which will be merged with [Dio.options]
+/// The configuration for a single request.
+/// {@macro dio.options.compose_merging}
 class Options {
   Options({
     this.method,
@@ -292,6 +297,8 @@ class Options {
     );
   }
 
+  /// Merge a [BaseOptions] with the current [Options]
+  /// and compose them into the [RequestOptions].
   RequestOptions compose(
     BaseOptions baseOpt,
     String path, {

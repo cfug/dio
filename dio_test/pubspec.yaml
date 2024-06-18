@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   dio: any
+  path: any
 
 dev_dependencies:
-  test: ^1.5.1
+  test: any

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:dio_test/tests.dart';
+import '../../tests.dart';
 
 typedef TestSuiteFunction = void Function(
   Dio Function(String baseUrl) create,

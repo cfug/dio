@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
+
+import '../adapter.dart';
+import '../dio_exception.dart';
+import '../options.dart';
 
 /// An internal helper which handles functionality
 /// common to all adapters. This function ensures that

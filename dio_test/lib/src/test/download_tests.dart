@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:dio_test/util.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
+
+import '../../util.dart';
 
 void downloadTests(
   Dio Function(String baseUrl) create,
