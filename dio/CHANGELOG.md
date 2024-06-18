@@ -12,6 +12,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Split the Web implementation to `package:dio_web_adapter`.
 - Add FusedTransformer for improved performance when decoding JSON.
 - Improves `InterceptorState.toString()`.
+- If the `CancelToken` got canceled before making requests,
+  throws the exception directly rather than cut actual HTTP requests afterward.
 
 ## 5.4.3+1
 
