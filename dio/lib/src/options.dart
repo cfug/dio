@@ -537,7 +537,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     ProgressCallback? onReceiveProgress,
     ProgressCallback? onSendProgress,
     CancelToken? cancelToken,
-    bool? blobUrl,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
     bool? preserveHeaderCase,
