@@ -47,7 +47,7 @@ abstract class DioMixin implements Dio {
   /// on a Pixel 4.
   @override
   Transformer transformer = FusedTransformer(
-    contentLengthIsolateThreshold: 50 * 1024，
+    contentLengthIsolateThreshold: 50 * 1024,
   );
 
   bool _closed = false;

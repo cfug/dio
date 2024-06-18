@@ -20,11 +20,14 @@ import 'util/consolidate_bytes.dart';
 /// but a custom threshold can be set to switch to an isolate for large responses by passing
 /// [contentLengthIsolateThreshold].
 class FusedTransformer extends Transformer {
-  FusedTransformer({this.contentLengthIsolateThreshold = -1});
+  FusedTransformer({
+    this.contentLengthIsolateThreshold = -1,
+  });
 
   /// Always decode the response in the same isolate
-  factory FusedTransformer.sync() =>
-      FusedTransformer(contentLengthIsolateThreshold: -1);
+  factory FusedTransformer.sync() => FusedTransformer(
+        contentLengthIsolateThreshold: -1,
+      );
 
   // whether to switch decoding to an isolate for large responses
   // set to -1 to disable, 0 to always use isolate
