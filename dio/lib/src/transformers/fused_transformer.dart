@@ -20,11 +20,14 @@ import 'util/consolidate_bytes.dart';
 /// but a custom threshold can be set to switch to an isolate for large responses by passing
 /// [contentLengthIsolateThreshold].
 class FusedTransformer extends Transformer {
-  FusedTransformer({this.contentLengthIsolateThreshold = -1});
+  FusedTransformer({
+    this.contentLengthIsolateThreshold = -1,
+  });
 
   /// Always decode the response in the same isolate
-  factory FusedTransformer.sync() =>
-      FusedTransformer(contentLengthIsolateThreshold: -1);
+  factory FusedTransformer.sync() => FusedTransformer(
+        contentLengthIsolateThreshold: -1,
+      );
 
   // whether to switch decoding to an isolate for large responses
   // set to -1 to disable, 0 to always use isolate
@@ -54,15 +57,16 @@ class FusedTransformer extends Transformer {
     }
 
     final isJsonContent = Transformer.isJsonMimeType(
-      responseBody.headers[Headers.contentTypeHeader]?.first,
-    );
+          responseBody.headers[Headers.contentTypeHeader]?.first,
+        ) &&
+        responseType == ResponseType.json;
 
     final customResponseDecoder = options.responseDecoder;
 
     // No custom decoder was specified for the response,
     // and the response is json -> use the fast path decoder
     if (isJsonContent && customResponseDecoder == null) {
-      return _fastUtf8JsonDecode(responseBody);
+      return _fastUtf8JsonDecode(options, responseBody);
     }
     final responseBytes = await consolidateBytes(responseBody.stream);
 
@@ -88,7 +92,7 @@ class FusedTransformer extends Transformer {
     if (isJsonContent && decodedResponse != null) {
       // slow path decoder, since there was a custom decoder specified
       return jsonDecode(decodedResponse);
-    } else if (decodedResponse != null) {
+    } else if (customResponseDecoder != null) {
       return decodedResponse;
     } else {
       // If the response is not JSON and no custom decoder was specified,
@@ -100,7 +104,10 @@ class FusedTransformer extends Transformer {
     }
   }
 
-  Future<Object?> _fastUtf8JsonDecode(ResponseBody responseBody) async {
+  Future<Object?> _fastUtf8JsonDecode(
+    RequestOptions options,
+    ResponseBody responseBody,
+  ) async {
     final contentLengthHeader =
         responseBody.headers[Headers.contentLengthHeader];
 
@@ -111,6 +118,11 @@ class FusedTransformer extends Transformer {
     // of the response or the length of the eagerly decoded response bytes
     final int contentLength;
 
+    // Successful HEAD requests don't have a response body, even if the content-length header
+    // present.
+    final mightNotHaveResponseBodyDespiteContentLength =
+        options.method == 'HEAD';
+
     // The eagerly decoded response bytes
     // which is set if the content length is not specified and
     // null otherwise (we'll feed the stream directly to the decoder in that case)
@@ -119,7 +131,8 @@ class FusedTransformer extends Transformer {
     // If the content length is not specified, we need to consolidate the stream
     // and count the bytes to determine if we should use an isolate
     // otherwise we use the content length header
-    if (!hasContentLengthHeader) {
+    if (!hasContentLengthHeader ||
+        mightNotHaveResponseBodyDespiteContentLength) {
       responseBytes = await consolidateBytes(responseBody.stream);
       contentLength = responseBytes.length;
     } else {

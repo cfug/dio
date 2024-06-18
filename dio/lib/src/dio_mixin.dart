@@ -40,8 +40,15 @@ abstract class DioMixin implements Dio {
 
   /// The default [Transformer] that transfers requests and responses
   /// into corresponding content to send.
+  /// For response bodies greater than 50KB, a new Isolate will be spawned to
+  /// decode the response body to JSON.
+  /// Taken from https://github.com/flutter/flutter/blob/135454af32477f815a7525073027a3ff9eff1bfd/packages/flutter/lib/src/services/asset_bundle.dart#L87-L93
+  /// 50 KB of data should take 2-3 ms to parse on a Moto G4, and about 400 μs
+  /// on a Pixel 4.
   @override
-  Transformer transformer = BackgroundTransformer();
+  Transformer transformer = FusedTransformer(
+    contentLengthIsolateThreshold: 50 * 1024,
+  );
 
   bool _closed = false;
 
