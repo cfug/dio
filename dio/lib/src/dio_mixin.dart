@@ -46,8 +46,9 @@ abstract class DioMixin implements Dio {
   /// 50 KB of data should take 2-3 ms to parse on a Moto G4, and about 400 μs
   /// on a Pixel 4.
   @override
-  Transformer transformer =
-      FusedTransformer(contentLengthIsolateThreshold: 50 * 1024);
+  Transformer transformer = FusedTransformer(
+    contentLengthIsolateThreshold: 50 * 1024，
+  );
 
   bool _closed = false;
 
