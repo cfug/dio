@@ -41,6 +41,10 @@ enum ResponseType {
 
   /// Get the original bytes, the [Response.data] will be [List<int>].
   bytes,
+
+  /// Get blob url.
+  /// Only work in web.
+  blobUrl,
 }
 
 /// {@template dio.options.ListFormat}
@@ -492,7 +496,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     this.onReceiveProgress,
     this.onSendProgress,
     this.cancelToken,
-    this.blobUrl = false,
     super.method,
     super.sendTimeout,
     super.receiveTimeout,
@@ -567,7 +570,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       connectTimeout: connectTimeout ?? this.connectTimeout,
       data: data ?? this.data,
       path: path ?? this.path,
-      blobUrl: blobUrl ?? false,
       baseUrl: baseUrl ?? this.baseUrl,
       queryParameters: queryParameters ?? Map.from(this.queryParameters),
       onReceiveProgress: onReceiveProgress ?? this.onReceiveProgress,
@@ -640,11 +642,6 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
 
   /// {@macro dio.options.ProgressCallback}
   ProgressCallback? onSendProgress;
-
-  /// Get blob url
-  ///
-  /// Only work in web
-  bool blobUrl;
 }
 
 bool _defaultValidateStatus(int? status) {
