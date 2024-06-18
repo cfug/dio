@@ -337,7 +337,12 @@ abstract class DioMixin implements Dio {
     Options? options,
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
-  }) {
+  }) async {
+    if (cancelToken != null && cancelToken.isCancelled) {
+      final exception = await cancelToken.whenCancel;
+      throw exception;
+    }
+
     final requestOptions = (options ?? Options()).compose(
       this.options,
       path,
