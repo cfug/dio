@@ -117,7 +117,8 @@ class FusedTransformer extends Transformer {
 
     // Successful HEAD requests don't have a response body, even if the content-length header
     // present.
-    final contentLengthHeaderImpliesContent = options.method != 'HEAD';
+    final mightNotHaveResponseBodyDespiteContentLength =
+        options.method == 'HEAD';
 
     // The eagerly decoded response bytes
     // which is set if the content length is not specified and
@@ -127,7 +128,8 @@ class FusedTransformer extends Transformer {
     // If the content length is not specified, we need to consolidate the stream
     // and count the bytes to determine if we should use an isolate
     // otherwise we use the content length header
-    if (!hasContentLengthHeader || !contentLengthHeaderImpliesContent) {
+    if (!hasContentLengthHeader ||
+        mightNotHaveResponseBodyDespiteContentLength) {
       responseBytes = await consolidateBytes(responseBody.stream);
       contentLength = responseBytes.length;
     } else {
