@@ -13,4 +13,5 @@ dependencies:
   path: any
 
 dev_dependencies:
+  lints: any
   test: any
