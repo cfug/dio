@@ -122,7 +122,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
         cancelFutureRequestPool[cancelFuture]!.add(request);
         cancelFuture.whenComplete(() {
-          cancelFutureRequestPool[cancelFuture]?.forEach((e) => e.abort);
+          cancelFutureRequestPool[cancelFuture]?.forEach((e) => e.abort());
           cancelFutureRequestPool.remove(cancelFuture);
         });
       }
