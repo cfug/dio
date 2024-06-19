@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:http2/http2.dart';
@@ -40,6 +41,10 @@ class Http2Adapter implements HttpClientAdapter {
   /// Handles [DioH2NotSupportedException] and returns a [ResponseBody].
   H2NotSupportedCallback? onNotSupported;
 
+  final cancelFutureOperationPool =
+      <Future<void>, Set<CancelableOperation<ResponseBody>>>{};
+  final cancelFutureRequestPool = <Future<void>, Set<ClientTransportStream>>{};
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -49,7 +54,28 @@ class Http2Adapter implements HttpClientAdapter {
     // Recursive fetching.
     final redirects = <RedirectRecord>[];
     try {
-      return await _fetch(options, requestStream, cancelFuture, redirects);
+      final operation = CancelableOperation.fromFuture(
+        _fetch(options, requestStream, cancelFuture, redirects),
+      );
+
+      if (cancelFuture != null) {
+        cancelFutureOperationPool.putIfAbsent(cancelFuture, () => {});
+        cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
+
+        cancelFuture.whenComplete(() {
+          cancelFutureOperationPool[cancelFuture]?.forEach((e) => e.cancel());
+          cancelFutureOperationPool.remove(cancelFuture);
+          cancelFutureRequestPool[cancelFuture]
+              ?.forEach((e) => e.outgoingMessages.close());
+          cancelFutureRequestPool.remove(cancelFuture);
+        });
+
+        cancelFutureOperationPool[cancelFuture]!.add(operation);
+      }
+
+      return operation.value.whenComplete(
+        () => cancelFutureOperationPool[cancelFuture]?.remove(operation),
+      );
     } on DioH2NotSupportedException catch (e) {
       // Fallback to use the callback
       // or to another adapter (typically IOHttpClientAdapter)
@@ -124,10 +150,15 @@ class Http2Adapter implements HttpClientAdapter {
     final stream = transport.makeRequest(headers);
 
     final hasRequestData = requestStream != null;
-    if (hasRequestData) {
-      cancelFuture?.whenComplete(() {
-        stream.outgoingMessages.close();
-      });
+    if (hasRequestData && cancelFuture != null) {
+      cancelFutureRequestPool[cancelFuture]!.add(stream);
+    }
+
+    void removeRequestInPool() {
+      if (cancelFuture == null) {
+        return;
+      }
+      cancelFutureRequestPool[cancelFuture]?.remove(stream);
     }
 
     List<Uint8List>? list;
@@ -146,6 +177,7 @@ class Http2Adapter implements HttpClientAdapter {
           sendTimeout,
           onTimeout: () {
             stream.outgoingMessages.close().catchError((_) {});
+            removeRequestInPool();
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -155,7 +187,7 @@ class Http2Adapter implements HttpClientAdapter {
       }
       await requestStreamFuture;
     }
-    await stream.outgoingMessages.close();
+    await stream.outgoingMessages.close().whenComplete(removeRequestInPool);
 
     final responseSink = StreamController<Uint8List>();
     final responseHeaders = Headers();
