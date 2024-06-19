@@ -75,20 +75,23 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       );
     }
     final operation = CancelableOperation.fromFuture(
-      _fetch(
-        options,
-        requestStream,
-        cancelFuture,
-      ),
+      _fetch(options, requestStream, cancelFuture),
     );
+
     if (cancelFuture != null) {
       cancelFutureOperationPool.putIfAbsent(cancelFuture, () => {});
-      cancelFutureOperationPool[cancelFuture]!.add(operation);
+      cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
+
       cancelFuture.whenComplete(() {
         cancelFutureOperationPool[cancelFuture]?.forEach((e) => e.cancel());
         cancelFutureOperationPool.remove(cancelFuture);
+        cancelFutureRequestPool[cancelFuture]?.forEach((e) => e.abort());
+        cancelFutureRequestPool.remove(cancelFuture);
       });
+
+      cancelFutureOperationPool[cancelFuture]!.add(operation);
     }
+
     return operation.value.whenComplete(
       () => cancelFutureOperationPool[cancelFuture]?.remove(operation),
     );
@@ -119,12 +122,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       }
 
       if (cancelFuture != null) {
-        cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
         cancelFutureRequestPool[cancelFuture]!.add(request);
-        cancelFuture.whenComplete(() {
-          cancelFutureRequestPool[cancelFuture]?.forEach((e) => e.abort());
-          cancelFutureRequestPool.remove(cancelFuture);
-        });
       }
 
       // Set Headers
