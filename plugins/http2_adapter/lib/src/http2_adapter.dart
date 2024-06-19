@@ -50,32 +50,42 @@ class Http2Adapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
-  ) async {
+  ) {
     // Recursive fetching.
     final redirects = <RedirectRecord>[];
+    final operation = CancelableOperation.fromFuture(
+      _fetch(options, requestStream, cancelFuture, redirects),
+    );
+
+    if (cancelFuture != null) {
+      cancelFutureOperationPool.putIfAbsent(cancelFuture, () => {});
+      cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
+
+      cancelFuture.whenComplete(() {
+        cancelFutureOperationPool[cancelFuture]?.forEach((e) => e.cancel());
+        cancelFutureOperationPool.remove(cancelFuture);
+        cancelFutureRequestPool[cancelFuture]
+            ?.forEach((e) => e.outgoingMessages.close());
+        cancelFutureRequestPool.remove(cancelFuture);
+      });
+
+      cancelFutureOperationPool[cancelFuture]!.add(operation);
+    }
+
+    return operation.value.whenComplete(
+      () => cancelFutureOperationPool[cancelFuture]?.remove(operation),
+    );
+  }
+
+  Future<ResponseBody> _fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+    List<RedirectRecord> redirects,
+  ) async {
+    late final ClientTransportConnection transport;
     try {
-      final operation = CancelableOperation.fromFuture(
-        _fetch(options, requestStream, cancelFuture, redirects),
-      );
-
-      if (cancelFuture != null) {
-        cancelFutureOperationPool.putIfAbsent(cancelFuture, () => {});
-        cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
-
-        cancelFuture.whenComplete(() {
-          cancelFutureOperationPool[cancelFuture]?.forEach((e) => e.cancel());
-          cancelFutureOperationPool.remove(cancelFuture);
-          cancelFutureRequestPool[cancelFuture]
-              ?.forEach((e) => e.outgoingMessages.close());
-          cancelFutureRequestPool.remove(cancelFuture);
-        });
-
-        cancelFutureOperationPool[cancelFuture]!.add(operation);
-      }
-
-      return operation.value.whenComplete(
-        () => cancelFutureOperationPool[cancelFuture]?.remove(operation),
-      );
+      transport = await connectionManager.getConnection(options);
     } on DioH2NotSupportedException catch (e) {
       // Fallback to use the callback
       // or to another adapter (typically IOHttpClientAdapter)
@@ -105,15 +115,7 @@ class Http2Adapter implements HttpClientAdapter {
         error: e,
       );
     }
-  }
 
-  Future<ResponseBody> _fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-    List<RedirectRecord> redirects,
-  ) async {
-    final transport = await connectionManager.getConnection(options);
     final uri = options.uri;
     String path = uri.path;
     const excludeMethods = ['PUT', 'POST', 'PATCH'];
