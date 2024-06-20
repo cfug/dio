@@ -59,10 +59,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   HttpClient? _cachedHttpClient;
   bool _closed = false;
 
-  final cancelFutureOperationPool =
-      <Future<void>, Set<CancelableOperation<ResponseBody>>>{};
-  final cancelFutureRequestPool = <Future<void>, Set<HttpClientRequest>>{};
-
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -77,24 +73,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     final operation = CancelableOperation.fromFuture(
       _fetch(options, requestStream, cancelFuture),
     );
-
-    if (cancelFuture != null) {
-      cancelFutureOperationPool.putIfAbsent(cancelFuture, () => {});
-      cancelFutureRequestPool.putIfAbsent(cancelFuture, () => {});
-
-      cancelFuture.whenComplete(() {
-        cancelFutureOperationPool[cancelFuture]?.forEach((e) => e.cancel());
-        cancelFutureOperationPool.remove(cancelFuture);
-        cancelFutureRequestPool[cancelFuture]?.forEach((e) => e.abort());
-        cancelFutureRequestPool.remove(cancelFuture);
-      });
-
-      cancelFutureOperationPool[cancelFuture]!.add(operation);
-    }
-
-    return operation.value.whenComplete(
-      () => cancelFutureOperationPool[cancelFuture]?.remove(operation),
-    );
+    final wr = WeakReference<CancelableOperation<ResponseBody>>(operation);
+    cancelFuture?.whenComplete(() {
+      wr.target?.cancel();
+    });
+    return operation.value;
   }
 
   Future<ResponseBody> _fetch(
@@ -121,9 +104,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      if (cancelFuture != null) {
-        cancelFutureRequestPool[cancelFuture]!.add(request);
-      }
+      final wr = WeakReference<HttpClientRequest>(request);
+      cancelFuture?.whenComplete(() {
+        wr.target?.abort();
+      });
 
       // Set Headers
       options.headers.forEach((key, value) {
@@ -164,13 +148,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     request.maxRedirects = options.maxRedirects;
     request.persistentConnection = options.persistentConnection;
 
-    void removeRequestInPool() {
-      if (cancelFuture == null) {
-        return;
-      }
-      cancelFutureRequestPool[cancelFuture]?.remove(request);
-    }
-
     if (requestStream != null) {
       // Transform the request data.
       Future<dynamic> future = request.addStream(requestStream);
@@ -180,7 +157,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           sendTimeout,
           onTimeout: () {
             request.abort();
-            removeRequestInPool();
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -198,7 +174,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         receiveTimeout,
         onTimeout: () {
           request.abort();
-          removeRequestInPool();
           throw DioException.receiveTimeout(
             timeout: receiveTimeout,
             requestOptions: options,
@@ -206,7 +181,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         },
       );
     }
-    final responseStream = await future.whenComplete(removeRequestInPool);
+    final responseStream = await future;
 
     if (validateCertificate != null) {
       final host = options.uri.host;
