@@ -104,9 +104,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      final wr = WeakReference<HttpClientRequest>(request);
+      final requestWR = WeakReference<HttpClientRequest>(request);
       cancelFuture?.whenComplete(() {
-        wr.target?.abort();
+        requestWR.target?.abort();
       });
 
       // Set Headers
