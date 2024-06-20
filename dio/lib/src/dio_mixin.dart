@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
 import 'package:meta/meta.dart';
 
 import 'adapter.dart';
@@ -524,11 +525,18 @@ abstract class DioMixin implements Dio {
     final cancelToken = reqOpt.cancelToken;
     try {
       final stream = await _transformData(reqOpt);
-      final responseBody = await httpClientAdapter.fetch(
-        reqOpt,
-        stream,
-        cancelToken?.whenCancel,
+      final operation = CancelableOperation.fromFuture(
+        httpClientAdapter.fetch(
+          reqOpt,
+          stream,
+          cancelToken?.whenCancel,
+        ),
       );
+      final operationWeakReference = WeakReference(operation);
+      cancelToken?.whenCancel.whenComplete(() {
+        operationWeakReference.target?.cancel();
+      });
+      final responseBody = await operation.value;
       final headers = Headers.fromMap(
         responseBody.headers,
         preserveHeaderCase: reqOpt.preserveHeaderCase,

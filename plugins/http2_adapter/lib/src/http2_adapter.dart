@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:http2/http2.dart';
@@ -49,14 +48,7 @@ class Http2Adapter implements HttpClientAdapter {
   ) {
     // Recursive fetching.
     final redirects = <RedirectRecord>[];
-    final operation = CancelableOperation.fromFuture(
-      _fetch(options, requestStream, cancelFuture, redirects),
-    );
-    final wr = WeakReference<CancelableOperation<ResponseBody>>(operation);
-    cancelFuture?.whenComplete(() {
-      wr.target?.cancel();
-    });
-    return operation.value;
+    return _fetch(options, requestStream, cancelFuture, redirects);
   }
 
   Future<ResponseBody> _fetch(

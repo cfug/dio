@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:async/async.dart';
-
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../options.dart';
@@ -70,14 +68,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         "Can't establish connection after the adapter was closed.",
       );
     }
-    final operation = CancelableOperation.fromFuture(
-      _fetch(options, requestStream, cancelFuture),
-    );
-    final wr = WeakReference<CancelableOperation<ResponseBody>>(operation);
-    cancelFuture?.whenComplete(() {
-      wr.target?.cancel();
-    });
-    return operation.value;
+    return _fetch(options, requestStream, cancelFuture);
   }
 
   Future<ResponseBody> _fetch(
