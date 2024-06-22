@@ -87,5 +87,29 @@ void main() {
         verify(request.abort()).called(1);
       }
     });
+
+    test('throws if cancelled before making requests', () async {
+      final cancelToken = CancelToken();
+
+      bool walkThroughHandlers = false;
+      final interceptor = QueuedInterceptorsWrapper(
+        onRequest: (options, handler) {
+          walkThroughHandlers = true;
+          handler.next(options);
+        },
+      );
+
+      cancelToken.cancel();
+      final dio = Dio();
+      dio.interceptors.add(interceptor);
+      await expectLater(
+        () => dio.get('/test', cancelToken: cancelToken),
+        throwsDioException(
+          DioExceptionType.cancel,
+          matcher: isA<DioException>(),
+        ),
+      );
+      expect(walkThroughHandlers, isFalse);
+    });
   });
 }

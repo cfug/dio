@@ -23,5 +23,8 @@ const _tests = [
 void dioAdapterTestSuite(
   Dio Function(String baseUrl) create, {
   List<TestSuiteFunction> tests = _tests,
-}) =>
-    tests.forEach((test) => test(create));
+}) {
+  for (final test in tests) {
+    test(create);
+  }
+}

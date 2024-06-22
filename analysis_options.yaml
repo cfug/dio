@@ -3,15 +3,15 @@ include: package:lints/recommended.yaml
 analyzer:
   errors:
     always_declare_return_types: error
-    always_put_control_body_on_new_line: warning
+    always_put_control_body_on_new_line: error
     avoid_renaming_method_parameters: error
     avoid_void_async: error
     camel_case_types: error
     constant_identifier_names: error
     deprecated_member_use_from_same_package: ignore
     non_constant_identifier_names: error
-    prefer_single_quotes: warning
-    require_trailing_commas: warning
+    prefer_single_quotes: error
+    require_trailing_commas: error
     todo: ignore
 
 linter:

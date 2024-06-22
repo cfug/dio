@@ -11,7 +11,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fix the type conversion regression when using `MultipartFile.fromBytes`.
 - Split the Web implementation to `package:dio_web_adapter`.
 - Add FusedTransformer for improved performance when decoding JSON.
+- Set FusedTransformer as the default transformer.
 - Improves `InterceptorState.toString()`.
+- If the `CancelToken` got canceled before making requests,
+  throws the exception directly rather than cut actual HTTP requests afterward.
 
 ## 5.4.3+1
 
