@@ -6,6 +6,17 @@ import 'package:dio/src/transformers/util/consolidate_bytes.dart';
 import 'package:test/test.dart';
 
 void main() {
+  // Regression:
+  test('Transformer.isJsonMimeType', () {
+    expect(Transformer.isJsonMimeType('application/json'), isTrue);
+    expect(Transformer.isJsonMimeType('application/json;charset=utf8'), isTrue);
+    expect(Transformer.isJsonMimeType('text/json'), isTrue);
+    expect(Transformer.isJsonMimeType('image/jpg'), isFalse);
+    expect(Transformer.isJsonMimeType('image/png'), isFalse);
+    expect(Transformer.isJsonMimeType('.png'), isFalse);
+    expect(Transformer.isJsonMimeType('.png;charset=utf-8'), isFalse);
+  });
+
   group(BackgroundTransformer(), () {
     test('transformResponse transforms the request', () async {
       final transformer = BackgroundTransformer();
