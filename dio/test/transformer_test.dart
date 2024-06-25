@@ -6,7 +6,7 @@ import 'package:dio/src/transformers/util/consolidate_bytes.dart';
 import 'package:test/test.dart';
 
 void main() {
-  // Regression:
+  // Regression: https://github.com/cfug/dio/issues/2256
   test('Transformer.isJsonMimeType', () {
     expect(Transformer.isJsonMimeType('application/json'), isTrue);
     expect(Transformer.isJsonMimeType('application/json;charset=utf8'), isTrue);
