@@ -78,10 +78,19 @@ abstract class Transformer {
     if (contentType == null) {
       return false;
     }
-    final mediaType = MediaType.parse(contentType);
-    return mediaType.mimeType == 'application/json' ||
-        mediaType.mimeType == 'text/json' ||
-        mediaType.subtype.endsWith('+json');
+    try {
+      final mediaType = MediaType.parse(contentType);
+      return mediaType.mimeType == 'application/json' ||
+          mediaType.mimeType == 'text/json' ||
+          mediaType.subtype.endsWith('+json');
+    } catch (e, s) {
+      debugLog(
+        'Failed to parse the media type: $contentType, '
+        'thus it is not a JSON MIME type.',
+        s,
+      );
+      return false;
+    }
   }
 
   static FutureOr<String> defaultTransformRequest(
