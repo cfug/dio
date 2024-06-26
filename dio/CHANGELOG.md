@@ -15,6 +15,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Improves `InterceptorState.toString()`.
 - If the `CancelToken` got canceled before making requests,
   throws the exception directly rather than cut actual HTTP requests afterward.
+- Catch `MediaType` parse exception in `Transformer.isJsonMimeType`.
 - Improves memory allocating when using `CancelToken`.
 
 ## 5.4.3+1
