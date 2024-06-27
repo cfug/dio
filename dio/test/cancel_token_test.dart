@@ -173,7 +173,7 @@ void main() {
     expect(requestsReferences, hasLength(2));
 
     // GC.
-    List.generate(1 * 1024 * 1024, (index) => Object());
+    List.generate(4 * 1024 * 1024, (index) => Object());
     expect(requestsReferences.every((e) => e.target == null), isTrue);
   });
 }
