@@ -115,65 +115,70 @@ void main() {
     });
   });
 
-  test('deallocates HttpClientRequest', () async {
-    final client = MockHttpClient();
-    final dio = Dio();
-    dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () => client,
-    );
-    final token = CancelToken();
-    final requests = <MockHttpClientRequest>{};
-    final requestsReferences = <WeakReference<MockHttpClientRequest>>{};
-    when(client.openUrl(any, any)).thenAnswer((_) async {
-      final request = MockHttpClientRequest();
-      requests.add(request);
-      requestsReferences.add(WeakReference(request));
-      when(request.close()).thenAnswer((_) async {
-        final response = MockHttpClientResponse();
-        when(response.headers).thenReturn(MockHttpHeaders());
-        when(response.statusCode).thenReturn(200);
-        when(response.reasonPhrase).thenReturn('OK');
-        when(response.isRedirect).thenReturn(false);
-        when(response.redirects).thenReturn([]);
-        when(response.cast())
-            .thenAnswer((_) => const Stream<Uint8List>.empty());
-        await Future.delayed(const Duration(milliseconds: 200));
-        return response;
-      });
-      when(request.abort()).thenAnswer((realInvocation) {
-        requests.remove(request);
-      });
-      return request;
-    });
-
-    final futures = [
-      dio.get('https://does.not.exists', cancelToken: token),
-      dio.get('https://does.not.exists', cancelToken: token),
-    ];
-    for (final future in futures) {
-      expectLater(
-        future,
-        throwsDioException(DioExceptionType.cancel),
+  test(
+    'deallocates HttpClientRequest',
+    () async {
+      final client = MockHttpClient();
+      final dio = Dio();
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () => client,
       );
-    }
+      final token = CancelToken();
+      final requests = <MockHttpClientRequest>{};
+      final requestsReferences = <WeakReference<MockHttpClientRequest>>{};
+      when(client.openUrl(any, any)).thenAnswer((_) async {
+        final request = MockHttpClientRequest();
+        requests.add(request);
+        requestsReferences.add(WeakReference(request));
+        when(request.close()).thenAnswer((_) async {
+          final response = MockHttpClientResponse();
+          when(response.headers).thenReturn(MockHttpHeaders());
+          when(response.statusCode).thenReturn(200);
+          when(response.reasonPhrase).thenReturn('OK');
+          when(response.isRedirect).thenReturn(false);
+          when(response.redirects).thenReturn([]);
+          when(response.cast())
+              .thenAnswer((_) => const Stream<Uint8List>.empty());
+          await Future.delayed(const Duration(milliseconds: 200));
+          return response;
+        });
+        when(request.abort()).thenAnswer((realInvocation) {
+          requests.remove(request);
+        });
+        return request;
+      });
 
-    // Opening requests.
-    await Future.delayed(const Duration(milliseconds: 100));
-    token.cancel();
-    // Aborting requests.
-    await Future.delayed(const Duration(seconds: 1));
-    expect(requests, isEmpty);
+      final futures = [
+        dio.get('https://does.not.exists', cancelToken: token),
+        dio.get('https://does.not.exists', cancelToken: token),
+      ];
+      for (final future in futures) {
+        expectLater(
+          future,
+          throwsDioException(DioExceptionType.cancel),
+        );
+      }
 
-    try {
-      await Future.wait(futures);
-    } catch (_) {
-      // Waiting here until all futures are completed.
-    }
-    expect(requests, isEmpty);
-    expect(requestsReferences, hasLength(2));
+      // Opening requests.
+      await Future.delayed(const Duration(milliseconds: 100));
+      token.cancel();
+      // Aborting requests.
+      await Future.delayed(const Duration(seconds: 1));
+      expect(requests, isEmpty);
 
-    // GC.
-    List.generate(4 * 1024 * 1024, (index) => Object());
-    expect(requestsReferences.every((e) => e.target == null), isTrue);
-  });
+      try {
+        await Future.wait(futures);
+      } catch (_) {
+        // Waiting here until all futures are completed.
+      }
+      expect(requests, isEmpty);
+      expect(requestsReferences, hasLength(2));
+
+      // GC.
+      List.generate(1024 * 1024, (index) => Object());
+      await Future.delayed(const Duration(seconds: 1));
+      expect(requestsReferences.every((e) => e.target == null), isTrue);
+    },
+    tags: ['gc'],
+  );
 }

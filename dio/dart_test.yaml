@@ -1,6 +1,14 @@
 file_reporters:
   json: build/reports/test-results.json
 
+presets:
+  # empty placeholders required in CI scripts
+  all:
+  default:
+  min:
+  stable:
+  beta:
+
 tags:
   tls:
     skip: "Skipping TLS test with specific setup requirements by default. Use '-P all' to run all tests."
@@ -9,6 +17,19 @@ tags:
         skip: false
       default:
         skip: true
+  gc:
+    skip: "Skipping Garbage Collection with old Dart SDKs."
+    presets:
+      all:
+        skip: true
+      default:
+        skip: false
+      min:
+        skip: true
+      stable:
+        skip: false
+      beta:
+        skip: false
 
 override_platforms:
   chrome:

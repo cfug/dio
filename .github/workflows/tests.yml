@@ -39,6 +39,8 @@ jobs:
           cache: true
           flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
           channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
+      - run: |
+          echo TARGET_DART_SDK=${{ matrix.sdk }} >> $GITHUB_ENV
       - name: Prepare dependencies for the project management
         run: dart pub get
       - uses: bluefireteam/melos-action@v3

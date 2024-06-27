@@ -57,7 +57,12 @@ scripts:
       melos run test:flutter
   test:vm:
     name: Dart VM tests
-    exec: dart test --preset ${TEST_PRESET:-default} --coverage coverage/vm --chain-stack-traces
+    exec: |
+      if [ "$TARGET_DART_SDK" = "min" ]; then
+        dart test --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+      else
+        dart test --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --coverage=coverage/vm --chain-stack-traces
+      fi
     packageFilters:
       flutter: false
       dirExists: test
@@ -81,7 +86,12 @@ scripts:
       TEST_PLATFORM: firefox
   test:web:single:
     name: Dart Web tests in a browser
-    exec: dart test --platform ${TEST_PLATFORM} --coverage coverage/${TEST_PLATFORM} --preset ${TEST_PRESET:-default} --chain-stack-traces
+    exec: |
+      if [ "$TARGET_DART_SDK" = "min" ]; then
+        dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+      else
+        dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+      fi
     packageFilters:
       flutter: false
       dirExists: test

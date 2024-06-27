@@ -5,3 +5,6 @@ presets:
   # empty placeholders required in CI scripts
   all:
   default:
+  min:
+  stable:
+  beta:
