@@ -84,7 +84,7 @@ abstract class Transformer {
           mediaType.mimeType == 'text/json' ||
           mediaType.subtype.endsWith('+json');
     } catch (e, s) {
-      debugLog(
+      warningLog(
         'Failed to parse the media type: $contentType, '
         'thus it is not a JSON MIME type.',
         s,
@@ -104,7 +104,7 @@ abstract class Transformer {
       if (data is Map<String, dynamic>) {
         return Transformer.urlEncodeMap(data, options.listFormat);
       }
-      debugLog(
+      warningLog(
         'The data is a type of `Map` (${data.runtimeType}), '
         'but the transformer can only encode `Map<String, dynamic>`.\n'
         'If you are writing maps using `{}`, '

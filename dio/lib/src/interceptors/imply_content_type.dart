@@ -26,7 +26,7 @@ class ImplyContentTypeInterceptor extends Interceptor {
       } else if (data is List<Map> || data is Map || data is String) {
         contentType = Headers.jsonContentType;
       } else {
-        debugLog(
+        warningLog(
           '${data.runtimeType} cannot be used '
           'to imply a default content-type, '
           'please set a proper content-type in the request.',
