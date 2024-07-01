@@ -144,19 +144,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           }
         });
       }
-    } else {
-      if (sendTimeout > Duration.zero) {
-        debugLog(
-          'sendTimeout cannot be used without a request body to send',
-          StackTrace.current,
-        );
-      }
-      if (options.onSendProgress != null) {
-        debugLog(
-          'onSendProgress cannot be used without a request body to send',
-          StackTrace.current,
-        );
-      }
     }
 
     final receiveStopwatch = Stopwatch();

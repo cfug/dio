@@ -309,6 +309,20 @@ class Options {
     ProgressCallback? onReceiveProgress,
     StackTrace? sourceStackTrace,
   }) {
+    if (data != null && kIsWeb) {
+      if (sendTimeout != null && sendTimeout! > Duration.zero) {
+        debugLog(
+          'sendTimeout cannot be used without a request body to send on Web',
+          StackTrace.current,
+        );
+      }
+      if (onSendProgress != null) {
+        debugLog(
+          'onSendProgress cannot be used without a request body to send on Web',
+          StackTrace.current,
+        );
+      }
+    }
     final query = <String, dynamic>{};
     query.addAll(baseOpt.queryParameters);
     if (queryParameters != null) {
