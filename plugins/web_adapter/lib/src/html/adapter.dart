@@ -255,7 +255,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     if (requestStream != null) {
       if (options.method == 'GET') {
-        debugLog(
+        warningLog(
           'GET request with a body data are not support on the '
           'web platform. Use POST/PUT instead.',
           StackTrace.current,

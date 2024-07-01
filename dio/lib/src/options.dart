@@ -311,13 +311,13 @@ class Options {
   }) {
     if (data != null && kIsWeb) {
       if (sendTimeout != null && sendTimeout! > Duration.zero) {
-        debugLog(
+        warningLog(
           'sendTimeout cannot be used without a request body to send on Web',
           StackTrace.current,
         );
       }
       if (onSendProgress != null) {
-        debugLog(
+        warningLog(
           'onSendProgress cannot be used without a request body to send on Web',
           StackTrace.current,
         );
