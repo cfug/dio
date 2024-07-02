@@ -175,7 +175,7 @@ void main() {
       expect(requestsReferences, hasLength(2));
 
       // GC.
-      List.generate(1024 * 1024, (index) => Object());
+      produceGarbage();
       await Future.delayed(const Duration(seconds: 1));
       expect(requestsReferences.every((e) => e.target == null), isTrue);
     },
