@@ -25,7 +25,7 @@ tags:
       default:
         skip: false
       min:
-        skip: true
+        skip: false
       stable:
         skip: false
       beta:
