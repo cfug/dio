@@ -180,5 +180,6 @@ void main() {
       expect(requestsReferences.every((e) => e.target == null), isTrue);
     },
     tags: ['gc'],
+    testOn: 'vm',
   );
 }
