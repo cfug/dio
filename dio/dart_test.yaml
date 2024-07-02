@@ -17,19 +17,7 @@ tags:
         skip: false
       default:
         skip: true
-  gc:
-    skip: "Skipping Garbage Collection with old Dart SDKs."
-    presets:
-      all:
-        skip: true
-      default:
-        skip: false
-      min:
-        skip: false
-      stable:
-        skip: false
-      beta:
-        skip: false
+  gc: # We have that tag, but we are not skipping in any preset.
 
 override_platforms:
   chrome:
