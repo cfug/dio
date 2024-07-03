@@ -1,6 +1,6 @@
 ## Unreleased
 
-*None.*
+- Improves warning logs on the Web platform.
 
 ## 1.0.0
 
