@@ -45,11 +45,21 @@ class Http2Adapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
-  ) async {
+  ) {
     // Recursive fetching.
     final redirects = <RedirectRecord>[];
+    return _fetch(options, requestStream, cancelFuture, redirects);
+  }
+
+  Future<ResponseBody> _fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+    List<RedirectRecord> redirects,
+  ) async {
+    late final ClientTransportConnection transport;
     try {
-      return await _fetch(options, requestStream, cancelFuture, redirects);
+      transport = await connectionManager.getConnection(options);
     } on DioH2NotSupportedException catch (e) {
       // Fallback to use the callback
       // or to another adapter (typically IOHttpClientAdapter)
@@ -79,15 +89,7 @@ class Http2Adapter implements HttpClientAdapter {
         error: e,
       );
     }
-  }
 
-  Future<ResponseBody> _fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-    List<RedirectRecord> redirects,
-  ) async {
-    final transport = await connectionManager.getConnection(options);
     final uri = options.uri;
     String path = uri.path;
     const excludeMethods = ['PUT', 'POST', 'PATCH'];
@@ -122,11 +124,12 @@ class Http2Adapter implements HttpClientAdapter {
 
     // Creates a new outgoing stream.
     final stream = transport.makeRequest(headers);
+    final streamWR = WeakReference<ClientTransportStream>(stream);
 
     final hasRequestData = requestStream != null;
-    if (hasRequestData) {
-      cancelFuture?.whenComplete(() {
-        stream.outgoingMessages.close();
+    if (hasRequestData && cancelFuture != null) {
+      cancelFuture.whenComplete(() {
+        streamWR.target?.outgoingMessages.close();
       });
     }
 
@@ -277,7 +280,7 @@ class Http2Adapter implements HttpClientAdapter {
       onClose: () {
         responseSubscription.cancel();
         responseSink.close();
-        stream.outgoingMessages.close();
+        streamWR.target?.outgoingMessages.close();
       },
     );
   }

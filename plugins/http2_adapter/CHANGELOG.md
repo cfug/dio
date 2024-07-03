@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Improves memory allocating when using `CancelToken`.
 
 ## 2.5.2
 
