@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.5.0+1
+
 - Fix WASM compile errors after moving the web implementation to `dio_web_adapter`.
 
 ## 5.5.0
