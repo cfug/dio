@@ -7,6 +7,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 *None.*
 
+## 5.5.0+1
+
+- Fix WASM compile errors after moving the web implementation to `dio_web_adapter`.
+
 ## 5.5.0
 
 - Raise the min Dart SDK version to 2.18.0.
