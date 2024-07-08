@@ -47,6 +47,6 @@ class DioForBrowser with DioMixin implements Dio {
     // Set response in Completer
     completer.complete(response);
 
-    return DioMixin.listenCancelForAsyncTask(cancelToken, completer.future);
+    return completer.future;
   }
 }
