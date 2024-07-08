@@ -162,19 +162,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           }
         });
       }
-    } else {
-      if (sendTimeout > Duration.zero) {
-        debugLog(
-          'sendTimeout cannot be used without a request body to send',
-          StackTrace.current,
-        );
-      }
-      if (options.onSendProgress != null) {
-        debugLog(
-          'onSendProgress cannot be used without a request body to send',
-          StackTrace.current,
-        );
-      }
     }
 
     final receiveStopwatch = Stopwatch();
@@ -286,7 +273,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     if (requestStream != null) {
       if (options.method == 'GET') {
-        debugLog(
+        warningLog(
           'GET request with a body data are not support on the '
           'web platform. Use POST/PUT instead.',
           StackTrace.current,

@@ -78,10 +78,19 @@ abstract class Transformer {
     if (contentType == null) {
       return false;
     }
-    final mediaType = MediaType.parse(contentType);
-    return mediaType.mimeType == 'application/json' ||
-        mediaType.mimeType == 'text/json' ||
-        mediaType.subtype.endsWith('+json');
+    try {
+      final mediaType = MediaType.parse(contentType);
+      return mediaType.mimeType == 'application/json' ||
+          mediaType.mimeType == 'text/json' ||
+          mediaType.subtype.endsWith('+json');
+    } catch (e, s) {
+      warningLog(
+        'Failed to parse the media type: $contentType, '
+        'thus it is not a JSON MIME type.',
+        s,
+      );
+      return false;
+    }
   }
 
   static FutureOr<String> defaultTransformRequest(
@@ -95,7 +104,7 @@ abstract class Transformer {
       if (data is Map<String, dynamic>) {
         return Transformer.urlEncodeMap(data, options.listFormat);
       }
-      debugLog(
+      warningLog(
         'The data is a type of `Map` (${data.runtimeType}), '
         'but the transformer can only encode `Map<String, dynamic>`.\n'
         'If you are writing maps using `{}`, '

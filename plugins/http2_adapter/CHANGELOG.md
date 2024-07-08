@@ -4,6 +4,10 @@
 
 *None.*
 
+## 2.5.3
+
+- Improves memory allocating when using `CancelToken`.
+
 ## 2.5.2
 
 - Remove client stream termination in `Http2Adapter`.

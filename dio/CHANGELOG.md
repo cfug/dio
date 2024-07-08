@@ -5,6 +5,14 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.5.0+1
+
+- Fix WASM compile errors after moving the web implementation to `dio_web_adapter`.
+
+## 5.5.0
+
 - Raise the min Dart SDK version to 2.18.0.
 - Add constructor for `DioExceptionType.badCertificate`.
 - Create type alias `DioMediaType` for `http_parser`'s `MediaType`.
@@ -15,6 +23,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Improves `InterceptorState.toString()`.
 - If the `CancelToken` got canceled before making requests,
   throws the exception directly rather than cut actual HTTP requests afterward.
+- Catch `MediaType` parse exception in `Transformer.isJsonMimeType`.
+- Improves warning logs on the Web platform.
+- Improves memory allocating when using `CancelToken`.
 
 ## 5.4.3+1
 

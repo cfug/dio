@@ -1,6 +1,14 @@
 file_reporters:
   json: build/reports/test-results.json
 
+presets:
+  # empty placeholders required in CI scripts
+  all:
+  default:
+  min:
+  stable:
+  beta:
+
 tags:
   tls:
     skip: "Skipping TLS test with specific setup requirements by default. Use '-P all' to run all tests."
@@ -9,6 +17,7 @@ tags:
         skip: false
       default:
         skip: true
+  gc: # We have that tag, but we are not skipping in any preset.
 
 override_platforms:
   chrome:
