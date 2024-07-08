@@ -43,7 +43,10 @@ enum ResponseType {
   bytes,
 
   /// Get blob url.
+  /// This value is needed when you need content in the form of a blob url.
   /// Only work in web.
+  ///
+  /// the [Response.data] will be [String].
   blobUrl,
 }
 
