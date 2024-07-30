@@ -1,9 +1,7 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:cronet_http/cronet_http.dart';
 import 'package:cupertino_http/cupertino_http.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'cronet_adapter.dart';
 import 'cupertino_adapter.dart';
 
@@ -32,11 +30,12 @@ class NativeAdapter implements HttpClientAdapter {
     )
     URLSessionConfiguration? cupertinoConfiguration,
   }) {
-    if (Platform.isAndroid) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       _adapter = CronetAdapter(
         createCronetEngine?.call() ?? androidCronetEngine,
       );
-    } else if (Platform.isIOS || Platform.isMacOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS) {
       _adapter = CupertinoAdapter(
         createCupertinoConfiguration?.call() ??
             cupertinoConfiguration ??
