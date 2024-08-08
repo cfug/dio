@@ -51,7 +51,7 @@ jobs:
           dart ./scripts/melos_packages.dart
           echo $(cat .melos_packages) >> $GITHUB_ENV
       - name: Melos Bootstrap
-        run: melos bootstrap
+        run: melos bootstrap ${{ matrix.sdk == 'min' && '--ignore="dio_web_adapter"' || '' }}
       - name: '[Verify step] Format'
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run format
