@@ -46,12 +46,15 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
+      - name: Remove dio_web_adapter overrides
+        if: ${{ matrix.sdk == 'min' }}
+        run: rm -rf plugins/web_adapter
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_packages.dart
           echo $(cat .melos_packages) >> $GITHUB_ENV
       - name: Melos Bootstrap
-        run: melos bootstrap ${{ matrix.sdk == 'min' && '--ignore="dio_web_adapter"' || '' }}
+        run: melos bootstrap
       - name: '[Verify step] Format'
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run format
