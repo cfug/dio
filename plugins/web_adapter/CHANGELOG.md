@@ -1,6 +1,6 @@
 ## Unreleased
 
-*None.*
+- Supports the WASM environment.
 
 ## 1.0.1
 

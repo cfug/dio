@@ -16,6 +16,7 @@ import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'progress_stream/io_progress_stream.dart'
+    if (dart.library.js_interop) 'progress_stream/browser_progress_stream.dart'
     if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
 import 'response.dart';
 import 'response/response_stream_handler.dart';

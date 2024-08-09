@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 import 'adapters/io_adapter.dart'
+    if (dart.library.js_interop) 'adapters/browser_adapter.dart'
     if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
 import 'headers.dart';
 import 'options.dart';
