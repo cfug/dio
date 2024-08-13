@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Supports the WASM environment. Users should upgrade the adapter with
+  `dart pub upgrade` or `flutter pub upgrade` to use the WASM-supported version.
 
 ## 5.5.0+1
 
