@@ -79,11 +79,13 @@ scripts:
     run: melos run test:web:single
     env:
       TEST_PLATFORM: chrome
+      WITH_WASM: true
   test:web:firefox:
     name: Dart Web tests in firefox
     run: melos run test:web:single
     env:
       TEST_PLATFORM: firefox
+      WITH_WASM: false
   test:web:single:
     name: Dart Web tests in a browser
     exec: |
@@ -91,6 +93,9 @@ scripts:
         dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
       else
         dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+        if [ "$WITH_WASM" = "true" ]; then
+          dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces --compiler=dart2wasm
+        fi
       fi
     packageFilters:
       flutter: false
