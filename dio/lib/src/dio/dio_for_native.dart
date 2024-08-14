@@ -6,6 +6,7 @@ import '../adapters/io_adapter.dart';
 import '../cancel_token.dart';
 import '../dio.dart';
 import '../dio_exception.dart';
+import '../dio_file_mode.dart';
 import '../dio_mixin.dart';
 import '../headers.dart';
 import '../options.dart';
@@ -32,6 +33,7 @@ class DioForNative with DioMixin implements Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    DioFileMode fileMode = DioFileMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -95,7 +97,12 @@ class DioForNative with DioMixin implements Dio {
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the file is
     // a very big size (up to 1 Gigabytes), it will be expensive in memory.
-    RandomAccessFile raf = file.openSync(mode: FileMode.write);
+    RandomAccessFile raf = file.openSync(
+      mode: fileMode.map(
+        write: () => FileMode.write,
+        append: () => FileMode.append,
+      ),
+    );
 
     // Create a Completer to notify the success/error state.
     final completer = Completer<Response>();

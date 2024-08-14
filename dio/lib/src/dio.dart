@@ -5,6 +5,7 @@ import 'cancel_token.dart';
 import 'dio/dio_for_native.dart'
     if (dart.library.js_interop) 'dio/dio_for_browser.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
+import 'dio_file_mode.dart';
 import 'dio_mixin.dart';
 import 'headers.dart';
 import 'options.dart';
@@ -209,6 +210,9 @@ abstract class Dio {
   /// [deleteOnError] whether delete the file when error occurs.
   /// The default value is [true].
   ///
+  /// [fileMode] 
+  /// {@macro dio.DioFileMode}
+  /// 
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
   /// 1. If this value is 'content-length', the `total` argument of
@@ -242,6 +246,7 @@ abstract class Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    DioFileMode fileMode = DioFileMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -254,6 +259,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    DioFileMode mode = DioFileMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -266,6 +272,7 @@ abstract class Dio {
       deleteOnError: deleteOnError,
       cancelToken: cancelToken,
       data: data,
+      fileMode: mode,
       options: options,
     );
   }
