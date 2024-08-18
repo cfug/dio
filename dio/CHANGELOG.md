@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- graceful handling of Responses with nonzero Content-Length, Content-Type json, but empty body
+
 
 ## 5.6.0
 
