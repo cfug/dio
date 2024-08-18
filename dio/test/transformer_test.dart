@@ -107,6 +107,48 @@ void main() {
       expect(response, {'foo': 'bar'});
     });
 
+    test('transformResponse transforms json array', () async {
+      final transformer = FusedTransformer();
+      const jsonString = '[{"foo": "bar"}]';
+      final response = await transformer.transformResponse(
+        RequestOptions(responseType: ResponseType.json),
+        ResponseBody.fromString(
+          jsonString,
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+            Headers.contentLengthHeader: [
+              utf8.encode(jsonString).length.toString(),
+            ],
+          },
+        ),
+      );
+      expect(
+        response,
+        [
+          {'foo': 'bar'},
+        ],
+      );
+    });
+
+    test('transforms json in background isolate', () async {
+      final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
+      final jsonString = '{"foo": "bar"}';
+      final response = await transformer.transformResponse(
+        RequestOptions(responseType: ResponseType.json),
+        ResponseBody.fromString(
+          jsonString,
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+            Headers.contentLengthHeader: [
+              utf8.encode(jsonString).length.toString(),
+            ],
+          },
+        ),
+      );
+      expect(response, {'foo': 'bar'});
+    });
     test('transforms json in background isolate', () async {
       final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
       final jsonString = '{"foo": "bar"}';
@@ -290,6 +332,25 @@ void main() {
           ResponseBody(
             Stream.value(Uint8List(0)),
             200,
+            headers: {
+              Headers.contentTypeHeader: ['application/json'],
+              Headers.contentLengthHeader: ['123'],
+            },
+          ),
+        );
+        expect(response, null);
+      },
+    );
+
+    test(
+      'can handle status 304 responses with content-length but empty body',
+      () async {
+        final transformer = FusedTransformer();
+        final response = await transformer.transformResponse(
+          RequestOptions(responseType: ResponseType.json),
+          ResponseBody(
+            Stream.value(Uint8List(0)),
+            304,
             headers: {
               Headers.contentTypeHeader: ['application/json'],
               Headers.contentLengthHeader: ['123'],
