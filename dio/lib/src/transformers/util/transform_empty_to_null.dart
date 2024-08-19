@@ -30,7 +30,7 @@ class _DefaultIfEmptyStreamSink implements EventSink<Uint8List> {
 
   @override
   void add(Uint8List data) {
-    _hasData |= data.isNotEmpty;
+    _hasData = _hasData || data.isNotEmpty;
     _outputSink.add(data);
   }
 
