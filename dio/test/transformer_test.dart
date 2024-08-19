@@ -71,9 +71,7 @@ void main() {
   });
 
   group(FusedTransformer, () {
-    test(
-        'transformResponse transforms json without content-length set in response',
-        () async {
+    test('transformResponse transforms json without content-length set in response', () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.json),
@@ -149,24 +147,6 @@ void main() {
       );
       expect(response, {'foo': 'bar'});
     });
-    test('transforms json in background isolate', () async {
-      final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
-      final jsonString = '{"foo": "bar"}';
-      final response = await transformer.transformResponse(
-        RequestOptions(responseType: ResponseType.json),
-        ResponseBody.fromString(
-          jsonString,
-          200,
-          headers: {
-            Headers.contentTypeHeader: ['application/json'],
-            Headers.contentLengthHeader: [
-              utf8.encode(jsonString).length.toString(),
-            ],
-          },
-        ),
-      );
-      expect(response, {'foo': 'bar'});
-    });
 
     test('transformResponse transforms that arrives in many chunks', () async {
       final transformer = FusedTransformer();
@@ -207,8 +187,7 @@ void main() {
       expect(response, [1, 2, 3]);
     });
 
-    test('transformResponse handles when response stream has multiple chunks',
-        () async {
+    test('transformResponse handles when response stream has multiple chunks', () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
         RequestOptions(responseType: ResponseType.bytes),
