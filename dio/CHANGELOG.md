@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-- graceful handling of Responses with nonzero Content-Length, Content-Type json, but empty body
+- Graceful handling of Responses with nonzero Content-Length, Content-Type json, but empty body
+  - Empty responses are now transformed to `null`
 
 
 ## 5.6.0
