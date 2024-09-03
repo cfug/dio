@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -7,6 +8,7 @@ import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
 import 'util/consolidate_bytes.dart';
+import 'util/transform_empty_to_null.dart';
 
 /// A [Transformer] that has a fast path for decoding UTF8-encoded JSON.
 /// If the response is utf8-encoded JSON and no custom decoder is specified in the [RequestOptions], this transformer
@@ -118,11 +120,6 @@ class FusedTransformer extends Transformer {
     // of the response or the length of the eagerly decoded response bytes
     final int contentLength;
 
-    // Successful HEAD requests don't have a response body, even if the content-length header
-    // present.
-    final mightNotHaveResponseBodyDespiteContentLength =
-        options.method == 'HEAD';
-
     // The eagerly decoded response bytes
     // which is set if the content length is not specified and
     // null otherwise (we'll feed the stream directly to the decoder in that case)
@@ -131,8 +128,7 @@ class FusedTransformer extends Transformer {
     // If the content length is not specified, we need to consolidate the stream
     // and count the bytes to determine if we should use an isolate
     // otherwise we use the content length header
-    if (!hasContentLengthHeader ||
-        mightNotHaveResponseBodyDespiteContentLength) {
+    if (!hasContentLengthHeader) {
       responseBytes = await consolidateBytes(responseBody.stream);
       contentLength = responseBytes.length;
     } else {
@@ -153,13 +149,7 @@ class FusedTransformer extends Transformer {
         responseBytes ?? await consolidateBytes(responseBody.stream),
       );
     } else {
-      if (!hasContentLengthHeader || contentLength == 0) {
-        // This path is for backwards compatibility.
-        // If content-type indicates a json response,
-        // but the body is empty, null is returned.
-        // _utf8JsonDecoder.bind(responseBody.stream) would throw if the body is empty.
-        // So we need to check if the body is empty and return null in that case
-        responseBytes ??= await consolidateBytes(responseBody.stream);
+      if (responseBytes != null) {
         if (responseBytes.isEmpty) {
           return null;
         }
@@ -168,7 +158,11 @@ class FusedTransformer extends Transformer {
         assert(responseBytes == null);
         // The content length is specified and we can feed the stream directly to the decoder,
         // without eagerly decoding the response bytes first.
-        final decodedStream = _utf8JsonDecoder.bind(responseBody.stream);
+        // If the response is empty, return null;
+        // This is done by the DefaultNullIfEmptyStreamTransformer
+        final streamWithNullFallback = responseBody.stream
+            .transform(const DefaultNullIfEmptyStreamTransformer());
+        final decodedStream = _utf8JsonDecoder.bind(streamWithNullFallback);
         final decoded = await decodedStream.toList();
         if (decoded.isEmpty) {
           return null;
