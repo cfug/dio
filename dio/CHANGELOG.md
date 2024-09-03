@@ -7,6 +7,12 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 *None.*
 
+## 5.7.0
+
+- Graceful handling of responses with nonzero `Content-Length`, `Content-Type` json, but empty body
+  - Empty responses are now transformed to `null`
+
+
 ## 5.6.0
 
 - Supports the WASM environment. Users should upgrade the adapter with
