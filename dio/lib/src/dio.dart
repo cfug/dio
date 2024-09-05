@@ -210,9 +210,9 @@ abstract class Dio {
   /// [deleteOnError] whether delete the file when error occurs.
   /// The default value is [true].
   ///
-  /// [fileMode] 
+  /// [fileMode]
   /// {@macro dio.DioFileMode}
-  /// 
+  ///
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
   /// 1. If this value is 'content-length', the `total` argument of
