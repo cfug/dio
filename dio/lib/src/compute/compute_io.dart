@@ -44,6 +44,7 @@ Future<R> compute<Q, R>(
     Timeline.finishSync();
   }
 
+  @pragma('vm:awaiter-link')
   final Completer<dynamic> completer = Completer<dynamic>();
   port.handler = (dynamic msg) {
     timeEndAndCleanup();

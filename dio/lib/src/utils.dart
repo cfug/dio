@@ -22,6 +22,7 @@ const kReleaseMode = bool.fromEnvironment('dart.vm.product');
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is
 /// done.
 Future<void> writeStreamToSink<T>(Stream<T> stream, EventSink<T> sink) {
+  @pragma('vm:awaiter-link')
   final completer = Completer<void>();
   stream.listen(
     sink.add,

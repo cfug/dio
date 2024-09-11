@@ -65,6 +65,7 @@ void downloadTests(
           cancelToken.cancel();
         });
 
+        @pragma('vm:awaiter-link')
         final completer = Completer<Never>();
         res.data!.stream.listen(
           (event) {},

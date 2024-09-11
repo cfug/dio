@@ -53,6 +53,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
         options.method,
         options.uri,
       );
+      @pragma('vm:awaiter-link')
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
         (bytes) => completer.complete(

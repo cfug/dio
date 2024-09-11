@@ -194,6 +194,7 @@ class _ConnectionManager implements ConnectionManager {
     proxySocket.write(crlf);
     proxySocket.write(crlf);
 
+    @pragma('vm:awaiter-link')
     final completerProxyInitialization = Completer<void>();
 
     Never onProxyError(Object? error, StackTrace stackTrace) {

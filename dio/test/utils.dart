@@ -186,6 +186,7 @@ class ByteStream extends StreamView<List<int>> {
 
   /// Collects the data of this stream in a [Uint8List].
   Future<Uint8List> toBytes() {
+    @pragma('vm:awaiter-link')
     final completer = Completer<Uint8List>();
     final sink = ByteConversionSink.withCallback(
       (bytes) => completer.complete(Uint8List.fromList(bytes)),

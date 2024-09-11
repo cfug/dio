@@ -44,6 +44,7 @@ void timeoutTests(
         'with streamed response',
         () async {
           dio.options.receiveTimeout = const Duration(seconds: 1);
+          @pragma('vm:awaiter-link')
           final completer = Completer<void>();
           final streamedResponse = await dio.get(
             '/drip',
