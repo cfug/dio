@@ -1,6 +1,6 @@
 # dio
 
-Language: [English](README.md) | 简体中文
+Language: [English](README.md) | 简体中文 | [日本語](README-JP.md)
 
 此处是 **dio** 项目的基础仓库。请前往项目各自的路径查看指引。
 

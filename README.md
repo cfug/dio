@@ -1,6 +1,6 @@
 # dio
 
-Language: English | [简体中文](README-ZH.md)
+Language: English | [简体中文](README-ZH.md) | [日本語](README-JP.md)
 
 This is the base repo of the **dio** project.
 Please move specific paths for project instructions.
