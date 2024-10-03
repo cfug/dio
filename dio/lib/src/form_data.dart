@@ -33,11 +33,11 @@ class FormData {
 
   /// Create [FormData] from a [Map].
   FormData.fromMap(
-      Map<String, dynamic> map, [
-        ListFormat listFormat = ListFormat.multi,
-        this.camelCaseContentDisposition = false,
-        this.boundaryName = _boundaryName,
-      ]) {
+    Map<String, dynamic> map, [
+    ListFormat listFormat = ListFormat.multi,
+    this.camelCaseContentDisposition = false,
+    this.boundaryName = _boundaryName,
+  ]) {
     _init(fromMap: map, listFormat: listFormat);
   }
 
@@ -64,7 +64,7 @@ class FormData {
       // TODO(Alex): Write a proper/elegant implementation.
       encodeMap(
         fromMap,
-            (key, value) {
+        (key, value) {
           if (value is MultipartFile) {
             files.add(MapEntry(key, value));
           } else {
@@ -174,8 +174,8 @@ class FormData {
     if (isFinalized) {
       throw StateError(
         'The FormData has already been finalized. '
-            'This typically means you are using '
-            'the same FormData in repeated requests.',
+        'This typically means you are using '
+        'the same FormData in repeated requests.',
       );
     }
     _isFinalized = true;
@@ -212,7 +212,7 @@ class FormData {
   /// Transform the entire FormData contents as a list of bytes asynchronously.
   Future<Uint8List> readAsBytes() {
     return Future.sync(
-          () => finalize().reduce((a, b) => Uint8List.fromList([...a, ...b])),
+      () => finalize().reduce((a, b) => Uint8List.fromList([...a, ...b])),
     );
   }
 
