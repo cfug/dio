@@ -19,21 +19,25 @@ String get _nextRandomId =>
 
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
+///
+/// Note: When initBoundary is specified, it will override the boundaryName configuration.
+/// This is because the actual boundary is composed of boundaryName plus a random string.
 class FormData {
   FormData({
+    String? initBoundary,
     this.boundaryName = _boundaryName,
     this.camelCaseContentDisposition = false,
   }) {
-    _init();
+    _init(initBoundary: initBoundary);
   }
 
   /// Create [FormData] from a [Map].
   FormData.fromMap(
-    Map<String, dynamic> map, [
-    ListFormat listFormat = ListFormat.multi,
-    this.camelCaseContentDisposition = false,
-    this.boundaryName = _boundaryName,
-  ]) {
+      Map<String, dynamic> map, [
+        ListFormat listFormat = ListFormat.multi,
+        this.camelCaseContentDisposition = false,
+        this.boundaryName = _boundaryName,
+      ]) {
     _init(fromMap: map, listFormat: listFormat);
   }
 
@@ -45,17 +49,22 @@ class FormData {
   final bool camelCaseContentDisposition;
 
   void _init({
+    String? initBoundary,
     Map<String, dynamic>? fromMap,
     ListFormat listFormat = ListFormat.multi,
   }) {
-    // Get an unique boundary for the instance.
-    _boundary = '$boundaryName-$_nextRandomId';
+    if(initBoundary != null) {
+      _boundary = initBoundary;
+    }else{
+      // Get an unique boundary for the instance.
+      _boundary = '$boundaryName-$_nextRandomId';
+    }
     if (fromMap != null) {
       // Use [encodeMap] to recursively add fields and files.
       // TODO(Alex): Write a proper/elegant implementation.
       encodeMap(
         fromMap,
-        (key, value) {
+            (key, value) {
           if (value is MultipartFile) {
             files.add(MapEntry(key, value));
           } else {
@@ -165,8 +174,8 @@ class FormData {
     if (isFinalized) {
       throw StateError(
         'The FormData has already been finalized. '
-        'This typically means you are using '
-        'the same FormData in repeated requests.',
+            'This typically means you are using '
+            'the same FormData in repeated requests.',
       );
     }
     _isFinalized = true;
@@ -203,13 +212,13 @@ class FormData {
   /// Transform the entire FormData contents as a list of bytes asynchronously.
   Future<Uint8List> readAsBytes() {
     return Future.sync(
-      () => finalize().reduce((a, b) => Uint8List.fromList([...a, ...b])),
+          () => finalize().reduce((a, b) => Uint8List.fromList([...a, ...b])),
     );
   }
 
   // Convenience method to clone finalized FormData when retrying requests.
   FormData clone() {
-    final clone = FormData();
+    final clone = FormData(initBoundary: _boundary);
     clone.fields.addAll(fields);
     for (final file in files) {
       clone.files.add(MapEntry(file.key, file.value.clone()));
