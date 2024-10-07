@@ -63,8 +63,11 @@ void main() async {
           expect(e, isA<StateError>());
           expect(
             (e as StateError).message,
-            'The MultipartFile has already been finalized. This typically '
-            'means you are using the same MultipartFile in repeated requests.',
+            'The MultipartFile has already been finalized. '
+            'This typically means you are using the same MultipartFile '
+            'in repeated requests.\n'
+            'Use MultipartFile.clone() or creates a new MultipartFile '
+            'for further usages.',
           );
         }
 
