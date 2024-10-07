@@ -12,6 +12,7 @@ import 'options.dart';
 class CancelToken {
   CancelToken();
 
+  @pragma('vm:awaiter-link')
   final Completer<DioException> _completer = Completer<DioException>();
 
   /// Whether the [error] is thrown by [cancel].
