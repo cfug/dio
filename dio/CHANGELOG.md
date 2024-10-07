@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Update comments and strings with `MultipartFile`.
 
 ## 5.7.0
 
