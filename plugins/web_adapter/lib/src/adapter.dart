@@ -55,9 +55,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
+    final onSendProgress = options.onSendProgress;
     final sendTimeout = options.sendTimeout ?? Duration.zero;
     final connectTimeout = options.connectTimeout ?? Duration.zero;
     final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+
     final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
     xhr.timeout = xhrTimeout;
 
@@ -138,7 +140,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         });
       }
 
-      final onSendProgress = options.onSendProgress;
       if (onSendProgress != null) {
         xhrUploadProgressStream.listen((event) {
           onSendProgress(event.loaded, event.total);
@@ -147,13 +148,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     } else {
       if (sendTimeout > Duration.zero) {
         warningLog(
-          'sendTimeout cannot be used without a request body to send',
+          'sendTimeout cannot be used without a request body to send on Web',
           StackTrace.current,
         );
       }
-      if (options.onSendProgress != null) {
+      if (onSendProgress != null) {
         warningLog(
-          'onSendProgress cannot be used without a request body to send',
+          'onSendProgress cannot be used without a request body to send on Web',
           StackTrace.current,
         );
       }
