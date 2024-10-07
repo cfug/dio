@@ -66,7 +66,7 @@ void main() async {
             'The MultipartFile has already been finalized. '
             'This typically means you are using the same MultipartFile '
             'in repeated requests.\n'
-            'Use MultipartFile.clone() or creates a new MultipartFile '
+            'Use MultipartFile.clone() or create a new MultipartFile '
             'for further usages.',
           );
         }

@@ -19,7 +19,7 @@ class MultipartFile {
   /// from the stream and use [MultipartFile.fromBytes] instead.
   ///
   /// [contentType] currently defaults to `application/octet-stream`,
-  /// but may be inferred from [filename] in the future.
+  /// but it may be inferred from [filename] in the future.
   @Deprecated(
     'MultipartFile() is not cloneable when the stream is consumed, '
     'use MultipartFile.fromStream() instead.'
@@ -41,7 +41,7 @@ class MultipartFile {
   /// [MultipartFile.fromBytes] instead.
   ///
   /// [contentType] currently defaults to `application/octet-stream`,
-  /// but may be inferred from [filename] in the future.
+  /// but it may be inferred from [filename] in the future.
   MultipartFile.fromStream(
     Stream<List<int>> Function() data,
     this.length, {
@@ -55,7 +55,7 @@ class MultipartFile {
   /// Creates a new [MultipartFile] from a byte array.
   ///
   /// [contentType] currently defaults to `application/octet-stream`,
-  /// but may be inferred from [filename] in the future.
+  /// but it may be inferred from [filename] in the future.
   factory MultipartFile.fromBytes(
     List<int> value, {
     String? filename,
@@ -77,7 +77,7 @@ class MultipartFile {
   /// [contentType] if it has a charset set. Otherwise, it defaults to UTF-8.
   ///
   /// [contentType] currently defaults to `text/plain; charset=utf-8`,
-  /// but may be inferred from [filename] in the future.
+  /// but it may be inferred from [filename] in the future.
   factory MultipartFile.fromString(
     String value, {
     String? filename,
@@ -161,7 +161,7 @@ class MultipartFile {
         'The MultipartFile has already been finalized. '
         'This typically means you are using '
         'the same MultipartFile in repeated requests.\n'
-        'Use MultipartFile.clone() or creates a new MultipartFile '
+        'Use MultipartFile.clone() or create a new MultipartFile '
         'for further usages.',
       );
     }
