@@ -5,6 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Update comments and strings with `MultipartFile`.
 - Removes redundant warnings when composing request options on Web.
 
 ## 5.7.0
