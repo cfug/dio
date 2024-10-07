@@ -37,4 +37,5 @@ linter:
     unnecessary_await_in_return: true
     unnecessary_breaks: true
     unnecessary_late: true
+    unnecessary_library_name: false
     unnecessary_parenthesis: true
