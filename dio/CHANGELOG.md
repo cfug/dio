@@ -5,13 +5,13 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Update comments and strings with `MultipartFile`.
+- Removes redundant warnings when composing request options on Web.
 
 ## 5.7.0
 
-- Graceful handling of responses with nonzero `Content-Length`, `Content-Type` json, but empty body
-  - Empty responses are now transformed to `null`
-
+- Graceful handling of responses with nonzero `Content-Length`, `Content-Type` that is json, and empty payload.
+  - Empty responses are now transformed to `null`.
 
 ## 5.6.0
 
