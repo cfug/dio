@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import 'options.dart';
 import 'response.dart';
 
@@ -62,7 +64,80 @@ extension _DioExceptionTypeExtension on DioExceptionType {
   }
 }
 
+/// Determine the content logging level of [DioException]s.
+///
+/// - Using [withRequestUrl] will log the URL of the exception.
+///   The URL could be [Response.realUri] or [RequestOptions.uri].
+/// - Using [withMessages] will log the available message of the exception.
+///
+/// To combine levels, use the binary operators to compute the desired level.
+/// For example, to log both URL and messages, either use [all] or use:
+/// ```dart
+/// final level = DioExceptionLogLevel(
+///   DioExceptionLogLevel.withRequestUrl | DioExceptionLogLevel.withRequestUrl,
+/// );
+/// ```
+class DioExceptionLogLevel {
+  const DioExceptionLogLevel(this.value);
+
+  final int value;
+
+  static const withRequestUrl = 1;
+  static const withMessages = 1 << 2;
+
+  static const least = DioExceptionLogLevel(0);
+  static const common = DioExceptionLogLevel(withMessages);
+  static const all = DioExceptionLogLevel(withRequestUrl | withMessages);
+
+  bool get containsRequestUrl => value & withRequestUrl == withRequestUrl;
+
+  bool get containsMessages => value & withMessages == withMessages;
+
+  DioExceptionLogLevel operator +(DioExceptionLogLevel type) => this | type;
+
+  DioExceptionLogLevel operator -(DioExceptionLogLevel type) => this ^ type;
+
+  DioExceptionLogLevel operator |(DioExceptionLogLevel type) {
+    return DioExceptionLogLevel(value | type.value);
+  }
+
+  DioExceptionLogLevel operator ^(DioExceptionLogLevel type) {
+    return DioExceptionLogLevel(value ^ type.value);
+  }
+
+  DioExceptionLogLevel operator >>(int bit) {
+    return DioExceptionLogLevel(value >> bit);
+  }
+
+  DioExceptionLogLevel operator <<(int bit) {
+    return DioExceptionLogLevel(value << bit);
+  }
+
+  /// The values of [RequestType].
+  static const values = <DioExceptionLogLevel>[all, common];
+
+  /// Computes the request type from given types.
+  static DioExceptionLogLevel fromTypes(List<DioExceptionLogLevel> types) {
+    DioExceptionLogLevel result = const DioExceptionLogLevel(0);
+    for (final type in types) {
+      result += type;
+    }
+    return result;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is DioExceptionLogLevel && value == other.value;
+
+  @override
+  int get hashCode => value;
+
+  @override
+  String toString() => 'DioExceptionLogLevel($value)';
+}
+
 /// [DioException] describes the exception info when a request failed.
+@immutable
 class DioException implements Exception {
   /// Prefer using one of the other constructors.
   /// They're most likely better fitting.
@@ -182,6 +257,9 @@ class DioException implements Exception {
         error: error,
       );
 
+  /// Users can customize the logging level when a [DioException] was thrown.
+  static DioExceptionLogLevel logLevel = DioExceptionLogLevel.common;
+
   /// The request info for the request that throws exception.
   ///
   /// The info can be empty (e.g. `uri` equals to "")
@@ -226,11 +304,23 @@ class DioException implements Exception {
 
   @override
   String toString() {
-    String msg = 'DioException [${type.toPrettyDescription()}]: $message';
-    if (error != null) {
-      msg += '\nError: $error';
+    final buffer = StringBuffer('DioException [${type.toPrettyDescription()}]');
+    if (logLevel.containsRequestUrl) {
+      buffer.writeln(' ${response?.realUri ?? requestOptions.uri}');
     }
-    return msg;
+    if (logLevel.containsMessages) {
+      if (logLevel.containsRequestUrl) {
+        buffer.writeln();
+      } else {
+        buffer.write(': ');
+      }
+      buffer.write('$message');
+    }
+    if (error != null) {
+      buffer.writeln();
+      buffer.write('Error: $error');
+    }
+    return buffer.toString();
   }
 
   /// Because of [ValidateStatus] we need to consider all status codes when
