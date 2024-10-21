@@ -737,7 +737,7 @@ and replace the `BackgroundTransformer` by setting the `dio.transformer`.
 
 ### Transformer example
 
-There is an example for [customizing Transformer](../example/lib/transformer.dart).
+There is an example for [customizing Transformer](../example_dart/lib/transformer.dart).
 
 ## HttpClientAdapter
 
