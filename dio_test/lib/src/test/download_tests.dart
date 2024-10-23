@@ -380,7 +380,7 @@ void downloadTests(
           completes,
         );
       });
-      test('append bytes previous download', () async {
+      test('append bytes to previous download', () async {
         final cancelToken = CancelToken();
         final path = p.join(tmp.path, 'download_3.txt');
         final requestedBytes = 1024 * 1024 * 10;
@@ -418,7 +418,7 @@ void downloadTests(
               }
             },
             deleteOnError: false,
-            fileMode: DioFileMode.append,
+            fileAccessMode: FileAccessMode.append,
           ),
           throwsDioException(
             DioExceptionType.cancel,

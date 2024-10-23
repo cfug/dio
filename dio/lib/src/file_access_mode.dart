@@ -1,23 +1,25 @@
-/// {@template dio.DioFileMode}
+/// {@template dio.FileAccessMode}
 ///  The file access mode when downloading the file.
-/// - [DioFileMode.write]: Mode for opening a file for reading and writing.
+/// - [FileAccessMode.write]: Mode for opening a file for reading and writing.
 ///    The file is overwritten if it already exists. The file is created if it
 ///    does not already exist
-/// - [DioFileMode.append]: Mode for opening a file for reading and writing
+/// - [FileAccessMode.append]: Mode for opening a file for reading and writing
 ///    to the end of it. The file is created if it does not already exist.
 /// {@endtemplate}
-enum DioFileMode {
+enum FileAccessMode {
   write,
-  append;
+  append,
+}
 
+extension FileAccessModeExtension on FileAccessMode {
   T map<T>({
     required T Function() write,
     required T Function() append,
   }) {
     switch (this) {
-      case DioFileMode.write:
+      case FileAccessMode.write:
         return write();
-      case DioFileMode.append:
+      case FileAccessMode.append:
         return append();
     }
   }
