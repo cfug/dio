@@ -110,7 +110,7 @@ void getHttp() async {
 
 ## 示例
 
-发起一个 `GET` 请求 :
+### 发起一个 `GET` 请求 :
 
 ```dart
 import 'package:dio/dio.dart';
@@ -130,19 +130,19 @@ void request() async {
 }
 ```
 
-发起一个 `POST` 请求:
+### 发起一个 `POST` 请求:
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-发起多个并发请求:
+###  发起多个并发请求:
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-下载文件:
+### 下载文件:
 
 ```dart
 response = await dio.download(
@@ -151,7 +151,7 @@ response = await dio.download(
 );
 ```
 
-以流的方式接收响应数据：
+### 以流的方式接收响应数据：
 
 ```dart
 final rs = await dio.get(
@@ -161,7 +161,7 @@ final rs = await dio.get(
 print(rs.data.stream); // 响应流
 ```
 
-以二进制数组的方式接收响应数据：
+### 以二进制数组的方式接收响应数据：
 
 ```dart
 final rs = await dio.get(
@@ -171,7 +171,7 @@ final rs = await dio.get(
 print(rs.data); // 类型: List<int>
 ```
 
-发送 `FormData`:
+### 发送 `FormData`:
 
 ```dart
 final formData = FormData.fromMap({
@@ -181,7 +181,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-通过 `FormData` 上传多个文件:
+### 通过 `FormData` 上传多个文件:
 
 ```dart
 final formData = FormData.fromMap({
@@ -196,7 +196,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-监听发送（上传）数据进度:
+### 监听发送（上传）数据进度:
 
 ```dart
 final response = await dio.post(
@@ -208,7 +208,7 @@ final response = await dio.post(
 );
 ```
 
-以流的形式提交二进制数据：
+### 以流的形式提交二进制数据：
 
 ```dart
 // Binary data
