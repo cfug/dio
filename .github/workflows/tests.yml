@@ -46,6 +46,9 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
+      - name: Remove dio_web_adapter overrides
+        if: ${{ matrix.sdk == 'min' }}
+        run: rm -rf plugins/web_adapter
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_packages.dart

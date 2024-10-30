@@ -94,7 +94,7 @@ in [here](https://github.com/cfug/dio/issues/347).
 
 ## Examples
 
-Performing a `GET` request:
+### Performing a `GET` request:
 
 ```dart
 import 'package:dio/dio.dart';
@@ -114,19 +114,19 @@ void request() async {
 }
 ```
 
-Performing a `POST` request:
+### Performing a `POST` request:
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-Performing multiple concurrent requests:
+### Performing multiple concurrent requests:
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-Downloading a file:
+### Downloading a file:
 
 ```dart
 response = await dio.download(
@@ -135,7 +135,7 @@ response = await dio.download(
 );
 ```
 
-Get response stream:
+### Get response stream:
 
 ```dart
 final rs = await dio.get(
@@ -145,7 +145,7 @@ final rs = await dio.get(
 print(rs.data.stream); // Response stream.
 ```
 
-Get response with bytes:
+### Get response with bytes:
 
 ```dart
 final rs = await Dio().get<List<int>>(
@@ -155,7 +155,7 @@ final rs = await Dio().get<List<int>>(
 print(rs.data); // Type: List<int>.
 ```
 
-Sending a `FormData`:
+### Sending a `FormData`:
 
 ```dart
 final formData = FormData.fromMap({
@@ -165,7 +165,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-Uploading multiple files to server by FormData:
+### Uploading multiple files to server by FormData:
 
 ```dart
 final formData = FormData.fromMap({
@@ -180,7 +180,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-Listening the uploading progress:
+### Listening the uploading progress:
 
 ```dart
 final response = await dio.post(
@@ -192,7 +192,7 @@ final response = await dio.post(
 );
 ```
 
-Post binary data with Stream:
+### Post binary data with Stream:
 
 ```dart
 // Binary data
@@ -737,7 +737,7 @@ and replace the `BackgroundTransformer` by setting the `dio.transformer`.
 
 ### Transformer example
 
-There is an example for [customizing Transformer](../example/lib/transformer.dart).
+There is an example for [customizing Transformer](../example_dart/lib/transformer.dart).
 
 ## HttpClientAdapter
 

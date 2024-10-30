@@ -1,13 +1,12 @@
-// export '../js_interop/adapter.dart';
-
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio/src/utils.dart';
 import 'package:meta/meta.dart';
+import 'package:web/web.dart' as web;
 
 BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -17,7 +16,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
   /// These are aborted if the client is closed.
   @visibleForTesting
-  final xhrs = <HttpRequest>{};
+  final xhrs = <web.XMLHttpRequest>{};
 
   /// Whether to send credentials such as cookies or authorization headers for
   /// cross-site requests.
@@ -34,7 +33,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    final xhr = HttpRequest();
+    final xhr = web.XMLHttpRequest();
     xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
@@ -57,9 +56,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     });
 
+    final onSendProgress = options.onSendProgress;
     final sendTimeout = options.sendTimeout ?? Duration.zero;
     final connectTimeout = options.connectTimeout ?? Duration.zero;
     final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+
     final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
     xhr.timeout = xhrTimeout;
 
@@ -80,18 +81,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           ),
         );
       } else {
-        final Uint8List body = (xhr.response as ByteBuffer).asUint8List();
+        final ByteBuffer body = (xhr.response as JSArrayBuffer).toDart;
         completer.complete(
           ResponseBody.fromBytes(
-            body,
-            xhr.status!,
-            headers: xhr.responseHeaders.map(
-              (k, v) => MapEntry(k, v.split(',')),
-            ),
+            body.asUint8List(),
+            xhr.status,
+            headers: xhr.getResponseHeaders(),
             statusMessage: xhr.statusText,
             isRedirect: xhr.status == 302 ||
                 xhr.status == 301 ||
-                options.uri.toString() != xhr.responseUrl,
+                options.uri.toString() != xhr.responseURL,
           ),
         );
       }
@@ -126,8 +125,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // Upload progress events only get triggered if the request body exists,
     // so we can check it beforehand.
     if (requestStream != null) {
+      final xhrUploadProgressStream =
+          web.EventStreamProviders.progressEvent.forTarget(xhr.upload);
+
       if (connectTimeoutTimer != null) {
-        xhr.upload.onProgress.listen((event) {
+        xhrUploadProgressStream.listen((_) {
           connectTimeoutTimer?.cancel();
           connectTimeoutTimer = null;
         });
@@ -135,7 +137,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
       if (sendTimeout > Duration.zero) {
         final uploadStopwatch = Stopwatch();
-        xhr.upload.onProgress.listen((event) {
+        xhrUploadProgressStream.listen((_) {
           if (!uploadStopwatch.isRunning) {
             uploadStopwatch.start();
           }
@@ -154,13 +156,23 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         });
       }
 
-      final onSendProgress = options.onSendProgress;
       if (onSendProgress != null) {
-        xhr.upload.onProgress.listen((event) {
-          if (event.loaded != null && event.total != null) {
-            onSendProgress(event.loaded!, event.total!);
-          }
+        xhrUploadProgressStream.listen((event) {
+          onSendProgress(event.loaded, event.total);
         });
+      }
+    } else {
+      if (sendTimeout > Duration.zero) {
+        warningLog(
+          'sendTimeout cannot be used without a request body to send on Web',
+          StackTrace.current,
+        );
+      }
+      if (onSendProgress != null) {
+        warningLog(
+          'onSendProgress cannot be used without a request body to send on Web',
+          StackTrace.current,
+        );
       }
     }
 
@@ -198,16 +210,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     xhr.onProgress.listen(
-      (ProgressEvent event) {
+      (event) {
         if (connectTimeoutTimer != null) {
           connectTimeoutTimer!.cancel();
           connectTimeoutTimer = null;
         }
         watchReceiveTimeout();
-        if (options.onReceiveProgress != null &&
-            event.loaded != null &&
-            event.total != null) {
-          options.onReceiveProgress!(event.loaded!, event.total!);
+        if (options.onReceiveProgress != null) {
+          options.onReceiveProgress!(event.loaded, event.total);
         }
       },
       onDone: () => stopWatchReceiveTimeout(),
@@ -228,7 +238,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     });
 
-    xhr.onTimeout.first.then((_) {
+    web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
       final isConnectTimeout = connectTimeoutTimer != null;
       if (connectTimeoutTimer != null) {
         connectTimeoutTimer?.cancel();
@@ -254,8 +264,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     cancelFuture?.then((_) {
-      if (xhr.readyState < HttpRequest.DONE &&
-          xhr.readyState > HttpRequest.UNSENT) {
+      if (xhr.readyState < web.XMLHttpRequest.DONE &&
+          xhr.readyState > web.XMLHttpRequest.UNSENT) {
         connectTimeoutTimer?.cancel();
         try {
           xhr.abort();
@@ -292,7 +302,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         cancelOnError: true,
       );
       final bytes = await completer.future;
-      xhr.send(bytes);
+      xhr.send(bytes.toJS);
     } else {
       xhr.send();
     }
@@ -312,5 +322,30 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     }
     xhrs.clear();
+  }
+}
+
+extension on web.XMLHttpRequest {
+  Map<String, List<String>> getResponseHeaders() {
+    final headersString = getAllResponseHeaders();
+    final headers = <String, List<String>>{};
+    if (headersString.isEmpty) {
+      return headers;
+    }
+    final headersList = headersString.split('\r\n');
+    for (final header in headersList) {
+      if (header.isEmpty) {
+        continue;
+      }
+
+      final splitIdx = header.indexOf(': ');
+      if (splitIdx == -1) {
+        continue;
+      }
+      final key = header.substring(0, splitIdx).toLowerCase();
+      final value = header.substring(splitIdx + 2);
+      (headers[key] ??= []).add(value);
+    }
+    return headers;
   }
 }
