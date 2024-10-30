@@ -70,14 +70,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       if (options.responseType == ResponseType.blobUrl) {
         completer.complete(
           ResponseBody.fromString(
-            Url.createObjectUrl(xhr.response),
-            xhr.status!,
-            headers:
-                xhr.responseHeaders.map((k, v) => MapEntry(k, v.split(','))),
+            web.URL.createObjectURL(xhr.response as web.Blob),
+            xhr.status,
+            headers: xhr.getResponseHeaders(),
             statusMessage: xhr.statusText,
             isRedirect: xhr.status == 302 ||
                 xhr.status == 301 ||
-                options.uri.toString() != xhr.responseUrl,
+                options.uri.toString() != xhr.responseURL,
           ),
         );
       } else {
