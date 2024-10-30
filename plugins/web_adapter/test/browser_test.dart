@@ -18,4 +18,18 @@ void main() {
     browserAdapter.fetch(opts, testStream, cancelFuture);
     expect(browserAdapter.xhrs.every((e) => e.withCredentials == true), isTrue);
   });
+
+  test('ResponseType in blobUrl', () async {
+    final browserAdapter = BrowserHttpClientAdapter(withCredentials: true);
+    final opts = RequestOptions(responseType : ResponseType.blobUrl);
+    final testStream = Stream<Uint8List>.periodic(
+      const Duration(seconds: 1),
+          (x) => Uint8List(x),
+    );
+    final cancelFuture = opts.cancelToken?.whenCancel;
+
+    browserAdapter.fetch(opts, testStream, cancelFuture);
+    expect(browserAdapter.xhrs.every((e) => e.withCredentials == true), isTrue);
+    expect(opts.responseType, ResponseType.blobUrl);
+  });
 }
