@@ -17,7 +17,7 @@ void basicTests(
   group('basic request', () {
     test(
       'works with non-TLS requests',
-      () => dio.get('http://flutter.cn/'),
+      () => dio.get('http://flutter-io.cn/'),
       testOn: 'vm',
     );
 
