@@ -17,7 +17,7 @@ void basicTests(
   group('basic request', () {
     test(
       'works with non-TLS requests',
-      () => dio.get('http://neverssl.com/'),
+      () => dio.get('http://www.gstatic.com/generate_204'),
       testOn: 'vm',
     );
 
