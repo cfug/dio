@@ -19,16 +19,12 @@ String get _nextRandomId =>
 
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.
-///
-/// Note: When initBoundary is specified, it will override the boundaryName configuration.
-/// This is because the actual boundary is composed of boundaryName plus a random string.
 class FormData {
   FormData({
-    String? initBoundary,
     this.boundaryName = _boundaryName,
     this.camelCaseContentDisposition = false,
   }) {
-    _init(initBoundary: initBoundary);
+    _init();
   }
 
   /// Create [FormData] from a [Map].
@@ -49,16 +45,11 @@ class FormData {
   final bool camelCaseContentDisposition;
 
   void _init({
-    String? initBoundary,
     Map<String, dynamic>? fromMap,
     ListFormat listFormat = ListFormat.multi,
   }) {
-    if(initBoundary != null) {
-      _boundary = initBoundary;
-    }else{
-      // Get an unique boundary for the instance.
-      _boundary = '$boundaryName-$_nextRandomId';
-    }
+    // Get an unique boundary for the instance.
+    _boundary = '$boundaryName-$_nextRandomId';
     if (fromMap != null) {
       // Use [encodeMap] to recursively add fields and files.
       // TODO(Alex): Write a proper/elegant implementation.
@@ -83,7 +74,7 @@ class FormData {
   ///
   /// See also: https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
   String get boundary => _boundary;
-  late final String _boundary;
+  late String _boundary;
 
   /// The form fields to send for this request.
   final fields = <MapEntry<String, String>>[];
@@ -218,7 +209,8 @@ class FormData {
 
   // Convenience method to clone finalized FormData when retrying requests.
   FormData clone() {
-    final clone = FormData(initBoundary: _boundary);
+    final clone = FormData();
+    clone._boundary = _boundary;
     clone.fields.addAll(fields);
     for (final file in files) {
       clone.files.add(MapEntry(file.key, file.value.clone()));
