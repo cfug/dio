@@ -176,6 +176,7 @@ void main() async {
         expect(fm1 != fm, true);
         expect(fm1.files[0].value.filename, fm.files[0].value.filename);
         expect(fm1.fields, fm.fields);
+        expect(fm1.boundary, fm.boundary);
       },
       testOn: 'vm',
     );

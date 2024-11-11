@@ -7,6 +7,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Update comments and strings with `MultipartFile`.
 - Removes redundant warnings when composing request options on Web.
+- Fixes boundary inconsistency in `FormData.clone()`.
 
 ## 5.7.0
 
