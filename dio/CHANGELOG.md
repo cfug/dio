@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix boundary inconsistency in FormData.clone method
 
 ## 5.7.0
 
