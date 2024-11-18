@@ -74,7 +74,7 @@ class FormData {
   ///
   /// See also: https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
   String get boundary => _boundary;
-  late final String _boundary;
+  late String _boundary;
 
   /// The form fields to send for this request.
   final fields = <MapEntry<String, String>>[];
@@ -210,6 +210,7 @@ class FormData {
   // Convenience method to clone finalized FormData when retrying requests.
   FormData clone() {
     final clone = FormData();
+    clone._boundary = _boundary;
     clone.fields.addAll(fields);
     for (final file in files) {
       clone.files.add(MapEntry(file.key, file.value.clone()));
