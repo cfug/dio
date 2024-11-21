@@ -28,6 +28,7 @@ class LogInterceptor extends Interceptor {
     this.responseBody = false,
     this.error = true,
     this.logPrint = _debugPrint,
+    this.methods = const ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
   });
 
   /// Print request [Options]
@@ -60,11 +61,19 @@ class LogInterceptor extends Interceptor {
   /// ```
   void Function(Object object) logPrint;
 
+  /// Prints requests/responses only by pointed methods.
+  /// Default: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']
+  List<String> methods;
+
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
+    if (!methods.contains(options.method)) {
+      handler.next(options);
+      return;
+    }
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -98,6 +107,10 @@ class LogInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if (!methods.contains(response.requestOptions.method)) {
+      handler.next(response);
+      return;
+    }
     logPrint('*** Response ***');
     _printResponse(response);
     handler.next(response);
@@ -105,6 +118,10 @@ class LogInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (!methods.contains(err.requestOptions.method)) {
+      handler.next(err);
+      return;
+    }
     if (error) {
       logPrint('*** DioException ***:');
       logPrint('uri: ${err.requestOptions.uri}');
