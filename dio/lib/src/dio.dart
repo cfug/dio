@@ -294,4 +294,15 @@ abstract class Dio {
   /// The eventual method to submit requests. All callers for requests should
   /// eventually go through this method.
   Future<Response<T>> fetch<T>(RequestOptions requestOptions);
+
+  /// Creates a new [Dio] instance with:
+  /// - Current [options]
+  /// - [interceptors]
+  /// - [httpClientAdapter]
+  /// - [transformer]
+  Dio clone({
+    Interceptors? interceptors,
+    HttpClientAdapter? httpClientAdapter,
+    Transformer? transformer,
+  });
 }
