@@ -98,6 +98,7 @@ class DioForNative with DioMixin implements Dio {
     RandomAccessFile raf = file.openSync(mode: FileMode.write);
 
     // Create a Completer to notify the success/error state.
+    @pragma('vm:awaiter-link')
     final completer = Completer<Response>();
     int received = 0;
 

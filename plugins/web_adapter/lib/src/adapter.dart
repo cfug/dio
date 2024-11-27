@@ -63,6 +63,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
     xhr.timeout = xhrTimeout;
 
+    @pragma('vm:awaiter-link')
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
