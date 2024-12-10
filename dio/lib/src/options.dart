@@ -41,6 +41,13 @@ enum ResponseType {
 
   /// Get the original bytes, the [Response.data] will be [List<int>].
   bytes,
+
+  /// Get blob url.
+  /// This value is needed when you need content in the form of a blob url.
+  /// Only work in web.
+  ///
+  /// the [Response.data] will be [String].
+  blobUrl,
 }
 
 /// {@template dio.options.ListFormat}
