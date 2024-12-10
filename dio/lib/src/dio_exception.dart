@@ -1,5 +1,6 @@
 import 'options.dart';
 import 'response.dart';
+import 'utils.dart' show warningLog;
 
 /// Deprecated in favor of [DioExceptionType] and will be removed in future major versions.
 @Deprecated('Use DioExceptionType instead. This will be removed in 6.0.0')
@@ -205,6 +206,9 @@ class DioException implements Exception {
   /// The error message that throws a [DioException].
   final String? message;
 
+  /// Users can customize the logging content when a [DioException] was thrown.
+  static DioExceptionLogBuilder logBuilder = defaultDioExceptionLogBuilder;
+
   /// Generate a new [DioException] by combining given values and original values.
   DioException copyWith({
     RequestOptions? requestOptions,
@@ -226,11 +230,12 @@ class DioException implements Exception {
 
   @override
   String toString() {
-    String msg = 'DioException [${type.toPrettyDescription()}]: $message';
-    if (error != null) {
-      msg += '\nError: $error';
+    try {
+      return logBuilder(this);
+    } catch (e, s) {
+      warningLog(e, s);
+      return defaultDioExceptionLogBuilder(this);
     }
-    return msg;
   }
 
   /// Because of [ValidateStatus] we need to consider all status codes when
@@ -277,4 +282,20 @@ class DioException implements Exception {
 
     return buffer.toString();
   }
+}
+
+/// The log builder's signature.
+typedef DioExceptionLogBuilder = String Function(DioException e);
+
+/// The default implementation of logging the [DioException] as text content.
+String defaultDioExceptionLogBuilder(DioException e) {
+  final buffer = StringBuffer(
+    'DioException [${e.type.toPrettyDescription()}]: '
+    '${e.message}',
+  );
+  if (e.error != null) {
+    buffer.writeln();
+    buffer.write('Error: ${e.error}');
+  }
+  return buffer.toString();
 }
