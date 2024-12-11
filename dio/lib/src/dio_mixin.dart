@@ -11,6 +11,7 @@ import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
 import 'dio_exception.dart';
+import 'file_access_mode.dart';
 import 'form_data.dart';
 import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
@@ -286,6 +287,7 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode mode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -310,6 +312,7 @@ abstract class DioMixin implements Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
