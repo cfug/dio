@@ -52,4 +52,16 @@ void main() {
     },
     testOn: '!browser',
   );
+
+  test('DioExceptionLogBuilder', () {
+    final exception = DioException(
+      requestOptions: RequestOptions(path: 'just/a/test', method: 'POST'),
+    );
+    DioException.logBuilder = (e) => 'Hey, Dio throws an exception: '
+        '${exception.requestOptions.path}, ${exception.requestOptions.method}';
+    expect(
+      exception.toString(),
+      equals('Hey, Dio throws an exception: just/a/test, POST'),
+    );
+  });
 }
