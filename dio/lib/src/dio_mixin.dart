@@ -11,7 +11,6 @@ import 'adapter.dart';
 import 'cancel_token.dart';
 import 'dio.dart';
 import 'dio_exception.dart';
-import 'file_access_mode.dart';
 import 'form_data.dart';
 import 'headers.dart';
 import 'interceptors/imply_content_type.dart';

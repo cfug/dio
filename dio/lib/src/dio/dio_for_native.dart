@@ -6,7 +6,6 @@ import '../adapters/io_adapter.dart';
 import '../cancel_token.dart';
 import '../dio.dart';
 import '../dio_exception.dart';
-import '../file_access_mode.dart';
 import '../dio_mixin.dart';
 import '../headers.dart';
 import '../options.dart';
@@ -98,10 +97,9 @@ class DioForNative with DioMixin implements Dio {
     // because it can write all bytes by once. Consider that the file is
     // a very big size (up to 1 Gigabytes), it will be expensive in memory.
     RandomAccessFile raf = file.openSync(
-      mode: fileAccessMode.map(
-        write: () => FileMode.write,
-        append: () => FileMode.append,
-      ),
+      mode: fileAccessMode == FileAccessMode.write
+          ? FileMode.write
+          : FileMode.append,
     );
 
     // Create a Completer to notify the success/error state.
