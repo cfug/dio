@@ -97,6 +97,7 @@ jobs:
       - name: '[Verify step] Test Flutter packages'
         run: melos run test:flutter
       - name: '[Verify step] Build Flutter APK'
+        if: ${{ matrix.sdk == 'stable' }}
         run: melos run build:example:apk
       # Coverage
       - name: '[Coverage] Format & print test coverage'
