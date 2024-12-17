@@ -210,7 +210,7 @@ abstract class Dio {
   /// The default value is [true].
   ///
   /// [fileAccessMode]
-  /// {@macro dio.FileAccessMode}
+  /// {@macro dio.options.FileAccessMode}
   ///
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
