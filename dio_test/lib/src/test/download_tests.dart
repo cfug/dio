@@ -380,6 +380,7 @@ void downloadTests(
           completes,
         );
       });
+
       test('append bytes to previous download', () async {
         final cancelToken = CancelToken();
         final path = p.join(tmp.path, 'download_3.txt');
