@@ -8,11 +8,11 @@ Language: English | [简体中文](README-ZH.md)
 A powerful HTTP networking package for Dart/Flutter,
 supports Global configuration, Interceptors, FormData,
 Request cancellation, File uploading/downloading,
-Timeout, Custom adapters, Transformers, etc.
+Timeout, Custom adapters, Transformers, etc. 
 
 > Don't forget to add [#dio](https://pub.dev/packages?q=topic%3Adio)
 > topic to your published dio related packages!
-> See more: <https://dart.dev/tools/pub/pubspec#topics>
+> See more: https://dart.dev/tools/pub/pubspec#topics
 
 <details>
   <summary>Table of content</summary>
@@ -94,7 +94,7 @@ in [here](https://github.com/cfug/dio/issues/347).
 
 ## Examples
 
-### Performing a `GET` request
+### Performing a `GET` request:
 
 ```dart
 import 'package:dio/dio.dart';
@@ -114,19 +114,19 @@ void request() async {
 }
 ```
 
-### Performing a `POST` request
+### Performing a `POST` request:
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-### Performing multiple concurrent requests
+### Performing multiple concurrent requests:
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-### Downloading a file
+### Downloading a file:
 
 ```dart
 response = await dio.download(
@@ -135,7 +135,7 @@ response = await dio.download(
 );
 ```
 
-### Get response stream
+### Get response stream:
 
 ```dart
 final rs = await dio.get(
@@ -145,7 +145,7 @@ final rs = await dio.get(
 print(rs.data.stream); // Response stream.
 ```
 
-### Get response with bytes
+### Get response with bytes:
 
 ```dart
 final rs = await Dio().get<List<int>>(
@@ -155,7 +155,7 @@ final rs = await Dio().get<List<int>>(
 print(rs.data); // Type: List<int>.
 ```
 
-### Sending a `FormData`
+### Sending a `FormData`:
 
 ```dart
 final formData = FormData.fromMap({
@@ -165,7 +165,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### Uploading multiple files to server by FormData
+### Uploading multiple files to server by FormData:
 
 ```dart
 final formData = FormData.fromMap({
@@ -180,7 +180,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### Listening the uploading progress
+### Listening the uploading progress:
 
 ```dart
 final response = await dio.post(
@@ -192,7 +192,7 @@ final response = await dio.post(
 );
 ```
 
-### Post binary data with Stream
+### Post binary data with Stream:
 
 ```dart
 // Binary data
@@ -214,7 +214,7 @@ See all examples code [here](example).
 
 ## Dio APIs
 
-### Creating an instance and set default configs
+### Creating an instance and set default configs.
 
 > It is recommended to use a singleton of `Dio` in projects, which can manage configurations like headers, base urls,
 > and timeouts consistently.
@@ -707,7 +707,6 @@ You should make a new `FormData` or `MultipartFile` every time in repeated reque
 A typical wrong behavior is setting the `FormData` as a variable and using it in every request.
 It can be easy for the *Cannot finalize* exceptions to occur.
 To avoid that, write your requests like the below code:
-
 ```dart
 Future<void> _repeatedlyRequest() async {
   Future<FormData> createFormData() async {
@@ -726,7 +725,7 @@ Future<void> _repeatedlyRequest() async {
 
 `Transformer` allows changes to the request/response data
 before it is sent/received to/from the server.
-Dio has already implemented a `BackgroundTransformer` as default,
+Dio has already implemented a `BackgroundTransformer` as default, 
 which calls `jsonDecode` in an isolate if the response is larger than 50 KB.
 If you want to customize the transformation of request/response data,
 you can provide a `Transformer` by your self,
@@ -758,23 +757,20 @@ dio.httpClientAdapter = HttpClientAdapter();
 ```
 
 If you want to use platform adapters explicitly:
-* For the Web platform:
-
+- For the Web platform:
   ```dart
   import 'package:dio/browser.dart';
   // ...
   dio.httpClientAdapter = BrowserHttpClientAdapter();
   ```
-
 - For native platforms:
-
   ```dart
   import 'package:dio/io.dart';
   // ...
   dio.httpClientAdapter = IOHttpClientAdapter();
   ```
 
-[Here](../example/lib/adapter.dart) is a simple example to custom adapter.
+[Here](../example/lib/adapter.dart) is a simple example to custom adapter. 
 
 ### Using proxy
 
@@ -814,7 +810,7 @@ the certificates protecting the TLS connection to the server are the ones you ex
 The intention is to reduce the chance of a man-in-the-middle attack.
 The theory is covered by [OWASP](https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning).
 
-*Server Response Certificate*
+_Server Response Certificate_
 
 Unlike other methods, this one works with the certificate of the server itself.
 
@@ -853,7 +849,7 @@ openssl s_client -servername pinning-test.badssl.com -connect pinning-test.badss
 # (remove the formatting, keep only lower case hex characters to match the `sha256` above)
 ```
 
-*Certificate Authority Verification*
+_Certificate Authority Verification_
 
 These methods work well when your server has a self-signed certificate,
 but they don't work for certificates issued by a 3rd party like AWS or Let's Encrypt.
