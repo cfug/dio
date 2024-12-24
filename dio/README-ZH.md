@@ -10,7 +10,7 @@ dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API�
 
 > 别忘了为你发布的与 dio 相关的 package 添加
 > [#dio](https://pub.flutter-io.cn/packages?q=topic%3Adio) 分类标签！
-> 了解更多：https://dart.cn/tools/pub/pubspec#topics
+> 了解更多：<https://dart.cn/tools/pub/pubspec#topics>
 
 <details>
   <summary>内容列表</summary>
@@ -110,7 +110,7 @@ void getHttp() async {
 
 ## 示例
 
-### 发起一个 `GET` 请求 :
+### 发起一个 `GET` 请求
 
 ```dart
 import 'package:dio/dio.dart';
@@ -130,19 +130,19 @@ void request() async {
 }
 ```
 
-### 发起一个 `POST` 请求:
+### 发起一个 `POST` 请求
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-###  发起多个并发请求:
+### 发起多个并发请求
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-### 下载文件:
+### 下载文件
 
 ```dart
 response = await dio.download(
@@ -151,7 +151,7 @@ response = await dio.download(
 );
 ```
 
-### 以流的方式接收响应数据：
+### 以流的方式接收响应数据
 
 ```dart
 final rs = await dio.get(
@@ -161,7 +161,7 @@ final rs = await dio.get(
 print(rs.data.stream); // 响应流
 ```
 
-### 以二进制数组的方式接收响应数据：
+### 以二进制数组的方式接收响应数据
 
 ```dart
 final rs = await dio.get(
@@ -171,7 +171,7 @@ final rs = await dio.get(
 print(rs.data); // 类型: List<int>
 ```
 
-### 发送 `FormData`:
+### 发送 `FormData`
 
 ```dart
 final formData = FormData.fromMap({
@@ -181,7 +181,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### 通过 `FormData` 上传多个文件:
+### 通过 `FormData` 上传多个文件
 
 ```dart
 final formData = FormData.fromMap({
@@ -196,7 +196,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### 监听发送（上传）数据进度:
+### 监听发送（上传）数据进度
 
 ```dart
 final response = await dio.post(
@@ -208,7 +208,7 @@ final response = await dio.post(
 );
 ```
 
-### 以流的形式提交二进制数据：
+### 以流的形式提交二进制数据
 
 ```dart
 // Binary data
@@ -520,7 +520,7 @@ print(response.data); // 'fake data'
 `csrfToken` 都为 null，所以它们都需要去请求 `csrfToken`，这会导致 `csrfToken` 被请求多次。
 为了避免不必要的重复请求，可以使用 `QueuedInterceptor`， 这样只需要第一个请求处理一次即可。
 
-完整的示例代码请点击 [这里](../example/lib/queued_interceptor_crsftoken.dart).
+完整的示例代码请点击 [这里](../example_dart/lib/queued_interceptor_crsftoken.dart).
 
 #### 日志拦截器
 
@@ -630,7 +630,7 @@ dio.post(
 
 ## 发送 FormData
 
-Dio 支持发送 `FormData`, 请求数据将会以 `multipart/form-data` 方式编码, 
+Dio 支持发送 `FormData`, 请求数据将会以 `multipart/form-data` 方式编码,
 `FormData` 中可以包含一个或多个文件。
 
 ```dart
@@ -657,7 +657,7 @@ final formDataWithBoundaryName = FormData(
 
 ### 多文件上传
 
-多文件上传时，通过给 key 加中括号 `[]` 方式作为文件数组的标记，大多数后台也会通过 `key[]` 来读取多个文件。 
+多文件上传时，通过给 key 加中括号 `[]` 方式作为文件数组的标记，大多数后台也会通过 `key[]` 来读取多个文件。
 然而 RFC 标准中并没有规定多文件上传必须要使用 `[]`，关键在于后台与客户端之间保持一致。
 
 ```dart
@@ -692,6 +692,7 @@ formData.files.addAll([
 常见的错误做法是将 `FormData` 赋值给一个共享变量，在每次请求中都使用这个变量。
 这样的操作会加大 **无法序列化** 的错误出现的可能性。
 你可以像以下的代码一样编写你的请求以避免出现这样的错误：
+
 ```dart
 Future<void> _repeatedlyRequest() async {
   Future<FormData> createFormData() async {
@@ -759,13 +760,16 @@ dio.httpClientAdapter = HttpClientAdapter();
 ```
 
 如果你需要单独使用对应平台的适配器：
-- 对于 Web 平台
+* 对于 Web 平台
+
   ```dart
   import 'package:dio/browser.dart';
   // ...
   dio.httpClientAdapter = BrowserHttpClientAdapter();
   ```
+
 - 对于原生平台：
+
   ```dart
   import 'package:dio/io.dart';
   // ...
@@ -915,7 +919,7 @@ token.cancel('cancelled');
 ## 继承 Dio class
 
 `Dio` 是一个拥有工厂构造函数的接口类，因此不能直接继承 `Dio`，
-但是可以继承 `DioForNative` 或 `DioForBrowser`： 
+但是可以继承 `DioForNative` 或 `DioForBrowser`：
 
 ```dart
 import 'package:dio/dio.dart';
