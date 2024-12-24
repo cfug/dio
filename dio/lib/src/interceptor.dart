@@ -374,7 +374,8 @@ class _TaskQueue<T, V extends _BaseHandler> {
 
 /// [Interceptor] in queue.
 ///
-/// Concurrent requests will be added to the queue for interceptors.
+/// Concurrent requests' `onRequest`, `onResponse`, and `onError` are processed in three separate queues.
+/// These queues run in parallel, meaning a new request can be initiated before the previous one has completed.
 class QueuedInterceptor extends Interceptor {
   final _requestQueue = _TaskQueue<RequestOptions, RequestInterceptorHandler>();
   final _responseQueue = _TaskQueue<Response, ResponseInterceptorHandler>();
