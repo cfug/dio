@@ -73,12 +73,15 @@ void main() async {
               jsonEncode(AuthenticationServer.generate()).codeUnits,
             )}',
           );
+
           if (response.statusCode == null || response.statusCode! ~/ 100 != 2) {
+            tokenRefreshDio.close();
             return handler.reject(error);
           }
 
           final body = jsonDecode(response.data) as Map<String, Object?>;
           if (!body.containsKey('access_token')) {
+            tokenRefreshDio.close();
             return handler.reject(error);
           }
 
