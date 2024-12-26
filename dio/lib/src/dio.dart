@@ -258,7 +258,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
-    FileAccessMode mode = FileAccessMode.write,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -271,7 +271,7 @@ abstract class Dio {
       deleteOnError: deleteOnError,
       cancelToken: cancelToken,
       data: data,
-      fileAccessMode: mode,
+      fileAccessMode: fileAccessMode,
       options: options,
     );
   }

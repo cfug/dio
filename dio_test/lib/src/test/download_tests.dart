@@ -385,7 +385,7 @@ void downloadTests(
         final cancelToken = CancelToken();
         final path = p.join(tmp.path, 'download_3.txt');
         final requestedBytes = 1024 * 1024 * 10;
-        var recievedBytes1 = 0;
+        int recievedBytes1 = 0;
         await expectLater(
           dio.download(
             '/bytes/$requestedBytes',
@@ -406,7 +406,7 @@ void downloadTests(
         );
 
         final cancelToken2 = CancelToken();
-        var recievedBytes2 = 0;
+        int recievedBytes2 = 0;
         expectLater(
           dio.download(
             '/bytes/$requestedBytes',
