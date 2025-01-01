@@ -528,7 +528,7 @@ we need to request a csrfToken first, and then perform the network request,
 because the request csrfToken progress is asynchronous,
 so we need to execute this async request in request interceptor.
 
-For the complete code see [here](../example/lib/queued_interceptor_crsftoken.dart).
+For the complete code see [here](../example_dart/lib/queued_interceptor_crsftoken.dart).
 
 #### LogInterceptor
 

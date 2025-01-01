@@ -520,7 +520,7 @@ print(response.data); // 'fake data'
 `csrfToken` 都为 null，所以它们都需要去请求 `csrfToken`，这会导致 `csrfToken` 被请求多次。
 为了避免不必要的重复请求，可以使用 `QueuedInterceptor`， 这样只需要第一个请求处理一次即可。
 
-完整的示例代码请点击 [这里](../example/lib/queued_interceptor_crsftoken.dart).
+完整的示例代码请点击 [这里](../example_dart/lib/queued_interceptor_crsftoken.dart).
 
 #### 日志拦截器
 
