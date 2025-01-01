@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 1.4.0
+
 - Support `cupertino_http` 2.0.0
 
 ## 1.3.0
