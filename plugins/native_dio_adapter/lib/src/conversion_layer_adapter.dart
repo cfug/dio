@@ -54,6 +54,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     request.maxRedirects = options.maxRedirects;
 
     if (requestStream != null) {
+      @pragma('vm:awaiter-link')
       final completer = Completer<Uint8List>();
       final sink = ByteConversionSink.withCallback(
         (bytes) => completer.complete(

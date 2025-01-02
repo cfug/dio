@@ -48,7 +48,9 @@ void cancellationTests(
     test('cancel multiple requests with single token', () async {
       final token = CancelToken();
 
+      @pragma('vm:awaiter-link')
       final receiveSuccess1 = Completer();
+      @pragma('vm:awaiter-link')
       final receiveSuccess2 = Completer();
       final futures = [
         dio.get(
