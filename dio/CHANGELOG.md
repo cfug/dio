@@ -8,6 +8,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Update comments and strings with `MultipartFile`.
 - Removes redundant warnings when composing request options on Web.
 - Fixes boundary inconsistency in `FormData.clone()`.
+- Enables configuring the logging details of `DioException` globally.
 
 ## 5.7.0
 
