@@ -8,7 +8,7 @@ void main() async {
 
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://httpbun.com/',
+      baseUrl: 'https://httpbun.com',
     ),
   );
 
@@ -23,8 +23,8 @@ void main() async {
           ''',
         );
 
-        /// In case, you have 'refresh_token' and needs to refresh your 'access_token'
-        /// Make a request for new 'access_token' and update from here
+        // In case, you have 'refresh_token' and needs to refresh your 'access_token',
+        // request a new 'access_token' and update from here.
 
         if (tokenManager.accessToken != null) {
           requestOptions.headers['Authorization'] =
@@ -51,30 +51,29 @@ void main() async {
           ''',
         );
 
-        /// This example only handles '401' status code,
-        /// The more complex scenario should handle more status codes e.g. '403', '404', etc.
+        // This example only handles the '401' status code,
+        // The more complex scenario should handle more status codes e.g. '403', '404', etc.
         if (statusCode != 401) {
           return handler.resolve(error.response!);
         }
 
-        /// Consider [dio] can be requested in parallel.
-        ///
-        /// To prevent repeated requests to the 'Authentication Server'
-        /// to update our 'access_token',
-        /// we can compare with the previously requested 'access_token'.
+        // To prevent repeated requests to the 'Authentication Server'
+        // to update our 'access_token' with parallel requests,
+        // we need to compare with the previously requested 'access_token'.
         final requestedAccessToken =
             error.requestOptions.headers['Authorization'];
         if (requestedAccessToken == tokenManager.accessToken) {
           final tokenRefreshDio = Dio()
-            ..options.baseUrl = 'https://httpbun.com/';
+            ..options.baseUrl = 'https://httpbun.com';
 
           final response = await tokenRefreshDio.post(
-            'https://httpbun.com/mix/s=201/b64=${base64.encode(
+            '/mix/s=201/b64=${base64.encode(
               jsonEncode(AuthenticationServer.generate()).codeUnits,
             )}',
           );
           tokenRefreshDio.close();
 
+          // Treat codes other than 2XX as rejected.
           if (response.statusCode == null || response.statusCode! ~/ 100 != 2) {
             return handler.reject(error);
           }
@@ -88,7 +87,7 @@ void main() async {
           tokenManager.setAccessToken(token, error.requestOptions.hashCode);
         }
 
-        /// Pretend authorization has been resolved and try again
+        /// The authorization has been resolved so and try again with the request.
         final retried = await dio.fetch(
           error.requestOptions
             ..path = '/mix/s=200'
@@ -97,6 +96,7 @@ void main() async {
             },
         );
 
+        // Treat codes other than 2XX as rejected.
         if (retried.statusCode == null || retried.statusCode! ~/ 100 != 2) {
           return handler.reject(error);
         }
