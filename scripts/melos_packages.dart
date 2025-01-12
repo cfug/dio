@@ -43,8 +43,18 @@ void main() async {
   final current = Version.parse(
     RegExp(r'\d*\.\d*\.\d*').firstMatch(Platform.version)!.group(0)!,
   );
-  final validPackages = packages
-      .where((e) => e.pubSpec.environment!.sdkConstraint!.allows(current));
+  final validPackages = packages.where((e) {
+    final dynamic package = e as dynamic;
+    bool allows;
+    try {
+      // Compatible with melos v6.3.
+      allows = package.pubspec.environment['dart']!.allows(current);
+    } on NoSuchMethodError {
+      // Fallback to previous melos.
+      allows = package.pubSpec.environment!.sdkConstraint!.allows(current);
+    }
+    return allows;
+  });
 
   // Create melos marker files
   for (final package in validPackages) {
