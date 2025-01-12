@@ -48,7 +48,7 @@ void main() async {
     bool allows;
     try {
       // Compatible with melos v6.3.
-      allows = package.pubspec.environment['dart']!.allows(current);
+      allows = package.pubspec.environment['sdk']!.allows(current);
     } on NoSuchMethodError {
       // Fallback to previous melos.
       allows = package.pubSpec.environment!.sdkConstraint!.allows(current);
