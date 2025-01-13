@@ -37,7 +37,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     xhrs.add(xhr);
     xhr
       ..open(options.method, '${options.uri}')
-      ..responseType = 'arraybuffer';
+      ..responseType =
+          options.responseType == ResponseType.blobUrl ? 'blob' : 'arraybuffer';
 
     final withCredentialsOption = options.extra['withCredentials'];
     if (withCredentialsOption != null) {
@@ -66,18 +67,32 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
-      final ByteBuffer body = (xhr.response as JSArrayBuffer).toDart;
-      completer.complete(
-        ResponseBody.fromBytes(
-          body.asUint8List(),
-          xhr.status,
-          headers: xhr.getResponseHeaders(),
-          statusMessage: xhr.statusText,
-          isRedirect: xhr.status == 302 ||
-              xhr.status == 301 ||
-              options.uri.toString() != xhr.responseURL,
-        ),
-      );
+      if (options.responseType == ResponseType.blobUrl) {
+        completer.complete(
+          ResponseBody.fromString(
+            web.URL.createObjectURL(xhr.response as web.Blob),
+            xhr.status,
+            headers: xhr.getResponseHeaders(),
+            statusMessage: xhr.statusText,
+            isRedirect: xhr.status == 302 ||
+                xhr.status == 301 ||
+                options.uri.toString() != xhr.responseURL,
+          ),
+        );
+      } else {
+        final ByteBuffer body = (xhr.response as JSArrayBuffer).toDart;
+        completer.complete(
+          ResponseBody.fromBytes(
+            body.asUint8List(),
+            xhr.status,
+            headers: xhr.getResponseHeaders(),
+            statusMessage: xhr.statusText,
+            isRedirect: xhr.status == 302 ||
+                xhr.status == 301 ||
+                options.uri.toString() != xhr.responseURL,
+          ),
+        );
+      }
     });
 
     Timer? connectTimeoutTimer;
