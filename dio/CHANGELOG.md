@@ -8,6 +8,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Update comments and strings with `MultipartFile`.
 - Removes redundant warnings when composing request options on Web.
 - Fixes boundary inconsistency in `FormData.clone()`.
+- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
 
 ## 5.7.0
 
