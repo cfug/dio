@@ -28,23 +28,16 @@ class DioForBrowser with DioMixin implements Dio {
     Object? data,
     Options? options,
   }) async {
-    final Response response = await fetch(
+    return fetch(
       RequestOptions(
         baseUrl: urlPath,
         data: data,
-        method: 'GET',
+        method: options?.method ?? 'GET',
         responseType: ResponseType.blobUrl,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       ),
     );
-
-    final completer = Completer<Response>();
-
-    // Set response in Completer
-    completer.complete(response);
-
-    return completer.future;
   }
 }
