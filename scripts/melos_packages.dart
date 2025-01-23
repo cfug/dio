@@ -62,6 +62,7 @@ void main() async {
   }
 
   final validPackagesString = validPackages.map((p) => p.name).join(',');
+  print('Checked valid packages: $validPackagesString');
   File('$root/.melos_packages')
       .writeAsStringSync('MELOS_PACKAGES=$validPackagesString');
 }
