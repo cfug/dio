@@ -1,6 +1,10 @@
 ## Unreleased
 
-- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
+*None.*
+
+## 1.1.0
+
+- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode.
 
 ## 1.0.1
 
