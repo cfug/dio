@@ -285,6 +285,7 @@ abstract class DioMixin implements Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -297,6 +298,7 @@ abstract class DioMixin implements Dio {
       deleteOnError: deleteOnError,
       cancelToken: cancelToken,
       data: data,
+      fileAccessMode: fileAccessMode,
       options: options,
     );
   }
@@ -309,6 +311,7 @@ abstract class DioMixin implements Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
