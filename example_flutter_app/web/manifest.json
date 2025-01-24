@@ -1,6 +1,6 @@
 {
-    "name": "example_flutter_app",
-    "short_name": "example_flutter_app",
+    "name": "dio_flutter_example",
+    "short_name": "dio_flutter_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

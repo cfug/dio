@@ -5,7 +5,20 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Update comments and strings with `MultipartFile`.
+- Removes redundant warnings when composing request options on Web.
+- Fixes boundary inconsistency in `FormData.clone()`.
+- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
+
+## 5.7.0
+
+- Graceful handling of responses with nonzero `Content-Length`, `Content-Type` that is json, and empty payload.
+  - Empty responses are now transformed to `null`.
+
+## 5.6.0
+
+- Supports the WASM environment. Users should upgrade the adapter with
+  `dart pub upgrade` or `flutter pub upgrade` to use the WASM-supported version.
 
 ## 5.5.0+1
 

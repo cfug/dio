@@ -208,6 +208,9 @@ abstract class Dio {
   /// [deleteOnError] whether delete the file when error occurs.
   /// The default value is [true].
   ///
+  /// [fileAccessMode]
+  /// {@macro dio.options.FileAccessMode}
+  ///
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
   /// 1. If this value is 'content-length', the `total` argument of
@@ -241,6 +244,7 @@ abstract class Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -253,6 +257,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -265,6 +270,7 @@ abstract class Dio {
       deleteOnError: deleteOnError,
       cancelToken: cancelToken,
       data: data,
+      fileAccessMode: fileAccessMode,
       options: options,
     );
   }
