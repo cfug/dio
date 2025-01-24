@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Make cached connections respect redirections.
 
 ## 2.5.3
 
