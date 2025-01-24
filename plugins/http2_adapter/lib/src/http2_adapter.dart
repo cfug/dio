@@ -6,7 +6,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:http2/http2.dart';
-import 'package:meta/meta.dart';
 
 part 'client_setting.dart';
 
@@ -59,7 +58,7 @@ class Http2Adapter implements HttpClientAdapter {
   ) async {
     late final ClientTransportConnection transport;
     try {
-      transport = await connectionManager.getConnection(options);
+      transport = await connectionManager.getConnection(options, redirects);
     } on DioH2NotSupportedException catch (e) {
       // Fallback to use the callback
       // or to another adapter (typically IOHttpClientAdapter)
@@ -253,14 +252,8 @@ class Http2Adapter implements HttpClientAdapter {
       final url = responseHeaders.value('location');
       // An empty `location` header is considered a self redirect.
       final uri = Uri.parse(url ?? '');
-      redirects.add(
-        RedirectRecord(
-          statusCode,
-          options.method,
-          uri,
-        ),
-      );
-      final String path = resolveRedirectUri(options.uri, uri);
+      redirects.add(RedirectRecord(statusCode, options.method, uri));
+      final String path = resolveRedirectUri(options.uri, uri).toString();
       return _fetch(
         options.copyWith(
           path: path,
@@ -292,16 +285,15 @@ class Http2Adapter implements HttpClientAdapter {
         statusCodes.contains(status);
   }
 
-  @visibleForTesting
-  static String resolveRedirectUri(Uri currentUri, Uri redirectUri) {
+  static Uri resolveRedirectUri(Uri currentUri, Uri redirectUri) {
     if (redirectUri.hasScheme) {
-      /// This is a full URL which has to be redirected to as is.
-      return redirectUri.toString();
+      // This is a full URL which has to be redirected to as is.
+      return redirectUri;
     }
 
-    /// This is relative with or without leading slash and is
-    /// resolved against the URL of the original request.
-    return currentUri.resolveUri(redirectUri).toString();
+    // This is relative with or without leading slash and is resolved against
+    // the URL of the original request.
+    return currentUri.resolveUri(redirectUri);
   }
 
   @override
@@ -310,8 +302,7 @@ class Http2Adapter implements HttpClientAdapter {
   }
 }
 
-/// The exception when a connected socket for the [uri]
-/// does not support HTTP/2.
+/// The exception when a connected socket for the [uri] does not support HTTP/2.
 class DioH2NotSupportedException extends SocketException {
   const DioH2NotSupportedException(
     this.uri,

@@ -97,6 +97,58 @@ void main() {
     expect(res.data.toString(), contains('TEST'));
   });
 
+  group(ConnectionManager, () {
+    test('returns correct connection', () async {
+      final manager = ConnectionManager();
+      final tlsConnection = await manager.getConnection(
+        RequestOptions(path: 'https://flutter.cn'),
+        [],
+      );
+      final tlsWithSameHostRedirects = await manager.getConnection(
+        RequestOptions(path: 'https://flutter.cn'),
+        [
+          RedirectRecord(301, 'GET', Uri.parse('https://flutter.cn/404')),
+        ],
+      );
+      final tlsDifferentHostRedirects = await manager.getConnection(
+        RequestOptions(path: 'https://flutter.cn'),
+        [
+          RedirectRecord(301, 'GET', Uri.parse('https://flutter.dev')),
+        ],
+      );
+      final tlsDifferentHostsRedirects = await manager.getConnection(
+        RequestOptions(path: 'https://flutter.cn'),
+        [
+          RedirectRecord(301, 'GET', Uri.parse('https://flutter.dev')),
+          RedirectRecord(301, 'GET', Uri.parse('https://flutter.dev/404')),
+        ],
+      );
+      final nonTLSConnection = await manager.getConnection(
+        RequestOptions(path: 'http://flutter.cn'),
+        [],
+      );
+      final nonTLSConnectionWithTLSRedirects = await manager.getConnection(
+        RequestOptions(path: 'http://flutter.cn'),
+        [
+          RedirectRecord(301, 'GET', Uri.parse('https://flutter.cn/')),
+        ],
+      );
+      final differentHostConnection = await manager.getConnection(
+        RequestOptions(path: 'https://flutter.dev'),
+        [],
+      );
+      expect(tlsConnection == tlsWithSameHostRedirects, true);
+      expect(tlsConnection == tlsDifferentHostRedirects, false);
+      expect(tlsConnection == tlsDifferentHostsRedirects, false);
+      expect(tlsConnection == nonTLSConnection, false);
+      expect(tlsConnection == nonTLSConnectionWithTLSRedirects, true);
+      expect(tlsConnection == differentHostConnection, false);
+      expect(tlsDifferentHostRedirects == differentHostConnection, true);
+      expect(tlsDifferentHostsRedirects == differentHostConnection, true);
+      expect(nonTLSConnection == nonTLSConnectionWithTLSRedirects, false);
+    });
+  });
+
   group(ProxyConnectedPredicate, () {
     group('defaultProxyConnectedPredicate', () {
       test(
