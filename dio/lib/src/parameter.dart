@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'options.dart';
 
 /// Indicates a param being used as queries or form data,
@@ -26,9 +27,10 @@ class ListParam<T> {
       identical(this, other) ||
       other is ListParam &&
           runtimeType == other.runtimeType &&
-          value == other.value &&
+          const DeepCollectionEquality().equals(value, other.value) &&
           format == other.format;
 
   @override
-  int get hashCode => value.hashCode ^ format.hashCode;
+  int get hashCode =>
+      const DeepCollectionEquality().hash(value) ^ format.hashCode;
 }

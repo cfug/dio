@@ -26,6 +26,7 @@ dependencies:
   path: ^1.8.0
 
   dio_web_adapter: '>=1.0.0 <3.0.0'
+  collection: ^1.19.1
 
 dev_dependencies:
   lints: any

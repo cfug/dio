@@ -9,6 +9,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Removes redundant warnings when composing request options on Web.
 - Fixes boundary inconsistency in `FormData.clone()`.
 - Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
+- Fix Ensure `ListParam` equality uses `DeepCollectionEquality` for proper caching and comparison.
 
 ## 5.7.0
 
