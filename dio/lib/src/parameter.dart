@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+
 import 'options.dart';
 
 /// Indicates a param being used as queries or form data,
