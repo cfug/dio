@@ -32,6 +32,8 @@ class ListParam<T> {
           format == other.format;
 
   @override
-  int get hashCode =>
-      const DeepCollectionEquality().hash(value) ^ format.hashCode;
+  int get hashCode => Object.hash(
+        const DeepCollectionEquality().hash(value),
+        format,
+      );
 }

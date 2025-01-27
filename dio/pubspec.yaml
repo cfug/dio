@@ -21,7 +21,7 @@ environment:
 
 dependencies:
   async: ^2.8.2
-  collection: '^1.16.0'
+  collection: ^1.16.0
   http_parser: ^4.0.0
   meta: ^1.5.0
   path: ^1.8.0
