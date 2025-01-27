@@ -8,6 +8,10 @@ void main() {
 
     final cache = {param1: 'Cached Response'};
 
-    expect(cache.containsKey(param2), true, reason: 'param1 and param2 should be considered equal');
+    expect(
+      cache.containsKey(param2),
+      true,
+      reason: 'param1 and param2 should be considered equal',
+    );
   });
 }

@@ -24,9 +24,9 @@ dependencies:
   http_parser: ^4.0.0
   meta: ^1.5.0
   path: ^1.8.0
-
+  collection: '>=1.16.0 <2.0.0'
+  
   dio_web_adapter: '>=1.0.0 <3.0.0'
-  collection: ^1.19.1
 
 dev_dependencies:
   lints: any
