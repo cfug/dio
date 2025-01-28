@@ -210,6 +210,10 @@ class DioException implements Exception {
   static DioExceptionReadableStringBuilder readableStringBuilder =
       defaultDioExceptionReadableStringBuilder;
 
+  /// Each exception can be override with a customized builder or fallback to
+  /// the default [DioException.readableStringBuilder].
+  DioExceptionReadableStringBuilder? stringBuilder;
+
   /// Generate a new [DioException] by combining given values and original values.
   DioException copyWith({
     RequestOptions? requestOptions,
@@ -232,7 +236,7 @@ class DioException implements Exception {
   @override
   String toString() {
     try {
-      return readableStringBuilder(this);
+      return stringBuilder?.call(this) ?? readableStringBuilder(this);
     } catch (e, s) {
       warningLog(e, s);
       return defaultDioExceptionReadableStringBuilder(this);
