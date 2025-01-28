@@ -79,5 +79,7 @@ void main() {
       '${exception.stackTrace}, '
       'test message',
     );
+    exception.stringBuilder = (e) => 'Locally override: ${e.message}';
+    expect(exception.toString(), 'Locally override: test message');
   });
 }
