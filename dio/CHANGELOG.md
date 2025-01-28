@@ -11,6 +11,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
 - Fix `ListParam` equality by using the `DeepCollectionEquality`.
 - Enables configuring the logging details of `DioException` globally and locally.
+- Enables using `Dio.clone` to reuse the .
 
 ## 5.7.0
 
