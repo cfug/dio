@@ -206,8 +206,9 @@ class DioException implements Exception {
   /// The error message that throws a [DioException].
   final String? message;
 
-  /// Users can customize the logging content when a [DioException] was thrown.
-  static DioExceptionLogBuilder logBuilder = defaultDioExceptionLogBuilder;
+  /// Users can customize the content of [toString] when thrown.
+  static DioExceptionReadableStringBuilder readableStringBuilder =
+      defaultDioExceptionReadableStringBuilder;
 
   /// Generate a new [DioException] by combining given values and original values.
   DioException copyWith({
@@ -231,10 +232,10 @@ class DioException implements Exception {
   @override
   String toString() {
     try {
-      return logBuilder(this);
+      return readableStringBuilder(this);
     } catch (e, s) {
       warningLog(e, s);
-      return defaultDioExceptionLogBuilder(this);
+      return defaultDioExceptionReadableStringBuilder(this);
     }
   }
 
@@ -284,11 +285,12 @@ class DioException implements Exception {
   }
 }
 
-/// The log builder's signature.
-typedef DioExceptionLogBuilder = String Function(DioException e);
+/// The readable string builder's signature of
+/// [DioException.readableStringBuilder].
+typedef DioExceptionReadableStringBuilder = String Function(DioException e);
 
-/// The default implementation of logging the [DioException] as text content.
-String defaultDioExceptionLogBuilder(DioException e) {
+/// The default implementation of building a readable string of [DioException].
+String defaultDioExceptionReadableStringBuilder(DioException e) {
   final buffer = StringBuffer(
     'DioException [${e.type.toPrettyDescription()}]: '
     '${e.message}',
