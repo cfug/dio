@@ -52,4 +52,34 @@ void main() {
     },
     testOn: '!browser',
   );
+
+  test('DioExceptionReadableStringBuilder', () {
+    final requestOptions = RequestOptions(path: 'just/a/test', method: 'POST');
+    final exception = DioException(
+      requestOptions: requestOptions,
+      response: Response(requestOptions: requestOptions),
+      error: 'test',
+      message: 'test message',
+      stackTrace: StackTrace.current,
+    );
+    DioException.readableStringBuilder = (e) => 'Hey, Dio throws an exception: '
+        '${e.requestOptions.path}, '
+        '${e.requestOptions.method}, '
+        '${e.type}, '
+        '${e.error}, '
+        '${e.stackTrace}, '
+        '${e.message}';
+    expect(
+      exception.toString(),
+      'Hey, Dio throws an exception: '
+      'just/a/test, '
+      'POST, '
+      'DioExceptionType.unknown, '
+      'test, '
+      '${exception.stackTrace}, '
+      'test message',
+    );
+    exception.stringBuilder = (e) => 'Locally override: ${e.message}';
+    expect(exception.toString(), 'Locally override: test message');
+  });
 }

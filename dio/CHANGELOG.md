@@ -10,6 +10,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fixes boundary inconsistency in `FormData.clone()`.
 - Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
 - Fix `ListParam` equality by using the `DeepCollectionEquality`.
+- Enables configuring the logging details of `DioException` globally and locally.
 
 ## 5.7.0
 
