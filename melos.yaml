@@ -16,6 +16,10 @@ ide:
 command:
   bootstrap:
     runPubGetInParallel: false
+    hooks:
+      pre: |
+        # Check bootstrappable packages.
+        dart ./scripts/melos_packages.dart
   clean:
     hooks:
       post: |

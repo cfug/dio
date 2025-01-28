@@ -380,6 +380,55 @@ void downloadTests(
           completes,
         );
       });
+
+      test('append bytes to previous download', () async {
+        final cancelToken = CancelToken();
+        final path = p.join(tmp.path, 'download_3.txt');
+        final requestedBytes = 1024 * 1024 * 10;
+        int recievedBytes1 = 0;
+        await expectLater(
+          dio.download(
+            '/bytes/$requestedBytes',
+            path,
+            cancelToken: cancelToken,
+            onReceiveProgress: (c, t) {
+              if (c > 5000) {
+                recievedBytes1 = c;
+                cancelToken.cancel();
+              }
+            },
+            deleteOnError: false,
+          ),
+          throwsDioException(
+            DioExceptionType.cancel,
+            stackTraceContains: 'test/download_tests.dart',
+          ),
+        );
+
+        final cancelToken2 = CancelToken();
+        int recievedBytes2 = 0;
+        expectLater(
+          dio.download(
+            '/bytes/$requestedBytes',
+            path,
+            cancelToken: cancelToken,
+            onReceiveProgress: (c, t) {
+              recievedBytes2 = c;
+              if (c > 5000) {
+                cancelToken2.cancel();
+              }
+            },
+            deleteOnError: false,
+            fileAccessMode: FileAccessMode.append,
+          ),
+          throwsDioException(
+            DioExceptionType.cancel,
+            stackTraceContains: 'test/download_tests.dart',
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(File(path).lengthSync(), recievedBytes1 + recievedBytes2);
+      });
     },
     testOn: 'vm',
   );
