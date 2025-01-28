@@ -301,13 +301,7 @@ abstract class Dio {
   /// eventually go through this method.
   Future<Response<T>> fetch<T>(RequestOptions requestOptions);
 
-  /// Creates a new [Dio] instance with:
-  /// - [options]
-  /// - [interceptors]
-  /// - [httpClientAdapter]
-  /// - [transformer]
-  ///
-  /// Sub-classes might be able to handle more fields with the method.
+  /// Clones a new [Dio] instance with override fields or reuses current fields.
   Dio clone({
     BaseOptions? options,
     Interceptors? interceptors,
