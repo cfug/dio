@@ -53,15 +53,31 @@ void main() {
     testOn: '!browser',
   );
 
-  test('DioExceptionLogBuilder', () {
+  test('DioExceptionReadableStringBuilder', () {
+    final requestOptions = RequestOptions(path: 'just/a/test', method: 'POST');
     final exception = DioException(
-      requestOptions: RequestOptions(path: 'just/a/test', method: 'POST'),
+      requestOptions: requestOptions,
+      response: Response(requestOptions: requestOptions),
+      error: 'test',
+      message: 'test message',
+      stackTrace: StackTrace.current,
     );
-    DioException.logBuilder = (e) => 'Hey, Dio throws an exception: '
-        '${exception.requestOptions.path}, ${exception.requestOptions.method}';
+    DioException.readableStringBuilder = (e) => 'Hey, Dio throws an exception: '
+        '${e.requestOptions.path}, '
+        '${e.requestOptions.method}, '
+        '${e.type}, '
+        '${e.error}, '
+        '${e.stackTrace}, '
+        '${e.message}';
     expect(
       exception.toString(),
-      equals('Hey, Dio throws an exception: just/a/test, POST'),
+      'Hey, Dio throws an exception: '
+      'just/a/test, '
+      'POST, '
+      'DioExceptionType.unknown, '
+      'test, '
+      '${exception.stackTrace}, '
+      'test message',
     );
   });
 }
