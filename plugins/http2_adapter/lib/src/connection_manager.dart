@@ -18,7 +18,10 @@ abstract class ConnectionManager {
       );
 
   /// Get the connection(may reuse) for each request.
-  Future<ClientTransportConnection> getConnection(RequestOptions options);
+  Future<ClientTransportConnection> getConnection(
+    RequestOptions options,
+    List<RedirectRecord> redirects,
+  );
 
   void removeConnection(ClientTransportConnection transport);
 

@@ -2,15 +2,14 @@ import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group(Http2Adapter.resolveRedirectUri, () {
+  group('Http2Adapter.resolveRedirectUri', () {
     test('empty location', () async {
       final current = Uri.parse('https://example.com');
       final result = Http2Adapter.resolveRedirectUri(
         current,
         Uri.parse(''),
       );
-
-      expect(result, current.toString());
+      expect(result.toString(), current.toString());
     });
 
     test('relative location 1', () async {
@@ -19,7 +18,7 @@ void main() {
         Uri.parse('/bar'),
       );
 
-      expect(result, 'https://example.com/bar');
+      expect(result.toString(), 'https://example.com/bar');
     });
 
     test('relative location 2', () async {
@@ -27,8 +26,7 @@ void main() {
         Uri.parse('https://example.com/foo'),
         Uri.parse('../bar'),
       );
-
-      expect(result, 'https://example.com/bar');
+      expect(result.toString(), 'https://example.com/bar');
     });
 
     test('different location', () async {
@@ -38,8 +36,7 @@ void main() {
         current,
         Uri.parse(target),
       );
-
-      expect(result, target);
+      expect(result.toString(), target);
     });
   });
 }

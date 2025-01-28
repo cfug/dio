@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cli_util/cli_logging.dart' show Logger;
 import 'package:melos/melos.dart'
-    show MelosLogger, MelosWorkspace, MelosWorkspaceConfig;
+    show MelosLogger, MelosWorkspace, MelosWorkspaceConfig, Package;
 import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
@@ -40,20 +40,42 @@ void main() async {
     }
   }
 
-  final current = Version.parse(
+  final currentDart = Version.parse(
     RegExp(r'\d*\.\d*\.\d*').firstMatch(Platform.version)!.group(0)!,
   );
-  final validPackages = packages
-      .where((e) => e.pubSpec.environment!.sdkConstraint!.allows(current));
+  final overridePackages = <Package>[];
+  final ignoredPackages = <Package>[];
+  for (final e in packages) {
+    final dynamic package = e as dynamic;
+    bool allows;
+    try {
+      // Compatible with melos v6.3.
+      allows = package.pubspec.environment['sdk']!.allows(currentDart);
+    } on NoSuchMethodError {
+      // Fallback to previous melos.
+      allows = package.pubSpec.environment!.sdkConstraint!.allows(currentDart);
+    }
+    if (allows) {
+      overridePackages.add(e);
+    } else {
+      ignoredPackages.add(e);
+    }
+  }
 
-  // Create melos marker files
-  for (final package in validPackages) {
+  // Create melos marker files.
+  for (final package in overridePackages) {
     File(p.join(package.path, '.melos_package')).createSync();
   }
 
-  final validPackagesString = validPackages.map((p) => p.name).join(',');
+  final overridePackagesString = overridePackages.map((p) => p.name).join(',');
+  final ignoredPackagesString = ignoredPackages.map((p) => p.name).join(',');
+  print(
+    'Checked valid packages: \n'
+    '  [override]: $overridePackagesString\n'
+    '  [ignored]:  $ignoredPackagesString',
+  );
   File('$root/.melos_packages')
-      .writeAsStringSync('MELOS_PACKAGES=$validPackagesString');
+      .writeAsStringSync('MELOS_PACKAGES=$overridePackagesString');
 }
 
 extension YamlUtils on YamlNode {

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ join(github.event.issue.labels) == '' || contains(github.event.issue.labels.*.name, 'infra')}}
     steps:
-      - uses: actions-cool/check-user-permission@v2.2.1
+      - uses: actions-cool/check-user-permission@v2.3.0
         id: checkUser
         with:
           require: 'write'
