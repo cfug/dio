@@ -45,8 +45,7 @@ Timeout, Custom adapters, Transformers, etc.
     * [Multiple files upload](#multiple-files-upload)
     * [Reuse `FormData`s and `MultipartFile`s](#reuse-formdatas-and-multipartfiles)
   * [Transformer](#transformer)
-    * [In Flutter](#in-flutter)
-    * [Other example](#other-example)
+    * [Transformer example](#transformer-example)
   * [HttpClientAdapter](#httpclientadapter)
     * [Using proxy](#using-proxy)
     * [HTTPS certificate verification](#https-certificate-verification)
@@ -95,7 +94,7 @@ in [here](https://github.com/cfug/dio/issues/347).
 
 ## Examples
 
-Performing a `GET` request:
+### Performing a `GET` request:
 
 ```dart
 import 'package:dio/dio.dart';
@@ -115,19 +114,19 @@ void request() async {
 }
 ```
 
-Performing a `POST` request:
+### Performing a `POST` request:
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-Performing multiple concurrent requests:
+### Performing multiple concurrent requests:
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-Downloading a file:
+### Downloading a file:
 
 ```dart
 response = await dio.download(
@@ -136,7 +135,7 @@ response = await dio.download(
 );
 ```
 
-Get response stream:
+### Get response stream:
 
 ```dart
 final rs = await dio.get(
@@ -146,7 +145,7 @@ final rs = await dio.get(
 print(rs.data.stream); // Response stream.
 ```
 
-Get response with bytes:
+### Get response with bytes:
 
 ```dart
 final rs = await Dio().get<List<int>>(
@@ -156,7 +155,7 @@ final rs = await Dio().get<List<int>>(
 print(rs.data); // Type: List<int>.
 ```
 
-Sending a `FormData`:
+### Sending a `FormData`:
 
 ```dart
 final formData = FormData.fromMap({
@@ -166,7 +165,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-Uploading multiple files to server by FormData:
+### Uploading multiple files to server by FormData:
 
 ```dart
 final formData = FormData.fromMap({
@@ -181,7 +180,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-Listening the uploading progress:
+### Listening the uploading progress:
 
 ```dart
 final response = await dio.post(
@@ -193,7 +192,7 @@ final response = await dio.post(
 );
 ```
 
-Post binary data with Stream:
+### Post binary data with Stream:
 
 ```dart
 // Binary data
@@ -266,10 +265,12 @@ final response = await dio.request(
 
 ### Request Options
 
-The `Options` class describes the HTTP request information and configuration.
-Each Dio instance has a base config for all requests made by itself,
-and we can override the base config with `Options` when make a single request.
-The `Options` declaration as follows:
+There are two request options concepts in the Dio library:
+`BaseOptions` and `Options`.
+The `BaseOptions` include a set of base settings for each `Dio()`,
+and the `Options` describes the configuration for a single request.
+These options will be merged when making requests.
+The `Options` declaration is as follows:
 
 ```dart
 /// The HTTP request method.
@@ -527,7 +528,7 @@ we need to request a csrfToken first, and then perform the network request,
 because the request csrfToken progress is asynchronous,
 so we need to execute this async request in request interceptor.
 
-For the complete code see [here](../example/lib/queued_interceptor_crsftoken.dart).
+For the complete code see [here](../example_dart/lib/queued_interceptor_crsftoken.dart).
 
 #### LogInterceptor
 
@@ -653,6 +654,15 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
+You can also specify your desired boundary name which will be used
+to construct boundaries of every `FormData` with additional prefix and suffix.
+
+```dart
+final formDataWithBoundaryName = FormData(
+  boundaryName: 'my-boundary-name',
+);
+```
+
 > `FormData` is supported with the POST method typically.
 
 There is a complete example [here](../example/lib/formdata.dart).
@@ -715,41 +725,19 @@ Future<void> _repeatedlyRequest() async {
 
 `Transformer` allows changes to the request/response data
 before it is sent/received to/from the server.
-This is only applicable for request methods 'PUT', 'POST', and 'PATCH'.
-Dio has already implemented a `DefaultTransformer` as default.
+Dio has already implemented a `BackgroundTransformer` as default, 
+which calls `jsonDecode` in an isolate if the response is larger than 50 KB.
 If you want to customize the transformation of request/response data,
 you can provide a `Transformer` by your self,
-and replace the `DefaultTransformer` by setting the `dio.transformer`.
+and replace the `BackgroundTransformer` by setting the `dio.transformer`.
 
 > `Transformer.transformRequest` only takes effect when request with `PUT`/`POST`/`PATCH`,
 > they're methods that can contain the request body.
 > `Transformer.transformResponse` however, can be applied to all types of responses.
 
-### In Flutter
+### Transformer example
 
-If you're using Dio in Flutter development,
-it's better to decode JSON in isolates with the `compute` function.
-
-```dart
-/// Must be top-level function
-Map<String, dynamic> _parseAndDecode(String response) {
-  return jsonDecode(response) as Map<String, dynamic>;
-}
-
-Future<Map<String, dynamic>> parseJson(String text) {
-  return compute(_parseAndDecode, text);
-}
-
-void main() {
-  // Custom `jsonDecodeCallback`.
-  dio.transformer = DefaultTransformer()..jsonDecodeCallback = parseJson;
-  runApp(MyApp());
-}
-```
-
-### Other example
-
-There is an example for [customizing Transformer](../example/lib/transformer.dart).
+There is an example for [customizing Transformer](../example_dart/lib/transformer.dart).
 
 ## HttpClientAdapter
 

@@ -6,6 +6,11 @@ import 'dart:developer' as dev;
 import 'options.dart';
 import 'parameter.dart';
 
+// See https://github.com/flutter/flutter/pull/112122.
+const kIsWeb = bool.hasEnvironment('dart.library.js_util')
+    ? bool.fromEnvironment('dart.library.js_util')
+    : identical(0, 0.0);
+
 // For the web platform, an inline `bool.fromEnvironment` translates to
 // `core.bool.fromEnvironment` instead of correctly being replaced by the
 // constant value found in the environment at build time.
@@ -16,8 +21,8 @@ const kReleaseMode = bool.fromEnvironment('dart.vm.product');
 /// Pipes all data and errors from [stream] into [sink]. Completes [Future] once
 /// [stream] is done. Unlike [store], [sink] remains open after [stream] is
 /// done.
-Future writeStreamToSink(Stream stream, EventSink sink) {
-  final completer = Completer();
+Future<void> writeStreamToSink<T>(Stream<T> stream, EventSink<T> sink) {
+  final completer = Completer<void>();
   stream.listen(
     sink.add,
     onError: sink.addError,
@@ -30,7 +35,9 @@ Future writeStreamToSink(Stream stream, EventSink sink) {
 /// [charset] is null or if no [Encoding] was found that corresponds to
 /// [charset].
 Encoding encodingForCharset(String? charset, [Encoding fallback = latin1]) {
-  if (charset == null) return fallback;
+  if (charset == null) {
+    return fallback;
+  }
   final encoding = Encoding.getByName(charset);
   return encoding ?? fallback;
 }
@@ -140,15 +147,17 @@ Map<String, V> caseInsensitiveKeyMap<V>([Map<String, V>? value]) {
     equals: (key1, key2) => key1.toLowerCase() == key2.toLowerCase(),
     hashCode: (key) => key.toLowerCase().hashCode,
   );
-  if (value != null && value.isNotEmpty) map.addAll(value);
+  if (value != null && value.isNotEmpty) {
+    map.addAll(value);
+  }
   return map;
 }
 
 // TODO(Alex): Provide a configurable property on the Dio class once https://github.com/cfug/dio/discussions/1982 has made some progress.
-void debugLog(String message, StackTrace stackTrace) {
+void warningLog(Object message, StackTrace stackTrace) {
   if (!kReleaseMode) {
     dev.log(
-      message,
+      message.toString(),
       level: 900,
       name: '🔔 Dio',
       stackTrace: stackTrace,

@@ -24,7 +24,7 @@ class MockAdapter implements HttpClientAdapter {
           return ResponseBody.fromString(
             jsonEncode({
               'errCode': 0,
-              'data': {'path': uri.path}
+              'data': {'path': uri.path},
             }),
             200,
             headers: {
@@ -32,12 +32,12 @@ class MockAdapter implements HttpClientAdapter {
             },
           );
         case '/test-auth':
-          return Future.delayed(Duration(milliseconds: 300), () {
+          return Future.delayed(const Duration(milliseconds: 300), () {
             if (options.headers['csrfToken'] == null) {
               return ResponseBody.fromString(
                 jsonEncode({
                   'errCode': -1,
-                  'data': {'path': uri.path}
+                  'data': {'path': uri.path},
                 }),
                 401,
                 headers: {
@@ -48,7 +48,7 @@ class MockAdapter implements HttpClientAdapter {
             return ResponseBody.fromString(
               jsonEncode({
                 'errCode': 0,
-                'data': {'path': uri.path}
+                'data': {'path': uri.path},
               }),
               200,
               headers: {
@@ -57,13 +57,13 @@ class MockAdapter implements HttpClientAdapter {
             );
           });
         case '/download':
-          return Future.delayed(Duration(milliseconds: 300), () {
+          return Future.delayed(const Duration(milliseconds: 300), () {
             return ResponseBody(
               File('./README.md').openRead().cast<Uint8List>(),
               200,
               headers: {
                 Headers.contentLengthHeader: [
-                  File('./README.md').lengthSync().toString()
+                  File('./README.md').lengthSync().toString(),
                 ],
               },
             );
@@ -74,7 +74,7 @@ class MockAdapter implements HttpClientAdapter {
             utf8.encode(
               jsonEncode({
                 'errCode': 0,
-                'data': {'token': t.join()}
+                'data': {'token': t.join()},
               }),
             ),
             200,

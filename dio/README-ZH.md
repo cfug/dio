@@ -110,7 +110,7 @@ void getHttp() async {
 
 ## 示例
 
-发起一个 `GET` 请求 :
+### 发起一个 `GET` 请求 :
 
 ```dart
 import 'package:dio/dio.dart';
@@ -130,19 +130,19 @@ void request() async {
 }
 ```
 
-发起一个 `POST` 请求:
+### 发起一个 `POST` 请求:
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-发起多个并发请求:
+###  发起多个并发请求:
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-下载文件:
+### 下载文件:
 
 ```dart
 response = await dio.download(
@@ -151,7 +151,7 @@ response = await dio.download(
 );
 ```
 
-以流的方式接收响应数据：
+### 以流的方式接收响应数据：
 
 ```dart
 final rs = await dio.get(
@@ -161,7 +161,7 @@ final rs = await dio.get(
 print(rs.data.stream); // 响应流
 ```
 
-以二进制数组的方式接收响应数据：
+### 以二进制数组的方式接收响应数据：
 
 ```dart
 final rs = await dio.get(
@@ -171,7 +171,7 @@ final rs = await dio.get(
 print(rs.data); // 类型: List<int>
 ```
 
-发送 `FormData`:
+### 发送 `FormData`:
 
 ```dart
 final formData = FormData.fromMap({
@@ -181,7 +181,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-通过 `FormData` 上传多个文件:
+### 通过 `FormData` 上传多个文件:
 
 ```dart
 final formData = FormData.fromMap({
@@ -196,7 +196,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-监听发送（上传）数据进度:
+### 监听发送（上传）数据进度:
 
 ```dart
 final response = await dio.post(
@@ -208,7 +208,7 @@ final response = await dio.post(
 );
 ```
 
-以流的形式提交二进制数据：
+### 以流的形式提交二进制数据：
 
 ```dart
 // Binary data
@@ -282,9 +282,9 @@ final response = await dio.request(
 
 ### 请求配置
 
-`BaseOptions` 描述的是 Dio 实例发起网络请求的的公共配置，
-而 `Options` 描述了每一个Http请求的配置信息，每一次请求都可以单独配置，
-单次请求的 `Options` 中的配置信息可以覆盖 `BaseOptions` 中的配置。
+在 Dio 中有两种配置概念：`BaseOptions` 和 `Options`。
+`BaseOptions` 描述的是 Dio 实例的一套基本配置，而 `Options` 描述了单独请求的配置信息。
+以上的配置会在发起请求时进行合并。
 下面是 `Options` 的配置项：
 
 ```dart
@@ -520,7 +520,7 @@ print(response.data); // 'fake data'
 `csrfToken` 都为 null，所以它们都需要去请求 `csrfToken`，这会导致 `csrfToken` 被请求多次。
 为了避免不必要的重复请求，可以使用 `QueuedInterceptor`， 这样只需要第一个请求处理一次即可。
 
-完整的示例代码请点击 [这里](../example/lib/queued_interceptor_crsftoken.dart).
+完整的示例代码请点击 [这里](../example_dart/lib/queued_interceptor_crsftoken.dart).
 
 #### 日志拦截器
 
@@ -640,6 +640,15 @@ final formData = FormData.fromMap({
   'file': await MultipartFile.fromFile('./text.txt',filename: 'upload.txt')
 });
 final response = await dio.post('/info', data: formData);
+```
+
+你也可以指定封边 (boundary) 的名称，
+封边名称会与额外的前缀和后缀一并组装成 `FormData` 的封边。
+
+```dart
+final formDataWithBoundaryName = FormData(
+  boundaryName: 'my-boundary-name',
+);
 ```
 
 > 通常情况下只有 POST 方法支持发送 FormData。

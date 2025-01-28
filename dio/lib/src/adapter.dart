@@ -3,13 +3,14 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 
+import 'adapters/io_adapter.dart'
+    if (dart.library.js_interop) 'adapters/browser_adapter.dart'
+    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
 import 'headers.dart';
 import 'options.dart';
 import 'redirect_record.dart';
 
-import 'adapters/io_adapter.dart'
-    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
-
+/// {@template dio.HttpClientAdapter}
 /// [HttpAdapter] is a bridge between [Dio] and [HttpClient].
 ///
 /// [Dio] implements standard and friendly API for developer.
@@ -22,6 +23,7 @@ import 'adapters/io_adapter.dart'
 /// If you want to customize the [HttpClientAdapter] you should instead use
 /// either [IOHttpClientAdapter] on `dart:io` platforms
 /// or [BrowserHttpClientAdapter] on `dart:html` platforms.
+/// {@endtemplate}
 abstract class HttpClientAdapter {
   /// Create a [HttpClientAdapter] based on the current platform (IO/Web).
   factory HttpClientAdapter() => adapter.createAdapter();

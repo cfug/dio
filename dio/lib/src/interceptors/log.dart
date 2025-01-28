@@ -51,20 +51,20 @@ class LogInterceptor extends Interceptor {
   /// Log printer; defaults print log to console.
   /// In flutter, you'd better use debugPrint.
   /// you can also write log in a file, for example:
-  ///```dart
+  /// ```dart
   ///  final file=File("./log.txt");
   ///  final sink=file.openWrite();
   ///  dio.interceptors.add(LogInterceptor(logPrint: sink.writeln));
   ///  ...
   ///  await sink.close();
-  ///```
+  /// ```
   void Function(Object object) logPrint;
 
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
-  ) async {
+  ) {
     logPrint('*** Request ***');
     _printKV('uri', options.uri);
     //options.headers;
@@ -97,14 +97,14 @@ class LogInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) async {
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
     logPrint('*** Response ***');
     _printResponse(response);
     handler.next(response);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     if (error) {
       logPrint('*** DioException ***:');
       logPrint('uri: ${err.requestOptions.uri}');

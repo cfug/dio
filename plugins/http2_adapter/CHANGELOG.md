@@ -1,10 +1,33 @@
 # CHANGELOG
 
+**Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
+See the [Migration Guide][] for the complete breaking changes list.**
+
 ## Unreleased
+
+- Make cached connections respect redirections.
+
+## 2.5.3
+
+- Improves memory allocating when using `CancelToken`.
+
+## 2.5.2
+
+- Remove client stream termination in `Http2Adapter`.
+
+## 2.5.1
+
+- Wrap `SocketException` in `DioExceptionType.connectionError`
+  instead of `DioExceptionType.unknown`.
+
+## 2.5.0
 
 - Fix cancellation for streamed responses and downloads.
 - Fix progress for streamed responses and downloads.
 - Bump minimum Dart SDK to 3.0.0 as required by the `http2` package.
+- Allows `HTTP/1.0` when connecting to proxies.
+- Add the ability to use a fallback `HttpClientAdapter`
+  when HTTP/2 is unavailable for the current request.
 
 ## 2.4.0
 
@@ -60,3 +83,5 @@
 ## 0.0.2 - 2019.9.17
 
 - A Dio HttpAdapter which support Http/2.0.
+
+[Migration Guide]: doc/migration_guide.md

@@ -15,14 +15,14 @@ class _RequestRouteState extends State<RequestRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Page'),
+        title: const Text('New Page'),
       ),
       body: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             ElevatedButton(
-              child: Text('get'),
+              child: const Text('get'),
               onPressed: () {
                 dio.get<String>('https://httpbin.org/get').then((r) {
                   setState(() {
@@ -32,7 +32,7 @@ class _RequestRouteState extends State<RequestRoute> {
               },
             ),
             ElevatedButton(
-              child: Text('post'),
+              child: const Text('post'),
               onPressed: () {
                 final formData = FormData.fromMap({
                   'file': MultipartFile.fromString('x' * 1024 * 1024),
@@ -43,8 +43,8 @@ class _RequestRouteState extends State<RequestRoute> {
                   'https://httpbin.org/post',
                   data: formData,
                   options: Options(
-                    sendTimeout: Duration(seconds: 2),
-                    receiveTimeout: Duration(seconds: 0),
+                    sendTimeout: const Duration(seconds: 2),
+                    receiveTimeout: const Duration(seconds: 0),
                   ),
                   onSendProgress: (a, b) => print('send ${a / b}'),
                   onReceiveProgress: (a, b) => print('received ${a / b}'),
@@ -60,7 +60,7 @@ class _RequestRouteState extends State<RequestRoute> {
               child: SingleChildScrollView(
                 child: Text(_text),
               ),
-            )
+            ),
           ],
         ),
       ),

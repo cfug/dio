@@ -1,61 +1,65 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:http_parser/http_parser.dart';
-import 'utils.dart';
+import 'dart:convert' show utf8;
+import 'dart:typed_data' show Uint8List;
+
+import 'package:http_parser/http_parser.dart' show MediaType;
 
 import 'multipart_file/io_multipart_file.dart'
+    if (dart.library.js_interop) 'multipart_file/browser_multipart_file.dart'
     if (dart.library.html) 'multipart_file/browser_multipart_file.dart';
+import 'utils.dart';
 
-/// A file to be uploaded as part of a [MultipartRequest]. This doesn't need to
-/// correspond to a physical file.
-///
-/// MultipartFile is based on stream, and a stream can be read only once,
-/// so the same MultipartFile can't be read multiple times.
+/// The type (alias) for specifying the content-type of the `MultipartFile`.
+typedef DioMediaType = MediaType;
+
+/// An upload content that is a part of `MultipartRequest`.
+/// This doesn't need to correspond to a physical file.
 class MultipartFile {
   /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
   /// of the file in bytes must be known in advance. If it's not, read the data
   /// from the stream and use [MultipartFile.fromBytes] instead.
   ///
-  /// [contentType] currently defaults to `application/octet-stream`, but in the
-  /// future may be inferred from [filename].
+  /// [contentType] currently defaults to `application/octet-stream`,
+  /// but it may be inferred from [filename] in the future.
   @Deprecated(
-    'MultipartFile.clone() will not work when the stream is provided, use the MultipartFile.fromStream instead.'
+    'MultipartFile() is not cloneable when the stream is consumed, '
+    'use MultipartFile.fromStream() instead.'
     'This will be removed in 6.0.0',
   )
   MultipartFile(
     Stream<List<int>> stream,
     this.length, {
     this.filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     Map<String, List<String>>? headers,
-  })  : _data = (() => stream),
+  })  : _dataBuilder = (() => stream),
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
-  /// Creates a new [MultipartFile] from a chunked [Stream] of bytes. The length
-  /// of the file in bytes must be known in advance. If it's not, read the data
-  /// from the stream and use [MultipartFile.fromBytes] instead.
+  /// Creates a new [MultipartFile] from a creation method that creates
+  /// chunked [Stream] of bytes. The length of the file in bytes must be known
+  /// in advance. If it's not, read the data from the stream and use
+  /// [MultipartFile.fromBytes] instead.
   ///
-  /// [contentType] currently defaults to `application/octet-stream`, but in the
-  /// future may be inferred from [filename].
+  /// [contentType] currently defaults to `application/octet-stream`,
+  /// but it may be inferred from [filename] in the future.
   MultipartFile.fromStream(
     Stream<List<int>> Function() data,
     this.length, {
     this.filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     Map<String, List<String>>? headers,
-  })  : _data = data,
+  })  : _dataBuilder = data,
         headers = caseInsensitiveKeyMap(headers),
         contentType = contentType ?? MediaType('application', 'octet-stream');
 
   /// Creates a new [MultipartFile] from a byte array.
   ///
-  /// [contentType] currently defaults to `application/octet-stream`, but in the
-  /// future may be inferred from [filename].
+  /// [contentType] currently defaults to `application/octet-stream`,
+  /// but it may be inferred from [filename] in the future.
   factory MultipartFile.fromBytes(
     List<int> value, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
     return MultipartFile.fromStream(
@@ -71,12 +75,13 @@ class MultipartFile {
   ///
   /// The encoding to use when translating [value] into bytes is taken from
   /// [contentType] if it has a charset set. Otherwise, it defaults to UTF-8.
-  /// [contentType] currently defaults to `text/plain; charset=utf-8`, but in
-  /// the future may be inferred from [filename].
+  ///
+  /// [contentType] currently defaults to `text/plain; charset=utf-8`,
+  /// but it may be inferred from [filename] in the future.
   factory MultipartFile.fromString(
     String value, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
     contentType ??= MediaType('text', 'plain');
@@ -85,7 +90,6 @@ class MultipartFile {
       utf8,
     );
     contentType = contentType.change(parameters: {'charset': encoding.name});
-
     return MultipartFile.fromBytes(
       encoding.encode(value),
       filename: filename,
@@ -105,10 +109,10 @@ class MultipartFile {
   final Map<String, List<String>>? headers;
 
   /// The content-type of the file. Defaults to `application/octet-stream`.
-  final MediaType? contentType;
+  final DioMediaType? contentType;
 
   /// The stream builder that will emit the file's contents for every call.
-  final Stream<List<int>> Function() _data;
+  final Stream<List<int>> Function() _dataBuilder;
 
   /// Whether [finalize] has been called.
   bool get isFinalized => _isFinalized;
@@ -124,41 +128,47 @@ class MultipartFile {
   static Future<MultipartFile> fromFile(
     String filePath, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
-  }) =>
-      multipartFileFromPath(
-        filePath,
-        filename: filename,
-        contentType: contentType,
-        headers: headers,
-      );
+  }) {
+    return multipartFileFromPath(
+      filePath,
+      filename: filename,
+      contentType: contentType,
+      headers: headers,
+    );
+  }
 
   static MultipartFile fromFileSync(
     String filePath, {
     String? filename,
-    MediaType? contentType,
+    DioMediaType? contentType,
     final Map<String, List<String>>? headers,
-  }) =>
-      multipartFileFromPathSync(
-        filePath,
-        filename: filename,
-        contentType: contentType,
-        headers: headers,
-      );
+  }) {
+    return multipartFileFromPathSync(
+      filePath,
+      filename: filename,
+      contentType: contentType,
+      headers: headers,
+    );
+  }
 
   bool _isFinalized = false;
 
-  Stream<List<int>> finalize() {
+  Stream<Uint8List> finalize() {
     if (isFinalized) {
       throw StateError(
         'The MultipartFile has already been finalized. '
         'This typically means you are using '
-        'the same MultipartFile in repeated requests.',
+        'the same MultipartFile in repeated requests.\n'
+        'Use MultipartFile.clone() or create a new MultipartFile '
+        'for further usages.',
       );
     }
     _isFinalized = true;
-    return _data.call();
+    return _dataBuilder().map(
+      (e) => e is Uint8List ? e : Uint8List.fromList(e),
+    );
   }
 
   /// Clone MultipartFile, returning a new instance of the same object.
@@ -166,7 +176,7 @@ class MultipartFile {
   /// such as an unauthorized exception can be solved by refreshing the token.
   MultipartFile clone() {
     return MultipartFile.fromStream(
-      _data,
+      _dataBuilder,
       length,
       filename: filename,
       contentType: contentType,

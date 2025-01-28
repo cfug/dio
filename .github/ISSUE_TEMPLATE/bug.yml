@@ -23,6 +23,7 @@ body:
         - cookie_manager
         - http2_adapter
         - native_dio_adapter
+        - web_adapter
     validations:
       required: true
   - type: input
@@ -46,6 +47,19 @@ body:
         - MacOS
         - Linux
         - Windows
+    validations:
+      required: true
+  - type: dropdown
+    id: adapter
+    attributes:
+      label: Adapter
+      description: Which adapter(s) are used?
+      multiple: true
+      options:
+        - Default Dio
+        - NativeAdapter
+        - Http2Adapter
+        - ConversionLayerAdapter
     validations:
       required: true
   - type: textarea

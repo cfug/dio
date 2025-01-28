@@ -1,21 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import '../adapter.dart';
 import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
-import '../utils.dart';
+import 'util/consolidate_bytes.dart';
 
 @Deprecated('Use BackgroundTransformer instead')
 typedef DefaultTransformer = SyncTransformer;
-
-/// The callback definition for decoding a JSON string.
-typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
-
-/// The callback definition for encoding a JSON object.
-typedef JsonEncodeCallback = FutureOr<String> Function(Object);
 
 /// If you want to custom the transformation of request/response data,
 /// you can provide a [Transformer] by your self, and replace
@@ -31,24 +24,7 @@ class SyncTransformer extends Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
-    final Object data = options.data ?? '';
-    if (data is! String && Transformer.isJsonMimeType(options.contentType)) {
-      return jsonEncodeCallback(data);
-    } else if (data is Map) {
-      if (data is Map<String, dynamic>) {
-        return Transformer.urlEncodeMap(data, options.listFormat);
-      }
-      debugLog(
-        'The data is a type of `Map` (${data.runtimeType}), '
-        'but the transformer can only encode `Map<String, dynamic>`.\n'
-        'If you are writing maps using `{}`, '
-        'consider writing `<String, dynamic>{}`.',
-        StackTrace.current,
-      );
-      return data.toString();
-    } else {
-      return data.toString();
-    }
+    return Transformer.defaultTransformRequest(options, jsonEncodeCallback);
   }
 
   @override
@@ -62,8 +38,7 @@ class SyncTransformer extends Transformer {
       return responseBody;
     }
 
-    final chunks = await responseBody.stream.toList();
-    final responseBytes = Uint8List.fromList(chunks.expand((c) => c).toList());
+    final responseBytes = await consolidateBytes(responseBody.stream);
 
     // Return the finalized bytes if the response type is bytes.
     if (responseType == ResponseType.bytes) {
@@ -78,7 +53,7 @@ class SyncTransformer extends Transformer {
       final decodeResponse = options.responseDecoder!(
         responseBytes,
         options,
-        responseBody..stream = Stream.empty(),
+        responseBody..stream = const Stream.empty(),
       );
 
       if (decodeResponse is Future) {

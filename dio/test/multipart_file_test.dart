@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';
 
 void main() async {
@@ -7,7 +6,7 @@ void main() async {
     test(
       'fromFile sets correct content-type',
       () async {
-        final mediaType = MediaType.parse('text/plain');
+        final mediaType = DioMediaType.parse('text/plain');
         final file = await MultipartFile.fromFile(
           'test/mock/_testfile',
           filename: '1.txt',
@@ -26,21 +25,21 @@ void main() async {
         final multipartFile1 = MultipartFile.fromString(
           'hello world.',
           headers: {
-            'test': <String>['a']
+            'test': <String>['a'],
           },
         );
         final multipartFile2 = await MultipartFile.fromFile(
           'test/mock/_testfile',
           filename: '1.txt',
           headers: {
-            'test': <String>['b']
+            'test': <String>['b'],
           },
         );
         final multipartFile3 = MultipartFile.fromFileSync(
           'test/mock/_testfile',
           filename: '2.txt',
           headers: {
-            'test': <String>['c']
+            'test': <String>['c'],
           },
         );
 
@@ -52,7 +51,7 @@ void main() async {
           'files': [
             multipartFile2,
             multipartFile3,
-          ]
+          ],
         });
         final fmStr = await fm.readAsBytes();
 
@@ -64,15 +63,18 @@ void main() async {
           expect(e, isA<StateError>());
           expect(
             (e as StateError).message,
-            'The MultipartFile has already been finalized. This typically '
-            'means you are using the same MultipartFile in repeated requests.',
+            'The MultipartFile has already been finalized. '
+            'This typically means you are using the same MultipartFile '
+            'in repeated requests.\n'
+            'Use MultipartFile.clone() or create a new MultipartFile '
+            'for further usages.',
           );
         }
 
         final fm1 = FormData();
-        fm1.fields.add(MapEntry('name', 'wendux'));
-        fm1.fields.add(MapEntry('age', '25'));
-        fm1.fields.add(MapEntry('path', '/图片空间/地址'));
+        fm1.fields.add(const MapEntry('name', 'wendux'));
+        fm1.fields.add(const MapEntry('age', '25'));
+        fm1.fields.add(const MapEntry('path', '/图片空间/地址'));
         fm1.files.add(
           MapEntry(
             'file',

@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:async/async.dart';
-
 import '../adapter.dart';
 import '../dio_exception.dart';
 import '../options.dart';
@@ -70,13 +68,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         "Can't establish connection after the adapter was closed.",
       );
     }
-    final operation = CancelableOperation.fromFuture(_fetch(
-      options,
-      requestStream,
-      cancelFuture,
-    ));
-    cancelFuture?.whenComplete(() => operation.cancel());
-    return operation.value;
+    return _fetch(options, requestStream, cancelFuture);
   }
 
   Future<ResponseBody> _fetch(
@@ -86,7 +78,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   ) async {
     final httpClient = _configHttpClient(options.connectTimeout);
     final reqFuture = httpClient.openUrl(options.method, options.uri);
-
     late HttpClientRequest request;
     try {
       final connectionTimeout = options.connectTimeout;
@@ -104,7 +95,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         request = await reqFuture;
       }
 
-      cancelFuture?.whenComplete(() => request.abort());
+      final requestWR = WeakReference<HttpClientRequest>(request);
+      cancelFuture?.whenComplete(() {
+        requestWR.target?.abort();
+      });
 
       // Set Headers
       options.headers.forEach((key, value) {
@@ -189,11 +183,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         port,
       );
       if (!isCertApproved) {
-        throw DioException(
+        throw DioException.badCertificate(
           requestOptions: options,
-          type: DioExceptionType.badCertificate,
           error: responseStream.certificate,
-          message: 'The certificate of the response is not approved.',
         );
       }
     }
@@ -212,9 +204,6 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           .map((e) => RedirectRecord(e.statusCode, e.method, e.location))
           .toList(),
       statusMessage: responseStream.reasonPhrase,
-      onClose: () {
-        responseStream.detachSocket().then((socket) => socket.destroy());
-      },
     );
   }
 
@@ -239,7 +228,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     if (createHttpClient != null) {
       return createHttpClient!();
     }
-    final client = HttpClient()..idleTimeout = Duration(seconds: 3);
+    final client = HttpClient()..idleTimeout = const Duration(seconds: 3);
     // ignore: deprecated_member_use, deprecated_member_use_from_same_package
     return onHttpClientCreate?.call(client) ?? client;
   }

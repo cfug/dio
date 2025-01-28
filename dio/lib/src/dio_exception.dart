@@ -1,5 +1,6 @@
 import 'options.dart';
 import 'response.dart';
+import 'utils.dart' show warningLog;
 
 /// Deprecated in favor of [DioExceptionType] and will be removed in future major versions.
 @Deprecated('Use DioExceptionType instead. This will be removed in 6.0.0')
@@ -18,7 +19,7 @@ enum DioExceptionType {
   /// It occurs when url is sent timeout.
   sendTimeout,
 
-  ///It occurs when receiving timeout.
+  /// It occurs when receiving timeout.
   receiveTimeout,
 
   /// Caused by an incorrect certificate as configured by [ValidateCertificate].
@@ -86,10 +87,10 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.badResponse,
-        message: _badResponseExceptionMessage(statusCode),
         requestOptions: requestOptions,
         response: response,
         error: null,
+        message: _badResponseExceptionMessage(statusCode),
       );
 
   factory DioException.connectionTimeout({
@@ -99,14 +100,14 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.connectionTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
         message: 'The request connection took longer than $timeout '
             'and it was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.connectTimeout above the duration of $timeout or '
             'improve the response time of the server.',
-        requestOptions: requestOptions,
-        response: null,
-        error: error,
       );
 
   factory DioException.sendTimeout({
@@ -115,14 +116,14 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.sendTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: null,
         message: 'The request took longer than $timeout to send data. '
             'It was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.sendTimeout above the duration of $timeout or '
             'improve the response time of the server.',
-        requestOptions: requestOptions,
-        response: null,
-        error: null,
       );
 
   factory DioException.receiveTimeout({
@@ -132,14 +133,26 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.receiveTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
         message: 'The request took longer than $timeout to receive data. '
             'It was aborted. '
             'To get rid of this exception, try raising the '
             'RequestOptions.receiveTimeout above the duration of $timeout or '
             'improve the response time of the server.',
+      );
+
+  factory DioException.badCertificate({
+    required RequestOptions requestOptions,
+    Object? error,
+  }) =>
+      DioException(
+        type: DioExceptionType.badCertificate,
         requestOptions: requestOptions,
         response: null,
         error: error,
+        message: 'The certificate of the response is not approved.',
       );
 
   factory DioException.requestCancelled({
@@ -149,11 +162,11 @@ class DioException implements Exception {
   }) =>
       DioException(
         type: DioExceptionType.cancel,
-        message: 'The request was manually cancelled by the user.',
         requestOptions: requestOptions,
         response: null,
         error: reason,
         stackTrace: stackTrace,
+        message: 'The request was manually cancelled by the user.',
       );
 
   factory DioException.connectionError({
@@ -193,6 +206,14 @@ class DioException implements Exception {
   /// The error message that throws a [DioException].
   final String? message;
 
+  /// Users can customize the content of [toString] when thrown.
+  static DioExceptionReadableStringBuilder readableStringBuilder =
+      defaultDioExceptionReadableStringBuilder;
+
+  /// Each exception can be override with a customized builder or fallback to
+  /// the default [DioException.readableStringBuilder].
+  DioExceptionReadableStringBuilder? stringBuilder;
+
   /// Generate a new [DioException] by combining given values and original values.
   DioException copyWith({
     RequestOptions? requestOptions,
@@ -214,11 +235,12 @@ class DioException implements Exception {
 
   @override
   String toString() {
-    String msg = 'DioException [${type.toPrettyDescription()}]: $message';
-    if (error != null) {
-      msg += '\nError: $error';
+    try {
+      return stringBuilder?.call(this) ?? readableStringBuilder(this);
+    } catch (e, s) {
+      warningLog(e, s);
+      return defaultDioExceptionReadableStringBuilder(this);
     }
-    return msg;
   }
 
   /// Because of [ValidateStatus] we need to consider all status codes when
@@ -265,4 +287,21 @@ class DioException implements Exception {
 
     return buffer.toString();
   }
+}
+
+/// The readable string builder's signature of
+/// [DioException.readableStringBuilder].
+typedef DioExceptionReadableStringBuilder = String Function(DioException e);
+
+/// The default implementation of building a readable string of [DioException].
+String defaultDioExceptionReadableStringBuilder(DioException e) {
+  final buffer = StringBuffer(
+    'DioException [${e.type.toPrettyDescription()}]: '
+    '${e.message}',
+  );
+  if (e.error != null) {
+    buffer.writeln();
+    buffer.write('Error: ${e.error}');
+  }
+  return buffer.toString();
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
@@ -19,7 +18,7 @@ void main() async {
           'file': MultipartFile.fromString(
             'hello world.',
             headers: {
-              'test': <String>['a']
+              'test': <String>['a'],
             },
           ),
           'files': [
@@ -27,18 +26,26 @@ void main() async {
               'test/mock/_testfile',
               filename: '1.txt',
               headers: {
-                'test': <String>['b']
+                'test': <String>['b'],
               },
             ),
             MultipartFile.fromFileSync(
               'test/mock/_testfile',
               filename: '2.txt',
               headers: {
-                'test': <String>['c']
+                'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
-          ]
+            MultipartFile.fromBytes(
+              utf8.encode('hello world again.').toList(),
+              filename: '3.txt',
+              headers: {
+                'test': <String>['d'],
+              },
+              contentType: DioMediaType.parse('text/plain'),
+            ),
+          ],
         });
         final fmStr = await fm.readAsBytes();
         final f = File('test/mock/_formdata');
@@ -53,16 +60,16 @@ void main() async {
         expect(fm.readAsBytes(), throwsA(const TypeMatcher<StateError>()));
 
         final fm1 = FormData();
-        fm1.fields.add(MapEntry('name', 'wendux'));
-        fm1.fields.add(MapEntry('age', '25'));
-        fm1.fields.add(MapEntry('path', '/图片空间/地址'));
+        fm1.fields.add(const MapEntry('name', 'wendux'));
+        fm1.fields.add(const MapEntry('age', '25'));
+        fm1.fields.add(const MapEntry('path', '/图片空间/地址'));
         fm1.files.add(
           MapEntry(
             'file',
             MultipartFile.fromString(
               'hello world.',
               headers: {
-                'test': <String>['a']
+                'test': <String>['a'],
               },
             ),
           ),
@@ -88,7 +95,20 @@ void main() async {
               headers: {
                 'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
+            ),
+          ),
+        );
+        fm1.files.add(
+          MapEntry(
+            'files',
+            MultipartFile.fromBytes(
+              utf8.encode('hello world again.'),
+              filename: '3.txt',
+              headers: {
+                'test': <String>['d'],
+              },
+              contentType: DioMediaType.parse('text/plain'),
             ),
           ),
         );
@@ -107,7 +127,7 @@ void main() async {
           'file': MultipartFile.fromString(
             'hello world.',
             headers: {
-              'test': <String>['a']
+              'test': <String>['a'],
             },
           ),
           'files': [
@@ -115,18 +135,26 @@ void main() async {
               'test/mock/_testfile',
               filename: '1.txt',
               headers: {
-                'test': <String>['b']
+                'test': <String>['b'],
               },
             ),
             MultipartFile.fromFileSync(
               'test/mock/_testfile',
               filename: '2.txt',
               headers: {
-                'test': <String>['c']
+                'test': <String>['c'],
               },
-              contentType: MediaType.parse('text/plain'),
+              contentType: DioMediaType.parse('text/plain'),
             ),
-          ]
+            MultipartFile.fromBytes(
+              utf8.encode('hello world again.'),
+              filename: '3.txt',
+              headers: {
+                'test': <String>['d'],
+              },
+              contentType: DioMediaType.parse('text/plain'),
+            ),
+          ],
         });
         final fmStr = await fm.readAsBytes();
         final f = File('test/mock/_formdata');
@@ -148,6 +176,7 @@ void main() async {
         expect(fm1 != fm, true);
         expect(fm1.files[0].value.filename, fm.files[0].value.filename);
         expect(fm1.fields, fm.fields);
+        expect(fm1.boundary, fm.boundary);
       },
       testOn: 'vm',
     );
@@ -198,7 +227,7 @@ void main() async {
         'api': {
           'dest': '/',
           'data': dynamicData,
-        }
+        },
       };
 
       final fd = FormData.fromMap(request);
@@ -284,6 +313,23 @@ void main() async {
 
       expect(result, contains('name="items[2][name]"'));
       expect(result, contains('name="items[2][value]"'));
+    });
+
+    test('has the correct boundary', () async {
+      final fd1 = FormData();
+      expect(fd1.boundary, matches(RegExp(r'dio-boundary-\d{10}')));
+      const name = 'test-boundary';
+      final fd2 = FormData(boundaryName: name);
+      expect(fd2.boundary, matches(RegExp('$name-\\d{10}')));
+      expect(fd2.boundary.length, name.length + 11);
+      final fd3 = FormData.fromMap(
+        {'test-key': 'test-value'},
+        ListFormat.multi,
+        false,
+        name,
+      );
+      final fd3Data = utf8.decode(await fd3.readAsBytes()).trim();
+      expect(fd3Data, matches(RegExp('.*--$name-\\d{10}--\\s?\$')));
     });
   });
 }

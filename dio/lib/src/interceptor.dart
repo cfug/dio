@@ -1,6 +1,6 @@
 part of 'dio_mixin.dart';
 
-/// @nodoc
+/// The result type after handled by the interceptor.
 enum InterceptorResultType {
   next,
   resolve,
@@ -10,12 +10,14 @@ enum InterceptorResultType {
 }
 
 /// Used to pass state between interceptors.
-/// @nodoc
 class InterceptorState<T> {
   const InterceptorState(this.data, [this.type = InterceptorResultType.next]);
 
   final T data;
   final InterceptorResultType type;
+
+  @override
+  String toString() => 'InterceptorState<$T>(type: $type, data: $data)';
 }
 
 abstract class _BaseHandler {
@@ -26,6 +28,15 @@ abstract class _BaseHandler {
   Future<InterceptorState> get future => _completer.future;
 
   bool get isCompleted => _completer.isCompleted;
+
+  void _throwIfCompleted() {
+    if (_completer.isCompleted) {
+      throw StateError(
+        'The `handler` has already been called, '
+        'make sure each handler gets called only once.',
+      );
+    }
+  }
 }
 
 /// The handler for interceptors to handle before the request has been sent.
@@ -35,6 +46,7 @@ class RequestInterceptorHandler extends _BaseHandler {
   /// Typically, the method should be called once interceptors done
   /// manipulating the [requestOptions].
   void next(RequestOptions requestOptions) {
+    _throwIfCompleted();
     _completer.complete(InterceptorState<RequestOptions>(requestOptions));
     _processNextInQueue?.call();
   }
@@ -50,6 +62,7 @@ class RequestInterceptorHandler extends _BaseHandler {
     Response response, [
     bool callFollowingResponseInterceptor = false,
   ]) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -68,8 +81,11 @@ class RequestInterceptorHandler extends _BaseHandler {
   /// unless [callFollowingErrorInterceptor] is true
   /// which delivers [InterceptorResultType.rejectCallFollowing]
   /// to the [InterceptorState].
-  void reject(DioException error,
-      [bool callFollowingErrorInterceptor = false]) {
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(
         error,
@@ -90,6 +106,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
   /// Typically, the method should be called once interceptors done
   /// manipulating the [response].
   void next(Response response) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(response),
     );
@@ -98,6 +115,7 @@ class ResponseInterceptorHandler extends _BaseHandler {
 
   /// Completes the request by resolves the [response] as the result.
   void resolve(Response response) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -114,8 +132,11 @@ class ResponseInterceptorHandler extends _BaseHandler {
   /// unless [callFollowingErrorInterceptor] is true
   /// which delivers [InterceptorResultType.rejectCallFollowing]
   /// to the [InterceptorState].
-  void reject(DioException error,
-      [bool callFollowingErrorInterceptor = false]) {
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(
         error,
@@ -136,6 +157,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
   /// Typically, the method should be called once interceptors done
   /// manipulating the [error].
   void next(DioException error) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(error),
       error.stackTrace,
@@ -145,6 +167,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
 
   /// Completes the request by resolves the [response] as the result.
   void resolve(Response response) {
+    _throwIfCompleted();
     _completer.complete(
       InterceptorState<Response>(
         response,
@@ -156,6 +179,7 @@ class ErrorInterceptorHandler extends _BaseHandler {
 
   /// Completes the request by reject with the [error] as the result.
   void reject(DioException error) {
+    _throwIfCompleted();
     _completer.completeError(
       InterceptorState<DioException>(error, InterceptorResultType.reject),
       error.stackTrace,
@@ -350,7 +374,9 @@ class _TaskQueue<T, V extends _BaseHandler> {
 
 /// [Interceptor] in queue.
 ///
-/// Concurrent requests will be added to the queue for interceptors.
+/// `onRequest`, `onResponse`, and `onError` are processed in separate queues
+/// when running concurrent requests. These queues run in parallel,
+/// new requests can be initiated before previous have been completed.
 class QueuedInterceptor extends Interceptor {
   final _requestQueue = _TaskQueue<RequestOptions, RequestInterceptorHandler>();
   final _responseQueue = _TaskQueue<Response, ResponseInterceptorHandler>();
@@ -406,7 +432,7 @@ class QueuedInterceptor extends Interceptor {
   }
 }
 
-/// A helper class to create queued-interceptors in ease.
+/// A helper class to create [QueuedInterceptor] in ease.
 ///
 /// See also:
 ///  - [InterceptorsWrapper], creates [Interceptor]s in ease.

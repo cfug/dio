@@ -9,15 +9,22 @@ Please move specific paths for project instructions.
 > topic to your published dio related packages!
 > See more: https://dart.dev/tools/pub/pubspec#topics
 
-### dio
-
-- dio: [link](dio)
-  [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
+## Versioning
 
 **Before you upgrade: Breaking changes might happen in major and minor versions of packages.<br/>
 See the [Migration Guide][] for the complete breaking changes list.**
 
+To know about our compatibility policy, see the [Compatibility Policy][] doc.
+
 [Migration Guide]: https://pub.dev/documentation/dio/latest/topics/Migration%20Guide-topic.html
+[Compatibility Policy]: COMPATIBILITY_POLICY.md
+
+## All Packages
+
+### dio
+
+- dio: [link](dio)
+  [![Pub](https://img.shields.io/pub/v/dio.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio)
 
 ### Plugins
 
@@ -29,10 +36,12 @@ See the [Migration Guide][] for the complete breaking changes list.**
   [![Pub](https://img.shields.io/pub/v/dio_http2_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_http2_adapter)
 - native_dio_adapter: [link](plugins/native_dio_adapter)
   [![Pub](https://img.shields.io/pub/v/native_dio_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/native_dio_adapter)
+- web_adapter: [link](plugins/web_adapter)
+  [![Pub](https://img.shields.io/pub/v/dio_web_adapter.svg?label=dev&include_prereleases)](https://pub.dev/packages/dio_web_adapter)
 
 ### Examples
 
-- example: [link](example)
+- example: [link](example_dart)
 - example_flutter_app: [link](example_flutter_app)
 
 ## Copyright & License

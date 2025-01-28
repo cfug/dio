@@ -1,12 +1,23 @@
 file_reporters:
   json: build/reports/test-results.json
 
+presets:
+  # empty placeholders required in CI scripts
+  all:
+  default:
+  min:
+  stable:
+  beta:
+
 tags:
   tls:
     skip: "Skipping TLS test with specific setup requirements by default. Use '-P all' to run all tests."
     presets:
       all:
         skip: false
+      default:
+        skip: true
+  gc: # We have that tag, but we are not skipping in any preset.
 
 override_platforms:
   chrome:
@@ -16,3 +27,6 @@ override_platforms:
     settings:
       # headless argument has to be set explicitly for non-chrome browsers
       arguments: --headless
+      executable:
+        # https://github.com/dart-lang/test/pull/2195
+        mac_os: '/Applications/Firefox.app/Contents/MacOS/firefox'

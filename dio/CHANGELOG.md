@@ -5,10 +5,70 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Update comments and strings with `MultipartFile`.
+- Removes redundant warnings when composing request options on Web.
+- Fixes boundary inconsistency in `FormData.clone()`.
+- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
+- Fix `ListParam` equality by using the `DeepCollectionEquality`.
+- Enables configuring the logging details of `DioException` globally and locally.
+
+## 5.7.0
+
+- Graceful handling of responses with nonzero `Content-Length`, `Content-Type` that is json, and empty payload.
+  - Empty responses are now transformed to `null`.
+
+## 5.6.0
+
+- Supports the WASM environment. Users should upgrade the adapter with
+  `dart pub upgrade` or `flutter pub upgrade` to use the WASM-supported version.
+
+## 5.5.0+1
+
+- Fix WASM compile errors after moving the web implementation to `dio_web_adapter`.
+
+## 5.5.0
+
+- Raise the min Dart SDK version to 2.18.0.
+- Add constructor for `DioExceptionType.badCertificate`.
+- Create type alias `DioMediaType` for `http_parser`'s `MediaType`.
+- Fix the type conversion regression when using `MultipartFile.fromBytes`.
+- Split the Web implementation to `package:dio_web_adapter`.
+- Add FusedTransformer for improved performance when decoding JSON.
+- Set FusedTransformer as the default transformer.
+- Improves `InterceptorState.toString()`.
+- If the `CancelToken` got canceled before making requests,
+  throws the exception directly rather than cut actual HTTP requests afterward.
+- Catch `MediaType` parse exception in `Transformer.isJsonMimeType`.
+- Improves warning logs on the Web platform.
+- Improves memory allocating when using `CancelToken`.
+
+## 5.4.3+1
+
+- Fix type promotions for the UTF-8 encoder on previous Dart SDKs.
+
+## 5.4.3
+
+- Remove sockets detach in `IOHttpClientAdapter`.
+- Allows to define `FormData.boundaryName` instead of the default `--dio-boundary-`.
+
+## 5.4.2+1
+
+- Revert "Catch sync/async exceptions in interceptors' handlers".
+
+## 5.4.2
+
+- Fix `receiveTimeout` throws exception after the request has been cancelled.
+- Catch sync/async exceptions in interceptors' handlers.
+- Throws precise `StateError` for handler's duplicated calls.
+
+## 5.4.1
+
 - Provide fix suggestions for `dart fix`.
 - Fix `receiveTimeout` for streamed responses.
 - Fix cancellation for streamed responses and downloads when using `IOHttpClientAdapter`.
 - Fix receive progress for streamed responses and downloads when using `IOHttpClientAdapter`.
+- Support relative `baseUrl` on the Web platform.
+- Avoid fake uncaught exceptions during debugging with IDEs.
 
 ## 5.4.0
 

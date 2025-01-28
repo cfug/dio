@@ -6,6 +6,7 @@ packages:
   - 'plugins/*'
   - 'plugins/**/example*'
   - 'example*'
+  - 'dio_test'
 
 ide:
   intellij:
@@ -15,3 +16,154 @@ ide:
 command:
   bootstrap:
     runPubGetInParallel: false
+    hooks:
+      pre: |
+        # Check bootstrappable packages.
+        dart ./scripts/melos_packages.dart
+  clean:
+    hooks:
+      post: |
+        # Clean all flutter projects
+        melos exec --flutter -- "flutter clean"
+        # Clean coverage files
+        rm -rf coverage
+        rm -rf pubspec.lock
+        melos exec --dir-exists coverage -- "rm -rf coverage"
+
+scripts:
+  analyze:
+    description: Analyze all packages
+    exec: dart analyze --fatal-infos
+  format:
+    description: Format check all packages
+    exec: dart format --set-exit-if-changed .
+  format:fix:
+    description: Format all packages
+    exec: dart format .
+  publish-dry-run:
+    description: Publish dry-run all packages
+    exec: dart pub publish --dry-run
+    packageFilters:
+      noPrivate: true
+  httpbun:local:
+    description: Run httpbun locally
+    run: echo "const httpbunBaseUrl = 'https://httpbun.local';" > dio_test/lib/src/httpbun.dart
+  httpbun:com:
+    description: Run httpbun locally
+    run: echo "const httpbunBaseUrl = 'https://httpbun.com';" > dio_test/lib/src/httpbun.dart
+
+  test:
+    name: All tests
+    run: |
+      melos run test:vm
+      TEST_PLATFORM=chrome melos run test:web
+      TEST_PLATFORM=firefox melos run test:web
+      melos run test:flutter
+  test:vm:
+    name: Dart VM tests
+    exec: |
+      if [ "$TARGET_DART_SDK" = "min" ]; then
+        dart test --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+      else
+        dart test --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --coverage=coverage/vm --chain-stack-traces
+      fi
+    packageFilters:
+      flutter: false
+      dirExists: test
+      fileExists: .melos_package
+      ignore:
+        - 'dio_web_adapter'
+  test:web:
+    name: Dart Web tests
+    run: |
+      melos run test:web:chrome
+      melos run test:web:firefox
+  test:web:chrome:
+    name: Dart Web tests in chrome
+    run: melos run test:web:single
+    env:
+      TEST_PLATFORM: chrome
+      WITH_WASM: true
+  test:web:firefox:
+    name: Dart Web tests in firefox
+    run: melos run test:web:single
+    env:
+      TEST_PLATFORM: firefox
+      WITH_WASM: false
+  test:web:single:
+    name: Dart Web tests in a browser
+    exec: |
+      if [ "$TARGET_DART_SDK" = "min" ]; then
+        dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+      else
+        dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+        if [ "$WITH_WASM" = "true" ]; then
+          dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces --compiler=dart2wasm
+        fi
+      fi
+    packageFilters:
+      flutter: false
+      dirExists: test
+      fileExists: .melos_package
+      ignore:
+        - '*http2*'
+        - '*cookie*'
+  test:flutter:
+    name: Flutter tests
+    exec: flutter test --coverage
+    packageFilters:
+      flutter: true
+      dirExists: test
+      fileExists: .melos_package
+      ignore:
+        - '*example*'
+  test:coverage:
+    name: Run all tests and display coverage
+    run: |
+      melos run test
+      melos run coverage:format
+      melos run coverage:show
+
+  upgrade:dart:
+    name: Upgrade Dart package deps
+    exec: dart pub upgrade
+    packageFilters:
+      flutter: false
+  upgrade:flutter:
+    name: Upgrade Flutter package deps
+    exec: flutter pub upgrade
+    packageFilters:
+      flutter: true
+  build:example:apk:
+    run: |
+      cd example_flutter_app
+      flutter build apk --debug
+
+  coverage:clean:
+    name: Clear coverage
+    exec: rm -rf coverage
+  coverage:format:
+    name: Format coverage
+    run: |
+      dart pub global activate coverage
+      melos run coverage:format:package
+  coverage:format:package:
+    name: Format coverage for each package
+    exec: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+    packageFilters:
+      flutter: false
+      dirExists: coverage
+  coverage:combine:
+    name: Combine & convert coverage report
+    run: |
+      rm -rf coverage
+      dart pub global activate combine_coverage
+      dart pub global activate cobertura
+      melos run coverage:format
+      dart pub global run combine_coverage --repo-path=$pwd
+      dart pub global run cobertura convert --pubspec dio/pubspec.yaml
+  coverage:show:
+    name: Show coverage report
+    run: |
+      melos run coverage:combine
+      dart pub global run cobertura show

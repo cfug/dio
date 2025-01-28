@@ -2,12 +2,40 @@ include: package:lints/recommended.yaml
 
 analyzer:
   errors:
+    always_declare_return_types: error
+    always_put_control_body_on_new_line: error
+    avoid_renaming_method_parameters: error
+    avoid_void_async: error
+    camel_case_types: error
+    constant_identifier_names: error
     deprecated_member_use_from_same_package: ignore
+    non_constant_identifier_names: error
+    prefer_single_quotes: error
+    require_trailing_commas: error
     todo: ignore
 
 linter:
   rules:
-    prefer_final_locals: true
+    always_declare_return_types: true
+    always_put_control_body_on_new_line: true
+    avoid_renaming_method_parameters: true
+    avoid_unnecessary_containers: true
+    avoid_void_async: true
+    curly_braces_in_flow_control_structures: true
+    directives_ordering: true
+    library_annotations: false
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: false
+    prefer_final_fields: true
     prefer_final_in_for_each: true
+    prefer_final_locals: true
+    prefer_relative_imports: true
     prefer_single_quotes: true
+    require_trailing_commas: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+    unnecessary_await_in_return: true
+    unnecessary_breaks: true
+    unnecessary_late: true
+    unnecessary_library_name: false
     unnecessary_parenthesis: true

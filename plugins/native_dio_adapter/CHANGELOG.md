@@ -4,6 +4,10 @@
 
 *None.*
 
+## 1.4.0
+
+- Support `cupertino_http` 2.0.0
+
 ## 1.3.0
 
 - Provide fix suggestions for `dart fix`.

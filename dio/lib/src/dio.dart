@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'adapter.dart';
-import 'dio_mixin.dart';
-import 'options.dart';
-import 'headers.dart';
 import 'cancel_token.dart';
-import 'transformer.dart';
-import 'response.dart';
-
 import 'dio/dio_for_native.dart'
+    if (dart.library.js_interop) 'dio/dio_for_browser.dart'
     if (dart.library.html) 'dio/dio_for_browser.dart';
+import 'dio_mixin.dart';
+import 'headers.dart';
+import 'options.dart';
+import 'response.dart';
+import 'transformer.dart';
 
 /// Dio enables you to make HTTP requests easily.
 ///
@@ -209,6 +209,9 @@ abstract class Dio {
   /// [deleteOnError] whether delete the file when error occurs.
   /// The default value is [true].
   ///
+  /// [fileAccessMode]
+  /// {@macro dio.options.FileAccessMode}
+  ///
   /// [lengthHeader] : The real size of original file (not compressed).
   /// When file is compressed:
   /// 1. If this value is 'content-length', the `total` argument of
@@ -242,6 +245,7 @@ abstract class Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -254,6 +258,7 @@ abstract class Dio {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -266,6 +271,7 @@ abstract class Dio {
       deleteOnError: deleteOnError,
       cancelToken: cancelToken,
       data: data,
+      fileAccessMode: fileAccessMode,
       options: options,
     );
   }

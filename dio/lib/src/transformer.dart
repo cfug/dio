@@ -5,6 +5,16 @@ import 'adapter.dart';
 import 'options.dart';
 import 'utils.dart';
 
+export 'transformers/background_transformer.dart';
+export 'transformers/fused_transformer.dart';
+export 'transformers/sync_transformer.dart';
+
+/// The callback definition for decoding a JSON string.
+typedef JsonDecodeCallback = FutureOr<dynamic> Function(String);
+
+/// The callback definition for encoding a JSON object.
+typedef JsonEncodeCallback = FutureOr<String> Function(Object);
+
 /// [Transformer] allows changes to the request/response data before
 /// it is sent/received to/from the server.
 ///
@@ -36,7 +46,9 @@ abstract class Transformer {
     return encodeMap(
       map,
       (key, value) {
-        if (value == null) return key;
+        if (value == null) {
+          return key;
+        }
         return '$key=${Uri.encodeQueryComponent(value.toString())}';
       },
       listFormat: listFormat,
@@ -51,7 +63,9 @@ abstract class Transformer {
     return encodeMap(
       map,
       (key, value) {
-        if (value == null) return key;
+        if (value == null) {
+          return key;
+        }
         return '$key=$value';
       },
       listFormat: listFormat,
@@ -61,10 +75,45 @@ abstract class Transformer {
 
   /// See https://mimesniff.spec.whatwg.org/#json-mime-type.
   static bool isJsonMimeType(String? contentType) {
-    if (contentType == null) return false;
-    final mediaType = MediaType.parse(contentType);
-    return mediaType.mimeType == 'application/json' ||
-        mediaType.mimeType == 'text/json' ||
-        mediaType.subtype.endsWith('+json');
+    if (contentType == null) {
+      return false;
+    }
+    try {
+      final mediaType = MediaType.parse(contentType);
+      return mediaType.mimeType == 'application/json' ||
+          mediaType.mimeType == 'text/json' ||
+          mediaType.subtype.endsWith('+json');
+    } catch (e, s) {
+      warningLog(
+        'Failed to parse the media type: $contentType, '
+        'thus it is not a JSON MIME type.',
+        s,
+      );
+      return false;
+    }
+  }
+
+  static FutureOr<String> defaultTransformRequest(
+    RequestOptions options,
+    JsonEncodeCallback jsonEncodeCallback,
+  ) {
+    final Object data = options.data ?? '';
+    if (data is! String && Transformer.isJsonMimeType(options.contentType)) {
+      return jsonEncodeCallback(data);
+    } else if (data is Map) {
+      if (data is Map<String, dynamic>) {
+        return Transformer.urlEncodeMap(data, options.listFormat);
+      }
+      warningLog(
+        'The data is a type of `Map` (${data.runtimeType}), '
+        'but the transformer can only encode `Map<String, dynamic>`.\n'
+        'If you are writing maps using `{}`, '
+        'consider writing `<String, dynamic>{}`.',
+        StackTrace.current,
+      );
+      return data.toString();
+    } else {
+      return data.toString();
+    }
   }
 }

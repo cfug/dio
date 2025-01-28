@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import '../adapter.dart';
+import '../adapters/io_adapter.dart';
 import '../cancel_token.dart';
+import '../dio.dart';
 import '../dio_exception.dart';
 import '../dio_mixin.dart';
-import '../response.dart';
-import '../dio.dart';
 import '../headers.dart';
 import '../options.dart';
-import '../adapters/io_adapter.dart';
+import '../response.dart';
 
 /// Create the [Dio] instance for native platforms.
 Dio createDio([BaseOptions? baseOptions]) => DioForNative(baseOptions);
@@ -32,6 +32,7 @@ class DioForNative with DioMixin implements Dio {
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     bool deleteOnError = true,
+    FileAccessMode fileAccessMode = FileAccessMode.write,
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
@@ -95,7 +96,11 @@ class DioForNative with DioMixin implements Dio {
     // Shouldn't call file.writeAsBytesSync(list, flush: flush),
     // because it can write all bytes by once. Consider that the file is
     // a very big size (up to 1 Gigabytes), it will be expensive in memory.
-    RandomAccessFile raf = file.openSync(mode: FileMode.write);
+    RandomAccessFile raf = file.openSync(
+      mode: fileAccessMode == FileAccessMode.write
+          ? FileMode.write
+          : FileMode.append,
+    );
 
     // Create a Completer to notify the success/error state.
     final completer = Completer<Response>();
