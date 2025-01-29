@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.8.0+1
+
 - Raise the version constraint of `dio_web_adapter`.
 
 ## 5.8.0
