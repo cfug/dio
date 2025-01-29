@@ -16,7 +16,7 @@ environment:
   sdk: '>=2.18.0 <4.0.0'
 
 dependencies:
-  dio: ^5.0.0
+  dio: ^5.8.0
   http_parser: ^4.0.0
   meta: ^1.5.0
 
