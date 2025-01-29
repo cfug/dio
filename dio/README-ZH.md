@@ -24,6 +24,16 @@ dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API�
     * [相关插件](#相关插件)
     * [相关的项目](#相关的项目)
   * [示例](#示例)
+    * [发起一个 `GET` 请求 :](#发起一个-get-请求-)
+    * [发起一个 `POST` 请求:](#发起一个-post-请求)
+    * [发起多个并发请求](#发起多个并发请求)
+    * [下载文件](#下载文件)
+    * [以流的方式接收响应数据](#以流的方式接收响应数据)
+    * [以二进制数组的方式接收响应数据](#以二进制数组的方式接收响应数据)
+    * [发送 `FormData`](#发送-formdata)
+    * [通过 `FormData` 上传多个文件](#通过-formdata-上传多个文件)
+    * [监听发送（上传）数据进度](#监听发送上传数据进度)
+    * [以流的形式提交二进制数据](#以流的形式提交二进制数据)
   * [Dio APIs](#dio-apis)
     * [创建一个Dio实例，并配置它](#创建一个dio实例并配置它)
     * [请求配置](#请求配置)
@@ -40,7 +50,7 @@ dio 是一个强大的 HTTP 网络请求库，支持全局配置、Restful API�
     * [DioException](#dioexception)
     * [DioExceptionType](#dioexceptiontype)
   * [使用 application/x-www-form-urlencoded 编码](#使用-applicationx-www-form-urlencoded-编码)
-  * [发送 FormData](#发送-formdata)
+  * [发送 FormData](#发送-formdata-1)
     * [多文件上传](#多文件上传)
     * [复用 `FormData` 和 `MultipartFile`](#复用-formdata-和-multipartfile)
   * [转换器](#转换器)
@@ -136,13 +146,13 @@ void request() async {
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-###  发起多个并发请求:
+### 发起多个并发请求
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-### 下载文件:
+### 下载文件
 
 ```dart
 response = await dio.download(
@@ -151,7 +161,7 @@ response = await dio.download(
 );
 ```
 
-### 以流的方式接收响应数据：
+### 以流的方式接收响应数据
 
 ```dart
 final rs = await dio.get(
@@ -161,7 +171,7 @@ final rs = await dio.get(
 print(rs.data.stream); // 响应流
 ```
 
-### 以二进制数组的方式接收响应数据：
+### 以二进制数组的方式接收响应数据
 
 ```dart
 final rs = await dio.get(
@@ -171,7 +181,7 @@ final rs = await dio.get(
 print(rs.data); // 类型: List<int>
 ```
 
-### 发送 `FormData`:
+### 发送 `FormData`
 
 ```dart
 final formData = FormData.fromMap({
@@ -181,7 +191,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### 通过 `FormData` 上传多个文件:
+### 通过 `FormData` 上传多个文件
 
 ```dart
 final formData = FormData.fromMap({
@@ -196,7 +206,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### 监听发送（上传）数据进度:
+### 监听发送（上传）数据进度
 
 ```dart
 final response = await dio.post(
@@ -208,7 +218,7 @@ final response = await dio.post(
 );
 ```
 
-### 以流的形式提交二进制数据：
+### 以流的形式提交二进制数据
 
 ```dart
 // Binary data
@@ -255,6 +265,9 @@ void configureDio() {
     receiveTimeout: Duration(seconds: 3),
   );
   final anotherDio = Dio(options);
+
+  // Or clone the existing `Dio` instance with all fields.
+  final clonedDio = dio.clone();
 }
 ```
 

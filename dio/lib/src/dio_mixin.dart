@@ -761,6 +761,21 @@ abstract class DioMixin implements Dio {
     }
     return response;
   }
+
+  @override
+  Dio clone({
+    BaseOptions? options,
+    Interceptors? interceptors,
+    HttpClientAdapter? httpClientAdapter,
+    Transformer? transformer,
+  }) {
+    final dio = Dio(options ?? this.options);
+    dio.interceptors.removeImplyContentTypeInterceptor();
+    dio.interceptors.addAll(interceptors ?? this.interceptors);
+    dio.httpClientAdapter = httpClientAdapter ?? this.httpClientAdapter;
+    dio.transformer = transformer ?? this.transformer;
+    return dio;
+  }
 }
 
 /// A null-check function for function parameters in Null Safety enabled code.

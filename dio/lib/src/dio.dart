@@ -300,4 +300,12 @@ abstract class Dio {
   /// The eventual method to submit requests. All callers for requests should
   /// eventually go through this method.
   Future<Response<T>> fetch<T>(RequestOptions requestOptions);
+
+  /// Clones a new [Dio] instance with override fields or reuses current fields.
+  Dio clone({
+    BaseOptions? options,
+    Interceptors? interceptors,
+    HttpClientAdapter? httpClientAdapter,
+    Transformer? transformer,
+  });
 }
