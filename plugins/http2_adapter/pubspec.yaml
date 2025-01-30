@@ -1,5 +1,5 @@
 name: dio_http2_adapter
-version: 2.5.3
+version: 2.6.0
 
 description: An adapter that combines HTTP/2 and dio. Supports reusing connections, header compression, etc.
 topics:

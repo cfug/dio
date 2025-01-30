@@ -1,5 +1,5 @@
 name: dio_web_adapter
-version: 2.0.0
+version: 2.1.0
 
 description: An adapter that supports Dio on Web.
 topics:
@@ -16,7 +16,7 @@ environment:
   sdk: ^3.3.0
 
 dependencies:
-  dio: ^5.0.0
+  dio: ^5.8.0
   http_parser: ^4.0.0
   meta: ^1.5.0
   web: '>=0.5.0 <2.0.0'

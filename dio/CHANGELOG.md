@@ -5,12 +5,22 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.8.0+1
+
+- Raise the version constraint of `dio_web_adapter`.
+
+## 5.8.0
+
 - Update comments and strings with `MultipartFile`.
 - Removes redundant warnings when composing request options on Web.
 - Fixes boundary inconsistency in `FormData.clone()`.
-- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode
+- Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode.
 - Fix `ListParam` equality by using the `DeepCollectionEquality`.
 - Enables configuring the logging details of `DioException` globally and locally.
+- Enables using `Dio.clone` to reuse base options, client adapter, interceptors, and transformer,
+  in a new `Dio` instance.
 
 ## 5.7.0
 

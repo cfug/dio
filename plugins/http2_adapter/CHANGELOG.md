@@ -5,7 +5,11 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-- Make cached connections respect redirections.
+*None.*
+
+## 2.6.0
+
+- Make cached connections respect redirections and scheme.
 
 ## 2.5.3
 

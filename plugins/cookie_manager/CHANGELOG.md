@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 3.2.0
+
 - Raise the min Dart SDK version to 2.18.0 (implied by the `dio` package).
 
 ## 3.1.1

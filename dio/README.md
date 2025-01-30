@@ -25,8 +25,18 @@ Timeout, Custom adapters, Transformers, etc.
   * [Awesome dio](#awesome-dio)
     * [Plugins](#plugins)
   * [Examples](#examples)
+    * [Performing a `GET` request](#performing-a-get-request)
+    * [Performing a `POST` request](#performing-a-post-request)
+    * [Performing multiple concurrent requests](#performing-multiple-concurrent-requests)
+    * [Downloading a file](#downloading-a-file)
+    * [Get response stream](#get-response-stream)
+    * [Get response with bytes](#get-response-with-bytes)
+    * [Sending a `FormData`](#sending-a-formdata)
+    * [Uploading multiple files to server by FormData](#uploading-multiple-files-to-server-by-formdata)
+    * [Listening the uploading progress](#listening-the-uploading-progress)
+    * [Post binary data with Stream](#post-binary-data-with-stream)
   * [Dio APIs](#dio-apis)
-    * [Creating an instance and set default configs.](#creating-an-instance-and-set-default-configs)
+    * [Creating an instance and set default configs](#creating-an-instance-and-set-default-configs)
     * [Request Options](#request-options)
     * [Response](#response)
     * [Interceptors](#interceptors)
@@ -94,7 +104,7 @@ in [here](https://github.com/cfug/dio/issues/347).
 
 ## Examples
 
-### Performing a `GET` request:
+### Performing a `GET` request
 
 ```dart
 import 'package:dio/dio.dart';
@@ -114,19 +124,19 @@ void request() async {
 }
 ```
 
-### Performing a `POST` request:
+### Performing a `POST` request
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ```
 
-### Performing multiple concurrent requests:
+### Performing multiple concurrent requests
 
 ```dart
 response = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
-### Downloading a file:
+### Downloading a file
 
 ```dart
 response = await dio.download(
@@ -135,7 +145,7 @@ response = await dio.download(
 );
 ```
 
-### Get response stream:
+### Get response stream
 
 ```dart
 final rs = await dio.get(
@@ -145,7 +155,7 @@ final rs = await dio.get(
 print(rs.data.stream); // Response stream.
 ```
 
-### Get response with bytes:
+### Get response with bytes
 
 ```dart
 final rs = await Dio().get<List<int>>(
@@ -155,7 +165,7 @@ final rs = await Dio().get<List<int>>(
 print(rs.data); // Type: List<int>.
 ```
 
-### Sending a `FormData`:
+### Sending a `FormData`
 
 ```dart
 final formData = FormData.fromMap({
@@ -165,7 +175,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### Uploading multiple files to server by FormData:
+### Uploading multiple files to server by FormData
 
 ```dart
 final formData = FormData.fromMap({
@@ -180,7 +190,7 @@ final formData = FormData.fromMap({
 final response = await dio.post('/info', data: formData);
 ```
 
-### Listening the uploading progress:
+### Listening the uploading progress
 
 ```dart
 final response = await dio.post(
@@ -192,7 +202,7 @@ final response = await dio.post(
 );
 ```
 
-### Post binary data with Stream:
+### Post binary data with Stream
 
 ```dart
 // Binary data
@@ -214,7 +224,7 @@ See all examples code [here](example).
 
 ## Dio APIs
 
-### Creating an instance and set default configs.
+### Creating an instance and set default configs
 
 > It is recommended to use a singleton of `Dio` in projects, which can manage configurations like headers, base urls,
 > and timeouts consistently.
@@ -238,6 +248,9 @@ void configureDio() {
     receiveTimeout: Duration(seconds: 3),
   );
   final anotherDio = Dio(options);
+
+  // Or clone the existing `Dio` instance with all fields.
+  final clonedDio = dio.clone();
 }
 ```
 
