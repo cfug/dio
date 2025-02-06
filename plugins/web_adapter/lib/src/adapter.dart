@@ -1,12 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio/src/utils.dart';
-import 'package:meta/meta.dart';
 import 'package:web/web.dart' as web;
+
+import 'fetch/readable_stream.dart';
+import 'fetch/readable_stream_source.dart';
 
 BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
@@ -15,8 +17,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   BrowserHttpClientAdapter({this.withCredentials = false});
 
   /// These are aborted if the client is closed.
-  @visibleForTesting
-  final xhrs = <web.XMLHttpRequest>{};
+  final _abortables = <web.AbortController>{};
 
   /// Whether to send credentials such as cookies or authorization headers for
   /// cross-site requests.
@@ -33,25 +34,20 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    final xhr = web.XMLHttpRequest();
-    xhrs.add(xhr);
-    xhr
-      ..open(options.method, '${options.uri}')
-      ..responseType = 'arraybuffer';
+    final request = web.RequestInit(
+      method: options.method,
+      redirect: options.followRedirects ? 'follow' : 'error',
+    );
 
-    final withCredentialsOption = options.extra['withCredentials'];
-    if (withCredentialsOption != null) {
-      xhr.withCredentials = withCredentialsOption == true;
-    } else {
-      xhr.withCredentials = withCredentials;
-    }
+    final withCredentialsOption = options.extra['withCredentials'] != null ? options.extra['withCredentials'] == true : withCredentials;
+    request.credentials = withCredentialsOption ? 'include' : 'same-origin';
 
     options.headers.remove(Headers.contentLengthHeader);
     options.headers.forEach((key, v) {
       if (v is Iterable) {
-        xhr.setRequestHeader(key, v.join(', '));
+        request.headers.setProperty(key.toJS, v.join(', ').toJS);
       } else {
-        xhr.setRequestHeader(key, v.toString());
+        request.headers.setProperty(key.toJS, v.toString().toJS);
       }
     });
 
@@ -60,92 +56,28 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final connectTimeout = options.connectTimeout ?? Duration.zero;
     final receiveTimeout = options.receiveTimeout ?? Duration.zero;
 
-    final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
-    xhr.timeout = xhrTimeout;
+    final fetchTimeout = connectTimeout + receiveTimeout;
+    final abortController = web.AbortController();
+    request.signal = abortController.signal;
+    _abortables.add(abortController);
 
     final completer = Completer<ResponseBody>();
 
-    xhr.onLoad.first.then((_) {
-      final ByteBuffer body = (xhr.response as JSArrayBuffer).toDart;
-      completer.complete(
-        ResponseBody.fromBytes(
-          body.asUint8List(),
-          xhr.status,
-          headers: xhr.getResponseHeaders(),
-          statusMessage: xhr.statusText,
-          isRedirect: xhr.status == 302 ||
-              xhr.status == 301 ||
-              options.uri.toString() != xhr.responseURL,
-        ),
-      );
+    cancelFuture?.then((_) {
+      try {
+        abortController.abort();
+      } catch (_) {}
+      if (!completer.isCompleted) {
+        completer.completeError(
+          DioException.requestCancelled(
+            requestOptions: options,
+            reason: 'The Fetch request was aborted.',
+          ),
+        );
+      }
     });
 
-    Timer? connectTimeoutTimer;
-    if (connectTimeout > Duration.zero) {
-      connectTimeoutTimer = Timer(
-        connectTimeout,
-        () {
-          connectTimeoutTimer = null;
-          if (completer.isCompleted) {
-            // connectTimeout is triggered after the fetch has been completed.
-            return;
-          }
-          xhr.abort();
-          completer.completeError(
-            DioException.connectionTimeout(
-              requestOptions: options,
-              timeout: connectTimeout,
-            ),
-            StackTrace.current,
-          );
-        },
-      );
-    }
-
-    // This code is structured to call `xhr.upload.onProgress.listen` only when
-    // absolutely necessary, because registering an xhr upload listener prevents
-    // the request from being classified as a "simple request" by the CORS spec.
-    // Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
-    // Upload progress events only get triggered if the request body exists,
-    // so we can check it beforehand.
-    if (requestStream != null) {
-      final xhrUploadProgressStream =
-          web.EventStreamProviders.progressEvent.forTarget(xhr.upload);
-
-      if (connectTimeoutTimer != null) {
-        xhrUploadProgressStream.listen((_) {
-          connectTimeoutTimer?.cancel();
-          connectTimeoutTimer = null;
-        });
-      }
-
-      if (sendTimeout > Duration.zero) {
-        final uploadStopwatch = Stopwatch();
-        xhrUploadProgressStream.listen((_) {
-          if (!uploadStopwatch.isRunning) {
-            uploadStopwatch.start();
-          }
-          final duration = uploadStopwatch.elapsed;
-          if (duration > sendTimeout) {
-            uploadStopwatch.stop();
-            completer.completeError(
-              DioException.sendTimeout(
-                timeout: sendTimeout,
-                requestOptions: options,
-              ),
-              StackTrace.current,
-            );
-            xhr.abort();
-          }
-        });
-      }
-
-      if (onSendProgress != null) {
-        xhrUploadProgressStream.listen((event) {
-          onSendProgress(event.loaded, event.total);
-        });
-      }
-    } else {
+    if (requestStream == null) {
       if (sendTimeout > Duration.zero) {
         warningLog(
           'sendTimeout cannot be used without a request body to send on Web',
@@ -158,29 +90,115 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           StackTrace.current,
         );
       }
+    } else {
+      if (options.method == 'GET') {
+        warningLog(
+          'GET request with a body data are not support on the '
+          'web platform. Use POST/PUT instead.',
+          StackTrace.current,
+        );
+      }
+
+      Stopwatch? uploadStopwatch;
+      if (sendTimeout > Duration.zero) {
+        uploadStopwatch = Stopwatch();
+      }
+
+      int sentBytes = 0;
+      final streamReader = ReadableStream(
+        ReadableStreamSource.fromStream(
+          requestStream.map((e) {
+            if (uploadStopwatch != null) {
+              if (!uploadStopwatch.isRunning) {
+                uploadStopwatch.start();
+              }
+
+              if (uploadStopwatch.elapsed > sendTimeout) {
+                uploadStopwatch.stop();
+                completer.completeError(
+                  DioException.sendTimeout(
+                    timeout: sendTimeout,
+                    requestOptions: options,
+                  ),
+                  StackTrace.current,
+                );
+                abortController.abort();
+              }
+            }
+
+            sentBytes += e.lengthInBytes;
+            if (options.onSendProgress != null) {
+              options.onSendProgress!(sentBytes, -1);
+            }
+            return e.toJS;
+          }),
+        ),
+      );
+
+      request.body = streamReader;
     }
 
-    final receiveStopwatch = Stopwatch();
-    Timer? receiveTimer;
+    // Now send
+    final Future<web.Response> requestPrototype = web.window.fetch(options.uri.toString().toJS, request).toDart;
 
-    void stopWatchReceiveTimeout() {
-      receiveTimer?.cancel();
-      receiveTimer = null;
-      receiveStopwatch.stop();
+    late final web.Response response;
+    try {
+      if (fetchTimeout > Duration.zero) {
+        response = await requestPrototype.timeout(fetchTimeout);
+      } else {
+        response = await requestPrototype;
+      }
+    } on TimeoutException catch (timeoutException) {
+      completer.completeError(
+        DioException.connectionTimeout(
+          timeout: connectTimeout,
+          error: timeoutException,
+          requestOptions: options,
+        ),
+      );
+
+      return completer.future;
+    } catch (exception, stackTrace) {
+      completer.completeError(
+        DioException.connectionError(
+          requestOptions: options,
+          error: exception,
+          reason: 'The Fetch operation threw an exception. '
+              'This typically indicates an error on the network layer.',
+        ),
+        stackTrace,
+      );
+
+      return completer.future;
     }
 
-    void watchReceiveTimeout() {
-      if (receiveTimeout <= Duration.zero) {
-        return;
-      }
-      receiveStopwatch.reset();
-      if (!receiveStopwatch.isRunning) {
-        receiveStopwatch.start();
-      }
-      receiveTimer?.cancel();
-      receiveTimer = Timer(receiveTimeout, () {
-        if (!completer.isCompleted) {
-          xhr.abort();
+    Stopwatch? receiveStopwatch;
+    if (receiveTimeout > Duration.zero) {
+      receiveStopwatch = Stopwatch();
+    }
+
+    final BytesBuilder receivedBody = BytesBuilder();
+    final int totalResponseLength = int.tryParse(
+          response.headers.get(Headers.contentLengthHeader) ?? '-1',
+        ) ??
+        -1;
+
+    if (response.body != null) {
+      receiveStopwatch?.start();
+
+      final web.ReadableStreamDefaultReader reader = response.body!.getReader() as web.ReadableStreamDefaultReader;
+
+      int totalRead = 0;
+      while (true) {
+        final web.ReadableStreamReadResult chunk = await reader.read().toDart;
+        if (chunk.done) {
+          break;
+        }
+
+        if (receiveStopwatch != null && receiveStopwatch.elapsed > receiveTimeout) {
+          receiveStopwatch.stop();
+          abortController.abort();
+
           completer.completeError(
             DioException.receiveTimeout(
               timeout: receiveTimeout,
@@ -189,109 +207,39 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             StackTrace.current,
           );
         }
-        stopWatchReceiveTimeout();
-      });
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/read#examples
+        final Uint8List payload = (chunk.value as JSUint8Array).toDart;
+        totalRead += payload.lengthInBytes;
+        receivedBody.add(payload);
+        if (options.onReceiveProgress != null) {
+          options.onReceiveProgress!(totalRead, totalResponseLength);
+        }
+      }
     }
 
-    xhr.onProgress.listen(
-      (event) {
-        if (connectTimeoutTimer != null) {
-          connectTimeoutTimer!.cancel();
-          connectTimeoutTimer = null;
-        }
-        watchReceiveTimeout();
-        if (options.onReceiveProgress != null) {
-          options.onReceiveProgress!(event.loaded, event.total);
-        }
-      },
-      onDone: () => stopWatchReceiveTimeout(),
+    // Done
+
+    final Map<String, List<String>> headers = {};
+    final _IterableHeaders responseHeaders = response.headers as _IterableHeaders;
+    responseHeaders.forEach(
+      (String value, String header, [JSAny? _]) {
+        headers[header.toLowerCase()] = [value];
+      }.toJS,
     );
 
-    xhr.onError.first.then((_) {
-      connectTimeoutTimer?.cancel();
-      // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
-      // specific information about the error itself.
-      // See also: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
-      completer.completeError(
-        DioException.connectionError(
-          requestOptions: options,
-          reason: 'The XMLHttpRequest onError callback was called. '
-              'This typically indicates an error on the network layer.',
-        ),
-        StackTrace.current,
-      );
-    });
+    completer.complete(
+      ResponseBody.fromBytes(
+        receivedBody.toBytes(),
+        response.status,
+        statusMessage: response.statusText,
+        headers: headers,
+        isRedirect: response.redirected,
+      ),
+    );
 
-    web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
-      final isConnectTimeout = connectTimeoutTimer != null;
-      if (connectTimeoutTimer != null) {
-        connectTimeoutTimer?.cancel();
-      }
-      if (!completer.isCompleted) {
-        if (isConnectTimeout) {
-          completer.completeError(
-            DioException.connectionTimeout(
-              timeout: connectTimeout,
-              requestOptions: options,
-            ),
-          );
-        } else {
-          completer.completeError(
-            DioException.receiveTimeout(
-              timeout: Duration(milliseconds: xhrTimeout),
-              requestOptions: options,
-            ),
-            StackTrace.current,
-          );
-        }
-      }
-    });
-
-    cancelFuture?.then((_) {
-      if (xhr.readyState < web.XMLHttpRequest.DONE &&
-          xhr.readyState > web.XMLHttpRequest.UNSENT) {
-        connectTimeoutTimer?.cancel();
-        try {
-          xhr.abort();
-        } catch (_) {}
-        if (!completer.isCompleted) {
-          completer.completeError(
-            DioException.requestCancelled(
-              requestOptions: options,
-              reason: 'The XMLHttpRequest was aborted.',
-            ),
-          );
-        }
-      }
-    });
-
-    if (requestStream != null) {
-      if (options.method == 'GET') {
-        warningLog(
-          'GET request with a body data are not support on the '
-          'web platform. Use POST/PUT instead.',
-          StackTrace.current,
-        );
-      }
-      final completer = Completer<Uint8List>();
-      final sink = ByteConversionSink.withCallback(
-        (bytes) => completer.complete(
-          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
-        ),
-      );
-      requestStream.listen(
-        sink.add,
-        onError: (Object e, StackTrace s) => completer.completeError(e, s),
-        onDone: sink.close,
-        cancelOnError: true,
-      );
-      final bytes = await completer.future;
-      xhr.send(bytes.toJS);
-    } else {
-      xhr.send();
-    }
     return completer.future.whenComplete(() {
-      xhrs.remove(xhr);
+      _abortables.remove(abortController);
     });
   }
 
@@ -301,35 +249,17 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     if (force) {
-      for (final xhr in xhrs) {
-        xhr.abort();
+      for (final abortable in _abortables) {
+        abortable.abort();
       }
     }
-    xhrs.clear();
+    _abortables.clear();
   }
 }
 
-extension on web.XMLHttpRequest {
-  Map<String, List<String>> getResponseHeaders() {
-    final headersString = getAllResponseHeaders();
-    final headers = <String, List<String>>{};
-    if (headersString.isEmpty) {
-      return headers;
-    }
-    final headersList = headersString.split('\r\n');
-    for (final header in headersList) {
-      if (header.isEmpty) {
-        continue;
-      }
-
-      final splitIdx = header.indexOf(': ');
-      if (splitIdx == -1) {
-        continue;
-      }
-      final key = header.substring(0, splitIdx).toLowerCase();
-      final value = header.substring(splitIdx + 2);
-      (headers[key] ??= []).add(value);
-    }
-    return headers;
-  }
+/// Workaround for `Headers` not providing a way to iterate the headers.
+/// https://github.com/dart-lang/http/blob/aadf8363a83dd211bb56c36ac301396437b9282b/pkgs/http/lib/src/browser_client.dart#L184
+@JS()
+extension type _IterableHeaders._(JSObject _) implements JSObject {
+  external void forEach(JSFunction fn);
 }

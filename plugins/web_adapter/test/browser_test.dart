@@ -6,16 +6,21 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('with credentials', () async {
-    final browserAdapter = BrowserHttpClientAdapter(withCredentials: true);
-    final opts = RequestOptions();
-    final testStream = Stream<Uint8List>.periodic(
-      const Duration(seconds: 1),
-      (x) => Uint8List(x),
+  test('download stream', () async {
+    final browserAdapter = BrowserHttpClientAdapter();
+    final opts = RequestOptions(
+      method: 'POST',
     );
+    final testStream = Stream.fromIterable(<Uint8List>[
+      Uint8List.fromList([10, 1]),
+      Uint8List.fromList([1, 4]),
+      Uint8List.fromList([5, 1]),
+      Uint8List.fromList([1, 1]),
+      Uint8List.fromList([2, 4]),
+    ]);
     final cancelFuture = opts.cancelToken?.whenCancel;
 
-    browserAdapter.fetch(opts, testStream, cancelFuture);
-    expect(browserAdapter.xhrs.every((e) => e.withCredentials == true), isTrue);
+    final response = await browserAdapter.fetch(opts, testStream, cancelFuture);
+    expect(await response.stream.length, 1);
   });
 }
