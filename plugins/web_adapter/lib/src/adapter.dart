@@ -177,6 +177,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       receiveStopwatch = Stopwatch();
     }
 
+    final Map<String, List<String>> headers = {};
+    final _IterableHeaders responseHeaders = response.headers as _IterableHeaders;
+    responseHeaders.forEach(
+      (String value, String header, [JSAny? _]) {
+        headers[header.toLowerCase()] = [value];
+      }.toJS,
+    );
+
     final BytesBuilder receivedBody = BytesBuilder();
     final int totalResponseLength = int.tryParse(
           response.headers.get(Headers.contentLengthHeader) ?? '-1',
@@ -187,56 +195,90 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       receiveStopwatch?.start();
 
       final web.ReadableStreamDefaultReader reader = response.body!.getReader() as web.ReadableStreamDefaultReader;
+      StreamController<Uint8List>? dataStreamController;
+      if (options.responseType == ResponseType.stream) {
+        dataStreamController = StreamController(
+          onCancel: () {
+            // Abort
+            abortController.abort();
+          },
+        );
+      }
 
-      int totalRead = 0;
-      while (true) {
-        final web.ReadableStreamReadResult chunk = await reader.read().toDart;
-        if (chunk.done) {
-          break;
-        }
+      Future readResponse() async {
+        int totalRead = 0;
+        while (true) {
+          final web.ReadableStreamReadResult chunk = await reader.read().toDart;
+          if (chunk.done) {
+            dataStreamController?.close();
+            break;
+          }
 
-        if (receiveStopwatch != null && receiveStopwatch.elapsed > receiveTimeout) {
-          receiveStopwatch.stop();
-          abortController.abort();
+          if (receiveStopwatch != null && receiveStopwatch.elapsed > receiveTimeout) {
+            receiveStopwatch.stop();
+            abortController.abort();
 
-          completer.completeError(
-            DioException.receiveTimeout(
-              timeout: receiveTimeout,
-              requestOptions: options,
-            ),
-            StackTrace.current,
-          );
-        }
+            completer.completeError(
+              DioException.receiveTimeout(
+                timeout: receiveTimeout,
+                requestOptions: options,
+              ),
+              StackTrace.current,
+            );
+          }
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/read#examples
-        final Uint8List payload = (chunk.value as JSUint8Array).toDart;
-        totalRead += payload.lengthInBytes;
-        receivedBody.add(payload);
-        if (options.onReceiveProgress != null) {
-          options.onReceiveProgress!(totalRead, totalResponseLength);
+          // https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/read#examples
+          final Uint8List payload = (chunk.value as JSUint8Array).toDart;
+          totalRead += payload.lengthInBytes;
+          if (options.responseType == ResponseType.stream) {
+            dataStreamController!.add(payload);
+          } else {
+            receivedBody.add(payload);
+          }
+          if (options.onReceiveProgress != null) {
+            options.onReceiveProgress!(totalRead, totalResponseLength);
+          }
         }
       }
+
+      if (options.responseType == ResponseType.stream) {
+        readResponse();
+
+        completer.complete(
+          ResponseBody(
+            dataStreamController!.stream,
+            response.status,
+            statusMessage: response.statusText,
+            headers: headers,
+            isRedirect: response.redirected,
+          ),
+        );
+      } else {
+        await readResponse();
+
+        completer.complete(
+          ResponseBody.fromBytes(
+            receivedBody.toBytes(),
+            response.status,
+            statusMessage: response.statusText,
+            headers: headers,
+            isRedirect: response.redirected,
+          ),
+        );
+      }
+    } else {
+      // No response data
+
+      completer.complete(
+        ResponseBody.fromBytes(
+          Uint8List(0),
+          response.status,
+          statusMessage: response.statusText,
+          headers: headers,
+          isRedirect: response.redirected,
+        ),
+      );
     }
-
-    // Done
-
-    final Map<String, List<String>> headers = {};
-    final _IterableHeaders responseHeaders = response.headers as _IterableHeaders;
-    responseHeaders.forEach(
-      (String value, String header, [JSAny? _]) {
-        headers[header.toLowerCase()] = [value];
-      }.toJS,
-    );
-
-    completer.complete(
-      ResponseBody.fromBytes(
-        receivedBody.toBytes(),
-        response.status,
-        statusMessage: response.statusText,
-        headers: headers,
-        isRedirect: response.redirected,
-      ),
-    );
 
     return completer.future.whenComplete(() {
       _abortables.remove(abortController);
