@@ -14,7 +14,8 @@ extension type ReadableStreamDefaultReader<T extends JSAny,
   /// Creates and returns a [ReadableStreamDefaultReader] object instance.
   @JS()
   external factory ReadableStreamDefaultReader(
-      ReadableStream<T, AbortType> stream);
+    ReadableStream<T, AbortType> stream,
+  );
 
   /// Returns a `Promise` that fulfills when the stream closes,
   /// or rejects if the stream throws an error or the reader's lock is released.
@@ -60,7 +61,9 @@ extension type ReadableStreamDefaultReader<T extends JSAny,
       ReadableStreamDefaultReaderChunk<T> chunk;
       do {
         chunk = await read();
-        if (chunk.value case final value?) yield value;
+        if (chunk.value case final value?) {
+          yield value;
+        }
       } while (!chunk.done);
       return;
     } finally {

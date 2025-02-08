@@ -29,7 +29,8 @@ extension type JSPromiseOr<T extends JSAny?>._(JSAny _) implements JSAny {
         // Always succeeds, because of JS type erasure.
         final T value => value,
         _ => throw StateError(
-            'Invalid state op JSPromiseOr: unexpected type: $runtimeType'),
+            'Invalid state op JSPromiseOr: unexpected type: $runtimeType',
+          ),
       };
 }
 

@@ -8,7 +8,9 @@ import 'readable_stream_controller.dart';
 typedef ReadableStreamSourceCancelMethodFunction<T extends JSAny,
         R extends JSAny?, AbortType extends JSAny>
     = FutureOr<R> Function(
-        AbortType? reason, ReadableStreamController<T> controller);
+  AbortType? reason,
+  ReadableStreamController<T> controller,
+);
 
 /// Interface for controller `cancel` method.
 extension type ReadableStreamSourceCancelMethod<
@@ -37,5 +39,6 @@ extension type ReadableStreamSourceCancelMethod<
   /// Bind this function to given [context].
   @JS()
   external ReadableStreamSourceCancelMethod<T, R, AbortType> bind(
-      JSObject context);
+    JSObject context,
+  );
 }
