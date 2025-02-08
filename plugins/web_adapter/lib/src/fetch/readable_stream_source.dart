@@ -67,12 +67,18 @@ extension type ReadableStreamSource<T extends JSAny, AbortType extends JSAny>._(
             controller.close();
           },
         );
+
+        return null;
       },
       pull: (controller) {
         subscription.resume();
+
+        return null;
       },
       cancel: (reason, controller) async {
         await subscription.cancel();
+
+        return null;
       },
     );
   }

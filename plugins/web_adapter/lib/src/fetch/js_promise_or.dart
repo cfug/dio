@@ -23,15 +23,6 @@ extension type JSPromiseOr<T extends JSAny?>._(JSAny _) implements JSAny {
         // Always succeeds, because of JS type erasure.
         final T value => value,
       } as JSPromiseOr<T>?;
-
-  FutureOr<T> get toDart => switch (this) {
-        final JSPromise<T> promise => promise.toDart as FutureOr<T>,
-        // Always succeeds, because of JS type erasure.
-        final T value => value,
-        _ => throw StateError(
-            'Invalid state op JSPromiseOr: unexpected type: $runtimeType',
-          ),
-      };
 }
 
 extension FutureOrToJSPromiseOr<T extends JSAny?> on FutureOr<T> {

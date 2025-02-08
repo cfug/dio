@@ -16,12 +16,14 @@ extension type ReadableStream<T extends JSAny, AbortType extends JSAny>._(
     JSObject? queuingStrategy,
   ]) {
     if (underlyingSource != null) {
-      if (queuingStrategy != null)
+      if (queuingStrategy != null) {
         return ReadableStream._new$2(underlyingSource, queuingStrategy);
-      else
+      } else {
         return ReadableStream._new$1(underlyingSource);
-    } else
+      }
+    } else {
       return ReadableStream._new$0();
+    }
   }
 
   /// Creates and returns a readable stream object.
