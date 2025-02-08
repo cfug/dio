@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -45,20 +44,21 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     request.credentials = withCredentialsOption ? 'include' : 'same-origin';
 
     options.headers.remove(Headers.contentLengthHeader);
+    final Map<String, String> requestHeaders = {};
     options.headers.forEach((key, v) {
       if (v is Iterable) {
-        request.headers.setProperty(key.toJS, v.join(', ').toJS);
+        requestHeaders[key] = v.join(', ');
       } else {
-        request.headers.setProperty(key.toJS, v.toString().toJS);
+        requestHeaders[key] = v.toString();
       }
     });
+    request.headers = requestHeaders.jsify()! as web.HeadersInit;
 
     final onSendProgress = options.onSendProgress;
     final sendTimeout = options.sendTimeout ?? Duration.zero;
     final connectTimeout = options.connectTimeout ?? Duration.zero;
     final receiveTimeout = options.receiveTimeout ?? Duration.zero;
 
-    final fetchTimeout = connectTimeout + receiveTimeout;
     final abortController = web.AbortController();
     request.signal = abortController.signal;
     _abortables.add(abortController);
@@ -73,12 +73,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         completer.completeError(
           DioException.requestCancelled(
             requestOptions: options,
-            reason: 'The Fetch request was aborted.',
+            reason: 'cancelled',
+            stackTrace: StackTrace.current,
           ),
         );
       }
     });
 
+    int totalPayload = -1;
     if (requestStream == null) {
       if (sendTimeout > Duration.zero) {
         warningLog(
@@ -92,7 +94,7 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           StackTrace.current,
         );
       }
-    } else {
+    } else if (options.method != 'GET' && options.method != 'HEAD') {
       if (options.method == 'GET') {
         warningLog(
           'GET request with a body data are not support on the '
@@ -100,44 +102,66 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           StackTrace.current,
         );
       }
+      request.duplex = 'half';
 
       Stopwatch? uploadStopwatch;
       if (sendTimeout > Duration.zero) {
         uploadStopwatch = Stopwatch();
       }
 
-      int sentBytes = 0;
-      final streamReader = ReadableStream(
-        ReadableStreamSource.fromStream(
-          requestStream.map((e) {
-            if (uploadStopwatch != null) {
-              if (!uploadStopwatch.isRunning) {
-                uploadStopwatch.start();
+      if (_isFirefox()) {
+        // Firefox has a 8 year old bug preventing us from sending a StreamReader body. Not the actual data gets sent but '[object ReadableStream]'
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1387483c
+        // Here is a demonstration script: https://jsfiddle.net/qLe8gbmu/4/
+
+        // For now we read the entire data and send it at once
+
+        final bytesBuilder = BytesBuilder();
+        final List<Uint8List> rawData = await requestStream.toList();
+        for (int i = 0; i < rawData.length; i++) {
+          bytesBuilder.add(rawData[i]);
+        }
+
+        totalPayload = bytesBuilder.length;
+        if (options.onSendProgress != null) {
+          options.onSendProgress!(0, totalPayload);
+        }
+
+        request.body = bytesBuilder.toBytes().toJS;
+      } else {
+        int sentBytes = 0;
+        final streamReader = ReadableStream(
+          ReadableStreamSource.fromStream(
+            requestStream.map((Uint8List e) {
+              if (uploadStopwatch != null) {
+                if (!uploadStopwatch.isRunning) {
+                  uploadStopwatch.start();
+                }
+
+                if (uploadStopwatch.elapsed > sendTimeout) {
+                  uploadStopwatch.stop();
+                  completer.completeError(
+                    DioException.sendTimeout(
+                      timeout: sendTimeout,
+                      requestOptions: options,
+                    ),
+                    StackTrace.current,
+                  );
+                  abortController.abort();
+                }
               }
 
-              if (uploadStopwatch.elapsed > sendTimeout) {
-                uploadStopwatch.stop();
-                completer.completeError(
-                  DioException.sendTimeout(
-                    timeout: sendTimeout,
-                    requestOptions: options,
-                  ),
-                  StackTrace.current,
-                );
-                abortController.abort();
+              sentBytes += e.lengthInBytes;
+              if (options.onSendProgress != null) {
+                options.onSendProgress!(sentBytes, totalPayload);
               }
-            }
+              return e.toJS;
+            }),
+          ),
+        );
 
-            sentBytes += e.lengthInBytes;
-            if (options.onSendProgress != null) {
-              options.onSendProgress!(sentBytes, -1);
-            }
-            return e.toJS;
-          }),
-        ),
-      );
-
-      request.body = streamReader;
+        request.body = streamReader;
+      }
     }
 
     // Now send
@@ -146,10 +170,15 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     late final web.Response response;
     try {
-      if (fetchTimeout > Duration.zero) {
-        response = await requestPrototype.timeout(fetchTimeout);
+      if (connectTimeout > Duration.zero) {
+        response = await requestPrototype.timeout(connectTimeout);
       } else {
         response = await requestPrototype;
+      }
+      if (_isFirefox() && options.onSendProgress != null) {
+        if (options.onSendProgress != null) {
+          options.onSendProgress!(totalPayload, totalPayload);
+        }
       }
     } on TimeoutException catch (timeoutException) {
       completer.completeError(
@@ -162,6 +191,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
       return completer.future;
     } catch (exception, stackTrace) {
+      if (completer.isCompleted) {
+        return completer.future;
+      }
+
       completer.completeError(
         DioException.connectionError(
           requestOptions: options,
@@ -189,6 +222,28 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }.toJS,
     );
 
+    // Request may got cancelled
+    if (completer.isCompleted) {
+      return completer.future;
+    }
+
+    // Check CORS
+    if (response.status == 418) {
+      if (options.onSendProgress != null ||
+          sendTimeout > Duration.zero ||
+          (request.method != 'GET' &&
+              options.contentType != Headers.textPlainContentType)) {
+        completer.completeError(
+          DioException.connectionError(
+            requestOptions: options,
+            error: 'CORS preflight request failed',
+            reason: 'The preflight request responded with status 418',
+          ),
+          StackTrace.current,
+        );
+      }
+    }
+
     final BytesBuilder receivedBody = BytesBuilder();
     final int totalResponseLength = int.tryParse(
           response.headers.get(Headers.contentLengthHeader) ?? '-1',
@@ -214,13 +269,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         int totalRead = 0;
         while (true) {
           final web.ReadableStreamReadResult chunk = await reader.read().toDart;
-          if (chunk.done) {
-            dataStreamController?.close();
-            break;
+
+          if (completer.isCompleted) {
+            // Request may got cancelled
+            return completer.future;
           }
 
           if (receiveStopwatch != null &&
-              receiveStopwatch.elapsed > receiveTimeout) {
+              receiveStopwatch.elapsed >= receiveTimeout) {
             receiveStopwatch.stop();
             abortController.abort();
 
@@ -231,6 +287,12 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
               ),
               StackTrace.current,
             );
+            return completer.future;
+          }
+
+          if (chunk.done) {
+            dataStreamController?.close();
+            break;
           }
 
           // https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/read#examples
@@ -250,6 +312,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       if (options.responseType == ResponseType.stream) {
         readResponse();
 
+        if (completer.isCompleted) {
+          return completer.future;
+        }
+
         completer.complete(
           ResponseBody(
             dataStreamController!.stream,
@@ -261,6 +327,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
         );
       } else {
         await readResponse();
+
+        if (completer.isCompleted) {
+          return completer.future;
+        }
 
         completer.complete(
           ResponseBody.fromBytes(
@@ -274,6 +344,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       }
     } else {
       // No response data
+
+      if (completer.isCompleted) {
+        return completer.future;
+      }
 
       completer.complete(
         ResponseBody.fromBytes(
@@ -303,6 +377,10 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
     _abortables.clear();
   }
+}
+
+bool _isFirefox() {
+  return web.window.navigator.userAgent.toLowerCase().contains('firefox');
 }
 
 /// Workaround for `Headers` not providing a way to iterate the headers.
