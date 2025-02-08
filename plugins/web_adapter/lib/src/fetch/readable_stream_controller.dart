@@ -1,9 +1,9 @@
 import 'dart:js_interop';
 import 'readable_stream.dart';
 
-
 /// Common interface for [ReadableStream] controllers.
-extension type ReadableStreamController<T extends JSAny>._(JSObject _) implements JSObject {
+extension type ReadableStreamController<T extends JSAny>._(JSObject _)
+    implements JSObject {
   /// Returns the desired size required to fill the stream's internal queue.
   @JS()
   external final int desiredSize;

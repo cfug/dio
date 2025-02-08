@@ -8,7 +8,8 @@ import 'readable_stream_source.dart';
 /// The [ReadableStream] interface of the Streams API represents a readable
 /// stream of byte data. The Fetch API offers a concrete instance of
 /// a [ReadableStream] through the body property of a [Response] object.
-extension type ReadableStream<T extends JSAny, AbortType extends JSAny>._(JSObject _) implements JSObject {
+extension type ReadableStream<T extends JSAny, AbortType extends JSAny>._(
+    JSObject _) implements JSObject {
   /// Creates and returns a readable stream object from the given handlers.
   factory ReadableStream([
     ReadableStreamSource<T, AbortType>? underlyingSource,
@@ -41,20 +42,22 @@ extension type ReadableStream<T extends JSAny, AbortType extends JSAny>._(JSObje
     JSObject? queuingStrategy,
   );
 
-  static ReadableStream<JSUint8Array, AbortType> fromTypedDataStream<T extends TypedData, AbortType extends JSAny>(
+  static ReadableStream<JSUint8Array, AbortType>
+      fromTypedDataStream<T extends TypedData, AbortType extends JSAny>(
     Stream<T> stream, [
     JSObject? queuingStrategy,
   ]) =>
-      ReadableStream(
-        ReadableStreamSource.fromStream(
-          stream.transform(
-            StreamTransformer<T, JSUint8Array>.fromHandlers(
-              handleData: (data, sink) => sink.add(data.buffer.asUint8List().toJS),
+          ReadableStream(
+            ReadableStreamSource.fromStream(
+              stream.transform(
+                StreamTransformer<T, JSUint8Array>.fromHandlers(
+                  handleData: (data, sink) =>
+                      sink.add(data.buffer.asUint8List().toJS),
+                ),
+              ),
             ),
-          ),
-        ),
-        queuingStrategy,
-      );
+            queuingStrategy,
+          );
 
   /// Returns a [bool] indicating whether or not the readable stream
   /// is locked to a reader.

@@ -39,7 +39,9 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       redirect: options.followRedirects ? 'follow' : 'error',
     );
 
-    final withCredentialsOption = options.extra['withCredentials'] != null ? options.extra['withCredentials'] == true : withCredentials;
+    final withCredentialsOption = options.extra['withCredentials'] != null
+        ? options.extra['withCredentials'] == true
+        : withCredentials;
     request.credentials = withCredentialsOption ? 'include' : 'same-origin';
 
     options.headers.remove(Headers.contentLengthHeader);
@@ -139,7 +141,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     // Now send
-    final Future<web.Response> requestPrototype = web.window.fetch(options.uri.toString().toJS, request).toDart;
+    final Future<web.Response> requestPrototype =
+        web.window.fetch(options.uri.toString().toJS, request).toDart;
 
     late final web.Response response;
     try {
@@ -178,7 +181,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     }
 
     final Map<String, List<String>> headers = {};
-    final _IterableHeaders responseHeaders = response.headers as _IterableHeaders;
+    final _IterableHeaders responseHeaders =
+        response.headers as _IterableHeaders;
     responseHeaders.forEach(
       (String value, String header, [JSAny? _]) {
         headers[header.toLowerCase()] = [value];
@@ -194,7 +198,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     if (response.body != null) {
       receiveStopwatch?.start();
 
-      final web.ReadableStreamDefaultReader reader = response.body!.getReader() as web.ReadableStreamDefaultReader;
+      final web.ReadableStreamDefaultReader reader =
+          response.body!.getReader() as web.ReadableStreamDefaultReader;
       StreamController<Uint8List>? dataStreamController;
       if (options.responseType == ResponseType.stream) {
         dataStreamController = StreamController(
@@ -214,7 +219,8 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             break;
           }
 
-          if (receiveStopwatch != null && receiveStopwatch.elapsed > receiveTimeout) {
+          if (receiveStopwatch != null &&
+              receiveStopwatch.elapsed > receiveTimeout) {
             receiveStopwatch.stop();
             abortController.abort();
 
