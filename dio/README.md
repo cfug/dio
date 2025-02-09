@@ -583,7 +583,7 @@ dio.interceptors.add(
 
 You can customize interceptor by extending the `Interceptor/QueuedInterceptor` class.
 There is an example that implementing a simple cache policy:
-[custom cache interceptor](../example/lib/custom_cache_interceptor.dart).
+[custom cache interceptor](..//example_dart/lib/custom_cache_interceptor.dart).
 
 ## Handling Errors
 
