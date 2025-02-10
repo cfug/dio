@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 
 import 'adapter.dart';
@@ -26,9 +28,17 @@ class DioForBrowser with DioMixin implements Dio {
     String lengthHeader = Headers.contentLengthHeader,
     Object? data,
     Options? options,
-  }) {
-    throw UnsupportedError(
-      'The download method is not available in the Web environment.',
+  }) async {
+    return fetch(
+      RequestOptions(
+        baseUrl: urlPath,
+        data: data,
+        method: options?.method ?? 'GET',
+        responseType: ResponseType.blobUrl,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+      ),
     );
   }
 }
