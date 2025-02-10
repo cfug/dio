@@ -161,6 +161,7 @@ class Http2Adapter implements HttpClientAdapter {
 
     final responseSink = StreamController<Uint8List>();
     final responseHeaders = Headers();
+    @pragma('vm:awaiter-link')
     final responseCompleter = Completer();
     late StreamSubscription responseSubscription;
     bool needRedirect = false;

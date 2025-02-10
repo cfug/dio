@@ -103,6 +103,7 @@ class DioForNative with DioMixin implements Dio {
     );
 
     // Create a Completer to notify the success/error state.
+    @pragma('vm:awaiter-link')
     final completer = Completer<Response>();
     int received = 0;
 
