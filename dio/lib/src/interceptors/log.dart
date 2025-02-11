@@ -20,7 +20,7 @@ import '../response.dart';
 /// );
 /// ```
 class LogInterceptor extends Interceptor {
-  LogInterceptor({
+  const LogInterceptor({
     this.request = true,
     this.requestHeader = true,
     this.requestBody = false,
@@ -31,22 +31,22 @@ class LogInterceptor extends Interceptor {
   });
 
   /// Print request [Options]
-  bool request;
+  final bool request;
 
   /// Print request header [Options.headers]
-  bool requestHeader;
+  final bool requestHeader;
 
   /// Print request data [Options.data]
-  bool requestBody;
+  final bool requestBody;
 
   /// Print [Response.data]
-  bool responseBody;
+  final bool responseBody;
 
   /// Print [Response.headers]
-  bool responseHeader;
+  final bool responseHeader;
 
   /// Print error message
-  bool error;
+  final bool error;
 
   /// Log printer; defaults print log to console.
   /// In flutter, you'd better use debugPrint.
@@ -58,7 +58,7 @@ class LogInterceptor extends Interceptor {
   ///  ...
   ///  await sink.close();
   /// ```
-  void Function(Object object) logPrint;
+  final void Function(Object object) logPrint;
 
   @override
   void onRequest(
