@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'adapter.dart';
+import 'adapter_impl.dart';
 
 /// Create the [Dio] instance for Web platforms.
 Dio createDio([BaseOptions? options]) => DioForBrowser(options);

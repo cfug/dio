@@ -2,6 +2,11 @@
 
 *None.*
 
+## 1.1.1
+
+- Move all source Dart files to `*_impl.dart` to avoid naming collision.
+  This is a workaround of https://github.com/dart-lang/sdk/issues/56498.
+
 ## 1.1.0
 
 - Support `FileAccessMode` in `Dio.download` and `Dio.downloadUri` to change download file opening mode.
