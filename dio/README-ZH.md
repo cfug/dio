@@ -402,7 +402,7 @@ ResponseDecoder? responseDecoder;
 ListFormat? listFormat;
 ```
 
-此处为 [完整的代码示例](../example/lib/options.dart)。
+此处为 [完整的代码示例](../example_dart/lib/options.dart)。
 
 ### 响应数据
 
@@ -574,7 +574,7 @@ dio.interceptors.add(
 ### 自定义拦截器
 
 开发者可以通过继承 `Interceptor/QueuedInterceptor` 类来实现自定义拦截器。
-这是一个简单的 [缓存拦截器](../example/lib/custom_cache_interceptor.dart)。
+这是一个简单的 [缓存拦截器](../example_dart/lib/custom_cache_interceptor.dart)。
 
 ## 错误处理
 
@@ -666,7 +666,7 @@ final formDataWithBoundaryName = FormData(
 
 > 通常情况下只有 POST 方法支持发送 FormData。
 
-这里有一个完整的 [示例](../example/lib/formdata.dart)。
+这里有一个完整的 [示例](../example_dart/lib/formdata.dart)。
 
 ### 多文件上传
 
@@ -753,7 +753,7 @@ void main() {
 
 ### 其它示例
 
-这里有一个 [自定义 Transformer 的示例](../example/lib/transformer.dart)。
+这里有一个 [自定义 Transformer 的示例](../example_dart/lib/transformer.dart)。
 
 ## HttpClientAdapter
 
@@ -785,7 +785,7 @@ dio.httpClientAdapter = HttpClientAdapter();
   dio.httpClientAdapter = IOHttpClientAdapter();
   ```
 
-[示例](../example/lib/adapter.dart) 中包含了一个简单的自定义桥接。
+[示例](../example_dart/lib/adapter.dart) 中包含了一个简单的自定义桥接。
 
 ### 设置代理
 
@@ -809,7 +809,7 @@ void initAdapter() {
 }
 ```
 
-完整的示例请查看 [这里](../example/lib/proxy.dart)。
+完整的示例请查看 [这里](../example_dart/lib/proxy.dart)。
 
 Web 平台不支持设置代理。
 
@@ -923,7 +923,7 @@ dio.get(url, cancelToken: cancelToken).catchError((DioException error) {
 token.cancel('cancelled');
 ```
 
-完整的示例请参考 [取消示例](../example/lib/cancel_request.dart).
+完整的示例请参考 [取消示例](../example_dart/lib/cancel_request.dart).
 
 ## 继承 Dio class
 
