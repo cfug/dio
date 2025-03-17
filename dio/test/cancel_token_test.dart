@@ -17,15 +17,13 @@ void main() {
       expectLater(
         token.whenCancel,
         completion(
-          (error) {
-            return error is DioException &&
-                error.type == DioExceptionType.cancel &&
-                error.error == reason;
-          },
+          matchesDioException(DioExceptionType.cancel),
         ),
       );
       token.requestOptions = RequestOptions();
       token.cancel(reason);
+      token.cancel('after cancelled');
+      expect(token.cancelError?.error, reason);
     });
 
     test('cancel without use does not throw (#1765)', () async {
