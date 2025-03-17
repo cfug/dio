@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'dio_exception.dart';
 import 'options.dart';
+import 'utils.dart' show warningLog;
 
 /// {@template dio.CancelToken}
 /// Controls cancellation of [Dio]'s requests.
@@ -36,6 +37,19 @@ class CancelToken {
   /// Cancel the request with the given [reason].
   void cancel([Object? reason]) {
     if (_completer.isCompleted) {
+      if (reason != _cancelError?.error) {
+        final buffer = StringBuffer();
+        buffer.writeln(
+          'The CancelToken was cancelled multiple times with different reason:',
+        );
+        buffer.writeln('=> [Error      ]:');
+        buffer.writeln('   |--- Previous:${_cancelError?.error}');
+        buffer.writeln('   |--- Current :$reason');
+        buffer.writeln('=> [Stack Trace]:');
+        buffer.writeln('   |--- Previous:${_cancelError?.stackTrace}');
+        buffer.writeln('   |--- Current :${StackTrace.current}');
+        warningLog(buffer.toString(), StackTrace.current);
+      }
       return;
     }
     _cancelError = DioException.requestCancelled(
