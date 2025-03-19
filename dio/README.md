@@ -133,7 +133,7 @@ response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ### Performing multiple concurrent requests
 
 ```dart
-List<Response> responses = await Future.wait<Response>([dio.post('/info'), dio.get('/token')]);
+List<Response> responses = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
 ### Downloading a file
