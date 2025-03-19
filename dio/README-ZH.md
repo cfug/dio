@@ -149,7 +149,7 @@ response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ### 发起多个并发请求
 
 ```dart
-response = await Future.wait([dio.post('/info'), dio.get('/token')]);
+List<Response> responses = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
 ### 下载文件
