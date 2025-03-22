@@ -45,6 +45,8 @@ extension type ReadableStreamSource<T extends JSAny, AbortType extends JSAny>._(
     late final StreamSubscription<T> subscription;
     return ReadableStreamSource(
       start: (controller) {
+        bool closed = false;
+
         subscription = stream.listen(
           (event) {
             controller.enqueue(event);
@@ -61,10 +63,13 @@ extension type ReadableStreamSource<T extends JSAny, AbortType extends JSAny>._(
               JSObject() => error,
               _ => error.toJSBox,
             };
+            closed = true;
             controller.error(object);
           },
           onDone: () {
-            controller.close();
+            if (!closed) {
+              controller.close();
+            }
           },
         );
 
