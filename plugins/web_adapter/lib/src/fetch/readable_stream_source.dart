@@ -11,8 +11,7 @@ import 'readable_stream_source_controller_method.dart';
 /// stream instance will behave.
 ///
 /// Note: Use [Uint8List] if you want compatibility with [Response] or [Request].
-extension type ReadableStreamSource<T extends JSAny, AbortType extends JSAny>._(
-    JSObject _) implements JSObject {
+extension type ReadableStreamSource<T extends JSAny, AbortType extends JSAny>._(JSObject _) implements JSObject {
   factory ReadableStreamSource({
     ReadableStreamSourceControllerMethodFunction<T, JSAny?>? start,
     ReadableStreamSourceControllerMethodFunction<T, JSAny?>? pull,
@@ -28,8 +27,7 @@ extension type ReadableStreamSource<T extends JSAny, AbortType extends JSAny>._(
       object.pull = ReadableStreamSourceControllerMethod(pull);
     }
     if (cancel != null) {
-      object.cancel =
-          ReadableStreamSourceCancelMethod<T, JSAny?, AbortType>(cancel);
+      object.cancel = ReadableStreamSourceCancelMethod<T, JSAny?, AbortType>(cancel);
     }
     if (type != null) {
       object.type = type;
