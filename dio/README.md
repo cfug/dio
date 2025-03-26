@@ -133,7 +133,7 @@ response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 ### Performing multiple concurrent requests
 
 ```dart
-response = await Future.wait([dio.post('/info'), dio.get('/token')]);
+List<Response> responses = await Future.wait([dio.post('/info'), dio.get('/token')]);
 ```
 
 ### Downloading a file
@@ -391,7 +391,7 @@ ResponseDecoder? responseDecoder;
 ListFormat? listFormat;
 ```
 
-There is a complete example [here](../example/lib/options.dart).
+There is a complete example [here](../example_dart/lib/options.dart).
 
 ### Response
 
@@ -583,7 +583,7 @@ dio.interceptors.add(
 
 You can customize interceptor by extending the `Interceptor/QueuedInterceptor` class.
 There is an example that implementing a simple cache policy:
-[custom cache interceptor](../example/lib/custom_cache_interceptor.dart).
+[custom cache interceptor](../example_dart/lib/custom_cache_interceptor.dart).
 
 ## Handling Errors
 
@@ -678,7 +678,7 @@ final formDataWithBoundaryName = FormData(
 
 > `FormData` is supported with the POST method typically.
 
-There is a complete example [here](../example/lib/formdata.dart).
+There is a complete example [here](../example_dart/lib/formdata.dart).
 
 ### Multiple files upload
 
@@ -783,7 +783,7 @@ If you want to use platform adapters explicitly:
   dio.httpClientAdapter = IOHttpClientAdapter();
   ```
 
-[Here](../example/lib/adapter.dart) is a simple example to custom adapter. 
+[Here](../example_dart/lib/adapter.dart) is a simple example to custom adapter. 
 
 ### Using proxy
 
@@ -812,7 +812,7 @@ void initAdapter() {
 }
 ```
 
-There is a complete example [here](../example/lib/proxy.dart).
+There is a complete example [here](../example_dart/lib/proxy.dart).
 
 Web does not support to set proxy.
 
@@ -929,7 +929,7 @@ dio.get(url, cancelToken: cancelToken).catchError((DioException error) {
 token.cancel('cancelled');
 ```
 
-There is a complete example [here](../example/lib/cancel_request.dart).
+There is a complete example [here](../example_dart/lib/cancel_request.dart).
 
 ## Extends Dio class
 
