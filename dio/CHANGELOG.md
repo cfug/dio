@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Do not allow update the error field after a cancel token has cancelled.
 
 ## 5.8.0+1
 
