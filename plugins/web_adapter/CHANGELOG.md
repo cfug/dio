@@ -4,10 +4,6 @@
 
 *None.*
 
-## 2.2.0
-
-- Migrated from `XMLHttpRequest` to `Fetch`
-
 ## 2.1.1
 
 - Move all source Dart files to `*_impl.dart` to avoid naming collision.
