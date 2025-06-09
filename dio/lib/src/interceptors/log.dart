@@ -140,7 +140,7 @@ class LogInterceptor extends Interceptor {
     logPrint('$key: $v');
   }
 
-  void _printAll(msg) {
+  void _printAll(Object? msg) {
     msg.toString().split('\n').forEach(logPrint);
   }
 }

@@ -21,8 +21,8 @@ void main() async {
 
 /// Downloading by splitting as file in chunks
 Future downloadWithChunks(
-  url,
-  savePath, {
+  String url,
+  String savePath, {
   ProgressCallback? onReceiveProgress,
 }) async {
   const firstChunkSize = 102;
@@ -46,7 +46,7 @@ Future downloadWithChunks(
     --end;
     return dio.download(
       url,
-      savePath + 'temp$no',
+      '${savePath}temp$no',
       onReceiveProgress: createCallback(no),
       options: Options(
         headers: {'range': 'bytes=$start-$end'},
@@ -55,10 +55,10 @@ Future downloadWithChunks(
   }
 
   Future mergeTempFiles(chunk) async {
-    final f = File(savePath + 'temp0');
+    final f = File('${savePath}temp0');
     final ioSink = f.openWrite(mode: FileMode.writeOnlyAppend);
     for (int i = 1; i < chunk; ++i) {
-      final file = File(savePath + 'temp$i');
+      final file = File('${savePath}temp$i');
       await ioSink.addStream(file.openRead());
       await file.delete();
     }
