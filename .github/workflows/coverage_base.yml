@@ -76,6 +76,6 @@ jobs:
         run: melos run test:flutter
       - name: '[Coverage] Generate report'
         run: melos run coverage:combine
-      - uses: clearlyip/code-coverage-report-action@v5
+      - uses: clearlyip/code-coverage-report-action@v6
         with:
           filename: 'coverage/cobertura.xml'

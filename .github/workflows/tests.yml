@@ -109,7 +109,7 @@ jobs:
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run coverage:show
       - name: '[Coverage] Create Report'
-        uses: clearlyip/code-coverage-report-action@v5
+        uses: clearlyip/code-coverage-report-action@v6
         id: code_coverage_report
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         with:
