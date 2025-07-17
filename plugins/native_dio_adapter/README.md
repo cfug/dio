@@ -45,7 +45,7 @@ dioClient.httpClientAdapter = NativeAdapter();
 
 Starting from `cronet_http` v1.2.0,
 you can to use the embedded Cronet implementation
-using a simple configuration with `dart-define.
+using a simple configuration with `dart-define`.
 See https://pub.dev/packages/cronet_http#use-embedded-cronet
 for more details.
 
