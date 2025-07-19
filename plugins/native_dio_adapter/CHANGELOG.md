@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Close the `CronetEngine` when closing the `CronetClient` by default.
 
 ## 1.4.0
 
