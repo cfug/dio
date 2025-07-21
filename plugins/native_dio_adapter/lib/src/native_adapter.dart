@@ -49,6 +49,8 @@ class NativeAdapter implements HttpClientAdapter {
 
   late final HttpClientAdapter _adapter;
 
+  HttpClientAdapter get adapter => _adapter;
+
   @override
   void close({bool force = false}) => _adapter.close(force: force);
 
