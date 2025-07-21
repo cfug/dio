@@ -16,6 +16,8 @@ class CupertinoAdapter implements HttpClientAdapter {
 
   final ConversionLayerAdapter _conversionLayer;
 
+  ConversionLayerAdapter get adapter => _conversionLayer;
+
   @override
   void close({bool force = false}) => _conversionLayer.close(force: force);
 
