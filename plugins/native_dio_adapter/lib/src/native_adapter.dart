@@ -1,9 +1,10 @@
-import 'dart:io';
-import 'dart:typed_data';
+import 'dart:io' show Platform;
+import 'dart:typed_data' show Uint8List;
 
 import 'package:cronet_http/cronet_http.dart';
 import 'package:cupertino_http/cupertino_http.dart';
 import 'package:dio/dio.dart';
+
 import 'cronet_adapter.dart';
 import 'cupertino_adapter.dart';
 

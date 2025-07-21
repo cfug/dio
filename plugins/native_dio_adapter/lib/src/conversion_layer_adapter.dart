@@ -1,6 +1,6 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:async' show Completer;
+import 'dart:convert' show ByteConversionSink;
+import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart';
 import 'package:http/http.dart';

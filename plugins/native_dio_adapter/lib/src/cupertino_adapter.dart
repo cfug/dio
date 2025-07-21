@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'dart:typed_data' show Uint8List;
 
 import 'package:cupertino_http/cupertino_http.dart';
 import 'package:dio/dio.dart';
