@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 1.5.0
+
 - Close the `CronetEngine` when closing the `CronetClient` by default.
 - Expose underlying adapters from all adapters.
 
