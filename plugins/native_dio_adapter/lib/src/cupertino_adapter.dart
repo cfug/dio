@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'dart:typed_data' show Uint8List;
 
 import 'package:cupertino_http/cupertino_http.dart';
 import 'package:dio/dio.dart';
@@ -15,6 +15,9 @@ class CupertinoAdapter implements HttpClientAdapter {
         );
 
   final ConversionLayerAdapter _conversionLayer;
+
+  /// The underlying conversion layer adapter.
+  ConversionLayerAdapter get adapter => _conversionLayer;
 
   @override
   void close({bool force = false}) => _conversionLayer.close(force: force);
