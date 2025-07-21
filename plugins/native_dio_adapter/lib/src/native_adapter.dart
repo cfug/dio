@@ -50,6 +50,7 @@ class NativeAdapter implements HttpClientAdapter {
 
   late final HttpClientAdapter _adapter;
 
+  /// The underlying client adapter.
   HttpClientAdapter get adapter => _adapter;
 
   @override

@@ -14,6 +14,7 @@ import 'package:http/http.dart';
 class ConversionLayerAdapter implements HttpClientAdapter {
   ConversionLayerAdapter(this.client);
 
+  /// The underlying http client.
   final Client client;
 
   @override

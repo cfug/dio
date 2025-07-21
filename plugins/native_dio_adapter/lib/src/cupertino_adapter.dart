@@ -16,6 +16,7 @@ class CupertinoAdapter implements HttpClientAdapter {
 
   final ConversionLayerAdapter _conversionLayer;
 
+  /// The underlying conversion layer adapter.
   ConversionLayerAdapter get adapter => _conversionLayer;
 
   @override
