@@ -320,6 +320,12 @@ class InterceptorsWrapper extends Interceptor with _InterceptorWrapperMixin {
 ///
 /// Interceptors will be executed with FIFO.
 class Interceptors extends ListMixin<Interceptor> {
+  Interceptors({
+    List<Interceptor> initialInterceptors = const <Interceptor>[],
+  }) {
+    addAll(initialInterceptors);
+  }
+
   /// Define a nullable list to be capable with growable elements.
   final List<Interceptor?> _list = [const ImplyContentTypeInterceptor()];
 
