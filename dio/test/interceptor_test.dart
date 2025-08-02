@@ -766,17 +766,25 @@ void main() {
   });
 
   test('Size of Interceptors', () {
-    final interceptors = Dio().interceptors;
-    expect(interceptors.length, equals(1));
-    expect(interceptors, isNotEmpty);
-    interceptors.add(InterceptorsWrapper());
-    expect(interceptors.length, equals(2));
-    expect(interceptors, isNotEmpty);
-    interceptors.clear();
-    expect(interceptors.length, equals(1));
-    expect(interceptors.single, isA<ImplyContentTypeInterceptor>());
-    interceptors.clear(keepImplyContentTypeInterceptor: false);
-    expect(interceptors.length, equals(0));
-    expect(interceptors, isEmpty);
+    final interceptors1 = Dio().interceptors;
+    expect(interceptors1.length, equals(1));
+    expect(interceptors1, isNotEmpty);
+    interceptors1.add(InterceptorsWrapper());
+    expect(interceptors1.length, equals(2));
+    expect(interceptors1, isNotEmpty);
+    interceptors1.clear();
+    expect(interceptors1.length, equals(1));
+    expect(interceptors1.single, isA<ImplyContentTypeInterceptor>());
+    interceptors1.clear(keepImplyContentTypeInterceptor: false);
+    expect(interceptors1.length, equals(0));
+    expect(interceptors1, isEmpty);
+
+    final interceptors2 = Interceptors()..add(LogInterceptor());
+    expect(interceptors2.length, equals(2));
+    expect(interceptors2.last, isA<LogInterceptor>());
+
+    final interceptors3 = Interceptors(initialInterceptors: [LogInterceptor()]);
+    expect(interceptors3.length, equals(2));
+    expect(interceptors2.last, isA<LogInterceptor>());
   });
 }
