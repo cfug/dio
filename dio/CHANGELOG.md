@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Do not allow update the error field after a cancel token has cancelled.
+- Allow passing an initial interceptors list to the constructor of `Interceptors`.
 
 ## 5.8.0+1
 
