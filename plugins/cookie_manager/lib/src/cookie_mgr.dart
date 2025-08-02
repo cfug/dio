@@ -77,7 +77,7 @@ class CookieManager extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    _saveCookies(response).then(
+    saveCookies(response).then(
       (_) {
         handler.next(response);
       },
@@ -103,7 +103,7 @@ class CookieManager extends Interceptor {
       return;
     }
 
-    _saveCookies(response).then(
+    saveCookies(response).then(
       (_) => handler.next(err),
       onError: (dynamic e, StackTrace s) {
         final error = DioException(
@@ -119,17 +119,25 @@ class CookieManager extends Interceptor {
     );
   }
 
-  Future<void> _saveCookies(Response response) async {
+  /// Save cookies from the response including redirected requests.
+  Future<void> saveCookies(Response response) async {
     final setCookies = response.headers[HttpHeaders.setCookieHeader];
     if (setCookies == null || setCookies.isEmpty) {
       return;
     }
+
     final List<Cookie> cookies = setCookies
         .map((str) => str.split(_setCookieReg))
         .expand((cookie) => cookie)
         .where((cookie) => cookie.isNotEmpty)
         .map((str) => Cookie.fromSetCookieValue(str))
         .toList();
+    // Saving cookies for the original site.
+    // Spec: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.2.
+    final originalUri = response.requestOptions.uri;
+    final realUri = originalUri.resolveUri(response.realUri);
+    await cookieJar.saveFromResponse(realUri, cookies);
+
     // Handle `Set-Cookie` when `followRedirects` is false
     // and the response returns a redirect status code.
     final statusCode = response.statusCode ?? 0;
@@ -138,13 +146,8 @@ class CookieManager extends Interceptor {
     // We don't want to explicitly consider recursive redirections
     // cookie handling here, because when `followRedirects` is set to false,
     // users will be available to handle cookies themselves.
-    final isRedirectRequest = statusCode >= 300 && statusCode < 400;
-    // Saving cookies for the original site.
-    // Spec: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.2.
-    final originalUri = response.requestOptions.uri;
-    final realUri = originalUri.resolveUri(response.realUri);
-    await cookieJar.saveFromResponse(realUri, cookies);
-    if (isRedirectRequest && locations.isNotEmpty) {
+    final redirected = statusCode >= 300 && statusCode < 400;
+    if (redirected && locations.isNotEmpty) {
       final originalUri = response.realUri;
       await Future.wait(
         locations.map(
