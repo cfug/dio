@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-*None.*
+- Proceed better `DioException`s from the cookie manager.
+- Expose `saveCookies` for `CookieManager`.
 
 ## 3.2.0
 
