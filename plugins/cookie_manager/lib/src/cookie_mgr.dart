@@ -47,37 +47,48 @@ class CookieManager extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    cookieJar.loadForRequest(options.uri).then((cookies) {
-      final previousCookies =
-          options.headers[HttpHeaders.cookieHeader] as String?;
-      final newCookies = getCookies([
-        ...?previousCookies
-            ?.split(';')
-            .where((e) => e.isNotEmpty)
-            .map((c) => Cookie.fromSetCookieValue(c)),
-        ...cookies,
-      ]);
-      options.headers[HttpHeaders.cookieHeader] =
-          newCookies.isNotEmpty ? newCookies : null;
-      handler.next(options);
-    }).catchError((dynamic e, StackTrace s) {
-      final error = DioException(
-        requestOptions: options,
-        error: e,
-        stackTrace: s,
-      );
-      handler.reject(error, true);
-    });
+    cookieJar.loadForRequest(options.uri).then(
+      (cookies) {
+        final previousCookies =
+            options.headers[HttpHeaders.cookieHeader] as String?;
+        final newCookies = getCookies([
+          ...?previousCookies
+              ?.split(';')
+              .where((e) => e.isNotEmpty)
+              .map((c) => Cookie.fromSetCookieValue(c)),
+          ...cookies,
+        ]);
+        options.headers[HttpHeaders.cookieHeader] =
+            newCookies.isNotEmpty ? newCookies : null;
+        handler.next(options);
+      },
+      onError: (e, s) {
+        final error = DioException(
+          requestOptions: options,
+          type: DioExceptionType.unknown,
+          error: e,
+          stackTrace: s,
+          message: 'Failed to load cookies for the request.',
+        );
+        handler.reject(error, true);
+      },
+    );
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    _saveCookies(response).then((_) => handler.next(response)).catchError(
-      (dynamic e, StackTrace s) {
+    _saveCookies(response).then(
+      (_) {
+        handler.next(response);
+      },
+      onError: (e, s) {
         final error = DioException(
           requestOptions: response.requestOptions,
+          response: response,
+          type: DioExceptionType.unknown,
           error: e,
           stackTrace: s,
+          message: 'Failed to save cookies.',
         );
         handler.reject(error, true);
       },
@@ -86,20 +97,26 @@ class CookieManager extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response != null) {
-      _saveCookies(err.response!).then((_) => handler.next(err)).catchError(
-        (dynamic e, StackTrace s) {
-          final error = DioException(
-            requestOptions: err.response!.requestOptions,
-            error: e,
-            stackTrace: s,
-          );
-          handler.next(error);
-        },
-      );
-    } else {
+    final response = err.response;
+    if (response == null) {
       handler.next(err);
+      return;
     }
+
+    _saveCookies(response).then(
+      (_) => handler.next(err),
+      onError: (dynamic e, StackTrace s) {
+        final error = DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          type: DioExceptionType.unknown,
+          error: e,
+          stackTrace: s,
+          message: 'Failed to save cookies during the error.',
+        );
+        handler.next(error);
+      },
+    );
   }
 
   Future<void> _saveCookies(Response response) async {
