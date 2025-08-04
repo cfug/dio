@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 
+import 'exception.dart';
+
 const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
     ? bool.fromEnvironment('dart.library.js_util')
     : identical(0, 0.0);
@@ -63,14 +65,13 @@ class CookieManager extends Interceptor {
         handler.next(options);
       },
       onError: (e, s) {
-        final error = DioException(
+        final exception = DioException(
           requestOptions: options,
           type: DioExceptionType.unknown,
-          error: e,
-          stackTrace: s,
+          error: CookieManagerLoadException(error: e, stackTrace: s),
           message: 'Failed to load cookies for the request.',
         );
-        handler.reject(error, true);
+        handler.reject(exception, true);
       },
     );
   }
@@ -82,15 +83,19 @@ class CookieManager extends Interceptor {
         handler.next(response);
       },
       onError: (e, s) {
-        final error = DioException(
+        final exception = DioException(
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.unknown,
-          error: e,
+          error: CookieManagerSaveException(
+            response: response,
+            error: e,
+            stackTrace: s,
+            dioException: null,
+          ),
           stackTrace: s,
-          message: 'Failed to save cookies.',
         );
-        handler.reject(error, true);
+        handler.reject(exception, true);
       },
     );
   }
@@ -105,16 +110,20 @@ class CookieManager extends Interceptor {
 
     saveCookies(response).then(
       (_) => handler.next(err),
-      onError: (dynamic e, StackTrace s) {
-        final error = DioException(
+      onError: (e, s) {
+        final exception = DioException(
           requestOptions: response.requestOptions,
           response: response,
           type: DioExceptionType.unknown,
-          error: e,
+          error: CookieManagerSaveException(
+            response: response,
+            error: e,
+            stackTrace: s,
+            dioException: err,
+          ),
           stackTrace: s,
-          message: 'Failed to save cookies during the error.',
         );
-        handler.next(error);
+        handler.next(exception);
       },
     );
   }
