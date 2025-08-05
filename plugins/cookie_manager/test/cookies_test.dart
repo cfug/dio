@@ -92,19 +92,7 @@ void main() {
     final cookieJar = CookieJar();
     final cookieManager = CookieManager(cookieJar);
 
-    final mockRequestInterceptorHandler =
-        MockRequestInterceptorHandler(expectResult);
-    final options = RequestOptions(
-      baseUrl: exampleUrl,
-      headers: {
-        HttpHeaders.cookieHeader: mockSecondRequestCookies,
-      },
-    );
-    await cookieManager.onRequest(
-      options,
-      mockRequestInterceptorHandler,
-    );
-
+    // Saving mock cookies.
     final firstRequestOptions = RequestOptions(baseUrl: exampleUrl);
     final mockResponse = Response(
       requestOptions: firstRequestOptions,
@@ -116,6 +104,20 @@ void main() {
     await cookieManager.onResponse(
       mockResponse,
       mockResponseInterceptorHandler,
+    );
+
+    // Verify mock cookies.
+    final mockRequestInterceptorHandler =
+        MockRequestInterceptorHandler(expectResult);
+    final options = RequestOptions(
+      baseUrl: exampleUrl,
+      headers: {
+        HttpHeaders.cookieHeader: mockSecondRequestCookies,
+      },
+    );
+    await cookieManager.onRequest(
+      options,
+      mockRequestInterceptorHandler,
     );
   });
 
@@ -132,14 +134,8 @@ void main() {
 
       final cookieJar = CookieJar();
       final cookieManager = CookieManager(cookieJar);
-      final options = RequestOptions(baseUrl: exampleUrl);
-      final mockRequestInterceptorHandler =
-          MockRequestInterceptorHandler(expectResult);
-      await cookieManager.onRequest(
-        options,
-        mockRequestInterceptorHandler,
-      );
 
+      // Saving mock cookies.
       final requestOptions = RequestOptions(baseUrl: exampleUrl);
       final mockResponse = Response(
         requestOptions: requestOptions,
@@ -151,6 +147,15 @@ void main() {
       await cookieManager.onResponse(
         mockResponse,
         mockResponseInterceptorHandler,
+      );
+
+      // Verify mock cookies.
+      final options = RequestOptions(baseUrl: exampleUrl);
+      final mockRequestInterceptorHandler =
+          MockRequestInterceptorHandler(expectResult);
+      await cookieManager.onRequest(
+        options,
+        mockRequestInterceptorHandler,
       );
     });
 
