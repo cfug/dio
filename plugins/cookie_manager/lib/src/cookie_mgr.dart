@@ -27,6 +27,11 @@ class CookieManager extends Interceptor {
     this.cookieJar,
   ) : assert(!_kIsWeb, "Don't use the manager in Web environments.");
 
+  /// The cookie jar used to load and save cookies.
+  ///
+  /// See also:
+  /// * [CookieJar]
+  /// * [PersistCookieJar]
   final CookieJar cookieJar;
 
   /// Merge cookies into a Cookie string.

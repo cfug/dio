@@ -3,7 +3,8 @@
 ## Unreleased
 
 - Proceed better `DioException`s from the cookie manager.
-- Expose `saveCookies` for `CookieManager`.
+  Now `CookieManagerLoadException` and `CookieManagerSaveException` are including in the `DioException`.
+- Expose `loadCookies` and `saveCookies` for `CookieManager`.
 
 ## 3.2.0
 
