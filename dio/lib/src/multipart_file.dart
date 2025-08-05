@@ -158,14 +158,14 @@ class MultipartFile {
     );
   }
 
-  /// Lookup the media type from the given file [path] based on its extension.
-  static DioMediaType? lookupMediaType(String? path) {
-    path = path?.trim();
-    if (path == null || path.isEmpty) {
+  /// Lookup the media type from the given [filenameOrPath] based on its extension.
+  static DioMediaType? lookupMediaType(String? filenameOrPath) {
+    filenameOrPath = filenameOrPath?.trim();
+    if (filenameOrPath == null || filenameOrPath.isEmpty) {
       return null;
     }
 
-    final mimeType = lookupMimeType(path);
+    final mimeType = lookupMimeType(filenameOrPath);
     if (mimeType == null) {
       return null;
     }
