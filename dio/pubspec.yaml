@@ -24,6 +24,7 @@ dependencies:
   collection: ^1.16.0
   http_parser: ^4.0.0
   meta: ^1.5.0
+  mime: '>1.0.0 <3.0.0'
   path: ^1.8.0
 
   dio_web_adapter: '>=1.1.0 <3.0.0'

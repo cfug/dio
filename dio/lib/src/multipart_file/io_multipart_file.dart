@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-import '../multipart_file.dart';
+import '../multipart_file.dart' show MultipartFile, DioMediaType;
 
 Future<MultipartFile> multipartFileFromPath(
   String filePath, {
