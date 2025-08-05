@@ -49,19 +49,10 @@ class CookieManager extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    cookieJar.loadForRequest(options.uri).then(
+    loadCookies(options).then(
       (cookies) {
-        final previousCookies =
-            options.headers[HttpHeaders.cookieHeader] as String?;
-        final newCookies = getCookies([
-          ...?previousCookies
-              ?.split(';')
-              .where((e) => e.isNotEmpty)
-              .map((c) => Cookie.fromSetCookieValue(c)),
-          ...cookies,
-        ]);
         options.headers[HttpHeaders.cookieHeader] =
-            newCookies.isNotEmpty ? newCookies : null;
+            cookies.isNotEmpty ? cookies : null;
         handler.next(options);
       },
       onError: (e, s) {
@@ -109,7 +100,9 @@ class CookieManager extends Interceptor {
     }
 
     saveCookies(response).then(
-      (_) => handler.next(err),
+      (_) {
+        handler.next(err);
+      },
       onError: (e, s) {
         final exception = DioException(
           requestOptions: response.requestOptions,
@@ -126,6 +119,21 @@ class CookieManager extends Interceptor {
         handler.next(exception);
       },
     );
+  }
+
+  /// Load cookies in cookie string for the request.
+  Future<String> loadCookies(RequestOptions options) async {
+    final savedCookies = await cookieJar.loadForRequest(options.uri);
+    final previousCookies =
+        options.headers[HttpHeaders.cookieHeader] as String?;
+    final cookies = getCookies([
+      ...?previousCookies
+          ?.split(';')
+          .where((e) => e.isNotEmpty)
+          .map((c) => Cookie.fromSetCookieValue(c)),
+      ...savedCookies,
+    ]);
+    return cookies;
   }
 
   /// Save cookies from the response including redirected requests.
