@@ -23,6 +23,61 @@ class MockRequestInterceptorHandler extends RequestInterceptorHandler {
 
 class MockResponseInterceptorHandler extends ResponseInterceptorHandler {}
 
+class _MockRejectRequestInterceptorHandler extends RequestInterceptorHandler {
+  _MockRejectRequestInterceptorHandler(this.matcher);
+
+  final Matcher matcher;
+
+  @override
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    expect(error, matcher);
+  }
+}
+
+class _MockRejectResponseInterceptorHandler extends ResponseInterceptorHandler {
+  _MockRejectResponseInterceptorHandler(this.matcher);
+
+  final Matcher matcher;
+
+  @override
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    expect(error, matcher);
+  }
+}
+
+class _MockRejectErrorInterceptorHandler extends ErrorInterceptorHandler {
+  _MockRejectErrorInterceptorHandler(this.matcher);
+
+  final Matcher matcher;
+
+  @override
+  void next(DioException error) {
+    expect(error, matcher);
+  }
+}
+
+class _OverrideCookieManager extends CookieManager {
+  _OverrideCookieManager(super.cookieJar);
+
+  @override
+  Future<String> loadCookies(RequestOptions options) async {
+    await Future.microtask(() {});
+    throw 'unexpected load';
+  }
+
+  @override
+  Future<void> saveCookies(Response response) async {
+    await Future.microtask(() {});
+    throw 'unexpected save';
+  }
+}
+
 void main() {
   test('testing merge cookies', () async {
     const List<String> mockFirstRequestCookies = [
@@ -36,26 +91,32 @@ void main() {
 
     final cookieJar = CookieJar();
     final cookieManager = CookieManager(cookieJar);
+
     final mockRequestInterceptorHandler =
         MockRequestInterceptorHandler(expectResult);
-    final mockResponseInterceptorHandler = MockResponseInterceptorHandler();
-    final firstRequestOptions = RequestOptions(baseUrl: exampleUrl);
-
-    final mockResponse = Response(
-      requestOptions: firstRequestOptions,
-      headers: Headers.fromMap(
-        {HttpHeaders.setCookieHeader: mockFirstRequestCookies},
-      ),
-    );
-    cookieManager.onResponse(mockResponse, mockResponseInterceptorHandler);
     final options = RequestOptions(
       baseUrl: exampleUrl,
       headers: {
         HttpHeaders.cookieHeader: mockSecondRequestCookies,
       },
     );
+    await cookieManager.onRequest(
+      options,
+      mockRequestInterceptorHandler,
+    );
 
-    cookieManager.onRequest(options, mockRequestInterceptorHandler);
+    final firstRequestOptions = RequestOptions(baseUrl: exampleUrl);
+    final mockResponse = Response(
+      requestOptions: firstRequestOptions,
+      headers: Headers.fromMap(
+        {HttpHeaders.setCookieHeader: mockFirstRequestCookies},
+      ),
+    );
+    final mockResponseInterceptorHandler = MockResponseInterceptorHandler();
+    await cookieManager.onResponse(
+      mockResponse,
+      mockResponseInterceptorHandler,
+    );
   });
 
   group('Set-Cookie', () {
@@ -71,21 +132,26 @@ void main() {
 
       final cookieJar = CookieJar();
       final cookieManager = CookieManager(cookieJar);
+      final options = RequestOptions(baseUrl: exampleUrl);
       final mockRequestInterceptorHandler =
           MockRequestInterceptorHandler(expectResult);
-      final mockResponseInterceptorHandler = MockResponseInterceptorHandler();
-      final requestOptions = RequestOptions(baseUrl: exampleUrl);
+      await cookieManager.onRequest(
+        options,
+        mockRequestInterceptorHandler,
+      );
 
+      final requestOptions = RequestOptions(baseUrl: exampleUrl);
       final mockResponse = Response(
         requestOptions: requestOptions,
         headers: Headers.fromMap(
           {HttpHeaders.setCookieHeader: mockResponseCookies},
         ),
       );
-      cookieManager.onResponse(mockResponse, mockResponseInterceptorHandler);
-      final options = RequestOptions(baseUrl: exampleUrl);
-
-      cookieManager.onRequest(options, mockRequestInterceptorHandler);
+      final mockResponseInterceptorHandler = MockResponseInterceptorHandler();
+      await cookieManager.onResponse(
+        mockResponse,
+        mockResponseInterceptorHandler,
+      );
     });
 
     test('can be saved to the location', () async {
@@ -178,6 +244,52 @@ void main() {
     ];
     final newCookies = CookieManager.getCookies(cookies);
     expect(newCookies, 'a=k; i=j; g=h; e=f; c=d; a=b');
+  });
+
+  test('throws as expected', () async {
+    final cookieManager = _OverrideCookieManager(CookieJar());
+
+    final loadExceptionMatcher = isA<DioException>()
+        .having((e) => e.type, 'type', equals(DioExceptionType.unknown))
+        .having(
+          (e) => e.error,
+          'error',
+          isA<CookieManagerLoadException>()
+              .having((e) => e.error, 'error', 'unexpected load'),
+        );
+
+    final saveExceptionMatcher = isA<DioException>()
+        .having((e) => e.type, 'type', equals(DioExceptionType.unknown))
+        .having(
+          (e) => e.error,
+          'error',
+          isA<CookieManagerSaveException>()
+              .having((e) => e.error, 'error', 'unexpected save'),
+        );
+
+    final mockRequestInterceptorHandler = _MockRejectRequestInterceptorHandler(
+      loadExceptionMatcher,
+    );
+    final options = RequestOptions();
+    await cookieManager.onRequest(
+      options,
+      mockRequestInterceptorHandler,
+    );
+
+    final mockResponseInterceptorHandler =
+        _MockRejectResponseInterceptorHandler(saveExceptionMatcher);
+    final requestOptions = RequestOptions();
+    final response = Response(requestOptions: requestOptions);
+    await cookieManager.onResponse(
+      response,
+      mockResponseInterceptorHandler,
+    );
+
+    final mockErrorInterceptorHandler =
+        _MockRejectErrorInterceptorHandler(saveExceptionMatcher);
+    final error =
+        DioException(requestOptions: requestOptions, response: response);
+    await cookieManager.onError(error, mockErrorInterceptorHandler);
   });
 }
 
