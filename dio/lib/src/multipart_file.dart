@@ -158,7 +158,7 @@ class MultipartFile {
     );
   }
 
-  /// Lookup the media type from the given [path].
+  /// Lookup the media type from the given file [path] based on its extension.
   static DioMediaType? lookupMediaType(String? path) {
     path = path?.trim();
     if (path == null || path.isEmpty) {
