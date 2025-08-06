@@ -1,21 +1,88 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 void main() async {
+  test('lookupMediaType', () {
+    final expectations = <List<String?>>[
+      ['test.txt', 'text/plain'],
+      ['image.jpg', 'image/jpeg'],
+      ['what-is-this', null],
+      ['', null],
+      [null, null],
+    ];
+    for (final e in expectations) {
+      final type = MultipartFile.lookupMediaType(e.first);
+      expect(type?.mimeType, e.last);
+    }
+  });
+
   group(MultipartFile, () {
-    test(
-      'fromFile sets correct content-type',
-      () async {
-        final mediaType = DioMediaType.parse('text/plain');
-        final file = await MultipartFile.fromFile(
-          'test/mock/_testfile',
-          filename: '1.txt',
-          contentType: mediaType,
+    group('content-type', () {
+      test('can inferred from the filename', () {
+        final textFileFromStream = MultipartFile.fromStream(
+          () => Stream.value(utf8.encode('test')),
+          4,
+          filename: 'test.txt',
         );
-        expect(file.contentType, mediaType);
-      },
-      testOn: 'vm',
-    );
+        expect(textFileFromStream.contentType?.type, 'text');
+        expect(textFileFromStream.contentType?.subtype, 'plain');
+
+        final textFileFromString = MultipartFile.fromString(
+          'test',
+          filename: 'test.txt',
+        );
+        expect(textFileFromString.contentType?.type, 'text');
+        expect(textFileFromString.contentType?.subtype, 'plain');
+
+        final imageFileFromBytes = MultipartFile.fromBytes(
+          [1, 2, 3],
+          filename: 'image.jpg',
+        );
+        expect(imageFileFromBytes.contentType?.type, 'image');
+        expect(imageFileFromBytes.contentType?.subtype, 'jpeg');
+
+        final noExtensionFile = MultipartFile.fromBytes(
+          [1, 2, 3],
+          filename: 'what-is-this',
+        );
+        expect(noExtensionFile.contentType?.type, 'application');
+        expect(noExtensionFile.contentType?.subtype, 'octet-stream');
+
+        final emptyFilenameFile = MultipartFile.fromBytes(
+          [1, 2, 3],
+          filename: '',
+        );
+        expect(emptyFilenameFile.contentType?.type, 'application');
+        expect(emptyFilenameFile.contentType?.subtype, 'octet-stream');
+
+        final rawBytesFile = MultipartFile.fromBytes([1, 2, 3]);
+        expect(rawBytesFile.contentType?.type, 'application');
+        expect(rawBytesFile.contentType?.subtype, 'octet-stream');
+
+        final jsonFile = MultipartFile.fromBytes(
+          [1, 2, 3],
+          contentType: DioMediaType.parse('application/json'),
+        );
+        expect(jsonFile.contentType?.type, 'application');
+        expect(jsonFile.contentType?.subtype, 'json');
+      });
+
+      test(
+        'sets correctly with .fromFile',
+        () async {
+          final mediaType = DioMediaType.parse('text/plain');
+          final file = await MultipartFile.fromFile(
+            'test/mock/_testfile',
+            filename: '1.txt',
+            contentType: mediaType,
+          );
+          expect(file.contentType, mediaType);
+        },
+        testOn: 'vm',
+      );
+    });
 
     // Cloned multipart files should be able to be read again and be the same
     // as the original ones.

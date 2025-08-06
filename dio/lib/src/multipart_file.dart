@@ -2,6 +2,7 @@ import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:http_parser/http_parser.dart' show MediaType;
+import 'package:mime/mime.dart' show lookupMimeType;
 
 import 'multipart_file/io_multipart_file.dart'
     if (dart.library.js_interop) 'multipart_file/browser_multipart_file.dart'
@@ -33,7 +34,9 @@ class MultipartFile {
     Map<String, List<String>>? headers,
   })  : _dataBuilder = (() => stream),
         headers = caseInsensitiveKeyMap(headers),
-        contentType = contentType ?? MediaType('application', 'octet-stream');
+        contentType = contentType ??
+            lookupMediaType(filename) ??
+            DioMediaType('application', 'octet-stream');
 
   /// Creates a new [MultipartFile] from a creation method that creates
   /// chunked [Stream] of bytes. The length of the file in bytes must be known
@@ -50,7 +53,9 @@ class MultipartFile {
     Map<String, List<String>>? headers,
   })  : _dataBuilder = data,
         headers = caseInsensitiveKeyMap(headers),
-        contentType = contentType ?? MediaType('application', 'octet-stream');
+        contentType = contentType ??
+            lookupMediaType(filename) ??
+            DioMediaType('application', 'octet-stream');
 
   /// Creates a new [MultipartFile] from a byte array.
   ///
@@ -84,7 +89,7 @@ class MultipartFile {
     DioMediaType? contentType,
     final Map<String, List<String>>? headers,
   }) {
-    contentType ??= MediaType('text', 'plain');
+    contentType ??= lookupMediaType(filename) ?? DioMediaType('text', 'plain');
     final encoding = encodingForCharset(
       contentType.parameters['charset'],
       utf8,
@@ -151,6 +156,21 @@ class MultipartFile {
       contentType: contentType,
       headers: headers,
     );
+  }
+
+  /// Lookup the media type from the given [filenameOrPath] based on its extension.
+  static DioMediaType? lookupMediaType(String? filenameOrPath) {
+    filenameOrPath = filenameOrPath?.trim();
+    if (filenameOrPath == null || filenameOrPath.isEmpty) {
+      return null;
+    }
+
+    final mimeType = lookupMimeType(filenameOrPath);
+    if (mimeType == null) {
+      return null;
+    }
+
+    return DioMediaType.parse(mimeType);
   }
 
   bool _isFinalized = false;
