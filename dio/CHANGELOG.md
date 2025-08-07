@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.9.0
+
 - Do not allow updating the error field after a cancel token has canceled.
 - Allow passing an initial interceptors list to the constructor of `Interceptors`.
 - Use `package:mime` to help determine the `content-type` of `MultipartFile` base on the provided `filename`.
