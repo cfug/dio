@@ -23,8 +23,11 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<dynamic>? cancelFuture,
   ) async {
-    final request =
-        await _fromOptionsAndStream(options, requestStream, cancelFuture);
+    final request = await _fromOptionsAndStream(
+      options,
+      requestStream,
+      cancelFuture,
+    );
     final response = await client.send(request);
     return response.toDioResponseBody(options);
   }
