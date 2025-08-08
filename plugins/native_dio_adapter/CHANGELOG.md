@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Support request cancellation for native HTTP clients via use of `AbortableRequest` (introduced in http package from version 1.5.0)
 
 ## 1.5.0
 

@@ -62,4 +62,52 @@ void main() {
 
     expect(await resp.stream.length, 5);
   });
+
+  test('request cancellation', () {
+    final mock = AbortClientMock();
+    final cla = ConversionLayerAdapter(mock);
+    final cancelToken = CancelToken();
+
+    Future<void>.delayed(const Duration(seconds: 1)).then(
+      (value) {
+        cancelToken.cancel();
+      },
+    );
+
+    expectLater(
+      () => cla.fetch(
+        RequestOptions(path: ''),
+        null,
+        cancelToken.whenCancel,
+      ),
+      throwsA(isA<AbortedError>()),
+    );
+  });
+
+  test('request cancellation with Dio', () async {
+    final mock = AbortClientMock();
+    final cla = ConversionLayerAdapter(mock);
+    final dio = Dio();
+    dio.httpClientAdapter = cla;
+
+    final cancelToken = CancelToken();
+
+    Future<void>.delayed(const Duration(seconds: 1)).then(
+      (value) {
+        cancelToken.cancel();
+      },
+    );
+
+    await expectLater(
+      () => dio.get<ResponseBody>('', cancelToken: cancelToken),
+      throwsA(
+        isA<DioException>().having(
+          (e) => e.type,
+          'type',
+          DioExceptionType.cancel,
+        ),
+      ),
+    );
+    expect(mock.isRequestCanceled, true);
+  });
 }
