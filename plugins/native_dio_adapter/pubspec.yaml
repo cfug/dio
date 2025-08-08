@@ -29,6 +29,7 @@ dev_dependencies:
   lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  async: ^2.13.0
 
 platforms:
   android:
