@@ -33,6 +33,8 @@ class ClientMock implements Client {
 }
 
 class AbortClientMock implements Client {
+  bool isRequestCanceled = false;
+
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     final cancellable = CancelableOperation.fromFuture(
@@ -43,6 +45,7 @@ class AbortClientMock implements Client {
       request.abortTrigger?.whenComplete(
         () {
           cancellable.cancel();
+          isRequestCanceled = true;
         },
       );
     }

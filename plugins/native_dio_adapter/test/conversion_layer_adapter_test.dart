@@ -84,7 +84,7 @@ void main() {
     );
   });
 
-  test('request cancellation with Dio', () {
+  test('request cancellation with Dio', () async {
     final mock = AbortClientMock();
     final cla = ConversionLayerAdapter(mock);
     final dio = Dio();
@@ -98,7 +98,7 @@ void main() {
       },
     );
 
-    expectLater(
+    await expectLater(
       () => dio.get<ResponseBody>('', cancelToken: cancelToken),
       throwsA(
         isA<DioException>().having(
@@ -108,5 +108,6 @@ void main() {
         ),
       ),
     );
+    expect(mock.isRequestCanceled, true);
   });
 }
