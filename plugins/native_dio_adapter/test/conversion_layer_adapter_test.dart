@@ -87,10 +87,10 @@ void main() {
   test('request cancellation with Dio', () async {
     final mock = AbortClientMock();
     final cla = ConversionLayerAdapter(mock);
-
-    final cancelToken = CancelToken();
     final dio = Dio();
     dio.httpClientAdapter = cla;
+
+    final cancelToken = CancelToken();
 
     Future<void>.delayed(const Duration(seconds: 1)).then(
       (value) {
