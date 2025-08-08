@@ -23,7 +23,8 @@ class ConversionLayerAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<dynamic>? cancelFuture,
   ) async {
-    final request = await _fromOptionsAndStream(options, requestStream);
+    final request =
+        await _fromOptionsAndStream(options, requestStream, cancelFuture);
     final response = await client.send(request);
     return response.toDioResponseBody(options);
   }
@@ -34,10 +35,12 @@ class ConversionLayerAdapter implements HttpClientAdapter {
   Future<BaseRequest> _fromOptionsAndStream(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
+    Future<dynamic>? cancelFuture,
   ) async {
-    final request = Request(
+    final request = AbortableRequest(
       options.method,
       options.uri,
+      abortTrigger: cancelFuture,
     );
 
     request.headers.addAll(
