@@ -10,7 +10,7 @@ jobs:
     if: github.event.issue.number == 1633
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.CFUG_PUBLISHER }}
       - uses: dart-lang/setup-dart@v1.4
