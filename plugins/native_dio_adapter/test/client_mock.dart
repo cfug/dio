@@ -1,4 +1,4 @@
-import 'package:async/async.dart';
+import 'package:async/async.dart' show CancelableOperation;
 import 'package:http/http.dart';
 
 class CloseClientMock implements Client {
