@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_test/util.dart';
@@ -146,6 +148,28 @@ void main() {
       expect(tlsDifferentHostRedirects == differentHostConnection, true);
       expect(tlsDifferentHostsRedirects == differentHostConnection, true);
       expect(nonTLSConnection == nonTLSConnectionWithTLSRedirects, false);
+    });
+
+    test('throws TimeoutException on handshakeTimeout set', () async {
+      const handshakeTimeout = Duration(microseconds: 1);
+      final dio = Dio()
+        ..options.baseUrl = httpbunBaseUrl
+        ..httpClientAdapter = Http2Adapter(
+          ConnectionManager(
+            handshakeTimout: handshakeTimeout,
+          ),
+        );
+
+      await expectLater(
+        dio.post('/post', data: 'TEST'),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.error is TimeoutException,
+            (e) => (e.error as TimeoutException).duration == handshakeTimeout,
+          ]),
+        ),
+      );
     });
   });
 
