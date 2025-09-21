@@ -46,6 +46,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
+          melos-version: '^6.0.0'
       - name: Remove dio_web_adapter overrides
         if: ${{ matrix.sdk == 'min' }}
         run: rm -rf plugins/web_adapter
