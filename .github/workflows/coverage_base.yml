@@ -36,6 +36,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
+          melos-version: '^6.0.0'
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_packages.dart
