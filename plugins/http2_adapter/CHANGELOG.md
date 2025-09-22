@@ -5,10 +5,6 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
-
-## 2.7.0
-
 - Add `handshakeTimeout` to `ClientManager` to prevent long waiting if there's something wrong with handshake procedure
 
 ## 2.6.0

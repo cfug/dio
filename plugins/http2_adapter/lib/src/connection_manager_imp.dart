@@ -8,7 +8,7 @@ class _ConnectionManager implements ConnectionManager {
     this.onClientCreate,
     this.proxyConnectedPredicate = defaultProxyConnectedPredicate,
   })  : _idleTimeout = idleTimeout ?? const Duration(seconds: 1),
-        _handshakeTimout = handshakeTimeout ?? const Duration(seconds: 1);
+        _handshakeTimout = handshakeTimeout ?? const Duration(seconds: 15);
 
   /// Callback when socket created.
   ///
