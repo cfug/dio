@@ -16,7 +16,7 @@ jobs:
           require: 'write'
       - name: Write comment
         if: steps.checkUser.outputs.require-result == 'false'
-        uses: actions-cool/issues-helper@v3.6.2
+        uses: actions-cool/issues-helper@v3.6.3
         with:
           actions: 'create-comment'
           issue-number: ${{ github.event.issue.number }}
@@ -25,13 +25,13 @@ jobs:
             > Infra 和空白 issue 仅供管理人员使用，请选择其他 issue 模板创建 issue。
       - name: Close issue
         if: steps.checkUser.outputs.require-result == 'false'
-        uses: actions-cool/issues-helper@v3.6.2
+        uses: actions-cool/issues-helper@v3.6.3
         with:
           actions: 'close-issue'
           issue-number: ${{ github.event.issue.number }}
       - name: Lock issue
         if: steps.checkUser.outputs.require-result == 'false'
-        uses: actions-cool/issues-helper@v3.6.2
+        uses: actions-cool/issues-helper@v3.6.3
         with:
           actions: 'lock-issue'
           issue-number: ${{ github.event.issue.number }}
