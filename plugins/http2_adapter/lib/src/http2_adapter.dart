@@ -140,7 +140,9 @@ class Http2Adapter implements HttpClientAdapter {
 
     if (hasRequestData) {
       Future<dynamic> requestStreamFuture = requestStream!.listen((data) {
-        stream.outgoingMessages.add(DataStreamMessage(data));
+        try {
+          stream.outgoingMessages.add(DataStreamMessage(data));
+        } catch (_) {}
       }).asFuture();
       final sendTimeout = options.sendTimeout ?? Duration.zero;
       if (sendTimeout > Duration.zero) {
