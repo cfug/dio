@@ -24,7 +24,7 @@ class _ConnectionManager implements ConnectionManager {
   /// the value should not be less than 1 second.
   final Duration _idleTimeout;
 
-  /// Sets the handshake timeout(milliseconds) for secure socket connections.
+  /// Sets the handshake timeout for secure socket connections.
   ///
   /// This timeout is applied to a future returned by [RawSecureSocket.secure],
   /// which actually is a handshake future.
