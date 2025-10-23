@@ -4,9 +4,11 @@ part of 'http2_adapter.dart';
 class _ConnectionManager implements ConnectionManager {
   _ConnectionManager({
     Duration? idleTimeout,
+    Duration? handshakeTimeout,
     this.onClientCreate,
     this.proxyConnectedPredicate = defaultProxyConnectedPredicate,
-  }) : _idleTimeout = idleTimeout ?? const Duration(seconds: 1);
+  })  : _idleTimeout = idleTimeout ?? const Duration(seconds: 1),
+        _handshakeTimeout = handshakeTimeout ?? const Duration(seconds: 15);
 
   /// Callback when socket created.
   ///
@@ -21,6 +23,12 @@ class _ConnectionManager implements ConnectionManager {
   /// connections. For the sake of socket reuse feature with http/2,
   /// the value should not be less than 1 second.
   final Duration _idleTimeout;
+
+  /// Sets the handshake timeout for secure socket connections.
+  ///
+  /// This timeout is applied to a future returned by [RawSecureSocket.secure],
+  /// which actually is a handshake future.
+  final Duration _handshakeTimeout;
 
   /// Saving the reusable connections
   final _transportsMap = <String, _ClientTransportConnectionState>{};
@@ -175,7 +183,7 @@ class _ConnectionManager implements ConnectionManager {
         context: clientConfig.context,
         onBadCertificate: clientConfig.onBadCertificate,
         supportedProtocols: ['h2'],
-      );
+      ).timeout(_handshakeTimeout);
       _throwIfH2NotSelected(target, socket);
       return socket;
     }
@@ -252,7 +260,7 @@ class _ConnectionManager implements ConnectionManager {
       context: clientConfig.context,
       onBadCertificate: clientConfig.onBadCertificate,
       supportedProtocols: ['h2'],
-    );
+    ).timeout(_handshakeTimeout);
     _throwIfH2NotSelected(target, socket);
 
     proxySubscription.cancel();
