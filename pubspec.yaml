@@ -7,7 +7,7 @@ environment:
 
 dev_dependencies:
   lints: any
-  melos: any
+  melos: '>=3.0.0 <7.0.0'
   cli_util: any # Required by custom melos command.
   path: any # Required by custom melos command.
   pub_semver: any # Required by custom melos command.

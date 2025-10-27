@@ -46,6 +46,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
         with:
           run-bootstrap: false
+          melos-version: ${{ matrix.sdk == 'min' && '3.4.0' || '^6.0.0' }}
       - name: Remove dio_web_adapter overrides
         if: ${{ matrix.sdk == 'min' }}
         run: rm -rf plugins/web_adapter
@@ -121,7 +122,7 @@ jobs:
         run: echo ${{ github.event.number }} > pr_number.txt
       - name: '[Coverage] Upload'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: code-coverage-results
           path: |

@@ -140,6 +140,7 @@ class Http2Adapter implements HttpClientAdapter {
 
     if (hasRequestData) {
       Future<dynamic> requestStreamFuture = requestStream!.listen((data) {
+        //TODO(EVERYONE): Investigate why this statement can cause "StateError: Bad state: Cannot add event after closing"
         stream.outgoingMessages.add(DataStreamMessage(data));
       }).asFuture();
       final sendTimeout = options.sendTimeout ?? Duration.zero;
