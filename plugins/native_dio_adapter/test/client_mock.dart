@@ -66,3 +66,26 @@ class AbortClientMock implements Client {
 }
 
 class AbortedError extends Error {}
+
+class DelayedClientMock implements Client {
+  DelayedClientMock({
+    required this.duration,
+  });
+
+  final Duration duration;
+
+  @override
+  Future<StreamedResponse> send(BaseRequest request) async {
+    await Future<void>.delayed(duration);
+
+    return StreamedResponse(
+      Stream.fromIterable([]),
+      200,
+    );
+  }
+
+  @override
+  void noSuchMethod(Invocation invocation) {
+    throw UnimplementedError();
+  }
+}

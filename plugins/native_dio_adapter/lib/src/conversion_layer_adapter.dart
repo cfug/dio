@@ -21,14 +21,57 @@ class ConversionLayerAdapter implements HttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future<dynamic>? cancelFuture,
+    Future<void>? cancelFuture,
   ) async {
-    final request = await _fromOptionsAndStream(
+    final timeoutCompleter = Completer<void>();
+
+    final cancelToken = cancelFuture != null
+        ? Future.any([cancelFuture, timeoutCompleter.future])
+        : timeoutCompleter.future;
+    final requestFuture = _fromOptionsAndStream(
       options,
       requestStream,
-      cancelFuture,
+      cancelToken,
     );
-    final response = await client.send(request);
+
+    final sendTimeout = options.sendTimeout ?? Duration.zero;
+    final BaseRequest request;
+    if (sendTimeout == Duration.zero) {
+      request = await requestFuture;
+    } else {
+      request = await requestFuture.timeout(
+        sendTimeout,
+        onTimeout: () {
+          timeoutCompleter.complete();
+          throw DioException.sendTimeout(
+            timeout: sendTimeout,
+            requestOptions: options,
+          );
+        },
+      );
+    }
+
+    // http package doesn't separate connect and receive phases,
+    // so we combine both timeouts for client.send()
+    final connectTimeout = options.connectTimeout ?? Duration.zero;
+    final receiveTimeout = options.receiveTimeout ?? Duration.zero;
+    final totalTimeout = connectTimeout + receiveTimeout;
+    final StreamedResponse response;
+    if (totalTimeout == Duration.zero) {
+      response = await client.send(request);
+    } else {
+      response = await client.send(request).timeout(
+        totalTimeout,
+        onTimeout: () {
+          timeoutCompleter.complete();
+          throw DioException.receiveTimeout(
+            timeout: totalTimeout,
+            requestOptions: options,
+          );
+        },
+      );
+    }
+
     return response.toDioResponseBody(options);
   }
 
@@ -38,7 +81,7 @@ class ConversionLayerAdapter implements HttpClientAdapter {
   Future<BaseRequest> _fromOptionsAndStream(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future<dynamic>? cancelFuture,
+    Future<void> cancelFuture,
   ) async {
     final request = AbortableRequest(
       options.method,
