@@ -69,6 +69,14 @@ jobs:
       - run: ./scripts/prepare_pinning_certs.sh
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid mkcert
+      - name: Set up Go for httpbun
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Install task for httpbun build
+        run: |
+          curl --silent --show-error --location 'https://github.com/go-task/task/releases/download/v3.29.1/task_linux_amd64.tar.gz' \
+            | sudo tar -xzf - -C /usr/local/bin task
       - name: Start local httpbun
         run: |
           mkcert -install
@@ -76,6 +84,9 @@ jobs:
           echo '127.0.0.1 httpbun.local' | sudo tee --append /etc/hosts
           # Clone the cfug/httpbun repository and checkout the feat/dio branch
           git clone --depth 1 --branch feat/dio https://github.com/cfug/httpbun.git /tmp/httpbun
+          # Build the httpbun binaries
+          cd /tmp/httpbun
+          task docker
           # Build a local Docker image named httpbun:feat-dio from the repo
           docker build -t httpbun:feat-dio /tmp/httpbun
           # Run the built image instead of pulling from Docker Hub
