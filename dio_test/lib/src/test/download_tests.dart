@@ -31,7 +31,7 @@ void downloadTests(
       test('bytes', () async {
         final path = p.join(tmp.path, 'bytes.txt');
 
-        final size = 50000;
+        final size = 50;
         int progressEventCount = 0;
         int count = 0;
         int total = 0;
@@ -56,12 +56,12 @@ void downloadTests(
 
         final res = await dio.get<ResponseBody>(
           '/drip',
-          queryParameters: {'duration': '5', 'delay': '0'},
+          queryParameters: {'delay': '0', 'duration': '2'},
           options: Options(responseType: ResponseType.stream),
           cancelToken: cancelToken,
         );
 
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 1), () {
           cancelToken.cancel();
         });
 
@@ -94,7 +94,7 @@ void downloadTests(
           dio.download(
             '/drip',
             path,
-            queryParameters: {'duration': '5', 'delay': '0'},
+            queryParameters: {'delay': '0', 'duration': '2'},
             cancelToken: cancelToken,
           ),
           throwsDioException(
@@ -110,11 +110,12 @@ void downloadTests(
       test('cancels streamed response mid request', () async {
         final cancelToken = CancelToken();
         final response = await dio.get(
-          '/bytes/${1024 * 1024 * 100}',
+          '/drip',
+          queryParameters: {'delay': '0', 'duration': '2', 'numbytes': '20'},
           options: Options(responseType: ResponseType.stream),
           cancelToken: cancelToken,
           onReceiveProgress: (c, t) {
-            if (c > 5000) {
+            if (c > 10) {
               cancelToken.cancel();
             }
           },
@@ -135,11 +136,12 @@ void downloadTests(
 
         await expectLater(
           dio.download(
-            '/bytes/${1024 * 1024 * 10}',
+            '/drip',
             path,
+            queryParameters: {'delay': '0', 'duration': '2', 'numbytes': '20'},
             cancelToken: cancelToken,
             onReceiveProgress: (c, t) {
-              if (c > 5000) {
+              if (c > 10) {
                 cancelToken.cancel();
               }
             },
@@ -158,7 +160,7 @@ void downloadTests(
         final savePath = p.join(tmp.path, 'download0.md');
 
         final options = Options(responseType: ResponseType.plain);
-        await dio.download('/bytes/1000', savePath, options: options);
+        await dio.download('/bytes/50', savePath, options: options);
         expect(options.responseType, ResponseType.plain);
       });
 
@@ -248,8 +250,13 @@ void downloadTests(
       test('receiveTimeout triggers if gaps are too big', () {
         expectLater(
           dio.download(
-            '/drip?delay=0&duration=6&numbytes=3',
+            '/drip',
             p.join(tmp.path, 'download_timeout.md'),
+            queryParameters: {
+              'delay': '0',
+              'duration': '4',
+              'numbytes': '2',
+            },
             options: Options(receiveTimeout: const Duration(seconds: 1)),
           ),
           throwsDioException(
@@ -264,8 +271,13 @@ void downloadTests(
         () {
           expectLater(
             dio.download(
-              '/drip?delay=0&duration=6&numbytes=12',
+              '/drip',
               p.join(tmp.path, 'download_timeout.md'),
+              queryParameters: {
+                'delay': '0',
+                'duration': '4',
+                'numbytes': '8',
+              },
               options: Options(receiveTimeout: const Duration(seconds: 1)),
             ),
             completes,
@@ -280,9 +292,10 @@ void downloadTests(
 
         await expectLater(
           dio.download(
-            '/drip?delay=0&duration=5',
+            '/drip',
             savePath,
             deleteOnError: true,
+            queryParameters: {'delay': '0', 'duration': '2'},
             onReceiveProgress: (count, total) => throw AssertionError(),
           ),
           throwsDioException(
@@ -309,7 +322,7 @@ void downloadTests(
 
         await expectLater(
           dio.download(
-            '/bytes/5000',
+            '/bytes/50',
             savePath,
             deleteOnError: true,
             cancelToken: cancelToken,
@@ -335,12 +348,13 @@ void downloadTests(
 
         await expectLater(
           dio.download(
-            '/bytes/10000',
+            '/drip',
             savePath,
+            queryParameters: {'delay': '0', 'duration': '2', 'numbytes': '20'},
             cancelToken: cancelToken,
             deleteOnError: true,
             onReceiveProgress: (c, t) {
-              if (c > 5000) {
+              if (c > 10) {
                 cancelToken.cancel();
               }
             },
@@ -360,21 +374,21 @@ void downloadTests(
 
         await expectLater(
           dio.download(
-            '/bytes/5000',
+            '/bytes/50',
             testPath,
           ),
           completes,
         );
         await expectLater(
           dio.download(
-            '/bytes/5000',
+            '/bytes/50',
             (headers) => testPath,
           ),
           completes,
         );
         await expectLater(
           dio.download(
-            '/bytes/5000',
+            '/bytes/50',
             (headers) async => testPath,
           ),
           completes,
@@ -384,15 +398,15 @@ void downloadTests(
       test('append bytes to previous download', () async {
         final cancelToken = CancelToken();
         final path = p.join(tmp.path, 'download_3.txt');
-        final requestedBytes = 1024 * 1024 * 10;
         int recievedBytes1 = 0;
         await expectLater(
           dio.download(
-            '/bytes/$requestedBytes',
+            '/drip',
             path,
+            queryParameters: {'delay': '0', 'duration': '2', 'numbytes': '20'},
             cancelToken: cancelToken,
             onReceiveProgress: (c, t) {
-              if (c > 5000) {
+              if (c > 10) {
                 recievedBytes1 = c;
                 cancelToken.cancel();
               }
@@ -409,12 +423,13 @@ void downloadTests(
         int recievedBytes2 = 0;
         expectLater(
           dio.download(
-            '/bytes/$requestedBytes',
+            '/drip',
             path,
-            cancelToken: cancelToken,
+            queryParameters: {'delay': '0', 'duration': '2', 'numbytes': '20'},
+            cancelToken: cancelToken2,
             onReceiveProgress: (c, t) {
               recievedBytes2 = c;
-              if (c > 5000) {
+              if (c > 10) {
                 cancelToken2.cancel();
               }
             },
