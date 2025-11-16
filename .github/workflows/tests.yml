@@ -74,6 +74,11 @@ jobs:
           mkcert -install
           mkcert -cert-file '/tmp/cert.pem' -key-file '/tmp/key.pem' httpbun.local
           echo '127.0.0.1 httpbun.local' | sudo tee --append /etc/hosts
+          # Clone the cfug/httpbun repository and checkout the feat/dio branch
+          git clone --depth 1 --branch feat/dio https://github.com/cfug/httpbun.git /tmp/httpbun
+          # Build a local Docker image named httpbun:feat-dio from the repo
+          docker build -t httpbun:feat-dio /tmp/httpbun
+          # Run the built image instead of pulling from Docker Hub
           docker run \
             --name httpbun \
             --detach \
@@ -81,8 +86,7 @@ jobs:
             --volume /tmp:/tmp:ro \
             --env HTTPBUN_TLS_CERT=/tmp/cert.pem \
             --env HTTPBUN_TLS_KEY=/tmp/key.pem \
-            --pull always \
-            sharat87/httpbun
+            httpbun:feat-dio
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
       - name: Use httpbun.local for tests
