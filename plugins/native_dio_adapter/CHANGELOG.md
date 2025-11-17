@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Support request cancellation for native HTTP clients via use of `AbortableRequest` (introduced in http package from version 1.5.0)
+- Add timeout handling for `sendTimeout`, `connectTimeout`, and `receiveTimeout` in `ConversionLayerAdapter`
 
 ## 1.5.0
 
