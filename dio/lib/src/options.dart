@@ -220,6 +220,7 @@ class Options {
     this.method,
     Duration? sendTimeout,
     Duration? receiveTimeout,
+    Duration? connectTimeout,
     this.extra,
     this.headers,
     this.preserveHeaderCase,
@@ -236,13 +237,16 @@ class Options {
   })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
-        _sendTimeout = sendTimeout;
+        _sendTimeout = sendTimeout,
+        assert(connectTimeout == null || !connectTimeout.isNegative),
+        _connectTimeout = connectTimeout;
 
   /// Create a Option from current instance with merging attributes.
   Options copyWith({
     String? method,
     Duration? sendTimeout,
     Duration? receiveTimeout,
+    Duration? connectTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
     bool? preserveHeaderCase,
@@ -280,6 +284,7 @@ class Options {
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+      connectTimeout: connectTimeout ?? this.connectTimeout,
       extra: extra ?? effectiveExtra,
       headers: headers ?? effectiveHeaders,
       preserveHeaderCase: preserveHeaderCase ?? this.preserveHeaderCase,
@@ -337,7 +342,7 @@ class Options {
       data: data,
       preserveHeaderCase: preserveHeaderCase ?? baseOpt.preserveHeaderCase,
       sourceStackTrace: sourceStackTrace ?? StackTrace.current,
-      connectTimeout: baseOpt.connectTimeout,
+      connectTimeout: connectTimeout ?? baseOpt.connectTimeout,
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
       receiveTimeout: receiveTimeout ?? baseOpt.receiveTimeout,
       responseType: responseType ?? baseOpt.responseType,
@@ -415,6 +420,22 @@ class Options {
       throw ArgumentError.value(value, 'receiveTimeout', 'should be positive');
     }
     _receiveTimeout = value;
+  }
+
+  /// Timeout when opening a request.
+  ///
+  /// Throws the [DioException] with
+  /// [DioExceptionType.connectionTimeout] type when timed out.
+  ///
+  /// `null` or `Duration.zero` means no timeout limit.
+  Duration? get connectTimeout => _connectTimeout;
+  Duration? _connectTimeout;
+
+  set connectTimeout(Duration? value) {
+    if (value != null && value.isNegative) {
+      throw ArgumentError.value(value, 'connectTimeout', 'should be positive');
+    }
+    _connectTimeout = value;
   }
 
   /// The request content-type.

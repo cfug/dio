@@ -106,6 +106,50 @@ void main() {
     opt5.headers['B'] = 9;
     expect(opt5.headers['b'], 9);
   });
+
+  test('options connectTimeout', () {
+    // Test that connectTimeout can be set in Options
+    final opt1 = Options(
+      method: 'get',
+      connectTimeout: const Duration(seconds: 10),
+    );
+    expect(opt1.connectTimeout, const Duration(seconds: 10));
+
+    // Test that connectTimeout can be copied
+    final opt2 = opt1.copyWith(
+      connectTimeout: const Duration(seconds: 20),
+    );
+    expect(opt2.connectTimeout, const Duration(seconds: 20));
+
+    // Test that connectTimeout is preserved when not overridden
+    final opt3 = opt1.copyWith(method: 'post');
+    expect(opt3.connectTimeout, const Duration(seconds: 10));
+
+    // Test that Options connectTimeout overrides BaseOptions connectTimeout
+    final baseOptions = BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      baseUrl: 'http://localhost',
+    );
+    final options = Options(connectTimeout: const Duration(seconds: 10));
+    final requestOptions = options.compose(baseOptions, '/test');
+    expect(requestOptions.connectTimeout, const Duration(seconds: 10));
+
+    // Test that BaseOptions connectTimeout is used when Options doesn't set it
+    final options2 = Options();
+    final requestOptions2 = options2.compose(baseOptions, '/test');
+    expect(requestOptions2.connectTimeout, const Duration(seconds: 5));
+
+    // Test that negative connectTimeout throws an error
+    expect(
+      () => Options(connectTimeout: const Duration(seconds: -1)),
+      throwsA(isA<AssertionError>()),
+    );
+
+    // Test that zero duration is allowed
+    final opt4 = Options(connectTimeout: Duration.zero);
+    expect(opt4.connectTimeout, Duration.zero);
+  });
+
   test('options content-type', () {
     const contentType = 'text/html';
     const contentTypeJson = 'application/json';
