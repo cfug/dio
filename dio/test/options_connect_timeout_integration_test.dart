@@ -32,11 +32,6 @@ void main() {
         lessThan(5000),
         reason: 'Should timeout quickly (100ms + margin), not after 30s',
       );
-
-      print('✓ Test passed: Timed out in ${elapsed.inMilliseconds}ms');
-      print(
-        '✓ Options.connectTimeout correctly overrode BaseOptions.connectTimeout',
-      );
     }
   });
 
