@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Add `handshakeTimeout` (defaults to 15 seconds) to the `ConnectionManager` to prevent long waiting if there's something wrong with the handshake procedure.
 
 ## 2.6.0
 

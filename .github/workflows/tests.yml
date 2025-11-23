@@ -97,7 +97,7 @@ jobs:
         run: melos run test:web:firefox
       - name: '[Verify step] Test Flutter packages'
         run: melos run test:flutter
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         if: ${{ matrix.sdk == 'stable' }}
         with:
           distribution: 'adopt'
@@ -122,7 +122,7 @@ jobs:
         run: echo ${{ github.event.number }} > pr_number.txt
       - name: '[Coverage] Upload'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: code-coverage-results
           path: |
