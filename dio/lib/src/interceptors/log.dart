@@ -15,35 +15,43 @@ import '../response.dart';
 /// ```dart
 /// dio.interceptors.add(
 ///   LogInterceptor(
-///    logPrint: (o) => debugPrint(o.toString()),
+///     logPrint: (o) => debugPrint(o.toString()),
 ///   ),
 /// );
 /// ```
 class LogInterceptor extends Interceptor {
   LogInterceptor({
     this.request = true,
+    this.requestUrl = true,
     this.requestHeader = true,
     this.requestBody = false,
+    this.responseUrl = true,
     this.responseHeader = true,
     this.responseBody = false,
     this.error = true,
     this.logPrint = _debugPrint,
   });
 
-  /// Print request [Options]
+  /// Print request [RequestOptions]
   bool request;
 
-  /// Print request header [Options.headers]
+  /// Print request URL [RequestOptions.uri]
+  bool requestUrl;
+
+  /// Print request headers [RequestOptions.headers]
   bool requestHeader;
 
-  /// Print request data [Options.data]
+  /// Print request data [RequestOptions.data]
   bool requestBody;
 
-  /// Print [Response.data]
-  bool responseBody;
+  /// Print [Response.realUri]
+  bool responseUrl;
 
   /// Print [Response.headers]
   bool responseHeader;
+
+  /// Print [Response.data]
+  bool responseBody;
 
   /// Print error message
   bool error;
@@ -65,40 +73,12 @@ class LogInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    logPrint('*** Request ***');
-    _printKV('uri', options.uri);
-    //options.headers;
-
-    if (request) {
-      _printKV('method', options.method);
-      _printKV('responseType', options.responseType.toString());
-      _printKV('followRedirects', options.followRedirects);
-      _printKV('persistentConnection', options.persistentConnection);
-      _printKV('connectTimeout', options.connectTimeout);
-      _printKV('sendTimeout', options.sendTimeout);
-      _printKV('receiveTimeout', options.receiveTimeout);
-      _printKV(
-        'receiveDataWhenStatusError',
-        options.receiveDataWhenStatusError,
-      );
-      _printKV('extra', options.extra);
-    }
-    if (requestHeader) {
-      logPrint('headers:');
-      options.headers.forEach((key, v) => _printKV(' $key', v));
-    }
-    if (requestBody) {
-      logPrint('data:');
-      _printAll(options.data);
-    }
-    logPrint('');
-
+    _printRequest(options);
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logPrint('*** Response ***');
     _printResponse(response);
     handler.next(response);
   }
@@ -118,21 +98,72 @@ class LogInterceptor extends Interceptor {
     handler.next(err);
   }
 
+  void _printRequest(RequestOptions options) {
+    if (!request && !requestUrl && !requestHeader && !requestBody) {
+      return;
+    }
+
+    if (requestUrl) {
+      logPrint('*** Request ***');
+      _printKV('uri', options.uri);
+    }
+
+    if (request) {
+      _printKV('method', options.method);
+      _printKV('responseType', options.responseType.toString());
+      _printKV('followRedirects', options.followRedirects);
+      _printKV('persistentConnection', options.persistentConnection);
+      _printKV('connectTimeout', options.connectTimeout);
+      _printKV('sendTimeout', options.sendTimeout);
+      _printKV('receiveTimeout', options.receiveTimeout);
+      _printKV(
+        'receiveDataWhenStatusError',
+        options.receiveDataWhenStatusError,
+      );
+      _printKV('extra', options.extra);
+    }
+
+    if (requestHeader) {
+      logPrint('headers:');
+      options.headers.forEach((key, v) => _printKV(' $key', v));
+    }
+
+    if (requestBody) {
+      logPrint('data:');
+      _printAll(options.data);
+    }
+
+    logPrint('');
+  }
+
   void _printResponse(Response response) {
-    _printKV('uri', response.requestOptions.uri);
+    if (!responseUrl && !responseHeader && !responseBody) {
+      return;
+    }
+
+    if (responseUrl) {
+      logPrint('*** Response ***');
+      _printKV('uri', response.realUri);
+    }
+
     if (responseHeader) {
       _printKV('statusCode', response.statusCode);
-      if (response.isRedirect == true) {
-        _printKV('redirect', response.realUri);
+      if (response.statusMessage != null) {
+        _printKV('statusMessage', response.statusMessage);
+      }
+      if (response.redirects.isNotEmpty) {
+        _printKV('redirects', response.redirects);
       }
 
       logPrint('headers:');
       response.headers.forEach((key, v) => _printKV(' $key', v.join('\r\n\t')));
     }
+
     if (responseBody) {
       logPrint('Response Text:');
       _printAll(response.toString());
     }
+
     logPrint('');
   }
 
