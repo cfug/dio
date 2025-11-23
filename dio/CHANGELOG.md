@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Add `requestUrl` and `responseUrl` parameters to `LogInterceptor` for more precise control over URL logging.
 
 ## 5.9.0
 

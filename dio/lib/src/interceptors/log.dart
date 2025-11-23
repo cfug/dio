@@ -35,10 +35,10 @@ class LogInterceptor extends Interceptor {
   /// Print request [RequestOptions]
   bool request;
 
-  /// Print request header [RequestOptions.uri]
+  /// Print request URL [RequestOptions.uri]
   bool requestUrl;
 
-  /// Print request header [RequestOptions.headers]
+  /// Print request headers [RequestOptions.headers]
   bool requestHeader;
 
   /// Print request data [RequestOptions.data]
