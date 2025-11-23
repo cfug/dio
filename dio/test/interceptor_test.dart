@@ -765,6 +765,217 @@ void main() {
     });
   });
 
+  group('LogInterceptor', () {
+    test('requestUrl controls URL logging in requests', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      final logs = <String>[];
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: true,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: false,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs.any((log) => log.contains('*** Request ***')), true);
+      expect(logs.any((log) => log.contains('uri:')), true);
+      expect(logs.any((log) => log.contains('/test')), true);
+    });
+
+    test('requestUrl=false prevents URL logging in requests', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      final logs = <String>[];
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: false,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: false,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs.any((log) => log.contains('*** Request ***')), false);
+      expect(logs.any((log) => log.contains('uri:')), false);
+    });
+
+    test('responseUrl controls URL logging in responses', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      final logs = <String>[];
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: false,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: true,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs.any((log) => log.contains('*** Response ***')), true);
+      expect(logs.any((log) => log.contains('uri:')), true);
+      expect(logs.any((log) => log.contains('/test')), true);
+    });
+
+    test('responseUrl=false prevents URL logging in responses', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      final logs = <String>[];
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: false,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: false,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs.any((log) => log.contains('*** Response ***')), false);
+    });
+
+    test('requestUrl and responseUrl work independently', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      // Test: requestUrl=true, responseUrl=false
+      final logs1 = <String>[];
+      dio.interceptors.clear();
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: true,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: false,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs1.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs1.any((log) => log.contains('*** Request ***')), true);
+      expect(logs1.any((log) => log.contains('*** Response ***')), false);
+
+      // Test: requestUrl=false, responseUrl=true
+      final logs2 = <String>[];
+      dio.interceptors.clear();
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: false,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: true,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs2.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs2.any((log) => log.contains('*** Request ***')), false);
+      expect(logs2.any((log) => log.contains('*** Response ***')), true);
+    });
+
+    test('requestUrl can be combined with other request flags', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      final logs = <String>[];
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: true,
+          requestHeader: true,
+          requestBody: true,
+          request: true,
+          responseUrl: false,
+          responseHeader: false,
+          responseBody: false,
+          logPrint: (o) => logs.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs.any((log) => log.contains('*** Request ***')), true);
+      expect(logs.any((log) => log.contains('uri:')), true);
+      expect(logs.any((log) => log.contains('method:')), true);
+      expect(logs.any((log) => log.contains('headers:')), true);
+    });
+
+    test('responseUrl can be combined with other response flags', () async {
+      final dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+
+      final logs = <String>[];
+      dio.interceptors.add(
+        LogInterceptor(
+          requestUrl: false,
+          requestHeader: false,
+          requestBody: false,
+          request: false,
+          responseUrl: true,
+          responseHeader: true,
+          responseBody: true,
+          logPrint: (o) => logs.add(o.toString()),
+        ),
+      );
+
+      await dio.get('/test');
+
+      expect(logs.any((log) => log.contains('*** Response ***')), true);
+      expect(logs.any((log) => log.contains('uri:')), true);
+      expect(logs.any((log) => log.contains('statusCode:')), true);
+      expect(logs.any((log) => log.contains('headers:')), true);
+    });
+
+    test('default values enable requestUrl and responseUrl', () {
+      final interceptor = LogInterceptor();
+      expect(interceptor.requestUrl, true);
+      expect(interceptor.responseUrl, true);
+    });
+  });
+
   test('Size of Interceptors', () {
     final interceptors1 = Dio().interceptors;
     expect(interceptors1.length, equals(1));
