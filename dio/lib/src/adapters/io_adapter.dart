@@ -194,7 +194,12 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     responseStream.headers.forEach((key, values) {
       headers[key] = values;
     });
-    return ResponseBody(
+    // Extract HTTP protocol version from the response headers.
+    // The protocolVersion is available in the internal _HttpHeaders implementation
+    // but not exposed in the public HttpHeaders interface, so we use dynamic access.
+    final String? httpVersion =
+        (responseStream.headers as dynamic).protocolVersion as String?;
+    final responseBody = ResponseBody(
       responseStream.cast(),
       responseStream.statusCode,
       headers: headers,
@@ -205,6 +210,10 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           .toList(),
       statusMessage: responseStream.reasonPhrase,
     );
+    if (httpVersion != null) {
+      responseBody.extra[httpVersionKey] = httpVersion;
+    }
+    return responseBody;
   }
 
   HttpClient _configHttpClient(Duration? connectionTimeout) {
