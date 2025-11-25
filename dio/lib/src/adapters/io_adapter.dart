@@ -197,8 +197,15 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     // Extract HTTP protocol version from the response headers.
     // The protocolVersion is available in the internal _HttpHeaders implementation
     // but not exposed in the public HttpHeaders interface, so we use dynamic access.
-    final String? httpVersion =
-        (responseStream.headers as dynamic).protocolVersion as String?;
+    // This may fail in certain environments (e.g., tests with mocks), so we catch
+    // any errors and gracefully handle them.
+    String? httpVersion;
+    try {
+      httpVersion =
+          (responseStream.headers as dynamic).protocolVersion as String?;
+    } catch (_) {
+      // protocolVersion is not available in this environment
+    }
     final responseBody = ResponseBody(
       responseStream.cast(),
       responseStream.statusCode,
