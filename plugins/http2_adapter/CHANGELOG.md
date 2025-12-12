@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Add `handshakeTimeout` (defaults to 15 seconds) to the `ConnectionManager` to prevent long waiting if there's something wrong with the handshake procedure.
+- Fix `StateError: Bad state: Cannot add event after closing` caused by race condition e.g. when the server closed the connection before receiving the request body. 
 
 ## 2.6.0
 
