@@ -189,7 +189,11 @@ class Http2Adapter implements HttpClientAdapter {
 
     try {
       await stream.outgoingMessages.close();
-    } catch (_) {}
+    } on StateError {
+      // Ignore StateError, which may occur if the stream is already closed.
+    } catch (_) {
+      rethrow;
+    }
 
     final responseSink = StreamController<Uint8List>();
     final responseHeaders = Headers();

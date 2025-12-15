@@ -115,6 +115,7 @@ void main() {
         await for (final msg in stream.incomingMessages) {
           if (msg is HeadersStreamMessage) {
             stream.terminate();
+            serverConn.terminate();
             break;
           }
         }
