@@ -34,6 +34,15 @@ void main() {
         await dio.get('https://pub.dev');
         expect(createHttpClientCount, 1);
       });
+
+      test('httpVersion is set in response extra', () async {
+        final dio = Dio();
+        dio.httpClientAdapter = IOHttpClientAdapter();
+        final response = await dio.get('https://pub.dev');
+        final httpVersion = response.extra[httpVersionKey];
+        expect(httpVersion, isNotNull);
+        expect(httpVersion, anyOf(equals('1.0'), equals('1.1')));
+      });
     },
     testOn: 'vm',
   );
