@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_test/util.dart';
+import 'package:http2/transport.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -97,6 +100,64 @@ void main() {
     }
     final res = await dio.post('/post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));
+  });
+
+  test(
+      'request does not fail with StateError when the server closes the stream before client sends body',
+      () async {
+    final serverSocket =
+        await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+
+    serverSocket.listen((rawSocket) {
+      final serverConn = ServerTransportConnection.viaSocket(rawSocket);
+
+      serverConn.incomingStreams.listen((ServerTransportStream stream) async {
+        await for (final msg in stream.incomingMessages) {
+          if (msg is HeadersStreamMessage) {
+            stream.terminate();
+            serverConn.terminate();
+            break;
+          }
+        }
+      });
+    });
+
+    final dio = Dio();
+    final adapter = Http2Adapter(null);
+    dio.httpClientAdapter = adapter;
+
+    final Stream<Uint8List> requestStream = (() async* {
+      for (int i = 0; i < 20; i++) {
+        await Future.delayed(const Duration(milliseconds: 5));
+        yield Uint8List.fromList(List.filled(1024, i));
+      }
+    })();
+
+    final completer = Completer<Object?>();
+
+    runZonedGuarded(() async {
+      await adapter.fetch(
+        RequestOptions(
+          path: '/test',
+          method: 'POST',
+          baseUrl: 'http://127.0.0.1:${serverSocket.port}',
+          headers: {},
+        ),
+        requestStream,
+        null,
+      );
+      completer.complete(null);
+    }, (e, _) {
+      if (!completer.isCompleted) {
+        completer.complete(e);
+      }
+    });
+
+    final result = await completer.future;
+    expect(result, isNot(isA<StateError>()));
+
+    adapter.close(force: true);
+    await serverSocket.close();
   });
 
   group(ConnectionManager, () {
