@@ -460,6 +460,9 @@ class QueuedInterceptor extends Interceptor {
       try {
         callback(task.data, task.handler);
       } catch (e) {
+        // Handle synchronous exceptions thrown by interceptor callbacks.
+        // Without this, the request would hang indefinitely because the
+        // handler's completer would never be completed.
         onError(e, task.handler);
       }
     }
