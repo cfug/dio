@@ -16,6 +16,9 @@ import 'cupertino_adapter.dart';
 ///
 /// On Android this uses [cronet_http](https://pub.dev/packages/cronet_http) to
 /// make HTTP requests.
+///
+/// If Cronet is unavailable (e.g., Google Play Services not installed),
+/// falls back to the default [HttpClientAdapter] using dart:io.
 class NativeAdapter implements HttpClientAdapter {
   NativeAdapter({
     CronetEngine Function()? createCronetEngine,
@@ -32,11 +35,20 @@ class NativeAdapter implements HttpClientAdapter {
       'This will be removed in v2.0.0',
     )
     URLSessionConfiguration? cupertinoConfiguration,
+    void Function(Object error)? onCronetUnavailable,
   }) {
     if (Platform.isAndroid) {
-      _adapter = CronetAdapter(
-        createCronetEngine?.call() ?? androidCronetEngine,
-      );
+      try {
+        _adapter = CronetAdapter(
+          createCronetEngine?.call() ?? androidCronetEngine,
+        );
+      } catch (e) {
+        // Cronet requires Google Play Services. Fall back to dart:io
+        // HttpClient when unavailable (e.g., on emulators without Google APIs
+        // or devices without Google Play Services).
+        onCronetUnavailable?.call(e);
+        _adapter = HttpClientAdapter();
+      }
     } else if (Platform.isIOS || Platform.isMacOS) {
       _adapter = CupertinoAdapter(
         createCupertinoConfiguration?.call() ??
