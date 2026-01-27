@@ -96,7 +96,7 @@ class _ConnectionManager implements ConnectionManager {
     if (redirects.isNotEmpty) {
       uri = Http2Adapter.resolveRedirectUri(uri, redirects.last.location);
     }
-    final domain = '${uri.host}:${uri.port}';
+    final domain = '${uri.scheme}://${uri.host}:${uri.port}';
     final clientConfig = ClientSetting();
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);
