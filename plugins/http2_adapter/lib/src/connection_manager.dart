@@ -28,6 +28,13 @@ abstract class ConnectionManager {
   void removeConnection(ClientTransportConnection transport);
 
   void close({bool force = false});
+
+  /// Returns the number of cached connections.
+  ///
+  /// This is exposed for testing purposes to verify that connections
+  /// are properly cleaned up after idle timeout.
+  @visibleForTesting
+  int get cachedConnectionsCount;
 }
 
 /// {@template dio_http2_adapter.ProxyConnectedPredicate}

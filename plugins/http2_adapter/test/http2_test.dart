@@ -171,6 +171,37 @@ void main() {
         ),
       );
     });
+
+    // Regression test for https://github.com/cfug/dio/pull/2481
+    // Verifies that connections are properly removed from cache after idle
+    // timeout. Previously, there was an inconsistency in cache key format:
+    // - getConnection used 'scheme://host:port' (e.g., 'https://example.com:443')
+    // - _connect used 'host:port' (e.g., 'example.com:443')
+    // This caused _transportsMap.remove() to fail, leading to memory leaks.
+    test('removes connection from cache after idle timeout', () async {
+      final manager = ConnectionManager(
+        idleTimeout: const Duration(milliseconds: 500),
+      );
+      final dio = Dio()
+        ..options.baseUrl = httpbunBaseUrl
+        ..httpClientAdapter = Http2Adapter(manager);
+
+      // Make a request to establish a connection
+      await dio.get('/get');
+
+      // Verify connection is cached
+      expect(manager.cachedConnectionsCount, equals(1));
+
+      // Wait for idle timeout to trigger (500ms + buffer)
+      // The connection becomes inactive after the request completes,
+      // then the idle timer will remove it from the cache.
+      await Future<void>.delayed(const Duration(milliseconds: 5000));
+
+      // Verify connection has been removed from cache
+      expect(manager.cachedConnectionsCount, equals(0));
+
+      manager.close(force: true);
+    });
   });
 
   group(ProxyConnectedPredicate, () {
