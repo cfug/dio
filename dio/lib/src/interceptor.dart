@@ -97,6 +97,52 @@ class RequestInterceptorHandler extends _BaseHandler {
     );
     _processNextInQueue?.call();
   }
+
+  /// Completes the request by rejecting with a custom [error] that will be
+  /// thrown directly to the caller, bypassing the [DioException] wrapper.
+  ///
+  /// This is useful when you want callers to catch your custom exception type
+  /// directly instead of having to catch [DioException] and extract the error.
+  ///
+  /// The [requestOptions] parameter is required to create the wrapper
+  /// [DioException]. You can obtain it from the [RequestOptions] parameter
+  /// passed to the interceptor.
+  ///
+  /// Example:
+  /// ```dart
+  /// dio.interceptors.add(InterceptorsWrapper(
+  ///   onRequest: (options, handler) {
+  ///     if (!isAuthenticated) {
+  ///       handler.rejectCustomError(
+  ///         UnauthorizedException('Not logged in'),
+  ///         options,
+  ///       );
+  ///       return;
+  ///     }
+  ///     handler.next(options);
+  ///   },
+  /// ));
+  ///
+  /// // Caller can catch the custom exception directly:
+  /// try {
+  ///   await dio.get('/api');
+  /// } on UnauthorizedException catch (e) {
+  ///   // Now works!
+  /// }
+  /// ```
+  void rejectCustomError(
+    Object error,
+    RequestOptions requestOptions, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    reject(
+      DioException.customError(
+        requestOptions: requestOptions,
+        error: error,
+      ),
+      callFollowingErrorInterceptor,
+    );
+  }
 }
 
 /// The handler for interceptors to handle after respond.
@@ -148,6 +194,51 @@ class ResponseInterceptorHandler extends _BaseHandler {
     );
     _processNextInQueue?.call();
   }
+
+  /// Completes the request by rejecting with a custom [error] that will be
+  /// thrown directly to the caller, bypassing the [DioException] wrapper.
+  ///
+  /// This is useful when you want callers to catch your custom exception type
+  /// directly instead of having to catch [DioException] and extract the error.
+  ///
+  /// The [requestOptions] parameter is required to create the wrapper
+  /// [DioException]. You can obtain it from `response.requestOptions`.
+  ///
+  /// Example:
+  /// ```dart
+  /// dio.interceptors.add(InterceptorsWrapper(
+  ///   onResponse: (response, handler) {
+  ///     if (response.statusCode == 401) {
+  ///       handler.rejectCustomError(
+  ///         UnauthorizedException('Token expired'),
+  ///         response.requestOptions,
+  ///       );
+  ///       return;
+  ///     }
+  ///     handler.next(response);
+  ///   },
+  /// ));
+  ///
+  /// // Caller can catch the custom exception directly:
+  /// try {
+  ///   await dio.get('/api');
+  /// } on UnauthorizedException catch (e) {
+  ///   // Now works!
+  /// }
+  /// ```
+  void rejectCustomError(
+    Object error,
+    RequestOptions requestOptions, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    reject(
+      DioException.customError(
+        requestOptions: requestOptions,
+        error: error,
+      ),
+      callFollowingErrorInterceptor,
+    );
+  }
 }
 
 /// The handler for interceptors to handle error occurred during the request.
@@ -185,6 +276,46 @@ class ErrorInterceptorHandler extends _BaseHandler {
       error.stackTrace,
     );
     _processNextInQueue?.call();
+  }
+
+  /// Completes the request by rejecting with a custom [error] that will be
+  /// thrown directly to the caller, bypassing the [DioException] wrapper.
+  ///
+  /// This is useful when you want callers to catch your custom exception type
+  /// directly instead of having to catch [DioException] and extract the error.
+  ///
+  /// The [requestOptions] parameter is required to create the wrapper
+  /// [DioException]. You can obtain it from `error.requestOptions`.
+  ///
+  /// Example:
+  /// ```dart
+  /// dio.interceptors.add(InterceptorsWrapper(
+  ///   onError: (error, handler) {
+  ///     if (error.response?.statusCode == 401) {
+  ///       handler.rejectCustomError(
+  ///         UnauthorizedException('Token expired'),
+  ///         error.requestOptions,
+  ///       );
+  ///       return;
+  ///     }
+  ///     handler.next(error);
+  ///   },
+  /// ));
+  ///
+  /// // Caller can catch the custom exception directly:
+  /// try {
+  ///   await dio.get('/api');
+  /// } on UnauthorizedException catch (e) {
+  ///   // Now works!
+  /// }
+  /// ```
+  void rejectCustomError(Object error, RequestOptions requestOptions) {
+    reject(
+      DioException.customError(
+        requestOptions: requestOptions,
+        error: error,
+      ),
+    );
   }
 }
 
