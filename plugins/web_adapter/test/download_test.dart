@@ -1,4 +1,5 @@
 @TestOn('browser')
+
 import 'package:dio/dio.dart';
 import 'package:dio_web_adapter/dio_web_adapter.dart';
 import 'package:test/test.dart';
@@ -60,7 +61,8 @@ void main() {
       }
     });
 
-    test('accepts callback savePath without throwing UnsupportedError', () async {
+    test('accepts callback savePath without throwing UnsupportedError',
+        () async {
       // This test verifies that callback savePath is accepted
       try {
         await dio.download(
