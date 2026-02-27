@@ -62,6 +62,17 @@ class _MockRejectErrorInterceptorHandler extends ErrorInterceptorHandler {
   }
 }
 
+class _MockNextErrorInterceptorHandler extends ErrorInterceptorHandler {
+  _MockNextErrorInterceptorHandler(this.onNext);
+
+  final void Function() onNext;
+
+  @override
+  void next(DioException error) {
+    onNext();
+  }
+}
+
 class _OverrideCookieManager extends CookieManager {
   _OverrideCookieManager(super.cookieJar);
 
@@ -249,6 +260,125 @@ void main() {
     ];
     final newCookies = CookieManager.getCookies(cookies);
     expect(newCookies, 'a=k; i=j; g=h; e=f; c=d; a=b');
+  });
+
+  group('ignoreInvalidCookies', () {
+    const exampleUrl = 'https://example.com';
+
+    // "Secure" is an invalid Set-Cookie value since it has no name=value pair,
+    // which is the exact scenario from issue #2492.
+    const invalidSetCookie = 'Secure';
+    const validSetCookie = 'valid=cookie; path=/';
+
+    test('throws by default when Set-Cookie header is invalid', () async {
+      final cookieJar = CookieJar();
+      final cookieManager = CookieManager(cookieJar);
+
+      final requestOptions = RequestOptions(baseUrl: exampleUrl);
+      final mockResponse = Response(
+        requestOptions: requestOptions,
+        headers: Headers.fromMap(
+          {HttpHeaders.setCookieHeader: [invalidSetCookie]},
+        ),
+      );
+
+      final handler = _MockRejectResponseInterceptorHandler(
+        isA<DioException>()
+            .having((e) => e.type, 'type', equals(DioExceptionType.unknown))
+            .having(
+              (e) => e.error,
+              'error',
+              isA<CookieManagerSaveException>(),
+            ),
+      );
+      await cookieManager.onResponse(mockResponse, handler);
+    });
+
+    test('ignores invalid Set-Cookie header when enabled', () async {
+      final cookieJar = CookieJar();
+      final cookieManager = CookieManager(
+        cookieJar,
+        ignoreInvalidCookies: true,
+      );
+
+      final requestOptions = RequestOptions(baseUrl: exampleUrl);
+      final mockResponse = Response(
+        requestOptions: requestOptions,
+        headers: Headers.fromMap(
+          {HttpHeaders.setCookieHeader: [invalidSetCookie]},
+        ),
+      );
+
+      final handler = MockResponseInterceptorHandler();
+      await cookieManager.onResponse(mockResponse, handler);
+
+      final savedCookies =
+          await cookieJar.loadForRequest(Uri.parse(exampleUrl));
+      expect(savedCookies, isEmpty);
+    });
+
+    test('preserves valid cookies alongside invalid ones when enabled',
+        () async {
+      final cookieJar = CookieJar();
+      final cookieManager = CookieManager(
+        cookieJar,
+        ignoreInvalidCookies: true,
+      );
+
+      final requestOptions = RequestOptions(baseUrl: exampleUrl);
+      final mockResponse = Response(
+        requestOptions: requestOptions,
+        headers: Headers.fromMap(
+          {
+            HttpHeaders.setCookieHeader: [validSetCookie, invalidSetCookie],
+          },
+        ),
+      );
+
+      final handler = MockResponseInterceptorHandler();
+      await cookieManager.onResponse(mockResponse, handler);
+
+      final savedCookies =
+          await cookieJar.loadForRequest(Uri.parse(exampleUrl));
+      expect(savedCookies.length, 1);
+      expect(savedCookies.first.name, 'valid');
+      expect(savedCookies.first.value, 'cookie');
+    });
+
+    test('ignores invalid Set-Cookie header in onError when enabled',
+        () async {
+      final cookieJar = CookieJar();
+      final cookieManager = CookieManager(
+        cookieJar,
+        ignoreInvalidCookies: true,
+      );
+
+      final requestOptions = RequestOptions(baseUrl: exampleUrl);
+      final mockResponse = Response(
+        requestOptions: requestOptions,
+        headers: Headers.fromMap(
+          {
+            HttpHeaders.setCookieHeader: [validSetCookie, invalidSetCookie],
+          },
+        ),
+      );
+      final error = DioException(
+        requestOptions: requestOptions,
+        response: mockResponse,
+      );
+
+      bool nextCalled = false;
+      final handler = _MockNextErrorInterceptorHandler(() {
+        nextCalled = true;
+      });
+      await cookieManager.onError(error, handler);
+
+      expect(nextCalled, isTrue);
+      final savedCookies =
+          await cookieJar.loadForRequest(Uri.parse(exampleUrl));
+      expect(savedCookies.length, 1);
+      expect(savedCookies.first.name, 'valid');
+    });
   });
 
   test('throws as expected', () async {
