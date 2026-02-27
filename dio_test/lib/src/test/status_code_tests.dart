@@ -15,8 +15,8 @@ void statusCodeTests(
   group('status code', () {
     for (final code in [400, 401, 404, 500, 503]) {
       test('$code', () {
-        expect(
-          dio.get('/status/$code'),
+        expectLater(
+          () => dio.get('/status/$code'),
           throwsDioException(
             DioExceptionType.badResponse,
             stackTraceContains: kIsWeb
@@ -35,8 +35,8 @@ void statusCodeTests(
 
   group(ValidateStatus, () {
     test('200 with validateStatus => false', () {
-      expect(
-        dio.get(
+      expectLater(
+        () => dio.get(
           '/status/200',
           options: Options(validateStatus: (status) => false),
         ),

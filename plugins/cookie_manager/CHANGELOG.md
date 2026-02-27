@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Fixes `kIsWeb` across different Flutter SDKs.
 
 ## 3.3.0
 
