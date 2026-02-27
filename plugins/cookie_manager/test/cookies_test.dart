@@ -277,9 +277,9 @@ void main() {
       final requestOptions = RequestOptions(baseUrl: exampleUrl);
       final mockResponse = Response(
         requestOptions: requestOptions,
-        headers: Headers.fromMap(
-          {HttpHeaders.setCookieHeader: [invalidSetCookie]},
-        ),
+        headers: Headers.fromMap({
+          HttpHeaders.setCookieHeader: [invalidSetCookie],
+        }),
       );
 
       final handler = _MockRejectResponseInterceptorHandler(
@@ -304,9 +304,9 @@ void main() {
       final requestOptions = RequestOptions(baseUrl: exampleUrl);
       final mockResponse = Response(
         requestOptions: requestOptions,
-        headers: Headers.fromMap(
-          {HttpHeaders.setCookieHeader: [invalidSetCookie]},
-        ),
+        headers: Headers.fromMap({
+          HttpHeaders.setCookieHeader: [invalidSetCookie],
+        }),
       );
 
       final handler = MockResponseInterceptorHandler();
@@ -345,8 +345,7 @@ void main() {
       expect(savedCookies.first.value, 'cookie');
     });
 
-    test('ignores invalid Set-Cookie header in onError when enabled',
-        () async {
+    test('ignores invalid Set-Cookie header in onError when enabled', () async {
       final cookieJar = CookieJar();
       final cookieManager = CookieManager(
         cookieJar,
