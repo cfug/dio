@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixes `kIsWeb` across different Flutter SDKs.
+- Introduce `CookieManager.ignoreInvalidCookies`.
 
 ## 3.3.0
 

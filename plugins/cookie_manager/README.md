@@ -88,3 +88,14 @@ void main() async {
   );
 }
 ```
+
+### Ignores invalid cookies
+
+By default, the `CookieManager` will throw an error when parsing invalid cookies.
+You can enable the `ignoreInvalidCookies` option to ignore them instead.
+
+```dart
+final cookieManager = CookieManager(cookieJar, ignoreInvalidCookies: true);
+// Or update it later.
+cookieManager.ignoreInvalidCookies = true;
+```
