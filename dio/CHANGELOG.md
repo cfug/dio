@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fixes `kIsWeb` across different Flutter SDKs.
 
 ## 5.9.1
 
