@@ -392,21 +392,48 @@ class QueuedInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    _handleQueue(_requestQueue, options, handler, onRequest);
+    _handleQueue(
+      _requestQueue,
+      options,
+      handler,
+      onRequest,
+      (e, handler) {
+        final error = DioMixin.assureDioException(e, options);
+        handler.reject(error, true);
+      },
+    );
   }
 
   void _handleResponse(
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    _handleQueue(_responseQueue, response, handler, onResponse);
+    _handleQueue(
+      _responseQueue,
+      response,
+      handler,
+      onResponse,
+      (e, handler) {
+        final error = DioMixin.assureDioException(e, response.requestOptions);
+        handler.reject(error, true);
+      },
+    );
   }
 
   void _handleError(
     DioException error,
     ErrorInterceptorHandler handler,
   ) {
-    _handleQueue(_errorQueue, error, handler, onError);
+    _handleQueue(
+      _errorQueue,
+      error,
+      handler,
+      onError,
+      (e, handler) {
+        final err = DioMixin.assureDioException(e, error.requestOptions);
+        handler.next(err);
+      },
+    );
   }
 
   void _handleQueue<T, V extends _BaseHandler>(
@@ -414,6 +441,7 @@ class QueuedInterceptor extends Interceptor {
     T data,
     V handler,
     void Function(T, V) callback,
+    void Function(Object, V) onError,
   ) {
     final task = _InterceptorParams<T, V>(data, handler);
     task.handler._processNextInQueue = () {
@@ -432,7 +460,10 @@ class QueuedInterceptor extends Interceptor {
       try {
         callback(task.data, task.handler);
       } catch (e) {
-        task.handler._processNextInQueue!();
+        // Handle synchronous exceptions thrown by interceptor callbacks.
+        // Without this, the request would hang indefinitely because the
+        // handler's completer would never be completed.
+        onError(e, task.handler);
       }
     }
   }

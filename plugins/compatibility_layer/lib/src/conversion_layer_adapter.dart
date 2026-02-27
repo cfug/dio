@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
-const _kIsWeb = bool.hasEnvironment('dart.library.js_util')
-    ? bool.fromEnvironment('dart.library.js_util')
-    : identical(0, 0.0);
+const _kIsWebInterop = bool.fromEnvironment('dart.library.js_interop');
+const _kIsWebUtil = bool.fromEnvironment('dart.library.js_util');
+const _kIsWeb = _kIsWebInterop || _kIsWebUtil || identical(0, 0.0);
 
 /// A conversion layer which translates [Dio] requests to
 /// [`http`](https://pub.dev/packages/http) compatible requests.

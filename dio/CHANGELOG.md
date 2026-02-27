@@ -5,7 +5,12 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Fixes `kIsWeb` across different Flutter SDKs.
+
+## 5.9.1
+
 - Add `requestUrl` and `responseUrl` parameters to `LogInterceptor` for more precise control over URL logging.
+- Fix `QueuedInterceptor` hanging indefinitely when interceptor callbacks throw synchronous exceptions.
 
 ## 5.9.0
 
@@ -31,7 +36,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## 5.7.0
 
 - Graceful handling of responses with nonzero `Content-Length`, `Content-Type` that is json, and empty payload.
-  - Empty responses are now transformed to `null`.
+    - Empty responses are now transformed to `null`.
 
 ## 5.6.0
 

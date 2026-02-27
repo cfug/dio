@@ -6,10 +6,10 @@ import 'dart:developer' as dev;
 import 'options.dart';
 import 'parameter.dart';
 
-// See https://github.com/flutter/flutter/pull/112122.
-const kIsWeb = bool.hasEnvironment('dart.library.js_util')
-    ? bool.fromEnvironment('dart.library.js_util')
-    : identical(0, 0.0);
+// See https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/foundation/constants.dart.
+const _kIsWebInterop = bool.fromEnvironment('dart.library.js_interop');
+const _kIsWebUtil = bool.fromEnvironment('dart.library.js_util');
+const kIsWeb = _kIsWebInterop || _kIsWebUtil || identical(0, 0.0);
 
 // For the web platform, an inline `bool.fromEnvironment` translates to
 // `core.bool.fromEnvironment` instead of correctly being replaced by the

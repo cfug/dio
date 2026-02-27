@@ -40,6 +40,17 @@ class _ConnectionManager implements ConnectionManager {
   bool _forceClosed = false;
 
   @override
+  @visibleForTesting
+  int get cachedConnectionsCount => _transportsMap.length;
+
+  /// Generates a consistent cache key for the given [uri].
+  ///
+  /// The key format is `scheme://host:port` (e.g., `https://example.com:443`).
+  /// This ensures consistency between storing and removing connections
+  /// from [_transportsMap].
+  String _getCacheKey(Uri uri) => '${uri.scheme}://${uri.host}:${uri.port}';
+
+  @override
   Future<ClientTransportConnection> getConnection(
     RequestOptions options,
     List<RedirectRecord> redirects,
@@ -55,7 +66,7 @@ class _ConnectionManager implements ConnectionManager {
     }
     // Identify whether the connection can be reused.
     // [Uri.scheme] is required when redirecting from non-TLS to TLS connection.
-    final transportCacheKey = '${uri.scheme}://${uri.host}:${uri.port}';
+    final transportCacheKey = _getCacheKey(uri);
     _ClientTransportConnectionState? transportState =
         _transportsMap[transportCacheKey];
     if (transportState == null) {
@@ -96,7 +107,7 @@ class _ConnectionManager implements ConnectionManager {
     if (redirects.isNotEmpty) {
       uri = Http2Adapter.resolveRedirectUri(uri, redirects.last.location);
     }
-    final domain = '${uri.host}:${uri.port}';
+    final domain = _getCacheKey(uri);
     final clientConfig = ClientSetting();
     if (onClientCreate != null) {
       onClientCreate!(uri, clientConfig);

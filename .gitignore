@@ -16,6 +16,7 @@ doc/api/
 
 # Miscellaneous
 .DS_Store
+**/DerivedData/
 
 # IDEA configurations
 /.idea/*
