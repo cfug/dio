@@ -127,12 +127,6 @@ class Http2Adapter implements HttpClientAdapter {
     final streamWR = WeakReference<ClientTransportStream>(stream);
 
     final hasRequestData = requestStream != null;
-    if (hasRequestData && cancelFuture != null) {
-      cancelFuture.whenComplete(() {
-        streamWR.target?.outgoingMessages.close();
-      });
-    }
-
     List<Uint8List>? list;
     if (!excludeMethods.contains(options.method) && hasRequestData) {
       list = await requestStream.toList();
@@ -140,16 +134,49 @@ class Http2Adapter implements HttpClientAdapter {
     }
 
     if (hasRequestData) {
-      Future<dynamic> requestStreamFuture = requestStream!.listen((data) {
-        //TODO(EVERYONE): Investigate why this statement can cause "StateError: Bad state: Cannot add event after closing"
-        stream.outgoingMessages.add(DataStreamMessage(data));
-      }).asFuture();
+      StreamSubscription<Uint8List>? requestSub;
+      final requestCompleter = Completer<void>();
+
+      requestSub = requestStream!.listen(
+        (Uint8List data) {
+          try {
+            stream.outgoingMessages.add(DataStreamMessage(data));
+          } on StateError {
+            requestSub?.cancel();
+            if (!requestCompleter.isCompleted) {
+              requestCompleter.complete();
+            }
+          }
+        },
+        onError: (Object e, StackTrace st) {
+          if (!requestCompleter.isCompleted) {
+            requestCompleter.completeError(e, st);
+          }
+        },
+        onDone: () {
+          if (!requestCompleter.isCompleted) {
+            requestCompleter.complete();
+          }
+        },
+        cancelOnError: true,
+      );
+
+      if (cancelFuture != null) {
+        cancelFuture.whenComplete(() {
+          requestSub?.cancel().catchError((_) {}).whenComplete(() {
+            streamWR.target?.outgoingMessages.close().catchError((_) {});
+          });
+        });
+      }
+
+      Future<dynamic> requestStreamFuture = requestCompleter.future;
       final sendTimeout = options.sendTimeout ?? Duration.zero;
       if (sendTimeout > Duration.zero) {
         requestStreamFuture = requestStreamFuture.timeout(
           sendTimeout,
           onTimeout: () {
-            stream.outgoingMessages.close().catchError((_) {});
+            requestSub?.cancel().catchError((_) {});
+            streamWR.target?.outgoingMessages.close().catchError((_) {});
             throw DioException.sendTimeout(
               timeout: sendTimeout,
               requestOptions: options,
@@ -157,9 +184,17 @@ class Http2Adapter implements HttpClientAdapter {
           },
         );
       }
+
       await requestStreamFuture;
     }
-    await stream.outgoingMessages.close();
+
+    try {
+      await stream.outgoingMessages.close();
+    } on StateError {
+      // Ignore StateError, which may occur if the stream is already closed.
+    } catch (_) {
+      rethrow;
+    }
 
     final responseSink = StreamController<Uint8List>();
     final responseHeaders = Headers();

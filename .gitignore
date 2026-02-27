@@ -34,3 +34,6 @@ melos_overrides.yaml
 # FVM Version Cache
 .fvm/
 .fvmrc
+
+# Local history
+.history
