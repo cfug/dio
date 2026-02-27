@@ -17,6 +17,16 @@ class MyInterceptor extends Interceptor {
   }
 }
 
+/// Custom exception for testing rejectCustomError functionality.
+class CustomTestException implements Exception {
+  CustomTestException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'CustomTestException: $message';
+}
+
 void main() {
   test('Throws precise StateError for duplicate calls', () async {
     const message = 'The `handler` has already been called, '
@@ -997,5 +1007,215 @@ void main() {
     final interceptors3 = Interceptors(initialInterceptors: [LogInterceptor()]);
     expect(interceptors3.length, equals(2));
     expect(interceptors2.last, isA<LogInterceptor>());
+  });
+
+  group('rejectCustomError', () {
+    late Dio dio;
+
+    setUp(() {
+      dio = Dio();
+      dio.options.baseUrl = MockAdapter.mockBase;
+      dio.httpClientAdapter = MockAdapter();
+    });
+
+    test('unwraps custom exception from RequestInterceptorHandler', () async {
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.rejectCustomError(
+              CustomTestException('from request interceptor'),
+              options,
+            );
+          },
+        ),
+      );
+
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<CustomTestException>().having(
+            (e) => e.message,
+            'message',
+            'from request interceptor',
+          ),
+        ),
+      );
+    });
+
+    test('unwraps custom exception from ResponseInterceptorHandler', () async {
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onResponse: (response, handler) {
+            handler.rejectCustomError(
+              CustomTestException('from response interceptor'),
+              response.requestOptions,
+            );
+          },
+        ),
+      );
+
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<CustomTestException>().having(
+            (e) => e.message,
+            'message',
+            'from response interceptor',
+          ),
+        ),
+      );
+    });
+
+    test('unwraps custom exception from ErrorInterceptorHandler', () async {
+      // First interceptor triggers an error
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.reject(
+              DioException(requestOptions: options),
+              true, // callFollowingErrorInterceptor
+            );
+          },
+        ),
+      );
+      // Second interceptor handles the error and rejects with custom error
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onError: (error, handler) {
+            handler.rejectCustomError(
+              CustomTestException('from error interceptor'),
+              error.requestOptions,
+            );
+          },
+        ),
+      );
+
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<CustomTestException>().having(
+            (e) => e.message,
+            'message',
+            'from error interceptor',
+          ),
+        ),
+      );
+    });
+
+    test('regular reject still wraps in DioException', () async {
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.reject(
+              DioException(
+                requestOptions: options,
+                error: CustomTestException('wrapped error'),
+              ),
+            );
+          },
+        ),
+      );
+
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            predicate<DioException>(
+              (e) => e.error is CustomTestException,
+              'has CustomTestException as inner error',
+            ),
+          ]),
+        ),
+      );
+    });
+
+    test('DioException.customError creates exception with correct flag',
+        () async {
+      final exception = DioException.customError(
+        requestOptions: RequestOptions(),
+        error: CustomTestException('test'),
+      );
+
+      expect(exception.throwInnerErrorOnFinish, isTrue);
+      expect(exception.error, isA<CustomTestException>());
+    });
+
+    test('DioException copyWith preserves throwInnerErrorOnFinish', () async {
+      final original = DioException.customError(
+        requestOptions: RequestOptions(),
+        error: CustomTestException('test'),
+      );
+
+      final copied = original.copyWith(message: 'new message');
+      expect(copied.throwInnerErrorOnFinish, isTrue);
+
+      final copiedWithFlagFalse =
+          original.copyWith(throwInnerErrorOnFinish: false);
+      expect(copiedWithFlagFalse.throwInnerErrorOnFinish, isFalse);
+    });
+
+    test(
+        'rejectCustomError with callFollowingErrorInterceptor calls error interceptors',
+        () async {
+      bool errorInterceptorCalled = false;
+
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.rejectCustomError(
+              CustomTestException('will be modified'),
+              options,
+              true, // callFollowingErrorInterceptor
+            );
+          },
+          onError: (error, handler) {
+            errorInterceptorCalled = true;
+            // Modify the error to a different custom exception
+            handler.rejectCustomError(
+              CustomTestException('modified in error handler'),
+              error.requestOptions,
+            );
+          },
+        ),
+      );
+
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<CustomTestException>().having(
+            (e) => e.message,
+            'message',
+            'modified in error handler',
+          ),
+        ),
+      );
+
+      expect(errorInterceptorCalled, isTrue);
+    });
+
+    test('works with QueuedInterceptor', () async {
+      dio.interceptors.add(
+        QueuedInterceptorsWrapper(
+          onResponse: (response, handler) {
+            handler.rejectCustomError(
+              CustomTestException('from queued interceptor'),
+              response.requestOptions,
+            );
+          },
+        ),
+      );
+
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<CustomTestException>().having(
+            (e) => e.message,
+            'message',
+            'from queued interceptor',
+          ),
+        ),
+      );
+    });
   });
 }
