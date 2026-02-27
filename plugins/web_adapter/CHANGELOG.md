@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-*None.*
+- Implement `download` method for web platforms using the Blob API.
+  The method now triggers the browser's native download dialog instead of
+  throwing `UnsupportedError`. The `savePath` parameter is used as the
+  suggested filename for the download.
 
 ## 2.1.1
 
