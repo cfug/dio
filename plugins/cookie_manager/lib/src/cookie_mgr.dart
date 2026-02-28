@@ -23,9 +23,10 @@ final _setCookieReg = RegExp('(?<=)(,)(?=[^;]+?=)');
 
 /// Cookie manager for HTTP requests based on [CookieJar].
 class CookieManager extends Interceptor {
-  const CookieManager(
-    this.cookieJar,
-  ) : assert(!_kIsWeb, "Don't use the manager in Web environments.");
+  CookieManager(
+    this.cookieJar, {
+    this.ignoreInvalidCookies = false,
+  }) : assert(!_kIsWeb, "Don't use the manager in Web environments.");
 
   /// The cookie jar used to load and save cookies.
   ///
@@ -33,6 +34,9 @@ class CookieManager extends Interceptor {
   /// * [CookieJar]
   /// * [PersistCookieJar]
   final CookieJar cookieJar;
+
+  /// Whether to ignore invalid cookies during parsing or saving.
+  bool ignoreInvalidCookies;
 
   /// Merge cookies into a Cookie string.
   /// Cookies with longer paths are listed before cookies with shorter paths.
@@ -129,6 +133,17 @@ class CookieManager extends Interceptor {
     }
   }
 
+  Cookie? _fromSetCookieValue(String value) {
+    try {
+      return Cookie.fromSetCookieValue(value);
+    } on HttpException catch (_) {
+      if (ignoreInvalidCookies) {
+        return null;
+      }
+      rethrow;
+    }
+  }
+
   /// Load cookies in cookie string for the request.
   Future<String> loadCookies(RequestOptions options) async {
     final savedCookies = await cookieJar.loadForRequest(options.uri);
@@ -138,7 +153,8 @@ class CookieManager extends Interceptor {
       ...?previousCookies
           ?.split(';')
           .where((e) => e.isNotEmpty)
-          .map((c) => Cookie.fromSetCookieValue(c)),
+          .map((c) => _fromSetCookieValue(c))
+          .whereType<Cookie>(), // Use .nonNulls when the minimum SDK is 3.0.
       ...savedCookies,
     ]);
     return cookies;
@@ -155,8 +171,10 @@ class CookieManager extends Interceptor {
         .map((str) => str.split(_setCookieReg))
         .expand((cookie) => cookie)
         .where((cookie) => cookie.isNotEmpty)
-        .map((str) => Cookie.fromSetCookieValue(str))
+        .map((str) => _fromSetCookieValue(str))
+        .whereType<Cookie>() // Use .nonNulls when the minimum SDK is 3.0.
         .toList();
+
     // Saving cookies for the original site.
     // Spec: https://www.rfc-editor.org/rfc/rfc7231#section-7.1.2.
     final originalUri = response.requestOptions.uri;
