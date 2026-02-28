@@ -90,14 +90,21 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
             // connectTimeout is triggered after the fetch has been completed.
             return;
           }
-          xhr.abort();
-          completer.completeError(
-            DioException.connectionTimeout(
-              requestOptions: options,
-              timeout: connectTimeout,
-            ),
-            StackTrace.current,
-          );
+          // Only treat as connection timeout if headers have not been received.
+          // readyState < HEADERS_RECEIVED means the connection is not yet
+          // established, so this is a genuine connection timeout.
+          // If headers were already received, the receive timeout timer
+          // will handle the timeout instead.
+          if (xhr.readyState < web.XMLHttpRequest.HEADERS_RECEIVED) {
+            xhr.abort();
+            completer.completeError(
+              DioException.connectionTimeout(
+                requestOptions: options,
+                timeout: connectTimeout,
+              ),
+              StackTrace.current,
+            );
+          }
         },
       );
     }
@@ -223,22 +230,22 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
-      final isConnectTimeout = connectTimeoutTimer != null;
-      if (connectTimeoutTimer != null) {
-        connectTimeoutTimer?.cancel();
-      }
+      connectTimeoutTimer?.cancel();
       if (!completer.isCompleted) {
-        if (isConnectTimeout) {
+        // Use readyState to determine the actual phase of the request
+        // rather than relying on timer existence which can be inaccurate.
+        if (xhr.readyState < web.XMLHttpRequest.HEADERS_RECEIVED) {
           completer.completeError(
             DioException.connectionTimeout(
               timeout: connectTimeout,
               requestOptions: options,
             ),
+            StackTrace.current,
           );
         } else {
           completer.completeError(
             DioException.receiveTimeout(
-              timeout: Duration(milliseconds: xhrTimeout),
+              timeout: receiveTimeout,
               requestOptions: options,
             ),
             StackTrace.current,
