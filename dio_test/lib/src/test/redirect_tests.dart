@@ -15,11 +15,7 @@ void redirectTests(
   group('redirects', () {
     test('single', () async {
       final response = await dio.get(
-        '/redirect',
-        queryParameters: {'url': '$httpbunBaseUrl/get'},
-        onReceiveProgress: (received, total) {
-          // ignore progress
-        },
+        '/redirect/1',
       );
       expect(response.isRedirect, isTrue);
 
@@ -29,7 +25,7 @@ void redirectTests(
         expect(response.redirects.length, 1);
         final ri = response.redirects.first;
         expect(ri.statusCode, 302);
-        expect(ri.location.path, '/get');
+        expect(ri.location.path, '../anything');
         expect(ri.method, 'GET');
       }
     });
@@ -54,15 +50,19 @@ void redirectTests(
       'empty location',
       () async {
         final response = await dio.get(
-          '/redirect',
+          '/redirect/1',
         );
         expect(response.isRedirect, isTrue);
-        expect(response.redirects.length, 1);
 
-        final ri = response.redirects.first;
-        expect(ri.statusCode, 302);
-        expect(ri.location.path, '/get');
-        expect(ri.method, 'GET');
+        if (!kIsWeb) {
+          // Redirects are not supported in web.
+          // The browser will follow the redirects automatically.
+          expect(response.redirects.length, 1);
+          final ri = response.redirects.first;
+          expect(ri.statusCode, 302);
+          expect(ri.location.path, '../anything');
+          expect(ri.method, 'GET');
+        }
       },
       skip: 'Httpbun does not support empty location redirects',
     );

@@ -39,7 +39,7 @@ void basicTests(
 
     test('fails with an invalid HTTPS URL', () {
       expectLater(
-        dio.get('https://does.not.exist'),
+        () => dio.get('https://does.not.exist'),
         throwsDioException(
           DioExceptionType.connectionError,
           matcher: kIsWeb
