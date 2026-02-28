@@ -194,18 +194,17 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     responseStream.headers.forEach((key, values) {
       headers[key] = values;
     });
+
     // Extract HTTP protocol version from the response headers.
-    // The protocolVersion is available in the internal _HttpHeaders implementation
-    // but not exposed in the public HttpHeaders interface, so we use dynamic access.
-    // This may fail in certain environments (e.g., tests with mocks), so we catch
-    // any errors and gracefully handle them.
+    // The protocolVersion is available in the internal `_HttpHeaders`
+    // implementation but not exposed in the public `HttpHeaders` interface,
+    // so we use dynamic access. This may fail in certain environments
+    // (e.g., tests with mocks), so we catch and omit errors.
     String? httpVersion;
     try {
-      httpVersion =
-          (responseStream.headers as dynamic).protocolVersion as String?;
-    } catch (_) {
-      // protocolVersion is not available in this environment
-    }
+      httpVersion = (responseStream.headers as dynamic).protocolVersion;
+    } catch (_) {}
+
     final responseBody = ResponseBody(
       responseStream.cast(),
       responseStream.statusCode,
@@ -218,7 +217,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       statusMessage: responseStream.reasonPhrase,
     );
     if (httpVersion != null) {
-      responseBody.extra[httpVersionKey] = httpVersion;
+      responseBody.extra[httpVersionKey] ??= httpVersion;
     }
     return responseBody;
   }
