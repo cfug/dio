@@ -10,17 +10,6 @@ import 'headers.dart';
 import 'options.dart';
 import 'redirect_record.dart';
 
-/// The key used to store the HTTP protocol version in [ResponseBody.extra].
-///
-/// This value is typically "1.0", "1.1", or "2.0" depending on the
-/// protocol negotiated with the server.
-///
-/// On native platforms (using [IOHttpClientAdapter]), this is extracted from
-/// the underlying HTTP client's response.
-/// For HTTP/2 connections (using Http2Adapter), this will be "2.0".
-/// On web platforms, this value may not be available.
-const httpVersionKey = 'httpVersion';
-
 /// {@template dio.HttpClientAdapter}
 /// [HttpAdapter] is a bridge between [Dio] and [HttpClient].
 ///
@@ -38,6 +27,16 @@ const httpVersionKey = 'httpVersion';
 abstract class HttpClientAdapter {
   /// Create a [HttpClientAdapter] based on the current platform (IO/Web).
   factory HttpClientAdapter() => adapter.createAdapter();
+
+  /// The key used to store the HTTP protocol version in [ResponseBody.extra].
+  ///
+  /// This value is typically "1.0", "1.1", or "2.0" depending on the
+  /// protocol negotiated with the server.
+  ///
+  /// The value may be unavailable when using some adapters (for example
+  /// `web_adapter` and `native_dio_adapter`), depending on whether the
+  /// underlying transport exposes protocol metadata.
+  static const httpVersionKey = 'httpVersion';
 
   /// Implement this method to make real HTTP requests.
   ///

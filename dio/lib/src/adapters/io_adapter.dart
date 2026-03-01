@@ -217,7 +217,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       statusMessage: responseStream.reasonPhrase,
     );
     if (httpVersion != null) {
-      responseBody.extra[httpVersionKey] ??= httpVersion;
+      responseBody.extra[HttpClientAdapter.httpVersionKey] ??= httpVersion;
     }
     return responseBody;
   }

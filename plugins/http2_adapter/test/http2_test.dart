@@ -11,7 +11,7 @@ void main() {
       ..options.baseUrl = httpbunBaseUrl
       ..httpClientAdapter = Http2Adapter(ConnectionManager());
     final response = await dio.get('/get');
-    final httpVersion = response.extra[httpVersionKey];
+    final httpVersion = response.extra[HttpClientAdapter.httpVersionKey];
     expect(httpVersion, equals('2.0'));
   });
 
