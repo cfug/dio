@@ -36,7 +36,7 @@ abstract class HttpClientAdapter {
   /// The value may be unavailable when using some adapters (for example
   /// `web_adapter` and `native_dio_adapter`), depending on whether the
   /// underlying transport exposes protocol metadata.
-  static const httpVersionKey = 'httpVersion';
+  static const extraKeyHttpVersion = 'httpVersion';
 
   /// Implement this method to make real HTTP requests.
   ///

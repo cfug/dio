@@ -39,7 +39,8 @@ void main() {
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter();
         final response = await dio.get('https://pub.dev');
-        final httpVersion = response.extra[HttpClientAdapter.httpVersionKey];
+        final httpVersion =
+            response.extra[HttpClientAdapter.extraKeyHttpVersion];
         expect(httpVersion, isNotNull);
         expect(httpVersion, anyOf(equals('1.0'), equals('1.1')));
       });
