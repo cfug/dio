@@ -6,6 +6,15 @@ import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('httpVersion is set to 2.0 for HTTP/2 connections', () async {
+    final dio = Dio()
+      ..options.baseUrl = httpbunBaseUrl
+      ..httpClientAdapter = Http2Adapter(ConnectionManager());
+    final response = await dio.get('/get');
+    final httpVersion = response.extra[HttpClientAdapter.extraKeyHttpVersion];
+    expect(httpVersion, equals('2.0'));
+  });
+
   test('handles gracefully if H2 is not supported', () async {
     const destinationHost = 'www.baidu.com';
     final destination = Uri.https(destinationHost);

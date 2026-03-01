@@ -277,7 +277,7 @@ class Http2Adapter implements HttpClientAdapter {
         responseSink.close();
         streamWR.target?.outgoingMessages.close();
       },
-    );
+    )..extra[HttpClientAdapter.extraKeyHttpVersion] ??= '2.0';
   }
 
   bool _needRedirect(RequestOptions options, int status) {
