@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 2.7.0
+
 - Fix inconsistent cache key format in `_ConnectionManager` between `getConnection()` and `_connect()`,
   which caused `_transportsMap.remove()` to fail silently during idle timeout cleanup and led to memory leaks.
 - Add `handshakeTimeout` (defaults to 15 seconds) to the `ConnectionManager` to prevent long waiting
