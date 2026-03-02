@@ -28,6 +28,16 @@ abstract class HttpClientAdapter {
   /// Create a [HttpClientAdapter] based on the current platform (IO/Web).
   factory HttpClientAdapter() => adapter.createAdapter();
 
+  /// The key used to store the HTTP protocol version in [ResponseBody.extra].
+  ///
+  /// This value is typically "1.0", "1.1", or "2.0" depending on the
+  /// protocol negotiated with the server.
+  ///
+  /// The value may be unavailable when using some adapters (for example
+  /// `web_adapter` and `native_dio_adapter`), depending on whether the
+  /// underlying transport exposes protocol metadata.
+  static const extraKeyHttpVersion = 'httpVersion';
+
   /// Implement this method to make real HTTP requests.
   ///
   /// [options] are the request options.

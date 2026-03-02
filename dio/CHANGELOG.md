@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Fixes `kIsWeb` across different Flutter SDKs.
+- Provides `httpVersion` in `Response.extra` when using `IOHttpClientAdapter`.
 
 ## 5.9.1
 
