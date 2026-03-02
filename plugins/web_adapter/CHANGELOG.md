@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.1.2
+
 - Fix inaccurate timeout type detection using `xhr.readyState` instead of timer existence.
 
 ## 2.1.1

@@ -1,5 +1,5 @@
 name: dio_web_adapter
-version: 2.1.1
+version: 2.1.2
 
 description: An adapter that supports Dio on Web.
 topics:
