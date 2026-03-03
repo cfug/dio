@@ -520,7 +520,14 @@ abstract class DioMixin implements Dio {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
-      throw assureDioException(isState ? e.data : e, requestOptions);
+      final dioException =
+          assureDioException(isState ? e.data : e, requestOptions);
+      // If the exception is marked for unwrapping, throw the inner error
+      // instead of the DioException wrapper.
+      if (dioException.throwInnerErrorOnFinish && dioException.error != null) {
+        throw dioException.error!;
+      }
+      throw dioException;
     }
   }
 
