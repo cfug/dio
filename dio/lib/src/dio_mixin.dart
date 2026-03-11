@@ -420,7 +420,9 @@ abstract class DioMixin implements Dio {
               createInterceptorZone(
                 handler,
                 (error) => handler.reject(
-                    assureDioException(error, requestOptions), true),
+                  assureDioException(error, requestOptions),
+                  true,
+                ),
               ).run(() => cb(state.data as RequestOptions, handler));
               return handler.future;
             }),
@@ -446,7 +448,9 @@ abstract class DioMixin implements Dio {
               createInterceptorZone(
                 handler,
                 (error) => handler.reject(
-                    assureDioException(error, requestOptions), true),
+                  assureDioException(error, requestOptions),
+                  true,
+                ),
               ).run(() => cb(state.data as Response, handler));
               return handler.future;
             }),
