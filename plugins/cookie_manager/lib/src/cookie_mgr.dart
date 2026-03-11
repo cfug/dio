@@ -149,12 +149,14 @@ class CookieManager extends Interceptor {
     final savedCookies = await cookieJar.loadForRequest(options.uri);
     final previousCookies =
         options.headers[HttpHeaders.cookieHeader] as String?;
+    final savedCookieNames = savedCookies.map((c) => c.name).toSet();
     final cookies = getCookies([
       ...?previousCookies
           ?.split(';')
           .where((e) => e.isNotEmpty)
           .map((c) => _fromSetCookieValue(c))
-          .whereType<Cookie>(), // Use .nonNulls when the minimum SDK is 3.0.
+          .whereType<Cookie>() // Use .nonNulls when the minimum SDK is 3.0.
+          .where((c) => !savedCookieNames.contains(c.name)),
       ...savedCookies,
     ]);
     return cookies;

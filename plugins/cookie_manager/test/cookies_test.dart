@@ -228,6 +228,40 @@ void main() {
     });
   });
 
+  test('no duplicate cookies on retry', () async {
+    const List<String> mockResponseCookies = [
+      'a=1; Path=/',
+      'b=2; Path=/',
+    ];
+    const exampleUrl = 'https://example.com';
+
+    final cookieJar = CookieJar();
+    final cookieManager = CookieManager(cookieJar);
+
+    // Save cookies from a response.
+    final requestOptions = RequestOptions(baseUrl: exampleUrl);
+    final mockResponse = Response(
+      requestOptions: requestOptions,
+      headers: Headers.fromMap(
+        {HttpHeaders.setCookieHeader: mockResponseCookies},
+      ),
+    );
+    await cookieManager.onResponse(
+      mockResponse,
+      MockResponseInterceptorHandler(),
+    );
+
+    // First request sets cookie header.
+    final firstOptions = RequestOptions(baseUrl: exampleUrl);
+    final firstHandler = MockRequestInterceptorHandler('a=1; b=2');
+    await cookieManager.onRequest(firstOptions, firstHandler);
+
+    // Simulate retry: onRequest is called again on the same RequestOptions
+    // which already has the cookie header from the first attempt.
+    final retryHandler = MockRequestInterceptorHandler('a=1; b=2');
+    await cookieManager.onRequest(firstOptions, retryHandler);
+  });
+
   test('cookies replacement', () async {
     final cookies = [
       Cookie('foo', 'bar')..path = '/',
