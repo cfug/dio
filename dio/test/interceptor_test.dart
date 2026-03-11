@@ -496,7 +496,14 @@ void main() {
       );
       await expectLater(
         dio.get('/test-not-found'),
-        throwsA(isA<DioException>()),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.error,
+            'error',
+            isA<UnsupportedError>()
+                .having((e) => e.message, 'message', errorMsg),
+          ),
+        ),
       );
     });
 
