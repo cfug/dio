@@ -426,6 +426,80 @@ void main() {
       );
     });
 
+    test('Async interceptor error does not hang the request', () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter();
+      const errorMsg = 'async interceptor error';
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          // ignore: void_checks
+          onRequest: (options, handler) async {
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+            throw UnsupportedError(errorMsg);
+          },
+        ),
+      );
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.error,
+            'error',
+            isA<UnsupportedError>()
+                .having((e) => e.message, 'message', errorMsg),
+          ),
+        ),
+      );
+    });
+
+    test('Async onResponse error does not hang the request', () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter();
+      const errorMsg = 'async response error';
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          // ignore: void_checks
+          onResponse: (response, handler) async {
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+            throw UnsupportedError(errorMsg);
+          },
+        ),
+      );
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.error,
+            'error',
+            isA<UnsupportedError>()
+                .having((e) => e.message, 'message', errorMsg),
+          ),
+        ),
+      );
+    });
+
+    test('Async onError interceptor error does not hang', () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter();
+      const errorMsg = 'async error interceptor error';
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          // ignore: void_checks
+          onError: (err, handler) async {
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+            throw UnsupportedError(errorMsg);
+          },
+        ),
+      );
+      await expectLater(
+        dio.get('/test-not-found'),
+        throwsA(isA<DioException>()),
+      );
+    });
+
     group(ImplyContentTypeInterceptor, () {
       Dio createDio() {
         final dio = Dio();
