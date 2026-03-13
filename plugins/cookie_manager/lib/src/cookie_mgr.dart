@@ -160,9 +160,8 @@ class CookieManager extends Interceptor {
     // Cookie header lack domain/path, so we fall back to name-only
     // matching against saved cookies (which are already scoped to
     // the request URI by cookieJar.loadForRequest).
-    final savedCookieIdentities = savedCookies
-        .map((c) => _cookieIdentity(c))
-        .toSet();
+    final savedCookieIdentities =
+        savedCookies.map((c) => _cookieIdentity(c)).toSet();
     final savedCookieNames = savedCookies.map((c) => c.name).toSet();
     final cookies = getCookies([
       ...?previousCookies
