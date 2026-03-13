@@ -133,6 +133,12 @@ class CookieManager extends Interceptor {
     }
   }
 
+  /// Returns a key that uniquely identifies a cookie per RFC 6265 Section 5.3:
+  /// a cookie is identified by (name, domain, path).
+  static String _cookieIdentity(Cookie c) {
+    return '${c.name}\0${c.domain ?? ''}\0${c.path ?? ''}';
+  }
+
   Cookie? _fromSetCookieValue(String value) {
     try {
       return Cookie.fromSetCookieValue(value);
@@ -149,6 +155,14 @@ class CookieManager extends Interceptor {
     final savedCookies = await cookieJar.loadForRequest(options.uri);
     final previousCookies =
         options.headers[HttpHeaders.cookieHeader] as String?;
+    // Deduplicate per RFC 6265 Section 5.3: a cookie is uniquely
+    // identified by (name, domain, path). Cookies parsed from the
+    // Cookie header lack domain/path, so we fall back to name-only
+    // matching against saved cookies (which are already scoped to
+    // the request URI by cookieJar.loadForRequest).
+    final savedCookieIdentities = savedCookies
+        .map((c) => _cookieIdentity(c))
+        .toSet();
     final savedCookieNames = savedCookies.map((c) => c.name).toSet();
     final cookies = getCookies([
       ...?previousCookies
@@ -156,7 +170,14 @@ class CookieManager extends Interceptor {
           .where((e) => e.isNotEmpty)
           .map((c) => _fromSetCookieValue(c))
           .whereType<Cookie>() // Use .nonNulls when the minimum SDK is 3.0.
-          .where((c) => !savedCookieNames.contains(c.name)),
+          .where((c) {
+        // Header cookies lack domain/path metadata, so match by name
+        // against saved cookies that are already URI-scoped.
+        if (c.domain == null && c.path == null) {
+          return !savedCookieNames.contains(c.name);
+        }
+        return !savedCookieIdentities.contains(_cookieIdentity(c));
+      }),
       ...savedCookies,
     ]);
     return cookies;
