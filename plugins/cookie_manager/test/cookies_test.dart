@@ -262,6 +262,43 @@ void main() {
     await cookieManager.onRequest(firstOptions, retryHandler);
   });
 
+  test('same-name cookies with different paths are preserved on retry',
+      () async {
+    // RFC 6265 Section 5.3: cookies are identified by (name, domain, path).
+    // Two cookies with the same name but different paths must both be kept.
+    const List<String> mockResponseCookies = [
+      'session=abc; Path=/',
+      'session=xyz; Path=/api',
+    ];
+    const exampleUrl = 'https://example.com/api/endpoint';
+
+    final cookieJar = CookieJar();
+    final cookieManager = CookieManager(cookieJar);
+
+    final requestOptions = RequestOptions(baseUrl: exampleUrl);
+    final mockResponse = Response(
+      requestOptions: requestOptions,
+      headers: Headers.fromMap(
+        {HttpHeaders.setCookieHeader: mockResponseCookies},
+      ),
+    );
+    await cookieManager.onResponse(
+      mockResponse,
+      MockResponseInterceptorHandler(),
+    );
+
+    // First request: both cookies should be sent.
+    final firstOptions = RequestOptions(baseUrl: exampleUrl);
+    final firstHandler =
+        MockRequestInterceptorHandler('session=xyz; session=abc');
+    await cookieManager.onRequest(firstOptions, firstHandler);
+
+    // Retry: same cookies, no duplicates.
+    final retryHandler =
+        MockRequestInterceptorHandler('session=xyz; session=abc');
+    await cookieManager.onRequest(firstOptions, retryHandler);
+  });
+
   test('cookies replacement', () async {
     final cookies = [
       Cookie('foo', 'bar')..path = '/',
