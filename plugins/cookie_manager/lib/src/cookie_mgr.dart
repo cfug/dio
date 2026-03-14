@@ -133,12 +133,6 @@ class CookieManager extends Interceptor {
     }
   }
 
-  /// Returns a key that uniquely identifies a cookie per RFC 6265 Section 5.3:
-  /// a cookie is identified by (name, domain, path).
-  static String _cookieIdentity(Cookie c) {
-    return '${c.name}|${c.domain ?? ''}|${c.path ?? ''}';
-  }
-
   Cookie? _fromSetCookieValue(String value) {
     try {
       return Cookie.fromSetCookieValue(value);
@@ -155,28 +149,20 @@ class CookieManager extends Interceptor {
     final savedCookies = await cookieJar.loadForRequest(options.uri);
     final previousCookies =
         options.headers[HttpHeaders.cookieHeader] as String?;
-    // Deduplicate per RFC 6265 Section 5.3: a cookie is uniquely
-    // identified by (name, domain, path). Cookies parsed from the
-    // Cookie header lack domain/path, so we fall back to name-only
-    // matching against saved cookies (which are already scoped to
-    // the request URI by cookieJar.loadForRequest).
-    final savedCookieIdentities =
-        savedCookies.map((c) => _cookieIdentity(c)).toSet();
+    // Per RFC 6265 Section 4.2, the Cookie header carries only name=value
+    // pairs without domain or path. The saved cookies are already scoped
+    // to the request URI by cookieJar.loadForRequest, so matching by name
+    // is sufficient to detect duplicates from a retried request.
     final savedCookieNames = savedCookies.map((c) => c.name).toSet();
+    final previousList = previousCookies
+        ?.split(';')
+        .where((e) => e.isNotEmpty)
+        .map((c) => _fromSetCookieValue(c))
+        .whereType<Cookie>() // Use .nonNulls when the minimum SDK is 3.0.
+        .where((c) => !savedCookieNames.contains(c.name))
+        .toList();
     final cookies = getCookies([
-      ...?previousCookies
-          ?.split(';')
-          .where((e) => e.isNotEmpty)
-          .map((c) => _fromSetCookieValue(c))
-          .whereType<Cookie>() // Use .nonNulls when the minimum SDK is 3.0.
-          .where((c) {
-        // Header cookies lack domain/path metadata, so match by name
-        // against saved cookies that are already URI-scoped.
-        if (c.domain == null && c.path == null) {
-          return !savedCookieNames.contains(c.name);
-        }
-        return !savedCookieIdentities.contains(_cookieIdentity(c));
-      }),
+      ...?previousList,
       ...savedCookies,
     ]);
     return cookies;
