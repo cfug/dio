@@ -136,7 +136,7 @@ class CookieManager extends Interceptor {
   /// Returns a key that uniquely identifies a cookie per RFC 6265 Section 5.3:
   /// a cookie is identified by (name, domain, path).
   static String _cookieIdentity(Cookie c) {
-    return '${c.name}\0${c.domain ?? ''}\0${c.path ?? ''}';
+    return '${c.name}|${c.domain ?? ''}|${c.path ?? ''}';
   }
 
   Cookie? _fromSetCookieValue(String value) {
