@@ -30,7 +30,7 @@ jobs:
           echo "Found PR:$PR_NUMBER"
           echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
       - name: Add PR comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           number: ${{ steps.pr-number.outputs.value }}
           recreate: true
