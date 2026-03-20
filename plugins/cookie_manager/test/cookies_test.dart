@@ -228,6 +228,77 @@ void main() {
     });
   });
 
+  test('no duplicate cookies on retry', () async {
+    const List<String> mockResponseCookies = [
+      'a=1; Path=/',
+      'b=2; Path=/',
+    ];
+    const exampleUrl = 'https://example.com';
+
+    final cookieJar = CookieJar();
+    final cookieManager = CookieManager(cookieJar);
+
+    // Save cookies from a response.
+    final requestOptions = RequestOptions(baseUrl: exampleUrl);
+    final mockResponse = Response(
+      requestOptions: requestOptions,
+      headers: Headers.fromMap(
+        {HttpHeaders.setCookieHeader: mockResponseCookies},
+      ),
+    );
+    await cookieManager.onResponse(
+      mockResponse,
+      MockResponseInterceptorHandler(),
+    );
+
+    // First request sets cookie header.
+    final firstOptions = RequestOptions(baseUrl: exampleUrl);
+    final firstHandler = MockRequestInterceptorHandler('a=1; b=2');
+    await cookieManager.onRequest(firstOptions, firstHandler);
+
+    // Simulate retry: onRequest is called again on the same RequestOptions
+    // which already has the cookie header from the first attempt.
+    final retryHandler = MockRequestInterceptorHandler('a=1; b=2');
+    await cookieManager.onRequest(firstOptions, retryHandler);
+  });
+
+  test('same-name cookies with different paths are preserved on retry',
+      () async {
+    // RFC 6265 Section 5.3: cookies are identified by (name, domain, path).
+    // Two cookies with the same name but different paths must both be kept.
+    const List<String> mockResponseCookies = [
+      'session=abc; Path=/',
+      'session=xyz; Path=/api',
+    ];
+    const exampleUrl = 'https://example.com/api/endpoint';
+
+    final cookieJar = CookieJar();
+    final cookieManager = CookieManager(cookieJar);
+
+    final requestOptions = RequestOptions(baseUrl: exampleUrl);
+    final mockResponse = Response(
+      requestOptions: requestOptions,
+      headers: Headers.fromMap(
+        {HttpHeaders.setCookieHeader: mockResponseCookies},
+      ),
+    );
+    await cookieManager.onResponse(
+      mockResponse,
+      MockResponseInterceptorHandler(),
+    );
+
+    // First request: both cookies should be sent.
+    final firstOptions = RequestOptions(baseUrl: exampleUrl);
+    final firstHandler =
+        MockRequestInterceptorHandler('session=xyz; session=abc');
+    await cookieManager.onRequest(firstOptions, firstHandler);
+
+    // Retry: same cookies, no duplicates.
+    final retryHandler =
+        MockRequestInterceptorHandler('session=xyz; session=abc');
+    await cookieManager.onRequest(firstOptions, retryHandler);
+  });
+
   test('cookies replacement', () async {
     final cookies = [
       Cookie('foo', 'bar')..path = '/',
