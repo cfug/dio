@@ -74,11 +74,59 @@ class DioException implements Exception {
     this.error,
     StackTrace? stackTrace,
     this.message,
+    this.throwInnerErrorOnFinish = false,
   }) : stackTrace = identical(stackTrace, StackTrace.empty)
             ? requestOptions.sourceStackTrace ?? StackTrace.current
             : stackTrace ??
                 requestOptions.sourceStackTrace ??
                 StackTrace.current;
+
+  /// Creates a [DioException] that will throw the inner [error] when it
+  /// reaches the final catch block in [Dio.fetch].
+  ///
+  /// This is useful in interceptors when you want to throw a custom exception
+  /// that callers can catch directly, rather than having to catch [DioException]
+  /// and extract the inner error.
+  ///
+  /// Example:
+  /// ```dart
+  /// dio.interceptors.add(InterceptorsWrapper(
+  ///   onResponse: (response, handler) {
+  ///     if (response.statusCode == 401) {
+  ///       handler.reject(DioException.customError(
+  ///         requestOptions: response.requestOptions,
+  ///         error: UnauthorizedException('Token expired'),
+  ///       ));
+  ///       return;
+  ///     }
+  ///     handler.next(response);
+  ///   },
+  /// ));
+  ///
+  /// // Caller can now catch the custom exception directly:
+  /// try {
+  ///   await dio.get('/api');
+  /// } on UnauthorizedException catch (e) {
+  ///   // Now works!
+  /// }
+  /// ```
+  factory DioException.customError({
+    required RequestOptions requestOptions,
+    required Object error,
+    Response? response,
+    DioExceptionType type = DioExceptionType.unknown,
+    StackTrace? stackTrace,
+    String? message,
+  }) =>
+      DioException(
+        requestOptions: requestOptions,
+        error: error,
+        response: response,
+        type: type,
+        stackTrace: stackTrace,
+        message: message,
+        throwInnerErrorOnFinish: true,
+      );
 
   factory DioException.badResponse({
     required int statusCode,
@@ -206,6 +254,15 @@ class DioException implements Exception {
   /// The error message that throws a [DioException].
   final String? message;
 
+  /// When true, the inner [error] will be thrown instead of this [DioException]
+  /// when it reaches the final catch block in [Dio.fetch].
+  ///
+  /// This allows interceptors to throw custom exceptions that callers can
+  /// catch directly without having to unwrap the [DioException].
+  ///
+  /// See [DioException.customError] for convenient creation.
+  final bool throwInnerErrorOnFinish;
+
   /// Users can customize the content of [toString] when thrown.
   static DioExceptionReadableStringBuilder readableStringBuilder =
       defaultDioExceptionReadableStringBuilder;
@@ -222,6 +279,7 @@ class DioException implements Exception {
     Object? error,
     StackTrace? stackTrace,
     String? message,
+    bool? throwInnerErrorOnFinish,
   }) {
     return DioException(
       requestOptions: requestOptions ?? this.requestOptions,
@@ -230,6 +288,8 @@ class DioException implements Exception {
       error: error ?? this.error,
       stackTrace: stackTrace ?? this.stackTrace,
       message: message ?? this.message,
+      throwInnerErrorOnFinish:
+          throwInnerErrorOnFinish ?? this.throwInnerErrorOnFinish,
     );
   }
 
