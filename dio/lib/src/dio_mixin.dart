@@ -390,15 +390,20 @@ abstract class DioMixin implements Dio {
     // interceptor callbacks. This prevents requests from hanging when
     // an async interceptor throws without calling the handler.
     // Synchronous exceptions are not caught here and propagate normally.
+    // If the handler was already completed (e.g. a fire-and-forget future
+    // inside the callback failed), forward the error to the parent zone
+    // so it isn't silently swallowed.
     Zone createInterceptorZone(
       _BaseHandler handler,
-      void Function(Object error) onUncaughtError,
+      void Function(Object error, StackTrace stackTrace) onUncaughtError,
     ) {
       return Zone.current.fork(
         specification: ZoneSpecification(
           handleUncaughtError: (self, parent, zone, error, stackTrace) {
             if (!handler.isCompleted) {
-              onUncaughtError(error);
+              onUncaughtError(error, stackTrace);
+            } else {
+              parent.handleUncaughtError(zone, error, stackTrace);
             }
           },
         ),
@@ -419,8 +424,8 @@ abstract class DioMixin implements Dio {
               final handler = RequestInterceptorHandler();
               createInterceptorZone(
                 handler,
-                (error) => handler.reject(
-                  assureDioException(error, requestOptions),
+                (error, stackTrace) => handler.reject(
+                  assureDioException(error, requestOptions, stackTrace),
                   true,
                 ),
               ).run(() => cb(state.data as RequestOptions, handler));
@@ -447,8 +452,8 @@ abstract class DioMixin implements Dio {
               final handler = ResponseInterceptorHandler();
               createInterceptorZone(
                 handler,
-                (error) => handler.reject(
-                  assureDioException(error, requestOptions),
+                (error, stackTrace) => handler.reject(
+                  assureDioException(error, requestOptions, stackTrace),
                   true,
                 ),
               ).run(() => cb(state.data as Response, handler));
@@ -473,7 +478,9 @@ abstract class DioMixin implements Dio {
           final handler = ErrorInterceptorHandler();
           createInterceptorZone(
             handler,
-            (error) => handler.next(assureDioException(error, requestOptions)),
+            (error, stackTrace) => handler.next(
+              assureDioException(error, requestOptions, stackTrace),
+            ),
           ).run(() => cb(state.data, handler));
           return handler.future;
         }
@@ -750,14 +757,16 @@ abstract class DioMixin implements Dio {
   @internal
   static DioException assureDioException(
     Object error,
-    RequestOptions requestOptions,
-  ) {
+    RequestOptions requestOptions, [
+    StackTrace? stackTrace,
+  ]) {
     if (error is DioException) {
       return error;
     }
     return DioException(
       requestOptions: requestOptions,
       error: error,
+      stackTrace: stackTrace,
     );
   }
 

@@ -435,7 +435,7 @@ void main() {
         InterceptorsWrapper(
           // ignore: void_checks
           onRequest: (options, handler) async {
-            await Future<void>.delayed(const Duration(milliseconds: 10));
+            await Future<void>.value();
             throw UnsupportedError(errorMsg);
           },
         ),
@@ -462,7 +462,7 @@ void main() {
         InterceptorsWrapper(
           // ignore: void_checks
           onResponse: (response, handler) async {
-            await Future<void>.delayed(const Duration(milliseconds: 10));
+            await Future<void>.value();
             throw UnsupportedError(errorMsg);
           },
         ),
@@ -489,7 +489,7 @@ void main() {
         InterceptorsWrapper(
           // ignore: void_checks
           onError: (err, handler) async {
-            await Future<void>.delayed(const Duration(milliseconds: 10));
+            await Future<void>.value();
             throw UnsupportedError(errorMsg);
           },
         ),
