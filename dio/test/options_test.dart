@@ -372,6 +372,19 @@ void main() {
     );
   });
 
+  test('String generic decodes JSON string responses', () async {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: MockAdapter.mockBase,
+        contentType: Headers.jsonContentType,
+      ),
+    )..httpClientAdapter = MockAdapter();
+
+    final response = await dio.get<String>('/test-json-string-content-type');
+
+    expect(response.data, 'adc89802-9c92-418f-b2ce-8f89308571f9');
+  });
+
   test('option invalid base url', () {
     final invalidUrls = <String>[
       'blob:http://localhost/xyz123',

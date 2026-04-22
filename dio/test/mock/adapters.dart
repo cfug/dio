@@ -90,6 +90,14 @@ class MockAdapter implements HttpClientAdapter {
               Headers.contentTypeHeader: [Headers.textPlainContentType],
             },
           );
+        case '/test-json-string-content-type':
+          return ResponseBody.fromString(
+            '"adc89802-9c92-418f-b2ce-8f89308571f9"',
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType],
+            },
+          );
         case '/test-timeout':
           await Future.delayed(const Duration(days: 365));
           return ResponseBody.fromString('', 200);
