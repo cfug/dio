@@ -563,6 +563,22 @@ abstract class DioMixin implements Dio {
           reqOpt,
           responseBody,
         );
+        if (data is String &&
+            data.isNotEmpty &&
+            T == String &&
+            reqOpt.responseType == ResponseType.plain &&
+            Transformer.isJsonMimeType(
+              responseBody.headers[Headers.contentTypeHeader]?.first,
+            )) {
+          try {
+            final decoded = jsonDecode(data);
+            if (decoded is String) {
+              data = decoded;
+            }
+          } on FormatException {
+            // Keep the original plain string when it is not valid JSON.
+          }
+        }
         // Make the response as null before returned as JSON.
         if (data is String &&
             data.isEmpty &&
