@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -25,6 +26,30 @@ typedef ValidateCertificate = bool Function(
   int port,
 );
 
+/// Internal sentinel thrown from [IOHttpClientAdapter]'s connection factory
+/// when [IOHttpClientAdapter.validateCertificate] rejects the peer certificate.
+/// [_fetch] catches it and rethrows as [DioException.badCertificate].
+class _BadCertificateException implements HandshakeException {
+  _BadCertificateException(this.host, this.port, this.cert);
+
+  final String host;
+  final int port;
+  final X509Certificate? cert;
+
+  @override
+  String get type => 'HandshakeException';
+
+  @override
+  String get message => 'validateCertificate returned false';
+
+  @override
+  OSError? get osError => null;
+
+  @override
+  String toString() =>
+      'HandshakeException: $message (host=$host, port=$port)';
+}
+
 /// Creates an [IOHttpClientAdapter].
 HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
@@ -44,14 +69,42 @@ class IOHttpClientAdapter implements HttpClientAdapter {
 
   /// When this callback is set, [Dio] will call it every
   /// time it needs a [HttpClient].
+  ///
+  /// Note: supplying this disables the pre-emission TLS hook used by
+  /// [validateCertificate]. See [validateCertificate] for details.
   CreateHttpClient? createHttpClient;
 
-  /// Allows the user to decide if the response certificate is good.
-  /// If this function is missing, then the certificate is allowed.
-  /// This method is called only if both the [SecurityContext] and
-  /// [badCertificateCallback] accept the certificate chain. Those
-  /// methods evaluate the root or intermediate certificate, while
-  /// [validateCertificate] evaluates the leaf certificate.
+  /// Allows the user to decide if the leaf certificate of the TLS connection
+  /// is good. If this function is missing, then the certificate is allowed.
+  ///
+  /// When [createHttpClient] is **not** set, this callback fires **before**
+  /// the request body is sent, immediately after the TLS handshake completes.
+  /// Returning `false` aborts the connection without leaking any request
+  /// data and surfaces as [DioException.badCertificate]. This makes the
+  /// callback suitable for certificate or public-key pinning.
+  ///
+  /// When [createHttpClient] **is** supplied, dio cannot install the
+  /// pre-emission hook on the user-built [HttpClient]; the callback then
+  /// runs after the response head arrives (the legacy 5.x behavior). For
+  /// pre-emission validation in that case, set `connectionFactory` on the
+  /// [HttpClient] you return.
+  ///
+  /// Validation runs once per TCP connection, not per request. Connections
+  /// are pooled by [HttpClient], so multiple requests to the same host
+  /// within `idleTimeout` will produce one approval call.
+  ///
+  /// On the pre-emission path, this callback is the **sole** gate for
+  /// certificate trust: system / CA validation is bypassed (the equivalent
+  /// of `HttpClient.badCertificateCallback: (_, _, _) => true` in the
+  /// existing example), so the callback receives every leaf cert and is
+  /// solely responsible for accepting or rejecting it. This matches what
+  /// users already configure manually for pinning and lets self-signed and
+  /// pinned-CA setups work without supplying [createHttpClient].
+  ///
+  /// Any [SecurityContext] you set on a custom [HttpClient] is **not**
+  /// used by the pre-emission path. To combine mTLS or a custom trust store
+  /// with pinning, supply a [createHttpClient] and pin in the legacy
+  /// post-response path.
   ValidateCertificate? validateCertificate;
 
   HttpClient? _cachedHttpClient;
@@ -110,6 +163,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           );
         }
       });
+    } on _BadCertificateException catch (e) {
+      throw DioException.badCertificate(
+        requestOptions: options,
+        error: e.cert,
+      );
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
         final Duration effectiveTimeout;
@@ -174,7 +232,12 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
     final responseStream = await future;
 
-    if (validateCertificate != null) {
+    if (validateCertificate != null && createHttpClient != null) {
+      // Legacy post-response validation: only runs when the user supplied
+      // a custom [createHttpClient]. In that case we cannot install the
+      // pre-emission [HttpClient.connectionFactory] without clobbering the
+      // user's client, so the callback runs after the response head has
+      // arrived. See the doc-comment on [validateCertificate].
       final host = options.uri.host;
       final port = options.uri.port;
       final bool isCertApproved = validateCertificate!(
@@ -244,7 +307,139 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       return createHttpClient!();
     }
     final client = HttpClient()..idleTimeout = const Duration(seconds: 3);
+    if (validateCertificate != null) {
+      client.connectionFactory = _pinnedConnectionFactory;
+    }
     // ignore: deprecated_member_use, deprecated_member_use_from_same_package
     return onHttpClientCreate?.call(client) ?? client;
+  }
+
+  /// Custom connection factory that performs TLS handshake and runs
+  /// [validateCertificate] *before* yielding the socket to [HttpClient],
+  /// so a rejected certificate cannot leak request bytes.
+  Future<ConnectionTask<Socket>> _pinnedConnectionFactory(
+    Uri url,
+    String? proxyHost,
+    int? proxyPort,
+  ) async {
+    // Plain HTTP — no TLS handshake to gate.
+    if (url.scheme != 'https') {
+      if (proxyHost != null) {
+        return Socket.startConnect(proxyHost, proxyPort!);
+      }
+      return Socket.startConnect(url.host, url.port);
+    }
+
+    // Snapshot at call time so a runtime mutation of the public field
+    // is honored on every new connection.
+    final validator = validateCertificate;
+
+    if (proxyHost != null) {
+      return _connectHttpsViaProxy(url, proxyHost, proxyPort!, validator);
+    }
+
+    final socketFuture = () async {
+      final ss = await SecureSocket.connect(
+        url.host,
+        url.port,
+        supportedProtocols: const ['http/1.1'],
+        // When [validateCertificate] is set, defer all certificate validation
+        // to the user's callback. This makes self-signed and pinned-CA setups
+        // work without forcing the user to also supply [createHttpClient].
+        onBadCertificate: validator == null ? null : (_) => true,
+      );
+      if (validator != null) {
+        _validatePeerCertificate(ss, url.host, url.port, validator);
+      }
+      return ss as Socket;
+    }();
+    return ConnectionTask.fromSocket(socketFuture, () {});
+  }
+
+  Future<ConnectionTask<Socket>> _connectHttpsViaProxy(
+    Uri target,
+    String proxyHost,
+    int proxyPort,
+    ValidateCertificate? validator,
+  ) async {
+    Socket? proxySocket;
+    bool cancelled = false;
+
+    final socketFuture = () async {
+      proxySocket = await Socket.connect(proxyHost, proxyPort);
+      if (cancelled) {
+        proxySocket!.destroy();
+        throw const SocketException('connection cancelled');
+      }
+
+      // HTTP/1.1 CONNECT tunnel preamble.
+      const crlf = '\r\n';
+      final preamble = StringBuffer()
+        ..write('CONNECT ${target.host}:${target.port} HTTP/1.1$crlf')
+        ..write('Host: ${target.host}:${target.port}$crlf')
+        ..write(crlf);
+      proxySocket!.write(preamble.toString());
+
+      final completer = Completer<void>();
+      late StreamSubscription<List<int>> subscription;
+      subscription = proxySocket!.listen(
+        (event) {
+          if (completer.isCompleted) {
+            return;
+          }
+          final response = ascii.decode(event);
+          final statusLine = response.split(crlf).first;
+          if (statusLine.contains(' 200 ')) {
+            completer.complete();
+          } else {
+            completer.completeError(
+              SocketException(
+                'Proxy CONNECT failed: $statusLine '
+                '(host=${target.host}, port=${target.port})',
+              ),
+            );
+          }
+        },
+        onError: (Object e, StackTrace s) {
+          if (!completer.isCompleted) {
+            completer.completeError(e, s);
+          }
+        },
+      );
+      try {
+        await completer.future;
+      } finally {
+        await subscription.cancel();
+      }
+
+      final ss = await SecureSocket.secure(
+        proxySocket!,
+        host: target.host,
+        supportedProtocols: const ['http/1.1'],
+        onBadCertificate: validator == null ? null : (_) => true,
+      );
+      if (validator != null) {
+        _validatePeerCertificate(ss, target.host, target.port, validator);
+      }
+      return ss as Socket;
+    }();
+
+    return ConnectionTask.fromSocket(socketFuture, () {
+      cancelled = true;
+      proxySocket?.destroy();
+    });
+  }
+
+  void _validatePeerCertificate(
+    SecureSocket ss,
+    String host,
+    int port,
+    ValidateCertificate validator,
+  ) {
+    final cert = ss.peerCertificate;
+    if (!validator(cert, host, port)) {
+      ss.destroy();
+      throw _BadCertificateException(host, port, cert);
+    }
   }
 }

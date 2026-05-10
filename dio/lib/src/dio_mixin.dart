@@ -24,8 +24,7 @@ import 'transformer.dart';
 
 part 'interceptor.dart';
 
-// TODO(EVERYONE): Use `mixin class` when the lower bound of SDK is raised to 3.0.0.
-abstract class DioMixin implements Dio {
+abstract mixin class DioMixin implements Dio {
   /// The base request config for the instance.
   @override
   late BaseOptions options;

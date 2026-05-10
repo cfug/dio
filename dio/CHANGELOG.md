@@ -7,6 +7,32 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 *None.*
 
+## 5.10.0
+
+- **Security:** `IOHttpClientAdapter.validateCertificate` now fires between
+  the TLS handshake and the first HTTP byte instead of after the response
+  head, making it suitable for true certificate or public-key pinning
+  (issue #2418). Previously, an attacker presenting a publicly trusted
+  certificate for the wrong host could receive the full request body and
+  headers before the callback aborted.
+- Behavioral change: validation now runs once per TCP connection rather
+  than once per request, matching `dio_http2_adapter`'s long-standing
+  semantics. Tests asserting "N approvals for N requests" should be
+  updated.
+- The pre-emission path is active only when `createHttpClient` is not
+  supplied. With a custom `createHttpClient`, the callback continues to
+  run post-response (the previous 5.x behavior). Documented on
+  `validateCertificate` and `createHttpClient`.
+- On the pre-emission path, `validateCertificate` is the sole gate for
+  certificate trust — system / CA validation is bypassed (matching what
+  users already configure via `badCertificateCallback: (_, _, _) => true`
+  in the existing pinning example), so self-signed and pinned-CA setups
+  work without supplying `createHttpClient`.
+- Raise the minimum Dart SDK to 3.5.0 (Flutter 3.24+). Required for the
+  `ConnectionTask.fromSocket` API used by the pre-emission path.
+- Migrate `DioMixin` to `mixin class` syntax now that the SDK floor is
+  Dart 3.
+
 ## 5.9.2
 
 - Fixes `kIsWeb` across different Flutter SDKs.

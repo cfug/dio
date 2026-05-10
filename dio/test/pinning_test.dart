@@ -152,11 +152,15 @@ void main() {
     );
 
     test(
-      '2 requests == 2 approvals',
+      '2 requests share connection (1 approval)',
       () async {
+        // Validation is now per TCP connection (not per HTTP request) since
+        // the callback fires from the connectionFactory pre-emission rather
+        // than post-response. HttpClient pools connections, so back-to-back
+        // requests within idleTimeout (3s) share one connection and one
+        // approval. Matches dio_http2_adapter's long-standing semantics.
         int approvalCount = 0;
         final dio = Dio();
-        // badCertificateCallback never called for trusted certificate
         dio.httpClientAdapter = IOHttpClientAdapter(
           validateCertificate: (cert, host, port) {
             approvalCount++;
@@ -173,9 +177,139 @@ void main() {
           options: Options(validateStatus: (status) => true),
         );
         expect(response.data, isNotNull);
-        expect(approvalCount, 2);
+        expect(approvalCount, 1);
       },
       tags: ['tls'],
     );
+
+    group('pre-emission validation:', () {
+      late HttpServer secureServer;
+      late int bytesReceived;
+      late int requestsHandled;
+
+      setUp(() async {
+        bytesReceived = 0;
+        requestsHandled = 0;
+        final ctx = SecurityContext()
+          ..useCertificateChain('test/_pinning/server_cert.pem')
+          ..usePrivateKey('test/_pinning/server_key.pem');
+        secureServer = await HttpServer.bindSecure('localhost', 0, ctx);
+        secureServer.listen((req) async {
+          requestsHandled++;
+          try {
+            await for (final chunk in req) {
+              bytesReceived += chunk.length;
+            }
+          } finally {
+            req.response.statusCode = 200;
+            req.response.write('ok');
+            await req.response.close();
+          }
+        });
+      });
+
+      tearDown(() async {
+        await secureServer.close(force: true);
+      });
+
+      test('rejection blocks request body emission', () async {
+        // Load-bearing regression test for #2418: when validateCertificate
+        // returns false, the request body must never reach the server.
+        final dio = Dio();
+        dio.httpClientAdapter = IOHttpClientAdapter(
+          validateCertificate: (cert, host, port) => false,
+        );
+        DioException? error;
+        try {
+          await dio.post(
+            'https://localhost:${secureServer.port}/leak',
+            data: 'SENSITIVE-PAYLOAD',
+          );
+          fail('did not throw');
+        } on DioException catch (e) {
+          error = e;
+        }
+        // Allow any in-flight server activity to settle.
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(error, isNotNull);
+        expect(error.type, DioExceptionType.badCertificate);
+        expect(bytesReceived, 0);
+        expect(requestsHandled, 0);
+      });
+
+      test('approval lets the request through', () async {
+        bool approverCalled = false;
+        final dio = Dio();
+        dio.httpClientAdapter = IOHttpClientAdapter(
+          validateCertificate: (cert, host, port) {
+            approverCalled = true;
+            return true;
+          },
+        );
+        final res = await dio.post(
+          'https://localhost:${secureServer.port}/echo',
+          data: 'hi',
+          options: Options(responseType: ResponseType.plain),
+        );
+        expect(approverCalled, isTrue);
+        expect(res.statusCode, 200);
+        expect(res.data, 'ok');
+        expect(requestsHandled, 1);
+      });
+
+      test('createHttpClient escape hatch keeps post-response validation',
+          () async {
+        // When createHttpClient is supplied, the connectionFactory cannot
+        // be installed without clobbering the user-built HttpClient.
+        // validateCertificate continues to fire post-response (legacy 5.x
+        // behavior).
+        final dio = Dio();
+        dio.httpClientAdapter = IOHttpClientAdapter(
+          createHttpClient: () => HttpClient()
+            ..badCertificateCallback = (cert, host, port) => true,
+          validateCertificate: (cert, host, port) => false,
+        );
+        DioException? error;
+        try {
+          await dio.post(
+            'https://localhost:${secureServer.port}/legacy',
+            data: 'payload',
+          );
+          fail('did not throw');
+        } on DioException catch (e) {
+          error = e;
+        }
+        expect(error, isNotNull);
+        expect(error.type, DioExceptionType.badCertificate);
+        // Legacy path: server received the request before validation ran.
+        expect(requestsHandled, 1);
+        expect(bytesReceived, greaterThan(0));
+      });
+    });
+
+    test('plain http does not invoke validateCertificate', () async {
+      final server = await HttpServer.bind('localhost', 0);
+      try {
+        server.listen((req) {
+          req.response.statusCode = 200;
+          req.response.write('plain');
+          req.response.close();
+        });
+        final dio = Dio();
+        dio.httpClientAdapter = IOHttpClientAdapter(
+          validateCertificate: (cert, host, port) {
+            fail('validateCertificate must not run on plain HTTP');
+          },
+        );
+        final res = await dio.get(
+          'http://localhost:${server.port}/',
+          options: Options(responseType: ResponseType.plain),
+        );
+        expect(res.statusCode, 200);
+        expect(res.data, 'plain');
+      } finally {
+        await server.close(force: true);
+      }
+    });
   });
 }
