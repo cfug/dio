@@ -5,24 +5,23 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
-
-## 5.10.0
-
 - **Security:** `IOHttpClientAdapter.validateCertificate` now fires between
-  the TLS handshake and the first HTTP byte instead of after the response
-  head, making it suitable for true certificate or public-key pinning
-  (issue #2418). Previously, an attacker presenting a publicly trusted
-  certificate for the wrong host could receive the full request body and
-  headers before the callback aborted.
-- Behavioral change: validation now runs once per TCP connection rather
-  than once per request, matching `dio_http2_adapter`'s long-standing
-  semantics. Tests asserting "N approvals for N requests" should be
-  updated.
-- The pre-emission path is active only when `createHttpClient` is not
-  supplied. With a custom `createHttpClient`, the callback continues to
-  run post-response (the previous 5.x behavior). Documented on
-  `validateCertificate` and `createHttpClient`.
+  the TLS handshake and the first HTTP byte for direct HTTPS connections
+  (no proxy, no custom `createHttpClient`), making it suitable for true
+  certificate or public-key pinning (issue #2418). Previously, an
+  attacker presenting a publicly trusted certificate for the wrong host
+  could receive the full request body and headers before the callback
+  aborted.
+- The callback also continues to run **after the response head arrives**
+  as defense in depth — both invocations receive the same leaf
+  certificate, so for fingerprint-style pinning the second call is
+  idempotent. Callbacks with side effects (logging, metrics) will
+  observe one extra call per request on the direct-HTTPS path.
+- HTTPS routed through a proxy continues to use the post-response
+  validation path only (HttpClient performs its own `CONNECT` tunnel and
+  TLS handshake, bypassing the pre-emission hook). For pre-emission
+  pinning behind a proxy, supply `createHttpClient` and configure
+  `HttpClient.connectionFactory` yourself.
 - On the pre-emission path, `validateCertificate` is the sole gate for
   certificate trust — system / CA validation is bypassed (matching what
   users already configure via `badCertificateCallback: (_, _, _) => true`
