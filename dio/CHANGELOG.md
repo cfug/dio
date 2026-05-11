@@ -27,10 +27,6 @@ See the [Migration Guide][] for the complete breaking changes list.**
   users already configure via `badCertificateCallback: (_, _, _) => true`
   in the existing pinning example), so self-signed and pinned-CA setups
   work without supplying `createHttpClient`.
-- Raise the minimum Dart SDK to 3.5.0 (Flutter 3.24+). Required for the
-  `ConnectionTask.fromSocket` API used by the pre-emission path.
-- Migrate `DioMixin` to `mixin class` syntax now that the SDK floor is
-  Dart 3.
 
 ## 5.9.2
 

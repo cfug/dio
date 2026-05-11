@@ -361,26 +361,35 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     // is honored on every new connection.
     final validator = validateCertificate;
 
-    final socketFuture = () async {
-      final ss = await SecureSocket.connect(
-        url.host,
-        url.port,
-        supportedProtocols: const ['http/1.1'],
-        // When [validateCertificate] is set, defer all certificate
-        // validation to the user's callback. This makes self-signed and
-        // pinned-CA setups work without forcing the user to also supply
-        // [createHttpClient].
-        onBadCertificate: validator == null ? null : (_) => true,
-      );
-      if (validator != null) {
-        final cert = ss.peerCertificate;
-        if (!validator(cert, url.host, url.port)) {
-          ss.destroy();
-          throw _BadCertificateException(url.host, url.port, cert);
-        }
+    // [SecureSocket.startConnect] returns a stock SDK [ConnectionTask] —
+    // available since well before dio's min SDK of 2.18 — so we don't
+    // need [ConnectionTask.fromSocket] (Dart 3.5+) and don't need to
+    // subclass/vendor [ConnectionTask] (which is `final class` from Dart
+    // 3.0). We await `task.socket` once here to do the leaf-cert check,
+    // then return the same task; [HttpClient] re-awaits `task.socket`
+    // and gets the already-resolved [SecureSocket] immediately.
+    //
+    // Covariance: [ConnectionTask] has no bound on its type parameter,
+    // so [ConnectionTask<SecureSocket>] is implicitly assignable to
+    // [ConnectionTask<Socket>] at the return position.
+    final task = await SecureSocket.startConnect(
+      url.host,
+      url.port,
+      supportedProtocols: const ['http/1.1'],
+      // When [validateCertificate] is set, defer all certificate
+      // validation to the user's callback. This makes self-signed and
+      // pinned-CA setups work without forcing the user to also supply
+      // [createHttpClient].
+      onBadCertificate: validator == null ? null : (_) => true,
+    );
+    if (validator != null) {
+      final ss = await task.socket;
+      final cert = ss.peerCertificate;
+      if (!validator(cert, url.host, url.port)) {
+        ss.destroy();
+        throw _BadCertificateException(url.host, url.port, cert);
       }
-      return ss;
-    }();
-    return ConnectionTask.fromSocket(socketFuture, () {});
+    }
+    return task;
   }
 }
