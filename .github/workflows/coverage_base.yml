@@ -17,14 +17,17 @@ on:
     branches:
       - main
 
+# Disable permissions for all of the available permissions
+permissions: {}
+
 jobs:
   generate:
     runs-on: ubuntu-latest
     env:
       TEST_PRESET: all
     steps:
-      - uses: actions/checkout@v6
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231
+      - uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
         with:
           cache: true
       - run: |
@@ -33,7 +36,7 @@ jobs:
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
-      - uses: bluefireteam/melos-action@v3
+      - uses: bluefireteam/melos-action@705015c3d2bc4ab94201ac24accb2bbe070cf533
         with:
           run-bootstrap: false
           melos-version: '^6.0.0'
@@ -77,6 +80,6 @@ jobs:
         run: melos run test:flutter
       - name: '[Coverage] Generate report'
         run: melos run coverage:combine
-      - uses: clearlyip/code-coverage-report-action@v6
+      - uses: clearlyip/code-coverage-report-action@9e2cd22e39153feba8b4477e4fefcc0b5e2727ba
         with:
           filename: 'coverage/cobertura.xml'
