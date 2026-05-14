@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -16,19 +14,13 @@ void main() async {
       // should look like this:
       'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
 
-  // Don't trust any certificate just because their root cert is trusted
+  // As of dio 5.10.0, validateCertificate fires before the request body is
+  // sent (when createHttpClient is not supplied), so a rejected certificate
+  // blocks the request rather than just the response.
   dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient: () {
-      final client = HttpClient(
-        context: SecurityContext(withTrustedRoots: false),
-      );
-      // You can test the intermediate / root cert here. We just ignore it.
-      client.badCertificateCallback = (cert, host, port) => true;
-      return client;
-    },
     validateCertificate: (cert, host, port) {
-      // Check that the cert fingerprint matches the one we expect
-      // We definitely require _some_ certificate
+      // Check that the cert fingerprint matches the one we expect.
+      // We definitely require _some_ certificate.
       if (cert == null) {
         return false;
       }

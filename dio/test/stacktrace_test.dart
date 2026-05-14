@@ -182,38 +182,39 @@ void main() async {
     test(
       DioExceptionType.badCertificate,
       () async {
-        await HttpOverrides.runWithHttpOverrides(
-          () async {
-            final dio = Dio()
-              ..options.baseUrl = 'https://does.not.exist'
-              ..httpClientAdapter = IOHttpClientAdapter(
-                validateCertificate: (_, __, ___) => false,
-              );
+        // Exercise the legacy post-response validation path by supplying
+        // [createHttpClient]; the connectionFactory hook is intentionally
+        // skipped in that case (see [IOHttpClientAdapter.validateCertificate]
+        // and #2418), so the mock HttpClient need only stub [openUrl] /
+        // [request.close] / [response.certificate].
+        final dio = Dio()
+          ..options.baseUrl = 'https://does.not.exist'
+          ..httpClientAdapter = IOHttpClientAdapter(
+            createHttpClient: () => httpClientMock,
+            validateCertificate: (cert, host, port) => false,
+          );
 
-            when(httpClientMock.openUrl('GET', any)).thenAnswer(
-              (_) async {
-                final request = MockHttpClientRequest();
-                final response = MockHttpClientResponse();
-                when(request.close()).thenAnswer((_) => Future.value(response));
-                when(response.certificate).thenReturn(null);
-                return request;
-              },
-            );
-
-            await expectLater(
-              dio.get('/test'),
-              throwsA(
-                allOf([
-                  isA<DioException>(),
-                  (DioException e) => e.type == DioExceptionType.badCertificate,
-                  (DioException e) => e.stackTrace
-                      .toString()
-                      .contains('test/stacktrace_test.dart'),
-                ]),
-              ),
-            );
+        when(httpClientMock.openUrl('GET', any)).thenAnswer(
+          (_) async {
+            final request = MockHttpClientRequest();
+            final response = MockHttpClientResponse();
+            when(request.close()).thenAnswer((_) => Future.value(response));
+            when(response.certificate).thenReturn(null);
+            return request;
           },
-          MockHttpOverrides(),
+        );
+
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            allOf([
+              isA<DioException>(),
+              (DioException e) => e.type == DioExceptionType.badCertificate,
+              (DioException e) => e.stackTrace
+                  .toString()
+                  .contains('test/stacktrace_test.dart'),
+            ]),
+          ),
         );
       },
       testOn: '!browser',
