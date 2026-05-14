@@ -13,11 +13,14 @@ on:
 jobs:
   download_coverage:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      artifact-metadata: write
     if: github.event.workflow_run.event == 'pull_request'
     steps:
       - name: Download artifact
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v18
+        uses: dawidd6/action-download-artifact@1f8785ff7a5130826f848e7f72725c85d241860f
         with:
           workflow: tests.yml
           workflow_conclusion: success
@@ -30,7 +33,7 @@ jobs:
           echo "Found PR:$PR_NUMBER"
           echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
       - name: Add PR comment
-        uses: marocchino/sticky-pull-request-comment@v3
+        uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff
         with:
           number: ${{ steps.pr-number.outputs.value }}
           recreate: true
