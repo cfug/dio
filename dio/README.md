@@ -525,6 +525,39 @@ final response = await dio.get('/test');
 print(response.data); // 'fake data'
 ```
 
+##### Throwing custom exceptions from interceptors
+
+By default, `dio` wraps any exception thrown from an interceptor inside a
+`DioException`, so callers always see `DioException` at the await boundary.
+If you want callers to be able to `catch` your own exception type
+directly, opt in via `DioException.custom(...)` or
+`handler.rejectCustomError(...)`:
+
+```dart
+class UnauthorizedException implements Exception {}
+
+dio.interceptors.add(InterceptorsWrapper(
+  onResponse: (response, handler) {
+    if (response.statusCode == 401) {
+      handler.rejectCustomError(
+        UnauthorizedException(),
+        response.requestOptions,
+      );
+      return;
+    }
+    handler.next(response);
+  },
+));
+
+try {
+  await dio.get('/protected');
+} on UnauthorizedException catch (_) {
+  // Matches; the DioException wrapper is unwrapped at the pipeline boundary.
+}
+```
+
+See `DioException.custom` for the full signature.
+
 #### QueuedInterceptor
 
 `Interceptor` can be executed concurrently, that is,
@@ -631,6 +664,11 @@ StackTrace? stackTrace;
 
 /// The error message that throws a [DioException].
 String? message;
+
+/// When `true`, the request pipeline rethrows [error] verbatim at its
+/// final boundary instead of throwing this `DioException`. Set by
+/// [DioException.custom] / `handler.rejectCustomError`. Defaults to `false`.
+bool propagateInnerError;
 ```
 
 ### DioExceptionType

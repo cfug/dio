@@ -97,6 +97,26 @@ class RequestInterceptorHandler extends _BaseHandler {
     );
     _processNextInQueue?.call();
   }
+
+  /// Rejects the request with a [DioException.custom] wrapping [error] and
+  /// signals the pipeline to rethrow [error] verbatim to the caller of the
+  /// request method, preserving its runtime type.
+  ///
+  /// Use when you want callers to `on MyException catch (e)` directly,
+  /// rather than `on DioException catch (e) { final inner = e.error; ... }`.
+  /// See [DioException.custom] for details.
+  ///
+  /// Resolves https://github.com/cfug/dio/issues/1950.
+  void rejectCustomError(
+    Object error,
+    RequestOptions requestOptions, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    reject(
+      DioException.custom(error, requestOptions: requestOptions),
+      callFollowingErrorInterceptor,
+    );
+  }
 }
 
 /// The handler for interceptors to handle after respond.
@@ -148,6 +168,18 @@ class ResponseInterceptorHandler extends _BaseHandler {
     );
     _processNextInQueue?.call();
   }
+
+  /// See [RequestInterceptorHandler.rejectCustomError].
+  void rejectCustomError(
+    Object error,
+    RequestOptions requestOptions, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    reject(
+      DioException.custom(error, requestOptions: requestOptions),
+      callFollowingErrorInterceptor,
+    );
+  }
 }
 
 /// The handler for interceptors to handle error occurred during the request.
@@ -185,6 +217,14 @@ class ErrorInterceptorHandler extends _BaseHandler {
       error.stackTrace,
     );
     _processNextInQueue?.call();
+  }
+
+  /// See [RequestInterceptorHandler.rejectCustomError].
+  void rejectCustomError(
+    Object error,
+    RequestOptions requestOptions,
+  ) {
+    reject(DioException.custom(error, requestOptions: requestOptions));
   }
 }
 
