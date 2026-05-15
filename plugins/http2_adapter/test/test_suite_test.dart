@@ -6,5 +6,6 @@ void main() {
   dioAdapterTestSuite(
     (baseUrl) => Dio(BaseOptions(baseUrl: baseUrl))
       ..httpClientAdapter = Http2Adapter(ConnectionManager()),
+    skipNonTlsTest: true,
   );
 }

@@ -23,8 +23,13 @@ const _tests = [
 void dioAdapterTestSuite(
   Dio Function(String baseUrl) create, {
   List<TestSuiteFunction> tests = _tests,
+  bool skipNonTlsTest = false,
 }) {
   for (final test in tests) {
-    test(create);
+    if (test == basicTests) {
+      basicTests(create, skipNonTlsTest: skipNonTlsTest);
+    } else {
+      test(create);
+    }
   }
 }

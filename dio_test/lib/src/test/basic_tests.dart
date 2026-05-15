@@ -6,8 +6,9 @@ import 'package:test/test.dart';
 import '../../util.dart';
 
 void basicTests(
-  Dio Function(String baseUrl) create,
-) {
+  Dio Function(String baseUrl) create, {
+  bool skipNonTlsTest = false,
+}) {
   late Dio dio;
 
   setUp(() {
@@ -19,6 +20,7 @@ void basicTests(
       'works with non-TLS requests',
       () => dio.get('http://flutter-io.cn/'),
       testOn: 'vm',
+      skip: skipNonTlsTest,
     );
 
     test('fails with an invalid HTTP URL', () {
