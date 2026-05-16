@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-*None.*
+- Fix memory leak on Android: complete the `abortTrigger` future after the
+  response stream is consumed, allowing `CronetUrlRequest` JNI references
+  and upload body bytes to be garbage collected.
 
 ## 1.5.1
 
