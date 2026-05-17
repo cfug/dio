@@ -24,3 +24,5 @@ tags:
         skip: false
       default:
         skip: true
+  no_cleartext_http2:
+    skip: "HTTP/2 adapter does not support non-TLS cleartext connections to this external host."
