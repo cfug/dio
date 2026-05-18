@@ -158,7 +158,8 @@ void main() {
         ..response = StreamedResponse(const Stream.empty(), 200);
       final cla = ConversionLayerAdapter(mock);
 
-      final uploadBody = Uint8List.fromList(List.generate(1024, (i) => i % 256));
+      final uploadBody =
+          Uint8List.fromList(List.generate(1024, (i) => i % 256));
 
       final resp = await cla.fetch(
         RequestOptions(path: '', method: 'PUT'),
