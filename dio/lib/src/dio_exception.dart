@@ -74,6 +74,7 @@ class DioException implements Exception {
     this.error,
     StackTrace? stackTrace,
     this.message,
+    this.propagateInnerError = false,
   }) : stackTrace = identical(stackTrace, StackTrace.empty)
             ? requestOptions.sourceStackTrace ?? StackTrace.current
             : stackTrace ??
@@ -183,6 +184,58 @@ class DioException implements Exception {
         error: error,
       );
 
+  /// Wraps a custom [error] and signals the request pipeline to rethrow
+  /// [error] verbatim (preserving its runtime type) to the caller of the
+  /// request method, instead of throwing this `DioException` wrapper.
+  ///
+  /// Use this from inside an [Interceptor] when you want callers to be
+  /// able to `try { await dio.get(...) } on MyException catch (e)` and
+  /// match by the original exception type.
+  ///
+  /// Example:
+  /// ```dart
+  /// dio.interceptors.add(InterceptorsWrapper(
+  ///   onResponse: (response, handler) {
+  ///     if (response.statusCode == 401) {
+  ///       handler.reject(DioException.custom(
+  ///         UnauthorizedException(),
+  ///         requestOptions: response.requestOptions,
+  ///       ));
+  ///       return;
+  ///     }
+  ///     handler.next(response);
+  ///   },
+  /// ));
+  ///
+  /// try {
+  ///   await dio.get('/protected');
+  /// } on UnauthorizedException catch (_) {
+  ///   // Matches.
+  /// }
+  /// ```
+  ///
+  /// Internally, the marker survives traversal through subsequent
+  /// `onError` interceptors and through `QueuedInterceptor`s. The
+  /// inner [error] is only thrown at the final boundary of `Dio.fetch`.
+  ///
+  /// Resolves https://github.com/cfug/dio/issues/1950.
+  factory DioException.custom(
+    Object error, {
+    required RequestOptions requestOptions,
+    StackTrace? stackTrace,
+    Response? response,
+    String? message,
+  }) =>
+      DioException(
+        type: DioExceptionType.unknown,
+        requestOptions: requestOptions,
+        response: response,
+        error: error,
+        stackTrace: stackTrace,
+        message: message,
+        propagateInnerError: true,
+      );
+
   /// The request info for the request that throws exception.
   ///
   /// The info can be empty (e.g. `uri` equals to "")
@@ -206,6 +259,18 @@ class DioException implements Exception {
   /// The error message that throws a [DioException].
   final String? message;
 
+  /// When `true`, signals that [error] should be rethrown verbatim by
+  /// the request pipeline at the final boundary of `Dio.fetch`,
+  /// preserving its runtime type for the caller.
+  ///
+  /// Set automatically by [DioException.custom] and by the
+  /// `rejectCustomError(...)` helpers on interceptor handlers. Defaults
+  /// to `false` for all other constructors and factories — existing
+  /// behavior is unchanged.
+  ///
+  /// Resolves https://github.com/cfug/dio/issues/1950.
+  final bool propagateInnerError;
+
   /// Users can customize the content of [toString] when thrown.
   static DioExceptionReadableStringBuilder readableStringBuilder =
       defaultDioExceptionReadableStringBuilder;
@@ -222,6 +287,7 @@ class DioException implements Exception {
     Object? error,
     StackTrace? stackTrace,
     String? message,
+    bool? propagateInnerError,
   }) {
     return DioException(
       requestOptions: requestOptions ?? this.requestOptions,
@@ -230,6 +296,7 @@ class DioException implements Exception {
       error: error ?? this.error,
       stackTrace: stackTrace ?? this.stackTrace,
       message: message ?? this.message,
+      propagateInnerError: propagateInnerError ?? this.propagateInnerError,
     );
   }
 
