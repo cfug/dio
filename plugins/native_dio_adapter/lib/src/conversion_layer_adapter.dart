@@ -1,4 +1,4 @@
-import 'dart:async' show Completer;
+import 'dart:async' show Completer, StreamTransformer;
 import 'dart:convert' show ByteConversionSink;
 import 'dart:typed_data' show Uint8List;
 

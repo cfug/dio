@@ -184,7 +184,7 @@ void main() {
       final mock = ClientMock()
         ..response = StreamedResponse(
           Stream.fromFuture(
-            Future.error(Exception('network error')),
+            Future<Uint8List>.error(Exception('network error')),
           ).cast<Uint8List>(),
           200,
         );
