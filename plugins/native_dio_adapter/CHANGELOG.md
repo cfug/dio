@@ -8,6 +8,8 @@
 
 - Support request cancellation for native HTTP clients via use of `AbortableRequest` (introduced in http package from version 1.5.0)
 - Add timeout handling for `sendTimeout`, `connectTimeout`, and `receiveTimeout` in `ConversionLayerAdapter`
+- Gracefully fall back to `HttpClientAdapter` when Cronet is unavailable on Android (e.g., devices without Google Play Services)
+- Add `onCronetUnavailable` callback to `NativeAdapter` for notification when fallback occurs
 
 ## 1.5.0
 
