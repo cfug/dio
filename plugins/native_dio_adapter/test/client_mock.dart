@@ -65,6 +65,24 @@ class AbortClientMock implements Client {
   }
 }
 
+class ErrorClientMock implements Client {
+  ErrorClientMock({required this.exception});
+
+  final Object exception;
+  BaseRequest? lastRequest;
+
+  @override
+  Future<StreamedResponse> send(BaseRequest request) async {
+    lastRequest = request;
+    throw exception;
+  }
+
+  @override
+  void noSuchMethod(Invocation invocation) {
+    throw UnimplementedError();
+  }
+}
+
 class AbortedError extends Error {}
 
 class DelayedClientMock implements Client {
