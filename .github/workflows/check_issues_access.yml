@@ -12,7 +12,7 @@ jobs:
       issues: write
     if: ${{ join(github.event.issue.labels) == '' || contains(github.event.issue.labels.*.name, 'infra')}}
     steps:
-      - uses: actions-cool/check-user-permission@7b90a27f92f3961b368376107661682c441f6103
+      - uses: actions-cool/check-user-permission@c21884f3dda18dafc2f8b402fe807ccc9ec1aa5e
         id: checkUser
         with:
           require: 'write'
