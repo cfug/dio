@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
 
 ## 5.9.2
 
