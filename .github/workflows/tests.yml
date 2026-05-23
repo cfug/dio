@@ -36,11 +36,21 @@ jobs:
       TEST_PRESET: all
     steps:
       - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231
+      - name: Cache Flutter SDK and pub packages
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v5.0.0
+        with:
+          path: |
+            /opt/hostedtoolcache/flutter
+            ~/.pub-cache
+          key: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ matrix.sdk }}-${{ matrix.sdk == 'min' && '3.3.0' || 'stable' }}-${{ hashFiles('**/pubspec.lock', '**/pubspec.yaml') }}
+          restore-keys: |
+            flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ matrix.sdk }}-${{ matrix.sdk == 'min' && '3.3.0' || 'stable' }}-
+            flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ matrix.sdk }}-
       - uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
         with:
-          cache: true
+          cache: false
           flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
-          channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
+          channel: ${{ matrix.sdk == 'beta' && 'beta' || 'stable' }}
       - run: |
           echo TARGET_DART_SDK=${{ matrix.sdk }} >> $GITHUB_ENV
       - name: Prepare dependencies for the project management
