@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   dio: any
+  http2: ^2.1.0
   path: any
 
 dev_dependencies:
