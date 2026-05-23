@@ -47,7 +47,9 @@ void main() {
       final dio = Dio()
         ..httpClientAdapter = Http2Adapter(ConnectionManager());
       try {
-        final response = await dio.get('http://127.0.0.1:${server.port}/get');
+        final response = await dio.get(
+          'http://127.0.0.1:${server.port}/get',
+        );
         expect(response.statusCode, equals(200));
         expect(
           await authorityCompleter.future,
