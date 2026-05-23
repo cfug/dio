@@ -44,8 +44,9 @@ void main() {
         });
       });
 
-      final dio = Dio()
-        ..httpClientAdapter = Http2Adapter(ConnectionManager());
+      final dio = Dio();
+      dio.httpClientAdapter = Http2Adapter(ConnectionManager());
+
       try {
         final response = await dio.get(
           'http://127.0.0.1:${server.port}/get',
