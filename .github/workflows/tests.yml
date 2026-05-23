@@ -46,7 +46,7 @@ jobs:
           restore-keys: |
             flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ matrix.sdk }}-${{ matrix.sdk == 'min' && '3.3.0' || 'stable' }}-
             flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ matrix.sdk }}-
-      - uses: flutter-actions/setup-flutter@9e4604f2154e64d2e3c364021a05451e14215c9c
+      - uses: flutter-actions/setup-flutter@480ffd9d3a24db4ce099d7ceb62c3d6959661eb8
         with:
           cache: false
           flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
