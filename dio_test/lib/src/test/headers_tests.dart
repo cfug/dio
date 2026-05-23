@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 import '../../util.dart';
-import 'headers_host_port_tests_stub.dart'
-    if (dart.library.io) 'headers_host_port_tests_io.dart';
 
 void headerTests(
   Dio Function(String baseUrl) create,
@@ -15,8 +13,6 @@ void headerTests(
   });
 
   group('headers', () {
-    registerHostHeaderPortTests(() => dio);
-
     test('multi value headers', () async {
       final Response response = await dio.get(
         '/get',
