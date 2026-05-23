@@ -104,7 +104,7 @@ class Http2Adapter implements HttpClientAdapter {
       Header.ascii(':method', options.method),
       Header.ascii(':path', path),
       Header.ascii(':scheme', uri.scheme),
-      Header.ascii(':authority', uri.host),
+      if (uri.hasAuthority) Header.ascii(':authority', uri.authority),
     ];
 
     // Add custom headers
