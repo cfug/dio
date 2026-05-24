@@ -159,6 +159,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     super.requestEncoder,
     super.responseDecoder,
     super.listFormat,
+    super.maxResponseSize,
   }) {
     this.baseUrl = baseUrl;
     this.queryParameters = queryParameters ?? {};
@@ -187,6 +188,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    int? maxResponseSize,
   }) {
     return BaseOptions(
       method: method ?? this.method,
@@ -209,6 +211,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
+      maxResponseSize: maxResponseSize ?? this.maxResponseSize,
     );
   }
 }
@@ -234,6 +237,7 @@ class Options {
     this.requestEncoder,
     this.responseDecoder,
     this.listFormat,
+    this.maxResponseSize,
   })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
@@ -260,6 +264,7 @@ class Options {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    int? maxResponseSize,
   }) {
     Map<String, dynamic>? effectiveHeaders;
     if (headers == null && this.headers != null) {
@@ -299,6 +304,7 @@ class Options {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
+      maxResponseSize: maxResponseSize ?? this.maxResponseSize,
     );
   }
 
@@ -357,6 +363,7 @@ class Options {
       requestEncoder: requestEncoder ?? baseOpt.requestEncoder,
       responseDecoder: responseDecoder ?? baseOpt.responseDecoder,
       listFormat: listFormat ?? baseOpt.listFormat,
+      maxResponseSize: maxResponseSize ?? baseOpt.maxResponseSize,
       onReceiveProgress: onReceiveProgress,
       onSendProgress: onSendProgress,
       cancelToken: cancelToken,
@@ -502,6 +509,15 @@ class Options {
   ///
   /// Defaults to [ListFormat.multi].
   ListFormat? listFormat;
+
+  /// Maximum number of bytes to accept in the response body.
+  ///
+  /// When set, Dio aborts the response stream with a [DioException] of type
+  /// [DioExceptionType.badResponse] if the accumulated bytes exceed this
+  /// limit, preventing memory exhaustion from large server responses.
+  ///
+  /// `null` means no limit (the default).
+  int? maxResponseSize;
 }
 
 /// The internal request option class that is the eventual result after
@@ -532,6 +548,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     super.requestEncoder,
     super.responseDecoder,
     super.listFormat,
+    super.maxResponseSize,
     bool? setRequestContentTypeWhenNoPayload,
     StackTrace? sourceStackTrace,
   }) : assert(connectTimeout == null || !connectTimeout.isNegative) {
@@ -567,6 +584,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     RequestEncoder? requestEncoder,
     ResponseDecoder? responseDecoder,
     ListFormat? listFormat,
+    int? maxResponseSize,
     bool? setRequestContentTypeWhenNoPayload,
   }) {
     final contentTypeInHeader = headers != null &&
@@ -604,6 +622,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       requestEncoder: requestEncoder ?? this.requestEncoder,
       responseDecoder: responseDecoder ?? this.responseDecoder,
       listFormat: listFormat ?? this.listFormat,
+      maxResponseSize: maxResponseSize ?? this.maxResponseSize,
       sourceStackTrace: sourceStackTrace,
     );
 
@@ -682,6 +701,7 @@ class _RequestConfig {
     ResponseType? responseType,
     this.requestEncoder,
     this.responseDecoder,
+    this.maxResponseSize,
   })  : assert(receiveTimeout == null || !receiveTimeout.isNegative),
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
@@ -773,6 +793,16 @@ class _RequestConfig {
   RequestEncoder? requestEncoder;
   ResponseDecoder? responseDecoder;
   late ListFormat listFormat;
+
+  /// Maximum number of bytes to accept in the response body.
+  ///
+  /// When set, [handleResponseStream] will abort with a [DioException] of
+  /// type [DioExceptionType.badResponse] if the accumulated response bytes
+  /// exceed this limit. This prevents memory exhaustion from unexpectedly
+  /// large server responses.
+  ///
+  /// `null` means no limit (the default).
+  int? maxResponseSize;
 }
 
 /// {@template dio.options.FileAccessMode}

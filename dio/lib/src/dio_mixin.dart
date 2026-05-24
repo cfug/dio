@@ -21,6 +21,7 @@ import 'progress_stream/io_progress_stream.dart'
 import 'response.dart';
 import 'response/response_stream_handler.dart';
 import 'transformer.dart';
+import 'utils.dart';
 
 part 'interceptor.dart';
 
@@ -566,6 +567,25 @@ abstract class DioMixin implements Dio {
   }
 
   Future<Response<dynamic>> _dispatchRequest<T>(RequestOptions reqOpt) async {
+    // Warn developers when no timeouts are configured. Requests with null
+    // timeouts will hang indefinitely, which can exhaust connections and freeze
+    // UI. This warning is suppressed in release builds via warningLog.
+    if (reqOpt.connectTimeout == null) {
+      warningLog(
+        'connectTimeout is not set on this request. '
+        'Without a timeout the request may hang indefinitely. '
+        'Set connectTimeout in BaseOptions or per-request Options.',
+        StackTrace.current,
+      );
+    }
+    if (reqOpt.receiveTimeout == null) {
+      warningLog(
+        'receiveTimeout is not set on this request. '
+        'Without a timeout the request may hang indefinitely. '
+        'Set receiveTimeout in BaseOptions or per-request Options.',
+        StackTrace.current,
+      );
+    }
     final cancelToken = reqOpt.cancelToken;
     try {
       final stream = await _transformData(reqOpt);

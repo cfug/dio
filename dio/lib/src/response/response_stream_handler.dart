@@ -29,6 +29,7 @@ Stream<Uint8List> handleResponseStream(
   if (options.onReceiveProgress != null) {
     totalLength = response.contentLength;
   }
+  final maxResponseSize = options.maxResponseSize;
 
   final receiveTimeout = options.receiveTimeout ?? Duration.zero;
   final receiveStopwatch = Stopwatch();
@@ -71,11 +72,27 @@ Stream<Uint8List> handleResponseStream(
   // headers and body (see onData below for per-chunk reset).
   watchReceiveTimeout();
 
+  int receivedBytes = 0;
   responseSubscription = source.listen(
     (data) {
       watchReceiveTimeout();
       // Always true if the receive timeout was not set.
       if (receiveStopwatch.elapsed <= receiveTimeout) {
+        receivedBytes += data.length;
+        if (maxResponseSize != null && receivedBytes > maxResponseSize) {
+          stopWatchReceiveTimeout();
+          response.close();
+          responseSubscription.cancel();
+          responseSink.addErrorAndClose(
+            DioException(
+              type: DioExceptionType.badResponse,
+              requestOptions: options,
+              message: 'Response size ($receivedBytes bytes) exceeded the '
+                  'maxResponseSize limit ($maxResponseSize bytes).',
+            ),
+          );
+          return;
+        }
         responseSink.add(data);
         options.onReceiveProgress?.call(
           receivedLength += data.length,

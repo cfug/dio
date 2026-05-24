@@ -11,11 +11,12 @@ const _boundaryName = '--dio-boundary';
 const _rn = '\r\n';
 final _rnU8 = Uint8List.fromList([13, 10]);
 
-const _secureRandomSeedBound = 4294967296;
-final _random = math.Random();
+// Use a cryptographically secure RNG so multipart boundaries cannot be
+// predicted by an attacker who knows the approximate request timestamp.
+final _random = math.Random.secure();
 
 String get _nextRandomId =>
-    _random.nextInt(_secureRandomSeedBound).toString().padLeft(10, '0');
+    _random.nextInt(4294967296).toString().padLeft(10, '0');
 
 /// A class to create readable "multipart/form-data" streams.
 /// It can be used to submit forms and file uploads to http server.

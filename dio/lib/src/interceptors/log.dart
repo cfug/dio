@@ -19,6 +19,13 @@ import '../response.dart';
 ///   ),
 /// );
 /// ```
+///
+/// **Security note:** By default, headers listed in [defaultRedactedHeaders]
+/// (e.g. `Authorization`, `Cookie`, `X-API-Key`) are replaced with
+/// `**REDACTED**` in log output to prevent credential leakage via logs,
+/// crash reporters, or screen-sharing. Pass a custom [redactedHeaders] set
+/// to change which headers are masked, or pass an empty set to disable
+/// redaction entirely (e.g. for local development only).
 class LogInterceptor extends Interceptor {
   LogInterceptor({
     this.request = true,
@@ -30,7 +37,21 @@ class LogInterceptor extends Interceptor {
     this.responseBody = false,
     this.error = true,
     this.logPrint = _debugPrint,
+    this.redactedHeaders = defaultRedactedHeaders,
   });
+
+  /// The default set of header keys whose values are masked in log output.
+  ///
+  /// Comparison is case-insensitive. All keys are stored in lower-case.
+  static const Set<String> defaultRedactedHeaders = {
+    'authorization',
+    'proxy-authorization',
+    'cookie',
+    'set-cookie',
+    'x-api-key',
+    'x-auth-token',
+    'x-csrf-token',
+  };
 
   /// Print request [RequestOptions]
   bool request;
@@ -67,6 +88,12 @@ class LogInterceptor extends Interceptor {
   ///  await sink.close();
   /// ```
   void Function(Object object) logPrint;
+
+  /// Header keys whose values are replaced with `**REDACTED**` in log output.
+  ///
+  /// Comparison is case-insensitive. Defaults to [defaultRedactedHeaders].
+  /// Pass an empty set to disable redaction (e.g. for local development).
+  Set<String> redactedHeaders;
 
   @override
   void onRequest(
@@ -125,7 +152,9 @@ class LogInterceptor extends Interceptor {
 
     if (requestHeader) {
       logPrint('headers:');
-      options.headers.forEach((key, v) => _printKV(' $key', v));
+      options.headers.forEach(
+        (key, v) => _printKV(' $key', _redactHeaderValue(key, v)),
+      );
     }
 
     if (requestBody) {
@@ -156,7 +185,10 @@ class LogInterceptor extends Interceptor {
       }
 
       logPrint('headers:');
-      response.headers.forEach((key, v) => _printKV(' $key', v.join('\r\n\t')));
+      response.headers.forEach(
+        (key, v) =>
+            _printKV(' $key', _redactHeaderValue(key, v.join('\r\n\t'))),
+      );
     }
 
     if (responseBody) {
@@ -173,6 +205,13 @@ class LogInterceptor extends Interceptor {
 
   void _printAll(Object? msg) {
     msg.toString().split('\n').forEach(logPrint);
+  }
+
+  Object? _redactHeaderValue(String key, Object? value) {
+    if (redactedHeaders.contains(key.toLowerCase())) {
+      return '**REDACTED**';
+    }
+    return value;
   }
 }
 
