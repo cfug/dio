@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `:authority` header generation to include non-default ports.
 
 ## 2.7.0
 
