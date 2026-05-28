@@ -34,3 +34,4 @@ melos_overrides.yaml
 # FVM Version Cache
 .fvm/
 .fvmrc
+SECURITY_CONTRIBUTIONS.md
