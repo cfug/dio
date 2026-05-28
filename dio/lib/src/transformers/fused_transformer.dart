@@ -147,7 +147,7 @@ class FusedTransformer extends Transformer {
       // we can't send the stream to the isolate, so we need to decode the response bytes first
       final transformTimeout = options.transformTimeout;
       try {
-        return await compute(
+        return await computeWithTimeout(
           _decodeUtf8ToJson,
           responseBytes ?? await consolidateBytes(responseBody.stream),
           timeout: transformTimeout,

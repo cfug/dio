@@ -28,15 +28,10 @@ Future<R> compute<Q, R>(
   c.ComputeCallback<Q, R> callback,
   Q message, {
   String? debugLabel,
-  Duration? timeout,
 }) async {
   // To avoid blocking the UI immediately for an expensive function call, we
   // pump a single frame to allow the framework to complete the current set
   // of work.
   await null;
-  final result = Future<R>.sync(() => callback(message));
-  if (timeout != null && timeout > Duration.zero) {
-    return result.timeout(timeout);
-  }
-  return result;
+  return Future<R>.sync(() => callback(message));
 }

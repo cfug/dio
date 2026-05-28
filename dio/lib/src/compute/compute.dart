@@ -67,6 +67,12 @@ typedef ComputeImpl = Future<R> Function<Q, R>(
   ComputeCallback<Q, R> callback,
   Q message, {
   String? debugLabel,
+});
+
+typedef ComputeWithTimeoutImpl = Future<R> Function<Q, R>(
+  ComputeCallback<Q, R> callback,
+  Q message, {
+  String? debugLabel,
   Duration? timeout,
 });
 
@@ -139,3 +145,5 @@ typedef ComputeImpl = Future<R> Function<Q, R>(
 ///
 ///   * [ComputeImpl], for the [compute] function's signature.
 const ComputeImpl compute = _c.compute;
+
+const ComputeWithTimeoutImpl computeWithTimeout = _c.computeWithTimeout;

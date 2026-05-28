@@ -30,6 +30,14 @@ Future<R> compute<Q, R>(
   c.ComputeCallback<Q, R> callback,
   Q message, {
   String? debugLabel,
+}) {
+  return computeWithTimeout(callback, message, debugLabel: debugLabel);
+}
+
+Future<R> computeWithTimeout<Q, R>(
+  c.ComputeCallback<Q, R> callback,
+  Q message, {
+  String? debugLabel,
   Duration? timeout,
 }) async {
   debugLabel ??= kReleaseMode ? 'compute' : callback.toString();

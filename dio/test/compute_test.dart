@@ -11,11 +11,12 @@ void main() {
   group(
     'compute',
     () {
-      test('times out when the callback never completes', () async {
+      test('computeWithTimeout times out when callback never completes',
+          () async {
         final stopwatch = Stopwatch()..start();
 
         await expectLater(
-          compute(
+          computeWithTimeout(
             _neverCompletes,
             null,
             timeout: const Duration(milliseconds: 50),
