@@ -150,15 +150,49 @@ void main() {
       expect(response, {'foo': 'bar'});
     });
 
-    test(
-      'throws receiveTimeout when background isolate JSON decode times out',
-      () async {
-        final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
-        final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
-        final responseBytes = utf8.encode(jsonString);
+    group(
+      'background isolate JSON decode timeout',
+      () {
+        test('throws transformTimeout when transform times out', () async {
+          final transformer =
+              FusedTransformer(contentLengthIsolateThreshold: 0);
+          final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
+          final responseBytes = utf8.encode(jsonString);
 
-        await expectLater(
-          transformer.transformResponse(
+          await expectLater(
+            transformer.transformResponse(
+              RequestOptions(
+                responseType: ResponseType.json,
+                transformTimeout: const Duration(microseconds: 1),
+              ),
+              ResponseBody.fromBytes(
+                responseBytes,
+                200,
+                headers: {
+                  Headers.contentTypeHeader: [Headers.jsonContentType],
+                  Headers.contentLengthHeader: [
+                    responseBytes.length.toString(),
+                  ],
+                },
+              ),
+            ),
+            throwsA(
+              isA<DioException>().having(
+                (e) => e.type,
+                'type',
+                DioExceptionType.transformTimeout,
+              ),
+            ),
+          );
+        });
+
+        test('does not use receiveTimeout for transform timeout', () async {
+          final transformer =
+              FusedTransformer(contentLengthIsolateThreshold: 0);
+          final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
+          final responseBytes = utf8.encode(jsonString);
+
+          final response = await transformer.transformResponse(
             RequestOptions(
               responseType: ResponseType.json,
               receiveTimeout: const Duration(microseconds: 1),
@@ -173,15 +207,10 @@ void main() {
                 ],
               },
             ),
-          ),
-          throwsA(
-            isA<DioException>().having(
-              (e) => e.type,
-              'type',
-              DioExceptionType.receiveTimeout,
-            ),
-          ),
-        );
+          );
+
+          expect(response, {'foo': 'bar'});
+        });
       },
       testOn: 'vm',
     );

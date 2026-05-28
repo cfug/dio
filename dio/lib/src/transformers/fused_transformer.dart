@@ -145,18 +145,19 @@ class FusedTransformer extends Transformer {
         contentLength >= contentLengthIsolateThreshold;
     if (shouldUseIsolate) {
       // we can't send the stream to the isolate, so we need to decode the response bytes first
-      final receiveTimeout = options.receiveTimeout;
+      final transformTimeout = options.transformTimeout;
       try {
         return await compute(
           _decodeUtf8ToJson,
           responseBytes ?? await consolidateBytes(responseBody.stream),
-          timeout: receiveTimeout,
+          timeout: transformTimeout,
         );
-      } on TimeoutException {
-        if (receiveTimeout != null && receiveTimeout > Duration.zero) {
-          throw DioException.receiveTimeout(
-            timeout: receiveTimeout,
+      } on TimeoutException catch (e) {
+        if (transformTimeout != null && transformTimeout > Duration.zero) {
+          throw DioException.transformTimeout(
+            timeout: transformTimeout,
             requestOptions: options,
+            error: e,
           );
         }
         rethrow;

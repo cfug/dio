@@ -324,6 +324,14 @@ Duration? sendTimeout;
 /// `null` 或 `Duration.zero` 即不设置超时。
 Duration? receiveTimeout;
 
+/// 转换响应数据的超时设置。
+///
+/// 超时时会抛出类型为 [DioExceptionType.transformTimeout] 的
+/// [DioException]。
+///
+/// `null` 或 `Duration.zero` 即不设置超时。
+Duration? transformTimeout;
+
 /// 可以在 [Interceptor]、[Transformer] 和
 /// [Response.requestOptions] 中获取到的自定义对象。
 Map<String, dynamic>? extra;
