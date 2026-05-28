@@ -159,6 +159,54 @@ void main() {
     expect(opt4.connectTimeout, Duration.zero);
   });
 
+  test('options transformTimeout', () {
+    final opt1 = Options(
+      method: 'get',
+      transformTimeout: const Duration(seconds: 10),
+    );
+    expect(opt1.transformTimeout, const Duration(seconds: 10));
+
+    final opt2 = opt1.copyWith(
+      transformTimeout: const Duration(seconds: 20),
+    );
+    expect(opt2.transformTimeout, const Duration(seconds: 20));
+
+    final opt3 = opt1.copyWith(method: 'post');
+    expect(opt3.transformTimeout, const Duration(seconds: 10));
+
+    final baseOptions = BaseOptions(
+      transformTimeout: const Duration(seconds: 5),
+      baseUrl: 'http://localhost',
+    );
+    final options = Options(transformTimeout: const Duration(seconds: 10));
+    final requestOptions = options.compose(baseOptions, '/test');
+    expect(requestOptions.transformTimeout, const Duration(seconds: 10));
+
+    final options2 = Options();
+    final requestOptions2 = options2.compose(baseOptions, '/test');
+    expect(requestOptions2.transformTimeout, const Duration(seconds: 5));
+
+    final opt4 = Options();
+    opt4.transformTimeout = const Duration(seconds: 30);
+    expect(opt4.transformTimeout, const Duration(seconds: 30));
+    opt4.transformTimeout = Duration.zero;
+    expect(opt4.transformTimeout, Duration.zero);
+    expect(
+      () => opt4.transformTimeout = const Duration(seconds: -1),
+      throwsA(isA<ArgumentError>()),
+    );
+
+    final baseOptions2 = BaseOptions();
+    baseOptions2.transformTimeout = const Duration(seconds: 30);
+    expect(baseOptions2.transformTimeout, const Duration(seconds: 30));
+    baseOptions2.transformTimeout = Duration.zero;
+    expect(baseOptions2.transformTimeout, Duration.zero);
+    expect(
+      () => baseOptions2.transformTimeout = const Duration(seconds: -1),
+      throwsStateError,
+    );
+  });
+
   test('options content-type', () {
     const contentType = 'text/html';
     const contentTypeJson = 'application/json';
