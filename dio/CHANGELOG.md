@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
+- Fix background JSON decoding hanging indefinitely when `receiveTimeout` is configured.
 
 ## 5.9.2
 

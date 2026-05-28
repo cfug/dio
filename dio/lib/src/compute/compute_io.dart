@@ -30,6 +30,7 @@ Future<R> compute<Q, R>(
   c.ComputeCallback<Q, R> callback,
   Q message, {
   String? debugLabel,
+  Duration? timeout,
 }) async {
   debugLabel ??= kReleaseMode ? 'compute' : callback.toString();
 
@@ -38,20 +39,40 @@ Future<R> compute<Q, R>(
   final RawReceivePort port = RawReceivePort();
   Timeline.finishSync();
 
+  Timer? timeoutTimer;
+  bool cleanedUp = false;
   void timeEndAndCleanup() {
+    if (cleanedUp) {
+      return;
+    }
+    cleanedUp = true;
+    timeoutTimer?.cancel();
     Timeline.startSync('$debugLabel: end', flow: Flow.end(flow.id));
     port.close();
     Timeline.finishSync();
   }
 
   final Completer<dynamic> completer = Completer<dynamic>();
+  Isolate? isolate;
+
+  void completeWithError(Object error, [StackTrace? stackTrace]) {
+    if (completer.isCompleted) {
+      return;
+    }
+    timeEndAndCleanup();
+    completer.completeError(error, stackTrace);
+  }
+
   port.handler = (dynamic msg) {
+    if (completer.isCompleted) {
+      return;
+    }
     timeEndAndCleanup();
     completer.complete(msg);
   };
 
   try {
-    await Isolate.spawn<_IsolateConfiguration<Q, R>>(
+    isolate = await Isolate.spawn<_IsolateConfiguration<Q, R>>(
       _spawn,
       _IsolateConfiguration<Q, R>(
         callback,
@@ -68,6 +89,15 @@ Future<R> compute<Q, R>(
   } on Object {
     timeEndAndCleanup();
     rethrow;
+  }
+
+  if (timeout != null && timeout > Duration.zero && !completer.isCompleted) {
+    timeoutTimer = Timer(timeout, () {
+      isolate?.kill(priority: Isolate.immediate);
+      completeWithError(
+        TimeoutException('Computation timed out after $timeout.', timeout),
+      );
+    });
   }
 
   final dynamic response = await completer.future;

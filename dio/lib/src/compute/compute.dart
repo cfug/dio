@@ -67,6 +67,7 @@ typedef ComputeImpl = Future<R> Function<Q, R>(
   ComputeCallback<Q, R> callback,
   Q message, {
   String? debugLabel,
+  Duration? timeout,
 });
 
 /// A function that spawns an isolate and runs the provided `callback` on that

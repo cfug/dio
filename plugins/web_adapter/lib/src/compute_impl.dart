@@ -19,6 +19,8 @@
 // The file is intentionally not refactored so that it is easier to keep the
 // compute package up to date with Flutter's implementation.
 
+import 'dart:async';
+
 import 'package:dio/src/compute/compute.dart' as c;
 
 /// The dart:html implementation of [c.compute].
@@ -26,10 +28,15 @@ Future<R> compute<Q, R>(
   c.ComputeCallback<Q, R> callback,
   Q message, {
   String? debugLabel,
+  Duration? timeout,
 }) async {
   // To avoid blocking the UI immediately for an expensive function call, we
   // pump a single frame to allow the framework to complete the current set
   // of work.
   await null;
-  return callback(message);
+  final result = Future<R>.sync(() => callback(message));
+  if (timeout != null && timeout > Duration.zero) {
+    return result.timeout(timeout);
+  }
+  return result;
 }

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import '../adapter.dart';
 import '../compute/compute.dart';
+import '../dio_exception.dart';
 import '../headers.dart';
 import '../options.dart';
 import '../transformer.dart';
@@ -144,10 +145,22 @@ class FusedTransformer extends Transformer {
         contentLength >= contentLengthIsolateThreshold;
     if (shouldUseIsolate) {
       // we can't send the stream to the isolate, so we need to decode the response bytes first
-      return compute(
-        _decodeUtf8ToJson,
-        responseBytes ?? await consolidateBytes(responseBody.stream),
-      );
+      final receiveTimeout = options.receiveTimeout;
+      try {
+        return await compute(
+          _decodeUtf8ToJson,
+          responseBytes ?? await consolidateBytes(responseBody.stream),
+          timeout: receiveTimeout,
+        );
+      } on TimeoutException {
+        if (receiveTimeout != null && receiveTimeout > Duration.zero) {
+          throw DioException.receiveTimeout(
+            timeout: receiveTimeout,
+            requestOptions: options,
+          );
+        }
+        rethrow;
+      }
     } else {
       if (responseBytes != null) {
         if (responseBytes.isEmpty) {

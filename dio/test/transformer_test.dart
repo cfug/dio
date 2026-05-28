@@ -150,6 +150,42 @@ void main() {
       expect(response, {'foo': 'bar'});
     });
 
+    test(
+      'throws receiveTimeout when background isolate JSON decode times out',
+      () async {
+        final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
+        final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
+        final responseBytes = utf8.encode(jsonString);
+
+        await expectLater(
+          transformer.transformResponse(
+            RequestOptions(
+              responseType: ResponseType.json,
+              receiveTimeout: const Duration(microseconds: 1),
+            ),
+            ResponseBody.fromBytes(
+              responseBytes,
+              200,
+              headers: {
+                Headers.contentTypeHeader: [Headers.jsonContentType],
+                Headers.contentLengthHeader: [
+                  responseBytes.length.toString(),
+                ],
+              },
+            ),
+          ),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.receiveTimeout,
+            ),
+          ),
+        );
+      },
+      testOn: 'vm',
+    );
+
     test('transformResponse transforms that arrives in many chunks', () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(
