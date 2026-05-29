@@ -209,7 +209,15 @@ class FormData {
 
   // Convenience method to clone finalized FormData when retrying requests.
   FormData clone() {
-    final clone = FormData();
+    // Forward the constructor options so that the clone produces a wire
+    // representation equivalent to the original — most notably the
+    // `Content-Disposition` header casing chosen via
+    // [camelCaseContentDisposition]. Without this, a retried multipart
+    // request would silently downgrade to the default lowercase header.
+    final clone = FormData(
+      boundaryName: boundaryName,
+      camelCaseContentDisposition: camelCaseContentDisposition,
+    );
     clone._boundary = _boundary;
     clone.fields.addAll(fields);
     for (final file in files) {
