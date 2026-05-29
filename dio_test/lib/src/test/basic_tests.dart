@@ -19,6 +19,7 @@ void basicTests(
       'works with non-TLS requests',
       () => dio.get('http://flutter-io.cn/'),
       testOn: 'vm',
+      tags: 'no_cleartext_http2',
     );
 
     test('fails with an invalid HTTP URL', () {

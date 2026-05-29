@@ -67,6 +67,10 @@ Stream<Uint8List> handleResponseStream(
     });
   }
 
+  // Also start watching before the first chunk to cover the gap between
+  // headers and body (see onData below for per-chunk reset).
+  watchReceiveTimeout();
+
   responseSubscription = source.listen(
     (data) {
       watchReceiveTimeout();

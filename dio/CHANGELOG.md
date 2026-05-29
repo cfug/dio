@@ -5,10 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-- Add `DioException.custom(...)` factory and `rejectCustomError(...)` helpers
-  on interceptor handlers, allowing developers to propagate the original
-  exception type from inside an `Interceptor` to the caller of the request.
-  Default behavior is unchanged; opt-in only. Resolves #1950.
+- Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
 
 ## 5.9.2
 
