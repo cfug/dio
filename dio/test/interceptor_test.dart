@@ -1169,6 +1169,40 @@ void main() {
     );
 
     test(
+      'async throw DioException.custom propagates inner type (interaction '
+      'with #2499)',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              // ignore: void_checks
+              onResponse: (response, handler) async {
+                // Async throw without ever calling the handler. The #2499
+                // error zone catches it and routes it through
+                // assureDioException, whose `is DioException` short-circuit
+                // preserves propagateInnerError so the inner type still
+                // unwraps at the funnel. (Before the main merge this hung.)
+                await Future<void>.value();
+                throw DioException.custom(
+                  _MyApiException('async-thrown'),
+                  requestOptions: response.requestOptions,
+                );
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<_MyApiException>()
+                .having((e) => e.code, 'code', 'async-thrown'),
+          ),
+        );
+      },
+    );
+
+    test(
       'unmarked DioException(error: customEx) still wraps (regression sentinel)',
       () async {
         final dio = Dio()
