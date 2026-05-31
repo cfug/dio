@@ -195,6 +195,7 @@ class DioException implements Exception {
     required RequestOptions requestOptions,
     required String reason,
     Object? error,
+    StackTrace? stackTrace,
   }) =>
       DioException(
         type: DioExceptionType.connectionError,
@@ -203,6 +204,7 @@ class DioException implements Exception {
         requestOptions: requestOptions,
         response: null,
         error: error,
+        stackTrace: stackTrace,
       );
 
   /// The request info for the request that throws exception.
