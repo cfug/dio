@@ -7,6 +7,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
 - Fix `HttpException: Connection closed before full header was received` being reported as `DioExceptionType.unknown`.
+- Add `transformTimeout` to bound long-running response transformations, including background JSON decoding.
+  On web, timeout handling is best-effort because synchronous JavaScript work cannot be preempted.
 
 ## 5.9.2
 

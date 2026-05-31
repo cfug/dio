@@ -150,6 +150,107 @@ void main() {
       expect(response, {'foo': 'bar'});
     });
 
+    group(
+      'background isolate JSON decode timeout',
+      () {
+        test('throws transformTimeout when transform times out', () async {
+          final transformer =
+              FusedTransformer(contentLengthIsolateThreshold: 0);
+          final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
+          final responseBytes = utf8.encode(jsonString);
+
+          await expectLater(
+            transformer.transformResponse(
+              RequestOptions(
+                responseType: ResponseType.json,
+                transformTimeout: const Duration(microseconds: 1),
+              ),
+              ResponseBody.fromBytes(
+                responseBytes,
+                200,
+                headers: {
+                  Headers.contentTypeHeader: [Headers.jsonContentType],
+                  Headers.contentLengthHeader: [
+                    responseBytes.length.toString(),
+                  ],
+                },
+              ),
+            ),
+            throwsA(
+              isA<DioException>().having(
+                (e) => e.type,
+                'type',
+                DioExceptionType.transformTimeout,
+              ),
+            ),
+          );
+        });
+
+        test('does not use receiveTimeout for transform timeout', () async {
+          final transformer =
+              FusedTransformer(contentLengthIsolateThreshold: 0);
+          final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
+          final responseBytes = utf8.encode(jsonString);
+
+          final response = await transformer.transformResponse(
+            RequestOptions(
+              responseType: ResponseType.json,
+              receiveTimeout: const Duration(microseconds: 1),
+            ),
+            ResponseBody.fromBytes(
+              responseBytes,
+              200,
+              headers: {
+                Headers.contentTypeHeader: [Headers.jsonContentType],
+                Headers.contentLengthHeader: [
+                  responseBytes.length.toString(),
+                ],
+              },
+            ),
+          );
+
+          expect(response, {'foo': 'bar'});
+        });
+      },
+      testOn: 'vm',
+    );
+
+    test(
+      'throws transformTimeout when web transform completes after timeout',
+      () async {
+        final transformer = FusedTransformer(contentLengthIsolateThreshold: 0);
+        final jsonString = '${''.padLeft(8 * 1024 * 1024)}{"foo":"bar"}';
+        final responseBytes = utf8.encode(jsonString);
+
+        await expectLater(
+          transformer.transformResponse(
+            RequestOptions(
+              responseType: ResponseType.json,
+              transformTimeout: const Duration(microseconds: 1),
+            ),
+            ResponseBody.fromBytes(
+              responseBytes,
+              200,
+              headers: {
+                Headers.contentTypeHeader: [Headers.jsonContentType],
+                Headers.contentLengthHeader: [
+                  responseBytes.length.toString(),
+                ],
+              },
+            ),
+          ),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.transformTimeout,
+            ),
+          ),
+        );
+      },
+      testOn: 'browser',
+    );
+
     test('transformResponse transforms that arrives in many chunks', () async {
       final transformer = FusedTransformer();
       final response = await transformer.transformResponse(

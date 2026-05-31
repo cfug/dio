@@ -38,6 +38,9 @@ enum DioExceptionType {
   /// Default error type, Some other [Error]. In this case, you can use the
   /// [DioException.error] if it is not null.
   unknown,
+
+  /// It occurs when transforming timeout.
+  transformTimeout,
 }
 
 extension _DioExceptionTypeExtension on DioExceptionType {
@@ -49,6 +52,8 @@ extension _DioExceptionTypeExtension on DioExceptionType {
         return 'send timeout';
       case DioExceptionType.receiveTimeout:
         return 'receive timeout';
+      case DioExceptionType.transformTimeout:
+        return 'transform timeout';
       case DioExceptionType.badCertificate:
         return 'bad certificate';
       case DioExceptionType.badResponse:
@@ -141,6 +146,23 @@ class DioException implements Exception {
             'To get rid of this exception, try raising the '
             'RequestOptions.receiveTimeout above the duration of $timeout or '
             'improve the response time of the server.',
+      );
+
+  factory DioException.transformTimeout({
+    required Duration timeout,
+    required RequestOptions requestOptions,
+    Object? error,
+  }) =>
+      DioException(
+        type: DioExceptionType.transformTimeout,
+        requestOptions: requestOptions,
+        response: null,
+        error: error,
+        message: 'The request took longer than $timeout to transform data. '
+            'It was aborted. '
+            'To get rid of this exception, try raising the '
+            'RequestOptions.transformTimeout above the duration of $timeout or '
+            'improve the response data transformation.',
       );
 
   factory DioException.badCertificate({
