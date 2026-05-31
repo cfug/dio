@@ -6,6 +6,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
+- Fix `HttpException: Connection closed before full header was received` being reported as `DioExceptionType.unknown`.
 
 ## 5.9.2
 

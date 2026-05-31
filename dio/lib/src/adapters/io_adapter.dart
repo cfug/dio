@@ -172,7 +172,22 @@ class IOHttpClientAdapter implements HttpClientAdapter {
         },
       );
     }
-    final responseStream = await future;
+    late final HttpClientResponse responseStream;
+    try {
+      responseStream = await future;
+    } on HttpException catch (e, s) {
+      if (e.message.contains(
+        'Connection closed before full header was received',
+      )) {
+        throw DioException.connectionError(
+          requestOptions: options,
+          reason: e.message,
+          error: e,
+          stackTrace: s,
+        );
+      }
+      rethrow;
+    }
 
     if (validateCertificate != null) {
       final host = options.uri.host;
