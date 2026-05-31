@@ -22,9 +22,6 @@ enum DioExceptionType {
   /// It occurs when receiving timeout.
   receiveTimeout,
 
-  /// It occurs when transforming timeout.
-  transformTimeout,
-
   /// Caused by an incorrect certificate as configured by [ValidateCertificate].
   badCertificate,
 
@@ -41,6 +38,9 @@ enum DioExceptionType {
   /// Default error type, Some other [Error]. In this case, you can use the
   /// [DioException.error] if it is not null.
   unknown,
+
+  /// It occurs when transforming timeout.
+  transformTimeout,
 }
 
 extension _DioExceptionTypeExtension on DioExceptionType {

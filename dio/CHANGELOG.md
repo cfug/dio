@@ -6,7 +6,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
-- Add `transformTimeout` to abort long-running response transformations, including background JSON decoding.
+- Add `transformTimeout` to bound long-running response transformations, including background JSON decoding.
+  On web, timeout handling is best-effort because synchronous JavaScript work cannot be preempted.
 
 ## 5.9.2
 

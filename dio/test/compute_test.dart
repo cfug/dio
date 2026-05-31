@@ -11,6 +11,15 @@ Future<void> _neverCompletesInVm(Object? _) {
   return Future<void>.delayed(const Duration(days: 1));
 }
 
+int _blocksFor(Duration duration) {
+  final stopwatch = Stopwatch()..start();
+  var value = 0;
+  while (stopwatch.elapsed < duration) {
+    value++;
+  }
+  return value;
+}
+
 int _twice(int value) {
   return value * 2;
 }
@@ -35,6 +44,25 @@ void main() {
             _neverCompletesInBrowser,
             null,
             timeout: const Duration(milliseconds: 50),
+          ),
+          throwsA(isA<TimeoutException>()),
+        );
+
+        expect(stopwatch.elapsed, lessThan(const Duration(seconds: 1)));
+      },
+      testOn: 'browser',
+    );
+
+    test(
+      'computeWithTimeout times out after a synchronous browser callback',
+      () async {
+        final stopwatch = Stopwatch()..start();
+
+        await expectLater(
+          computeWithTimeout(
+            _blocksFor,
+            const Duration(milliseconds: 50),
+            timeout: const Duration(milliseconds: 1),
           ),
           throwsA(isA<TimeoutException>()),
         );

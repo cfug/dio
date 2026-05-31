@@ -435,6 +435,8 @@ class Options {
   ///
   /// Throws the [DioException] with
   /// [DioExceptionType.transformTimeout] type when timed out.
+  /// On web, timeout handling is best-effort because synchronous JavaScript
+  /// work cannot be preempted.
   ///
   /// `null` or `Duration.zero` means no timeout limit.
   Duration? get transformTimeout => _transformTimeout;

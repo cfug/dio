@@ -328,6 +328,8 @@ Duration? receiveTimeout;
 ///
 /// 超时时会抛出类型为 [DioExceptionType.transformTimeout] 的
 /// [DioException]。
+/// 在 Web 上，超时处理是 best-effort，因为同步 JavaScript
+/// 任务无法被抢占中断。
 ///
 /// `null` 或 `Duration.zero` 即不设置超时。
 Duration? transformTimeout;
