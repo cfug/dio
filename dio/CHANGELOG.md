@@ -9,6 +9,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 - Fix `HttpException: Connection closed before full header was received` being reported as `DioExceptionType.unknown`.
 - Add `transformTimeout` to bound long-running response transformations, including background JSON decoding.
   On web, timeout handling is best-effort because synchronous JavaScript work cannot be preempted.
+- Fix `FormData.clone()` dropping `boundaryName` and `camelCaseContentDisposition`, so a retried multipart request now keeps the original options instead of silently falling back to the defaults.
 
 ## 5.9.2
 

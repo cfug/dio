@@ -181,6 +181,34 @@ void main() async {
       testOn: 'vm',
     );
 
+    test('clone() preserves boundaryName and camelCaseContentDisposition',
+        () async {
+      // Regression test: previously clone() called `FormData()` with default
+      // arguments, dropping both options. A retried multipart upload would
+      // therefore emit the wrong `content-disposition` header casing and
+      // expose the default boundary name via the getter.
+      final fm = FormData(
+        boundaryName: '--custom-boundary',
+        camelCaseContentDisposition: true,
+      );
+      fm.fields.add(const MapEntry('name', 'value'));
+
+      final fm1 = fm.clone();
+      expect(fm1.boundaryName, fm.boundaryName);
+      expect(fm1.boundaryName, '--custom-boundary');
+      expect(
+        fm1.camelCaseContentDisposition,
+        fm.camelCaseContentDisposition,
+      );
+      expect(fm1.camelCaseContentDisposition, isTrue);
+
+      // The cloned wire representation must use the same header casing as
+      // the original; before the fix it silently switched to lower-case.
+      final body = utf8.decode(await fm1.readAsBytes(), allowMalformed: true);
+      expect(body, contains('Content-Disposition: form-data; name="name"'));
+      expect(body, isNot(contains('content-disposition:')));
+    });
+
     test('encodes maps correctly', () async {
       final fd = FormData.fromMap(
         {
