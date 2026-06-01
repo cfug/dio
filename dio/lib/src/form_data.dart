@@ -207,9 +207,23 @@ class FormData {
     );
   }
 
-  // Convenience method to clone finalized FormData when retrying requests.
+  /// Clones this finalized [FormData] so it can be re-sent, for example when
+  /// a request is retried.
+  ///
+  /// The clone forwards the constructor options — [boundaryName] and
+  /// [camelCaseContentDisposition] — so it yields a wire representation
+  /// equivalent to the original, most notably the `Content-Disposition`
+  /// header casing. Without this, a retried multipart request would silently
+  /// downgrade to the default lowercase header.
+  ///
+  /// [files] are deep-cloned, while [fields] are copied as immutable
+  /// key/value entries into a new list. Updating this instance's [fields]
+  /// after calling [clone] does not propagate to the returned clone.
   FormData clone() {
-    final clone = FormData();
+    final clone = FormData(
+      boundaryName: boundaryName,
+      camelCaseContentDisposition: camelCaseContentDisposition,
+    );
     clone._boundary = _boundary;
     clone.fields.addAll(fields);
     for (final file in files) {
