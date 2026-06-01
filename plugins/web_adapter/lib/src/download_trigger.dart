@@ -49,6 +49,8 @@ void _triggerBrowserDownload({
   required String filename,
   String? contentType,
 }) {
+  // Use JS typed arrays and package:web APIs instead of dart:html so this path
+  // remains compatible with Dart's WebAssembly compilation target.
   final blobParts = <JSUint8Array>[bytes.toJS].toJS;
   final blob = contentType == null
       ? web.Blob(blobParts)
@@ -57,9 +59,13 @@ void _triggerBrowserDownload({
   web.HTMLAnchorElement? anchor;
   try {
     anchor = createDownloadAnchor(objectUrl, filename);
+    // Keep the anchor connected while clicking; some browsers are stricter
+    // about dispatching downloads from detached elements.
     web.document.body?.appendChild(anchor);
     clickDownloadAnchor(anchor);
   } finally {
+    // Once the click is dispatched, cleanup should happen even if browser
+    // policies later block, rename, or prompt for the actual download.
     anchor?.remove();
     revokeObjectUrl(objectUrl);
   }
