@@ -145,6 +145,13 @@ response = await dio.download(
 );
 ```
 
+On Web, the second argument is used as the browser's suggested filename instead
+of a local filesystem path. The browser chooses the actual saved location, the
+response is loaded into memory before the download is triggered, and CORS still
+applies. `FileAccessMode.append` is not supported, `deleteOnError` has no local
+file to delete, and custom `lengthHeader` values are not used for Web progress
+totals.
+
 ### Get response stream
 
 ```dart
