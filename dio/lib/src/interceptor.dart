@@ -483,20 +483,67 @@ class QueuedInterceptor extends Interceptor {
     void Function(T, V) callback,
     void Function(Object, V) onError,
   ) {
-    final task = _InterceptorParams<T, V>(data, handler);
-    task.handler._processNextInQueue = () {
-      if (taskQueue.queue.isNotEmpty) {
-        final next = taskQueue.queue.removeFirst();
-        assert(next.handler._processNextInQueue != null);
-        callback(next.data, next.handler);
-      } else {
-        taskQueue.processing = false;
+    // Runs [task] as the active task and wires up how the queue advances to
+    // the next task once this one is done.
+    void runTask(_InterceptorParams<T, V> task) {
+      // Hold the task in a clearable reference so that the `whenCancel`
+      // closure registered below — which cannot be detached from the
+      // [CancelToken]'s internal completer — stops pinning the request
+      // payload ([RequestOptions]/[Response]/[DioException] and its handler)
+      // once the queue has advanced. The closure observes `taskRef == null`
+      // and then holds only a null reference, so for a [CancelToken] shared
+      // across many requests (a supported usage pattern documented on
+      // [CancelToken]) per-task allocations are released as each task
+      // completes, instead of accumulating until the token is cancelled.
+      //
+      // A `WeakReference` is intentionally NOT used here: while a task is the
+      // active one, this cell is its only strong reference (the queue has
+      // already removed it and the pending callback captured `task.data`/
+      // `task.handler`, not the wrapper). A weak reference could be collected
+      // mid-flight, so a later cancellation would see a null target, skip
+      // `advance()`, and never release the queue slot — reintroducing the stall
+      // this guards against. The clearable cell keeps the task reachable for
+      // exactly as long as it is active and releases it deterministically when
+      // `advance()` runs.
+      _InterceptorParams<T, V>? taskRef = task;
+
+      // Advancing the queue must happen exactly once per task: either when the
+      // handler is completed (next/resolve/reject) or when the request is
+      // cancelled before the handler is ever called. `advanced` guards against
+      // both paths firing for the same task.
+      bool advanced = false;
+      void advance() {
+        if (advanced) {
+          return;
+        }
+        advanced = true;
+        taskRef = null;
+        if (taskQueue.queue.isNotEmpty) {
+          runTask(taskQueue.queue.removeFirst());
+        } else {
+          taskQueue.processing = false;
+        }
       }
-    };
-    taskQueue.queue.add(task);
-    if (!taskQueue.processing) {
-      taskQueue.processing = true;
-      final task = taskQueue.queue.removeFirst();
+
+      task.handler._processNextInQueue = advance;
+
+      // If the request is cancelled while the interceptor callback is still
+      // pending — i.e. it never calls next/resolve/reject, e.g. an async
+      // `onRequest` awaiting a token refresh that gets cancelled — the
+      // handler's completer would never complete. Since the queue only
+      // advances through the handler, the active slot would never be released
+      // and every subsequent request routed through this interceptor would
+      // stall forever. Releasing the slot on cancellation keeps the queue
+      // moving; `advance` is idempotent, so a later normal completion (if the
+      // callback eventually resumes) is a no-op. The hook is only registered
+      // for the active task, so a queued task is never advanced out of turn.
+      _cancelTokenOf(task.data)?.whenCancel.then((_) {
+        final ref = taskRef;
+        if (ref != null && !ref.handler.isCompleted) {
+          advance();
+        }
+      });
+
       try {
         callback(task.data, task.handler);
       } catch (e) {
@@ -506,6 +553,28 @@ class QueuedInterceptor extends Interceptor {
         onError(e, task.handler);
       }
     }
+
+    taskQueue.queue.add(_InterceptorParams<T, V>(data, handler));
+    if (!taskQueue.processing) {
+      taskQueue.processing = true;
+      runTask(taskQueue.queue.removeFirst());
+    }
+  }
+
+  /// Extracts the [CancelToken] associated with a queued task's payload
+  /// ([RequestOptions], [Response] or [DioException]), if any, so the queue
+  /// can be released when the underlying request is cancelled.
+  static CancelToken? _cancelTokenOf(Object? data) {
+    if (data is RequestOptions) {
+      return data.cancelToken;
+    }
+    if (data is Response) {
+      return data.requestOptions.cancelToken;
+    }
+    if (data is DioException) {
+      return data.requestOptions.cancelToken;
+    }
+    return null;
   }
 }
 

@@ -98,6 +98,7 @@ void main() {
         connectTimeout: const Duration(seconds: 5),
         sendTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 5),
+        transformTimeout: const Duration(seconds: 5),
         baseUrl: 'http://example.com',
       );
 
@@ -105,6 +106,7 @@ void main() {
         connectTimeout: const Duration(seconds: 10),
         sendTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 20),
+        transformTimeout: const Duration(seconds: 25),
         method: 'POST',
       );
 
@@ -114,6 +116,7 @@ void main() {
       expect(requestOptions.connectTimeout, const Duration(seconds: 10));
       expect(requestOptions.sendTimeout, const Duration(seconds: 15));
       expect(requestOptions.receiveTimeout, const Duration(seconds: 20));
+      expect(requestOptions.transformTimeout, const Duration(seconds: 25));
       expect(requestOptions.method, 'POST');
       expect(requestOptions.baseUrl, 'http://example.com');
     });

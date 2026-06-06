@@ -144,6 +144,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     Duration? connectTimeout,
     super.receiveTimeout,
     super.sendTimeout,
+    super.transformTimeout,
     String baseUrl = '',
     Map<String, dynamic>? queryParameters,
     super.extra,
@@ -174,6 +175,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
     Duration? connectTimeout,
     Duration? receiveTimeout,
     Duration? sendTimeout,
+    Duration? transformTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
     bool? preserveHeaderCase,
@@ -195,6 +197,7 @@ class BaseOptions extends _RequestConfig with OptionsMixin {
       connectTimeout: connectTimeout ?? this.connectTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
       sendTimeout: sendTimeout ?? this.sendTimeout,
+      transformTimeout: transformTimeout ?? this.transformTimeout,
       extra: extra ?? Map.from(this.extra),
       headers: headers ?? Map.from(this.headers),
       preserveHeaderCase: preserveHeaderCase ?? this.preserveHeaderCase,
@@ -220,6 +223,7 @@ class Options {
     this.method,
     Duration? sendTimeout,
     Duration? receiveTimeout,
+    Duration? transformTimeout,
     Duration? connectTimeout,
     this.extra,
     this.headers,
@@ -238,6 +242,8 @@ class Options {
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
         _sendTimeout = sendTimeout,
+        assert(transformTimeout == null || !transformTimeout.isNegative),
+        _transformTimeout = transformTimeout,
         assert(connectTimeout == null || !connectTimeout.isNegative),
         _connectTimeout = connectTimeout;
 
@@ -246,6 +252,7 @@ class Options {
     String? method,
     Duration? sendTimeout,
     Duration? receiveTimeout,
+    Duration? transformTimeout,
     Duration? connectTimeout,
     Map<String, Object?>? extra,
     Map<String, Object?>? headers,
@@ -284,6 +291,7 @@ class Options {
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+      transformTimeout: transformTimeout ?? this.transformTimeout,
       connectTimeout: connectTimeout ?? this.connectTimeout,
       extra: extra ?? effectiveExtra,
       headers: headers ?? effectiveHeaders,
@@ -345,6 +353,7 @@ class Options {
       connectTimeout: connectTimeout ?? baseOpt.connectTimeout,
       sendTimeout: sendTimeout ?? baseOpt.sendTimeout,
       receiveTimeout: receiveTimeout ?? baseOpt.receiveTimeout,
+      transformTimeout: transformTimeout ?? baseOpt.transformTimeout,
       responseType: responseType ?? baseOpt.responseType,
       validateStatus: validateStatus ?? baseOpt.validateStatus,
       receiveDataWhenStatusError:
@@ -420,6 +429,28 @@ class Options {
       throw ArgumentError.value(value, 'receiveTimeout', 'should be positive');
     }
     _receiveTimeout = value;
+  }
+
+  /// Timeout when transforming response data.
+  ///
+  /// Throws the [DioException] with
+  /// [DioExceptionType.transformTimeout] type when timed out.
+  /// On web, timeout handling is best-effort because synchronous JavaScript
+  /// work cannot be preempted.
+  ///
+  /// `null` or `Duration.zero` means no timeout limit.
+  Duration? get transformTimeout => _transformTimeout;
+  Duration? _transformTimeout;
+
+  set transformTimeout(Duration? value) {
+    if (value != null && value.isNegative) {
+      throw ArgumentError.value(
+        value,
+        'transformTimeout',
+        'should be positive',
+      );
+    }
+    _transformTimeout = value;
   }
 
   /// Timeout when opening a request.
@@ -516,6 +547,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     super.method,
     super.sendTimeout,
     super.receiveTimeout,
+    super.transformTimeout,
     Duration? connectTimeout,
     Map<String, dynamic>? queryParameters,
     String? baseUrl,
@@ -546,6 +578,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
     String? method,
     Duration? sendTimeout,
     Duration? receiveTimeout,
+    Duration? transformTimeout,
     Duration? connectTimeout,
     dynamic data,
     String? path,
@@ -583,6 +616,7 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
       method: method ?? this.method,
       sendTimeout: sendTimeout ?? this.sendTimeout,
       receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+      transformTimeout: transformTimeout ?? this.transformTimeout,
       connectTimeout: connectTimeout ?? this.connectTimeout,
       data: data ?? this.data,
       path: path ?? this.path,
@@ -668,6 +702,7 @@ class _RequestConfig {
   _RequestConfig({
     Duration? receiveTimeout,
     Duration? sendTimeout,
+    Duration? transformTimeout,
     String? method,
     Map<String, dynamic>? extra,
     Map<String, dynamic>? headers,
@@ -686,6 +721,8 @@ class _RequestConfig {
         _receiveTimeout = receiveTimeout,
         assert(sendTimeout == null || !sendTimeout.isNegative),
         _sendTimeout = sendTimeout,
+        assert(transformTimeout == null || !transformTimeout.isNegative),
+        _transformTimeout = transformTimeout,
         method = method ?? 'GET',
         preserveHeaderCase = preserveHeaderCase ?? false,
         listFormat = listFormat ?? ListFormat.multi,
@@ -747,6 +784,16 @@ class _RequestConfig {
       throw StateError('receiveTimeout should be positive');
     }
     _receiveTimeout = value;
+  }
+
+  Duration? get transformTimeout => _transformTimeout;
+  Duration? _transformTimeout;
+
+  set transformTimeout(Duration? value) {
+    if (value != null && value.isNegative) {
+      throw StateError('transformTimeout should be positive');
+    }
+    _transformTimeout = value;
   }
 
   String? _defaultContentType;

@@ -311,6 +311,16 @@ Duration? sendTimeout;
 /// `null` or `Duration.zero` means no timeout limit.
 Duration? receiveTimeout;
 
+/// Timeout when transforming response data.
+///
+/// Throws the [DioException] with
+/// [DioExceptionType.transformTimeout] type when timed out.
+/// On web, timeout handling is best-effort because synchronous JavaScript
+/// work cannot be preempted.
+///
+/// `null` or `Duration.zero` means no timeout limit.
+Duration? transformTimeout;
+
 /// Custom field that you can retrieve it later in [Interceptor],
 /// [Transformer] and the [Response.requestOptions] object.
 Map<String, dynamic>? extra;

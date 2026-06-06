@@ -19,6 +19,7 @@ void main() {
       connectTimeout: const Duration(seconds: 2),
       receiveTimeout: const Duration(seconds: 2),
       sendTimeout: const Duration(seconds: 2),
+      transformTimeout: const Duration(seconds: 2),
       baseUrl: 'http://localhost',
       queryParameters: map,
       extra: map,
@@ -31,6 +32,7 @@ void main() {
       method: 'post',
       receiveTimeout: const Duration(seconds: 3),
       sendTimeout: const Duration(seconds: 3),
+      transformTimeout: const Duration(seconds: 3),
       baseUrl: 'https://pub.dev',
       extra: mapOverride,
       headers: mapOverride,
@@ -39,6 +41,7 @@ void main() {
     expect(opt1.method, 'post');
     expect(opt1.receiveTimeout, const Duration(seconds: 3));
     expect(opt1.connectTimeout, const Duration(seconds: 2));
+    expect(opt1.transformTimeout, const Duration(seconds: 3));
     expect(opt1.followRedirects, false);
     expect(opt1.persistentConnection, false);
     expect(opt1.baseUrl, 'https://pub.dev');
@@ -51,6 +54,7 @@ void main() {
       method: 'get',
       receiveTimeout: const Duration(seconds: 2),
       sendTimeout: const Duration(seconds: 2),
+      transformTimeout: const Duration(seconds: 2),
       extra: map,
       headers: map,
       contentType: 'application/json',
@@ -62,6 +66,7 @@ void main() {
       method: 'post',
       receiveTimeout: const Duration(seconds: 3),
       sendTimeout: const Duration(seconds: 3),
+      transformTimeout: const Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       contentType: 'text/html',
@@ -69,6 +74,7 @@ void main() {
 
     expect(opt3.method, 'post');
     expect(opt3.receiveTimeout, const Duration(seconds: 3));
+    expect(opt3.transformTimeout, const Duration(seconds: 3));
     expect(opt3.followRedirects, false);
     expect(opt3.persistentConnection, false);
     expect(opt3.headers!['b'], '6');
@@ -78,6 +84,7 @@ void main() {
     final opt4 = RequestOptions(
       path: '/xxx',
       sendTimeout: const Duration(seconds: 2),
+      transformTimeout: const Duration(seconds: 2),
       followRedirects: false,
       persistentConnection: false,
     );
@@ -85,6 +92,7 @@ void main() {
       method: 'post',
       receiveTimeout: const Duration(seconds: 3),
       sendTimeout: const Duration(seconds: 3),
+      transformTimeout: const Duration(seconds: 3),
       extra: mapOverride,
       headers: mapOverride,
       data: 'xx=5',
@@ -93,6 +101,7 @@ void main() {
     );
     expect(opt5.method, 'post');
     expect(opt5.receiveTimeout, const Duration(seconds: 3));
+    expect(opt5.transformTimeout, const Duration(seconds: 3));
     expect(opt5.followRedirects, false);
     expect(opt5.persistentConnection, false);
     expect(opt5.contentType, 'text/html');
@@ -148,6 +157,54 @@ void main() {
     // Test that zero duration is allowed
     final opt4 = Options(connectTimeout: Duration.zero);
     expect(opt4.connectTimeout, Duration.zero);
+  });
+
+  test('options transformTimeout', () {
+    final opt1 = Options(
+      method: 'get',
+      transformTimeout: const Duration(seconds: 10),
+    );
+    expect(opt1.transformTimeout, const Duration(seconds: 10));
+
+    final opt2 = opt1.copyWith(
+      transformTimeout: const Duration(seconds: 20),
+    );
+    expect(opt2.transformTimeout, const Duration(seconds: 20));
+
+    final opt3 = opt1.copyWith(method: 'post');
+    expect(opt3.transformTimeout, const Duration(seconds: 10));
+
+    final baseOptions = BaseOptions(
+      transformTimeout: const Duration(seconds: 5),
+      baseUrl: 'http://localhost',
+    );
+    final options = Options(transformTimeout: const Duration(seconds: 10));
+    final requestOptions = options.compose(baseOptions, '/test');
+    expect(requestOptions.transformTimeout, const Duration(seconds: 10));
+
+    final options2 = Options();
+    final requestOptions2 = options2.compose(baseOptions, '/test');
+    expect(requestOptions2.transformTimeout, const Duration(seconds: 5));
+
+    final opt4 = Options();
+    opt4.transformTimeout = const Duration(seconds: 30);
+    expect(opt4.transformTimeout, const Duration(seconds: 30));
+    opt4.transformTimeout = Duration.zero;
+    expect(opt4.transformTimeout, Duration.zero);
+    expect(
+      () => opt4.transformTimeout = const Duration(seconds: -1),
+      throwsA(isA<ArgumentError>()),
+    );
+
+    final baseOptions2 = BaseOptions();
+    baseOptions2.transformTimeout = const Duration(seconds: 30);
+    expect(baseOptions2.transformTimeout, const Duration(seconds: 30));
+    baseOptions2.transformTimeout = Duration.zero;
+    expect(baseOptions2.transformTimeout, Duration.zero);
+    expect(
+      () => baseOptions2.transformTimeout = const Duration(seconds: -1),
+      throwsStateError,
+    );
   });
 
   test('options content-type', () {

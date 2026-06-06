@@ -116,6 +116,7 @@ class LogInterceptor extends Interceptor {
       _printKV('connectTimeout', options.connectTimeout);
       _printKV('sendTimeout', options.sendTimeout);
       _printKV('receiveTimeout', options.receiveTimeout);
+      _printKV('transformTimeout', options.transformTimeout);
       _printKV(
         'receiveDataWhenStatusError',
         options.receiveDataWhenStatusError,

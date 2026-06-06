@@ -91,6 +91,121 @@ void main() {
       fail('Thrown unexpected error: $e');
     }
   });
+
+  test(
+      'QueuedInterceptor should not stall the queue when the active request is '
+      'cancelled mid-callback', () async {
+    final dio = Dio();
+    dio.httpClientAdapter = _MockAdapter();
+
+    final tokenA = CancelToken();
+    final aOnRequestStarted = Completer<void>();
+
+    dio.interceptors.add(
+      QueuedInterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // Simulate a slow async step (e.g. refreshing auth) that has NOT yet
+          // called handler.next when the request is cancelled.
+          if (options.path.contains('reqA')) {
+            aOnRequestStarted.complete();
+            await Future.delayed(const Duration(seconds: 5));
+          }
+          handler.next(options);
+        },
+      ),
+    );
+
+    // A becomes the active queued task; it is expected to be cancelled.
+    final futureA = dio.get(
+      'https://example.com/test?reqA',
+      cancelToken: tokenA,
+    );
+    // Install the rejection expectation up-front so its error listener is
+    // attached to [futureA] before the cancellation propagates. Without this
+    // the unawaited rejection would leak as an unhandled async error into
+    // subsequent tests; the returned future is awaited at the end of the
+    // test so the assertion is actually verified.
+    final aRejected = expectLater(
+      futureA,
+      throwsA(
+        isA<DioException>()
+            .having((e) => e.type, 'type', DioExceptionType.cancel),
+      ),
+    );
+
+    await aOnRequestStarted.future;
+
+    // B is an independent request with NO cancel token, queued behind A on the
+    // same QueuedInterceptor.
+    final futureB = dio.get('https://example.com/test?reqB');
+
+    // Cancel A while it is the active queued task.
+    tokenA.cancel('cancel A');
+
+    // B must complete promptly; if the queue stalled this times out.
+    final response = await futureB.timeout(
+      const Duration(seconds: 2),
+      onTimeout: () => throw StateError(
+        'Queue stalled: a non-cancelled request never ran after the active '
+        'queued task was cancelled.',
+      ),
+    );
+    expect(response.statusCode, 200);
+
+    await aRejected;
+  });
+
+  test(
+      'QueuedInterceptor should not stall the response queue when the active '
+      'response is cancelled mid-callback', () async {
+    final dio = Dio();
+    dio.httpClientAdapter = _MockAdapter();
+
+    final tokenA = CancelToken();
+    final aOnResponseStarted = Completer<void>();
+
+    dio.interceptors.add(
+      QueuedInterceptorsWrapper(
+        onResponse: (response, handler) async {
+          if (response.requestOptions.path.contains('reqA')) {
+            aOnResponseStarted.complete();
+            await Future.delayed(const Duration(seconds: 5));
+          }
+          handler.next(response);
+        },
+      ),
+    );
+
+    final futureA = dio.get(
+      'https://example.com/test?reqA',
+      cancelToken: tokenA,
+    );
+    // See test above: install the rejection assertion up-front so its
+    // listener is attached before cancellation, then await it at the end.
+    final aRejected = expectLater(
+      futureA,
+      throwsA(
+        isA<DioException>()
+            .having((e) => e.type, 'type', DioExceptionType.cancel),
+      ),
+    );
+
+    await aOnResponseStarted.future;
+
+    final futureB = dio.get('https://example.com/test?reqB');
+    tokenA.cancel('cancel A');
+
+    final response = await futureB.timeout(
+      const Duration(seconds: 2),
+      onTimeout: () => throw StateError(
+        'Response queue stalled: a non-cancelled request never ran after the '
+        'active queued response task was cancelled.',
+      ),
+    );
+    expect(response.statusCode, 200);
+
+    await aRejected;
+  });
 }
 
 class _MockAdapter implements HttpClientAdapter {
