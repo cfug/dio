@@ -541,7 +541,7 @@ By default, `dio` wraps any exception thrown from an interceptor inside a
 `DioException`, so callers always see `DioException` at the await boundary.
 If you want callers to be able to `catch` your own exception type
 directly, opt in via `DioException.custom(...)` or
-`handler.rejectCustomError(...)`:
+`handler.rejectCustom(...)`:
 
 ```dart
 class UnauthorizedException implements Exception {}
@@ -549,7 +549,7 @@ class UnauthorizedException implements Exception {}
 dio.interceptors.add(InterceptorsWrapper(
   onResponse: (response, handler) {
     if (response.statusCode == 401) {
-      handler.rejectCustomError(
+      handler.rejectCustom(
         UnauthorizedException(),
         response.requestOptions,
       );
@@ -677,8 +677,8 @@ String? message;
 
 /// When `true`, the request pipeline rethrows [error] verbatim at its
 /// final boundary instead of throwing this `DioException`. Set by
-/// [DioException.custom] / `handler.rejectCustomError`. Defaults to `false`.
-bool propagateInnerError;
+/// [DioException.custom] / `handler.rejectCustom`. Defaults to `false`.
+bool isCustom;
 ```
 
 ### DioExceptionType

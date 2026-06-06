@@ -107,7 +107,7 @@ class RequestInterceptorHandler extends _BaseHandler {
   /// See [DioException.custom] for details.
   ///
   /// Resolves https://github.com/cfug/dio/issues/1950.
-  void rejectCustomError(
+  void rejectCustom(
     Object error,
     RequestOptions requestOptions, [
     bool callFollowingErrorInterceptor = false,
@@ -169,8 +169,8 @@ class ResponseInterceptorHandler extends _BaseHandler {
     _processNextInQueue?.call();
   }
 
-  /// See [RequestInterceptorHandler.rejectCustomError].
-  void rejectCustomError(
+  /// See [RequestInterceptorHandler.rejectCustom].
+  void rejectCustom(
     Object error,
     RequestOptions requestOptions, [
     bool callFollowingErrorInterceptor = false,
@@ -219,8 +219,8 @@ class ErrorInterceptorHandler extends _BaseHandler {
     _processNextInQueue?.call();
   }
 
-  /// See [RequestInterceptorHandler.rejectCustomError].
-  void rejectCustomError(
+  /// See [RequestInterceptorHandler.rejectCustom].
+  void rejectCustom(
     Object error,
     RequestOptions requestOptions,
   ) {

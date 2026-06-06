@@ -566,10 +566,10 @@ abstract class DioMixin implements Dio {
         requestOptions,
       );
       // If the exception was constructed via [DioException.custom] or
-      // `handler.rejectCustomError(...)`, propagate the inner error
+      // `handler.rejectCustom(...)`, propagate the inner error
       // verbatim so callers can `on MyException catch (e)` directly.
       // Resolves https://github.com/cfug/dio/issues/1950.
-      if (dioException.propagateInnerError && dioException.error != null) {
+      if (dioException.isCustom && dioException.error != null) {
         Error.throwWithStackTrace(
           dioException.error!,
           dioException.stackTrace,

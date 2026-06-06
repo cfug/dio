@@ -79,7 +79,7 @@ class DioException implements Exception {
     this.error,
     StackTrace? stackTrace,
     this.message,
-    this.propagateInnerError = false,
+    this.isCustom = false,
   }) : stackTrace = identical(stackTrace, StackTrace.empty)
             ? requestOptions.sourceStackTrace ?? StackTrace.current
             : stackTrace ??
@@ -257,7 +257,7 @@ class DioException implements Exception {
         error: error,
         stackTrace: stackTrace,
         message: message,
-        propagateInnerError: true,
+        isCustom: true,
       );
 
   /// The request info for the request that throws exception.
@@ -288,12 +288,12 @@ class DioException implements Exception {
   /// preserving its runtime type for the caller.
   ///
   /// Set automatically by [DioException.custom] and by the
-  /// `rejectCustomError(...)` helpers on interceptor handlers. Defaults
+  /// `rejectCustom(...)` helpers on interceptor handlers. Defaults
   /// to `false` for all other constructors and factories — existing
   /// behavior is unchanged.
   ///
   /// Resolves https://github.com/cfug/dio/issues/1950.
-  final bool propagateInnerError;
+  final bool isCustom;
 
   /// Users can customize the content of [toString] when thrown.
   static DioExceptionReadableStringBuilder readableStringBuilder =
@@ -311,7 +311,7 @@ class DioException implements Exception {
     Object? error,
     StackTrace? stackTrace,
     String? message,
-    bool? propagateInnerError,
+    bool? isCustom,
   }) {
     return DioException(
       requestOptions: requestOptions ?? this.requestOptions,
@@ -320,7 +320,7 @@ class DioException implements Exception {
       error: error ?? this.error,
       stackTrace: stackTrace ?? this.stackTrace,
       message: message ?? this.message,
-      propagateInnerError: propagateInnerError ?? this.propagateInnerError,
+      isCustom: isCustom ?? this.isCustom,
     );
   }
 

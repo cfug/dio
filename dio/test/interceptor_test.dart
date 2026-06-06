@@ -1068,7 +1068,7 @@ void main() {
 
   group('Custom exception unwrapping (#1950)', () {
     test(
-      'handler.rejectCustomError from onResponse propagates inner type',
+      'handler.rejectCustom from onResponse propagates inner type',
       () async {
         final dio = Dio()
           ..options.baseUrl = MockAdapter.mockBase
@@ -1076,7 +1076,7 @@ void main() {
           ..interceptors.add(
             InterceptorsWrapper(
               onResponse: (response, handler) {
-                handler.rejectCustomError(
+                handler.rejectCustom(
                   _MyApiException('unauthorized'),
                   response.requestOptions,
                 );
@@ -1094,7 +1094,7 @@ void main() {
     );
 
     test(
-      'handler.rejectCustomError from onRequest propagates inner type',
+      'handler.rejectCustom from onRequest propagates inner type',
       () async {
         final dio = Dio()
           ..options.baseUrl = MockAdapter.mockBase
@@ -1102,7 +1102,7 @@ void main() {
           ..interceptors.add(
             InterceptorsWrapper(
               onRequest: (options, handler) {
-                handler.rejectCustomError(_MyApiException('blocked'), options);
+                handler.rejectCustom(_MyApiException('blocked'), options);
               },
             ),
           );
@@ -1116,7 +1116,7 @@ void main() {
     );
 
     test(
-      'handler.rejectCustomError from onError propagates inner type',
+      'handler.rejectCustom from onError propagates inner type',
       () async {
         final dio = Dio()
           ..options.baseUrl = MockAdapter.mockBase
@@ -1124,7 +1124,7 @@ void main() {
           ..interceptors.add(
             InterceptorsWrapper(
               onError: (err, handler) {
-                handler.rejectCustomError(
+                handler.rejectCustom(
                   _MyApiException('server-down'),
                   err.requestOptions,
                 );
@@ -1182,7 +1182,7 @@ void main() {
                 // Async throw without ever calling the handler. The #2499
                 // error zone catches it and routes it through
                 // assureDioException, whose `is DioException` short-circuit
-                // preserves propagateInnerError so the inner type still
+                // preserves isCustom so the inner type still
                 // unwraps at the funnel. (Before the main merge this hung.)
                 await Future<void>.value();
                 throw DioException.custom(
@@ -1234,7 +1234,7 @@ void main() {
     );
 
     test(
-      'copyWith preserves propagateInnerError through onError chain',
+      'copyWith preserves isCustom through onError chain',
       () async {
         final dio = Dio()
           ..options.baseUrl = MockAdapter.mockBase
@@ -1242,7 +1242,7 @@ void main() {
           ..interceptors.add(
             InterceptorsWrapper(
               onResponse: (response, handler) {
-                handler.rejectCustomError(
+                handler.rejectCustom(
                   _MyApiException('original'),
                   response.requestOptions,
                   true, // callFollowingErrorInterceptor
@@ -1263,14 +1263,14 @@ void main() {
       },
     );
 
-    test('rejectCustomError works inside QueuedInterceptor', () async {
+    test('rejectCustom works inside QueuedInterceptor', () async {
       final dio = Dio()
         ..options.baseUrl = MockAdapter.mockBase
         ..httpClientAdapter = MockAdapter()
         ..interceptors.add(
           QueuedInterceptorsWrapper(
             onResponse: (response, handler) {
-              handler.rejectCustomError(
+              handler.rejectCustom(
                 _MyApiException('queued'),
                 response.requestOptions,
               );
@@ -1285,20 +1285,19 @@ void main() {
       );
     });
 
-    test('DioException.custom factory sets propagateInnerError', () {
+    test('DioException.custom factory sets isCustom', () {
       final ex = DioException.custom(
         _MyApiException('x'),
         requestOptions: RequestOptions(),
       );
-      expect(ex.propagateInnerError, isTrue);
+      expect(ex.isCustom, isTrue);
       expect(ex.error, isA<_MyApiException>());
       expect(ex.type, DioExceptionType.unknown);
     });
 
-    test('DioException default constructor leaves propagateInnerError false',
-        () {
+    test('DioException default constructor leaves isCustom false', () {
       final ex = DioException(requestOptions: RequestOptions());
-      expect(ex.propagateInnerError, isFalse);
+      expect(ex.isCustom, isFalse);
     });
   });
 
