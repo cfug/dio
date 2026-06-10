@@ -92,8 +92,8 @@ class DioForBrowser with DioMixin implements Dio {
 Future<String> _resolveFilename(dynamic savePath, Response response) async {
   if (savePath is FutureOr<String> Function(Headers)) {
     response.headers
-      ..set('redirects', response.redirects.length.toString())
-      ..set('uri', response.realUri.toString());
+      ..add('redirects', response.redirects.length.toString())
+      ..add('uri', response.realUri.toString());
     return _suggestedFilenameFromPath(await savePath(response.headers));
   }
   return _suggestedFilenameFromPath(savePath as String);
