@@ -203,6 +203,16 @@ abstract class Dio {
   ///    );
   ///    ```
   ///
+  /// On Web, browsers do not allow writing to arbitrary local file paths.
+  /// In that environment, [savePath] is used as the suggested filename for the
+  /// browser download. The browser decides the actual saved location, and the
+  /// returned [Response] only means the response was fetched and the download
+  /// was triggered. Web downloads load the whole response into memory before
+  /// triggering the browser download, remain subject to CORS, do not support
+  /// [FileAccessMode.append], and ignore [deleteOnError] because there is no
+  /// local file managed by Dio. The [lengthHeader] override is also not used
+  /// on Web; progress totals come from the browser response progress event.
+  ///
   /// [onReceiveProgress] is the callback to listen downloading progress.
   /// Please refer to [ProgressCallback].
   ///

@@ -47,3 +47,29 @@ void main() async {
   print(response);
 }
 ```
+
+## Downloading files
+
+`Dio.download` is supported on Web by fetching the response bytes and triggering
+a browser download with a Blob URL. The `savePath` argument is treated as the
+suggested filename, not as a local filesystem path. The browser decides the
+actual save location.
+
+The browser schedules the download from a `blob:` URL created in the current
+page. A returned `Response` means Dio fetched the response and dispatched the
+browser download click; it does not guarantee that the browser wrote the file to
+disk, kept the suggested filename, or skipped a user prompt. Those decisions are
+controlled by the browser, user settings, and page security policies.
+
+Web downloads have platform limitations:
+
+- The request is still subject to CORS because it is fetched through Dio.
+- The network request is handled by the browser through XHR, so HTTP protocol
+  details such as HTTP/1.1, HTTP/2, or HTTP/3 are browser-controlled.
+- The whole response is loaded into memory before the browser download starts.
+- The download trigger relies on standard browser support for `Blob`,
+  `URL.createObjectURL`, and `HTMLAnchorElement.download`.
+- `FileAccessMode.append` is not supported.
+- `deleteOnError` has no local file to delete on Web.
+- Custom `lengthHeader` values are not used; progress totals come from the
+  browser response progress event.
