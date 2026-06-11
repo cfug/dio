@@ -94,9 +94,13 @@ scripts:
       if [ "$TARGET_DART_SDK" = "min" ]; then
         dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
       else
-        dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+        if [ "${MELOS_PACKAGE_NAME:-}" = "dio_web_adapter" ] && [ "${TEST_PLATFORM}" = "chrome" ]; then
+          dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+        else
+          dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
+        fi
         if [ "$WITH_WASM" = "true" ]; then
-          dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces --compiler=dart2wasm
+          dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces --compiler=dart2wasm
         fi
       fi
     packageFilters:
