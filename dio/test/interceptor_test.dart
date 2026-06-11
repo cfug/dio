@@ -17,6 +17,15 @@ class MyInterceptor extends Interceptor {
   }
 }
 
+class _MyApiException implements Exception {
+  _MyApiException(this.code);
+
+  final String code;
+
+  @override
+  String toString() => '_MyApiException($code)';
+}
+
 void main() {
   test('Throws precise StateError for duplicate calls', () async {
     const message = 'The `handler` has already been called, '
@@ -1054,6 +1063,241 @@ void main() {
       final interceptor = LogInterceptor();
       expect(interceptor.requestUrl, true);
       expect(interceptor.responseUrl, true);
+    });
+  });
+
+  group('Custom exception unwrapping (#1950)', () {
+    test(
+      'handler.rejectCustom from onResponse propagates inner type',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              onResponse: (response, handler) {
+                handler.rejectCustom(
+                  _MyApiException('unauthorized'),
+                  response.requestOptions,
+                );
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<_MyApiException>()
+                .having((e) => e.code, 'code', 'unauthorized'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'handler.rejectCustom from onRequest propagates inner type',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              onRequest: (options, handler) {
+                handler.rejectCustom(_MyApiException('blocked'), options);
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<_MyApiException>().having((e) => e.code, 'code', 'blocked'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'handler.rejectCustom from onError propagates inner type',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              onError: (err, handler) {
+                handler.rejectCustom(
+                  _MyApiException('server-down'),
+                  err.requestOptions,
+                );
+              },
+            ),
+          );
+        // /404/ is a 404 in the mock adapter -> triggers onError.
+        await expectLater(
+          dio.get('/404/'),
+          throwsA(
+            isA<_MyApiException>().having((e) => e.code, 'code', 'server-down'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'throw DioException.custom directly from interceptor propagates inner type',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              // ignore: void_checks
+              onResponse: (response, handler) {
+                throw DioException.custom(
+                  _MyApiException('thrown-direct'),
+                  requestOptions: response.requestOptions,
+                );
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<_MyApiException>()
+                .having((e) => e.code, 'code', 'thrown-direct'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'async throw DioException.custom propagates inner type (interaction '
+      'with #2499)',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              // ignore: void_checks
+              onResponse: (response, handler) async {
+                // Async throw without ever calling the handler. The #2499
+                // error zone catches it and routes it through
+                // assureDioException, whose `is DioException` short-circuit
+                // preserves isCustom so the inner type still
+                // unwraps at the funnel. (Before the main merge this hung.)
+                await Future<void>.value();
+                throw DioException.custom(
+                  _MyApiException('async-thrown'),
+                  requestOptions: response.requestOptions,
+                );
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<_MyApiException>()
+                .having((e) => e.code, 'code', 'async-thrown'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'unmarked DioException(error: customEx) still wraps (regression sentinel)',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              onResponse: (response, handler) {
+                handler.reject(
+                  DioException(
+                    requestOptions: response.requestOptions,
+                    error: _MyApiException('wrapped'),
+                  ),
+                );
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.error,
+              'error',
+              isA<_MyApiException>(),
+            ),
+          ),
+        );
+      },
+    );
+
+    test(
+      'copyWith preserves isCustom through onError chain',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter()
+          ..interceptors.add(
+            InterceptorsWrapper(
+              onResponse: (response, handler) {
+                handler.rejectCustom(
+                  _MyApiException('original'),
+                  response.requestOptions,
+                  true, // callFollowingErrorInterceptor
+                );
+              },
+              onError: (err, handler) {
+                // Downstream interceptor enriches but must preserve marker.
+                handler.next(err.copyWith(message: 'enriched'));
+              },
+            ),
+          );
+        await expectLater(
+          dio.get('/test'),
+          throwsA(
+            isA<_MyApiException>().having((e) => e.code, 'code', 'original'),
+          ),
+        );
+      },
+    );
+
+    test('rejectCustom works inside QueuedInterceptor', () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(
+          QueuedInterceptorsWrapper(
+            onResponse: (response, handler) {
+              handler.rejectCustom(
+                _MyApiException('queued'),
+                response.requestOptions,
+              );
+            },
+          ),
+        );
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          isA<_MyApiException>().having((e) => e.code, 'code', 'queued'),
+        ),
+      );
+    });
+
+    test('DioException.custom factory sets isCustom', () {
+      final ex = DioException.custom(
+        _MyApiException('x'),
+        requestOptions: RequestOptions(),
+      );
+      expect(ex.isCustom, isTrue);
+      expect(ex.error, isA<_MyApiException>());
+      expect(ex.type, DioExceptionType.unknown);
+    });
+
+    test('DioException default constructor leaves isCustom false', () {
+      final ex = DioException(requestOptions: RequestOptions());
+      expect(ex.isCustom, isFalse);
     });
   });
 
