@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Fix duplicate cookies when requests are retried with the same `RequestOptions`.
 
 ## 3.4.0
 
