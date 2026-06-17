@@ -561,7 +561,21 @@ abstract class DioMixin implements Dio {
           return assureResponse<T>(e.data, requestOptions);
         }
       }
-      throw assureDioException(isState ? e.data : e, requestOptions);
+      final dioException = assureDioException(
+        isState ? e.data : e,
+        requestOptions,
+      );
+      // If the exception was constructed via [DioException.custom] or
+      // `handler.rejectCustom(...)`, propagate the inner error
+      // verbatim so callers can `on MyException catch (e)` directly.
+      // Resolves https://github.com/cfug/dio/issues/1950.
+      if (dioException.isCustom && dioException.error != null) {
+        Error.throwWithStackTrace(
+          dioException.error!,
+          dioException.stackTrace,
+        );
+      }
+      throw dioException;
     }
   }
 
