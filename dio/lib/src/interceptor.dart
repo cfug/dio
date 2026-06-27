@@ -178,10 +178,24 @@ class ErrorInterceptorHandler extends _BaseHandler {
   }
 
   /// Completes the request by reject with the [error] as the result.
-  void reject(DioException error) {
+  ///
+  /// Invoking the method will make the rest of interceptors in the queue
+  /// skipped to handle the request,
+  /// unless [callFollowingErrorInterceptor] is true
+  /// which delivers [InterceptorResultType.rejectCallFollowing]
+  /// to the [InterceptorState].
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
     _throwIfCompleted();
     _completer.completeError(
-      InterceptorState<DioException>(error, InterceptorResultType.reject),
+      InterceptorState<DioException>(
+        error,
+        callFollowingErrorInterceptor
+            ? InterceptorResultType.rejectCallFollowing
+            : InterceptorResultType.reject,
+      ),
       error.stackTrace,
     );
     _processNextInQueue?.call();
