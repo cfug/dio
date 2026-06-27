@@ -267,6 +267,31 @@ void main() async {
       expect(result, contains('name="api[data][c]"'));
     });
 
+    test('readAsBytes keeps chunked file payload complete', () async {
+      const chunks = 128;
+      const chunkSize = 1024;
+      final expectedFileLength = chunks * chunkSize;
+
+      final file = MultipartFile.fromStream(
+        () => Stream<List<int>>.fromIterable(
+          List.generate(
+            chunks,
+            (i) => List<int>.filled(chunkSize, i % 256),
+          ),
+        ),
+        expectedFileLength,
+        filename: 'chunked.bin',
+      );
+
+      final fd = FormData.fromMap({'file': file});
+      final data = await fd.readAsBytes();
+      final body = utf8.decode(data, allowMalformed: true);
+
+      expect(data.length, fd.length);
+      expect(body, contains('filename="chunked.bin"'));
+      expect(body, contains('content-type: application/octet-stream'));
+    });
+
     test('posts maps correctly', () async {
       final fd = FormData.fromMap(
         {
