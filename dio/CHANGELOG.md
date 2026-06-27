@@ -5,6 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Fix `FormData.readAsBytes` excessive memory usage with large payloads by replacing the O(n²) `reduce`+spread approach with a `BytesBuilder`.
+
 - Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
 - Fix `HttpException: Connection closed before full header was received` being reported as `DioExceptionType.unknown`.
 - Add `transformTimeout` to bound long-running response transformations, including background JSON decoding.

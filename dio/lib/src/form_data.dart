@@ -202,9 +202,15 @@ class FormData {
 
   /// Transform the entire FormData contents as a list of bytes asynchronously.
   Future<Uint8List> readAsBytes() {
-    return Future.sync(
-      () => finalize().reduce((a, b) => Uint8List.fromList([...a, ...b])),
-    );
+    return Future.sync(() async {
+      final result = Uint8List(length);
+      var offset = 0;
+      await for (final chunk in finalize()) {
+        result.setRange(offset, offset + chunk.length, chunk);
+        offset += chunk.length;
+      }
+      return result;
+    });
   }
 
   /// Clones this finalized [FormData] so it can be re-sent, for example when
