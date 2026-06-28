@@ -145,6 +145,13 @@ response = await dio.download(
 );
 ```
 
+On Web, the second argument is used as the browser's suggested filename instead
+of a local filesystem path. The browser chooses the actual saved location, the
+response is loaded into memory before the download is triggered, and CORS still
+applies. `FileAccessMode.append` is not supported, `deleteOnError` has no local
+file to delete, and custom `lengthHeader` values are not used for Web progress
+totals.
+
 ### Get response stream
 
 ```dart
@@ -310,6 +317,16 @@ Duration? sendTimeout;
 ///
 /// `null` or `Duration.zero` means no timeout limit.
 Duration? receiveTimeout;
+
+/// Timeout when transforming response data.
+///
+/// Throws the [DioException] with
+/// [DioExceptionType.transformTimeout] type when timed out.
+/// On web, timeout handling is best-effort because synchronous JavaScript
+/// work cannot be preempted.
+///
+/// `null` or `Duration.zero` means no timeout limit.
+Duration? transformTimeout;
 
 /// Custom field that you can retrieve it later in [Interceptor],
 /// [Transformer] and the [Response.requestOptions] object.

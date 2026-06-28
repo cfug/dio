@@ -6,15 +6,17 @@ on:
 
 jobs:
   publish:
+    permissions:
+      contents: write
     # https://github.com/cfug/dio/issues/1633
     if: github.event.issue.number == 1633
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           token: ${{ secrets.CFUG_PUBLISHER }}
-      - uses: dart-lang/setup-dart@v1.4
-      - uses: cfug/dio_issue_release_action@v2
+      - uses: dart-lang/setup-dart@2bd11704788983a6a210731656d0042e2df8b2c1
+      - uses: cfug/dio_issue_release_action@fabea0c8c802678977470bae92a317a5af94209b
         with:
           github-token: ${{ secrets.CFUG_PUBLISHER }}
           pub-credentials-json: ${{ secrets.CREDENTIAL_JSON }}

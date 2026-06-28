@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-*None.*
+- Support `Dio.download` on Web by fetching bytes and triggering a browser
+  download with a Blob URL.
 
 ## 2.1.2
 

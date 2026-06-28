@@ -12,6 +12,18 @@ void main() {
     expect(error, isA<Exception>());
   });
 
+  test('DioExceptionType keeps existing enum indices stable', () {
+    expect(DioExceptionType.connectionTimeout.index, 0);
+    expect(DioExceptionType.sendTimeout.index, 1);
+    expect(DioExceptionType.receiveTimeout.index, 2);
+    expect(DioExceptionType.badCertificate.index, 3);
+    expect(DioExceptionType.badResponse.index, 4);
+    expect(DioExceptionType.cancel.index, 5);
+    expect(DioExceptionType.connectionError.index, 6);
+    expect(DioExceptionType.unknown.index, 7);
+    expect(DioExceptionType.transformTimeout.index, 8);
+  });
+
   test(
     'catch DioException: hostname mismatch',
     () async {

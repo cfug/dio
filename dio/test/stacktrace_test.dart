@@ -220,6 +220,55 @@ void main() async {
     );
     group('DioExceptionType.connectionError', () {
       test(
+        'HttpException before response headers on download',
+        () async {
+          final uri = Uri.parse('https://does.not.exist/test');
+          final request = MockHttpClientRequest();
+          final client = MockHttpClient();
+          final originalStackTrace = StackTrace.fromString(
+            'original response header stack trace',
+          );
+          final tmp = Directory.systemTemp.createTempSync('dio_test_');
+          addTearDown(() {
+            tmp.deleteSync(recursive: true);
+          });
+
+          when(client.openUrl(any, any)).thenAnswer((_) async => request);
+          when(request.close()).thenAnswer(
+            (_) => Future.error(
+              HttpException(
+                'Connection closed before full header was received',
+                uri: uri,
+              ),
+              originalStackTrace,
+            ),
+          );
+
+          final dio = Dio()
+            ..options.baseUrl = 'https://does.not.exist'
+            ..httpClientAdapter = IOHttpClientAdapter(
+              createHttpClient: () => client,
+            );
+
+          await expectLater(
+            dio.download('/test', '${tmp.path}/download.bin'),
+            throwsA(
+              allOf([
+                isA<DioException>(),
+                (e) => e.type == DioExceptionType.connectionError,
+                (e) => e.error is HttpException,
+                (e) => (e.error as HttpException)
+                    .message
+                    .contains('Connection closed before full header'),
+                (e) => e.stackTrace.toString() == originalStackTrace.toString(),
+              ]),
+            ),
+          );
+        },
+        testOn: 'vm',
+      );
+
+      test(
         'SocketException on request',
         () async {
           final dio = Dio()

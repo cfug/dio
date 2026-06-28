@@ -161,6 +161,11 @@ response = await dio.download(
 );
 ```
 
+在 Web 平台上，第二个参数会被当作浏览器下载的建议文件名，而不是本地文件系统路径。
+浏览器会决定实际保存位置；下载内容会先完整载入内存，并且仍受 CORS 限制。
+`FileAccessMode.append` 不支持，`deleteOnError` 没有可删除的本地文件，自定义
+`lengthHeader` 也不会用于 Web 下载进度总量。
+
 ### 以流的方式接收响应数据
 
 ```dart
@@ -323,6 +328,16 @@ Duration? sendTimeout;
 ///
 /// `null` 或 `Duration.zero` 即不设置超时。
 Duration? receiveTimeout;
+
+/// 转换响应数据的超时设置。
+///
+/// 超时时会抛出类型为 [DioExceptionType.transformTimeout] 的
+/// [DioException]。
+/// 在 Web 上，超时处理是 best-effort，因为同步 JavaScript
+/// 任务无法被抢占中断。
+///
+/// `null` 或 `Duration.zero` 即不设置超时。
+Duration? transformTimeout;
 
 /// 可以在 [Interceptor]、[Transformer] 和
 /// [Response.requestOptions] 中获取到的自定义对象。

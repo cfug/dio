@@ -5,6 +5,12 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Fix request hanging indefinitely when async interceptor callbacks throw without calling the handler.
+- Fix `HttpException: Connection closed before full header was received` being reported as `DioExceptionType.unknown`.
+- Add `transformTimeout` to bound long-running response transformations, including background JSON decoding.
+  On web, timeout handling is best-effort because synchronous JavaScript work cannot be preempted.
+- Fix `FormData.clone()` dropping `boundaryName` and `camelCaseContentDisposition`, so a retried multipart request now keeps the original options instead of silently falling back to the defaults.
+- Fix `QueuedInterceptor` stalling its queue forever when the active request is cancelled while its callback is still pending (never calls `next`/`resolve`/`reject`), which blocked every subsequent request routed through the interceptor.
 - **Security:** `IOHttpClientAdapter.validateCertificate` now fires between
   the TLS handshake and the first HTTP byte for direct HTTPS connections
   (no proxy, no custom `createHttpClient`), making it suitable for true

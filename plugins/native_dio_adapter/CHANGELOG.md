@@ -4,6 +4,13 @@
 
 *None.*
 
+## 1.6.0
+
+- Fix memory leak on Android: complete the `abortTrigger` future after the
+  response stream is consumed, allowing `CronetUrlRequest` JNI references
+  and upload body bytes to be garbage collected.
+- Support `cupertino_http` 3.0.0
+
 ## 1.5.1
 
 - Support request cancellation for native HTTP clients via use of `AbortableRequest` (introduced in http package from version 1.5.0)

@@ -91,14 +91,21 @@ scripts:
   test:web:single:
     name: Dart Web tests in a browser
     exec: |
-      if [ "$TARGET_DART_SDK" = "min" ]; then
-        dart test --platform ${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
-      else
-        dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces
-        if [ "$WITH_WASM" = "true" ]; then
-          dart test --platform ${TEST_PLATFORM} --coverage=coverage/${TEST_PLATFORM} --preset=${TEST_PRESET:-default},${TARGET_DART_SDK:-stable} --chain-stack-traces --compiler=dart2wasm
+      sh -c '
+        if [ "\$TARGET_DART_SDK" = "min" ]; then
+          exec dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
         fi
-      fi
+
+        if [ "\$MELOS_PACKAGE_NAME" = "dio_web_adapter" ] && [ "\$TEST_PLATFORM" = "chrome" ]; then
+          dart test --platform "\$TEST_PLATFORM" --coverage="coverage/\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
+        else
+          dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
+        fi
+
+        if [ "\$WITH_WASM" = "true" ]; then
+          dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces --compiler=dart2wasm
+        fi
+      '
     packageFilters:
       flutter: false
       dirExists: test

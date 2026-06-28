@@ -238,6 +238,26 @@ void main() {
       });
     });
 
+    test('emits receiveTimeout when no body bytes arrive after headers',
+        () async {
+      final stream = handleResponseStream(
+        RequestOptions(
+          receiveTimeout: const Duration(milliseconds: 100),
+        ),
+        ResponseBody(source.stream, 200),
+      );
+
+      await expectLater(
+        stream,
+        emitsInOrder([
+          emitsError(
+            matchesDioException(DioExceptionType.receiveTimeout),
+          ),
+          emitsDone,
+        ]),
+      );
+    });
+
     test('not watching the receive timeout after cancelled', () async {
       bool timerCancelled = false;
       final cancelToken = CancelToken();
