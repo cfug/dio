@@ -11,6 +11,28 @@ See the [Migration Guide][] for the complete breaking changes list.**
   On web, timeout handling is best-effort because synchronous JavaScript work cannot be preempted.
 - Fix `FormData.clone()` dropping `boundaryName` and `camelCaseContentDisposition`, so a retried multipart request now keeps the original options instead of silently falling back to the defaults.
 - Fix `QueuedInterceptor` stalling its queue forever when the active request is cancelled while its callback is still pending (never calls `next`/`resolve`/`reject`), which blocked every subsequent request routed through the interceptor.
+- **Security:** `IOHttpClientAdapter.validateCertificate` now fires between
+  the TLS handshake and the first HTTP byte for direct HTTPS connections
+  (no proxy, no custom `createHttpClient`), making it suitable for true
+  certificate or public-key pinning (issue #2418). Previously, an
+  attacker presenting a publicly trusted certificate for the wrong host
+  could receive the full request body and headers before the callback
+  aborted.
+- The callback also continues to run **after the response head arrives**
+  as defense in depth — both invocations receive the same leaf
+  certificate, so for fingerprint-style pinning the second call is
+  idempotent. Callbacks with side effects (logging, metrics) will
+  observe one extra call per request on the direct-HTTPS path.
+- HTTPS routed through a proxy continues to use the post-response
+  validation path only (HttpClient performs its own `CONNECT` tunnel and
+  TLS handshake, bypassing the pre-emission hook). For pre-emission
+  pinning behind a proxy, supply `createHttpClient` and configure
+  `HttpClient.connectionFactory` yourself.
+- On the pre-emission path, `validateCertificate` is the sole gate for
+  certificate trust — system / CA validation is bypassed (matching what
+  users already configure via `badCertificateCallback: (_, _, _) => true`
+  in the existing pinning example), so self-signed and pinned-CA setups
+  work without supplying `createHttpClient`.
 
 ## 5.9.2
 
