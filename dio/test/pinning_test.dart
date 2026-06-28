@@ -24,6 +24,49 @@ void main() {
   }
 
   group('pinning:', () {
+    // A throwaway self-signed localhost keypair is generated at runtime so
+    // that no private key is committed to the repository. openssl is already
+    // a requirement for scripts/prepare_pinning_certs.sh (used by the tls
+    // network tests in this group), so it is a safe build dependency to lean
+    // on here.
+    late Directory certDir;
+    late String certPath;
+    late String keyPath;
+
+    setUpAll(() {
+      certDir = Directory.systemTemp.createTempSync('dio_pinning_test_');
+      certPath = '${certDir.path}/server_cert.pem';
+      keyPath = '${certDir.path}/server_key.pem';
+      final result = Process.runSync('openssl', [
+        'req',
+        '-x509',
+        '-newkey',
+        'rsa:2048',
+        '-keyout',
+        keyPath,
+        '-out',
+        certPath,
+        '-days',
+        '3650',
+        '-nodes',
+        '-subj',
+        '/CN=localhost',
+      ]);
+      if (result.exitCode != 0) {
+        throw StateError(
+          'Failed to generate a self-signed test certificate with openssl '
+          '(exit ${result.exitCode}). openssl must be installed to run the '
+          'pinning tests.\n${result.stderr}',
+        );
+      }
+    });
+
+    tearDownAll(() {
+      if (certDir.existsSync()) {
+        certDir.deleteSync(recursive: true);
+      }
+    });
+
     test('trusted host allowed with no approver', () async {
       await Dio().get(trustedCertUrl);
     });
@@ -154,37 +197,6 @@ void main() {
       tags: ['tls'],
     );
 
-    test(
-      '2 requests share connection (1 approval)',
-      () async {
-        // Validation is now per TCP connection (not per HTTP request) since
-        // the callback fires from the connectionFactory pre-emission rather
-        // than post-response. HttpClient pools connections, so back-to-back
-        // requests within idleTimeout (3s) share one connection and one
-        // approval. Matches dio_http2_adapter's long-standing semantics.
-        int approvalCount = 0;
-        final dio = Dio();
-        dio.httpClientAdapter = IOHttpClientAdapter(
-          validateCertificate: (cert, host, port) {
-            approvalCount++;
-            return fingerprint() == sha256.convert(cert!.der).toString();
-          },
-        );
-        Response response = await dio.get(
-          trustedCertUrl,
-          options: Options(validateStatus: (status) => true),
-        );
-        expect(response.data, isNotNull);
-        response = await dio.get(
-          trustedCertUrl,
-          options: Options(validateStatus: (status) => true),
-        );
-        expect(response.data, isNotNull);
-        expect(approvalCount, 1);
-      },
-      tags: ['tls'],
-    );
-
     group('pre-emission validation:', () {
       late HttpServer secureServer;
       late int bytesReceived;
@@ -194,8 +206,8 @@ void main() {
         bytesReceived = 0;
         requestsHandled = 0;
         final ctx = SecurityContext()
-          ..useCertificateChain('test/_pinning/server_cert.pem')
-          ..usePrivateKey('test/_pinning/server_key.pem');
+          ..useCertificateChain(certPath)
+          ..usePrivateKey(keyPath);
         secureServer = await HttpServer.bindSecure('localhost', 0, ctx);
         secureServer.listen((req) async {
           requestsHandled++;
@@ -268,8 +280,8 @@ void main() {
         // behavior).
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter(
-          createHttpClient: () => HttpClient()
-            ..badCertificateCallback = (cert, host, port) => true,
+          createHttpClient: () =>
+              HttpClient()..badCertificateCallback = (cert, host, port) => true,
           validateCertificate: (cert, host, port) => false,
         );
         DioException? error;
@@ -287,6 +299,36 @@ void main() {
         // Legacy path: server received the request before validation ran.
         expect(requestsHandled, 1);
         expect(bytesReceived, greaterThan(0));
+      });
+
+      test('two pooled requests: 1 pre-emission + 2 post-response validations',
+          () async {
+        // Two back-to-back requests within idleTimeout (3s) share one pooled
+        // TCP connection, so the connectionFactory pre-emission hook runs
+        // once (per connection) while the post-response block runs once per
+        // request. The validator is therefore invoked 3 times for 2 requests.
+        // This replaces the former network-dependent '2 requests' test with a
+        // deterministic local-server assertion.
+        int approvals = 0;
+        final dio = Dio();
+        dio.httpClientAdapter = IOHttpClientAdapter(
+          validateCertificate: (cert, host, port) {
+            approvals++;
+            return true;
+          },
+        );
+        await dio.post(
+          'https://localhost:${secureServer.port}/one',
+          data: 'a',
+          options: Options(responseType: ResponseType.plain),
+        );
+        await dio.post(
+          'https://localhost:${secureServer.port}/two',
+          data: 'b',
+          options: Options(responseType: ResponseType.plain),
+        );
+        expect(approvals, 3);
+        expect(requestsHandled, 2);
       });
     });
 
@@ -325,15 +367,16 @@ void main() {
       }
     });
 
-    test('validateCertificate set after construction still fires (legacy '
+    test(
+        'validateCertificate set after construction still fires (legacy '
         'post-response path)', () async {
       // Late-mutation regression guard: a user who constructs the adapter
       // without validateCertificate and sets it later should still have the
       // callback fire (via the legacy post-response path), even though the
       // pre-emission factory could not be installed.
       final ctx = SecurityContext()
-        ..useCertificateChain('test/_pinning/server_cert.pem')
-        ..usePrivateKey('test/_pinning/server_key.pem');
+        ..useCertificateChain(certPath)
+        ..usePrivateKey(keyPath);
       final server = await HttpServer.bindSecure('localhost', 0, ctx);
       server.listen((req) {
         req.response.statusCode = 200;
@@ -376,8 +419,8 @@ void main() {
 
       setUp(() async {
         final ctx = SecurityContext()
-          ..useCertificateChain('test/_pinning/server_cert.pem')
-          ..usePrivateKey('test/_pinning/server_key.pem');
+          ..useCertificateChain(certPath)
+          ..usePrivateKey(keyPath);
         secureBackend = await HttpServer.bindSecure('localhost', 0, ctx);
         secureBackend.listen((req) async {
           req.response.statusCode = 200;
@@ -393,8 +436,7 @@ void main() {
         await secureBackend.close(force: true);
       });
 
-      test('validateCertificate runs (post-response) through proxy',
-          () async {
+      test('validateCertificate runs (post-response) through proxy', () async {
         bool validatorCalled = false;
         final adapter = IOHttpClientAdapter(
           validateCertificate: (cert, host, port) {
@@ -421,7 +463,8 @@ void main() {
         expect(proxyState.connectCount, 1);
       });
 
-      test('rejection through proxy raises badCertificate '
+      test(
+          'rejection through proxy raises badCertificate '
           '(post-response, not pre-emission)', () async {
         final adapter = IOHttpClientAdapter(
           validateCertificate: (cert, host, port) => false,

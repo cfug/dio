@@ -210,9 +210,8 @@ void main() async {
             allOf([
               isA<DioException>(),
               (DioException e) => e.type == DioExceptionType.badCertificate,
-              (DioException e) => e.stackTrace
-                  .toString()
-                  .contains('test/stacktrace_test.dart'),
+              (DioException e) =>
+                  e.stackTrace.toString().contains('test/stacktrace_test.dart'),
             ]),
           ),
         );

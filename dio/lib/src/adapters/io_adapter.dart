@@ -45,8 +45,7 @@ class _BadCertificateException implements HandshakeException {
   OSError? get osError => null;
 
   @override
-  String toString() =>
-      'HandshakeException: $message (host=$host, port=$port)';
+  String toString() => 'HandshakeException: $message (host=$host, port=$port)';
 }
 
 /// Creates an [IOHttpClientAdapter].
