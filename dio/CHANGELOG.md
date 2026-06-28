@@ -11,6 +11,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
   On web, timeout handling is best-effort because synchronous JavaScript work cannot be preempted.
 - Fix `FormData.clone()` dropping `boundaryName` and `camelCaseContentDisposition`, so a retried multipart request now keeps the original options instead of silently falling back to the defaults.
 - Fix `QueuedInterceptor` stalling its queue forever when the active request is cancelled while its callback is still pending (never calls `next`/`resolve`/`reject`), which blocked every subsequent request routed through the interceptor.
+- Fix `ErrorInterceptorHandler.reject(..., true)` not continuing to following error interceptors in queued interceptors.
 
 ## 5.9.2
 
