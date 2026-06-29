@@ -844,6 +844,39 @@ void main() {
       expect(tokenRequestCounts, 1);
       expect(result, 3);
     });
+
+    test(
+      'error interceptor reject with callFollowingErrorInterceptor continues',
+      () async {
+        final dio = Dio()
+          ..options.baseUrl = MockAdapter.mockBase
+          ..httpClientAdapter = MockAdapter();
+
+        dio.interceptors
+          ..add(
+            QueuedInterceptorsWrapper(
+              onError: (error, handler) {
+                handler.reject(error.copyWith(error: 1), true);
+              },
+            ),
+          )
+          ..add(
+            QueuedInterceptorsWrapper(
+              onError: (error, handler) {
+                final count = error.error as int;
+                handler.next(error.copyWith(error: count + 1));
+              },
+            ),
+          );
+
+        expect(
+          dio
+              .get('/test-not-found')
+              .catchError((e) => throw (e as DioException).error as int),
+          throwsA(2),
+        );
+      },
+    );
   });
 
   group('LogInterceptor', () {
