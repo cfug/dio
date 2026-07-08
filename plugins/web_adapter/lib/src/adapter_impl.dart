@@ -8,6 +8,10 @@ import 'package:dio/src/utils.dart';
 import 'package:meta/meta.dart';
 import 'package:web/web.dart' as web;
 
+import 'cors.dart';
+
+export 'cors.dart' show corsPreflightReason;
+
 BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
@@ -62,6 +66,35 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
     xhr.timeout = xhrTimeout;
+
+    // Detect configurations that will trigger a CORS preflight request so we
+    // can warn the developer and enrich the eventual error message.
+    // See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+    final preflightReasons = <String>[
+      if (corsPreflightReason(options) case final reason?) reason,
+    ];
+    final willRegisterUploadListener = requestStream != null &&
+        (sendTimeout > Duration.zero || onSendProgress != null);
+    if (willRegisterUploadListener) {
+      preflightReasons.add(
+        'an upload progress listener (sendTimeout or onSendProgress) '
+        'forces a preflight request',
+      );
+    }
+    if (xhr.withCredentials) {
+      preflightReasons.add(
+        'withCredentials is enabled, which requires a CORS preflight request',
+      );
+    }
+    if (preflightReasons.isNotEmpty) {
+      warningLog(
+        'This request is not a CORS "simple request" and will trigger a '
+        'preflight (OPTIONS) request: ${preflightReasons.join('; ')}. '
+        'If the server does not handle CORS preflight, the request will fail. '
+        'See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests',
+        StackTrace.current,
+      );
+    }
 
     final completer = Completer<ResponseBody>();
 
@@ -219,11 +252,20 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
       // See also: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
+      final baseReason = 'The XMLHttpRequest onError callback was called. '
+          'This typically indicates an error on the network layer.';
+      final reason = preflightReasons.isEmpty
+          ? baseReason
+          : '$baseReason If this is a cross-origin request, the browser may '
+              'have blocked it because the request is not a CORS "simple '
+              'request" (${preflightReasons.join('; ')}). Verify that the '
+              'server responds correctly to the CORS preflight (OPTIONS) '
+              'request. See '
+              'https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests';
       completer.completeError(
         DioException.connectionError(
           requestOptions: options,
-          reason: 'The XMLHttpRequest onError callback was called. '
-              'This typically indicates an error on the network layer.',
+          reason: reason,
         ),
         StackTrace.current,
       );
