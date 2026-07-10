@@ -32,8 +32,10 @@ that actually exists.
 - One PR, one concern. Do not bundle several unrelated features or fixes
   into a single PR. Bundled "improvement packs" might be closed unreviewed.
 - For any user-facing feature, open an issue for discussion **before**
-  writing code, unless a maintainer has already asked for it. Feature PRs
-  without prior discussion or clear motivation waste both your tokens and
+  writing code, unless a maintainer has already asked for it. A bare
+  `Closes #NNNN` is not the same as prior discussion: the referenced issue
+  must show that maintainers have expressed interest or accepted the
+  direction. Feature PRs without that grounding waste both your tokens and
   the maintainers' time, and might be closed.
 
 ## 2. Tests are mandatory for logic changes
@@ -43,8 +45,10 @@ Every behavioral change must be proven by tests.
 - Any change to logic requires new tests or adjustments to existing tests
   that fail without the change and pass with it. Bug fixes must include a
   regression test that reproduces the original report.
-- CI reports coverage diffs on every PR. Coverage of changed code must not
-  regress; new code paths (including error paths) must be covered.
+- CI reports coverage diffs on every PR. The published minimum threshold is
+  low, but that is a floor, not a target: coverage of code you changed
+  should not regress, and new logic (including error paths) should be
+  covered by real assertions.
 - Tests must be **effective and non-duplicated**:
   - Assert observable behavior, not implementation details.
   - Do not add tests that merely re-execute existing covered paths to
@@ -74,18 +78,23 @@ public symbol as frozen unless a maintainer decides otherwise.
 
 - **Default to non-breaking.** Prefer additive changes: new optional named
   parameters with safe defaults, new classes, new extension points.
-- Never change public method signatures, remove/rename public symbols,
-  change default behavior, or alter thrown exception types in a
-  non-major release.
+- Do not change public method signatures, remove/rename public symbols,
+  change default behavior, or alter thrown exception types without going
+  through a deprecation cycle. Breaking changes belong in major releases.
+  As dio's own [CHANGELOG](dio/CHANGELOG.md) preamble states, unavoidable
+  breaking changes may occasionally ship in minor releases — those still
+  require maintainer sign-off in advance and an entry in the
+  [Migration Guide](dio/doc/migration_guide.md).
 - If an API must go away, deprecate first and keep it working:
 
   ```dart
-  @Deprecated('Use XXX instead. This will be removed in 7.0.0')
+  @Deprecated('Use XXX instead. This will be removed in 6.0.0')
   ```
 
-  Deprecations state their replacement and the removal version, and are
-  only removed in the next major release, together with an entry in
-  `dio/doc/migration_guide.md`.
+  Deprecations must state their replacement and the removal version, and
+  are only removed in the next major release, together with an entry in
+  the Migration Guide. Target the *next* major (currently `6.0.0`), not a
+  version beyond that.
 - Do not raise the minimum Dart/Flutter SDK constraint of any package
   unless required by the [Compatibility Policy](COMPATIBILITY_POLICY.md)
   or its listed exceptions. CI tests against the minimum supported SDK;
@@ -103,13 +112,17 @@ public symbol as frozen unless a maintainer decides otherwise.
 - Fix root causes, not symptoms. When a symptom is reported, locate the
   actual defect before patching.
 - Never guess an API — neither dio's internals nor third-party packages.
-  Read the actual source (dependencies live in
-  `~/.pub-cache/hosted/pub.dev/<package>-<version>/`) and the package's
-  own tests/examples when unsure. If `dart analyze` says a member does
-  not exist, go back to the source instead of retrying variations.
-- Keep diffs minimal. Touch only files required by the change. No drive-by
-  refactoring, reformatting of untouched code, dependency bumps, or
-  `.gitignore`/CI edits that are unrelated to the stated purpose.
+  Read the actual source and the package's own tests/examples when
+  unsure. If `dart analyze` says a member does not exist, go back to the
+  source instead of retrying variations. Dependency source locations:
+
+  | Platform | Default location |
+  |---|---|
+  | macOS / Linux | `~/.pub-cache/hosted/pub.dev/<package>-<version>/` |
+  | Windows | `%LOCALAPPDATA%\Pub\Cache\hosted\pub.dev\<package>-<version>\` |
+
+  If the `PUB_CACHE` environment variable is set, use that location
+  instead of the platform default.
 
 ## 5. Production quality only
 
@@ -120,9 +133,31 @@ public symbol as frozen unless a maintainer decides otherwise.
 - If you cannot finish something completely, say so explicitly and state
   the boundary — do not pretend it is done.
 
-## 6. Repository layout and workflow
+## 6. When to stop and ask
 
-This is a [Melos](https://melos.invertase.dev) mono-repo:
+Agents default to "guess and proceed". Do not. Pause and check with the
+operator (or open a discussion issue) when:
+
+- The task description is ambiguous and multiple reasonable interpretations
+  would produce materially different implementations.
+- Fixing the reported problem would require design changes that go beyond
+  what was asked for.
+- The right fix touches an area not obviously in scope (e.g., renaming a
+  public API to fix an unrelated bug, or restructuring an interceptor
+  pipeline to enable a small feature).
+- You cannot reproduce the reported issue after a reasonable attempt.
+- The request itself seems wrong (e.g., the "bug" is intended behavior, or
+  the "feature" would violate a rule in this document).
+
+Do **not** stop to ask permission for routine mechanical steps: running
+tests / format / analyze, staging files, opening a draft PR, or choices
+that are already decided by this document (commit format, changelog,
+attribution).
+
+## 7. Repository layout
+
+This is a [Melos](https://github.com/invertase/melos/tree/main/docs)
+mono-repo:
 
 | Path | Package |
 |---|---|
@@ -145,31 +180,166 @@ melos bootstrap
 Each package versions and releases independently. Note that packages have
 **different SDK lower bounds** (see each `pubspec.yaml`).
 
-## 7. Changelog, commits, and PR hygiene
+## 8. Commits, changelog, and PR hygiene
 
-- Update the `CHANGELOG.md` of **every package you changed**, under the
-  `## Unreleased` section (replace `*None.*`). One concise bullet per
-  change, written for downstream users. Do not bump version numbers —
-  releases are done by maintainers.
-- Write commits and PRs in English. Keep the PR title in the repository's
-  existing style (see `git log`), and reference the related issue.
-- Fill in the PR template truthfully. Check the docs when public APIs
-  changed (`README.md`, `README-ZH.md`, API docs comments, examples).
-- Agent-assisted PRs are welcome, but the human submitting the PR owns it:
-  you must understand every line, be able to defend it in review, and
-  respond to review feedback substantively. "The AI wrote it" is not an
-  answer to a review question.
+### 8.1 Commit message format — gitmoji + Conventional
 
-## 8. Patterns that may lead to closure
+Every commit uses **[gitmoji](https://gitmoji.dev)** at the front and a
+**[Conventional Commits](https://www.conventionalcommits.org)** type
+prefix. Emojis are chosen from the gitmoji specification — do not invent
+new ones.
 
-To keep maintainer time for well-cared contributions, PRs exhibiting these
-patterns might be closed without detailed review:
+```
+<gitmoji> <type>[(<scope>)]: <short imperative subject>
 
-- Feature dumps with no stated motivation or prior discussion.
-- Multiple unrelated changes bundled together.
-- Logic changes without tests, or with tests that assert nothing.
-- Unrelated file churn (formatting sweeps, `.gitignore`, CI, docs
-  restructuring smuggled into a functional PR).
-- Falsely checked checklist items (e.g. claiming tests ran when they
-  did not).
-- Breaking public API changes without prior maintainer sign-off.
+[optional body — wrap at ~72 chars]
+
+[optional footer, e.g. Closes #1234]
+```
+
+Gitmoji commonly used in this repository (see `git log` for the full set):
+
+| Gitmoji | Conventional type | Use for |
+|---|---|---|
+| ✨ `:sparkles:` | `feat` | New user-facing feature |
+| 🐛 `:bug:` | `fix` | Bug fix |
+| ⚡️ `:zap:` | `perf` | Performance improvement |
+| ♻️ `:recycle:` | `refactor` | Refactor with no behavior change |
+| 📝 `:memo:` | `docs` | Documentation |
+| ✅ `:white_check_mark:` | `test` | Tests only |
+| 🚨 `:rotating_light:` | `fix` / `style` | Fix linter or analyzer warnings |
+| 🔧 `:wrench:` | `chore` | Config / tooling |
+| 👷 `:construction_worker:` | `ci` | CI / workflow changes |
+| 💚 `:green_heart:` | `ci` | Fix a failing CI job |
+| ⬆️ `:arrow_up:` | `chore` | Bump a dependency |
+| 🔥 `:fire:` | `chore` / `refactor` | Remove code or files |
+| 🎨 `:art:` | `style` | Formatting / structure only |
+| 🔖 `:bookmark:` | `chore(release)` | Release (**maintainers only**) |
+
+Rules:
+
+- Subject is an imperative English sentence. Do not append the PR number —
+  GitHub adds `(#N)` automatically on squash-merge.
+- Use scope when it clarifies (`fix(dio_web_adapter): ...`); omit when it
+  would just repeat the file path.
+- Emoji at position 0. Space, then the Conventional prefix, then subject.
+
+Examples (adapted from actual repo history):
+
+```
+🐛 fix(dio): allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
+⚡️ perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
+📝 docs: add agent contribution guidelines
+```
+
+### 8.2 AI attribution — mandatory
+
+Transparency about AI involvement is required. Do not hide it, and do not
+skip it "to keep the commit clean".
+
+- Add a `Co-Authored-By:` trailer for **every AI agent** that produced
+  code, tests, or docs in the commit:
+
+  ```
+  Co-Authored-By: Claude <noreply@anthropic.com>
+  Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+  ```
+
+  Use the identity the agent itself publishes (see its own docs / recent
+  commits from that agent on GitHub). Multiple agents → multiple trailers.
+- Also disclose in the PR description **which agent(s) were used and for
+  what stage** — design, implementation, tests, or review. One line is
+  enough, e.g.:
+
+  > *Implementation and tests by Devin; local review pass by GLM-5.2.*
+
+- AI attribution never shifts accountability. The human submitting the PR
+  owns every line, must understand it, and must respond to review feedback
+  substantively. "The AI wrote it" is not an answer to a review question.
+
+### 8.3 CHANGELOG and docs
+
+- Update the `CHANGELOG.md` of **every package you changed**, under
+  `## Unreleased` (replace `*None.*`).
+- One concise bullet per change, written for downstream users, not for
+  reviewers.
+- Do not bump version numbers — releases are handled by maintainers.
+- When public APIs change, also update `README.md`, `README-ZH.md`, API
+  doc comments, and any affected examples.
+
+### 8.4 Self-review your diff before every commit
+
+Always inspect what you are about to commit:
+
+```bash
+git diff                          # unstaged
+git diff --staged                 # staged
+git diff <base-branch>...HEAD     # full branch diff before opening/updating a PR
+```
+
+Remove before committing:
+
+- Debug output (`print`, `debugPrint`, `console.log`, temporary logs).
+- Commented-out code left from earlier attempts.
+- Reformatting or import re-ordering of files that are not the subject
+  of this change.
+- Unrelated bumps in `pubspec.yaml` / `pubspec.lock`.
+- Whitespace-only changes in unrelated files.
+- Editor/OS junk (`.DS_Store`, `.idea/`, personal scratch files).
+
+If you cannot explain why a hunk is in the diff, it does not belong in
+the commit. Never use `git add .` or `git add -A` — stage files by path.
+
+### 8.5 Review iteration workflow
+
+After opening the PR:
+
+- **Address feedback with new commits appended to the branch**, not by
+  squash-and-force-push. Maintainers rely on incremental history during
+  review; squashing happens at merge time.
+- **Avoid `git push --force` on a branch that already has review
+  comments** — it detaches those comments from their code position. If a
+  rebase is genuinely required (e.g., conflict resolution against
+  `main`), leave a comment before pushing so reviewers know.
+- **Do not close and reopen the PR** to reset review state, retry CI, or
+  bypass a blocking review. Push a fix instead.
+- **Design-level feedback is a conversation, not an instruction.** If a
+  reviewer's suggestion changes the intent of the PR (not just its
+  implementation), reply first and reach agreement before writing new
+  code. Blindly applying a large suggestion is worse than discussing it.
+- **Mark review threads resolved** only after you have addressed the
+  point in code and left a reply explaining what changed — or after the
+  reviewer explicitly says so. Do not silently resolve.
+- **CI failures**: read the failing job's log, find the root cause, then
+  push a fix. Never re-run CI hoping for a green run. If a test is
+  genuinely flaky, say so in a comment — do not paper over it by
+  disabling the test or adding retries.
+
+### 8.6 Fill in the PR template truthfully
+
+- Only tick a checklist item that is genuinely done. For items that do
+  not apply, keep the box unchecked and add *(not applicable — reason)*
+  next to it. Do not check "done" as a shortcut.
+- Reference the closing issue with `Closes #NNNN` in the description.
+- Write PR titles and bodies in English, in the same commit style as
+  §8.1.
+
+## 9. Patterns that may lead to closure
+
+Quick cross-reference — each pattern is a violation of the rules above.
+PRs matching one or more of these may be closed without detailed review
+at the maintainers' discretion.
+
+| Pattern | See |
+|---|---|
+| No motivation or prior maintainer discussion | §1 |
+| Multiple unrelated changes bundled in one PR | §1 |
+| Logic changes without effective, non-duplicated tests | §2 |
+| Public-API break without maintainer sign-off | §3 |
+| Guessed / hallucinated API usage | §4 |
+| Drive-by refactors, formatting sweeps, unrelated `.gitignore` / CI edits | §4, §8.4 |
+| Debug output or commented-out code left in the diff | §8.4 |
+| Non-standard commit message format (missing gitmoji, wrong type, non-English) | §8.1 |
+| Missing or hidden AI attribution | §8.2 |
+| Falsely checked PR checklist items | §8.6 |
+| Force-pushing or close/reopen to reset review state | §8.5 |
