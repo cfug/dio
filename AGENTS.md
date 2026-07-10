@@ -105,6 +105,45 @@ public symbol as frozen unless a maintainer decides otherwise.
 - If a breaking change is genuinely unavoidable, stop and raise it in an
   issue for maintainers to decide. Do not merge-request it unilaterally.
 
+### Extra scrutiny in security- and network-critical areas
+
+Some parts of dio have oversized blast radius when broken. Changes here
+require extra care, and the PR description should explicitly call the
+change out and @-mention a maintainer:
+
+- SSL / TLS handling and certificate pinning (`badCertificateCallback`,
+  `SecurityContext`, adapters' `HttpClient` configuration).
+- Redirect handling and cross-origin behavior (redirect policy, header
+  forwarding, cookie leakage across redirects).
+- Cookie management (`dio_cookie_manager`, domain / path matching).
+- Header handling (`Authorization`, `Content-Type`, casing, duplicates).
+- Timeout, cancellation, and connection pooling.
+- The interceptor pipeline (ordering, error propagation, `next` /
+  `resolve` / `reject` semantics).
+- Request-body encoding: `FormData`, multipart streaming, encoding
+  detection.
+
+Rule of thumb: if getting this wrong could leak credentials, hang a
+request forever, or change data on the wire, treat it as sensitive.
+
+### Dependency changes
+
+Do not bundle drive-by dependency bumps into a feature/fix PR. When a
+dependency change is itself the point of the PR:
+
+- State the reason in the description (security fix, required for a new
+  feature, upstream deprecation, etc.). "Latest is greater" is not a
+  reason.
+- Verify the change under every supported SDK version declared in the
+  affected `pubspec.yaml`. Do not raise the package's SDK lower bound
+  just to accommodate the new dependency unless the
+  [Compatibility Policy](COMPATIBILITY_POLICY.md) allows it.
+- Prefer the narrowest constraint that solves the problem (patch >
+  minor > major bump).
+- Call out any new transitive dependencies — downstream users care about
+  their lockfile.
+- Use `⬆️ chore` (or `chore(deps)`) as the commit type.
+
 ## 4. Understand before you change
 
 - Read the surrounding code and existing patterns before editing. Match
@@ -182,7 +221,27 @@ Each package versions and releases independently. Note that packages have
 
 ## 8. Commits, changelog, and PR hygiene
 
-### 8.1 Commit message format — gitmoji + Conventional
+### 8.1 Branch naming
+
+Work on a feature branch named `category/ticket-id-or-short-description`:
+
+- `category` matches the Conventional type used in the commit:
+  `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `chore`, `ci`,
+  `style`.
+- Use the tracked **ticket id** when one exists — the issue or PR
+  number: `fix/2201`, `feat/2555`. Combining both is fine when it aids
+  discoverability: `fix/2201-cookie-domain-match`.
+- Otherwise use a **short description** — 2–5 kebab-case words that
+  describe the change (`docs/agents-guidelines`,
+  `feat/cors-preflight-warning`, `chore/bump-http2-3.0.0`).
+
+Rules:
+
+- Never work on `main` directly.
+- One branch per PR; do not reuse a merged branch for a new change.
+- Keep branch names ASCII, lowercase, and short.
+
+### 8.2 Commit message format — gitmoji + Conventional
 
 Every commit uses **[gitmoji](https://gitmoji.dev)** at the front and a
 **[Conventional Commits](https://www.conventionalcommits.org)** type
@@ -232,7 +291,7 @@ Examples (adapted from actual repo history):
 📝 docs: add agent contribution guidelines
 ```
 
-### 8.2 AI attribution — mandatory
+### 8.3 AI attribution — mandatory
 
 Transparency about AI involvement is required. Do not hide it, and do not
 skip it "to keep the commit clean".
@@ -257,7 +316,7 @@ skip it "to keep the commit clean".
   owns every line, must understand it, and must respond to review feedback
   substantively. "The AI wrote it" is not an answer to a review question.
 
-### 8.3 CHANGELOG and docs
+### 8.4 CHANGELOG and docs
 
 - Update the `CHANGELOG.md` of **every package you changed**, under
   `## Unreleased` (replace `*None.*`).
@@ -267,7 +326,7 @@ skip it "to keep the commit clean".
 - When public APIs change, also update `README.md`, `README-ZH.md`, API
   doc comments, and any affected examples.
 
-### 8.4 Self-review your diff before every commit
+### 8.5 Self-review your diff before every commit
 
 Always inspect what you are about to commit:
 
@@ -290,7 +349,22 @@ Remove before committing:
 If you cannot explain why a hunk is in the diff, it does not belong in
 the commit. Never use `git add .` or `git add -A` — stage files by path.
 
-### 8.5 Review iteration workflow
+### 8.6 Opening the PR
+
+- **Open as a draft PR** (`Create draft pull request`) when the change
+  is large, exploratory, or when you want maintainer direction before
+  polishing. Convert to Ready for Review once local checks pass and the
+  description is complete.
+- Reference the closing issue with `Closes #NNNN` in the description.
+- Follow the AI attribution rules in §8.3: disclose which agent(s)
+  contributed and at which stage.
+- Write PR titles and bodies in English, in the same commit style as
+  §8.2.
+- Only tick a PR checklist item that is genuinely done. For items that
+  do not apply, keep the box unchecked and add *(not applicable —
+  reason)* next to it. Do not check "done" as a shortcut.
+
+### 8.7 Review iteration workflow
 
 After opening the PR:
 
@@ -315,14 +389,30 @@ After opening the PR:
   genuinely flaky, say so in a comment — do not paper over it by
   disabling the test or adding retries.
 
-### 8.6 Fill in the PR template truthfully
+### 8.7 Review iteration workflow
 
-- Only tick a checklist item that is genuinely done. For items that do
-  not apply, keep the box unchecked and add *(not applicable — reason)*
-  next to it. Do not check "done" as a shortcut.
-- Reference the closing issue with `Closes #NNNN` in the description.
-- Write PR titles and bodies in English, in the same commit style as
-  §8.1.
+After opening the PR:
+
+- **Address feedback with new commits appended to the branch**, not by
+  squash-and-force-push. Maintainers rely on incremental history during
+  review; squashing happens at merge time.
+- **Avoid `git push --force` on a branch that already has review
+  comments** — it detaches those comments from their code position. If a
+  rebase is genuinely required (e.g., conflict resolution against
+  `main`), leave a comment before pushing so reviewers know.
+- **Do not close and reopen the PR** to reset review state, retry CI, or
+  bypass a blocking review. Push a fix instead.
+- **Design-level feedback is a conversation, not an instruction.** If a
+  reviewer's suggestion changes the intent of the PR (not just its
+  implementation), reply first and reach agreement before writing new
+  code. Blindly applying a large suggestion is worse than discussing it.
+- **Mark review threads resolved** only after you have addressed the
+  point in code and left a reply explaining what changed — or after the
+  reviewer explicitly says so. Do not silently resolve.
+- **CI failures**: read the failing job's log, find the root cause, then
+  push a fix. Never re-run CI hoping for a green run. If a test is
+  genuinely flaky, say so in a comment — do not paper over it by
+  disabling the test or adding retries.
 
 ## 9. Patterns that may lead to closure
 
@@ -336,10 +426,13 @@ at the maintainers' discretion.
 | Multiple unrelated changes bundled in one PR | §1 |
 | Logic changes without effective, non-duplicated tests | §2 |
 | Public-API break without maintainer sign-off | §3 |
+| Sensitive-area change without maintainer notice | §3 |
+| Drive-by dependency bump in a feature/fix PR | §3 |
 | Guessed / hallucinated API usage | §4 |
-| Drive-by refactors, formatting sweeps, unrelated `.gitignore` / CI edits | §4, §8.4 |
-| Debug output or commented-out code left in the diff | §8.4 |
-| Non-standard commit message format (missing gitmoji, wrong type, non-English) | §8.1 |
-| Missing or hidden AI attribution | §8.2 |
+| Drive-by refactors, formatting sweeps, unrelated `.gitignore` / CI edits | §4, §8.5 |
+| Branch name not following `category/ticket-id-or-short-description` | §8.1 |
+| Non-standard commit message format (missing gitmoji, wrong type, non-English) | §8.2 |
+| Missing or hidden AI attribution | §8.3 |
+| Debug output or commented-out code left in the diff | §8.5 |
 | Falsely checked PR checklist items | §8.6 |
-| Force-pushing or close/reopen to reset review state | §8.5 |
+| Force-pushing or close/reopen to reset review state | §8.7 |
