@@ -363,6 +363,22 @@ the commit. Never use `git add .` or `git add -A` — stage files by path.
 - Only tick a PR checklist item that is genuinely done. For items that
   do not apply, keep the box unchecked and add *(not applicable —
   reason)* next to it. Do not check "done" as a shortcut.
+- **Describe verification honestly — no boilerplate "Test plan"
+  checklist.** In prose, state what you actually confirmed and how, in
+  one or two sentences:
+
+  > *Added 15 unit tests covering method / content-type / custom-header
+  > combinations; `melos run test:vm` and `melos run analyze` clean.*
+
+  Mechanical prerequisites (`dart analyze`, `dart format`) are already
+  covered by the PR template's top-level checklist — do not re-list them
+  as "tests". Behavioral verification means checks that would fail if
+  this change regressed.
+
+  If something that ought to be verified genuinely could not be — needs
+  browser CI, a physical device, production load, and so on — list it
+  under a short **Unverified** paragraph explaining why. Unverified
+  items are known risks; this should stay rare, not become routine.
 
 ### 8.7 Review iteration workflow
 
