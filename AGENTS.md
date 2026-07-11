@@ -240,15 +240,17 @@ Rules:
 - One branch per PR; do not reuse a merged branch for a new change.
 - Keep branch names ASCII, lowercase, and short.
 
-### 8.2 Commit message format — gitmoji + Conventional
+### 8.2 Commit message format — Gitmoji or Conventional
 
-Every commit uses **[gitmoji](https://gitmoji.dev)** at the front and a
+Every commit uses **[gitmoji](https://gitmoji.dev)** at the front or a
 **[Conventional Commits](https://www.conventionalcommits.org)** type
 prefix. Emojis are chosen from the gitmoji specification — do not invent
 new ones.
 
 ```
-<gitmoji> <type>[(<scope>)]: <short imperative subject>
+<gitmoji> <Short imperative subject>
+(or)
+<type>[(<scope>)]: <short imperative subject>
 
 [optional body — wrap at ~72 chars]
 
@@ -280,14 +282,14 @@ Rules:
   GitHub adds `(#N)` automatically on squash-merge.
 - Use scope when it clarifies (`fix(dio_web_adapter): ...`); omit when it
   would just repeat the file path.
-- Emoji at position 0. Space, then the Conventional prefix, then subject.
+- Emoji at position 0 or the Conventional prefix plus the colon. Then the space, then the Conventional prefix, then subject.
 
 Examples (adapted from actual repo history):
 
 ```
-🐛 fix(dio): allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
-⚡️ perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
-📝 docs: add agent contribution guidelines
+🐛 Allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
+perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
+docs: add agent contribution guidelines
 ```
 
 ### 8.3 AI attribution — mandatory

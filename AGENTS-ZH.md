@@ -154,12 +154,14 @@ melos bootstrap
 - 每个 PR 一个分支；不要把已合并的分支重新用于新的改动。
 - 分支名保持 ASCII、小写、简短。
 
-### 8.2 Commit message 格式——gitmoji + Conventional
+### 8.2 Commit message 格式 —— Gitmoji 或 Conventional
 
-每条 commit 使用 **[gitmoji](https://gitmoji.dev)** 打头，并加上 **[Conventional Commits](https://www.conventionalcommits.org)** 类型前缀。emoji 从 gitmoji 规范中选取——不要自己发明。
+每条 commit 使用 **[gitmoji](https://gitmoji.dev)** 打头，或使用 **[Conventional Commits](https://www.conventionalcommits.org)** 类型前缀。emoji 从 gitmoji 规范中选取——不要自己发明。
 
 ```
-<gitmoji> <type>[(<scope>)]: <简短祈使句主题>
+<gitmoji> <简短祈使句主题>
+(或者)
+<type>[(<scope>)]: <简短祈使句主题>
 
 [可选正文，每行约 72 字符]
 
@@ -189,14 +191,14 @@ melos bootstrap
 
 - 主题使用英文祈使句。不要手动加 PR 号——GitHub 在 squash-merge 时会自动追加 `(#N)`。
 - Scope 用于澄清（`fix(dio_web_adapter): ...`）；如果 scope 只是重复了路径信息，就省略。
-- 位置 0 是 emoji。空格，然后 Conventional 前缀，再是主题。
+- 位置 0 是 emoji 或者 Conventional 前缀加冒号，然后空格，再是主题。
 
 示例（改编自真实仓库历史）：
 
 ```
-🐛 fix(dio): allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
-⚡️ perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
-📝 docs: add agent contribution guidelines
+🐛 Allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
+perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
+docs: add agent contribution guidelines
 ```
 
 ### 8.3 AI 归属——必须声明
