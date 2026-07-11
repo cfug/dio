@@ -88,13 +88,12 @@ public symbol as frozen unless a maintainer decides otherwise.
 - If an API must go away, deprecate first and keep it working:
 
   ```dart
-  @Deprecated('Use XXX instead. This will be removed in 6.0.0')
+  @Deprecated('Use XXX instead. This will be removed in X.0.0')
   ```
 
   Deprecations must state their replacement and the removal version, and
   are only removed in the next major release, together with an entry in
-  the Migration Guide. Target the *next* major (currently `6.0.0`), not a
-  version beyond that.
+  the Migration Guide. Target the *next* major, not a version beyond that.
 - Do not raise the minimum Dart/Flutter SDK constraint of any package
   unless required by the [Compatibility Policy](COMPATIBILITY_POLICY.md)
   or its listed exceptions. CI tests against the minimum supported SDK;
