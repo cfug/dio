@@ -268,6 +268,7 @@ Gitmoji commonly used in this repository (see `git log` for the full set):
 | 📝 `:memo:` | `docs` | Documentation |
 | ✅ `:white_check_mark:` | `test` | Tests only |
 | 🚨 `:rotating_light:` | `fix` / `style` | Fix linter or analyzer warnings |
+| 🥅 `:goal_net:` | `fix` / `refactor` | Catch errors / improve error handling |
 | 🔧 `:wrench:` | `chore` | Config / tooling |
 | 👷 `:construction_worker:` | `ci` | CI / workflow changes |
 | 💚 `:green_heart:` | `ci` | Fix a failing CI job |
@@ -282,7 +283,7 @@ Rules:
   GitHub adds `(#N)` automatically on squash-merge.
 - Use scope when it clarifies (`fix(dio_web_adapter): ...`); omit when it
   would just repeat the file path.
-- Emoji at position 0 or the Conventional prefix plus the colon. Then the space, then the Conventional prefix, then subject.
+- Position 0 is either the emoji or the Conventional prefix plus colon, then a space, then the subject.
 
 Examples (adapted from actual repo history):
 
@@ -427,6 +428,7 @@ at the maintainers' discretion.
 | Drive-by dependency bump in a feature/fix PR | §3 |
 | Guessed / hallucinated API usage | §4 |
 | Drive-by refactors, formatting sweeps, unrelated `.gitignore` / CI edits | §4, §8.5 |
+| Placeholder work (`TODO`/`FIXME`, mocked or simplified logic presented as complete) | §5 |
 | Branch name not following `category/ticket-id-or-short-description` | §8.1 |
 | Non-standard commit message format (missing gitmoji, wrong type, non-English) | §8.2 |
 | Missing or hidden AI attribution | §8.3 |

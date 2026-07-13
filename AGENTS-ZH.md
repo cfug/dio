@@ -179,6 +179,7 @@ melos bootstrap
 | 📝 `:memo:` | `docs` | 文档 |
 | ✅ `:white_check_mark:` | `test` | 只涉及测试 |
 | 🚨 `:rotating_light:` | `fix` / `style` | 修复 linter 或 analyzer 警告 |
+| 🥅 `:goal_net:` | `fix` / `refactor` | 处理错误 / 改进错误处理 |
 | 🔧 `:wrench:` | `chore` | 配置 / 工具链 |
 | 👷 `:construction_worker:` | `ci` | CI / workflow 变更 |
 | 💚 `:green_heart:` | `ci` | 修复失败的 CI |
@@ -289,6 +290,7 @@ PR 开出后：
 | 在 feature/fix PR 中夹带顺手的依赖升级 | §3 |
 | 臆造 / hallucinate 的 API 用法 | §4 |
 | 顺手重构、格式化清扫、无关的 `.gitignore` / CI 改动 | §4、§8.5 |
+| 遗留 `TODO`/`FIXME`、mock 或简化实现冒充成品 | §5 |
 | 分支命名不符合 `category/ticket-id-or-short-description` | §8.1 |
 | 不合规范的 commit message（缺 gitmoji、类型错误、非英文） | §8.2 |
 | 缺失或隐瞒 AI 归属 | §8.3 |
