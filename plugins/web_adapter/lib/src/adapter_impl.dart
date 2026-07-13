@@ -10,13 +10,14 @@ import 'package:web/web.dart' as web;
 
 import 'cors.dart';
 
-export 'cors.dart' show corsPreflightReason;
-
 BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
-  BrowserHttpClientAdapter({this.withCredentials = false});
+  BrowserHttpClientAdapter({
+    this.withCredentials = false,
+    this.enableCORSWarning = true,
+  });
 
   /// These are aborted if the client is closed.
   @visibleForTesting
@@ -30,6 +31,15 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// You can also override this value using `Options.extra['withCredentials']`
   /// for each request.
   bool withCredentials;
+
+  /// Whether to emit a warning log when a request is not a CORS "simple
+  /// request" and will trigger a preflight (OPTIONS) request.
+  ///
+  /// Defaults to `true`. Set to `false` to silence the warning in apps that
+  /// already handle CORS preflight correctly and find the per-request log
+  /// noisy. The enriched error message in [DioException.connectionError] is
+  /// always emitted regardless of this setting.
+  bool enableCORSWarning;
 
   @override
   Future<ResponseBody> fetch(
@@ -70,23 +80,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // Detect configurations that will trigger a CORS preflight request so we
     // can warn the developer and enrich the eventual error message.
     // See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
-    final preflightReasons = <String>[
-      if (corsPreflightReason(options) case final reason?) reason,
-    ];
     final willRegisterUploadListener = requestStream != null &&
         (sendTimeout > Duration.zero || onSendProgress != null);
-    if (willRegisterUploadListener) {
-      preflightReasons.add(
-        'an upload progress listener (sendTimeout or onSendProgress) '
-        'forces a preflight request',
-      );
-    }
-    if (xhr.withCredentials) {
-      preflightReasons.add(
-        'withCredentials is enabled, which requires a CORS preflight request',
-      );
-    }
-    if (preflightReasons.isNotEmpty) {
+    final preflightReasons = collectCorsPreflightReasons(
+      options,
+      willRegisterUploadListener: willRegisterUploadListener,
+      withCredentials: xhr.withCredentials,
+    );
+    if (preflightReasons.isNotEmpty && enableCORSWarning) {
       warningLog(
         'This request is not a CORS "simple request" and will trigger a '
         'preflight (OPTIONS) request: ${preflightReasons.join('; ')}. '
@@ -252,20 +253,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       // Unfortunately, the underlying XMLHttpRequest API doesn't expose any
       // specific information about the error itself.
       // See also: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget/onerror
-      final baseReason = 'The XMLHttpRequest onError callback was called. '
-          'This typically indicates an error on the network layer.';
-      final reason = preflightReasons.isEmpty
-          ? baseReason
-          : '$baseReason If this is a cross-origin request, the browser may '
-              'have blocked it because the request is not a CORS "simple '
-              'request" (${preflightReasons.join('; ')}). Verify that the '
-              'server responds correctly to the CORS preflight (OPTIONS) '
-              'request. See '
-              'https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests';
       completer.completeError(
         DioException.connectionError(
           requestOptions: options,
-          reason: reason,
+          reason: corsEnrichedErrorReason(
+            'The XMLHttpRequest onError callback was called. '
+            'This typically indicates an error on the network layer.',
+            preflightReasons,
+          ),
         ),
         StackTrace.current,
       );
