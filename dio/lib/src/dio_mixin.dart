@@ -280,6 +280,46 @@ abstract class DioMixin implements Dio {
   }
 
   @override
+  Future<Response<T>> query<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) {
+    return request<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: checkOptions('QUERY', options),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  @override
+  Future<Response<T>> queryUri<T>(
+    Uri uri, {
+    Object? data,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) {
+    return requestUri<T>(
+      uri,
+      data: data,
+      options: checkOptions('QUERY', options),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  @override
   Future<Response> downloadUri(
     Uri uri,
     dynamic savePath, {

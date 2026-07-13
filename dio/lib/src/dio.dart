@@ -179,6 +179,36 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
+  /// Convenience method to make an HTTP QUERY request.
+  ///
+  /// The QUERY method is defined in [RFC 9239][]. Unlike GET, it allows a
+  /// request body, and unlike POST, it is safe and idempotent. It is intended
+  /// for complex queries whose parameters are too large or too structured to
+  /// fit in the request URI.
+  ///
+  /// [RFC 9239]: https://www.rfc-editor.org/rfc/rfc9239
+  Future<Response<T>> query<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  /// Convenience method to make an HTTP QUERY request with [Uri].
+  ///
+  /// See [query] for details about the QUERY method.
+  Future<Response<T>> queryUri<T>(
+    Uri uri, {
+    Object? data,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
   /// {@template dio.Dio.download}
   /// Download the file and save it in local. The default http method is "GET",
   /// you can custom it by [Options.method].
