@@ -406,31 +406,6 @@ After opening the PR:
   genuinely flaky, say so in a comment — do not paper over it by
   disabling the test or adding retries.
 
-### 8.7 Review iteration workflow
-
-After opening the PR:
-
-- **Address feedback with new commits appended to the branch**, not by
-  squash-and-force-push. Maintainers rely on incremental history during
-  review; squashing happens at merge time.
-- **Avoid `git push --force` on a branch that already has review
-  comments** — it detaches those comments from their code position. If a
-  rebase is genuinely required (e.g., conflict resolution against
-  `main`), leave a comment before pushing so reviewers know.
-- **Do not close and reopen the PR** to reset review state, retry CI, or
-  bypass a blocking review. Push a fix instead.
-- **Design-level feedback is a conversation, not an instruction.** If a
-  reviewer's suggestion changes the intent of the PR (not just its
-  implementation), reply first and reach agreement before writing new
-  code. Blindly applying a large suggestion is worse than discussing it.
-- **Mark review threads resolved** only after you have addressed the
-  point in code and left a reply explaining what changed — or after the
-  reviewer explicitly says so. Do not silently resolve.
-- **CI failures**: read the failing job's log, find the root cause, then
-  push a fix. Never re-run CI hoping for a green run. If a test is
-  genuinely flaky, say so in a comment — do not paper over it by
-  disabling the test or adding retries.
-
 ## 9. Patterns that may lead to closure
 
 Quick cross-reference — each pattern is a violation of the rules above.
