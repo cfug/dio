@@ -149,7 +149,7 @@ response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 
 ### 发起一个 `QUERY` 请求:
 
-`QUERY` 方法（RFC 9239）与 `GET` 一样是安全且幂等的，但允许携带请求体，
+`QUERY` 方法（RFC 10008）与 `GET` 一样是安全且幂等的，但允许携带请求体，
 适合用于参数过多或结构复杂、不适合放在 URL 中的查询。
 
 ```dart

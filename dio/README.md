@@ -133,7 +133,7 @@ response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
 
 ### Performing a `QUERY` request
 
-The `QUERY` method (RFC 9239) is safe and idempotent like `GET`, but allows a
+The `QUERY` method (RFC 10008) is safe and idempotent like `GET`, but allows a
 request body, which is useful for complex queries that do not fit in the URL.
 
 ```dart

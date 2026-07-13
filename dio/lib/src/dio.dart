@@ -181,12 +181,12 @@ abstract class Dio {
 
   /// Convenience method to make an HTTP QUERY request.
   ///
-  /// The QUERY method is defined in [RFC 9239][]. Unlike GET, it allows a
+  /// The QUERY method is defined in [RFC 10008][]. Unlike GET, it allows a
   /// request body, and unlike POST, it is safe and idempotent. It is intended
   /// for complex queries whose parameters are too large or too structured to
   /// fit in the request URI.
   ///
-  /// [RFC 9239]: https://www.rfc-editor.org/rfc/rfc9239
+  /// [RFC 10008]: https://www.rfc-editor.org/rfc/rfc10008
   Future<Response<T>> query<T>(
     String path, {
     Object? data,
