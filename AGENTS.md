@@ -350,6 +350,11 @@ Remove before committing:
 If you cannot explain why a hunk is in the diff, it does not belong in
 the commit. Never use `git add .` or `git add -A` — stage files by path.
 
+**Also re-read the commit message against the staged diff.** A message
+carried over from a previous attempt, or auto-completed from an
+unrelated commit, is easy to miss and lands verbatim in history. If the
+message and the diff describe different work, one of them is wrong.
+
 ### 8.6 Opening the PR
 
 - **Open as a draft PR** (`Create draft pull request`) when the change

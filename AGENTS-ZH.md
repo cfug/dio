@@ -247,6 +247,8 @@ commit 前必须清除：
 
 如果一段 diff 你说不清为什么会在那里，它就不该进这次 commit。绝不使用 `git add .` 或 `git add -A`——按路径精确 stage。
 
+**同时把 commit message 与暂存的 diff 对读一遍。** 上一次尝试遗留下来的、或从无关 commit 自动补全过来的 message 很容易被漏看，一旦 commit 就会以那种形式永久留在历史里。如果 message 描述的工作和 diff 不一致，两者之中至少有一个是错的。
+
 ### 8.6 提交 PR
 
 - 当改动较大、处于探索阶段、或希望在打磨前先获得维护者方向性反馈时，**以 draft PR 形式开启**（`Create draft pull request`）。在本地检查通过、描述完整之后再切换为 Ready for Review。
