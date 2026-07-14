@@ -12,29 +12,40 @@ jobs:
       issues: write
     if: ${{ join(github.event.issue.labels) == '' || contains(github.event.issue.labels.*.name, 'infra')}}
     steps:
-      - uses: actions-cool/check-user-permission@c21884f3dda18dafc2f8b402fe807ccc9ec1aa5e
+      - uses: actions-cool/check-user-permission@c21884f3dda18dafc2f8b402fe807ccc9ec1aa5e #v2.4.0
         id: checkUser
         with:
           require: 'write'
-      - name: Write comment
+      - name: comment, close and lock the issue
         if: steps.checkUser.outputs.require-result == 'false'
-        uses: actions-cool/issues-helper@200c78641dbf33838311e5a1e0c31bbdb92d7cf0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          actions: 'create-comment'
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            @${{ github.event.issue.user.login }} Infra and blank issues are only available for moderators. You're apparently using the wrong issue template.
-            > Infra 和空白 issue 仅供管理人员使用，请选择其他 issue 模板创建 issue。
-      - name: Close issue
-        if: steps.checkUser.outputs.require-result == 'false'
-        uses: actions-cool/issues-helper@200c78641dbf33838311e5a1e0c31bbdb92d7cf0
-        with:
-          actions: 'close-issue'
-          issue-number: ${{ github.event.issue.number }}
-      - name: Lock issue
-        if: steps.checkUser.outputs.require-result == 'false'
-        uses: actions-cool/issues-helper@200c78641dbf33838311e5a1e0c31bbdb92d7cf0
-        with:
-          actions: 'lock-issue'
-          issue-number: ${{ github.event.issue.number }}
-          lock-reason: 'off-topic'
+          # Docs: https://octokit.github.io/rest.js/v22/
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.issue.number;
+            const author = context.payload.issue.user.login;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: [
+                `@${author} Infra and blank issues are only available for moderators. You're apparently using the wrong issue template.`,
+                '> Infra 和空白 issue 仅供管理人员使用，请选择其他 issue 模板创建 issue。',
+              ].join('\n'),
+            });
+
+            await github.rest.issues.update({
+              owner,
+              repo,
+              issue_number,
+              state: 'closed',
+            });
+
+            await github.rest.issues.lock({
+              owner,
+              repo,
+              issue_number,
+              lock_reason: 'off-topic',
+            });

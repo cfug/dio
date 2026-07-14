@@ -7,3 +7,7 @@ updates:
     labels:
       - "infra"
       - "github-actions"
+    groups:
+      codeql-action:
+        patterns:
+          - "github/codeql-action/*"

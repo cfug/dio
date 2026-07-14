@@ -8,6 +8,8 @@ This document provides some guidelines to help ensure that your contributions ar
 
 Remember, everyone contributing to this project is expected to follow our code of conduct. This helps ensure a positive and inclusive environment for all contributors.
 
+If you are contributing with the help of AI agents (or as one), you must also follow the [Agent Contribution Guidelines](AGENTS.md).
+
 Thank you again for your contributions, and we look forward to seeing what you will bring to the `dio` project!
 
 ## Creating Good Tickets

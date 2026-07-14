@@ -179,6 +179,27 @@ abstract class Dio {
     CancelToken? cancelToken,
   });
 
+  /// Convenience method to make an HTTP QUERY request.
+  Future<Response<T>> query<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  /// Convenience method to make an HTTP QUERY request with [Uri].
+  Future<Response<T>> queryUri<T>(
+    Uri uri, {
+    Object? data,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
+
   /// {@template dio.Dio.download}
   /// Download the file and save it in local. The default http method is "GET",
   /// you can custom it by [Options.method].

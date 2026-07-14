@@ -3,6 +3,7 @@
 ### New Pull Request Checklist
 
 - [ ] I have read the [Documentation](https://pub.dev/documentation/dio/latest/)
+- [ ] I have read the [Agent Contribution Guidelines](https://github.com/cfug/dio/blob/main/AGENTS.md) (required if any part of the change was produced with AI assistance)
 - [ ] I have searched for a similar pull request in the [project](https://github.com/cfug/dio/pulls) and found none
 - [ ] I have updated this branch with the latest `main` branch to avoid conflicts (via merge from master or rebase)
 - [ ] I have added the required tests to prove the fix/feature I'm adding

@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-*None.*
+- Warn when a request is not a CORS "simple request" and will trigger a
+  preflight (OPTIONS) request, and enrich the `XMLHttpRequest.onError` message
+  with CORS guidance when the request was preflighted. The warning can be
+  disabled via `BrowserHttpClientAdapter(enableCORSWarning: false)`; the
+  enriched error message is always emitted.
 
 ## 2.2.0
 
