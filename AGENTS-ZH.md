@@ -173,7 +173,8 @@ melos bootstrap
 [可选 footer，例如 Closes #1234]
 ```
 
-本仓库常用的 gitmoji（完整列表见 `git log`）：
+本仓库常用的 gitmoji（完整列表见 `git log`）。
+**只选一列——不要两个都用。** 每一行把同一含义的 gitmoji 与 Conventional 类型前缀作对应；用 emoji 或用前缀，不要粘在一起。`🔧 chore: ...` 是错的。
 
 | Gitmoji | Conventional 类型 | 用途 |
 |---|---|---|
@@ -198,6 +199,7 @@ melos bootstrap
 - 主题使用英文祈使句。不要手动加 PR 号——GitHub 在 squash-merge 时会自动追加 `(#N)`。
 - Scope 用于澄清（`fix(dio_web_adapter): ...`）；如果 scope 只是重复了路径信息，就省略。
 - 位置 0 是 emoji 或者 Conventional 前缀加冒号，然后空格，再是主题。
+- 以 gitmoji 开头时，主题**首字母大写**（`🐛 Allow ...`、`📝 Clarify ...`）；以 Conventional 前缀开头时，主题保持小写（`docs: add ...`、`perf(dio): reduce ...`）。
 
 示例（改编自真实仓库历史）：
 
@@ -205,6 +207,14 @@ melos bootstrap
 🐛 Allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
 perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
 docs: add agent contribution guidelines
+```
+
+不要把两种风格混用：
+
+```
+❌ 🔧 chore: group codeql-action updates      （gitmoji 和前缀同时用）
+✅ 🔧 Group codeql-action updates              （只用 gitmoji，主题首字母大写）
+✅ chore: group codeql-action updates          （只用 Conventional，主题小写）
 ```
 
 ### 8.3 AI 归属——必须声明
@@ -265,6 +275,14 @@ commit 前必须清除：
 - **诚实描述已完成的验证——不要写套版式 "Test plan" 勾选清单。** 用一两句话散文式说明你实际验证了什么、怎么验证的：
 
   > *添加了 15 个单元测试覆盖 method / content-type / custom-header 各种组合；`melos run test:vm` 与 `melos run analyze` 均通过。*
+
+  **不要**贴一份通用的 checklist——即使你的 agent 工具默认给出一份，本节明确拒绝这种模板：
+
+  ```
+  ❌  ## Test plan
+      - [ ] Tests pass
+      - [ ] Feature works as expected
+  ```
 
   机械性的前置检查（`dart analyze`、`dart format`）已经由 PR 模板顶部的 checklist 覆盖——不要把它们当作「测试」再列一遍。行为验证指的是「本次改动如果回退，这条检查会失败」的那种检查。
 

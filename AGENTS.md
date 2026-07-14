@@ -277,7 +277,10 @@ new ones.
 [optional footer, e.g. Closes #1234]
 ```
 
-Gitmoji commonly used in this repository (see `git log` for the full set):
+Gitmoji commonly used in this repository (see `git log` for the full set).
+**Pick one column — never both.** Each row maps a gitmoji to its
+equivalent Conventional-type prefix; you use the emoji **or** the type,
+not the two glued together. `🔧 chore: ...` is wrong.
 
 | Gitmoji | Conventional type | Use for |
 |---|---|---|
@@ -304,6 +307,9 @@ Rules:
 - Use scope when it clarifies (`fix(dio_web_adapter): ...`); omit when it
   would just repeat the file path.
 - Position 0 is either the emoji or the Conventional prefix plus colon, then a space, then the subject.
+- After a gitmoji the subject starts with a **capital letter**
+  (`🐛 Allow ...`, `📝 Clarify ...`); after a Conventional prefix the
+  subject stays lowercase (`docs: add ...`, `perf(dio): reduce ...`).
 
 Examples (adapted from actual repo history):
 
@@ -311,6 +317,14 @@ Examples (adapted from actual repo history):
 🐛 Allow `callFollowingErrorInterceptor` when rejecting in `ErrorInterceptorHandler`
 perf(dio): reduce `FormData.readAsBytes` memory usage for large payloads
 docs: add agent contribution guidelines
+```
+
+Do **not** combine the two styles:
+
+```
+❌ 🔧 chore: group codeql-action updates      (both gitmoji AND prefix)
+✅ 🔧 Group codeql-action updates              (gitmoji only, capitalized subject)
+✅ chore: group codeql-action updates          (Conventional only, lowercase subject)
 ```
 
 ### 8.3 AI attribution — mandatory
@@ -396,6 +410,16 @@ message and the diff describe different work, one of them is wrong.
 
   > *Added 15 unit tests covering method / content-type / custom-header
   > combinations; `melos run test:vm` and `melos run analyze` clean.*
+
+  Do **not** paste a generic checklist — this is the anti-pattern this
+  section is explicitly rejecting, even if your agent tooling suggests
+  one by default:
+
+  ```
+  ❌  ## Test plan
+      - [ ] Tests pass
+      - [ ] Feature works as expected
+  ```
 
   Mechanical prerequisites (`dart analyze`, `dart format`) are already
   covered by the PR template's top-level checklist — do not re-list them
