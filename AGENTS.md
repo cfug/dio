@@ -161,6 +161,26 @@ dependency change is itself the point of the PR:
 
   If the `PUB_CACHE` environment variable is set, use that location
   instead of the platform default.
+- **Verify every external fact before writing it down.** Agents
+  routinely hallucinate numbers and attach wrong labels to them — RFC
+  numbers, issue/PR numbers, library/API version numbers, CVE
+  identifiers, deprecation timelines, benchmark figures, attributed
+  quotes, platform-behavior claims ("iOS X.Y and later…"). A wrong
+  citation in a commit message, changelog, or doc comment is worse
+  than no citation, because it misleads downstream readers and
+  reviewers who trust it. Before writing any external fact:
+  1. Look up the source and confirm it says what you claim. For RFCs,
+     check `https://www.rfc-editor.org/rfc/rfcNNNN` (or
+     `https://datatracker.ietf.org/doc/rfcNNNN/`) and confirm the
+     title matches; for issues/PRs, open the link; for library
+     versions, read the package's own changelog/source.
+  2. Confirm any section anchor, version number, or quoted text you
+     cite actually exists at that source.
+  3. If you cannot verify the fact online, drop the citation and
+     describe the observed behavior in your own words instead. Do not
+     guess a number to make a statement look authoritative.
+  This applies to commit messages, `CHANGELOG.md`, doc comments,
+  README, and any prose in a PR description.
 
 ## 5. Production quality only
 
@@ -427,6 +447,7 @@ at the maintainers' discretion.
 | Sensitive-area change without maintainer notice | §3 |
 | Drive-by dependency bump in a feature/fix PR | §3 |
 | Guessed / hallucinated API usage | §4 |
+| Unverified or wrong external factual reference | §4 |
 | Drive-by refactors, formatting sweeps, unrelated `.gitignore` / CI edits | §4, §8.5 |
 | Placeholder work (`TODO`/`FIXME`, mocked or simplified logic presented as complete) | §5 |
 | Branch name not following `category/ticket-id-or-short-description` | §8.1 |
