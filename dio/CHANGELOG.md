@@ -7,6 +7,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 - Add `query` and `queryUri` convenience methods for the HTTP QUERY method defined in RFC 10008,
   which allows a request body for safe, idempotent queries.
+- Fix `FusedTransformer` (the default transformer) throwing a `FormatException`
+  on an empty response body when a custom `responseDecoder` is set. It now
+  returns an empty result, consistent with `SyncTransformer` and
+  `BackgroundTransformer`.
 
 ## 5.10.0
 
