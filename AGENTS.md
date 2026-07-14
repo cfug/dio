@@ -287,6 +287,9 @@ Rules:
 - Use scope when it clarifies (`fix(dio_web_adapter): ...`); omit when it
   would just repeat the file path.
 - Position 0 is either the emoji or the Conventional prefix plus colon, then a space, then the subject.
+- After a gitmoji the subject starts with a **capital letter**
+  (`🐛 Allow ...`, `📝 Clarify ...`); after a Conventional prefix the
+  subject stays lowercase (`docs: add ...`, `perf(dio): reduce ...`).
 
 Examples (adapted from actual repo history):
 
@@ -300,8 +303,8 @@ Do **not** combine the two styles:
 
 ```
 ❌ 🔧 chore: group codeql-action updates      (both gitmoji AND prefix)
-✅ 🔧 group codeql-action updates              (gitmoji only)
-✅ chore: group codeql-action updates          (Conventional only)
+✅ 🔧 Group codeql-action updates              (gitmoji only, capitalized subject)
+✅ chore: group codeql-action updates          (Conventional only, lowercase subject)
 ```
 
 ### 8.3 AI attribution — mandatory

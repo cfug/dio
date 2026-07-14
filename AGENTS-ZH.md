@@ -194,6 +194,7 @@ melos bootstrap
 - 主题使用英文祈使句。不要手动加 PR 号——GitHub 在 squash-merge 时会自动追加 `(#N)`。
 - Scope 用于澄清（`fix(dio_web_adapter): ...`）；如果 scope 只是重复了路径信息，就省略。
 - 位置 0 是 emoji 或者 Conventional 前缀加冒号，然后空格，再是主题。
+- 以 gitmoji 开头时，主题**首字母大写**（`🐛 Allow ...`、`📝 Clarify ...`）；以 Conventional 前缀开头时，主题保持小写（`docs: add ...`、`perf(dio): reduce ...`）。
 
 示例（改编自真实仓库历史）：
 
@@ -207,8 +208,8 @@ docs: add agent contribution guidelines
 
 ```
 ❌ 🔧 chore: group codeql-action updates      （gitmoji 和前缀同时用）
-✅ 🔧 group codeql-action updates              （只用 gitmoji）
-✅ chore: group codeql-action updates          （只用 Conventional）
+✅ 🔧 Group codeql-action updates              （只用 gitmoji，主题首字母大写）
+✅ chore: group codeql-action updates          （只用 Conventional，主题小写）
 ```
 
 ### 8.3 AI 归属——必须声明
