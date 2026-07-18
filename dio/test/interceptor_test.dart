@@ -617,6 +617,86 @@ void main() {
       expect(uncaughtErrors, [same(lateError)]);
     });
 
+    test('InterceptorsWrapper subclass invokes on* overrides', () async {
+      final events = <String>[];
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_SubclassedInterceptorsWrapper(events));
+
+      final response = await dio.get<Object?>('/test');
+      expect(response.statusCode, 200);
+      await expectLater(
+        dio.get<Object?>('/test-not-found'),
+        throwsA(isA<DioException>()),
+      );
+
+      expect(events, ['request', 'response', 'request', 'error']);
+    });
+
+    test('InterceptorsWrapper subclass observes async callback errors',
+        () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_AsyncSubclassedInterceptorsWrapper());
+
+      await expectLater(
+        dio.get<Object?>('/test'),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.error,
+            'error',
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              'Async wrapper subclass error',
+            ),
+          ),
+        ),
+      );
+    });
+
+    test('QueuedInterceptorsWrapper subclass invokes on* overrides', () async {
+      final events = <String>[];
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_SubclassedQueuedInterceptorsWrapper(events));
+
+      final response = await dio.get<Object?>('/test');
+      expect(response.statusCode, 200);
+      await expectLater(
+        dio.get<Object?>('/test-not-found'),
+        throwsA(isA<DioException>()),
+      );
+
+      expect(events, ['request', 'response', 'request', 'error']);
+    });
+
+    test('QueuedInterceptorsWrapper subclass observes async callback errors',
+        () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_AsyncSubclassedQueuedInterceptorsWrapper());
+
+      await expectLater(
+        dio.get<Object?>('/test'),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.error,
+            'error',
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              'Async queued wrapper subclass error',
+            ),
+          ),
+        ),
+      );
+    });
+
     test('#2565 shares adapter errors between concurrent requests', () async {
       final adapter = _ImmediateErrorAdapter();
       final interceptor = _DeduplicatingInterceptor();
@@ -1342,5 +1422,94 @@ class _AsyncRequestErrorInterceptor extends Interceptor {
   ) async {
     await Future<void>.value();
     throw StateError('Async interceptor subclass error');
+  }
+}
+
+class _SubclassedInterceptorsWrapper extends InterceptorsWrapper {
+  _SubclassedInterceptorsWrapper(this.events);
+
+  final List<String> events;
+
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) {
+    events.add('request');
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    events.add('response');
+    handler.next(response);
+  }
+
+  @override
+  void onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) {
+    events.add('error');
+    handler.next(error);
+  }
+}
+
+class _AsyncSubclassedInterceptorsWrapper extends InterceptorsWrapper {
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    await Future<void>.value();
+    throw StateError('Async wrapper subclass error');
+  }
+}
+
+class _SubclassedQueuedInterceptorsWrapper extends QueuedInterceptorsWrapper {
+  _SubclassedQueuedInterceptorsWrapper(this.events);
+
+  final List<String> events;
+
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) {
+    events.add('request');
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    events.add('response');
+    handler.next(response);
+  }
+
+  @override
+  void onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) {
+    events.add('error');
+    handler.next(error);
+  }
+}
+
+class _AsyncSubclassedQueuedInterceptorsWrapper
+    extends QueuedInterceptorsWrapper {
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    await Future<void>.value();
+    throw StateError('Async queued wrapper subclass error');
   }
 }

@@ -13,6 +13,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
   `BackgroundTransformer`.
 - Fix concurrent requests hanging or reporting uncaught errors when an
   interceptor shares a failing Future, such as in request deduplication.
+- Preserve `onRequest`, `onResponse`, and `onError` overrides in subclasses of
+  `InterceptorsWrapper` and `QueuedInterceptorsWrapper`.
 
 ## 5.10.0
 

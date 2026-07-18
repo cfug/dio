@@ -318,16 +318,29 @@ mixin _InterceptorWrapperMixin on Interceptor {
   InterceptorSuccessCallback? _onResponse;
   InterceptorErrorCallback? _onError;
 
+  // The public callback typedefs remain void for compatibility. Invoke them
+  // dynamically so an async callback still exposes its runtime Future.
+
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    if (_onRequest != null) {
-      _onRequest!(options, handler);
-    } else {
+    final callback = _onRequest;
+    if (callback == null) {
       handler.next(options);
+      return;
     }
+    final dynamic dynamicCallback = callback;
+    final result = dynamicCallback(options, handler);
+    _observeInterceptorCallback(
+      result,
+      handler,
+      (error, stackTrace) => handler.reject(
+        DioMixin.assureDioException(error, options, stackTrace),
+        true,
+      ),
+    );
   }
 
   @override
@@ -335,11 +348,25 @@ mixin _InterceptorWrapperMixin on Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    if (_onResponse != null) {
-      _onResponse!(response, handler);
-    } else {
+    final callback = _onResponse;
+    if (callback == null) {
       handler.next(response);
+      return;
     }
+    final dynamic dynamicCallback = callback;
+    final result = dynamicCallback(response, handler);
+    _observeInterceptorCallback(
+      result,
+      handler,
+      (error, stackTrace) => handler.reject(
+        DioMixin.assureDioException(
+          error,
+          response.requestOptions,
+          stackTrace,
+        ),
+        true,
+      ),
+    );
   }
 
   @override
@@ -347,50 +374,24 @@ mixin _InterceptorWrapperMixin on Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) {
-    if (_onError != null) {
-      _onError!(err, handler);
-    } else {
+    final callback = _onError;
+    if (callback == null) {
       handler.next(err);
+      return;
     }
-  }
-
-  @override
-  Object? _invokeRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
-    if (_onRequest == null) {
-      handler.next(options);
-      return null;
-    }
-    final dynamic callback = _onRequest;
-    return callback(options, handler);
-  }
-
-  @override
-  Object? _invokeResponse(
-    Response<dynamic> response,
-    ResponseInterceptorHandler handler,
-  ) {
-    if (_onResponse == null) {
-      handler.next(response);
-      return null;
-    }
-    final dynamic callback = _onResponse;
-    return callback(response, handler);
-  }
-
-  @override
-  Object? _invokeError(
-    DioException error,
-    ErrorInterceptorHandler handler,
-  ) {
-    if (_onError == null) {
-      handler.next(error);
-      return null;
-    }
-    final dynamic callback = _onError;
-    return callback(error, handler);
+    final dynamic dynamicCallback = callback;
+    final result = dynamicCallback(err, handler);
+    _observeInterceptorCallback(
+      result,
+      handler,
+      (error, stackTrace) => handler.next(
+        DioMixin.assureDioException(
+          error,
+          err.requestOptions,
+          stackTrace,
+        ),
+      ),
+    );
   }
 }
 
