@@ -30,9 +30,6 @@ jobs:
       - uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
         with:
           cache: true
-      - run: |
-          chmod +x ./scripts/prepare_pinning_certs.sh
-          ./scripts/prepare_pinning_certs.sh
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
@@ -47,7 +44,6 @@ jobs:
       - name: Melos Bootstrap
         run: melos bootstrap
       # Tests
-      - run: ./scripts/prepare_pinning_certs.sh
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid mkcert
       - name: Start local httpbun
@@ -66,6 +62,8 @@ jobs:
             sharat87/httpbun
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
+      - name: Prepare pinning certificates
+        run: HTTPBUN_HOST=httpbun.local ./scripts/prepare_pinning_certs.sh
       - name: Use httpbun.local for tests
         run: melos run httpbun:local
       - name: '[Verify step] Test Dart packages [VM]'
