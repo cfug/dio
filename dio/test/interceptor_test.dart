@@ -477,6 +477,52 @@ void main() {
       );
     });
 
+    test('Async response interceptor subclass error does not hang the request',
+        () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_AsyncResponseErrorInterceptor());
+
+      await expectLater(
+        dio.get<Object?>('/test'),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.error,
+            'error',
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              'Async response interceptor subclass error',
+            ),
+          ),
+        ),
+      );
+    });
+
+    test('Async error interceptor subclass error does not hang the request',
+        () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_AsyncErrorInterceptor());
+
+      await expectLater(
+        dio.get<Object?>('/test-not-found'),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.error,
+            'error',
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              'Async error interceptor subclass error',
+            ),
+          ),
+        ),
+      );
+    });
+
     test('Async onResponse error does not hang the request', () async {
       final dio = Dio()
         ..options.baseUrl = MockAdapter.mockBase
@@ -1422,6 +1468,28 @@ class _AsyncRequestErrorInterceptor extends Interceptor {
   ) async {
     await Future<void>.value();
     throw StateError('Async interceptor subclass error');
+  }
+}
+
+class _AsyncResponseErrorInterceptor extends Interceptor {
+  @override
+  Future<void> onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) async {
+    await Future<void>.value();
+    throw StateError('Async response interceptor subclass error');
+  }
+}
+
+class _AsyncErrorInterceptor extends Interceptor {
+  @override
+  Future<void> onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
+    await Future<void>.value();
+    throw StateError('Async error interceptor subclass error');
   }
 }
 
