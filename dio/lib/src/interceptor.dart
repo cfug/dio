@@ -49,6 +49,8 @@ void _observeInterceptorCallback(
   _BaseHandler handler,
   void Function(Object error, StackTrace stackTrace) onError,
 ) {
+  // Only a returned Future can be associated with this handler. Detached
+  // asynchronous work remains owned by the callback's zone.
   if (result is! Future<dynamic>) {
     return;
   }
