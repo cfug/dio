@@ -60,16 +60,23 @@ jobs:
             --env HTTPBUN_TLS_KEY=/tmp/key.pem \
             --pull always \
             sharat87/httpbun
+          docker run \
+            --name httpbun-http \
+            --detach \
+            --publish 80:80 \
+            --pull always \
+            sharat87/httpbun
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
+          curl --fail --silent --show-error http://httpbun.local/any
       - name: Prepare pinning certificates
         run: HTTPBUN_HOST=httpbun.local ./scripts/prepare_pinning_certs.sh
       - name: Use httpbun.local for tests
         run: melos run httpbun:local
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos run test:vm
-      - name: Use httpbun.com for Web/Flutter tests
-        run: melos run httpbun:com
+      - name: Use local HTTP for Web/Flutter tests
+        run: melos run httpbun:local:http
       - name: '[Verify step] Test Dart packages [Chrome]'
         run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
