@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Run HTTP integration and certificate pinning tests against the configured
+  test server.
 
 ## 2.7.1
 
