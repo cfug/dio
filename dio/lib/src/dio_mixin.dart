@@ -426,34 +426,10 @@ abstract class DioMixin implements Dio {
       }
     }
 
-    // Create an error zone that catches uncaught async errors from
-    // interceptor callbacks. This prevents requests from hanging when
-    // an async interceptor throws without calling the handler.
-    // Synchronous exceptions are not caught here and propagate normally.
-    // If the handler was already completed (e.g. a fire-and-forget future
-    // inside the callback failed), forward the error to the parent zone
-    // so it isn't silently swallowed.
-    Zone createInterceptorZone(
-      _BaseHandler handler,
-      void Function(Object error, StackTrace stackTrace) onUncaughtError,
-    ) {
-      return Zone.current.fork(
-        specification: ZoneSpecification(
-          handleUncaughtError: (self, parent, zone, error, stackTrace) {
-            if (!handler.isCompleted) {
-              onUncaughtError(error, stackTrace);
-            } else {
-              parent.handleUncaughtError(zone, error, stackTrace);
-            }
-          },
-        ),
-      );
-    }
-
     // Convert the request interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr Function(dynamic) requestInterceptorWrapper(
-      InterceptorSendCallback cb,
+      _InterceptorCallback<RequestOptions, RequestInterceptorHandler> cb,
     ) {
       return (dynamic incomingState) {
         final state = incomingState as InterceptorState;
@@ -462,13 +438,15 @@ abstract class DioMixin implements Dio {
             requestOptions.cancelToken,
             Future(() async {
               final handler = RequestInterceptorHandler();
-              createInterceptorZone(
+              final result = cb(state.data as RequestOptions, handler);
+              _observeInterceptorCallback(
+                result,
                 handler,
                 (error, stackTrace) => handler.reject(
                   assureDioException(error, requestOptions, stackTrace),
                   true,
                 ),
-              ).run(() => cb(state.data as RequestOptions, handler));
+              );
               return handler.future;
             }),
           );
@@ -480,7 +458,7 @@ abstract class DioMixin implements Dio {
     // Convert the response interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(dynamic) responseInterceptorWrapper(
-      InterceptorSuccessCallback cb,
+      _InterceptorCallback<Response<dynamic>, ResponseInterceptorHandler> cb,
     ) {
       return (dynamic incomingState) {
         final state = incomingState as InterceptorState;
@@ -490,13 +468,15 @@ abstract class DioMixin implements Dio {
             requestOptions.cancelToken,
             Future(() async {
               final handler = ResponseInterceptorHandler();
-              createInterceptorZone(
+              final result = cb(state.data as Response, handler);
+              _observeInterceptorCallback(
+                result,
                 handler,
                 (error, stackTrace) => handler.reject(
                   assureDioException(error, requestOptions, stackTrace),
                   true,
                 ),
-              ).run(() => cb(state.data as Response, handler));
+              );
               return handler.future;
             }),
           );
@@ -508,7 +488,7 @@ abstract class DioMixin implements Dio {
     // Convert the error interceptor to a functional callback in which
     // we can handle the return value of interceptor callback.
     FutureOr<dynamic> Function(Object) errorInterceptorWrapper(
-      InterceptorErrorCallback cb,
+      _InterceptorCallback<DioException, ErrorInterceptorHandler> cb,
     ) {
       return (dynamic error) {
         final state = error is InterceptorState
@@ -516,12 +496,14 @@ abstract class DioMixin implements Dio {
             : InterceptorState(assureDioException(error, requestOptions));
         Future<InterceptorState> handleError() async {
           final handler = ErrorInterceptorHandler();
-          createInterceptorZone(
+          final result = cb(state.data, handler);
+          _observeInterceptorCallback(
+            result,
             handler,
             (error, stackTrace) => handler.next(
               assureDioException(error, requestOptions, stackTrace),
             ),
-          ).run(() => cb(state.data, handler));
+          );
           return handler.future;
         }
 
@@ -552,7 +534,7 @@ abstract class DioMixin implements Dio {
     for (final interceptor in interceptors) {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleRequest
-          : interceptor.onRequest;
+          : interceptor._invokeRequest;
       future = future.then(requestInterceptorWrapper(fun));
     }
 
@@ -569,6 +551,7 @@ abstract class DioMixin implements Dio {
         } on DioException catch (e) {
           handler.reject(e, true);
         }
+        return null;
       }),
     );
 
@@ -576,7 +559,7 @@ abstract class DioMixin implements Dio {
     for (final interceptor in interceptors) {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleResponse
-          : interceptor.onResponse;
+          : interceptor._invokeResponse;
       future = future.then(responseInterceptorWrapper(fun));
     }
 
@@ -584,7 +567,7 @@ abstract class DioMixin implements Dio {
     for (final interceptor in interceptors) {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleError
-          : interceptor.onError;
+          : interceptor._invokeError;
       future = future.catchError(errorInterceptorWrapper(fun));
     }
     // Normalize errors, converts errors to [DioException].

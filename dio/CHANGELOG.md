@@ -11,6 +11,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
   on an empty response body when a custom `responseDecoder` is set. It now
   returns an empty result, consistent with `SyncTransformer` and
   `BackgroundTransformer`.
+- Fix concurrent requests hanging or reporting uncaught errors when an
+  interceptor shares a failing Future, such as in request deduplication.
 
 ## 5.10.0
 
