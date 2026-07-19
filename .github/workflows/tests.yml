@@ -107,7 +107,7 @@ jobs:
         run: melos run test:web:firefox
       - name: '[Verify step] Test Flutter packages'
         run: melos run test:flutter
-      - uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a
+      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95
         if: ${{ matrix.sdk == 'stable' }}
         with:
           distribution: 'adopt'
