@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_test/util.dart';
+import 'package:http2/transport.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -106,6 +109,124 @@ void main() {
     }
     final res = await dio.post('/post', data: 'TEST');
     expect(res.data.toString(), contains('TEST'));
+  });
+
+  group('request stream', () {
+    late ServerSocket serverSocket;
+    late Http2Adapter adapter;
+    final serverConnections = <ServerTransportConnection>[];
+
+    setUp(() async {
+      serverSocket = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+      adapter = Http2Adapter(null);
+    });
+
+    tearDown(() async {
+      adapter.close(force: true);
+      for (final connection in serverConnections) {
+        await connection.terminate();
+      }
+      serverConnections.clear();
+      await serverSocket.close();
+    });
+
+    test(
+      'reports a transport error when the connection closes during upload',
+      () async {
+        serverSocket.listen((socket) {
+          final connection = ServerTransportConnection.viaSocket(socket);
+          serverConnections.add(connection);
+          connection.incomingStreams.listen((stream) async {
+            await for (final message in stream.incomingMessages) {
+              if (message is HeadersStreamMessage) {
+                await connection.terminate();
+                break;
+              }
+            }
+          });
+        });
+
+        final requestStream = (() async* {
+          for (int i = 0; i < 20; i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 5));
+            yield Uint8List(1024);
+          }
+        })();
+        final resultCompleter = Completer<Object?>();
+
+        void completeResult(Object? result) {
+          if (!resultCompleter.isCompleted) {
+            resultCompleter.complete(result);
+          }
+        }
+
+        runZonedGuarded(
+          () async {
+            try {
+              await adapter.fetch(
+                RequestOptions(
+                  path: '/upload',
+                  method: 'POST',
+                  baseUrl: 'http://127.0.0.1:${serverSocket.port}',
+                ),
+                requestStream,
+                null,
+              );
+              completeResult(null);
+            } catch (error) {
+              completeResult(error);
+            }
+          },
+          (error, _) => completeResult(error),
+        );
+
+        final result = await resultCompleter.future.timeout(
+          const Duration(seconds: 2),
+        );
+        expect(result, isA<TransportConnectionException>());
+      },
+    );
+
+    test('settles the adapter future when an upload is canceled', () async {
+      final requestDataReceived = Completer<void>();
+      serverSocket.listen((socket) {
+        final connection = ServerTransportConnection.viaSocket(socket);
+        serverConnections.add(connection);
+        connection.incomingStreams.listen((stream) async {
+          await for (final message in stream.incomingMessages) {
+            if (message is DataStreamMessage &&
+                !requestDataReceived.isCompleted) {
+              requestDataReceived.complete();
+            }
+          }
+          stream.sendHeaders(
+            [Header.ascii(':status', '200')],
+            endStream: true,
+          );
+        });
+      });
+
+      final requestController = StreamController<Uint8List>();
+      addTearDown(requestController.close);
+      final cancelCompleter = Completer<void>();
+      final fetchFuture = adapter.fetch(
+        RequestOptions(
+          path: '/upload',
+          method: 'POST',
+          baseUrl: 'http://127.0.0.1:${serverSocket.port}',
+        ),
+        requestController.stream,
+        cancelCompleter.future,
+      );
+
+      requestController.add(Uint8List(1024));
+      await requestDataReceived.future.timeout(const Duration(seconds: 2));
+      cancelCompleter.complete();
+
+      final response = await fetchFuture.timeout(const Duration(seconds: 2));
+      expect(response.statusCode, 200);
+      expect(requestController.hasListener, isFalse);
+    });
   });
 
   group(ConnectionManager, () {
