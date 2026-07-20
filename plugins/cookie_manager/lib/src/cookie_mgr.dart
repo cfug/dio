@@ -29,6 +29,11 @@ class _CookieHeaderState {
 }
 
 /// Cookie manager for HTTP requests based on [CookieJar].
+///
+/// Register this after interceptors that may change [RequestOptions.uri] or
+/// the Cookie request header. Cookies are selected from the URI and reused
+/// request options are recognized only while the header exactly matches this
+/// manager's previous output.
 class CookieManager extends Interceptor {
   CookieManager(
     this.cookieJar, {
@@ -154,6 +159,12 @@ class CookieManager extends Interceptor {
   }
 
   /// Load cookies in cookie string for the request.
+  ///
+  /// State is scoped to the identity of [options]. When the same instance is
+  /// reused, its original Cookie header is restored only if the current header
+  /// exactly matches the previous result of this method. Any other header is
+  /// treated as a new source. Incrementally modifying a generated header after
+  /// this manager can therefore cause saved cookies to be merged again.
   Future<String> loadCookies(RequestOptions options) async {
     final savedCookies = await cookieJar.loadForRequest(options.uri);
     final previousCookies =
