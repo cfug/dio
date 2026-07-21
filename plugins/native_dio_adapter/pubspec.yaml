@@ -24,6 +24,10 @@ dependencies:
   cupertino_http: '>=2.3.0 <4.0.0'
   cronet_http: ^1.5.0
   http: ^1.5.0
+  # Direct dependency for `JniException`, used to classify the
+  # Cronet-provider-disabled failure surfaced by `CronetEngine.build()`.
+  # The constraint tracks the version resolved by `cronet_http: ^1.5.0`.
+  jni: ^0.14.0
 
 dev_dependencies:
   lints: ^2.0.0

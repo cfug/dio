@@ -41,6 +41,40 @@ final dioClient = Dio();
 dioClient.httpClientAdapter = NativeAdapter();
 ```
 
+### Opt-in Cronet provider fallback (Android)
+
+On Android, `NativeAdapter` uses Cronet. Some devices — for example, AOSP
+emulators or devices without Google Play services — install Cronet providers
+but leave every provider disabled. On those devices `CronetEngine.build()`
+throws and every request fails
+([issue #2444](https://github.com/cfug/dio/issues/2444)).
+
+If your application needs to support that environment, pass an opt-in
+`createFallbackAdapter`. The factory is invoked **only** when the provider is
+known to be disabled and lets you choose any `HttpClientAdapter`:
+
+```dart
+import 'package:dio/io.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
+
+dioClient.httpClientAdapter = NativeAdapter(
+  createFallbackAdapter: (error, stackTrace) => IOHttpClientAdapter(),
+);
+```
+
+Notes:
+
+- Detection is limited to Cronet's provider-disabled `RuntimeException`.
+  Connection, TLS, timeout, redirect, cancellation, and response-stream
+  errors remain Cronet errors and are propagated unchanged.
+- The selection is sticky for the lifetime of the `NativeAdapter`. Once
+  Cronet is picked, later requests do not probe again; once the fallback is
+  picked, later requests reuse it.
+- Changing adapters can change observable networking behavior: TLS
+  configuration, proxy handling, cookie storage, supported protocols
+  (HTTP/2, HTTP/3), and connection pooling. Callers opting in own that
+  tradeoff — pick the adapter that best matches your requirements.
+
 ### Use embedded Cronet
 
 Starting from `cronet_http` v1.2.0,
