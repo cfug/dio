@@ -2,7 +2,15 @@
 
 ## Unreleased
 
-*None.*
+- Add opt-in `createFallbackAdapter` to `NativeAdapter`. On Android, when the
+  device has installed Cronet providers but every provider is disabled (for
+  example AOSP emulators or devices without Google Play services), the
+  supplied factory returns any `HttpClientAdapter` and requests continue via
+  that adapter. Detection is strictly limited to Cronet's
+  provider-disabled `RuntimeException`; every other Cronet error is
+  propagated unchanged. Adapter selection is sticky for the lifetime of the
+  `NativeAdapter`. Fixes
+  [#2444](https://github.com/cfug/dio/issues/2444).
 
 ## 1.6.0
 
