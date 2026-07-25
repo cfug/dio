@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 1.7.0
+
 - Add opt-in `createFallbackAdapter` to `NativeAdapter`. On Android, when the
   device has installed Cronet providers but every provider is disabled (for
   example AOSP emulators or devices without Google Play services), the
