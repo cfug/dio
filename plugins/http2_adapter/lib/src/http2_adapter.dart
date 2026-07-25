@@ -31,6 +31,15 @@ class Http2Adapter implements HttpClientAdapter {
   })  : connectionManager = connectionManager ?? ConnectionManager(),
         fallbackAdapter = fallbackAdapter ?? IOHttpClientAdapter();
 
+  static const _sensitiveRedirectHeaders = {
+    'authorization',
+    'www-authenticate',
+    'cookie',
+    'cookie2',
+    'proxy-authorization',
+    'proxy-authenticate',
+  };
+
   /// {@macro dio_http2_adapter.ConnectionManager}
   ConnectionManager connectionManager;
 
@@ -291,12 +300,18 @@ class Http2Adapter implements HttpClientAdapter {
       // An empty `location` header is considered a self redirect.
       final uri = Uri.parse(url ?? '');
       redirects.add(RedirectRecord(statusCode, options.method, uri));
-      final String path = resolveRedirectUri(options.uri, uri).toString();
+      final redirectUri = resolveRedirectUri(options.uri, uri);
+      final redirectOptions = options.copyWith(
+        path: redirectUri.toString(),
+        maxRedirects: options.maxRedirects - 1,
+      );
+      if (!_isSameOrigin(options.uri, redirectUri)) {
+        redirectOptions.headers.removeWhere(
+          (name, _) => _sensitiveRedirectHeaders.contains(name.toLowerCase()),
+        );
+      }
       return _fetch(
-        options.copyWith(
-          path: path,
-          maxRedirects: --options.maxRedirects,
-        ),
+        redirectOptions,
         list != null ? Stream.fromIterable(list) : null,
         cancelFuture,
         redirects,
@@ -332,6 +347,12 @@ class Http2Adapter implements HttpClientAdapter {
     // This is relative with or without leading slash and is resolved against
     // the URL of the original request.
     return currentUri.resolveUri(redirectUri);
+  }
+
+  static bool _isSameOrigin(Uri currentUri, Uri redirectUri) {
+    return currentUri.isScheme(redirectUri.scheme) &&
+        currentUri.host == redirectUri.host &&
+        currentUri.port == redirectUri.port;
   }
 
   @override

@@ -5,6 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+- Prevent sensitive request headers from being forwarded across origins during
+  redirects.
 - Prevent uploads from throwing a `StateError` when the HTTP/2 connection closes
   before the request body finishes streaming.
 - Run HTTP integration and certificate pinning tests against the configured
