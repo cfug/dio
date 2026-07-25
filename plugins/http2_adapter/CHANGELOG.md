@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 2.8.0
+
 - Prevent sensitive request headers from being forwarded across origins during
   redirects.
 - Prevent uploads from throwing a `StateError` when the HTTP/2 connection closes
