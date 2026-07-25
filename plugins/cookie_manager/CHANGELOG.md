@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 3.5.0
+
 - Prevent duplicate cookies when reusing request options while preserving
   caller-provided cookies.
 
