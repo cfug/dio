@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 5.11.0
+
 - Add `query` and `queryUri` convenience methods for the HTTP QUERY method defined in RFC 10008,
   which allows a request body for safe, idempotent queries.
 - Fix `FusedTransformer` (the default transformer) throwing a `FormatException`
