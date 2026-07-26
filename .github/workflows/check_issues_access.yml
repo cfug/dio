@@ -41,6 +41,7 @@ jobs:
               repo,
               issue_number,
               state: 'closed',
+              state_reason: 'not_planned',
             });
 
             await github.rest.issues.lock({
