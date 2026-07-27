@@ -3,7 +3,7 @@ import 'dart:typed_data' show Uint8List;
 import 'package:cronet_http/cronet_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:jni/jni.dart' show JniException;
+import 'package:jni/jni.dart' show JThrowable;
 
 import 'cronet_adapter.dart';
 
@@ -30,15 +30,23 @@ const cronetProvidersDisabledMessage =
     'java.lang.RuntimeException: All available Cronet providers are disabled. '
     'A provider should be enabled before it can be used.';
 
+/// Whether [message] is the Cronet-provider-disabled failure.
+///
+/// Extracted from [isCronetProviderUnavailable] so the message-matching
+/// logic can be tested without a live JNI environment — [JThrowable] cannot
+/// be constructed in pure Dart because it wraps a real JNI reference.
+@visibleForTesting
+bool isCronetProviderUnavailableMessage(String message) =>
+    message.contains(cronetProvidersDisabledMessage);
+
 /// Classifies the failure that indicates all installed Cronet providers on
 /// the device are disabled.
 ///
-/// `contains` is intentional: [JniException.message] also includes the Java
+/// `contains` is intentional: [JThrowable.message] also includes the Java
 /// stack trace appended to the message. Do not broaden the predicate to all
-/// [JniException]s or all engine-initialization failures.
+/// [JThrowable]s or all engine-initialization failures.
 bool isCronetProviderUnavailable(Object error) =>
-    error is JniException &&
-    error.message.contains(cronetProvidersDisabledMessage);
+    error is JThrowable && isCronetProviderUnavailableMessage(error.message);
 
 /// Builds the Cronet-backed [HttpClientAdapter] to use when Cronet is
 /// available. May throw when the underlying Cronet provider is disabled or
@@ -71,20 +79,30 @@ class CronetWithFallbackAdapter implements HttpClientAdapter {
               CronetEngine.build();
           return CronetAdapter(engine);
         }),
-        _createFallbackAdapter = createFallbackAdapter;
+        _createFallbackAdapter = createFallbackAdapter,
+        _isProviderUnavailable = isCronetProviderUnavailable;
 
   /// Test-only constructor: lets a test inject a controllable "build cronet
   /// adapter" seam without linking real native Cronet code. Not part of the
   /// public API.
+  ///
+  /// [isProviderUnavailable] lets tests substitute the error classifier so
+  /// they can simulate the Cronet-provider-disabled failure without
+  /// constructing a real [JThrowable] (which requires a live JNI
+  /// environment).
   @visibleForTesting
   CronetWithFallbackAdapter.forTesting({
     required BuildCronetAdapter buildCronetAdapter,
     required CreateFallbackAdapter createFallbackAdapter,
+    @visibleForTesting bool Function(Object error)? isProviderUnavailable,
   })  : _buildCronetAdapter = buildCronetAdapter,
-        _createFallbackAdapter = createFallbackAdapter;
+        _createFallbackAdapter = createFallbackAdapter,
+        _isProviderUnavailable =
+            isProviderUnavailable ?? isCronetProviderUnavailable;
 
   final BuildCronetAdapter _buildCronetAdapter;
   final CreateFallbackAdapter _createFallbackAdapter;
+  final bool Function(Object error) _isProviderUnavailable;
 
   HttpClientAdapter? _selected;
   bool _closed = false;
@@ -122,7 +140,7 @@ class CronetWithFallbackAdapter implements HttpClientAdapter {
     try {
       return _selected = _buildCronetAdapter();
     } catch (error, stackTrace) {
-      if (isCronetProviderUnavailable(error)) {
+      if (_isProviderUnavailable(error)) {
         return _selected = _createFallbackAdapter(error, stackTrace);
       }
       rethrow;
