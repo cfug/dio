@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_test/util.dart';
 import 'package:http2/transport.dart';
@@ -332,6 +333,82 @@ void main() {
 
       manager.close(force: true);
     });
+
+    // Regression: with only ['h2'] in supportedProtocols the TLS handshake
+    // is aborted by an RFC 7301-strict server with a fatal
+    // no_application_protocol alert before any Dio code runs,
+    // so fallbackAdapter is never reached.
+    test(
+      'fails with HandshakeException when only h2 is advertised to an http/1.1-only server',
+      () async {
+        const supportedProtocols = ['h2'];
+
+        final server = await _bindHttp11OnlyServer();
+        addTearDown(server.close);
+        final serverUri =
+            Uri(scheme: 'https', host: 'localhost', port: server.port);
+
+        var fallbackCalled = false;
+        final dio = Dio()
+          ..httpClientAdapter = Http2Adapter(
+            ConnectionManager(
+              supportedProtocols: supportedProtocols,
+              onClientCreate: (_, settings) =>
+                  settings.onBadCertificate = (_) => true,
+            ),
+            fallbackAdapter: _TrackingAdapter(
+              () => fallbackCalled = true,
+              IOHttpClientAdapter(
+                createHttpClient: () =>
+                    HttpClient()..badCertificateCallback = (_, __, ___) => true,
+              ),
+            ),
+          );
+
+        await expectLater(
+          dio.getUri(serverUri),
+          throwsA(
+            allOf([
+              isA<DioException>(),
+              (DioException e) => e.error is HandshakeException,
+            ]),
+          ),
+        );
+        expect(fallbackCalled, isFalse);
+      },
+    );
+
+    test(
+      'routes to fallbackAdapter when h2 and http/1.1 are both advertised & server selects http/1.1',
+      () async {
+        const supportedProtocols = ['h2', 'http/1.1'];
+
+        final server = await _bindHttp11OnlyServer();
+        addTearDown(server.close);
+        final serverUri =
+            Uri(scheme: 'https', host: 'localhost', port: server.port);
+
+        var fallbackCalled = false;
+        final dio = Dio()
+          ..httpClientAdapter = Http2Adapter(
+            ConnectionManager(
+              supportedProtocols: supportedProtocols,
+              onClientCreate: (_, settings) =>
+                  settings.onBadCertificate = (_) => true,
+            ),
+            fallbackAdapter: _TrackingAdapter(
+              () => fallbackCalled = true,
+              IOHttpClientAdapter(
+                createHttpClient: () =>
+                    HttpClient()..badCertificateCallback = (_, __, ___) => true,
+              ),
+            ),
+          );
+        final response = await dio.getUri(serverUri);
+        expect(response.statusCode, 200);
+        expect(fallbackCalled, isTrue);
+      },
+    );
   });
 
   group(ProxyConnectedPredicate, () {
@@ -351,4 +428,88 @@ void main() {
       );
     });
   });
+}
+
+/// Starts an `openssl s_server` process that strictly enforces `http/1.1` via
+/// ALPN (RFC 7301). A client that advertises only `h2` receives a fatal
+/// `no_application_protocol` TLS alert. A client advertising `http/1.1`
+/// completes the handshake and receives a minimal `HTTP/1.1 200 OK` response.
+///
+/// Skips the calling test if `openssl` is not found on PATH.
+/// The returned record's [close] must be called to terminate the process
+/// (typically via [addTearDown]).
+Future<({int port, Future<void> Function() close})>
+    _bindHttp11OnlyServer() async {
+  // Grab a free port — openssl s_server doesn't support port 0.
+  final probe = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+  final port = probe.port;
+  await probe.close();
+
+  late final Process process;
+  try {
+    // Run in raw pipe mode (no -www / -HTTP): client data arrives on stdout,
+    // data written to stdin is sent to the client.
+    process = await Process.start('openssl', [
+      's_server',
+      '-key',
+      'test/certificates/server.key',
+      '-cert',
+      'test/certificates/server.crt',
+      '-accept',
+      '127.0.0.1:$port',
+      '-alpn',
+      'http/1.1',
+      '-quiet',
+    ]);
+  } on ProcessException {
+    markTestSkipped('openssl not found on PATH — skipping strict-ALPN test');
+    // markTestSkipped throws; unreachable but satisfies the return type.
+    return (port: 0, close: () async {});
+  }
+
+  process.stderr.drain<void>();
+
+  // When an http/1.1 client sends its HTTP request, it appears on stdout.
+  // Respond once and close stdin; closing stdin terminates the TLS session.
+  process.stdout.listen((data) {
+    process.stdin
+      ..write(
+        'HTTP/1.1 200 OK\r\n'
+        'Content-Length: 0\r\n'
+        'Connection: close\r\n'
+        '\r\n',
+      )
+      ..close();
+  });
+
+  // Give openssl time to bind and start listening.
+  // openssl buffers stderr when piped (no TTY), so we can't rely on the
+  // "ACCEPT" line; a short fixed delay is the simplest reliable alternative.
+  await Future<void>.delayed(const Duration(milliseconds: 300));
+
+  return (
+    port: port,
+    close: () async => process.kill(),
+  );
+}
+
+/// Wraps another [HttpClientAdapter], calling [onFetch] before each request.
+class _TrackingAdapter implements HttpClientAdapter {
+  _TrackingAdapter(this.onFetch, this._delegate);
+
+  final void Function() onFetch;
+  final HttpClientAdapter _delegate;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    onFetch();
+    return _delegate.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) => _delegate.close(force: force);
 }
