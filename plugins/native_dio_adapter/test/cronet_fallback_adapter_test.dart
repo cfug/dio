@@ -79,16 +79,19 @@ bool testIsProviderUnavailable(Object error) =>
 
 _ProviderUnavailableException _providerDisabledException() =>
     _ProviderUnavailableException(
-      // Real JThrowable.message includes the throwable string followed by
-      // the Java stack trace; the classifier relies on `contains`.
-      '$cronetProvidersDisabledMessage\n'
-      '\tat org.chromium.net.CronetEngine\$Builder.build(CronetEngine.java:123)\n'
-      '\tat org.chromium.net.CronetProvider.createBuilder(CronetProvider.java:45)',
+      // Real JThrowable.message is Java's Throwable.toString() —
+      // "ClassName: getMessage()", single line. The stack trace lives on
+      // JThrowable.javaStackTrace, which the classifier does not read.
+      cronetProvidersDisabledMessage,
     );
 
 void main() {
   group('isCronetProviderUnavailableMessage', () {
-    test('matches the provider-disabled message including trailing stack', () {
+    test('matches when the message has extra trailing content', () {
+      // `contains` is used (not equality) so the predicate still fires when
+      // the message carries additional content beyond the disabled-provider
+      // string. A real JThrowable.message is single-line (Throwable.toString),
+      // but the matcher is intentionally tolerant of trailing text.
       expect(
         isCronetProviderUnavailableMessage(
           '$cronetProvidersDisabledMessage\n'

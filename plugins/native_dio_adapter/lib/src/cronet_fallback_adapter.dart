@@ -42,9 +42,10 @@ bool isCronetProviderUnavailableMessage(String message) =>
 /// Classifies the failure that indicates all installed Cronet providers on
 /// the device are disabled.
 ///
-/// `contains` is intentional: [JThrowable.message] also includes the Java
-/// stack trace appended to the message. Do not broaden the predicate to all
-/// [JThrowable]s or all engine-initialization failures.
+/// `contains` is intentional: [JThrowable.message] is Java's
+/// `Throwable.toString()` (`"ClassName: getMessage()"`); the stack trace is
+/// held separately in [JThrowable.javaStackTrace]. Do not broaden the
+/// predicate to all [JThrowable]s or all engine-initialization failures.
 bool isCronetProviderUnavailable(Object error) =>
     error is JThrowable && isCronetProviderUnavailableMessage(error.message);
 
