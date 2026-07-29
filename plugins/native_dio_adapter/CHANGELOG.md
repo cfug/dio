@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-*None.*
+- Support `cronet_http` 1.9.0 by upgrading `jni` to `^1.0.0` and migrating
+  the Cronet-provider-disabled classifier from `JniException` to `JThrowable`.
+  The minimum Dart SDK is now `3.4.0` and the minimum Flutter version is now
+  `3.35.6`, following the requirements of `jni` 1.0.0 and `cronet_http` 1.9.0.
+  Fixes [#2581](https://github.com/cfug/dio/issues/2581).
 
 ## 1.7.0
 
