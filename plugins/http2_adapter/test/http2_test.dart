@@ -343,10 +343,8 @@ void main() {
       () async {
         const supportedProtocols = ['h2'];
 
-        final server = await _bindHttp11OnlyServer();
-        addTearDown(server.close);
-        final serverUri =
-            Uri(scheme: 'https', host: 'localhost', port: server.port);
+        final port = await _bindHttp11OnlyServer();
+        final serverUri = Uri(scheme: 'https', host: 'localhost', port: port);
 
         var fallbackCalled = false;
         final dio = Dio()
@@ -383,10 +381,8 @@ void main() {
       () async {
         const supportedProtocols = ['h2', 'http/1.1'];
 
-        final server = await _bindHttp11OnlyServer();
-        addTearDown(server.close);
-        final serverUri =
-            Uri(scheme: 'https', host: 'localhost', port: server.port);
+        final port = await _bindHttp11OnlyServer();
+        final serverUri = Uri(scheme: 'https', host: 'localhost', port: port);
 
         var fallbackCalled = false;
         final dio = Dio()
@@ -435,20 +431,23 @@ void main() {
 /// `no_application_protocol` TLS alert. A client advertising `http/1.1`
 /// completes the handshake and receives a minimal `HTTP/1.1 200 OK` response.
 ///
-/// Skips the calling test if `openssl` is not found on PATH.
-/// The returned record's [close] must be called to terminate the process
-/// (typically via [addTearDown]).
-Future<({int port, Future<void> Function() close})>
-    _bindHttp11OnlyServer() async {
-  // Grab a free port — openssl s_server doesn't support port 0.
+/// Skips the calling test if `openssl` is not found on PATH or if the process
+/// exits before binding (e.g. cert files not found).
+///
+/// Returns the port the server is listening on.
+Future<int> _bindHttp11OnlyServer() async {
+  // Allocate a free port. openssl s_server in -quiet mode does not print its
+  // bound port, so we allocate one ourselves and pass it explicitly.
   final probe = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
   final port = probe.port;
   await probe.close();
 
   late final Process process;
   try {
-    // Run in raw pipe mode (no -www / -HTTP): client data arrives on stdout,
-    // data written to stdin is sent to the client.
+    // Raw pipe mode (-quiet): decrypted client bytes arrive on process.stdout;
+    // data written to process.stdin is TLS-encrypted and sent to the client.
+    // -quiet also suppresses openssl session info on stdout, so the only data
+    // that arrives on stdout is the actual HTTP request from the client.
     process = await Process.start('openssl', [
       's_server',
       '-key',
@@ -463,15 +462,30 @@ Future<({int port, Future<void> Function() close})>
     ]);
   } on ProcessException {
     markTestSkipped('openssl not found on PATH — skipping strict-ALPN test');
-    // markTestSkipped throws; unreachable but satisfies the return type.
-    return (port: 0, close: () async {});
+    return 0; // unreachable
   }
 
-  process.stderr.drain<void>();
+  addTearDown(() => process.kill());
 
-  // When an http/1.1 client sends its HTTP request, it appears on stdout.
-  // Respond once and close stdin; closing stdin terminates the TLS session.
+  process.stderr.drain<void>();
+  _serveHttp11Response(process);
+
+  // -quiet suppresses the ACCEPT readiness line, so poll until the port is
+  // reachable. Detect early exit (e.g. wrong CWD, cert files missing) to skip
+  // rather than time out.
+  await _pollUntilListening(port, process);
+  return port;
+}
+
+/// Responds to the first HTTP request that arrives on [process.stdout] with a
+/// minimal `HTTP/1.1 200 OK`, then closes stdin to end the TLS session.
+void _serveHttp11Response(Process process) {
+  var responded = false;
   process.stdout.listen((data) {
+    if (responded) {
+      return;
+    }
+    responded = true;
     process.stdin
       ..write(
         'HTTP/1.1 200 OK\r\n'
@@ -481,16 +495,38 @@ Future<({int port, Future<void> Function() close})>
       )
       ..close();
   });
+}
 
-  // Give openssl time to bind and start listening.
-  // openssl buffers stderr when piped (no TTY), so we can't rely on the
-  // "ACCEPT" line; a short fixed delay is the simplest reliable alternative.
-  await Future<void>.delayed(const Duration(milliseconds: 300));
+/// Polls [port] on loopback until a TCP connection succeeds (openssl is ready)
+/// or [process] exits early (cert error, wrong CWD, etc.).
+///
+/// Skips the calling test if openssl does not start listening within ~2 s.
+Future<void> _pollUntilListening(int port, Process process) async {
+  var processExited = false;
+  process.exitCode.then<void>((_) => processExited = true);
 
-  return (
-    port: port,
-    close: () async => process.kill(),
-  );
+  for (var i = 0; i < 40; i++) {
+    if (processExited) {
+      markTestSkipped(
+        'openssl exited before binding — check that test/certificates/ exists '
+        'and dart test is run from the package root',
+      );
+      return; // unreachable
+    }
+    try {
+      final s = await Socket.connect(
+        '127.0.0.1',
+        port,
+        timeout: const Duration(milliseconds: 50),
+      );
+      await s.close();
+      return;
+    } on SocketException {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
+  markTestSkipped('openssl did not start listening within 2 s');
 }
 
 /// Wraps another [HttpClientAdapter], calling [onFetch] before each request.

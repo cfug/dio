@@ -9,7 +9,10 @@ abstract class ConnectionManager {
   ///
   /// [supportedProtocols] sets the ALPN protocol list advertised during TLS
   /// handshake. Set to `['h2', 'http/1.1']` together with a
-  /// [Http2Adapter.fallbackAdapter] to support servers that strictly disable h2
+  /// [Http2Adapter.fallbackAdapter] to support servers that strictly enforce
+  /// RFC 7301 by rejecting clients that advertise only `h2`. The list must
+  /// contain `'h2'` for HTTP/2 to be negotiated; omitting it routes every
+  /// request through [Http2Adapter.fallbackAdapter].
   factory ConnectionManager({
     Duration idleTimeout = const Duration(seconds: 15),
     Duration handshakeTimout = const Duration(seconds: 15),
