@@ -1,0 +1,6 @@
+# https://docs.zizmor.sh/configuration
+rules:
+  undocumented-permissions:
+    disable: true
+  anonymous-definition:
+    disable: true

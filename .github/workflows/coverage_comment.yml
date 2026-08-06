@@ -1,40 +1,93 @@
 name: 'coverage_comment'
 
-# This workflow runs after the 'Verify packages abilities' workflow is completed for a pull request.
-# The workflow downloads the coverage report if the 'Verify packages abilities' workflow was successful.
-# The workflow then adds a comment to the PR with the coverage report.
+# The workflow adds a comment to the PR with the coverage report.
 
 on:
-  workflow_run:
-    workflows: ['Verify packages abilities']
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to post the comment'
+        required: true
+        type: number
+      coverage_report_content:
+        description: 'Markdown content of the coverage report (if not using file path)'
+        required: false
+        type: string
+        default: ''
+      coverage_report_file:
+        description: 'Path to the coverage report markdown file'
+        required: false
+        type: string
+        default: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.pr_number }}
+  cancel-in-progress: true
+
+# Disable permissions for all of the available permissions
+permissions: {}
 
 jobs:
-  download_coverage:
+  coverage_comment:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-      artifact-metadata: write
-    if: github.event.workflow_run.event == 'pull_request'
     steps:
-      - name: Download artifact
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151
+      - name: Create or update PR comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+          COVERAGE_REPORT_CONTENT: ${{ inputs.coverage_report_content }}
+          COVERAGE_REPORT_FILE: ${{ inputs.coverage_report_file }}
         with:
-          workflow: tests.yml
-          workflow_conclusion: success
-          run_id: ${{ github.event.workflow_run.id }}
-          name: code-coverage-results
-      - name: Determine PR number
-        id: pr-number
-        run: |
-          PR_NUMBER=$(cat pr_number.txt)
-          echo "Found PR:$PR_NUMBER"
-          echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
-      - name: Add PR comment
-        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88
-        with:
-          number: ${{ steps.pr-number.outputs.value }}
-          recreate: true
-          path: code-coverage-results.md
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const prNumber = parseInt(process.env.PR_NUMBER, 10);
+            let reportContent = process.env.COVERAGE_REPORT_CONTENT;
+            const filePath = process.env.COVERAGE_REPORT_FILE;
+
+            if (filePath) {
+              try {
+                reportContent = fs.readFileSync(path.resolve(filePath), 'utf8');
+              } catch (err) {
+                throw new Error(`Failed to read coverage report file: ${filePath} - ${err.message}`);
+              }
+            }
+
+            if (!reportContent) {
+              throw new Error('No coverage report content provided (neither via content input nor file).');
+            }
+
+            const { owner, repo } = context.repo;
+            const marker = '<!-- coverage-report-marker -->';
+            const body = `${marker}\n${reportContent}`;
+
+            // Get all comments on the current PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: prNumber,
+            });
+
+            // Find comments that contain the marker
+            const existing = comments.find(comment => comment.body && comment.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+              console.log(`✅ Updated comment ${existing.id} on PR #${prNumber}`);
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body,
+              });
+              console.log(`✅ Created new comment on PR #${prNumber}`);
+            }

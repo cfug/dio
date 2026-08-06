@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Disable permissions for all of the available permissions
+permissions: {}
+
 defaults:
   run:
     shell: bash -leo pipefail {0}
@@ -35,20 +38,24 @@ jobs:
     env:
       TEST_PRESET: all
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 #v2.23.0
         with:
           cache: true
-          flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
-          channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
+          flutter-version: ${{ case(matrix.sdk == 'min', '3.3.0', '') }}
+          channel: ${{ case(matrix.sdk == 'min', '', matrix.channel) }}
       - run: |
-          echo TARGET_DART_SDK=${{ matrix.sdk }} >> $GITHUB_ENV
+          echo "TARGET_DART_SDK=$TARGET_DART_SDK" >> $GITHUB_ENV
+        env:
+          TARGET_DART_SDK: ${{ matrix.sdk }}
       - name: Prepare dependencies for the project management
         run: dart pub get
-      - uses: bluefireteam/melos-action@2982f8e4fc92440a219490009d6d05195cb1a6a5
+      - uses: bluefireteam/melos-action@2982f8e4fc92440a219490009d6d05195cb1a6a5 #v3.8.0
         with:
           run-bootstrap: false
-          melos-version: ${{ matrix.sdk == 'min' && '3.4.0' || '^6.0.0' }}
+          melos-version: ${{ case(matrix.sdk == 'min', '3.4.0', '^6.0.0') }}
       - name: Remove dio_web_adapter overrides
         if: ${{ matrix.sdk == 'min' }}
         run: rm -rf plugins/web_adapter
@@ -120,7 +127,7 @@ jobs:
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run coverage:show
       - name: '[Coverage] Create Report'
-        uses: clearlyip/code-coverage-report-action@110af9d4ec87b6706f182fd90e3102af9e5203bf
+        uses: clearlyip/code-coverage-report-action@110af9d4ec87b6706f182fd90e3102af9e5203bf #v7.0.0
         id: code_coverage_report
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         with:
@@ -129,13 +136,58 @@ jobs:
           only_list_changed_files: true
       - name: '[Coverage] Write PR number to file'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
-        run: echo ${{ github.event.number }} > pr_number.txt
+        run: echo "$EVENT_NUMBER" > pr_number.txt
+        env:
+          EVENT_NUMBER: ${{ github.event.number }}
       - name: '[Coverage] Upload'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: code-coverage-results
           path: |
             coverage/cobertura.xml
             code-coverage-results.md
             pr_number.txt
+          retention-days: 7
+
+  coverage_comment:
+    runs-on: ubuntu-latest
+    needs: workflows
+    if: always() && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download coverage artifact
+        id: download
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
+        with:
+          name: code-coverage-results
+          path: .coverage
+        continue-on-error: true
+
+      - name: Check if artifact exists
+        id: check
+        run: |
+          if [[ -f .coverage/pr_number.txt ]]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Read PR number
+        if: steps.check.outputs.exists == 'true'
+        id: pr
+        run: |
+          PR_NUM=$(cat .coverage/pr_number.txt)
+          echo "pr_number=$PR_NUM" >> $GITHUB_OUTPUT
+      - name: Call coverage_comment workflow
+        if: steps.check.outputs.exists == 'true'
+        uses: ./.github/workflows/coverage_comment.yml
+        with:
+          pr_number: ${{ steps.pr.outputs.pr_number }}
+          coverage_report_file: .coverage/code-coverage-results.md

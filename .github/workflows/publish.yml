@@ -4,6 +4,13 @@ on:
   issue_comment:
     types: [created]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+# Disable permissions for all of the available permissions
+permissions: {}
+
 jobs:
   publish:
     permissions:
@@ -12,8 +19,9 @@ jobs:
     if: github.event.issue.number == 1633
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
         with:
+          persist-credentials: false
           token: ${{ secrets.CFUG_PUBLISHER }}
       - uses: dart-lang/setup-dart@2bd11704788983a6a210731656d0042e2df8b2c1
       - uses: cfug/dio_issue_release_action@fabea0c8c802678977470bae92a317a5af94209b
