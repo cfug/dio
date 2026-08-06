@@ -1,51 +1,61 @@
 name: 'coverage_comment'
 
-# The workflow adds a comment to the PR with the coverage report.
+# This workflow runs after the 'Verify packages abilities' workflow is completed for a pull request.
+# The workflow downloads the coverage report if the 'Verify packages abilities' workflow was successful.
+# The workflow then adds a comment to the PR with the coverage report.
 
 on:
-  workflow_call:
-    inputs:
-      pr_number:
-        description: 'Pull Request number to post the comment'
-        required: true
-        type: number
-      coverage_report_content:
-        description: 'Markdown content of the coverage report (if not using file path)'
-        required: false
-        type: string
-        default: ''
-      coverage_report_file:
-        description: 'Path to the coverage report markdown file'
-        required: false
-        type: string
-        default: ''
+  workflow_run:
+    workflows: ['Verify packages abilities']
+    types:
+      - completed
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.pr_number }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 # Disable permissions for all of the available permissions
 permissions: {}
 
 jobs:
-  coverage_comment:
+  download_coverage:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
+      artifact-metadata: read
+    if: github.event.workflow_run.event == 'pull_request'
     steps:
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 #v21
+        with:
+          workflow: tests.yml
+          workflow_conclusion: success
+          run_id: ${{ github.event.workflow_run.id }}
+          name: code-coverage-results
+      - name: Determine PR number
+        id: pr-number
+        run: |
+          if [[ ! -f pr_number.txt ]]; then
+            echo "❌ pr_number.txt not found!"
+            exit 1
+          fi
+          PR_NUMBER=$(cat pr_number.txt)
+          echo "Found PR:$PR_NUMBER"
+          echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
       - name: Create or update PR comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         env:
-          PR_NUMBER: ${{ inputs.pr_number }}
-          COVERAGE_REPORT_CONTENT: ${{ inputs.coverage_report_content }}
-          COVERAGE_REPORT_FILE: ${{ inputs.coverage_report_file }}
+          PR_NUMBER: ${{ steps.pr-number.outputs.value }}
+          COVERAGE_REPORT_FILE: code-coverage-results.md
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
 
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
-            let reportContent = process.env.COVERAGE_REPORT_CONTENT;
+            let reportContent = '';
             const filePath = process.env.COVERAGE_REPORT_FILE;
 
             if (filePath) {
