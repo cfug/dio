@@ -44,7 +44,7 @@ jobs:
           PR_NUMBER=$(cat pr_number.txt)
           echo "Found PR:$PR_NUMBER"
           echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
-      - name: Create or update PR comment
+      - name: Recreate coverage comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         env:
           PR_NUMBER: ${{ steps.pr-number.outputs.value }}
@@ -55,9 +55,10 @@ jobs:
             const path = require('path');
 
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
-            let reportContent = '';
             const filePath = process.env.COVERAGE_REPORT_FILE;
 
+            // Read coverage report content
+            let reportContent = '';
             if (filePath) {
               try {
                 reportContent = fs.readFileSync(path.resolve(filePath), 'utf8');
@@ -67,7 +68,7 @@ jobs:
             }
 
             if (!reportContent) {
-              throw new Error('No coverage report content provided (neither via content input nor file).');
+              throw new Error('No coverage report content provided.');
             }
 
             const { owner, repo } = context.repo;
@@ -81,23 +82,24 @@ jobs:
               issue_number: prNumber,
             });
 
-            // Find comments that contain the marker
-            const existing = comments.find(comment => comment.body && comment.body.includes(marker));
+            // Find all comments that contain the marker
+            const oldComments = comments.filter(comment => comment.body && comment.body.includes(marker));
 
-            if (existing) {
-              await github.rest.issues.updateComment({
+            // Delete all old coverage comments
+            for (const comment of oldComments) {
+              await github.rest.issues.deleteComment({
                 owner,
                 repo,
-                comment_id: existing.id,
-                body,
+                comment_id: comment.id,
               });
-              console.log(`✅ Updated comment ${existing.id} on PR #${prNumber}`);
-            } else {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: prNumber,
-                body,
-              });
-              console.log(`✅ Created new comment on PR #${prNumber}`);
+              console.log(`🗑️ Deleted old comment ${comment.id} on PR #${prNumber}`);
             }
+
+            // Create a new comment
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body,
+            });
+            console.log(`✅ Created new comment on PR #${prNumber}`);
