@@ -10,17 +10,25 @@ on:
     types:
       - completed
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+# Disable permissions for all of the available permissions
+permissions: {}
+
 jobs:
   download_coverage:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
-      artifact-metadata: write
+      artifact-metadata: read
     if: github.event.workflow_run.event == 'pull_request'
     steps:
       - name: Download artifact
         id: download-artifact
-        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 #v21
         with:
           workflow: tests.yml
           workflow_conclusion: success
@@ -29,12 +37,70 @@ jobs:
       - name: Determine PR number
         id: pr-number
         run: |
+          if [[ ! -f pr_number.txt ]]; then
+            echo "❌ pr_number.txt not found!"
+            exit 1
+          fi
           PR_NUMBER=$(cat pr_number.txt)
           echo "Found PR:$PR_NUMBER"
           echo "value=$PR_NUMBER" >> $GITHUB_OUTPUT
-      - name: Add PR comment
-        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88
+      - name: Recreate coverage comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        env:
+          PR_NUMBER: ${{ steps.pr-number.outputs.value }}
+          COVERAGE_REPORT_FILE: code-coverage-results.md
         with:
-          number: ${{ steps.pr-number.outputs.value }}
-          recreate: true
-          path: code-coverage-results.md
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const prNumber = parseInt(process.env.PR_NUMBER, 10);
+            const filePath = process.env.COVERAGE_REPORT_FILE;
+
+            // Read coverage report content
+            let reportContent = '';
+            if (filePath) {
+              try {
+                reportContent = fs.readFileSync(path.resolve(filePath), 'utf8');
+              } catch (err) {
+                throw new Error(`Failed to read coverage report file: ${filePath} - ${err.message}`);
+              }
+            }
+
+            if (!reportContent) {
+              throw new Error('No coverage report content provided.');
+            }
+
+            const { owner, repo } = context.repo;
+            const marker = '<!-- coverage-report-marker -->';
+            const body = `${marker}\n${reportContent}`;
+
+            // Get all comments on the current PR
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: prNumber,
+              per_page: 100,
+            });
+
+            // Find all comments that contain the marker
+            const oldComments = comments.filter(comment => comment.body && comment.body.includes(marker));
+
+            // Delete all old coverage comments
+            for (const comment of oldComments) {
+              await github.rest.issues.deleteComment({
+                owner,
+                repo,
+                comment_id: comment.id,
+              });
+              console.log(`🗑️ Deleted old comment ${comment.id} on PR #${prNumber}`);
+            }
+
+            // Create a new comment
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body,
+            });
+            console.log(`✅ Created new comment on PR #${prNumber}`);
