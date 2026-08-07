@@ -5,7 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix response stream not propagating backpressure to the underlying socket.
+  When a consumer paused the stream, the source subscription was never paused,
+  so the network kept buffering response data into memory, risking OOM on
+  constrained platforms.
 
 ## 5.11.0
 

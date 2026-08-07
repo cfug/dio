@@ -21,8 +21,11 @@ Stream<Uint8List> handleResponseStream(
   @visibleForTesting void Function()? onReceiveTimeoutWatchCancelled,
 }) {
   final source = response.stream;
-  final responseSink = StreamController<Uint8List>();
   late StreamSubscription<List<int>> responseSubscription;
+  final responseSink = StreamController<Uint8List>(
+    onPause: () => responseSubscription.pause(),
+    onResume: () => responseSubscription.resume(),
+  );
 
   late int totalLength;
   int receivedLength = 0;
