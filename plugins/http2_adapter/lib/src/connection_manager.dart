@@ -5,18 +5,28 @@ part of 'http2_adapter.dart';
 /// It implements a connection reuse strategy for HTTP/2.
 /// {@endtemplate}
 abstract class ConnectionManager {
+  /// Creates a [ConnectionManager].
+  ///
+  /// [supportedProtocols] sets the ALPN protocol list advertised during TLS
+  /// handshake. Set to `['h2', 'http/1.1']` together with a
+  /// [Http2Adapter.fallbackAdapter] to support servers that strictly enforce
+  /// RFC 7301 by rejecting clients that advertise only `h2`. The list must
+  /// contain `'h2'` for HTTP/2 to be negotiated; omitting it routes every
+  /// request through [Http2Adapter.fallbackAdapter].
   factory ConnectionManager({
     Duration idleTimeout = const Duration(seconds: 15),
     Duration handshakeTimout = const Duration(seconds: 15),
     void Function(Uri uri, ClientSetting)? onClientCreate,
     ProxyConnectedPredicate proxyConnectedPredicate =
         defaultProxyConnectedPredicate,
+    List<String> supportedProtocols = const ['h2'],
   }) =>
       _ConnectionManager(
         idleTimeout: idleTimeout,
         handshakeTimeout: handshakeTimout,
         onClientCreate: onClientCreate,
         proxyConnectedPredicate: proxyConnectedPredicate,
+        supportedProtocols: supportedProtocols,
       );
 
   /// Get the connection(may reuse) for each request.

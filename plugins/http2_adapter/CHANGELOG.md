@@ -5,7 +5,15 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Expose `supportedProtocols` on `ConnectionManager` (defaults to `['h2']`,
+  fully backwards-compatible). Setting it to `['h2', 'http/1.1']` fixes
+  `fallbackAdapter` silently never firing against RFC 7301-compliant servers
+  that abort the TLS handshake with `no_application_protocol` when only `h2`
+  is advertised.
+- Fix socket leak: when `DioH2NotSupportedException` is thrown after a
+  successful TLS handshake (server selected `http/1.1` instead of `h2`),
+  the `SecureSocket` is now explicitly destroyed before routing to
+  `fallbackAdapter`, rather than being abandoned.
 
 ## 2.8.0
 

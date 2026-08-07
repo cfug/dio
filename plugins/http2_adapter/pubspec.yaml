@@ -30,3 +30,6 @@ dev_dependencies:
     git:
       url: https://github.com/cfug/dio
       path: dio_test
+
+false_secrets:
+ - /test/certificates/server.key
