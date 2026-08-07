@@ -346,34 +346,33 @@ void main() {
 
     test('does not buffer an unbounded source when the consumer pauses',
         () async {
-      // An async-generator source is backpressure-aware just like a socket:
-      // it blocks at the yield when its subscriber pauses, and only produces
-      // more data once resumed. This mirrors a large download where the
-      // network keeps sending until the socket stops draining.
-      var produced = 0;
-      Stream<Uint8List> unboundedSource(int maxChunks) async* {
-        for (var i = 0; i < maxChunks; i++) {
-          produced++;
-          yield Uint8List(1024);
-        }
-      }
-
+      // Model a socket-like source with an explicit production loop that
+      // yields control between chunks and stops once the source subscription
+      // is paused. This is platform-agnostic (unlike an `async*` generator,
+      // whose pause semantics are not honored under dart2wasm) and directly
+      // mirrors a network socket that keeps pushing until backpressure arrives.
+      final source = StreamController<Uint8List>();
       final stream = handleResponseStream(
         RequestOptions(),
-        ResponseBody(unboundedSource(10000), 200),
+        ResponseBody(source.stream, 200),
       );
 
-      final receivedLength = <int>[];
       late StreamSubscription<List<int>> downstream;
-      downstream = stream.listen((data) {
-        receivedLength.add(data.length);
+      downstream = stream.listen((_) {
         // Slow consumer applies backpressure after the first chunk.
         downstream.pause();
       });
 
-      // Pump the event loop generously; a broken pipe would keep draining the
-      // generator and buffer ~10MB. A correct one halts the source.
-      for (var i = 0; i < 100; i++) {
+      // The source keeps pushing data; a correct pipe pauses the subscription
+      // and the loop observes it via [StreamController.isPaused].
+      var produced = 0;
+      for (var i = 0; i < 10000; i++) {
+        if (source.isPaused) {
+          break;
+        }
+        produced++;
+        source.add(Uint8List(1024));
+        // Let the event loop deliver the chunk and propagate the pause.
         await Future.delayed(Duration.zero);
       }
 
@@ -385,7 +384,11 @@ void main() {
             'buffered in memory, which triggers OOM on constrained devices.',
       );
 
+      // Clear the backpressure so the upstream subscription can drain and
+      // the source can close, then tear down.
+      downstream.resume();
       await downstream.cancel();
+      await source.close();
     });
   });
 }
