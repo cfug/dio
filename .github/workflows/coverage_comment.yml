@@ -76,10 +76,11 @@ jobs:
             const body = `${marker}\n${reportContent}`;
 
             // Get all comments on the current PR
-            const { data: comments } = await github.rest.issues.listComments({
+            const comments = await github.paginate(github.rest.issues.listComments, {
               owner,
               repo,
               issue_number: prNumber,
+              per_page: 100,
             });
 
             // Find all comments that contain the marker
