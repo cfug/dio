@@ -101,10 +101,15 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     // connection was established. Tracked via `readystatechange` because
     // the native XHR timeout event fires after the spec has already moved
     // the request to `DONE`, so `xhr.readyState` cannot be consulted there.
+    // The `DONE` state itself must not count: the request error steps for
+    // a timeout or an error fire `readystatechange` at `DONE` right before
+    // the `timeout`/`error` events, which would defeat the flag.
     var headersReceived = false;
     xhr.onReadyStateChange.listen((_) {
+      final readyState = xhr.readyState;
       if (!headersReceived &&
-          xhr.readyState >= web.XMLHttpRequest.HEADERS_RECEIVED) {
+          readyState >= web.XMLHttpRequest.HEADERS_RECEIVED &&
+          readyState < web.XMLHttpRequest.DONE) {
         headersReceived = true;
       }
     });
@@ -279,13 +284,21 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
-      // The native XHR timeout has fired, which per the XHR spec means the
-      // request has already been terminated and `readyState` is `DONE`
-      // regardless of the phase the request was in. Use the tracked
-      // connection phase instead of `readyState` here.
+      // The native XHR timeout covers the whole request (connect + receive),
+      // and the XHR spec has already terminated the request and moved it to
+      // `DONE` before this event fires, so `xhr.readyState` cannot be
+      // consulted here. Classify from the tracked connection phase and the
+      // configured timeouts instead:
+      // - headers already received: the connection was established, so the
+      //   deadline expired while receiving the body;
+      // - headers not received and a connectTimeout is configured: the
+      //   connection was not established in time;
+      // - headers not received and no connectTimeout is configured: the
+      //   native deadline stood in for the receive deadline, since the
+      //   connect phase was not bounded.
       connectTimeoutTimer?.cancel();
       if (!completer.isCompleted) {
-        if (!headersReceived) {
+        if (!headersReceived && connectTimeout > Duration.zero) {
           completer.completeError(
             DioException.connectionTimeout(
               timeout: connectTimeout,
