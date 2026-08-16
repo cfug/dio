@@ -275,6 +275,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       // TEMP-DEBUG: remove before merge.
       // ignore: avoid_print
       print(
+        '[xhr-debug] native timeout scheduled: xhrTimeout=$xhrTimeout '
+        'connect=$connectTimeout receive=$receiveTimeout',
+      );
+    });
+    web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
+      // ignore: avoid_print
+      print(
         '[xhr-debug] native timeout: readyState=${xhr.readyState} '
         'status=${xhr.status} url=${xhr.responseURL} '
         'connect=$connectTimeout receive=$receiveTimeout '
