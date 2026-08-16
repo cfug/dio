@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-*None.*
+- Fix the native XHR timeout being classified as `receiveTimeout` even when
+  the connection was never established. The XHR spec moves the request to
+  `DONE` before the timeout event fires, so `readyState` cannot be consulted
+  in the handler; the connection phase is now tracked via `readystatechange`.
 
 ## 2.2.1
 

@@ -97,6 +97,18 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
+    // Whether response headers have already been received, meaning the
+    // connection was established. Tracked via `readystatechange` because
+    // the native XHR timeout event fires after the spec has already moved
+    // the request to `DONE`, so `xhr.readyState` cannot be consulted there.
+    var headersReceived = false;
+    xhr.onReadyStateChange.listen((_) {
+      if (!headersReceived &&
+          xhr.readyState >= web.XMLHttpRequest.HEADERS_RECEIVED) {
+        headersReceived = true;
+      }
+    });
+
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
@@ -119,11 +131,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       connectTimeoutTimer = Timer(
         connectTimeout,
         () {
-          // TEMP-DEBUG: remove before merge.
-          print(
-            '[xhr-debug] connect timer fired: readyState=${xhr.readyState} '
-            'status=${xhr.status} connect=$connectTimeout receive=$receiveTimeout',
-          );
           connectTimeoutTimer = null;
           if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
@@ -272,26 +279,13 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
-      // TEMP-DEBUG: remove before merge.
-      // ignore: avoid_print
-      print(
-        '[xhr-debug] native timeout scheduled: xhrTimeout=$xhrTimeout '
-        'connect=$connectTimeout receive=$receiveTimeout',
-      );
-    });
-    web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
-      // ignore: avoid_print
-      print(
-        '[xhr-debug] native timeout: readyState=${xhr.readyState} '
-        'status=${xhr.status} url=${xhr.responseURL} '
-        'connect=$connectTimeout receive=$receiveTimeout '
-        'headers=${xhr.getAllResponseHeaders()}',
-      );
+      // The native XHR timeout has fired, which per the XHR spec means the
+      // request has already been terminated and `readyState` is `DONE`
+      // regardless of the phase the request was in. Use the tracked
+      // connection phase instead of `readyState` here.
       connectTimeoutTimer?.cancel();
       if (!completer.isCompleted) {
-        // Use readyState to determine the actual phase of the request
-        // rather than relying on timer existence which can be inaccurate.
-        if (xhr.readyState < web.XMLHttpRequest.HEADERS_RECEIVED) {
+        if (!headersReceived) {
           completer.completeError(
             DioException.connectionTimeout(
               timeout: connectTimeout,
