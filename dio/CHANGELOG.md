@@ -9,6 +9,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
   When a consumer paused the stream, the source subscription was never paused,
   so the network kept buffering response data into memory, risking OOM on
   constrained platforms.
+- Make the `badCertificateCallback` pinning test deterministic by pinning a
+  fingerprint that cannot match the served certificate, instead of relying on
+  badssl.com hosts serving different certificates.
 
 ## 5.11.0
 
