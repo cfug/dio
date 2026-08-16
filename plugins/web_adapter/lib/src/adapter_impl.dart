@@ -119,6 +119,11 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       connectTimeoutTimer = Timer(
         connectTimeout,
         () {
+          // TEMP-DEBUG: remove before merge.
+          print(
+            '[xhr-debug] connect timer fired: readyState=${xhr.readyState} '
+            'status=${xhr.status} connect=$connectTimeout receive=$receiveTimeout',
+          );
           connectTimeoutTimer = null;
           if (completer.isCompleted) {
             // connectTimeout is triggered after the fetch has been completed.
@@ -267,6 +272,14 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
+      // TEMP-DEBUG: remove before merge.
+      // ignore: avoid_print
+      print(
+        '[xhr-debug] native timeout: readyState=${xhr.readyState} '
+        'status=${xhr.status} url=${xhr.responseURL} '
+        'connect=$connectTimeout receive=$receiveTimeout '
+        'headers=${xhr.getAllResponseHeaders()}',
+      );
       connectTimeoutTimer?.cancel();
       if (!completer.isCompleted) {
         // Use readyState to determine the actual phase of the request
