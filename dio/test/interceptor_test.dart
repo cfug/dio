@@ -1402,6 +1402,51 @@ void main() {
     expect(interceptors3.length, equals(2));
     expect(interceptors2.last, isA<LogInterceptor>());
   });
+
+  group('Interceptor implemented via implements', () {
+    test('synchronous callbacks pass through all stages', () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_ImplementsInterceptor());
+
+      final response = await dio.get<dynamic>('/test');
+      expect(response.data, isNotNull);
+    });
+
+    test('error stage is reached on a failing response', () async {
+      final errors = <DioException>[];
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_ImplementsInterceptor(onErrorCallback: errors.add));
+
+      await expectLater(
+        dio.get<dynamic>('/unknown'),
+        throwsA(isA<DioException>()),
+      );
+      expect(errors, hasLength(1));
+    });
+
+    test('async callbacks are observed for errors', () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(_AsyncImplementsInterceptor());
+
+      await expectLater(
+        dio.get<dynamic>('/test'),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.error,
+            'error',
+            isA<StateError>()
+                .having((e) => e.message, 'message', 'async implements error'),
+          ),
+        ),
+      );
+    });
+  });
 }
 
 class _DeduplicatingInterceptor extends Interceptor {
@@ -1579,5 +1624,62 @@ class _AsyncSubclassedQueuedInterceptorsWrapper
   ) async {
     await Future<void>.value();
     throw StateError('Async queued wrapper subclass error');
+  }
+}
+
+/// A class that **implements** [Interceptor] rather than extending it.
+///
+/// Regression guard for https://github.com/cfug/dio/issues/2590: the pipeline
+/// must only call public [Interceptor] methods, never private ones that only
+/// exist via inheritance.
+class _ImplementsInterceptor implements Interceptor {
+  _ImplementsInterceptor({this.onErrorCallback});
+
+  final void Function(DioException)? onErrorCallback;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    onErrorCallback?.call(err);
+    handler.next(err);
+  }
+}
+
+/// An async [Interceptor] **implemented** via `implements`, verifying that
+/// dynamic dispatch captures the returned [Future] even for non-extending
+/// classes.
+class _AsyncImplementsInterceptor implements Interceptor {
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    await Future<void>.value();
+    throw StateError('async implements error');
+  }
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    handler.next(err);
   }
 }

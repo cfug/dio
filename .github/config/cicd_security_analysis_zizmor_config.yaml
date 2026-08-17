@@ -1,0 +1,9 @@
+# https://docs.zizmor.sh/configuration
+rules:
+  dangerous-triggers:
+    ignore:
+      - coverage_comment.yml
+  undocumented-permissions:
+    disable: true
+  anonymous-definition:
+    disable: true

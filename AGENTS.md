@@ -125,6 +125,27 @@ change out and @-mention a maintainer:
 Rule of thumb: if getting this wrong could leak credentials, hang a
 request forever, or change data on the wire, treat it as sensitive.
 
+### Test certificates and keys
+
+Self-signed certificates and their private keys used only for local
+test fixtures (TLS, ALPN, pinning, etc.) are **not real secrets** — but
+committing static `.key`/`.crt` files still has costs: secret-scanner
+noise, package-size bloat for published artifacts, and inconsistency
+with this repo's convention of generating such fixtures at test time
+(see `scripts/prepare_pinning_certs.sh`).
+
+- **Prefer generating certificates at test setup** (via `openssl` in
+  a `setUp`/helper, or a setup script) over committing static files.
+- **If a static fixture is unavoidable**, exclude it from the published
+  package with both:
+  - `false_secrets` in the package's `pubspec.yaml` (suppresses pub's
+    leak-detection warning), and
+  - a `.pubignore` **inside the fixture subdirectory** (e.g.
+    `test/certificates/.pubignore`), never at the package root — a
+    root-level `.pubignore` overrides the root `.gitignore` for the
+    entire directory, silently re-including build artifacts and other
+    git-ignored files in the published package.
+
 ### Dependency changes
 
 Do not bundle drive-by dependency bumps into a feature/fix PR. When a

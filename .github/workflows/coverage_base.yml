@@ -17,6 +17,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
 # Disable permissions for all of the available permissions
 permissions: {}
 
@@ -26,14 +30,16 @@ jobs:
     env:
       TEST_PRESET: all
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 #v2.23.0
         with:
           cache: true
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid
       - run: dart pub get
-      - uses: bluefireteam/melos-action@2982f8e4fc92440a219490009d6d05195cb1a6a5
+      - uses: bluefireteam/melos-action@2982f8e4fc92440a219490009d6d05195cb1a6a5 #v3.8.0
         with:
           run-bootstrap: false
           melos-version: '^6.0.0'
@@ -85,6 +91,6 @@ jobs:
         run: melos run test:flutter
       - name: '[Coverage] Generate report'
         run: melos run coverage:combine
-      - uses: clearlyip/code-coverage-report-action@110af9d4ec87b6706f182fd90e3102af9e5203bf
+      - uses: clearlyip/code-coverage-report-action@110af9d4ec87b6706f182fd90e3102af9e5203bf #v7.0.0
         with:
           filename: 'coverage/cobertura.xml'

@@ -5,6 +5,13 @@ on:
   issues:
     types: [ opened, reopened, edited ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.repository }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+# Disable permissions for all of the available permissions
+permissions: {}
+
 jobs:
   verify_access:
     runs-on: ubuntu-latest

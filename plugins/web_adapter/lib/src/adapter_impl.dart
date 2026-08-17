@@ -97,6 +97,23 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       );
     }
 
+    // Whether response headers have already been received, meaning the
+    // connection was established. Tracked via `readystatechange` because
+    // the native XHR timeout event fires after the spec has already moved
+    // the request to `DONE`, so `xhr.readyState` cannot be consulted there.
+    // The `DONE` state itself must not count: the request error steps for
+    // a timeout or an error fire `readystatechange` at `DONE` right before
+    // the `timeout`/`error` events, which would defeat the flag.
+    var headersReceived = false;
+    xhr.onReadyStateChange.listen((_) {
+      final readyState = xhr.readyState;
+      if (!headersReceived &&
+          readyState >= web.XMLHttpRequest.HEADERS_RECEIVED &&
+          readyState < web.XMLHttpRequest.DONE) {
+        headersReceived = true;
+      }
+    });
+
     final completer = Completer<ResponseBody>();
 
     xhr.onLoad.first.then((_) {
@@ -267,11 +284,21 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     });
 
     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
+      // The native XHR timeout covers the whole request (connect + receive),
+      // and the XHR spec has already terminated the request and moved it to
+      // `DONE` before this event fires, so `xhr.readyState` cannot be
+      // consulted here. Classify from the tracked connection phase and the
+      // configured timeouts instead:
+      // - headers already received: the connection was established, so the
+      //   deadline expired while receiving the body;
+      // - headers not received and a connectTimeout is configured: the
+      //   connection was not established in time;
+      // - headers not received and no connectTimeout is configured: the
+      //   native deadline stood in for the receive deadline, since the
+      //   connect phase was not bounded.
       connectTimeoutTimer?.cancel();
       if (!completer.isCompleted) {
-        // Use readyState to determine the actual phase of the request
-        // rather than relying on timer existence which can be inaccurate.
-        if (xhr.readyState < web.XMLHttpRequest.HEADERS_RECEIVED) {
+        if (!headersReceived && connectTimeout > Duration.zero) {
           completer.completeError(
             DioException.connectionTimeout(
               timeout: connectTimeout,

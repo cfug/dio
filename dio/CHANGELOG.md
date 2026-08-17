@@ -5,7 +5,17 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix response stream not propagating backpressure to the underlying socket.
+  When a consumer paused the stream, the source subscription was never paused,
+  so the network kept buffering response data into memory, risking OOM on
+  constrained platforms.
+- Make the `badCertificateCallback` pinning test deterministic by pinning a
+  fingerprint that cannot match the served certificate, instead of relying on
+  badssl.com hosts serving different certificates.
+- Fix `NoSuchMethodError` when using a class that `implements Interceptor`
+  instead of `extends Interceptor`. The interceptor pipeline was calling private
+  dispatch methods that only exist on `Interceptor` subclasses, breaking any
+  class using interface implementation.
 
 ## 5.11.0
 

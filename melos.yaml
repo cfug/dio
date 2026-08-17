@@ -95,6 +95,7 @@ scripts:
     name: Dart Web tests in a browser
     exec: |
       sh -c '
+        set -e
         if [ "\$TARGET_DART_SDK" = "min" ]; then
           exec dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
         fi

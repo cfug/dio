@@ -534,7 +534,12 @@ abstract class DioMixin implements Dio {
     for (final interceptor in interceptors) {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleRequest
-          : interceptor._invokeRequest;
+          : (RequestOptions options, RequestInterceptorHandler handler) =>
+              _invokeCallbackDynamically(
+                interceptor.onRequest,
+                options,
+                handler,
+              );
       future = future.then(requestInterceptorWrapper(fun));
     }
 
@@ -559,7 +564,12 @@ abstract class DioMixin implements Dio {
     for (final interceptor in interceptors) {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleResponse
-          : interceptor._invokeResponse;
+          : (Response<dynamic> response, ResponseInterceptorHandler handler) =>
+              _invokeCallbackDynamically(
+                interceptor.onResponse,
+                response,
+                handler,
+              );
       future = future.then(responseInterceptorWrapper(fun));
     }
 
@@ -567,7 +577,8 @@ abstract class DioMixin implements Dio {
     for (final interceptor in interceptors) {
       final fun = interceptor is QueuedInterceptor
           ? interceptor._handleError
-          : interceptor._invokeError;
+          : (DioException error, ErrorInterceptorHandler handler) =>
+              _invokeCallbackDynamically(interceptor.onError, error, handler);
       future = future.catchError(errorInterceptorWrapper(fun));
     }
     // Normalize errors, converts errors to [DioException].

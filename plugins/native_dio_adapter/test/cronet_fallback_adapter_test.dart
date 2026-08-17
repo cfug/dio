@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jni/jni.dart' show JniException;
 import 'package:native_dio_adapter/src/cronet_fallback_adapter.dart';
 
 /// A minimal recording [HttpClientAdapter] used to observe what the fallback
@@ -58,47 +57,96 @@ class _ThrowOnFetchAdapter implements HttpClientAdapter {
   }
 }
 
-JniException _providerDisabledException() => JniException(
-      // Real JniException.message includes the throwable string followed by
-      // the Java stack trace; the classifier relies on `contains`.
-      '$cronetProvidersDisabledMessage\n'
-          '\tat org.chromium.net.CronetEngine\$Builder.build(CronetEngine.java:123)\n'
-          '\tat org.chromium.net.CronetProvider.createBuilder(CronetProvider.java:45)',
-      'stack from java',
+/// Test stand-in for the JNI-thrown `JThrowable` that Cronet surfaces when
+/// all providers are disabled.
+///
+/// `JThrowable` cannot be constructed in pure Dart — it wraps a real JNI
+/// reference and its constructor is internal. The adapter tests therefore
+/// inject [testIsProviderUnavailable], which recognises this type and
+/// delegates message matching to [isCronetProviderUnavailableMessage] (the
+/// same pure function the production classifier uses).
+class _ProviderUnavailableException implements Exception {
+  _ProviderUnavailableException(this.message);
+
+  final String message;
+}
+
+/// Classifier injected into [CronetWithFallbackAdapter.forTesting] so tests
+/// can simulate the provider-disabled failure without a live JNI environment.
+bool testIsProviderUnavailable(Object error) =>
+    error is _ProviderUnavailableException &&
+    isCronetProviderUnavailableMessage(error.message);
+
+_ProviderUnavailableException _providerDisabledException() =>
+    _ProviderUnavailableException(
+      // Real JThrowable.message is Java's Throwable.toString() —
+      // "ClassName: getMessage()", single line. The stack trace lives on
+      // JThrowable.javaStackTrace, which the classifier does not read.
+      cronetProvidersDisabledMessage,
     );
 
 void main() {
-  group('isCronetProviderUnavailable', () {
-    test('matches the provider-disabled message including trailing stack', () {
+  group('isCronetProviderUnavailableMessage', () {
+    test('matches when the message has extra trailing content', () {
+      // `contains` is used (not equality) so the predicate still fires when
+      // the message carries additional content beyond the disabled-provider
+      // string. A real JThrowable.message is single-line (Throwable.toString),
+      // but the matcher is intentionally tolerant of trailing text.
       expect(
-        isCronetProviderUnavailable(_providerDisabledException()),
+        isCronetProviderUnavailableMessage(
+          '$cronetProvidersDisabledMessage\n'
+          '\tat org.chromium.net.CronetEngine\$Builder.build(CronetEngine.java:123)\n'
+          '\tat org.chromium.net.CronetProvider.createBuilder(CronetProvider.java:45)',
+        ),
         isTrue,
       );
     });
 
-    test('does not match a different JniException message', () {
-      final other = JniException(
-        'java.lang.RuntimeException: Unable to find any Cronet provider.\n'
-            '\tat org.chromium.net.CronetEngine.build(CronetEngine.java:200)',
-        'stack from java',
+    test('does not match a different exception message', () {
+      expect(
+        isCronetProviderUnavailableMessage(
+          'java.lang.RuntimeException: Unable to find any Cronet provider.\n'
+          '\tat org.chromium.net.CronetEngine.build(CronetEngine.java:200)',
+        ),
+        isFalse,
       );
-      expect(isCronetProviderUnavailable(other), isFalse);
     });
 
-    test('does not match a non-JniException carrying the same text', () {
+    test('does not match a similar message with the wrong exception class', () {
+      // Different Java throwable type with a similar-looking message must
+      // NOT match; the classifier requires the full RuntimeException prefix.
+      expect(
+        isCronetProviderUnavailableMessage(
+          'java.lang.IllegalStateException: All available Cronet providers are '
+          'disabled. A provider should be enabled before it can be used.',
+        ),
+        isFalse,
+      );
+    });
+
+    test('does not match an empty message', () {
+      expect(isCronetProviderUnavailableMessage(''), isFalse);
+    });
+  });
+
+  group('isCronetProviderUnavailable', () {
+    test('returns false for a non-JThrowable carrying the same text', () {
+      // A plain Dart error with the exact message must not be classified as
+      // a Cronet-provider-disabled failure — the production classifier
+      // requires a JThrowable, not just the message text.
       final wrong = StateError(cronetProvidersDisabledMessage);
       expect(isCronetProviderUnavailable(wrong), isFalse);
     });
 
-    test('does not match a JniException with the wrong exception class', () {
-      // Different Java throwable type with a similar-looking message must
-      // NOT match; the classifier requires the full RuntimeException prefix.
-      final wrong = JniException(
-        'java.lang.IllegalStateException: All available Cronet providers are '
-            'disabled. A provider should be enabled before it can be used.',
-        'stack',
+    test('returns false for an ArgumentError', () {
+      expect(isCronetProviderUnavailable(ArgumentError('bad')), isFalse);
+    });
+
+    test('returns false for a plain String', () {
+      expect(
+        isCronetProviderUnavailable(cronetProvidersDisabledMessage),
+        isFalse,
       );
-      expect(isCronetProviderUnavailable(wrong), isFalse);
     });
   });
 
@@ -119,6 +167,7 @@ void main() {
           seenStack = stack;
           return fallback;
         },
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       final requestStream = Stream<Uint8List>.fromIterable(
@@ -142,7 +191,7 @@ void main() {
       await response.stream.drain<void>();
 
       expect(factoryCallCount, 1);
-      expect(seenError, isA<JniException>());
+      expect(seenError, isA<_ProviderUnavailableException>());
       expect(seenStack, isNotNull);
       expect(fallback.fetchCallCount, 1);
       expect(identical(fallback.lastOptions, options), isTrue);
@@ -154,12 +203,12 @@ void main() {
       expect(identical(wrapper.selectedAdapter, fallback), isTrue);
     });
 
-    test('non-matching JniException is rethrown and no fallback is created',
-        () async {
+    test(
+        'non-matching provider exception is rethrown and no fallback is '
+        'created', () async {
       var fallbackCreated = 0;
-      final nonMatching = JniException(
+      final nonMatching = _ProviderUnavailableException(
         'java.lang.IllegalArgumentException: bad config',
-        'stack',
       );
       final wrapper = CronetWithFallbackAdapter.forTesting(
         buildCronetAdapter: () => throw nonMatching,
@@ -167,6 +216,7 @@ void main() {
           fallbackCreated += 1;
           return _RecordingAdapter();
         },
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       await expectLater(
@@ -175,7 +225,7 @@ void main() {
           null,
           null,
         ),
-        throwsA(isA<JniException>()),
+        throwsA(isA<_ProviderUnavailableException>()),
       );
       expect(fallbackCreated, 0);
       expect(wrapper.selectedAdapter, isNull);
@@ -190,6 +240,7 @@ void main() {
           fallbackCreated += 1;
           return _RecordingAdapter();
         },
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       await expectLater(
@@ -218,6 +269,7 @@ void main() {
           fallbackCreated += 1;
           return _RecordingAdapter();
         },
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       await expectLater(
@@ -241,6 +293,7 @@ void main() {
           factoryCallCount += 1;
           return fallback;
         },
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       await (await wrapper.fetch(
@@ -281,6 +334,7 @@ void main() {
         createFallbackAdapter: (_, __) => throw StateError(
           'fallback must not be created when Cronet initialization succeeded',
         ),
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       await (await wrapper.fetch(
@@ -309,6 +363,7 @@ void main() {
       final wrapper = CronetWithFallbackAdapter.forTesting(
         buildCronetAdapter: () => throw _providerDisabledException(),
         createFallbackAdapter: (_, __) => fallback,
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       await (await wrapper.fetch(
@@ -340,6 +395,7 @@ void main() {
           fallbackCreated = true;
           return _RecordingAdapter();
         },
+        isProviderUnavailable: testIsProviderUnavailable,
       );
 
       wrapper.close();

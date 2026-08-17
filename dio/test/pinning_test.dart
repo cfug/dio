@@ -121,7 +121,7 @@ void main() {
     );
 
     test(
-      'badCertCallback does not use leaf certificate',
+      'badCertCallback rejects a non-matching pinned fingerprint',
       () async {
         DioException? error;
         try {
@@ -131,10 +131,14 @@ void main() {
               final effectiveClient = HttpClient(
                 context: SecurityContext(withTrustedRoots: false),
               );
-              // Comparison fails because fingerprint is for leaf cert, but
-              // this cert is from Let's Encrypt.
+              // Pin a fingerprint that is not the served leaf certificate's
+              // so badCertificateCallback rejects the handshake. Previous
+              // revisions pinned a sibling badssl.com host's fingerprint,
+              // which stopped mismatching once all badssl.com hosts started
+              // serving the same wildcard certificate.
+              final pinnedFingerprint = sha256.convert([0]).toString();
               effectiveClient.badCertificateCallback = (cert, host, port) =>
-                  fingerprint() == sha256.convert(cert.der).toString();
+                  pinnedFingerprint == sha256.convert(cert.der).toString();
               return effectiveClient;
             },
           );

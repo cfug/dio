@@ -73,6 +73,15 @@ dio 的部分区域一旦出问题波及面极大。这些区域的改动需要�
 
 判定标准：如果处理不当会泄漏凭证、让请求永远挂起、或改变发到网络上的数据，就属于敏感区域。
 
+### 测试证书与密钥
+
+仅用于本地测试 fixture 的自签证书及其私钥（TLS、ALPN、pinning 等）**不是真正的密钥**——但提交静态 `.key`/`.crt` 文件仍有代价：密钥扫描器误报、发布制品体积膨胀，以及与本仓库「在测试时动态生成此类 fixture」的既有约定不一致（参见 `scripts/prepare_pinning_certs.sh`）。
+
+- **优先在测试启动时生成证书**（通过 `openssl` 在 `setUp`/helper 中，或通过 setup 脚本），而非提交静态文件。
+- **如果必须使用静态 fixture**，需同时从发布制品中排除：
+  - 在该 package 的 `pubspec.yaml` 中添加 `false_secrets`（消除 pub 的泄漏检测告警）；以及
+  - 在 **fixture 子目录内**放置 `.pubignore`（例如 `test/certificates/.pubignore`），**切勿放在 package 根目录**——根目录的 `.pubignore` 会替代整个目录的根 `.gitignore`，导致构建产物等本应被忽略的文件被静默地重新包含进发布制品。
+
 ### 依赖变更
 
 不要把顺手的依赖升级夹带进 feature/fix PR。当依赖变更本身就是 PR 的目的时：
