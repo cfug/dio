@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -405,6 +406,51 @@ void main() {
         expect(fallbackCalled, isTrue);
       },
     );
+
+    // Covers the proxy code path of the same fix: when the TLS endpoint
+    // behind a CONNECT tunnel selects http/1.1, the just-secured socket
+    // must be destroyed and the request routed to fallbackAdapter.
+    test(
+      'routes to fallbackAdapter when server selects http/1.1 via ALPN through a proxy',
+      () async {
+        const supportedProtocols = ['h2', 'http/1.1'];
+
+        final port = await _bindHttp11OnlyServer();
+        final proxy = await _bindTunnelProxy();
+        final serverUri = Uri(scheme: 'https', host: 'localhost', port: port);
+
+        var fallbackCalled = false;
+        final dio = Dio()
+          ..httpClientAdapter = Http2Adapter(
+            ConnectionManager(
+              supportedProtocols: supportedProtocols,
+              onClientCreate: (_, settings) {
+                settings.proxy = Uri(
+                  scheme: 'http',
+                  host: 'localhost',
+                  port: proxy.port,
+                );
+                settings.onBadCertificate = (_) => true;
+              },
+            ),
+            fallbackAdapter: _TrackingAdapter(
+              () => fallbackCalled = true,
+              IOHttpClientAdapter(
+                createHttpClient: () =>
+                    HttpClient()..badCertificateCallback = (_, __, ___) => true,
+              ),
+            ),
+          );
+        final response = await dio.getUri(serverUri);
+        expect(response.statusCode, 200);
+        expect(fallbackCalled, isTrue);
+        // The abandoned h2 socket must be destroyed, not leaked.
+        await proxy.firstClientClosed.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => fail('tunnel socket was not closed after fallback'),
+        );
+      },
+    );
   });
 
   group(ProxyConnectedPredicate, () {
@@ -495,6 +541,88 @@ void _serveHttp11Response(Process process) {
       )
       ..close();
   });
+}
+
+/// Starts a minimal HTTP CONNECT tunnel proxy on loopback and returns its
+/// port. Only what [_ConnectionManager]'s proxy path needs is implemented:
+/// accept `CONNECT host:port`, reply `200 Connection established`, then pipe
+/// bytes blindly in both directions.
+Future<_TunnelProxy> _bindTunnelProxy() async {
+  final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+  addTearDown(server.close);
+  final firstClientClosed = Completer<void>();
+  var connectionCount = 0;
+  server.listen((client) {
+    final isFirst = connectionCount++ == 0;
+    void notifyClosed() {
+      if (isFirst && !firstClientClosed.isCompleted) {
+        firstClientClosed.complete();
+      }
+    }
+
+    final header = <int>[];
+    Socket? upstream;
+    client.listen(
+      (data) async {
+        if (upstream != null) {
+          upstream!.add(data);
+          return;
+        }
+        header.addAll(data);
+        final end = _indexOfHeaderEnd(header);
+        if (end < 0) {
+          return;
+        }
+        final requestLine = ascii.decode(header.sublist(0, end)).split(' ');
+        final target = requestLine.length > 1 ? requestLine[1] : '';
+        final lastColon = target.lastIndexOf(':');
+        try {
+          upstream = await Socket.connect(
+            target.substring(0, lastColon),
+            int.parse(target.substring(lastColon + 1)),
+          );
+        } catch (_) {
+          client.destroy();
+          return;
+        }
+        client.write('HTTP/1.1 200 Connection established\r\n\r\n');
+        upstream!.add(header.sublist(end + 4));
+        upstream!
+            .listen(client.add, onError: (_, __) {}, onDone: client.destroy);
+      },
+      onError: (_, __) => notifyClosed(),
+      onDone: () {
+        notifyClosed();
+        upstream?.destroy();
+      },
+    );
+  });
+  return _TunnelProxy(server.port, firstClientClosed.future);
+}
+
+/// A CONNECT tunnel proxy started by [_bindTunnelProxy].
+class _TunnelProxy {
+  _TunnelProxy(this.port, this.firstClientClosed);
+
+  /// The port the proxy listens on.
+  final int port;
+
+  /// Completes when the first client connection to the proxy closes.
+  final Future<void> firstClientClosed;
+}
+
+/// Returns the index of the `\r\n\r\n` that terminates the proxy request
+/// header, or -1 when it has not fully arrived yet.
+int _indexOfHeaderEnd(List<int> bytes) {
+  for (var i = 0; i + 3 < bytes.length; i++) {
+    if (bytes[i] == 13 &&
+        bytes[i + 1] == 10 &&
+        bytes[i + 2] == 13 &&
+        bytes[i + 3] == 10) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /// Polls [port] on loopback until a TCP connection succeeds (openssl is ready)
