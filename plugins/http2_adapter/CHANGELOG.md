@@ -14,6 +14,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
   successful TLS handshake (server selected `http/1.1` instead of `h2`),
   the `SecureSocket` is now explicitly destroyed before routing to
   `fallbackAdapter`, rather than being abandoned.
+- Deprecate the misspelled `ConnectionManager.handshakeTimout` parameter in
+  favor of the correctly spelled `handshakeTimeout`; the deprecated alias
+  keeps working and is scheduled for removal in 3.0.0.
 
 ## 2.8.0
 
