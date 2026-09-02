@@ -288,6 +288,30 @@ void main() {
         ..options.baseUrl = httpbunBaseUrl
         ..httpClientAdapter = Http2Adapter(
           ConnectionManager(
+            handshakeTimeout: handshakeTimeout,
+          ),
+        );
+
+      await expectLater(
+        dio.post('/post', data: 'TEST'),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.error is TimeoutException,
+            (e) => (e.error as TimeoutException).duration == handshakeTimeout,
+          ]),
+        ),
+      );
+    });
+
+    // The misspelled parameter is deprecated but must keep working
+    // (forwarding to handshakeTimeout) until it is removed in 3.0.0.
+    test('throws TimeoutException on deprecated handshakeTimout set', () async {
+      const handshakeTimeout = Duration(microseconds: 1);
+      final dio = Dio()
+        ..options.baseUrl = httpbunBaseUrl
+        ..httpClientAdapter = Http2Adapter(
+          ConnectionManager(
             handshakeTimout: handshakeTimeout,
           ),
         );

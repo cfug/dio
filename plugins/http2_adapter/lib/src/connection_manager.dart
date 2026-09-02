@@ -15,7 +15,11 @@ abstract class ConnectionManager {
   /// request through [Http2Adapter.fallbackAdapter].
   factory ConnectionManager({
     Duration idleTimeout = const Duration(seconds: 15),
-    Duration handshakeTimout = const Duration(seconds: 15),
+    @Deprecated(
+      'Use handshakeTimeout instead. This will be removed in 3.0.0',
+    )
+    Duration? handshakeTimout,
+    Duration? handshakeTimeout,
     void Function(Uri uri, ClientSetting)? onClientCreate,
     ProxyConnectedPredicate proxyConnectedPredicate =
         defaultProxyConnectedPredicate,
@@ -23,7 +27,7 @@ abstract class ConnectionManager {
   }) =>
       _ConnectionManager(
         idleTimeout: idleTimeout,
-        handshakeTimeout: handshakeTimout,
+        handshakeTimeout: handshakeTimeout ?? handshakeTimout,
         onClientCreate: onClientCreate,
         proxyConnectedPredicate: proxyConnectedPredicate,
         supportedProtocols: supportedProtocols,
