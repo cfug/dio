@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+*None.*
+
+## 2.2.2
+
 - Fix native XHR timeouts being misclassified as `receiveTimeout` when the
   connection was never established.
 
