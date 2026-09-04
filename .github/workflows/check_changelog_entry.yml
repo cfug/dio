@@ -1,13 +1,19 @@
 # Require a changelog entry whenever a pull request changes a package's `lib/`.
 name: Check changelog entry
 
-# The workflow deliberately runs for every pull request instead of filtering on
-# paths, so that the check always reports a result and can be made required.
+# Only pull requests that touch a package's `lib/` can need an entry, so the
+# rest never start a job. `paths` is matched against the whole pull request
+# (base...head), not just the newest push, so a pull request stays in scope
+# while its changelog entry is added and the check re-runs to pass.
 # `labeled` and `unlabeled` are included so that adding or removing the
 # `skip-changelog` label re-evaluates the pull request.
+# Note: a filtered workflow reports no result on the pull requests it skips, so
+# this check cannot be made a required status check as written.
 on:
   pull_request:
     types: [ opened, reopened, synchronize, labeled, unlabeled ]
+    paths:
+      - '**/lib/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
