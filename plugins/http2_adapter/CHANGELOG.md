@@ -5,6 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
+*None.*
+
+## 2.9.0
+
 - Expose `supportedProtocols` on `ConnectionManager` (defaults to `['h2']`,
   fully backwards-compatible). Setting it to `['h2', 'http/1.1']` fixes
   `fallbackAdapter` silently never firing against RFC 7301-compliant servers
