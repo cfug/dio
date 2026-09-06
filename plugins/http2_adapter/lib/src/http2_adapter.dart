@@ -234,6 +234,21 @@ class Http2Adapter implements HttpClientAdapter {
           if (status != null) {
             final code = int.parse(status);
             if (code >= 100 && code < 200) {
+              // Interim (1xx) responses precede a final response and never
+              // terminate the stream (RFC 9110 §15.2, RFC 9113 §8.4). A 1xx
+              // HEADERS frame carrying END_STREAM is therefore malformed: the
+              // stream ends without a final response. Fail fast instead of
+              // waiting forever on a pooled connection (matching the behavior
+              // of Go's `x/net/http2`).
+              if (message.endStream && !responseCompleter.isCompleted) {
+                responseCompleter.completeError(
+                  DioException.connectionError(
+                    requestOptions: options,
+                    reason: 'Received an interim 1xx response with END_STREAM; '
+                        'the stream ended without a final response.',
+                  ),
+                );
+              }
               return;
             }
             statusCode = code;

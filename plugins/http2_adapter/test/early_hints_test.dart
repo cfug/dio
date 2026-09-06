@@ -41,6 +41,81 @@ void main() {
     expect(response.headers.value('link'), isNull);
     expect(response.headers.value('content-type'), 'text/plain');
   });
+
+  test(
+      'completes normally when the server sends a trailer HEADERS frame '
+      'after DATA', () async {
+    // A trailer section is a HEADERS frame without `:status`, sent after the
+    // response body with END_STREAM (RFC 9113 §8.4, §8.8.5). Trailers are
+    // currently discarded (proper support tracked in
+    // https://github.com/cfug/dio/issues/2602); this test pins that the
+    // request still resolves normally instead of hanging or throwing.
+    final fixture = await _H2Fixture.serve((stream) {
+      stream.sendHeaders(
+        [
+          Header.ascii(':status', '200'),
+          Header.ascii('content-type', 'text/plain'),
+        ],
+        endStream: false,
+      );
+      stream.sendData('hello'.codeUnits, endStream: false);
+      // Trailing metadata (e.g. gRPC `grpc-status`) — no `:status`.
+      stream.sendHeaders(
+        [Header.ascii('grpc-status', '0')],
+        endStream: true,
+      );
+    });
+    addTearDown(fixture.close);
+
+    final dio = Dio()
+      ..httpClientAdapter = Http2Adapter(fixture.connectionManager);
+
+    final response = await dio.get<String>(
+      'http://127.0.0.1/',
+      options: Options(responseType: ResponseType.plain),
+    );
+
+    expect(response.statusCode, 200);
+    expect(response.data, 'hello');
+    expect(response.headers.value('content-type'), 'text/plain');
+    // Trailers are dropped for now.
+    expect(response.headers.value('grpc-status'), isNull);
+  });
+
+  test(
+      'fails fast when a 1xx interim response carries END_STREAM '
+      'instead of hanging', () async {
+    // A 1xx HEADERS frame with END_STREAM terminates the stream without a
+    // final response — malformed per RFC 9110 §15.2 and RFC 9113 §8.4. With
+    // `receiveTimeout` unset (the default) the request would otherwise wait
+    // forever on a pooled connection, so it should error out promptly.
+    final fixture = await _H2Fixture.serve((stream) {
+      stream.sendHeaders(
+        [Header.ascii(':status', '100')],
+        endStream: true,
+      );
+    });
+    addTearDown(fixture.close);
+
+    final dio = Dio()
+      ..httpClientAdapter = Http2Adapter(fixture.connectionManager);
+
+    await expectLater(
+      dio.get<String>(
+        'http://127.0.0.1/',
+        options: Options(responseType: ResponseType.plain),
+      ),
+      throwsA(
+        isA<DioException>()
+            .having((e) => e.type, 'type', DioExceptionType.connectionError)
+            .having(
+              (e) => e.message,
+              'message',
+              contains('interim 1xx response with END_STREAM'),
+            ),
+      ),
+    );
+  });
 }
 
 class _H2Fixture {
