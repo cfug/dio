@@ -60,7 +60,7 @@ String encodeMap(
   final rightBracket = isQuery || !encode ? ']' : '%5D';
 
   final String Function(String) encodeComponent =
-      encode ? Uri.encodeQueryComponent : (e) => e;
+      encode ? Uri.encodeComponent : (e) => e;
   Object? maybeEncode(Object? value) {
     if (!isQuery || value == null || value is! String) {
       return value;
