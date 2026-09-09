@@ -44,7 +44,7 @@ jobs:
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 #v2.23.0
         with:
           cache: true
-          flutter-version: ${{ case(matrix.sdk == 'min', '3.3.0', '') }}
+          flutter-version: ${{ case(matrix.sdk == 'min', '3.19.0', '') }}
           channel: ${{ case(matrix.sdk == 'min', '', matrix.channel) }}
       - run: |
           echo "TARGET_DART_SDK=$TARGET_DART_SDK" >> $GITHUB_ENV
@@ -55,10 +55,7 @@ jobs:
       - uses: bluefireteam/melos-action@2982f8e4fc92440a219490009d6d05195cb1a6a5 #v3.8.0
         with:
           run-bootstrap: false
-          melos-version: ${{ case(matrix.sdk == 'min', '3.4.0', '^6.0.0') }}
-      - name: Remove dio_web_adapter overrides
-        if: ${{ matrix.sdk == 'min' }}
-        run: rm -rf plugins/web_adapter
+          melos-version: ^6.0.0
       - name: Check satisfied packages
         run: |
           dart ./scripts/melos_packages.dart

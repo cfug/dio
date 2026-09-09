@@ -46,15 +46,10 @@ void main() {
         case ResponseType.json:
         case ResponseType.plain:
           expect(response, '');
-          break;
         case ResponseType.stream:
           expect(response, isA<ResponseBody>());
-          break;
         case ResponseType.bytes:
           expect(response, []);
-          break;
-        default:
-          throw AssertionError('Unknown response type: $responseType');
       }
     }
     final jsonResponse = await transformer.transformResponse(
@@ -360,15 +355,10 @@ void main() {
           case ResponseType.json:
           case ResponseType.plain:
             expect(response, '');
-            break;
           case ResponseType.stream:
             expect(response, isA<ResponseBody>());
-            break;
           case ResponseType.bytes:
             expect(response, []);
-            break;
-          default:
-            throw AssertionError('Unknown response type: $responseType');
         }
       }
       final jsonResponse = await transformer.transformResponse(

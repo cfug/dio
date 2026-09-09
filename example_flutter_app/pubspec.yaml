@@ -3,7 +3,7 @@ description:  Demonstrates how to use the dio package.
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.18.0 <4.0.0"
+  sdk: ^3.3.0
 
 dependencies:
   flutter:
