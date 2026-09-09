@@ -4,8 +4,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 import 'adapters/io_adapter.dart'
-    if (dart.library.js_interop) 'adapters/browser_adapter.dart'
-    if (dart.library.html) 'adapters/browser_adapter.dart' as adapter;
+    if (dart.library.js_interop) 'adapters/browser_adapter.dart' as adapter;
 import 'headers.dart';
 import 'options.dart';
 import 'redirect_record.dart';
@@ -22,7 +21,7 @@ import 'redirect_record.dart';
 ///
 /// If you want to customize the [HttpClientAdapter] you should instead use
 /// either [IOHttpClientAdapter] on `dart:io` platforms
-/// or [BrowserHttpClientAdapter] on `dart:html` platforms.
+/// or [BrowserHttpClientAdapter] on web platforms.
 /// {@endtemplate}
 abstract class HttpClientAdapter {
   /// Create a [HttpClientAdapter] based on the current platform (IO/Web).

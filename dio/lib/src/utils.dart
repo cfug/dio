@@ -7,9 +7,7 @@ import 'options.dart';
 import 'parameter.dart';
 
 // See https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/foundation/constants.dart.
-const _kIsWebInterop = bool.fromEnvironment('dart.library.js_interop');
-const _kIsWebUtil = bool.fromEnvironment('dart.library.js_util');
-const kIsWeb = _kIsWebInterop || _kIsWebUtil || identical(0, 0.0);
+const kIsWeb = bool.fromEnvironment('dart.library.js_interop');
 
 // For the web platform, an inline `bool.fromEnvironment` translates to
 // `core.bool.fromEnvironment` instead of correctly being replaced by the

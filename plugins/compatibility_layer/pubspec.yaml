@@ -13,7 +13,7 @@ repository: https://github.com/cfug/dio/blob/main/plugins/compatibility_layer
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.3.0
 
 dependencies:
   dio: ^5.2.0

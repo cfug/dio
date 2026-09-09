@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Update doc comment references from `dart:html` to web implementation.
 
 ## 2.2.2
 

@@ -16,16 +16,14 @@ import 'headers.dart';
 import 'interceptors/imply_content_type.dart';
 import 'options.dart';
 import 'progress_stream/io_progress_stream.dart'
-    if (dart.library.js_interop) 'progress_stream/browser_progress_stream.dart'
-    if (dart.library.html) 'progress_stream/browser_progress_stream.dart';
+    if (dart.library.js_interop) 'progress_stream/browser_progress_stream.dart';
 import 'response.dart';
 import 'response/response_stream_handler.dart';
 import 'transformer.dart';
 
 part 'interceptor.dart';
 
-// TODO(EVERYONE): Use `mixin class` when the lower bound of SDK is raised to 3.0.0.
-abstract class DioMixin implements Dio {
+abstract mixin class DioMixin implements Dio {
   /// The base request config for the instance.
   @override
   late BaseOptions options;
