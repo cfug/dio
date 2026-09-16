@@ -5,7 +5,10 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `RequestOptions.uri` appending `queryParameters` after an existing
+  `#fragment` in `path`, which put the query text inside the fragment so the
+  server never received it as a query string. The query is now inserted
+  before the fragment, per RFC 3986 §3.
 
 ## 5.11.1
 
