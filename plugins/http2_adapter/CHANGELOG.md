@@ -5,7 +5,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Add `clientSettings` to `ConnectionManager` to create connections with
+  `package:http2` `ClientSettings`, such as a larger `streamWindowSize` for
+  faster large downloads. `ClientSettings` is exported.
 
 ## 2.9.0
 

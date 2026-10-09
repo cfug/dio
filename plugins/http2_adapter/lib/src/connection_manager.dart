@@ -13,6 +13,13 @@ abstract class ConnectionManager {
   /// RFC 7301 by rejecting clients that advertise only `h2`. The list must
   /// contain `'h2'` for HTTP/2 to be negotiated; omitting it routes every
   /// request through [Http2Adapter.fallbackAdapter].
+  ///
+  /// [clientSettings] are the `package:http2` settings every connection is
+  /// created with; `null` keeps that package's defaults. The default 65535-byte
+  /// flow-control window allows only that much in flight per round trip, so
+  /// large downloads can be much slower than over HTTP/1.1; a larger
+  /// `streamWindowSize` raises it (and, from `package:http2` 3.2,
+  /// `connectionWindowSize` and `maxFrameSize`).
   factory ConnectionManager({
     Duration idleTimeout = const Duration(seconds: 15),
     @Deprecated(
@@ -24,6 +31,7 @@ abstract class ConnectionManager {
     ProxyConnectedPredicate proxyConnectedPredicate =
         defaultProxyConnectedPredicate,
     List<String> supportedProtocols = const ['h2'],
+    ClientSettings? clientSettings,
   }) =>
       _ConnectionManager(
         idleTimeout: idleTimeout,
@@ -31,6 +39,7 @@ abstract class ConnectionManager {
         onClientCreate: onClientCreate,
         proxyConnectedPredicate: proxyConnectedPredicate,
         supportedProtocols: supportedProtocols,
+        clientSettings: clientSettings,
       );
 
   /// Get the connection(may reuse) for each request.
