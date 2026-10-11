@@ -113,53 +113,44 @@ void main() {
               switch (reqOpt.path) {
                 case '/resolve':
                   handler.resolve(Response(requestOptions: reqOpt, data: 1));
-                  break;
                 case '/resolve-next':
                   handler.resolve(
                     Response(requestOptions: reqOpt, data: 2),
                     true,
                   );
-                  break;
                 case '/resolve-next/always':
                   handler.resolve(
                     Response(requestOptions: reqOpt, data: 2),
                     true,
                   );
-                  break;
                 case '/resolve-next/reject':
                   handler.resolve(
                     Response(requestOptions: reqOpt, data: 2),
                     true,
                   );
-                  break;
                 case '/resolve-next/reject-next':
                   handler.resolve(
                     Response(requestOptions: reqOpt, data: 2),
                     true,
                   );
-                  break;
                 case '/reject':
                   handler
                       .reject(DioException(requestOptions: reqOpt, error: 3));
-                  break;
                 case '/reject-next':
                   handler.reject(
                     DioException(requestOptions: reqOpt, error: 4),
                     true,
                   );
-                  break;
                 case '/reject-next/reject':
                   handler.reject(
                     DioException(requestOptions: reqOpt, error: 5),
                     true,
                   );
-                  break;
                 case '/reject-next-response':
                   handler.reject(
                     DioException(requestOptions: reqOpt, error: 5),
                     true,
                   );
-                  break;
                 default:
                   handler.next(reqOpt); //continue
               }
@@ -172,11 +163,9 @@ void main() {
                 case '/resolve-next':
                   response.data++;
                   handler.resolve(response); //3
-                  break;
                 case '/resolve-next/always':
                   response.data++;
                   handler.next(response); //3
-                  break;
                 case '/resolve-next/reject':
                   handler.reject(
                     DioException(
@@ -184,13 +173,11 @@ void main() {
                       error: '/resolve-next/reject',
                     ),
                   );
-                  break;
                 case '/resolve-next/reject-next':
                   handler.reject(
                     DioException(requestOptions: options, error: ''),
                     true,
                   );
-                  break;
                 default:
                   handler.next(response); //continue
               }
@@ -227,7 +214,6 @@ void main() {
                 case '/resolve-next/always':
                   response.data++;
                   handler.next(response); //4
-                  break;
                 default:
                   handler.next(response); //continue
               }
@@ -337,13 +323,11 @@ void main() {
                     data: 'fake data',
                   ),
                 );
-                break;
               case '/fakepath2':
                 dio
                     .get('/test')
                     .then(handler.resolve)
                     .catchError((e) => handler.reject(e as DioException));
-                break;
               case '/fakepath3':
                 handler.reject(
                   DioException(
@@ -351,7 +335,6 @@ void main() {
                     error: 'test error',
                   ),
                 );
-                break;
               case '/fakepath4':
                 handler.reject(
                   DioException(
@@ -359,13 +342,11 @@ void main() {
                     error: 'test error',
                   ),
                 );
-                break;
               case '/test?tag=1':
                 dio.get('/token').then((response) {
                   options.headers['token'] = response.data['data']['token'];
                   handler.next(options);
                 });
-                break;
               default:
                 handler.next(options); //continue
             }

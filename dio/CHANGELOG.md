@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Raise minimum Dart SDK version to 3.3.0 and `dio_web_adapter` constraint to `^2.0.0`.
+- Remove legacy `dart.library.html` conditional imports and simplify `kIsWeb` check to `dart.library.js_interop`.
 
 ## 5.11.1
 

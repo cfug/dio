@@ -23,7 +23,7 @@ import 'dart:async';
 
 import 'package:dio/src/compute/compute.dart' as c;
 
-/// The dart:html implementation of [c.compute].
+/// The web implementation of [c.compute].
 Future<R> compute<Q, R>(
   c.ComputeCallback<Q, R> callback,
   Q message, {
