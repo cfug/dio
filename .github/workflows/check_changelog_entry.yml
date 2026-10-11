@@ -1,0 +1,45 @@
+# Require a changelog entry whenever a pull request changes a package's `lib/`.
+name: Check changelog entry
+
+# Only pull requests that touch a package's `lib/` can need an entry, so the
+# rest never start a job. `paths` is matched against the whole pull request
+# (base...head), not just the newest push, so a pull request stays in scope
+# while its changelog entry is added and the check re-runs to pass.
+# `labeled` and `unlabeled` are included so that adding or removing the
+# `skip-changelog` label re-evaluates the pull request.
+# Note: a filtered workflow reports no result on the pull requests it skips, so
+# this check cannot be made a required status check as written.
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize, labeled, unlabeled ]
+    paths:
+      - '**/lib/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+# Disable permissions for all of the available permissions
+permissions: {}
+
+jobs:
+  verify_changelog:
+    name: Verify changelog entries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+          # The whole history is needed to compare the pull request with its
+          # base, `scripts` is the only directory the check itself reads.
+          fetch-depth: 0
+          sparse-checkout: scripts
+      - name: Check for changelog entries
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          SKIP_CHANGELOG_LABEL: skip-changelog
+        run: ./scripts/check_changelog_entry.sh
