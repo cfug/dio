@@ -437,7 +437,7 @@ abstract class DioMixin implements Dio {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() async {
-              final handler = RequestInterceptorHandler();
+              final handler = RequestInterceptorHandler(requestOptions);
               final result = cb(state.data as RequestOptions, handler);
               _observeInterceptorCallback(
                 result,
@@ -467,7 +467,7 @@ abstract class DioMixin implements Dio {
           return listenCancelForAsyncTask(
             requestOptions.cancelToken,
             Future(() async {
-              final handler = ResponseInterceptorHandler();
+              final handler = ResponseInterceptorHandler(requestOptions);
               final result = cb(state.data as Response, handler);
               _observeInterceptorCallback(
                 result,
@@ -495,7 +495,7 @@ abstract class DioMixin implements Dio {
             ? error
             : InterceptorState(assureDioException(error, requestOptions));
         Future<InterceptorState> handleError() async {
-          final handler = ErrorInterceptorHandler();
+          final handler = ErrorInterceptorHandler(requestOptions);
           final result = cb(state.data, handler);
           _observeInterceptorCallback(
             result,
@@ -552,9 +552,14 @@ abstract class DioMixin implements Dio {
         requestOptions = reqOpt;
         try {
           final value = await _dispatchRequest<T>(reqOpt);
-          handler.resolve(value, true);
+          // A racing cancellation may have already completed this handler.
+          if (!handler.isCompleted) {
+            handler.resolve(value, true);
+          }
         } on DioException catch (e) {
-          handler.reject(e, true);
+          if (!handler.isCompleted) {
+            handler.reject(e, true);
+          }
         }
         return null;
       }),
