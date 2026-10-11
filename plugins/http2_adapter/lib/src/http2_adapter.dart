@@ -219,16 +219,43 @@ class Http2Adapter implements HttpClientAdapter {
     responseSubscription = stream.incomingMessages.listen(
       (StreamMessage message) async {
         if (message is HeadersStreamMessage) {
+          final frameHeaders = <MapEntry<String, String>>[];
+          String? status;
           for (final header in message.headers) {
             final name = utf8.decode(header.name);
             final value = utf8.decode(header.value);
-            responseHeaders.add(name, value);
+            if (name == ':status') {
+              status = value;
+            } else {
+              frameHeaders.add(MapEntry(name, value));
+            }
           }
 
-          final status = responseHeaders.value(':status');
           if (status != null) {
-            statusCode = int.parse(status);
-            responseHeaders.removeAll(':status');
+            final code = int.parse(status);
+            if (code >= 100 && code < 200) {
+              // Interim (1xx) responses precede a final response and never
+              // terminate the stream (RFC 9110 §15.2, RFC 9113 §8.4). A 1xx
+              // HEADERS frame carrying END_STREAM is therefore malformed: the
+              // stream ends without a final response. Fail fast instead of
+              // waiting forever on a pooled connection (matching the behavior
+              // of Go's `x/net/http2`).
+              if (message.endStream && !responseCompleter.isCompleted) {
+                responseCompleter.completeError(
+                  DioException.connectionError(
+                    requestOptions: options,
+                    reason: 'Received an interim 1xx response with END_STREAM; '
+                        'the stream ended without a final response.',
+                  ),
+                );
+              }
+              return;
+            }
+            statusCode = code;
+            responseHeaders.clear();
+            for (final entry in frameHeaders) {
+              responseHeaders.add(entry.key, entry.value);
+            }
             needRedirect = _needRedirect(options, statusCode);
             needResponse =
                 !needRedirect && options.validateStatus(statusCode) ||

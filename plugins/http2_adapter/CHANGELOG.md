@@ -5,7 +5,16 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix crash on 1xx informational responses (e.g. `103 Early Hints`): interim
+  responses are now ignored so the request resolves with the final response
+  instead of throwing `Bad state: Future already completed`. Response headers
+  are also reset per HEADERS frame so interim headers no longer leak into the
+  final response. Trailer HEADERS frames (a HEADERS frame with no `:status`
+  after the response body, e.g. gRPC trailing metadata) are consequently
+  discarded rather than merged into the response headers; proper trailer
+  support is tracked in https://github.com/cfug/dio/issues/2602. A malformed
+  1xx response carrying END_STREAM now fails fast with a `connectionError`
+  instead of hanging until `receiveTimeout`.
 
 ## 2.9.0
 
