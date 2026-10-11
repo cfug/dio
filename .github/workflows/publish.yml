@@ -23,7 +23,7 @@ jobs:
         with:
           persist-credentials: false
           token: ${{ secrets.CFUG_PUBLISHER }}
-      - uses: dart-lang/setup-dart@7654d458321ee25acccccfdb86cd48bd95768ff1 #v1.8.0
+      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d #v1.8.1
       - uses: cfug/dio_issue_release_action@fabea0c8c802678977470bae92a317a5af94209b #v2.4.1
         with:
           github-token: ${{ secrets.CFUG_PUBLISHER }}
