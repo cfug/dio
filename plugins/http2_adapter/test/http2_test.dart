@@ -232,6 +232,64 @@ void main() {
   });
 
   group(ConnectionManager, () {
+    /// The HTTP/2 SETTINGS a client sends first, as identifier -> value,
+    /// read off the wire by a local h2c server that then answers 200.
+    Future<Map<int, int>> clientSettingsSentWith(
+      ConnectionManager manager,
+    ) async {
+      final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(server.close);
+      final received = BytesBuilder();
+      server.listen((socket) {
+        final connection = ServerTransportConnection.viaStreams(
+          socket.map((bytes) {
+            received.add(bytes);
+            return bytes;
+          }),
+          socket,
+        );
+        connection.incomingStreams.listen((stream) {
+          stream.incomingMessages.drain<void>();
+          stream.sendHeaders(
+            [Header.ascii(':status', '200')],
+            endStream: true,
+          );
+        });
+      });
+      final dio = Dio()
+        ..httpClientAdapter = Http2Adapter(manager)
+        ..options.baseUrl = 'http://127.0.0.1:${server.port}';
+      addTearDown(() => dio.close(force: true));
+
+      await dio.get<void>('/');
+
+      // The 24-byte connection preface, then the SETTINGS frame: a 9-byte
+      // header (24-bit length, type 0x4) and 6-byte entries.
+      final bytes = ByteData.sublistView(received.toBytes());
+      final length = bytes.getUint32(24) >> 8;
+      expect(bytes.getUint8(27), 0x4);
+      return {
+        for (var i = 33; i < 33 + length; i += 6)
+          bytes.getUint16(i): bytes.getUint32(i + 2),
+      };
+    }
+
+    const settingsInitialWindowSize = 0x4;
+
+    test('creates connections with the given clientSettings', () async {
+      final settings = await clientSettingsSentWith(
+        ConnectionManager(
+          clientSettings: const ClientSettings(streamWindowSize: 1 << 20),
+        ),
+      );
+      expect(settings, containsPair(settingsInitialWindowSize, 1 << 20));
+    });
+
+    test('keeps package:http2 defaults without clientSettings', () async {
+      final settings = await clientSettingsSentWith(ConnectionManager());
+      expect(settings, isNot(contains(settingsInitialWindowSize)));
+    });
+
     test('returns correct connection', () async {
       final manager = ConnectionManager();
       final tlsConnection = await manager.getConnection(
