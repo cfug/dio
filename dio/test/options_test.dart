@@ -551,4 +551,70 @@ void main() {
     expect(headerMap['sensitive'], 'test');
     expect(headerMap['insensitive'], 'test');
   });
+
+  group('RequestOptions.uri orders query before fragment (RFC 3986 §3)', () {
+    test('fragment in path, with queryParameters', () {
+      final uri = RequestOptions(
+        path: '/p#frag',
+        queryParameters: {'x': '1'},
+      ).uri;
+      expect(uri.path, '/p');
+      expect(uri.query, 'x=1');
+      expect(uri.fragment, 'frag');
+    });
+
+    test('fragment in path, no queryParameters', () {
+      final uri = RequestOptions(path: '/p#frag').uri;
+      expect(uri.path, '/p');
+      expect(uri.query, '');
+      expect(uri.fragment, 'frag');
+    });
+
+    test('existing ?query in path plus queryParameters, with fragment', () {
+      final uri = RequestOptions(
+        path: '/p?a=1#frag',
+        queryParameters: {'x': '1'},
+      ).uri;
+      expect(uri.path, '/p');
+      expect(uri.query, 'a=1&x=1');
+      expect(uri.fragment, 'frag');
+    });
+
+    test('empty fragment', () {
+      final uri = RequestOptions(
+        path: '/p#',
+        queryParameters: {'x': '1'},
+      ).uri;
+      expect(uri.path, '/p');
+      expect(uri.query, 'x=1');
+      expect(uri.fragment, '');
+    });
+
+    test('fragment containing a literal question mark', () {
+      final uri = RequestOptions(
+        path: '/p#frag?notquery',
+        queryParameters: {'x': '1'},
+      ).uri;
+      expect(uri.path, '/p');
+      expect(uri.query, 'x=1');
+      expect(uri.fragment, 'frag?notquery');
+    });
+
+    test('baseUrl with a path, plus a relative path with a fragment', () {
+      final uri = RequestOptions(
+        baseUrl: 'https://example.com/api/',
+        path: 'items#frag',
+        queryParameters: {'x': '1'},
+      ).uri;
+      expect(uri.path, '/api/items');
+      expect(uri.query, 'x=1');
+      expect(uri.fragment, 'frag');
+    });
+
+    test('no fragment, no queryParameters (unaffected baseline)', () {
+      final uri = RequestOptions(path: '/p').uri;
+      expect(uri.query, '');
+      expect(uri.fragment, '');
+    });
+  });
 }
