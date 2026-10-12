@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Add an opt-in way for interceptors to propagate a custom exception type to the caller via `DioException.custom(...)` and `handler.rejectCustom(...)`, so `on MyException catch (e)` matches at the await boundary instead of always seeing `DioException`.
 
 ## 5.11.1
 
