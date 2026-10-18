@@ -7,6 +7,179 @@ import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('ResponseType.stream consumer cancellation', () {
+    test('first cancels the adapter response stream', () async {
+      var cancelCount = 0;
+      final source = StreamController<Uint8List>(
+        onCancel: () => cancelCount++,
+      );
+      final cancelToken = CancelToken();
+      final dio = Dio()
+        ..httpClientAdapter =
+            _StreamingAdapter(ResponseBody(source.stream, 200));
+      addTearDown(() async {
+        cancelToken.cancel();
+        await Future<void>.delayed(Duration.zero);
+        await source.close();
+        dio.close();
+      });
+
+      final response = await dio.get<ResponseBody>(
+        'https://example.test/stream',
+        options: Options(responseType: ResponseType.stream),
+        cancelToken: cancelToken,
+      );
+      final first = response.data!.stream.first;
+      source.add(Uint8List.fromList([1]));
+
+      expect(await first, [1]);
+      expect(source.hasListener, isFalse);
+      expect(cancelCount, 1);
+    });
+
+    for (final pauseBeforeCancel in [false, true]) {
+      test(
+          'cancel releases the response${pauseBeforeCancel ? ' while paused' : ''}',
+          () async {
+        final source = StreamController<Uint8List>();
+        var closeCount = 0;
+        final progress = <int>[];
+        final cancelToken = CancelToken();
+        final dio = Dio()
+          ..httpClientAdapter = _StreamingAdapter(
+            ResponseBody(source.stream, 200, onClose: () => closeCount++),
+          );
+        addTearDown(() async {
+          cancelToken.cancel();
+          await Future<void>.delayed(Duration.zero);
+          await source.close();
+          dio.close();
+        });
+
+        final response = await dio.get<ResponseBody>(
+          'https://example.test/stream',
+          options: Options(
+            responseType: ResponseType.stream,
+            receiveTimeout: const Duration(milliseconds: 30),
+          ),
+          cancelToken: cancelToken,
+          onReceiveProgress: (count, _) => progress.add(count),
+        );
+        final subscription = response.data!.stream.listen((_) {});
+        source.add(Uint8List.fromList([1]));
+        await Future<void>.delayed(Duration.zero);
+        if (pauseBeforeCancel) {
+          subscription.pause();
+          expect(source.isPaused, isTrue);
+        }
+
+        await subscription.cancel();
+        expect(source.hasListener, isFalse);
+        expect(closeCount, 1);
+
+        source.add(Uint8List.fromList([2]));
+        await Future<void>.delayed(const Duration(milliseconds: 60));
+        expect(progress, [1]);
+        expect(closeCount, 1, reason: 'The receive timer must not fire.');
+
+        cancelToken.cancel();
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          closeCount,
+          1,
+          reason: 'Later cancellation must not close again.',
+        );
+      });
+    }
+
+    test('cancel waits for asynchronous adapter cleanup', () async {
+      final cleanupStarted = Completer<void>();
+      final cleanupFinished = Completer<void>();
+      final source = StreamController<Uint8List>(
+        onCancel: () {
+          cleanupStarted.complete();
+          return cleanupFinished.future;
+        },
+      );
+      final cancelToken = CancelToken();
+      final dio = Dio()
+        ..httpClientAdapter =
+            _StreamingAdapter(ResponseBody(source.stream, 200));
+      addTearDown(() async {
+        if (!cleanupFinished.isCompleted) {
+          cleanupFinished.complete();
+        }
+        cancelToken.cancel();
+        await Future<void>.delayed(Duration.zero);
+        await source.close();
+        dio.close();
+      });
+      final response = await dio.get<ResponseBody>(
+        'https://example.test/stream',
+        options: Options(responseType: ResponseType.stream),
+        cancelToken: cancelToken,
+      );
+      var cancellationCompleted = false;
+      final cancellation = response.data!.stream.listen((_) {}).cancel().then(
+            (_) => cancellationCompleted = true,
+          );
+
+      await Future<void>.delayed(Duration.zero);
+      expect(cleanupStarted.isCompleted, isTrue);
+      expect(cancellationCompleted, isFalse);
+      cleanupFinished.complete();
+      await cancellation;
+      expect(cancellationCompleted, isTrue);
+    });
+
+    for (final withError in [false, true]) {
+      test(
+          'late token cancellation after source ${withError ? 'error' : 'done'}',
+          () async {
+        var sourceCancelCount = 0;
+        var closeCount = 0;
+        final source = StreamController<Uint8List>(
+          onCancel: () => sourceCancelCount++,
+        );
+        final cancelToken = CancelToken();
+        final dio = Dio()
+          ..httpClientAdapter = _StreamingAdapter(
+            ResponseBody(source.stream, 200, onClose: () => closeCount++),
+          );
+        addTearDown(() async {
+          await source.close();
+          dio.close();
+        });
+        final response = await dio.get<ResponseBody>(
+          'https://example.test/stream',
+          options: Options(responseType: ResponseType.stream),
+          cancelToken: cancelToken,
+        );
+        final received = response.data!.stream.toList();
+        if (withError) {
+          source.addError(StateError('response failed'));
+          await expectLater(received, throwsA(isA<StateError>()));
+        } else {
+          source.add(Uint8List.fromList([1]));
+          source.close();
+          expect(
+            await received,
+            [
+              Uint8List.fromList([1]),
+            ],
+          );
+        }
+
+        expect(sourceCancelCount, 1);
+        expect(closeCount, 0);
+        cancelToken.cancel();
+        await Future<void>.delayed(Duration.zero);
+        expect(sourceCancelCount, 1);
+        expect(closeCount, 0);
+      });
+    }
+  });
+
   group(handleResponseStream, () {
     late StreamController<Uint8List> source;
 
@@ -391,4 +564,21 @@ void main() {
       await source.close();
     });
   });
+}
+
+class _StreamingAdapter implements HttpClientAdapter {
+  _StreamingAdapter(this.response);
+
+  final ResponseBody response;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async =>
+      response;
+
+  @override
+  void close({bool force = false}) {}
 }
