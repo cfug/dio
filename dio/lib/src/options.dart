@@ -668,10 +668,20 @@ class RequestOptions extends _RequestConfig with OptionsMixin {
         url = '${s[0]}:/${s[1].replaceAll('//', '/')}';
       }
     }
+    // Split off any fragment before appending the query string, so the
+    // query ends up before the fragment as RFC 3986 §3 requires
+    // (scheme:authority/path?query#fragment). Otherwise queryParameters
+    // would be appended after the fragment and become part of it.
+    final fragmentIndex = url.indexOf('#');
+    final fragment = fragmentIndex == -1 ? '' : url.substring(fragmentIndex);
+    if (fragmentIndex != -1) {
+      url = url.substring(0, fragmentIndex);
+    }
     final query = Transformer.urlEncodeQueryMap(queryParameters, listFormat);
     if (query.isNotEmpty) {
       url += (url.contains('?') ? '&' : '?') + query;
     }
+    url += fragment;
     // Normalize the url.
     return Uri.parse(url).normalizePath();
   }
