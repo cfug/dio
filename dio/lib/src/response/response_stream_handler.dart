@@ -70,6 +70,15 @@ Stream<Uint8List> handleResponseStream(
     });
   }
 
+  responseSink.onCancel = () {
+    stopWatchReceiveTimeout();
+    if (!responseSink.isClosed) {
+      response.close();
+      responseSink.close();
+    }
+    return responseSubscription.cancel();
+  };
+
   // Also start watching before the first chunk to cover the gap between
   // headers and body (see onData below for per-chunk reset).
   watchReceiveTimeout();
@@ -99,6 +108,9 @@ Stream<Uint8List> handleResponseStream(
   );
 
   options.cancelToken?.whenCancel.whenComplete(() {
+    if (responseSink.isClosed) {
+      return;
+    }
     stopWatchReceiveTimeout();
     // Close the response stream upon a cancellation.
     response.close();

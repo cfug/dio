@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Release response resources and stop receive timeouts when a streamed response
+  consumer cancels its subscription or stops reading with `first` or `take`.
 
 ## 5.11.1
 
