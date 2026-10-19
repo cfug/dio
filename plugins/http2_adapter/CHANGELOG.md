@@ -5,7 +5,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix crash on 1xx informational responses (e.g. `103 Early Hints`): 
+  A malformed 1xx response carrying END_STREAM now fails fast with
+  a `connectionError` instead of hanging until `receiveTimeout`.
 
 ## 2.9.0
 
