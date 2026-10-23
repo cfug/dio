@@ -66,3 +66,21 @@ void main() async {
     );
 }
 ```
+
+### Configuring the flow-control window
+
+The default HTTP/2 flow-control window allows 64 KiB in flight per round trip,
+which can make large downloads much slower than over HTTP/1.1.
+Raise it with `clientSettings`:
+
+```dart
+void main() async {
+  final dio = Dio()
+    ..options.baseUrl = 'https://pub.dev'
+    ..httpClientAdapter = Http2Adapter(
+      ConnectionManager(
+        clientSettings: const ClientSettings(streamWindowSize: 8 << 20),
+      ),
+    );
+}
+```
