@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Bump minimum Dart SDK version to 3.3.0.
 
 ## 2.9.0
 

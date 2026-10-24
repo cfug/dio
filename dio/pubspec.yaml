@@ -17,7 +17,7 @@ repository: https://github.com/cfug/dio/blob/main/dio
 issue_tracker: https://github.com/cfug/dio/issues
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: ^3.3.0
 
 dependencies:
   async: ^2.8.2
@@ -27,7 +27,7 @@ dependencies:
   mime: '>=1.0.0 <3.0.0'
   path: ^1.8.0
 
-  dio_web_adapter: '>=1.1.0 <3.0.0'
+  dio_web_adapter: ^2.0.0
 
 dev_dependencies:
   lints: any

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-*None.*
+- Bump minimum Dart SDK version to 3.3.0 and simplify web platform check to `dart.library.js_interop`.
 
 ## 3.5.0
 
