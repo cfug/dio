@@ -262,8 +262,16 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
           options.onReceiveProgress!(event.loaded, event.total);
         }
       },
-      onDone: () => stopWatchReceiveTimeout(),
     );
+
+    // DOM event streams never close, so the timers must be stopped once the
+    // request ends (load, error, abort or timeout). An armed timer keeps the
+    // XHR and its response reachable until it fires.
+    web.EventStreamProviders.loadEndEvent.forTarget(xhr).first.then((_) {
+      connectTimeoutTimer?.cancel();
+      connectTimeoutTimer = null;
+      stopWatchReceiveTimeout();
+    });
 
     xhr.onError.first.then((_) {
       connectTimeoutTimer?.cancel();

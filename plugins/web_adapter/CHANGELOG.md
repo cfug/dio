@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-*None.*
+- Stop the connect and receive timeout timers once a request has ended.
+  They stayed armed until they fired, keeping each request and its response
+  in memory for up to the configured timeout.
 
 ## 2.2.2
 
