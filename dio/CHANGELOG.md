@@ -5,7 +5,8 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `ListFormat.tsv` joining values with a literal `\t` (a backslash and a `t`)
+  instead of a tab character.
 
 ## 5.11.1
 
