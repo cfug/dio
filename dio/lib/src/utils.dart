@@ -134,7 +134,7 @@ String _getSeparatorChar(ListFormat collectionFormat, bool isQuery) {
     case ListFormat.ssv:
       return isQuery ? '%20' : ' ';
     case ListFormat.tsv:
-      return r'\t';
+      return isQuery ? '%09' : '\t';
     case ListFormat.pipes:
       return '|';
     default:
