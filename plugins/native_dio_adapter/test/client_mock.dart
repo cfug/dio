@@ -107,3 +107,11 @@ class DelayedClientMock implements Client {
     throw UnimplementedError();
   }
 }
+
+class UrlStreamedResponse extends StreamedResponse
+    implements BaseResponseWithUrl {
+  UrlStreamedResponse(super.stream, super.statusCode, {required this.url});
+
+  @override
+  final Uri url;
+}

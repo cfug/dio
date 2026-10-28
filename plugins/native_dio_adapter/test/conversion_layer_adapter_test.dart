@@ -333,4 +333,56 @@ void main() {
       }
     });
   });
+
+  group('Redirects', () {
+    test('records the final URL the client followed redirects to', () async {
+      final mock = ClientMock()
+        ..response = UrlStreamedResponse(
+          const Stream.empty(),
+          200,
+          url: Uri.parse('https://example.com/moved'),
+        );
+      final cla = ConversionLayerAdapter(mock);
+      final dio = Dio();
+      dio.httpClientAdapter = cla;
+
+      final response = await dio.get<void>('https://example.com/data');
+
+      expect(response.redirects, hasLength(1));
+      expect(response.redirects.single.method, 'GET');
+      expect(
+        response.realUri,
+        Uri.parse('https://example.com/moved'),
+      );
+    });
+
+    test('records nothing when the client did not redirect', () async {
+      final mock = ClientMock()
+        ..response = UrlStreamedResponse(
+          const Stream.empty(),
+          200,
+          url: Uri.parse('https://example.com/data'),
+        );
+      final cla = ConversionLayerAdapter(mock);
+      final dio = Dio();
+      dio.httpClientAdapter = cla;
+
+      final response = await dio.get<void>('https://example.com/data');
+
+      expect(response.redirects, isEmpty);
+      expect(response.realUri, Uri.parse('https://example.com/data'));
+    });
+
+    test('records nothing when the client does not report a URL', () async {
+      final mock = ClientMock()
+        ..response = StreamedResponse(const Stream.empty(), 200);
+      final cla = ConversionLayerAdapter(mock);
+      final dio = Dio();
+      dio.httpClientAdapter = cla;
+
+      final response = await dio.get<void>('https://example.com/data');
+
+      expect(response.redirects, isEmpty);
+    });
+  });
 }

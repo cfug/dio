@@ -181,6 +181,13 @@ extension on StreamedResponse {
       headers: Map.fromEntries(dioHeaders),
       isRedirect: isRedirect,
       statusMessage: reasonPhrase,
+      redirects: [
+        // The native clients follow redirects themselves and only report
+        // the final URL, not the hops or their status codes, so record a
+        // single redirect to it to make `Response.realUri` correct.
+        if (this case BaseResponseWithUrl(:final url) when url != options.uri)
+          RedirectRecord(302, options.method, url),
+      ],
     );
   }
 }
