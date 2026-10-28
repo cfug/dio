@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-*None.*
+- Fill `ResponseBody.redirects` from the final URL that `cupertino_http` and
+  `cronet_http` report, so `Response.realUri` is correct after redirects.
 
 ## 1.8.0
 
