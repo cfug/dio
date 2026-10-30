@@ -67,8 +67,10 @@ while read -r added _deleted path; do
       changed_packages["${path%%/lib/*}"]=1
       ;;
     */CHANGELOG.md)
-      # A changelog that only loses lines does not describe a new change.
-      if [[ "$added" != "0" ]]; then
+      # A changelog that only loses lines does not describe a new change, and
+      # `--numstat` prints `-` rather than a count for a binary diff, so appending
+      # binary content must not read as an entry either.
+      if [[ "$added" =~ ^[0-9]+$ && "$added" -gt 0 ]]; then
         changelog_additions["${path%/CHANGELOG.md}"]=1
       fi
       ;;
@@ -78,8 +80,10 @@ done <<< "$diff_stat"
 missing=()
 for package in "${!changed_packages[@]}"; do
   # Packages without a changelog (examples, shared test helpers) are exempt,
-  # because they are not published to pub.dev.
-  if ! git cat-file -e "${head}:${package}/CHANGELOG.md" 2> /dev/null; then
+  # because they are not published to pub.dev. Read from `base`: against `head`, a
+  # pull request that deletes a package's CHANGELOG.md while changing its `lib/`
+  # would exempt itself. A genuine package removal is covered by the label.
+  if ! git cat-file -e "${base}:${package}/CHANGELOG.md" 2> /dev/null; then
     continue
   fi
   if [[ -z "${changelog_additions[$package]:-}" ]]; then
