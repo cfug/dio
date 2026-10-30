@@ -229,6 +229,45 @@ void main() {
       expect(response.statusCode, 200);
       expect(requestController.hasListener, isFalse);
     });
+
+    test('throws receiveTimeout when the body stalls after headers', () async {
+      serverSocket.listen((socket) {
+        final connection = ServerTransportConnection.viaSocket(socket);
+        serverConnections.add(connection);
+        connection.incomingStreams.listen((stream) {
+          stream.sendHeaders(
+            [Header.ascii(':status', '200')],
+            endStream: false,
+          );
+          stream.sendData([1, 2, 3], endStream: false);
+          // Stall here: never send more data and never close the stream.
+        });
+      });
+
+      final response = await adapter
+          .fetch(
+            RequestOptions(
+              path: '/',
+              method: 'GET',
+              baseUrl: 'http://127.0.0.1:${serverSocket.port}',
+              receiveTimeout: const Duration(milliseconds: 200),
+            ),
+            null,
+            null,
+          )
+          .timeout(const Duration(seconds: 2));
+      expect(response.statusCode, 200);
+      await expectLater(
+        response.stream.toList().timeout(const Duration(seconds: 2)),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.receiveTimeout,
+          ),
+        ),
+      );
+    });
   });
 
   group(ConnectionManager, () {
