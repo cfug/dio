@@ -5,7 +5,9 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix `receiveTimeout` so it also covers the response body: the inactivity
+  timer is now reset on every headers and data message, and a stalled body
+  stream now throws `DioException.receiveTimeout` instead of hanging.
 
 ## 2.9.0
 

@@ -215,10 +215,44 @@ class Http2Adapter implements HttpClientAdapter {
 
     final receiveTimeout = options.receiveTimeout ?? Duration.zero;
 
+    // Inactivity timer for the response body. The existing
+    // receiveTimeout only wraps the headers future, so without this a
+    // server that sends headers and then stalls mid-body would hang
+    // forever. This timer is reset on every headers and data message
+    // and cancelled when the body stream ends, errors, or is closed.
+    Timer? chunkTimer;
+    void cancelChunkTimer() {
+      chunkTimer?.cancel();
+      chunkTimer = null;
+    }
+
+    void resetChunkTimer() {
+      cancelChunkTimer();
+      if (receiveTimeout > Duration.zero) {
+        chunkTimer = Timer(receiveTimeout, () {
+          responseSubscription
+              .cancel()
+              .catchError((_) {})
+              .whenComplete(() {
+                if (!responseSink.isClosed) {
+                  responseSink.addError(
+                    DioException.receiveTimeout(
+                      timeout: receiveTimeout,
+                      requestOptions: options,
+                    ),
+                  );
+                  responseSink.close();
+                }
+              });
+        });
+      }
+    }
+
     late int statusCode;
     responseSubscription = stream.incomingMessages.listen(
       (StreamMessage message) async {
         if (message is HeadersStreamMessage) {
+          resetChunkTimer();
           for (final header in message.headers) {
             final name = utf8.decode(header.name);
             final value = utf8.decode(header.value);
@@ -237,6 +271,7 @@ class Http2Adapter implements HttpClientAdapter {
           }
         } else if (message is DataStreamMessage) {
           if (needResponse) {
+            resetChunkTimer();
             responseSink.add(
               message.bytes is Uint8List
                   ? message.bytes as Uint8List
@@ -250,6 +285,7 @@ class Http2Adapter implements HttpClientAdapter {
         }
       },
       onError: (Object error, StackTrace stackTrace) {
+        cancelChunkTimer();
         // If connection is being forcefully terminated, remove the connection.
         if (error is TransportConnectionException) {
           connectionManager.removeConnection(transport);
@@ -263,6 +299,7 @@ class Http2Adapter implements HttpClientAdapter {
         responseSink.close();
       },
       onDone: () {
+        cancelChunkTimer();
         responseSubscription.cancel();
         responseSink.close();
       },
@@ -289,6 +326,7 @@ class Http2Adapter implements HttpClientAdapter {
 
     // Handle redirection.
     if (needRedirect) {
+      cancelChunkTimer();
       if (responseHeaders['location'] == null) {
         // Redirect without location is illegal.
         throw DioException.connectionError(
@@ -324,6 +362,7 @@ class Http2Adapter implements HttpClientAdapter {
       redirects: redirects,
       isRedirect: redirects.isNotEmpty,
       onClose: () {
+        cancelChunkTimer();
         responseSubscription.cancel();
         responseSink.close();
         streamWR.target?.outgoingMessages.close();
