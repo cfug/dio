@@ -230,20 +230,17 @@ class Http2Adapter implements HttpClientAdapter {
       cancelChunkTimer();
       if (receiveTimeout > Duration.zero) {
         chunkTimer = Timer(receiveTimeout, () {
-          responseSubscription
-              .cancel()
-              .catchError((_) {})
-              .whenComplete(() {
-                if (!responseSink.isClosed) {
-                  responseSink.addError(
-                    DioException.receiveTimeout(
-                      timeout: receiveTimeout,
-                      requestOptions: options,
-                    ),
-                  );
-                  responseSink.close();
-                }
-              });
+          responseSubscription.cancel().catchError((_) {}).whenComplete(() {
+            if (!responseSink.isClosed) {
+              responseSink.addError(
+                DioException.receiveTimeout(
+                  timeout: receiveTimeout,
+                  requestOptions: options,
+                ),
+              );
+              responseSink.close();
+            }
+          });
         });
       }
     }
