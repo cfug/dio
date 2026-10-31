@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix duplicate interceptor handler completions: the dispatch stage no longer double-completes a handler racing a cancellation, and the resulting `StateError` (if any) now identifies the offending request.
 
 ## 5.11.1
 

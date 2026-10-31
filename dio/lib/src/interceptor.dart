@@ -21,8 +21,13 @@ class InterceptorState<T> {
 }
 
 abstract class _BaseHandler {
+  _BaseHandler([this._requestOptions]);
+
   final _completer = Completer<InterceptorState>();
   void Function()? _processNextInQueue;
+
+  // Identifies which request a duplicate-completion error belongs to.
+  final RequestOptions? _requestOptions;
 
   @protected
   Future<InterceptorState> get future => _completer.future;
@@ -31,9 +36,14 @@ abstract class _BaseHandler {
 
   void _throwIfCompleted() {
     if (_completer.isCompleted) {
+      final requestOptions = _requestOptions;
+      final requestDescription = requestOptions == null
+          ? ''
+          : ' (${requestOptions.method} ${requestOptions.uri})';
       throw StateError(
         'The `handler` has already been called, '
-        'make sure each handler gets called only once.',
+        'make sure each handler gets called only once.'
+        '$requestDescription',
       );
     }
   }
@@ -92,6 +102,8 @@ Object? _invokeCallbackDynamically<T, V extends _BaseHandler>(
 
 /// The handler for interceptors to handle before the request has been sent.
 class RequestInterceptorHandler extends _BaseHandler {
+  RequestInterceptorHandler([super.requestOptions]);
+
   /// Deliver the [requestOptions] to the next interceptor.
   ///
   /// Typically, the method should be called once interceptors done
@@ -152,6 +164,8 @@ class RequestInterceptorHandler extends _BaseHandler {
 
 /// The handler for interceptors to handle after respond.
 class ResponseInterceptorHandler extends _BaseHandler {
+  ResponseInterceptorHandler([super.requestOptions]);
+
   /// Deliver the [response] to the next interceptor.
   ///
   /// Typically, the method should be called once interceptors done
@@ -203,6 +217,8 @@ class ResponseInterceptorHandler extends _BaseHandler {
 
 /// The handler for interceptors to handle error occurred during the request.
 class ErrorInterceptorHandler extends _BaseHandler {
+  ErrorInterceptorHandler([super.requestOptions]);
+
   /// Deliver the [error] to the next interceptor.
   ///
   /// Typically, the method should be called once interceptors done

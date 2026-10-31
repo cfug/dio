@@ -61,7 +61,8 @@ void main() {
         allOf([
           isA<DioException>(),
           (DioException e) => e.error is StateError,
-          (DioException e) => (e.error as StateError).message == message,
+          (DioException e) =>
+              (e.error as StateError).message.startsWith(message),
         ]),
       ),
     );
@@ -71,7 +72,8 @@ void main() {
         allOf([
           isA<DioException>(),
           (DioException e) => e.error is StateError,
-          (DioException e) => (e.error as StateError).message == message,
+          (DioException e) =>
+              (e.error as StateError).message.startsWith(message),
         ]),
       ),
     );
@@ -81,11 +83,41 @@ void main() {
         allOf([
           isA<DioException>(),
           (DioException e) => e.error is StateError,
-          (DioException e) => (e.error as StateError).message == message,
+          (DioException e) =>
+              (e.error as StateError).message.startsWith(message),
         ]),
       ),
     );
   });
+
+  test(
+    'Duplicate handler call StateError identifies the offending request',
+    () async {
+      final dio = Dio()
+        ..options.baseUrl = MockAdapter.mockBase
+        ..httpClientAdapter = MockAdapter()
+        ..interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              handler.next(options);
+              handler.next(options);
+            },
+          ),
+        );
+      await expectLater(
+        dio.get('/test'),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (DioException e) => e.error is StateError,
+            (DioException e) =>
+                (e.error as StateError).message.contains('GET') &&
+                (e.error as StateError).message.contains('/test'),
+          ]),
+        ),
+      );
+    },
+  );
 
   group('InterceptorState', () {
     test('toString()', () {
