@@ -55,15 +55,18 @@ String? corsPreflightReason(RequestOptions options) {
 /// Collects all reasons why a request will trigger a CORS preflight, combining
 /// the static [corsPreflightReason] analysis with runtime factors that only
 /// the adapter knows: whether an upload progress listener will be registered
-/// ([willRegisterUploadListener]) and whether credentials are being sent
-/// ([withCredentials]).
+/// ([willRegisterUploadListener]).
+///
+/// The credentials mode (`withCredentials`) is intentionally not considered:
+/// sending credentials does not trigger a preflight, it only requires the
+/// server to respond with `Access-Control-Allow-Credentials: true` and an
+/// explicit (non-wildcard) `Access-Control-Allow-Origin`.
 ///
 /// Returns an empty list when the request is a CORS "simple request".
 /// This is a pure function so it can be unit-tested without a browser.
 List<String> collectCorsPreflightReasons(
   RequestOptions options, {
   bool willRegisterUploadListener = false,
-  bool withCredentials = false,
 }) {
   final reasons = <String>[
     if (corsPreflightReason(options) case final reason?) reason,
@@ -72,11 +75,6 @@ List<String> collectCorsPreflightReasons(
     reasons.add(
       'an upload progress listener (sendTimeout or onSendProgress) '
       'forces a preflight request',
-    );
-  }
-  if (withCredentials) {
-    reasons.add(
-      'withCredentials is enabled, which requires a CORS preflight request',
     );
   }
   return reasons;

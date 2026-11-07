@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-*None.*
+- Stop reporting `withCredentials` as a reason for a CORS preflight request.
+  Credentialed simple requests are not preflighted, so they no longer log the
+  preflight warning or get the "not a CORS simple request" error hint.
 
 ## 2.2.2
 

@@ -85,7 +85,6 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
     final preflightReasons = collectCorsPreflightReasons(
       options,
       willRegisterUploadListener: willRegisterUploadListener,
-      withCredentials: xhr.withCredentials,
     );
     if (preflightReasons.isNotEmpty && enableCORSWarning) {
       warningLog(

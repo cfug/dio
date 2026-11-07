@@ -150,27 +150,15 @@ void main() {
       expect(reasons.first, contains('upload progress listener'));
     });
 
-    test('withCredentials adds a reason', () {
-      final options = RequestOptions(method: 'GET');
-      final reasons = collectCorsPreflightReasons(
-        options,
-        withCredentials: true,
-      );
-      expect(reasons, hasLength(1));
-      expect(reasons.first, contains('withCredentials'));
-    });
-
-    test('non-simple method and upload listener and withCredentials', () {
+    test('non-simple method and upload listener', () {
       final options = RequestOptions(method: 'PUT');
       final reasons = collectCorsPreflightReasons(
         options,
         willRegisterUploadListener: true,
-        withCredentials: true,
       );
-      expect(reasons, hasLength(3));
+      expect(reasons, hasLength(2));
       expect(reasons[0], contains('PUT'));
       expect(reasons[1], contains('upload progress listener'));
-      expect(reasons[2], contains('withCredentials'));
     });
 
     test('simple POST with text/plain and no listener is empty', () {
