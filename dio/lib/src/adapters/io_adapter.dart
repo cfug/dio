@@ -223,6 +223,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     late final HttpClientResponse responseStream;
     try {
       responseStream = await future;
+    } on _BadCertificateException catch (e) {
+      // HttpClient opened a new connection while following a redirect and
+      // [validateCertificate] rejected its certificate before sending.
+      throw DioException.badCertificate(
+        requestOptions: options,
+        error: e.cert,
+      );
     } on HttpException catch (e, s) {
       if (e.message.contains(
         'Connection closed before full header was received',

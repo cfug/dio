@@ -344,6 +344,49 @@ void main() {
       }
     });
 
+    test('rejected redirect target fails with badCertificate', () async {
+      // HttpClient follows the redirect itself and connects to the target
+      // through the connectionFactory, so the rejection surfaces from the
+      // response future instead of openUrl.
+      final ctx = SecurityContext()
+        ..useCertificateChain(certPath)
+        ..usePrivateKey(keyPath);
+      final target = await HttpServer.bindSecure('localhost', 0, ctx);
+      int targetRequests = 0;
+      target.listen((req) async {
+        targetRequests++;
+        await req.drain<void>();
+        await req.response.close();
+      });
+      final origin = await HttpServer.bindSecure('localhost', 0, ctx);
+      origin.listen((req) async {
+        await req.drain<void>();
+        await req.response.redirect(
+          Uri.parse('https://localhost:${target.port}/landing'),
+        );
+      });
+      try {
+        final dio = Dio()
+          ..httpClientAdapter = IOHttpClientAdapter(
+            validateCertificate: (cert, host, port) => port != target.port,
+          );
+        await expectLater(
+          dio.get('https://localhost:${origin.port}/start'),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.badCertificate,
+            ),
+          ),
+        );
+        expect(targetRequests, 0);
+      } finally {
+        await origin.close(force: true);
+        await target.close(force: true);
+      }
+    });
+
     group('customized HttpClient keeps its TLS configuration:', () {
       // The server presents a certificate the default trust store rejects, so
       // a request can only reach it if the badCertificateCallback configured
