@@ -449,6 +449,49 @@ void main() {
       }
     });
 
+    test('a throwing validateCertificate closes the connection', () async {
+      final ctx = SecurityContext()
+        ..useCertificateChain(certPath)
+        ..usePrivateKey(keyPath);
+      final server = await SecureServerSocket.bind('localhost', 0, ctx);
+      final connectionClosed = Completer<void>();
+      void markClosed() {
+        if (!connectionClosed.isCompleted) {
+          connectionClosed.complete();
+        }
+      }
+
+      int bytesReceived = 0;
+      server.listen((socket) {
+        socket.listen(
+          (data) => bytesReceived += data.length,
+          onError: (_) => markClosed(),
+          onDone: markClosed,
+        );
+      });
+      try {
+        final dio = Dio()
+          ..httpClientAdapter = IOHttpClientAdapter(
+            validateCertificate: (cert, host, port) =>
+                throw StateError('validator failed'),
+          );
+        await expectLater(
+          dio.get('https://localhost:${server.port}/'),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.error,
+              'error',
+              isA<StateError>(),
+            ),
+          ),
+        );
+        await connectionClosed.future.timeout(const Duration(seconds: 5));
+        expect(bytesReceived, 0);
+      } finally {
+        await server.close();
+      }
+    });
+
     group('customized HttpClient keeps its TLS configuration:', () {
       // The server presents a certificate the default trust store rejects, so
       // a request can only reach it if the badCertificateCallback configured

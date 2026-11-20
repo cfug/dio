@@ -453,7 +453,14 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     final cert = ss.peerCertificate;
-    if (!validator(cert, url.host, url.port)) {
+    final bool approved;
+    try {
+      approved = validator(cert, url.host, url.port);
+    } catch (_) {
+      ss.destroy();
+      rethrow;
+    }
+    if (!approved) {
       ss.destroy();
       throw _BadCertificateException(url.host, url.port, cert);
     }
