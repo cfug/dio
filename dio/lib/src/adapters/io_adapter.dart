@@ -28,7 +28,7 @@ typedef ValidateCertificate = bool Function(
 /// Internal sentinel thrown from [IOHttpClientAdapter]'s connection factory
 /// when [IOHttpClientAdapter.validateCertificate] rejects the peer certificate.
 /// [_fetch] catches it and rethrows as [DioException.badCertificate].
-class _BadCertificateException implements HandshakeException {
+class _BadCertificateException implements Exception {
   _BadCertificateException(this.host, this.port, this.cert);
 
   final String host;
@@ -36,16 +36,8 @@ class _BadCertificateException implements HandshakeException {
   final X509Certificate? cert;
 
   @override
-  String get type => 'HandshakeException';
-
-  @override
-  String get message => 'validateCertificate returned false';
-
-  @override
-  OSError? get osError => null;
-
-  @override
-  String toString() => 'HandshakeException: $message (host=$host, port=$port)';
+  String toString() =>
+      'validateCertificate rejected the certificate of $host:$port';
 }
 
 /// Creates an [IOHttpClientAdapter].
