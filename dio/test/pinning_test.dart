@@ -459,9 +459,9 @@ void main() {
     test('plain http skips pre-emission validation', () async {
       // The pre-emission factory short-circuits non-https URLs to
       // [Socket.startConnect] without invoking the validator. The
-      // post-response block still fires (with a null cert, matching 5.9.x
-      // semantics), so the user's callback decides what to do with null —
-      // the typical pinning callback rejects it and the request fails.
+      // post-response block still fires (with a null cert, as it always
+      // has), so the user's callback decides what to do with null — the
+      // typical pinning callback rejects it and the request fails.
       final server = await HttpServer.bind('localhost', 0);
       try {
         server.listen((req) {
