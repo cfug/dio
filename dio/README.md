@@ -27,6 +27,7 @@ Timeout, Custom adapters, Transformers, etc.
   * [Examples](#examples)
     * [Performing a `GET` request](#performing-a-get-request)
     * [Performing a `POST` request](#performing-a-post-request)
+    * [Performing a `QUERY` request](#performing-a-query-request)
     * [Performing multiple concurrent requests](#performing-multiple-concurrent-requests)
     * [Downloading a file](#downloading-a-file)
     * [Get response stream](#get-response-stream)
@@ -128,6 +129,15 @@ void request() async {
 
 ```dart
 response = await dio.post('/test', data: {'id': 12, 'name': 'dio'});
+```
+
+### Performing a `QUERY` request
+
+The `QUERY` method (RFC 10008) is safe and idempotent like `GET`, but allows a
+request body, which is useful for complex queries that do not fit in the URL.
+
+```dart
+response = await dio.query('/search', data: {'filter': {'name': 'dio'}});
 ```
 
 ### Performing multiple concurrent requests

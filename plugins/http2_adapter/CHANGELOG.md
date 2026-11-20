@@ -7,6 +7,30 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 *None.*
 
+## 2.9.0
+
+- Expose `supportedProtocols` on `ConnectionManager` (defaults to `['h2']`,
+  fully backwards-compatible). Setting it to `['h2', 'http/1.1']` fixes
+  `fallbackAdapter` silently never firing against RFC 7301-compliant servers
+  that abort the TLS handshake with `no_application_protocol` when only `h2`
+  is advertised.
+- Fix socket leak: when `DioH2NotSupportedException` is thrown after a
+  successful TLS handshake (server selected `http/1.1` instead of `h2`),
+  the `SecureSocket` is now explicitly destroyed before routing to
+  `fallbackAdapter`, rather than being abandoned.
+- Deprecate the misspelled `ConnectionManager.handshakeTimout` parameter in
+  favor of the correctly spelled `handshakeTimeout`; the deprecated alias
+  keeps working and is scheduled for removal in 3.0.0.
+
+## 2.8.0
+
+- Prevent sensitive request headers from being forwarded across origins during
+  redirects.
+- Prevent uploads from throwing a `StateError` when the HTTP/2 connection closes
+  before the request body finishes streaming.
+- Run HTTP integration and certificate pinning tests against the configured
+  test server.
+
 ## 2.7.1
 
 - Fix `:authority` header generation to include non-default ports.

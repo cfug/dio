@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Disable permissions for all of the available permissions
+permissions: {}
+
 defaults:
   run:
     shell: bash -leo pipefail {0}
@@ -35,20 +38,24 @@ jobs:
     env:
       TEST_PRESET: all
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-      - uses: subosito/flutter-action@4cab68ce0f1c7c924f688bff4792e044f1aeb30c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 #v2.23.0
         with:
           cache: true
-          flutter-version: ${{ matrix.sdk == 'min' && '3.3.0' || '' }}
-          channel: ${{ matrix.sdk == 'min' && '' || matrix.channel }}
+          flutter-version: ${{ case(matrix.sdk == 'min', '3.3.0', '') }}
+          channel: ${{ case(matrix.sdk == 'min', '', matrix.channel) }}
       - run: |
-          echo TARGET_DART_SDK=${{ matrix.sdk }} >> $GITHUB_ENV
+          echo "TARGET_DART_SDK=$TARGET_DART_SDK" >> $GITHUB_ENV
+        env:
+          TARGET_DART_SDK: ${{ matrix.sdk }}
       - name: Prepare dependencies for the project management
         run: dart pub get
-      - uses: bluefireteam/melos-action@2982f8e4fc92440a219490009d6d05195cb1a6a5
+      - uses: bluefireteam/melos-action@b79b63bcd183f823740a7976cbdb4b0fc95a0eb8 #v3.10.0
         with:
           run-bootstrap: false
-          melos-version: ${{ matrix.sdk == 'min' && '3.4.0' || '^6.0.0' }}
+          melos-version: ${{ case(matrix.sdk == 'min', '3.4.0', '^6.0.0') }}
       - name: Remove dio_web_adapter overrides
         if: ${{ matrix.sdk == 'min' }}
         run: rm -rf plugins/web_adapter
@@ -68,7 +75,6 @@ jobs:
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run publish-dry-run
       # Tests
-      - run: ./scripts/prepare_pinning_certs.sh
       - name: Install proxy for tests
         run: sudo apt-get update && sudo apt-get install -y squid mkcert
       - name: Start local httpbun
@@ -85,21 +91,30 @@ jobs:
             --env HTTPBUN_TLS_KEY=/tmp/key.pem \
             --pull always \
             sharat87/httpbun
+          docker run \
+            --name httpbun-http \
+            --detach \
+            --publish 80:80 \
+            --pull always \
+            sharat87/httpbun
           sleep 1
           curl --fail --silent --show-error https://httpbun.local/any
+          curl --fail --silent --show-error http://httpbun.local/any
+      - name: Prepare pinning certificates
+        run: HTTPBUN_HOST=httpbun.local ./scripts/prepare_pinning_certs.sh
       - name: Use httpbun.local for tests
         run: melos run httpbun:local
       - name: '[Verify step] Test Dart packages [VM]'
         run: melos run test:vm
-      - name: Use httpbun.com for Web/Flutter tests
-        run: melos run httpbun:com
+      - name: Use local HTTP for Web/Flutter tests
+        run: melos run httpbun:local:http
       - name: '[Verify step] Test Dart packages [Chrome]'
         run: melos run test:web:chrome
       - name: '[Verify step] Test Dart packages [Firefox]'
         run: melos run test:web:firefox
       - name: '[Verify step] Test Flutter packages'
         run: melos run test:flutter
-      - uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 #v5.7.0
         if: ${{ matrix.sdk == 'stable' }}
         with:
           distribution: 'adopt'
@@ -112,7 +127,7 @@ jobs:
         if: ${{ matrix.sdk == 'stable' }}
         run: melos run coverage:show
       - name: '[Coverage] Create Report'
-        uses: clearlyip/code-coverage-report-action@110af9d4ec87b6706f182fd90e3102af9e5203bf
+        uses: clearlyip/code-coverage-report-action@110af9d4ec87b6706f182fd90e3102af9e5203bf #v7.0.0
         id: code_coverage_report
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
         with:
@@ -121,13 +136,16 @@ jobs:
           only_list_changed_files: true
       - name: '[Coverage] Write PR number to file'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
-        run: echo ${{ github.event.number }} > pr_number.txt
+        run: echo "$EVENT_NUMBER" > pr_number.txt
+        env:
+          EVENT_NUMBER: ${{ github.event.number }}
       - name: '[Coverage] Upload'
         if: ${{ matrix.sdk == 'stable' && github.actor != 'dependabot[bot]'}}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: code-coverage-results
           path: |
             coverage/cobertura.xml
             code-coverage-results.md
             pr_number.txt
+          retention-days: 7

@@ -7,8 +7,10 @@ class _ConnectionManager implements ConnectionManager {
     Duration? handshakeTimeout,
     this.onClientCreate,
     this.proxyConnectedPredicate = defaultProxyConnectedPredicate,
+    List<String> supportedProtocols = const ['h2'],
   })  : _idleTimeout = idleTimeout ?? const Duration(seconds: 1),
-        _handshakeTimeout = handshakeTimeout ?? const Duration(seconds: 15);
+        _handshakeTimeout = handshakeTimeout ?? const Duration(seconds: 15),
+        _supportedProtocols = supportedProtocols;
 
   /// Callback when socket created.
   ///
@@ -29,6 +31,9 @@ class _ConnectionManager implements ConnectionManager {
   /// This timeout is applied to a future returned by [RawSecureSocket.secure],
   /// which actually is a handshake future.
   final Duration _handshakeTimeout;
+
+  /// The ALPN protocols advertised during the TLS handshake.
+  final List<String> _supportedProtocols;
 
   /// Saving the reusable connections
   final _transportsMap = <String, _ClientTransportConnectionState>{};
@@ -193,9 +198,14 @@ class _ConnectionManager implements ConnectionManager {
         timeout: timeout,
         context: clientConfig.context,
         onBadCertificate: clientConfig.onBadCertificate,
-        supportedProtocols: ['h2'],
+        supportedProtocols: _supportedProtocols,
       ).timeout(_handshakeTimeout);
-      _throwIfH2NotSelected(target, socket);
+      try {
+        _throwIfH2NotSelected(target, socket);
+      } on DioH2NotSupportedException {
+        socket.destroy();
+        rethrow;
+      }
       return socket;
     }
 
@@ -270,9 +280,14 @@ class _ConnectionManager implements ConnectionManager {
       host: target.host,
       context: clientConfig.context,
       onBadCertificate: clientConfig.onBadCertificate,
-      supportedProtocols: ['h2'],
+      supportedProtocols: _supportedProtocols,
     ).timeout(_handshakeTimeout);
-    _throwIfH2NotSelected(target, socket);
+    try {
+      _throwIfH2NotSelected(target, socket);
+    } on DioH2NotSupportedException {
+      socket.destroy();
+      rethrow;
+    }
 
     proxySubscription.cancel();
 

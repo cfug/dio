@@ -46,8 +46,11 @@ scripts:
   httpbun:local:
     description: Run httpbun locally
     run: echo "const httpbunBaseUrl = 'https://httpbun.local';" > dio_test/lib/src/httpbun.dart
+  httpbun:local:http:
+    description: Run httpbun locally over HTTP
+    run: echo "const httpbunBaseUrl = 'http://httpbun.local';" > dio_test/lib/src/httpbun.dart
   httpbun:com:
-    description: Run httpbun locally
+    description: Run tests against httpbun.com
     run: echo "const httpbunBaseUrl = 'https://httpbun.com';" > dio_test/lib/src/httpbun.dart
 
   test:
@@ -92,6 +95,7 @@ scripts:
     name: Dart Web tests in a browser
     exec: |
       sh -c '
+        set -e
         if [ "\$TARGET_DART_SDK" = "min" ]; then
           exec dart test --platform "\$TEST_PLATFORM" --preset="\${TEST_PRESET:-default},\${TARGET_DART_SDK:-stable}" --chain-stack-traces
         fi

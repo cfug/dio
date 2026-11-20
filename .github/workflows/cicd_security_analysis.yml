@@ -1,0 +1,72 @@
+name: CI/CD Security Analysis
+
+on:
+  schedule:
+    - cron: '0 2 * * 3'
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - '.github/**'
+  pull_request:
+    branches: ["**"]
+    paths:
+      - '.github/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# Disable permissions for all of the available permissions
+permissions: {}
+
+env:
+  ZIZMOR_VERSION: "1.29.0"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    name: "Scan"
+    steps:
+      - name: "Checkout :: dio/.github"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: |
+            .github
+
+      - name: Pre-cache zizmor
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        id: pre-cache-zizmor
+        with:
+          path: ~/.cargo/bin/zizmor
+          key: ${{ runner.os }}-zizmor-v${{ env.ZIZMOR_VERSION }}
+
+      - name: Pre-install zizmor (if cache miss)
+        if: steps.pre-cache-zizmor.outputs.cache-hit != 'true'
+        run: cargo install zizmor --version "$ZIZMOR_VERSION" --locked
+        env:
+          ZIZMOR_VERSION: ${{ env.ZIZMOR_VERSION }}
+
+      - name: "Scan :: dio/.github"
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        env:
+          # uses: zizmor online mode
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ZIZMOR_CONFIG: "./.github/config/cicd_security_analysis_zizmor_config.yaml"
+        with:
+          script: |
+            const args = ['--persona=pedantic', '.'];
+
+            console.log(`Running: zizmor ${args.join(' ')}`);
+
+            const exitCode = await exec.exec('zizmor', args, {
+              cwd: '.',
+              env: process.env,
+              stdio: 'inherit'
+            });
+
+            if (exitCode !== 0) {
+              throw new Error(`zizmor exited with code ${exitCode}`);
+            }

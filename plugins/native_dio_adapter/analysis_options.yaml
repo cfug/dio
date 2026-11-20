@@ -1,6 +1,14 @@
 include: ../../analysis_options.yaml
 
 analyzer:
+  exclude:
+    - android/**
+    - build/**
+    - ios/**
+    - linux/**
+    - macos/**
+    - web/**
+    - windows/**
   language:
     strict-raw-types: true
     strict-casts: true

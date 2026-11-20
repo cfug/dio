@@ -5,5 +5,6 @@ export 'package:cupertino_http/cupertino_http.dart';
 
 export 'src/conversion_layer_adapter.dart';
 export 'src/cronet_adapter.dart';
+export 'src/cronet_fallback_adapter.dart' show CreateFallbackAdapter;
 export 'src/cupertino_adapter.dart';
 export 'src/native_adapter.dart';

@@ -1,4 +1,5 @@
 @TestOn('vm')
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,20 +9,38 @@ import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:test/test.dart';
 
-class MockRequestInterceptorHandler extends RequestInterceptorHandler {
-  MockRequestInterceptorHandler(this.expectResult);
+class _TestRequestInterceptorHandler extends RequestInterceptorHandler {
+  final Completer<RequestOptions> _result = Completer();
 
-  final String expectResult;
+  Future<RequestOptions> get result => _result.future;
 
   @override
   void next(RequestOptions requestOptions) {
-    final c = requestOptions.headers[HttpHeaders.cookieHeader];
-    expect(c == expectResult, true);
-    super.next(requestOptions);
+    _result.complete(requestOptions);
+  }
+
+  @override
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
+    _result.completeError(error, error.stackTrace);
   }
 }
 
 class MockResponseInterceptorHandler extends ResponseInterceptorHandler {}
+
+Future<void> expectRequestCookies(
+  CookieManager cookieManager,
+  RequestOptions options,
+  String? expected,
+) async {
+  final handler = _TestRequestInterceptorHandler();
+  await cookieManager.onRequest(options, handler);
+  final result = await handler.result;
+  expect(result, same(options));
+  expect(options.headers[HttpHeaders.cookieHeader], expected);
+}
 
 class _MockRejectRequestInterceptorHandler extends RequestInterceptorHandler {
   _MockRejectRequestInterceptorHandler(this.matcher);
@@ -118,18 +137,200 @@ void main() {
     );
 
     // Verify mock cookies.
-    final mockRequestInterceptorHandler =
-        MockRequestInterceptorHandler(expectResult);
     final options = RequestOptions(
       baseUrl: exampleUrl,
       headers: {
         HttpHeaders.cookieHeader: mockSecondRequestCookies,
       },
     );
-    await cookieManager.onRequest(
-      options,
-      mockRequestInterceptorHandler,
-    );
+    await expectRequestCookies(cookieManager, options, expectResult);
+  });
+
+  group('reusing request options', () {
+    const exampleUrl = 'https://example.com/api/endpoint';
+
+    test('does not append the cookie jar values again through Dio.fetch',
+        () async {
+      final cookieJar = CookieJar();
+      await cookieJar.saveFromResponse(
+        Uri.parse(exampleUrl),
+        [
+          Cookie('session', 'root')..path = '/',
+          Cookie('session', 'api')..path = '/api',
+        ],
+      );
+      final cookieManager = CookieManager(cookieJar);
+      final adapter = _CookieRecordingAdapter();
+      final dio = Dio()
+        ..httpClientAdapter = adapter
+        ..interceptors.add(cookieManager);
+      addTearDown(dio.close);
+      final options = RequestOptions(
+        baseUrl: exampleUrl,
+        responseType: ResponseType.plain,
+      );
+
+      await dio.fetch(options);
+      await dio.fetch(options);
+      await dio.fetch(options);
+
+      expect(
+        adapter.cookieHeaders,
+        everyElement(
+          equals(
+            'session=api; session=root',
+          ),
+        ),
+      );
+      expect(adapter.cookieHeaders, hasLength(3));
+      expect(adapter.requestOptions, everyElement(same(options)));
+    });
+
+    test('preserves a same-name cookie supplied by the caller', () async {
+      final cookieJar = CookieJar();
+      await cookieJar.saveFromResponse(
+        Uri.parse(exampleUrl),
+        [Cookie('session', 'saved')..path = '/'],
+      );
+      final cookieManager = CookieManager(cookieJar);
+      final options = RequestOptions(
+        baseUrl: exampleUrl,
+        headers: {HttpHeaders.cookieHeader: 'session=provided'},
+      );
+
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'session=provided; session=saved',
+      );
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'session=provided; session=saved',
+      );
+    });
+
+    test('reloads saved cookies without retaining their old values', () async {
+      final cookieJar = CookieJar();
+      final uri = Uri.parse(exampleUrl);
+      await cookieJar.saveFromResponse(
+        uri,
+        [Cookie('session', 'old')..path = '/'],
+      );
+      final cookieManager = CookieManager(cookieJar);
+      final options = RequestOptions(
+        baseUrl: exampleUrl,
+        headers: {HttpHeaders.cookieHeader: 'provided=value'},
+      );
+
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'provided=value; session=old',
+      );
+      await cookieJar.saveFromResponse(
+        uri,
+        [Cookie('session', 'new')..path = '/'],
+      );
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'provided=value; session=new',
+      );
+      await cookieJar.deleteAll();
+      await expectRequestCookies(cookieManager, options, 'provided=value');
+    });
+
+    test('uses a cookie header changed by the caller as the new input',
+        () async {
+      final cookieJar = CookieJar();
+      await cookieJar.saveFromResponse(
+        Uri.parse(exampleUrl),
+        [Cookie('saved', 'value')..path = '/'],
+      );
+      final cookieManager = CookieManager(cookieJar);
+      final options = RequestOptions(
+        baseUrl: exampleUrl,
+        headers: {HttpHeaders.cookieHeader: 'provided=first'},
+      );
+
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'provided=first; saved=value',
+      );
+      options.headers[HttpHeaders.cookieHeader] = 'provided=changed';
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'provided=changed; saved=value',
+      );
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'provided=changed; saved=value',
+      );
+    });
+
+    test('does not retain saved cookies after the request origin changes',
+        () async {
+      final cookieJar = CookieJar();
+      await cookieJar.saveFromResponse(
+        Uri.parse(exampleUrl),
+        [Cookie('session', 'saved')..path = '/'],
+      );
+      final cookieManager = CookieManager(cookieJar);
+      final options = RequestOptions(
+        baseUrl: exampleUrl,
+        headers: {HttpHeaders.cookieHeader: 'provided=value'},
+      );
+
+      await expectRequestCookies(
+        cookieManager,
+        options,
+        'provided=value; session=saved',
+      );
+      options.baseUrl = 'https://other.example.com';
+      await expectRequestCookies(cookieManager, options, 'provided=value');
+    });
+
+    test('keeps state separate between request options', () async {
+      final cookieJar = CookieJar();
+      await cookieJar.saveFromResponse(
+        Uri.parse(exampleUrl),
+        [Cookie('saved', 'value')..path = '/'],
+      );
+      final cookieManager = CookieManager(cookieJar);
+      final first = RequestOptions(
+        baseUrl: exampleUrl,
+        headers: {HttpHeaders.cookieHeader: 'provided=first'},
+      );
+      final second = RequestOptions(
+        baseUrl: exampleUrl,
+        headers: {HttpHeaders.cookieHeader: 'provided=second'},
+      );
+
+      await expectRequestCookies(
+        cookieManager,
+        first,
+        'provided=first; saved=value',
+      );
+      await expectRequestCookies(
+        cookieManager,
+        second,
+        'provided=second; saved=value',
+      );
+      await expectRequestCookies(
+        cookieManager,
+        first,
+        'provided=first; saved=value',
+      );
+      await expectRequestCookies(
+        cookieManager,
+        second,
+        'provided=second; saved=value',
+      );
+    });
   });
 
   group('Set-Cookie', () {
@@ -162,12 +363,7 @@ void main() {
 
       // Verify mock cookies.
       final options = RequestOptions(baseUrl: exampleUrl);
-      final mockRequestInterceptorHandler =
-          MockRequestInterceptorHandler(expectResult);
-      await cookieManager.onRequest(
-        options,
-        mockRequestInterceptorHandler,
-      );
+      await expectRequestCookies(cookieManager, options, expectResult);
     });
 
     test('can be saved to the location', () async {
@@ -425,6 +621,25 @@ void main() {
         DioException(requestOptions: requestOptions, response: response);
     await cookieManager.onError(error, mockErrorInterceptorHandler);
   });
+}
+
+class _CookieRecordingAdapter implements HttpClientAdapter {
+  final List<String?> cookieHeaders = [];
+  final List<RequestOptions> requestOptions = [];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    requestOptions.add(options);
+    cookieHeaders.add(options.headers[HttpHeaders.cookieHeader] as String?);
+    return ResponseBody.fromString('', HttpStatus.ok);
+  }
+
+  @override
+  void close({bool force = false}) {}
 }
 
 class _RedirectAdapter implements HttpClientAdapter {

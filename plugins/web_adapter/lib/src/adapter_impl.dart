@@ -8,11 +8,16 @@ import 'package:dio/src/utils.dart';
 import 'package:meta/meta.dart';
 import 'package:web/web.dart' as web;
 
+import 'cors.dart';
+
 BrowserHttpClientAdapter createAdapter() => BrowserHttpClientAdapter();
 
 /// The default [HttpClientAdapter] for Web platforms.
 class BrowserHttpClientAdapter implements HttpClientAdapter {
-  BrowserHttpClientAdapter({this.withCredentials = false});
+  BrowserHttpClientAdapter({
+    this.withCredentials = false,
+    this.enableCORSWarning = true,
+  });
 
   /// These are aborted if the client is closed.
   @visibleForTesting
@@ -26,6 +31,15 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
   /// You can also override this value using `Options.extra['withCredentials']`
   /// for each request.
   bool withCredentials;
+
+  /// Whether to emit a warning log when a request is not a CORS "simple
+  /// request" and will trigger a preflight (OPTIONS) request.
+  ///
+  /// Defaults to `true`. Set to `false` to silence the warning in apps that
+  /// already handle CORS preflight correctly and find the per-request log
+  /// noisy. The enriched error message in [DioException.connectionError] is
+  /// always emitted regardless of this setting.
+  bool enableCORSWarning;
 
   @override
   Future<ResponseBody> fetch(
@@ -62,6 +76,43 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
 
     final xhrTimeout = (connectTimeout + receiveTimeout).inMilliseconds;
     xhr.timeout = xhrTimeout;
+
+    // Detect configurations that will trigger a CORS preflight request so we
+    // can warn the developer and enrich the eventual error message.
+    // See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests
+    final willRegisterUploadListener = requestStream != null &&
+        (sendTimeout > Duration.zero || onSendProgress != null);
+    final preflightReasons = collectCorsPreflightReasons(
+      options,
+      willRegisterUploadListener: willRegisterUploadListener,
+      withCredentials: xhr.withCredentials,
+    );
+    if (preflightReasons.isNotEmpty && enableCORSWarning) {
+      warningLog(
+        'This request is not a CORS "simple request" and will trigger a '
+        'preflight (OPTIONS) request: ${preflightReasons.join('; ')}. '
+        'If the server does not handle CORS preflight, the request will fail. '
+        'See https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests',
+        StackTrace.current,
+      );
+    }
+
+    // Whether response headers have already been received, meaning the
+    // connection was established. Tracked via `readystatechange` because
+    // the native XHR timeout event fires after the spec has already moved
+    // the request to `DONE`, so `xhr.readyState` cannot be consulted there.
+    // The `DONE` state itself must not count: the request error steps for
+    // a timeout or an error fire `readystatechange` at `DONE` right before
+    // the `timeout`/`error` events, which would defeat the flag.
+    var headersReceived = false;
+    xhr.onReadyStateChange.listen((_) {
+      final readyState = xhr.readyState;
+      if (!headersReceived &&
+          readyState >= web.XMLHttpRequest.HEADERS_RECEIVED &&
+          readyState < web.XMLHttpRequest.DONE) {
+        headersReceived = true;
+      }
+    });
 
     final completer = Completer<ResponseBody>();
 
@@ -222,19 +273,32 @@ class BrowserHttpClientAdapter implements HttpClientAdapter {
       completer.completeError(
         DioException.connectionError(
           requestOptions: options,
-          reason: 'The XMLHttpRequest onError callback was called. '
-              'This typically indicates an error on the network layer.',
+          reason: corsEnrichedErrorReason(
+            'The XMLHttpRequest onError callback was called. '
+            'This typically indicates an error on the network layer.',
+            preflightReasons,
+          ),
         ),
         StackTrace.current,
       );
     });
 
     web.EventStreamProviders.timeoutEvent.forTarget(xhr).first.then((_) {
+      // The native XHR timeout covers the whole request (connect + receive),
+      // and the XHR spec has already terminated the request and moved it to
+      // `DONE` before this event fires, so `xhr.readyState` cannot be
+      // consulted here. Classify from the tracked connection phase and the
+      // configured timeouts instead:
+      // - headers already received: the connection was established, so the
+      //   deadline expired while receiving the body;
+      // - headers not received and a connectTimeout is configured: the
+      //   connection was not established in time;
+      // - headers not received and no connectTimeout is configured: the
+      //   native deadline stood in for the receive deadline, since the
+      //   connect phase was not bounded.
       connectTimeoutTimer?.cancel();
       if (!completer.isCompleted) {
-        // Use readyState to determine the actual phase of the request
-        // rather than relying on timer existence which can be inaccurate.
-        if (xhr.readyState < web.XMLHttpRequest.HEADERS_RECEIVED) {
+        if (!headersReceived && connectTimeout > Duration.zero) {
           completer.completeError(
             DioException.connectionTimeout(
               timeout: connectTimeout,

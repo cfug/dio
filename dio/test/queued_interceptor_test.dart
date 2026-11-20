@@ -75,6 +75,129 @@ void main() {
     }
   });
 
+  test(
+      'QueuedInterceptor should catch asynchronous errors in onRequest and release the queue',
+      () async {
+    final dio = Dio()
+      ..httpClientAdapter = _MockAdapter()
+      ..interceptors.add(_AsyncRequestErrorQueuedInterceptor());
+
+    final firstRequest = dio.get('https://example.com/first');
+    final firstFailure = expectLater(
+      firstRequest,
+      throwsA(
+        isA<DioException>().having(
+          (error) => error.error,
+          'error',
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'Async request error',
+          ),
+        ),
+      ),
+    );
+    final secondResponse = await dio
+        .get('https://example.com/second')
+        .timeout(const Duration(seconds: 1));
+
+    expect(secondResponse.statusCode, 200);
+    await firstFailure;
+  });
+
+  test(
+      'QueuedInterceptor should catch asynchronous errors in onResponse and release the queue',
+      () async {
+    var responseCount = 0;
+    final dio = Dio()
+      ..httpClientAdapter = _MockAdapter()
+      ..interceptors.add(
+        QueuedInterceptorsWrapper(
+          onResponse: (response, handler) async {
+            responseCount++;
+            await Future<void>.value();
+            if (responseCount == 1) {
+              throw StateError('Async response error');
+            }
+            handler.next(response);
+          },
+        ),
+      );
+
+    final firstRequest = dio.get('https://example.com/first');
+    final firstFailure = expectLater(
+      firstRequest,
+      throwsA(
+        isA<DioException>().having(
+          (error) => error.error,
+          'error',
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'Async response error',
+          ),
+        ),
+      ),
+    );
+    final secondResponse = await dio
+        .get('https://example.com/second')
+        .timeout(const Duration(seconds: 1));
+
+    expect(secondResponse.statusCode, 200);
+    expect(responseCount, 2);
+    await firstFailure;
+  });
+
+  test(
+      'QueuedInterceptor should catch asynchronous errors in onError and release the queue',
+      () async {
+    var errorCount = 0;
+    final dio = Dio()
+      ..httpClientAdapter = _FailingMockAdapter()
+      ..interceptors.add(
+        QueuedInterceptorsWrapper(
+          onError: (error, handler) async {
+            errorCount++;
+            await Future<void>.value();
+            if (errorCount == 1) {
+              throw StateError('Async error interceptor error');
+            }
+            handler.next(error);
+          },
+        ),
+      );
+
+    final firstRequest = dio.get('https://example.com/first');
+    final firstFailure = expectLater(
+      firstRequest,
+      throwsA(
+        isA<DioException>().having(
+          (error) => error.error,
+          'error',
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            'Async error interceptor error',
+          ),
+        ),
+      ),
+    );
+    final secondRequest = dio.get('https://example.com/second');
+    final secondFailure = expectLater(
+      secondRequest.timeout(const Duration(seconds: 1)),
+      throwsA(
+        isA<DioException>().having(
+          (error) => error.message,
+          'message',
+          'Mock request failed',
+        ),
+      ),
+    );
+
+    await Future.wait([firstFailure, secondFailure]);
+    expect(errorCount, 2);
+  });
+
   test('Reproduces issue #2138 scenario with QueuedInterceptor', () async {
     final dio = Dio();
 
@@ -268,5 +391,22 @@ class _QueuedInterceptorWithError extends QueuedInterceptor {
     ErrorInterceptorHandler handler,
   ) {
     handler.next(err);
+  }
+}
+
+class _AsyncRequestErrorQueuedInterceptor extends QueuedInterceptor {
+  int requestCount = 0;
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    requestCount++;
+    await Future<void>.value();
+    if (requestCount == 1) {
+      throw StateError('Async request error');
+    }
+    handler.next(options);
   }
 }

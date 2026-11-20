@@ -1,10 +1,32 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
 import 'mock/adapters.dart';
+
+int _indexOfSubList(List<int> bytes, List<int> pattern, [int start = 0]) {
+  if (pattern.isEmpty) {
+    return start <= bytes.length ? start : -1;
+  }
+
+  for (int i = start; i <= bytes.length - pattern.length; i++) {
+    bool matched = true;
+    for (int j = 0; j < pattern.length; j++) {
+      if (bytes[i + j] != pattern[j]) {
+        matched = false;
+        break;
+      }
+    }
+    if (matched) {
+      return i;
+    }
+  }
+
+  return -1;
+}
 
 void main() async {
   group(FormData, () {
@@ -265,6 +287,53 @@ void main() async {
       expect(result, contains('name="api[data][a]"'));
       expect(result, contains('name="api[data][b]"'));
       expect(result, contains('name="api[data][c]"'));
+    });
+
+    test('readAsBytes keeps chunked file payload complete', () async {
+      const chunks = 128;
+      const chunkSize = 1024;
+      final expectedFileLength = chunks * chunkSize;
+      final expectedPayload = Uint8List.fromList(
+        List<int>.generate(
+          expectedFileLength,
+          (i) => (i ~/ chunkSize) % 256,
+        ),
+      );
+
+      final file = MultipartFile.fromStream(
+        () => Stream<List<int>>.fromIterable(
+          List.generate(
+            chunks,
+            (i) => List<int>.filled(chunkSize, i % 256),
+          ),
+        ),
+        expectedFileLength,
+        filename: 'chunked.bin',
+      );
+
+      final fd = FormData.fromMap({'file': file});
+      final data = await fd.readAsBytes();
+      final headerStart = _indexOfSubList(
+        data,
+        utf8.encode('filename="chunked.bin"'),
+      );
+      final headerEnd = _indexOfSubList(
+        data,
+        utf8.encode('\r\n\r\n'),
+        headerStart,
+      );
+      final payloadStart = headerEnd + 4;
+      final payloadEnd = payloadStart + expectedPayload.length;
+      final trailingBoundary = utf8.encode('\r\n--${fd.boundary}--\r\n');
+
+      expect(data.length, fd.length);
+      expect(headerStart, isNonNegative);
+      expect(headerEnd, isNonNegative);
+      expect(
+        data.sublist(payloadStart, payloadEnd),
+        orderedEquals(expectedPayload),
+      );
+      expect(data.sublist(payloadEnd), orderedEquals(trailingBoundary));
     });
 
     test('posts maps correctly', () async {

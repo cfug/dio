@@ -39,6 +39,57 @@ abstract class _BaseHandler {
   }
 }
 
+typedef _InterceptorCallback<T, V extends _BaseHandler> = Object? Function(
+  T data,
+  V handler,
+);
+
+void _observeInterceptorCallback(
+  Object? result,
+  _BaseHandler handler,
+  void Function(Object error, StackTrace stackTrace) onError,
+) {
+  // Only a returned Future can be associated with this handler. Detached
+  // asynchronous work remains owned by the callback's zone.
+  if (result is! Future<dynamic>) {
+    return;
+  }
+
+  final callbackZone = Zone.current;
+  result.then<void>(
+    (_) {},
+    onError: (Object error, StackTrace stackTrace) {
+      if (!handler.isCompleted) {
+        onError(error, stackTrace);
+      } else {
+        callbackZone.handleUncaughtError(error, stackTrace);
+      }
+    },
+  );
+}
+
+/// Invokes an interceptor callback dynamically so that a [Future] returned by
+/// an `async` override of a `void` method is captured at runtime.
+///
+/// The public [Interceptor.onRequest], [Interceptor.onResponse], and
+/// [Interceptor.onError] are declared `void`, but subclasses (and classes
+/// that *implement* [Interceptor]) may override them with `async`, returning
+/// `Future<void>`. A statically-typed call would discard that [Future]; this
+/// dynamic invocation preserves it so [_observeInterceptorCallback] can
+/// observe asynchronous errors.
+///
+/// This is a top-level function rather than a private instance method on
+/// [Interceptor] so that classes using `implements Interceptor` are not broken.
+/// See the [Interceptor] class docs for the dispatch contract.
+Object? _invokeCallbackDynamically<T, V extends _BaseHandler>(
+  void Function(T, V) callback,
+  T data,
+  V handler,
+) {
+  final dynamic dynamicCallback = callback;
+  return dynamicCallback(data, handler);
+}
+
 /// The handler for interceptors to handle before the request has been sent.
 class RequestInterceptorHandler extends _BaseHandler {
   /// Deliver the [requestOptions] to the next interceptor.
@@ -178,10 +229,24 @@ class ErrorInterceptorHandler extends _BaseHandler {
   }
 
   /// Completes the request by reject with the [error] as the result.
-  void reject(DioException error) {
+  ///
+  /// Invoking the method will make the rest of interceptors in the queue
+  /// skipped to handle the request,
+  /// unless [callFollowingErrorInterceptor] is true
+  /// which delivers [InterceptorResultType.rejectCallFollowing]
+  /// to the [InterceptorState].
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {
     _throwIfCompleted();
     _completer.completeError(
-      InterceptorState<DioException>(error, InterceptorResultType.reject),
+      InterceptorState<DioException>(
+        error,
+        callFollowingErrorInterceptor
+            ? InterceptorResultType.rejectCallFollowing
+            : InterceptorResultType.reject,
+      ),
       error.stackTrace,
     );
     _processNextInQueue?.call();
@@ -194,6 +259,13 @@ class ErrorInterceptorHandler extends _BaseHandler {
 ///
 /// Interceptors are called once per request and response,
 /// that means redirects aren't triggering interceptors.
+///
+/// Both `extends Interceptor` and `implements Interceptor` are supported.
+/// The request pipeline dispatches exclusively through the public [onRequest],
+/// [onResponse], and [onError] methods (via dynamic invocation to capture
+/// runtime [Future]s from `async` overrides). **Do not** add private instance
+/// methods to this class and call them from the pipeline — they would not be
+/// inherited by classes that use `implements`, causing a [NoSuchMethodError].
 ///
 /// See also:
 ///  - [InterceptorsWrapper], the helper class to create [Interceptor]s.
@@ -253,16 +325,29 @@ mixin _InterceptorWrapperMixin on Interceptor {
   InterceptorSuccessCallback? _onResponse;
   InterceptorErrorCallback? _onError;
 
+  // The public callback typedefs remain void for compatibility. Invoke them
+  // dynamically so an async callback still exposes its runtime Future.
+
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    if (_onRequest != null) {
-      _onRequest!(options, handler);
-    } else {
+    final callback = _onRequest;
+    if (callback == null) {
       handler.next(options);
+      return;
     }
+    final dynamic dynamicCallback = callback;
+    final result = dynamicCallback(options, handler);
+    _observeInterceptorCallback(
+      result,
+      handler,
+      (error, stackTrace) => handler.reject(
+        DioMixin.assureDioException(error, options, stackTrace),
+        true,
+      ),
+    );
   }
 
   @override
@@ -270,11 +355,25 @@ mixin _InterceptorWrapperMixin on Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    if (_onResponse != null) {
-      _onResponse!(response, handler);
-    } else {
+    final callback = _onResponse;
+    if (callback == null) {
       handler.next(response);
+      return;
     }
+    final dynamic dynamicCallback = callback;
+    final result = dynamicCallback(response, handler);
+    _observeInterceptorCallback(
+      result,
+      handler,
+      (error, stackTrace) => handler.reject(
+        DioMixin.assureDioException(
+          error,
+          response.requestOptions,
+          stackTrace,
+        ),
+        true,
+      ),
+    );
   }
 
   @override
@@ -282,11 +381,24 @@ mixin _InterceptorWrapperMixin on Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) {
-    if (_onError != null) {
-      _onError!(err, handler);
-    } else {
+    final callback = _onError;
+    if (callback == null) {
       handler.next(err);
+      return;
     }
+    final dynamic dynamicCallback = callback;
+    final result = dynamicCallback(err, handler);
+    _observeInterceptorCallback(
+      result,
+      handler,
+      (error, stackTrace) => handler.next(
+        DioMixin.assureDioException(
+          error,
+          err.requestOptions,
+          stackTrace,
+        ),
+      ),
+    );
   }
 }
 
@@ -388,7 +500,7 @@ class QueuedInterceptor extends Interceptor {
   final _responseQueue = _TaskQueue<Response, ResponseInterceptorHandler>();
   final _errorQueue = _TaskQueue<DioException, ErrorInterceptorHandler>();
 
-  void _handleRequest(
+  Object? _handleRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
@@ -396,15 +508,17 @@ class QueuedInterceptor extends Interceptor {
       _requestQueue,
       options,
       handler,
-      onRequest,
-      (e, handler) {
-        final error = DioMixin.assureDioException(e, options);
+      (RequestOptions data, RequestInterceptorHandler h) =>
+          _invokeCallbackDynamically(onRequest, data, h),
+      (e, stackTrace, handler) {
+        final error = DioMixin.assureDioException(e, options, stackTrace);
         handler.reject(error, true);
       },
     );
+    return null;
   }
 
-  void _handleResponse(
+  Object? _handleResponse(
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
@@ -412,15 +526,21 @@ class QueuedInterceptor extends Interceptor {
       _responseQueue,
       response,
       handler,
-      onResponse,
-      (e, handler) {
-        final error = DioMixin.assureDioException(e, response.requestOptions);
+      (Response<dynamic> data, ResponseInterceptorHandler h) =>
+          _invokeCallbackDynamically(onResponse, data, h),
+      (e, stackTrace, handler) {
+        final error = DioMixin.assureDioException(
+          e,
+          response.requestOptions,
+          stackTrace,
+        );
         handler.reject(error, true);
       },
     );
+    return null;
   }
 
-  void _handleError(
+  Object? _handleError(
     DioException error,
     ErrorInterceptorHandler handler,
   ) {
@@ -428,20 +548,26 @@ class QueuedInterceptor extends Interceptor {
       _errorQueue,
       error,
       handler,
-      onError,
-      (e, handler) {
-        final err = DioMixin.assureDioException(e, error.requestOptions);
+      (DioException data, ErrorInterceptorHandler h) =>
+          _invokeCallbackDynamically(onError, data, h),
+      (e, stackTrace, handler) {
+        final err = DioMixin.assureDioException(
+          e,
+          error.requestOptions,
+          stackTrace,
+        );
         handler.next(err);
       },
     );
+    return null;
   }
 
   void _handleQueue<T, V extends _BaseHandler>(
     _TaskQueue<T, V> taskQueue,
     T data,
     V handler,
-    void Function(T, V) callback,
-    void Function(Object, V) onError,
+    _InterceptorCallback<T, V> callback,
+    void Function(Object, StackTrace, V) onError,
   ) {
     // Runs [task] as the active task and wires up how the queue advances to
     // the next task once this one is done.
@@ -505,12 +631,17 @@ class QueuedInterceptor extends Interceptor {
       });
 
       try {
-        callback(task.data, task.handler);
-      } catch (e) {
+        final result = callback(task.data, task.handler);
+        _observeInterceptorCallback(
+          result,
+          task.handler,
+          (error, stackTrace) => onError(error, stackTrace, task.handler),
+        );
+      } catch (e, stackTrace) {
         // Handle synchronous exceptions thrown by interceptor callbacks.
         // Without this, the request would hang indefinitely because the
         // handler's completer would never be completed.
-        onError(e, task.handler);
+        onError(e, stackTrace, task.handler);
       }
     }
 

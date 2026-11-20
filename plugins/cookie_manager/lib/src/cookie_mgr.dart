@@ -21,7 +21,19 @@ const _kIsWeb = _kIsWebInterop || _kIsWebUtil || identical(0, 0.0);
 /// attribute like "expires=Sun, 19 Feb 3000 01:43:15 GMT", which could also contain commas.
 final _setCookieReg = RegExp('(?<=)(,)(?=[^;]+?=)');
 
+class _CookieHeaderState {
+  const _CookieHeaderState(this.source, this.merged);
+
+  final String? source;
+  final String merged;
+}
+
 /// Cookie manager for HTTP requests based on [CookieJar].
+///
+/// Register this after interceptors that may change [RequestOptions.uri] or
+/// the Cookie request header. Cookies are selected from the URI and reused
+/// request options are recognized only while the header exactly matches this
+/// manager's previous output.
 class CookieManager extends Interceptor {
   CookieManager(
     this.cookieJar, {
@@ -37,6 +49,8 @@ class CookieManager extends Interceptor {
 
   /// Whether to ignore invalid cookies during parsing or saving.
   bool ignoreInvalidCookies;
+
+  final Expando<_CookieHeaderState> _cookieHeaderStates = Expando();
 
   /// Merge cookies into a Cookie string.
   /// Cookies with longer paths are listed before cookies with shorter paths.
@@ -145,18 +159,32 @@ class CookieManager extends Interceptor {
   }
 
   /// Load cookies in cookie string for the request.
+  ///
+  /// State is scoped to the identity of [options]. When the same instance is
+  /// reused, its original Cookie header is restored only if the current header
+  /// exactly matches the previous result of this method. Any other header is
+  /// treated as a new source. Incrementally modifying a generated header after
+  /// this manager can therefore cause saved cookies to be merged again.
   Future<String> loadCookies(RequestOptions options) async {
     final savedCookies = await cookieJar.loadForRequest(options.uri);
     final previousCookies =
         options.headers[HttpHeaders.cookieHeader] as String?;
+    final previousState = _cookieHeaderStates[options];
+    // Rebuild a header that still exactly matches this manager's last output.
+    // Any other header becomes the source for the next merge.
+    final sourceCookies =
+        previousState != null && previousState.merged == previousCookies
+            ? previousState.source
+            : previousCookies;
     final cookies = getCookies([
-      ...?previousCookies
+      ...?sourceCookies
           ?.split(';')
           .where((e) => e.isNotEmpty)
           .map((c) => _fromSetCookieValue(c))
           .whereType<Cookie>(), // Use .nonNulls when the minimum SDK is 3.0.
       ...savedCookies,
     ]);
+    _cookieHeaderStates[options] = _CookieHeaderState(sourceCookies, cookies);
     return cookies;
   }
 

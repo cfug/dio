@@ -3,10 +3,10 @@
 Language: English | [简体中文](README-ZH.md)
 
 This is the base repo of the **dio** project.
-Please move specific paths for project instructions.
+Please move to specific paths for project instructions.
 
 > Don't forget to add [#dio](https://pub.dev/packages?q=topic%3Adio)
-> topic to your published dio related packages!
+> topic to your published dio-related packages!
 > See more: https://dart.dev/tools/pub/pubspec#topics
 
 ## Versioning
@@ -56,13 +56,3 @@ started being maintained by
 since 2023.
 
 The project consents [the MIT license](LICENSE).
-
-## Star History
-
-<a href="https://star-history.com/#cfug/dio&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=cfug/dio&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=cfug/dio&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=cfug/dio&type=Date" />
-  </picture>
-</a>

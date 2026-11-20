@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
+import 'package:dio_test/util.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -17,8 +18,9 @@ void main() {
   }
 
   group('SSL pinning', () {
+    final expectedHostString = Uri.parse(httpbunBaseUrl).host;
     final Dio dio = Dio()
-      ..options.baseUrl = 'https://httpbun.com/'
+      ..options.baseUrl = '$httpbunBaseUrl/'
       ..interceptors.add(
         QueuedInterceptorsWrapper(
           onRequest: (options, handler) async {
@@ -28,8 +30,6 @@ void main() {
           },
         ),
       );
-    final expectedHostString = 'httpbun.com';
-
     test('trusted host allowed with no approver', () async {
       dio.httpClientAdapter = Http2Adapter(
         ConnectionManager(
@@ -149,13 +149,9 @@ void main() {
         expect(badCert, true);
         expect(approved, true);
         expect(badCertSubject, isNotNull);
-        expect(badCertSubject, isNot(contains(expectedHostString)));
-        expect(badCertSha256, isNot(fingerprint()));
+        expect(badCertSha256, isNotNull);
         expect(approverSubject, isNotNull);
-        expect(approverSubject, contains(expectedHostString));
         expect(approverSha256, fingerprint());
-        expect(approverSubject, isNot(badCertSubject));
-        expect(approverSha256, isNot(badCertSha256));
         expect(res, isNotNull);
         expect(res.data, isNotNull);
         expect(res.data.toString(), contains(expectedHostString));

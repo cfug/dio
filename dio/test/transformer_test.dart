@@ -384,6 +384,34 @@ void main() {
       expect(jsonResponse, null);
     });
 
+    test(
+      'empty JSON body with a custom responseDecoder does not throw',
+      () async {
+        // A custom decoder that returns the utf8-decoded body, which is an
+        // empty string for an empty response. Without guarding against an
+        // empty decoded string, the fused transformer would feed '' into
+        // jsonDecode and throw a FormatException, unlike SyncTransformer and
+        // BackgroundTransformer which both return an empty string here.
+        String decoder(List<int> bytes, RequestOptions o, ResponseBody rb) =>
+            utf8.decode(bytes, allowMalformed: true);
+        final transformer = FusedTransformer();
+        final response = await transformer.transformResponse(
+          RequestOptions(
+            responseType: ResponseType.json,
+            responseDecoder: decoder,
+          ),
+          ResponseBody.fromBytes(
+            [],
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType],
+            },
+          ),
+        );
+        expect(response, '');
+      },
+    );
+
     test('transform the request using urlencode', () async {
       final transformer = FusedTransformer();
 

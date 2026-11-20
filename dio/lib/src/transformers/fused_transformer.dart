@@ -92,7 +92,9 @@ class FusedTransformer extends Transformer {
       decodedResponse = null;
     }
 
-    if (isJsonContent && decodedResponse != null) {
+    if (isJsonContent &&
+        decodedResponse != null &&
+        decodedResponse.isNotEmpty) {
       // slow path decoder, since there was a custom decoder specified
       return jsonDecode(decodedResponse);
     } else if (customResponseDecoder != null) {

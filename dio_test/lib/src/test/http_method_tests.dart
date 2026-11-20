@@ -125,6 +125,23 @@ void httpMethodTests(
           Headers.jsonContentType,
         );
       });
+
+      test('QUERY', () async {
+        final response = await dio.query(
+          '/anything',
+          data: data,
+          queryParameters: {'id': '12', 'name': 'wendu'},
+        );
+        expect(response.statusCode, 200);
+        expect(response.isRedirect, isFalse);
+        expect(response.data['method'], 'QUERY');
+        expect(response.data['args'], {'id': '12', 'name': 'wendu'});
+        expect(response.data['json'], data);
+        expect(
+          response.data['headers']['Content-Type'],
+          Headers.jsonContentType,
+        );
+      });
     });
 
     group('constructed with URI', () {
@@ -230,6 +247,25 @@ void httpMethodTests(
         expect(response.statusCode, 200);
         expect(response.isRedirect, isFalse);
         expect(response.data['method'], 'DELETE');
+        expect(response.data['json'], data);
+        expect(
+          response.data['headers']['Content-Type'],
+          Headers.jsonContentType,
+        );
+      });
+
+      test('QUERY', () async {
+        final response = await dio.queryUri(
+          Uri(
+            path: '/anything',
+            queryParameters: {'id': '12', 'name': 'wendu'},
+          ),
+          data: data,
+        );
+        expect(response.statusCode, 200);
+        expect(response.isRedirect, isFalse);
+        expect(response.data['method'], 'QUERY');
+        expect(response.data['args'], {'id': '12', 'name': 'wendu'});
         expect(response.data['json'], data);
         expect(
           response.data['headers']['Content-Type'],

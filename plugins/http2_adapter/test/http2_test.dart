@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:dio_test/util.dart';
+import 'package:http2/transport.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -108,6 +113,124 @@ void main() {
     expect(res.data.toString(), contains('TEST'));
   });
 
+  group('request stream', () {
+    late ServerSocket serverSocket;
+    late Http2Adapter adapter;
+    final serverConnections = <ServerTransportConnection>[];
+
+    setUp(() async {
+      serverSocket = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+      adapter = Http2Adapter(null);
+    });
+
+    tearDown(() async {
+      adapter.close(force: true);
+      for (final connection in serverConnections) {
+        await connection.terminate();
+      }
+      serverConnections.clear();
+      await serverSocket.close();
+    });
+
+    test(
+      'reports a transport error when the connection closes during upload',
+      () async {
+        serverSocket.listen((socket) {
+          final connection = ServerTransportConnection.viaSocket(socket);
+          serverConnections.add(connection);
+          connection.incomingStreams.listen((stream) async {
+            await for (final message in stream.incomingMessages) {
+              if (message is HeadersStreamMessage) {
+                await connection.terminate();
+                break;
+              }
+            }
+          });
+        });
+
+        final requestStream = (() async* {
+          for (int i = 0; i < 20; i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 5));
+            yield Uint8List(1024);
+          }
+        })();
+        final resultCompleter = Completer<Object?>();
+
+        void completeResult(Object? result) {
+          if (!resultCompleter.isCompleted) {
+            resultCompleter.complete(result);
+          }
+        }
+
+        runZonedGuarded(
+          () async {
+            try {
+              await adapter.fetch(
+                RequestOptions(
+                  path: '/upload',
+                  method: 'POST',
+                  baseUrl: 'http://127.0.0.1:${serverSocket.port}',
+                ),
+                requestStream,
+                null,
+              );
+              completeResult(null);
+            } catch (error) {
+              completeResult(error);
+            }
+          },
+          (error, _) => completeResult(error),
+        );
+
+        final result = await resultCompleter.future.timeout(
+          const Duration(seconds: 2),
+        );
+        expect(result, isA<TransportConnectionException>());
+      },
+    );
+
+    test('settles the adapter future when an upload is canceled', () async {
+      final requestDataReceived = Completer<void>();
+      serverSocket.listen((socket) {
+        final connection = ServerTransportConnection.viaSocket(socket);
+        serverConnections.add(connection);
+        connection.incomingStreams.listen((stream) async {
+          await for (final message in stream.incomingMessages) {
+            if (message is DataStreamMessage &&
+                !requestDataReceived.isCompleted) {
+              requestDataReceived.complete();
+            }
+          }
+          stream.sendHeaders(
+            [Header.ascii(':status', '200')],
+            endStream: true,
+          );
+        });
+      });
+
+      final requestController = StreamController<Uint8List>();
+      addTearDown(requestController.close);
+      final cancelCompleter = Completer<void>();
+      final fetchFuture = adapter.fetch(
+        RequestOptions(
+          path: '/upload',
+          method: 'POST',
+          baseUrl: 'http://127.0.0.1:${serverSocket.port}',
+        ),
+        requestController.stream,
+        cancelCompleter.future,
+      );
+
+      requestController.add(Uint8List(1024));
+      await requestDataReceived.future.timeout(const Duration(seconds: 2));
+      cancelCompleter.complete();
+
+      final response = await fetchFuture.timeout(const Duration(seconds: 2));
+      expect(response.statusCode, 200);
+      expect(requestController.hasListener, isFalse);
+    });
+  });
+
   group(ConnectionManager, () {
     test('returns correct connection', () async {
       final manager = ConnectionManager();
@@ -165,6 +288,30 @@ void main() {
         ..options.baseUrl = httpbunBaseUrl
         ..httpClientAdapter = Http2Adapter(
           ConnectionManager(
+            handshakeTimeout: handshakeTimeout,
+          ),
+        );
+
+      await expectLater(
+        dio.post('/post', data: 'TEST'),
+        throwsA(
+          allOf([
+            isA<DioException>(),
+            (e) => e.error is TimeoutException,
+            (e) => (e.error as TimeoutException).duration == handshakeTimeout,
+          ]),
+        ),
+      );
+    });
+
+    // The misspelled parameter is deprecated but must keep working
+    // (forwarding to handshakeTimeout) until it is removed in 3.0.0.
+    test('throws TimeoutException on deprecated handshakeTimout set', () async {
+      const handshakeTimeout = Duration(microseconds: 1);
+      final dio = Dio()
+        ..options.baseUrl = httpbunBaseUrl
+        ..httpClientAdapter = Http2Adapter(
+          ConnectionManager(
             handshakeTimout: handshakeTimeout,
           ),
         );
@@ -211,6 +358,123 @@ void main() {
 
       manager.close(force: true);
     });
+
+    // Regression: with only ['h2'] in supportedProtocols the TLS handshake
+    // is aborted by an RFC 7301-strict server with a fatal
+    // no_application_protocol alert before any Dio code runs,
+    // so fallbackAdapter is never reached.
+    test(
+      'fails with HandshakeException when only h2 is advertised to an http/1.1-only server',
+      () async {
+        const supportedProtocols = ['h2'];
+
+        final port = await _bindHttp11OnlyServer();
+        final serverUri = Uri(scheme: 'https', host: 'localhost', port: port);
+
+        var fallbackCalled = false;
+        final dio = Dio()
+          ..httpClientAdapter = Http2Adapter(
+            ConnectionManager(
+              supportedProtocols: supportedProtocols,
+              onClientCreate: (_, settings) =>
+                  settings.onBadCertificate = (_) => true,
+            ),
+            fallbackAdapter: _TrackingAdapter(
+              () => fallbackCalled = true,
+              IOHttpClientAdapter(
+                createHttpClient: () =>
+                    HttpClient()..badCertificateCallback = (_, __, ___) => true,
+              ),
+            ),
+          );
+
+        await expectLater(
+          dio.getUri(serverUri),
+          throwsA(
+            allOf([
+              isA<DioException>(),
+              (DioException e) => e.error is HandshakeException,
+            ]),
+          ),
+        );
+        expect(fallbackCalled, isFalse);
+      },
+    );
+
+    test(
+      'routes to fallbackAdapter when h2 and http/1.1 are both advertised & server selects http/1.1',
+      () async {
+        const supportedProtocols = ['h2', 'http/1.1'];
+
+        final port = await _bindHttp11OnlyServer();
+        final serverUri = Uri(scheme: 'https', host: 'localhost', port: port);
+
+        var fallbackCalled = false;
+        final dio = Dio()
+          ..httpClientAdapter = Http2Adapter(
+            ConnectionManager(
+              supportedProtocols: supportedProtocols,
+              onClientCreate: (_, settings) =>
+                  settings.onBadCertificate = (_) => true,
+            ),
+            fallbackAdapter: _TrackingAdapter(
+              () => fallbackCalled = true,
+              IOHttpClientAdapter(
+                createHttpClient: () =>
+                    HttpClient()..badCertificateCallback = (_, __, ___) => true,
+              ),
+            ),
+          );
+        final response = await dio.getUri(serverUri);
+        expect(response.statusCode, 200);
+        expect(fallbackCalled, isTrue);
+      },
+    );
+
+    // Covers the proxy code path of the same fix: when the TLS endpoint
+    // behind a CONNECT tunnel selects http/1.1, the just-secured socket
+    // must be destroyed and the request routed to fallbackAdapter.
+    test(
+      'routes to fallbackAdapter when server selects http/1.1 via ALPN through a proxy',
+      () async {
+        const supportedProtocols = ['h2', 'http/1.1'];
+
+        final port = await _bindHttp11OnlyServer();
+        final proxy = await _bindTunnelProxy();
+        final serverUri = Uri(scheme: 'https', host: 'localhost', port: port);
+
+        var fallbackCalled = false;
+        final dio = Dio()
+          ..httpClientAdapter = Http2Adapter(
+            ConnectionManager(
+              supportedProtocols: supportedProtocols,
+              onClientCreate: (_, settings) {
+                settings.proxy = Uri(
+                  scheme: 'http',
+                  host: 'localhost',
+                  port: proxy.port,
+                );
+                settings.onBadCertificate = (_) => true;
+              },
+            ),
+            fallbackAdapter: _TrackingAdapter(
+              () => fallbackCalled = true,
+              IOHttpClientAdapter(
+                createHttpClient: () =>
+                    HttpClient()..badCertificateCallback = (_, __, ___) => true,
+              ),
+            ),
+          );
+        final response = await dio.getUri(serverUri);
+        expect(response.statusCode, 200);
+        expect(fallbackCalled, isTrue);
+        // The abandoned h2 socket must be destroyed, not leaked.
+        await proxy.firstClientClosed.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => fail('tunnel socket was not closed after fallback'),
+        );
+      },
+    );
   });
 
   group(ProxyConnectedPredicate, () {
@@ -230,4 +494,210 @@ void main() {
       );
     });
   });
+}
+
+/// Starts an `openssl s_server` process that strictly enforces `http/1.1` via
+/// ALPN (RFC 7301). A client that advertises only `h2` receives a fatal
+/// `no_application_protocol` TLS alert. A client advertising `http/1.1`
+/// completes the handshake and receives a minimal `HTTP/1.1 200 OK` response.
+///
+/// Skips the calling test if `openssl` is not found on PATH or if the process
+/// exits before binding (e.g. cert files not found).
+///
+/// Returns the port the server is listening on.
+Future<int> _bindHttp11OnlyServer() async {
+  // Allocate a free port. openssl s_server in -quiet mode does not print its
+  // bound port, so we allocate one ourselves and pass it explicitly.
+  final probe = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+  final port = probe.port;
+  await probe.close();
+
+  late final Process process;
+  try {
+    // Raw pipe mode (-quiet): decrypted client bytes arrive on process.stdout;
+    // data written to process.stdin is TLS-encrypted and sent to the client.
+    // -quiet also suppresses openssl session info on stdout, so the only data
+    // that arrives on stdout is the actual HTTP request from the client.
+    process = await Process.start('openssl', [
+      's_server',
+      '-key',
+      'test/certificates/server.key',
+      '-cert',
+      'test/certificates/server.crt',
+      '-accept',
+      '127.0.0.1:$port',
+      '-alpn',
+      'http/1.1',
+      '-quiet',
+    ]);
+  } on ProcessException {
+    markTestSkipped('openssl not found on PATH — skipping strict-ALPN test');
+    return 0; // unreachable
+  }
+
+  addTearDown(() => process.kill());
+
+  process.stderr.drain<void>();
+  _serveHttp11Response(process);
+
+  // -quiet suppresses the ACCEPT readiness line, so poll until the port is
+  // reachable. Detect early exit (e.g. wrong CWD, cert files missing) to skip
+  // rather than time out.
+  await _pollUntilListening(port, process);
+  return port;
+}
+
+/// Responds to the first HTTP request that arrives on [process.stdout] with a
+/// minimal `HTTP/1.1 200 OK`, then closes stdin to end the TLS session.
+void _serveHttp11Response(Process process) {
+  var responded = false;
+  process.stdout.listen((data) {
+    if (responded) {
+      return;
+    }
+    responded = true;
+    process.stdin
+      ..write(
+        'HTTP/1.1 200 OK\r\n'
+        'Content-Length: 0\r\n'
+        'Connection: close\r\n'
+        '\r\n',
+      )
+      ..close();
+  });
+}
+
+/// Starts a minimal HTTP CONNECT tunnel proxy on loopback and returns its
+/// port. Only what [_ConnectionManager]'s proxy path needs is implemented:
+/// accept `CONNECT host:port`, reply `200 Connection established`, then pipe
+/// bytes blindly in both directions.
+Future<_TunnelProxy> _bindTunnelProxy() async {
+  final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+  addTearDown(server.close);
+  final firstClientClosed = Completer<void>();
+  var connectionCount = 0;
+  server.listen((client) {
+    final isFirst = connectionCount++ == 0;
+    void notifyClosed() {
+      if (isFirst && !firstClientClosed.isCompleted) {
+        firstClientClosed.complete();
+      }
+    }
+
+    final header = <int>[];
+    Socket? upstream;
+    client.listen(
+      (data) async {
+        if (upstream != null) {
+          upstream!.add(data);
+          return;
+        }
+        header.addAll(data);
+        final end = _indexOfHeaderEnd(header);
+        if (end < 0) {
+          return;
+        }
+        final requestLine = ascii.decode(header.sublist(0, end)).split(' ');
+        final target = requestLine.length > 1 ? requestLine[1] : '';
+        final lastColon = target.lastIndexOf(':');
+        try {
+          upstream = await Socket.connect(
+            target.substring(0, lastColon),
+            int.parse(target.substring(lastColon + 1)),
+          );
+        } catch (_) {
+          client.destroy();
+          return;
+        }
+        client.write('HTTP/1.1 200 Connection established\r\n\r\n');
+        upstream!.add(header.sublist(end + 4));
+        upstream!
+            .listen(client.add, onError: (_, __) {}, onDone: client.destroy);
+      },
+      onError: (_, __) => notifyClosed(),
+      onDone: () {
+        notifyClosed();
+        upstream?.destroy();
+      },
+    );
+  });
+  return _TunnelProxy(server.port, firstClientClosed.future);
+}
+
+/// A CONNECT tunnel proxy started by [_bindTunnelProxy].
+class _TunnelProxy {
+  _TunnelProxy(this.port, this.firstClientClosed);
+
+  /// The port the proxy listens on.
+  final int port;
+
+  /// Completes when the first client connection to the proxy closes.
+  final Future<void> firstClientClosed;
+}
+
+/// Returns the index of the `\r\n\r\n` that terminates the proxy request
+/// header, or -1 when it has not fully arrived yet.
+int _indexOfHeaderEnd(List<int> bytes) {
+  for (var i = 0; i + 3 < bytes.length; i++) {
+    if (bytes[i] == 13 &&
+        bytes[i + 1] == 10 &&
+        bytes[i + 2] == 13 &&
+        bytes[i + 3] == 10) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+/// Polls [port] on loopback until a TCP connection succeeds (openssl is ready)
+/// or [process] exits early (cert error, wrong CWD, etc.).
+///
+/// Skips the calling test if openssl does not start listening within ~2 s.
+Future<void> _pollUntilListening(int port, Process process) async {
+  var processExited = false;
+  process.exitCode.then<void>((_) => processExited = true);
+
+  for (var i = 0; i < 40; i++) {
+    if (processExited) {
+      markTestSkipped(
+        'openssl exited before binding — check that test/certificates/ exists '
+        'and dart test is run from the package root',
+      );
+      return; // unreachable
+    }
+    try {
+      final s = await Socket.connect(
+        '127.0.0.1',
+        port,
+        timeout: const Duration(milliseconds: 50),
+      );
+      await s.close();
+      return;
+    } on SocketException {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
+  markTestSkipped('openssl did not start listening within 2 s');
+}
+
+/// Wraps another [HttpClientAdapter], calling [onFetch] before each request.
+class _TrackingAdapter implements HttpClientAdapter {
+  _TrackingAdapter(this.onFetch, this._delegate);
+
+  final void Function() onFetch;
+  final HttpClientAdapter _delegate;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    onFetch();
+    return _delegate.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) => _delegate.close(force: force);
 }

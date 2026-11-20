@@ -4,6 +4,11 @@
 
 *None.*
 
+## 3.5.0
+
+- Prevent duplicate cookies when reusing request options while preserving
+  caller-provided cookies.
+
 ## 3.4.0
 
 - Fixes `kIsWeb` across different Flutter SDKs.
