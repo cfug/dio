@@ -72,48 +72,26 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// [validateCertificate]. See [validateCertificate] for details.
   CreateHttpClient? createHttpClient;
 
-  /// Allows the user to decide if the leaf certificate of the TLS connection
-  /// is good. If this function is missing, then the certificate is allowed.
+  /// Allows the user to decide if the response certificate is good.
+  /// If this function is missing, then the certificate is allowed.
+  /// This method is called only if both the [SecurityContext] and
+  /// [badCertificateCallback] accept the certificate chain. Those
+  /// methods evaluate the root or intermediate certificate, while
+  /// [validateCertificate] evaluates the leaf certificate.
   ///
-  /// For **direct HTTPS** connections (no proxy) with the default
-  /// [createHttpClient], this callback fires **before** the request body
-  /// is sent, immediately after the TLS handshake completes. Returning
-  /// `false` aborts the connection without leaking any request data and
-  /// surfaces as [DioException.badCertificate]. This makes the callback
-  /// suitable for certificate or public-key pinning.
+  /// When [createHttpClient] is not set, the callback is first called for
+  /// each new direct HTTPS connection, after the TLS handshake and before
+  /// any request data is written. Returning `false` there closes the
+  /// connection and fails the request with [DioException.badCertificate]
+  /// without sending it, which makes the callback suitable for certificate
+  /// or public key pinning.
   ///
-  /// The callback also runs **after the response head arrives** for the
-  /// same connection. The two invocations receive the same leaf
-  /// certificate, so for fingerprint-style pinning the second call is
-  /// idempotent. If your callback has side effects (logging, metrics),
-  /// expect to see them twice per request on the direct-HTTPS path.
-  ///
-  /// **HTTPS through a proxy:** `HttpClient` performs its own `CONNECT`
-  /// tunnel and TLS handshake, so the pre-emission hook is bypassed.
-  /// Validation runs only post-response on this path — the request body
-  /// has already been transmitted by the time the callback is invoked.
-  /// For pre-emission pinning behind a proxy, use [createHttpClient] and
-  /// install your own `connectionFactory` on the returned client.
-  ///
-  /// **Custom [createHttpClient]:** dio cannot install the pre-emission
-  /// hook on a user-built [HttpClient]; the callback runs post-response
-  /// (the legacy 5.x behavior). For pre-emission validation in that case,
-  /// set `connectionFactory` on the [HttpClient] you return.
-  ///
-  /// On the pre-emission path, this callback is the **sole** gate for
-  /// certificate trust: system / CA validation is bypassed (the equivalent
-  /// of `HttpClient.badCertificateCallback: (_, _, _) => true` in the
-  /// existing example), so the callback receives every leaf cert and is
-  /// solely responsible for accepting or rejecting it. This matches what
-  /// users already configure manually for pinning and lets self-signed and
-  /// pinned-CA setups work without supplying [createHttpClient]. If you
-  /// do not intend to perform pinning, do not set this callback —
-  /// supplying any non-null value disables stdlib chain validation.
-  ///
-  /// Any [SecurityContext] you set on a custom [HttpClient] is **not**
-  /// used by the pre-emission path. To combine mTLS or a custom trust store
-  /// with pinning, supply a [createHttpClient] and pin in the post-response
-  /// path.
+  /// The callback is also called for every response once its headers have
+  /// arrived, so the first request on a new connection is checked twice.
+  /// That response check is the only one for connections through a proxy,
+  /// for an [HttpClient] returned by [createHttpClient], and when this field
+  /// is set after the first request. By then the request has already been
+  /// sent.
   ValidateCertificate? validateCertificate;
 
   HttpClient? _cachedHttpClient;
@@ -386,16 +364,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     // Covariance: [ConnectionTask] has no bound on its type parameter,
     // so [ConnectionTask<SecureSocket>] is implicitly assignable to
     // [ConnectionTask<Socket>] at the return position.
-    final task = await SecureSocket.startConnect(
-      url.host,
-      url.port,
-      supportedProtocols: const ['http/1.1'],
-      // When [validateCertificate] is set, defer all certificate
-      // validation to the user's callback. This makes self-signed and
-      // pinned-CA setups work without forcing the user to also supply
-      // [createHttpClient].
-      onBadCertificate: validator == null ? null : (_) => true,
-    );
+    //
+    // The arguments match the handshake [HttpClient] performs itself for a
+    // direct HTTPS connection when it has neither a custom [SecurityContext]
+    // nor a badCertificateCallback: the default trust store must accept the
+    // chain, otherwise the handshake fails before [validateCertificate] runs,
+    // exactly as it does for the post-response check.
+    final task = await SecureSocket.startConnect(url.host, url.port);
     if (validator != null) {
       final ss = await task.socket;
       final cert = ss.peerCertificate;

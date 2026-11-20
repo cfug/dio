@@ -24,41 +24,31 @@ void main() {
   }
 
   group('pinning:', () {
-    // A throwaway self-signed localhost keypair is generated at runtime so
+    // Throwaway self-signed localhost keypairs are generated at runtime so
     // that no private key is committed to the repository. openssl is already
     // a requirement for scripts/prepare_pinning_certs.sh (used by the tls
     // network tests in this group), so it is a safe build dependency to lean
     // on here.
+    //
+    // The certificate at [certPath] is added to the default trust store of
+    // this test isolate and stands in for a certificate issued by a publicly
+    // trusted CA. The one at [untrustedCertPath] stands in for a certificate
+    // presented by an attacker, which the default trust store rejects.
     late Directory certDir;
     late String certPath;
     late String keyPath;
+    late String untrustedCertPath;
+    late String untrustedKeyPath;
 
     setUpAll(() {
       certDir = Directory.systemTemp.createTempSync('dio_pinning_test_');
       certPath = '${certDir.path}/server_cert.pem';
       keyPath = '${certDir.path}/server_key.pem';
-      final result = Process.runSync('openssl', [
-        'req',
-        '-x509',
-        '-newkey',
-        'rsa:2048',
-        '-keyout',
-        keyPath,
-        '-out',
-        certPath,
-        '-days',
-        '3650',
-        '-nodes',
-        '-subj',
-        '/CN=localhost',
-      ]);
-      if (result.exitCode != 0) {
-        throw StateError(
-          'Failed to generate a self-signed test certificate with openssl '
-          '(exit ${result.exitCode}). openssl must be installed to run the '
-          'pinning tests.\n${result.stderr}',
-        );
-      }
+      untrustedCertPath = '${certDir.path}/untrusted_cert.pem';
+      untrustedKeyPath = '${certDir.path}/untrusted_key.pem';
+      _generateLocalhostCertificate(certPath, keyPath);
+      _generateLocalhostCertificate(untrustedCertPath, untrustedKeyPath);
+      SecurityContext.defaultContext.setTrustedCertificates(certPath);
     });
 
     tearDownAll(() {
@@ -257,11 +247,11 @@ void main() {
       });
 
       test('approval lets the request through', () async {
-        bool approverCalled = false;
+        final requestsHandledAtValidation = <int>[];
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter(
           validateCertificate: (cert, host, port) {
-            approverCalled = true;
+            requestsHandledAtValidation.add(requestsHandled);
             return true;
           },
         );
@@ -270,7 +260,9 @@ void main() {
           data: 'hi',
           options: Options(responseType: ResponseType.plain),
         );
-        expect(approverCalled, isTrue);
+        // Called once before the server receives the request and once more
+        // when the response headers arrive.
+        expect(requestsHandledAtValidation, [0, 1]);
         expect(res.statusCode, 200);
         expect(res.data, 'ok');
         expect(requestsHandled, 1);
@@ -334,6 +326,51 @@ void main() {
         expect(approvals, 3);
         expect(requestsHandled, 2);
       });
+    });
+
+    test(
+        'certificates rejected by the default trust store never reach '
+        'validateCertificate', () async {
+      // Checking before the request is sent must not replace the chain
+      // validation: an approving callback (e.g. one that only logs) must not
+      // turn a certificate the platform rejects into a trusted connection.
+      final ctx = SecurityContext()
+        ..useCertificateChain(untrustedCertPath)
+        ..usePrivateKey(untrustedKeyPath);
+      final server = await HttpServer.bindSecure('localhost', 0, ctx);
+      int requestsHandled = 0;
+      server.listen((req) async {
+        requestsHandled++;
+        await req.drain<void>();
+        await req.response.close();
+      });
+      try {
+        int validatorCalls = 0;
+        final dio = Dio()
+          ..httpClientAdapter = IOHttpClientAdapter(
+            validateCertificate: (cert, host, port) {
+              validatorCalls++;
+              return true;
+            },
+          );
+        await expectLater(
+          dio.post(
+            'https://localhost:${server.port}/leak',
+            data: 'SENSITIVE-PAYLOAD',
+          ),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.error,
+              'error',
+              isA<HandshakeException>(),
+            ),
+          ),
+        );
+        expect(validatorCalls, 0);
+        expect(requestsHandled, 0);
+      } finally {
+        await server.close(force: true);
+      }
     });
 
     test('plain http skips pre-emission validation', () async {
@@ -499,6 +536,38 @@ void main() {
       });
     });
   });
+}
+
+/// Generates a self-signed certificate for `localhost` that carries the
+/// subjectAltName and serverAuth extended key usage platform verifiers
+/// require from a TLS server certificate.
+void _generateLocalhostCertificate(String certPath, String keyPath) {
+  final result = Process.runSync('openssl', [
+    'req',
+    '-x509',
+    '-newkey',
+    'rsa:2048',
+    '-nodes',
+    '-keyout',
+    keyPath,
+    '-out',
+    certPath,
+    '-days',
+    '1',
+    '-subj',
+    '/CN=localhost',
+    '-addext',
+    'subjectAltName=DNS:localhost',
+    '-addext',
+    'extendedKeyUsage=serverAuth',
+  ]);
+  if (result.exitCode != 0) {
+    throw StateError(
+      'Failed to generate a self-signed test certificate with openssl '
+      '(exit ${result.exitCode}). openssl must be installed to run the '
+      'pinning tests.\n${result.stderr}',
+    );
+  }
 }
 
 /// Stub HTTP/1.1 CONNECT proxy for tests. Accepts `CONNECT host:port` and
