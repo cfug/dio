@@ -613,11 +613,11 @@ void main() {
           req.response.write('plain');
           req.response.close();
         });
-        X509Certificate? observedCert;
+        final observedCerts = <X509Certificate?>[];
         final dio = Dio();
         dio.httpClientAdapter = IOHttpClientAdapter(
           validateCertificate: (cert, host, port) {
-            observedCert = cert;
+            observedCerts.add(cert);
             return true; // accept the null cert so we can assert observability
           },
         );
@@ -629,7 +629,7 @@ void main() {
         expect(res.data, 'plain');
         // Only the post-response call fires (and with null cert because
         // there is no TLS handshake on plain HTTP).
-        expect(observedCert, isNull);
+        expect(observedCerts, [isNull]);
       } finally {
         await server.close(force: true);
       }
