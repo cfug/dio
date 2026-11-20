@@ -851,13 +851,6 @@ HTTPS 证书验证（或公钥固定）是指确保端侧与服务器的 TLS 连
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
   dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient: () {
-      // Don't trust any certificate just because their root cert is trusted.
-      final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-      // You can test the intermediate / root cert here. We just ignore it.
-      client.badCertificateCallback = (cert, host, port) => true;
-      return client;
-    },
     validateCertificate: (cert, host, port) {
       // Check that the cert fingerprint matches the one we expect.
       // We definitely require _some_ certificate.
@@ -871,6 +864,13 @@ void initAdapter() {
   );
 }
 ```
+
+`validateCertificate` 会在证书链通过校验之后，以叶子证书为参数被调用。
+当适配器像上面这样直接使用默认的 `HttpClient` 时，它会在 TLS 握手完成之后、请求发送之前被调用，
+因此被拒绝的证书永远不会收到请求。
+如果使用了 `createHttpClient`、`onHttpClientCreate`、`HttpOverrides` 或代理，
+它只会在响应头到达后被调用，此时请求已经发出。
+如果服务器使用自签名证书，请使用下面的方法。
 
 你可以使用 OpenSSL 读取密钥的 SHA-256：
 

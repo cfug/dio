@@ -25,6 +25,21 @@ typedef ValidateCertificate = bool Function(
   int port,
 );
 
+/// Internal sentinel thrown from [IOHttpClientAdapter]'s connection factory
+/// when [IOHttpClientAdapter.validateCertificate] rejects the peer certificate.
+/// [_fetch] catches it and rethrows as [DioException.badCertificate].
+class _BadCertificateException implements Exception {
+  _BadCertificateException(this.host, this.port, this.cert);
+
+  final String host;
+  final int port;
+  final X509Certificate? cert;
+
+  @override
+  String toString() =>
+      'validateCertificate rejected the certificate of $host:$port';
+}
+
 /// Creates an [IOHttpClientAdapter].
 HttpClientAdapter createAdapter() => IOHttpClientAdapter();
 
@@ -44,6 +59,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
 
   /// When this callback is set, [Dio] will call it every
   /// time it needs a [HttpClient].
+  ///
+  /// With a custom [HttpClient], [validateCertificate] only runs once the
+  /// response headers have arrived, after the request has been sent.
   CreateHttpClient? createHttpClient;
 
   /// Allows the user to decide if the response certificate is good.
@@ -52,10 +70,35 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// [badCertificateCallback] accept the certificate chain. Those
   /// methods evaluate the root or intermediate certificate, while
   /// [validateCertificate] evaluates the leaf certificate.
+  ///
+  /// When the adapter uses the default [HttpClient] as is (neither
+  /// [createHttpClient] nor [onHttpClientCreate] is set, and no
+  /// [HttpOverrides] are active when the client is created), the callback is
+  /// first called for each new direct HTTPS connection, after the TLS
+  /// handshake and before any request data is written. It receives the host
+  /// and port of that connection, which for a followed redirect are those of
+  /// the redirect target. Returning `false` there closes the connection and
+  /// fails the request with [DioException.badCertificate] without sending
+  /// it, which makes the callback suitable for certificate or public key
+  /// pinning.
+  ///
+  /// The callback is also called for every response once its headers have
+  /// arrived, with the host and port of the original request, so the first
+  /// request on a new connection is checked twice.
+  /// That response check is the only one for connections through a proxy,
+  /// for an [HttpClient] created by [createHttpClient], customized by
+  /// [onHttpClientCreate], or created while [HttpOverrides] are active, and
+  /// when this field is set after the first request. By then the request has
+  /// already been sent.
   ValidateCertificate? validateCertificate;
 
   HttpClient? _cachedHttpClient;
   bool _closed = false;
+
+  /// Direct HTTPS connections [_pinnedConnectionFactory] is still waiting
+  /// for. [HttpClient] only tracks a connection once the factory has returned
+  /// it, so [close] has to cancel these itself.
+  final Set<ConnectionTask<SecureSocket>> _pendingConnectionTasks = {};
 
   @override
   Future<ResponseBody> fetch(
@@ -110,6 +153,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
           );
         }
       });
+    } on _BadCertificateException catch (e) {
+      throw DioException.badCertificate(
+        requestOptions: options,
+        error: e.cert,
+      );
     } on SocketException catch (e) {
       if (e.message.contains('timed out')) {
         final Duration effectiveTimeout;
@@ -175,6 +223,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     late final HttpClientResponse responseStream;
     try {
       responseStream = await future;
+    } on _BadCertificateException catch (e) {
+      // HttpClient opened a new connection while following a redirect and
+      // [validateCertificate] rejected its certificate before sending.
+      throw DioException.badCertificate(
+        requestOptions: options,
+        error: e.cert,
+      );
     } on HttpException catch (e, s) {
       if (e.message.contains(
         'Connection closed before full header was received',
@@ -190,6 +245,19 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     if (validateCertificate != null) {
+      // Post-response validation runs unconditionally as defense in depth.
+      // On the pre-emission path the [HttpClient.connectionFactory] hook has
+      // normally approved the connection's certificate already, but this is
+      // the only line of defense for paths where pre-emission did
+      // not run: (a) when the [HttpClient] comes from [createHttpClient],
+      // [onHttpClientCreate] or [HttpOverrides], (b) when
+      // [validateCertificate] was set after the [HttpClient] was first
+      // cached, or (c) for HTTPS through a proxy (see the doc-comment on
+      // [validateCertificate]). For pinning the callback is idempotent so
+      // the redundancy is harmless; callbacks with side effects will
+      // observe one extra call per new connection on the direct-HTTPS path.
+      // On plain HTTP, [responseStream.certificate] is null and the user
+      // typically rejects nulls (matching the example).
       final host = options.uri.host;
       final port = options.uri.port;
       final bool isCertApproved = validateCertificate!(
@@ -251,15 +319,146 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     _closed = true;
+    // Like [HttpClient.close], always cancel pending connection attempts.
+    for (final task in _pendingConnectionTasks.toList()) {
+      _cancelConnectionTask(task);
+    }
     _cachedHttpClient?.close(force: force);
+  }
+
+  /// Cancels [task] the way [HttpClient] cancels its own pending connection
+  /// attempts, destroying the socket in case the attempt still completes.
+  static void _cancelConnectionTask(ConnectionTask<Socket> task) {
+    task.socket.then((socket) => socket.destroy(), onError: (_) {});
+    task.cancel();
   }
 
   HttpClient _createHttpClient() {
     if (createHttpClient != null) {
       return createHttpClient!();
     }
+    // A connection factory replaces the TLS handshake of [HttpClient], and it
+    // can neither read nor reproduce a SecurityContext or badCertificateCallback
+    // configured by [onHttpClientCreate] or by [HttpOverrides]. Only install
+    // it when the default client is used as is.
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    final installFactory = onHttpClientCreate == null &&
+        HttpOverrides.current == null &&
+        validateCertificate != null;
     final client = HttpClient()..idleTimeout = const Duration(seconds: 3);
+    if (installFactory) {
+      client.connectionFactory = _pinnedConnectionFactory;
+    }
     // ignore: deprecated_member_use, deprecated_member_use_from_same_package
     return onHttpClientCreate?.call(client) ?? client;
+  }
+
+  /// Custom connection factory that performs the TLS handshake and runs
+  /// [validateCertificate] *before* yielding the socket to [HttpClient],
+  /// so a rejected certificate cannot leak request bytes.
+  ///
+  /// For HTTPS requests routed through a proxy, this factory cannot
+  /// pre-emption-validate: HttpClient writes its own `CONNECT` and performs
+  /// its own TLS handshake on top of the socket we return. In that case the
+  /// proxy branch returns a plain socket to the proxy and validation falls
+  /// back to the post-response check in [_fetch].
+  Future<ConnectionTask<Socket>> _pinnedConnectionFactory(
+    Uri url,
+    String? proxyHost,
+    int? proxyPort,
+  ) async {
+    // HttpClient only rejects other schemes itself when no connection factory
+    // is set. Reject them here too, before any proxy lookup, instead of
+    // sending a request for a URL such as `wss://` over a plain socket.
+    if (!url.isScheme('http') && !url.isScheme('https')) {
+      throw ArgumentError("Unsupported scheme '${url.scheme}' in URI $url");
+    }
+
+    // Proxy: hand HttpClient a plain socket to the proxy and let it own the
+    // CONNECT-tunnel and TLS upgrade. The post-response block in [_fetch]
+    // performs validation in this path.
+    if (proxyHost != null) {
+      return Socket.startConnect(proxyHost, proxyPort!);
+    }
+
+    // Plain HTTP, no proxy: hand HttpClient the target socket.
+    if (!url.isScheme('https')) {
+      return Socket.startConnect(url.host, url.port);
+    }
+
+    // Snapshot at call time so a runtime mutation of the public field
+    // is honored on every new connection.
+    final validator = validateCertificate;
+
+    // [SecureSocket.startConnect] returns a stock SDK [ConnectionTask] —
+    // available since well before dio's min SDK of 2.18 — so we don't
+    // need [ConnectionTask.fromSocket] (Dart 3.5+) and don't need to
+    // subclass/vendor [ConnectionTask] (which current SDKs declare as a
+    // `final class`). We await `task.socket` once here to do the leaf-cert
+    // check, then return the same task; [HttpClient] re-awaits
+    // `task.socket` and gets the already-resolved [SecureSocket]
+    // immediately.
+    //
+    // Covariance: [ConnectionTask] has no bound on its type parameter,
+    // so [ConnectionTask<SecureSocket>] is implicitly assignable to
+    // [ConnectionTask<Socket>] at the return position.
+    //
+    // The arguments match the handshake [HttpClient] performs itself for a
+    // direct HTTPS connection when it has neither a custom [SecurityContext]
+    // nor a badCertificateCallback: the default trust store must accept the
+    // chain, otherwise the handshake fails before [validateCertificate] runs,
+    // exactly as it does for the post-response check.
+    final task = await SecureSocket.startConnect(url.host, url.port);
+    if (validator == null) {
+      return task;
+    }
+
+    // [HttpClient] applies its connectionTimeout and cancels pending
+    // attempts on close only after this factory has returned, so do both
+    // while waiting for the handshake, the same way it would.
+    final SecureSocket ss;
+    _pendingConnectionTasks.add(task);
+    try {
+      if (_closed) {
+        _cancelConnectionTask(task);
+      }
+      Future<SecureSocket> socket = task.socket;
+      final timeout = _cachedHttpClient?.connectionTimeout;
+      if (timeout != null) {
+        socket = socket.timeout(
+          timeout,
+          onTimeout: () {
+            _cancelConnectionTask(task);
+            throw SocketException(
+              'HTTP connection timed out after $timeout, '
+              'host: ${url.host}, port: ${url.port}',
+            );
+          },
+        );
+      }
+      ss = await socket;
+    } finally {
+      _pendingConnectionTasks.remove(task);
+    }
+    if (_closed) {
+      ss.destroy();
+      throw const SocketException(
+        "Can't establish connection after the adapter was closed.",
+      );
+    }
+
+    final cert = ss.peerCertificate;
+    final bool approved;
+    try {
+      approved = validator(cert, url.host, url.port);
+    } catch (_) {
+      ss.destroy();
+      rethrow;
+    }
+    if (!approved) {
+      ss.destroy();
+      throw _BadCertificateException(url.host, url.port, cert);
+    }
+    return task;
   }
 }

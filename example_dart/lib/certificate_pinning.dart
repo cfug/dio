@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
@@ -16,19 +14,14 @@ void main() async {
       // should look like this:
       'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
 
-  // Don't trust any certificate just because their root cert is trusted
+  // Without createHttpClient, validateCertificate is called after the TLS
+  // handshake and before the request is sent, so a rejected certificate never
+  // receives the request. The default trust store must accept the
+  // certificate chain first.
   dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient: () {
-      final client = HttpClient(
-        context: SecurityContext(withTrustedRoots: false),
-      );
-      // You can test the intermediate / root cert here. We just ignore it.
-      client.badCertificateCallback = (cert, host, port) => true;
-      return client;
-    },
     validateCertificate: (cert, host, port) {
-      // Check that the cert fingerprint matches the one we expect
-      // We definitely require _some_ certificate
+      // Check that the cert fingerprint matches the one we expect.
+      // We definitely require _some_ certificate.
       if (cert == null) {
         return false;
       }
@@ -40,26 +33,25 @@ void main() async {
     },
   );
 
-  Response? response;
-
-  // Normally this certificate would normally be accepted, but all
-  // certs are refused initially, and it is still checked.
-  response = await dio.get('https://sha256.badssl.com/');
+  // The certificate is trusted and its fingerprint matches.
+  final response = await dio.get('https://sha256.badssl.com/');
   print(response.data);
-  response = null;
-
-  // Normally this certificate would be rejected because its host isn't covered in the certificate.
-  response = await dio.get('https://wrong.host.badssl.com/');
-  print(response.data);
-  response = null;
 
   try {
-    // This certificate doesn't have the same fingerprint.
-    response = await dio.get('https://bad.host.badssl.com/');
-    print(response.data);
+    // The certificate is trusted, but its fingerprint doesn't match, so the
+    // connection is closed before the request is sent.
+    await dio.get('https://example.com/');
   } on DioException catch (e) {
     print(e.message);
-    print(response?.data);
-    dio.close(force: true);
   }
+
+  try {
+    // The certificate doesn't cover this host, so the handshake fails before
+    // validateCertificate is called.
+    await dio.get('https://wrong.host.badssl.com/');
+  } on DioException catch (e) {
+    print(e.message);
+  }
+
+  dio.close(force: true);
 }
