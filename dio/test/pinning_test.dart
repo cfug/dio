@@ -301,7 +301,7 @@ void main() {
       test('close() during the TLS handshake sends nothing', () async {
         // HttpClient only tracks the connection once the connectionFactory
         // returns it, so the adapter has to cancel the pending handshake.
-        final relay = _HandshakeRelay(secureServer.port);
+        final relay = _HandshakeRelay(secureServer.address, secureServer.port);
         await relay.start();
         try {
           final dio = Dio()
@@ -324,7 +324,7 @@ void main() {
 
       test('a handshake that outlives connectTimeout is not validated',
           () async {
-        final relay = _HandshakeRelay(secureServer.port);
+        final relay = _HandshakeRelay(secureServer.address, secureServer.port);
         await relay.start();
         try {
           int validatorCalls = 0;
@@ -824,11 +824,15 @@ class _ProxyOverrides extends HttpOverrides {
   }
 }
 
-/// Accepts TCP connections but only forwards them to `localhost:[targetPort]`
-/// once [release] is called, holding the TLS handshake of a client open.
+/// Accepts TCP connections but only forwards them to [targetAddress] and
+/// [targetPort] once [release] is called, holding the TLS handshake of a
+/// client open. Connecting to the address the target is bound to avoids
+/// resolving `localhost` again, which made the connection fail
+/// intermittently with a reset on Dart 2.18.
 class _HandshakeRelay {
-  _HandshakeRelay(this.targetPort);
+  _HandshakeRelay(this.targetAddress, this.targetPort);
 
+  final InternetAddress targetAddress;
   final int targetPort;
   final _accepted = Completer<void>();
   final _released = Completer<void>();
@@ -842,36 +846,51 @@ class _HandshakeRelay {
 
   Future<void> start() async {
     _server = await ServerSocket.bind('localhost', 0);
-    _server.listen((client) async {
-      _sockets.add(client);
-      if (!_accepted.isCompleted) {
-        _accepted.complete();
-      }
-      final buffered = <List<int>>[];
-      Socket? target;
-      client.listen(
-        (data) {
-          final forwardTo = target;
-          if (forwardTo == null) {
-            buffered.add(data);
-          } else {
-            forwardTo.add(data);
-          }
-        },
-        onError: (_) => target?.destroy(),
-        onDone: () => target?.destroy(),
-      );
-      await _released.future;
-      final forwardTo = await Socket.connect('localhost', targetPort);
-      _sockets.add(forwardTo);
-      buffered.forEach(forwardTo.add);
-      target = forwardTo;
-      forwardTo.listen(
-        client.add,
-        onError: (_) => client.destroy(),
-        onDone: () => client.destroy(),
-      );
-    });
+    _server.listen(_relay);
+  }
+
+  Future<void> _relay(Socket client) async {
+    _sockets.add(client);
+    // The code under test may tear down either side mid-handshake, so write
+    // errors on the other side are expected and must not fail the test.
+    client.done.catchError((_) {});
+    if (!_accepted.isCompleted) {
+      _accepted.complete();
+    }
+    final buffered = <List<int>>[];
+    Socket? target;
+    bool clientClosed = false;
+    void onClientClosed() {
+      clientClosed = true;
+      target?.destroy();
+    }
+
+    client.listen(
+      (data) {
+        final forwardTo = target;
+        if (forwardTo == null) {
+          buffered.add(data);
+        } else {
+          forwardTo.add(data);
+        }
+      },
+      onError: (_) => onClientClosed(),
+      onDone: onClientClosed,
+    );
+    await _released.future;
+    if (clientClosed) {
+      return;
+    }
+    final forwardTo = await Socket.connect(targetAddress, targetPort);
+    _sockets.add(forwardTo);
+    forwardTo.done.catchError((_) {});
+    buffered.forEach(forwardTo.add);
+    target = forwardTo;
+    forwardTo.listen(
+      client.add,
+      onError: (_) => client.destroy(),
+      onDone: () => client.destroy(),
+    );
   }
 
   void release() => _released.complete();
