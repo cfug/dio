@@ -375,10 +375,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     // [SecureSocket.startConnect] returns a stock SDK [ConnectionTask] —
     // available since well before dio's min SDK of 2.18 — so we don't
     // need [ConnectionTask.fromSocket] (Dart 3.5+) and don't need to
-    // subclass/vendor [ConnectionTask] (which is `final class` from Dart
-    // 3.0). We await `task.socket` once here to do the leaf-cert check,
-    // then return the same task; [HttpClient] re-awaits `task.socket`
-    // and gets the already-resolved [SecureSocket] immediately.
+    // subclass/vendor [ConnectionTask] (which current SDKs declare as a
+    // `final class`). We await `task.socket` once here to do the leaf-cert
+    // check, then return the same task; [HttpClient] re-awaits
+    // `task.socket` and gets the already-resolved [SecureSocket]
+    // immediately.
     //
     // Covariance: [ConnectionTask] has no bound on its type parameter,
     // so [ConnectionTask<SecureSocket>] is implicitly assignable to
