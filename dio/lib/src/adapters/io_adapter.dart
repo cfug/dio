@@ -356,6 +356,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     String? proxyHost,
     int? proxyPort,
   ) async {
+    // HttpClient only rejects other schemes itself when no connection factory
+    // is set. Reject them here too, before any proxy lookup, instead of
+    // sending a request for a URL such as `wss://` over a plain socket.
+    if (!url.isScheme('http') && !url.isScheme('https')) {
+      throw ArgumentError("Unsupported scheme '${url.scheme}' in URI $url");
+    }
+
     // Proxy: hand HttpClient a plain socket to the proxy and let it own the
     // CONNECT-tunnel and TLS upgrade. The post-response block in [_fetch]
     // performs validation in this path.
@@ -364,7 +371,7 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     }
 
     // Plain HTTP, no proxy: hand HttpClient the target socket.
-    if (url.scheme != 'https') {
+    if (!url.isScheme('https')) {
       return Socket.startConnect(url.host, url.port);
     }
 

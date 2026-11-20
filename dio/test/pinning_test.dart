@@ -456,6 +456,45 @@ void main() {
       });
     });
 
+    test('unsupported schemes are rejected before anything is sent', () async {
+      // HttpClient skips its own scheme check once a connectionFactory is
+      // set, so the factory must not treat a URL such as wss:// as plain
+      // HTTP and send the request unencrypted.
+      final server = await ServerSocket.bind('localhost', 0);
+      int bytesReceived = 0;
+      server.listen((socket) {
+        socket.listen(
+          (data) {
+            bytesReceived += data.length;
+            socket.destroy();
+          },
+          onError: (_) {},
+        );
+      });
+      try {
+        final dio = Dio()
+          ..httpClientAdapter = IOHttpClientAdapter(
+            validateCertificate: (cert, host, port) => true,
+          );
+        await expectLater(
+          dio.get(
+            'wss://localhost:${server.port}/socket',
+            options: Options(headers: {'authorization': 'Bearer SECRET'}),
+          ),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.error,
+              'error',
+              isA<ArgumentError>(),
+            ),
+          ),
+        );
+        expect(bytesReceived, 0);
+      } finally {
+        await server.close();
+      }
+    });
+
     test('plain http skips pre-emission validation', () async {
       // The pre-emission factory short-circuits non-https URLs to
       // [Socket.startConnect] without invoking the validator. The
