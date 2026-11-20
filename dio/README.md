@@ -858,13 +858,6 @@ Unlike other methods, this one works with the certificate of the server itself.
 void initAdapter() {
   const String fingerprint = 'ee5ce1dfa7a53657c545c62b65802e4272878dabd65c0aadcf85783ebb0b4d5c';
   dio.httpClientAdapter = IOHttpClientAdapter(
-    createHttpClient: () {
-      // Don't trust any certificate just because their root cert is trusted.
-      final HttpClient client = HttpClient(context: SecurityContext(withTrustedRoots: false));
-      // You can test the intermediate / root cert here. We just ignore it.
-      client.badCertificateCallback = (cert, host, port) => true;
-      return client;
-    },
     validateCertificate: (cert, host, port) {
       // Check that the cert fingerprint matches the one we expect.
       // We definitely require _some_ certificate.
@@ -878,6 +871,13 @@ void initAdapter() {
   );
 }
 ```
+
+`validateCertificate` is called with the leaf certificate once the certificate chain has been accepted.
+When the adapter uses the default `HttpClient` as above, it is called after the TLS handshake
+and before the request is sent, so a rejected certificate never receives the request.
+With `createHttpClient`, `onHttpClientCreate`, `HttpOverrides`, or a proxy,
+it is only called once the response headers have arrived, after the request has been sent.
+For a server with a self-signed certificate, use one of the methods below.
 
 You can use openssl to read the SHA256 value of a certificate:
 
