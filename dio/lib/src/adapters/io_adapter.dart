@@ -75,13 +75,16 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// [createHttpClient] nor [onHttpClientCreate] is set, and no
   /// [HttpOverrides] are active when the client is created), the callback is
   /// first called for each new direct HTTPS connection, after the TLS
-  /// handshake and before any request data is written. Returning `false`
-  /// there closes the connection and fails the request with
-  /// [DioException.badCertificate] without sending it, which makes the
-  /// callback suitable for certificate or public key pinning.
+  /// handshake and before any request data is written. It receives the host
+  /// and port of that connection, which for a followed redirect are those of
+  /// the redirect target. Returning `false` there closes the connection and
+  /// fails the request with [DioException.badCertificate] without sending
+  /// it, which makes the callback suitable for certificate or public key
+  /// pinning.
   ///
   /// The callback is also called for every response once its headers have
-  /// arrived, so the first request on a new connection is checked twice.
+  /// arrived, with the host and port of the original request, so the first
+  /// request on a new connection is checked twice.
   /// That response check is the only one for connections through a proxy,
   /// for an [HttpClient] created by [createHttpClient], customized by
   /// [onHttpClientCreate], or created while [HttpOverrides] are active, and
@@ -243,9 +246,9 @@ class IOHttpClientAdapter implements HttpClientAdapter {
 
     if (validateCertificate != null) {
       // Post-response validation runs unconditionally as defense in depth.
-      // On the pre-emission path it is redundant — the same cert was
-      // already approved by the [HttpClient.connectionFactory] hook — but
-      // it is the only line of defense for paths where pre-emission did
+      // On the pre-emission path the [HttpClient.connectionFactory] hook has
+      // normally approved the connection's certificate already, but this is
+      // the only line of defense for paths where pre-emission did
       // not run: (a) when the [HttpClient] comes from [createHttpClient],
       // [onHttpClientCreate] or [HttpOverrides], (b) when
       // [validateCertificate] was set after the [HttpClient] was first
