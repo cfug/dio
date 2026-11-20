@@ -68,8 +68,8 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// When this callback is set, [Dio] will call it every
   /// time it needs a [HttpClient].
   ///
-  /// Note: supplying this disables the pre-emission TLS hook used by
-  /// [validateCertificate]. See [validateCertificate] for details.
+  /// With a custom [HttpClient], [validateCertificate] only runs once the
+  /// response headers have arrived, after the request has been sent.
   CreateHttpClient? createHttpClient;
 
   /// Allows the user to decide if the response certificate is good.
@@ -79,19 +79,22 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   /// methods evaluate the root or intermediate certificate, while
   /// [validateCertificate] evaluates the leaf certificate.
   ///
-  /// When [createHttpClient] is not set, the callback is first called for
-  /// each new direct HTTPS connection, after the TLS handshake and before
-  /// any request data is written. Returning `false` there closes the
-  /// connection and fails the request with [DioException.badCertificate]
-  /// without sending it, which makes the callback suitable for certificate
-  /// or public key pinning.
+  /// When the adapter uses the default [HttpClient] as is (neither
+  /// [createHttpClient] nor [onHttpClientCreate] is set, and no
+  /// [HttpOverrides] are active when the client is created), the callback is
+  /// first called for each new direct HTTPS connection, after the TLS
+  /// handshake and before any request data is written. Returning `false`
+  /// there closes the connection and fails the request with
+  /// [DioException.badCertificate] without sending it, which makes the
+  /// callback suitable for certificate or public key pinning.
   ///
   /// The callback is also called for every response once its headers have
   /// arrived, so the first request on a new connection is checked twice.
   /// That response check is the only one for connections through a proxy,
-  /// for an [HttpClient] returned by [createHttpClient], and when this field
-  /// is set after the first request. By then the request has already been
-  /// sent.
+  /// for an [HttpClient] created by [createHttpClient], customized by
+  /// [onHttpClientCreate], or created while [HttpOverrides] are active, and
+  /// when this field is set after the first request. By then the request has
+  /// already been sent.
   ValidateCertificate? validateCertificate;
 
   HttpClient? _cachedHttpClient;
@@ -239,12 +242,13 @@ class IOHttpClientAdapter implements HttpClientAdapter {
       // On the pre-emission path it is redundant — the same cert was
       // already approved by the [HttpClient.connectionFactory] hook — but
       // it is the only line of defense for paths where pre-emission did
-      // not run: (a) when the user supplied a custom [createHttpClient],
-      // (b) when [validateCertificate] was set after the [HttpClient] was
-      // first cached, or (c) for HTTPS through a proxy (see the doc-comment
-      // on [validateCertificate]). For pinning the callback is idempotent
-      // so the redundancy is harmless; callbacks with side effects will
-      // observe one extra call per request on the direct-HTTPS path.
+      // not run: (a) when the [HttpClient] comes from [createHttpClient],
+      // [onHttpClientCreate] or [HttpOverrides], (b) when
+      // [validateCertificate] was set after the [HttpClient] was first
+      // cached, or (c) for HTTPS through a proxy (see the doc-comment on
+      // [validateCertificate]). For pinning the callback is idempotent so
+      // the redundancy is harmless; callbacks with side effects will
+      // observe one extra call per new connection on the direct-HTTPS path.
       // On plain HTTP, [responseStream.certificate] is null and the user
       // typically rejects nulls (matching the example).
       final host = options.uri.host;
@@ -315,8 +319,16 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     if (createHttpClient != null) {
       return createHttpClient!();
     }
+    // A connection factory replaces the TLS handshake of [HttpClient], and it
+    // can neither read nor reproduce a SecurityContext or badCertificateCallback
+    // configured by [onHttpClientCreate] or by [HttpOverrides]. Only install
+    // it when the default client is used as is.
+    // ignore: deprecated_member_use, deprecated_member_use_from_same_package
+    final installFactory = onHttpClientCreate == null &&
+        HttpOverrides.current == null &&
+        validateCertificate != null;
     final client = HttpClient()..idleTimeout = const Duration(seconds: 3);
-    if (validateCertificate != null) {
+    if (installFactory) {
       client.connectionFactory = _pinnedConnectionFactory;
     }
     // ignore: deprecated_member_use, deprecated_member_use_from_same_package

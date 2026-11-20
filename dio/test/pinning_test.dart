@@ -268,35 +268,6 @@ void main() {
         expect(requestsHandled, 1);
       });
 
-      test('createHttpClient escape hatch keeps post-response validation',
-          () async {
-        // When createHttpClient is supplied, the connectionFactory cannot
-        // be installed without clobbering the user-built HttpClient.
-        // validateCertificate continues to fire post-response (legacy 5.x
-        // behavior).
-        final dio = Dio();
-        dio.httpClientAdapter = IOHttpClientAdapter(
-          createHttpClient: () =>
-              HttpClient()..badCertificateCallback = (cert, host, port) => true,
-          validateCertificate: (cert, host, port) => false,
-        );
-        DioException? error;
-        try {
-          await dio.post(
-            'https://localhost:${secureServer.port}/legacy',
-            data: 'payload',
-          );
-          fail('did not throw');
-        } on DioException catch (e) {
-          error = e;
-        }
-        expect(error, isNotNull);
-        expect(error.type, DioExceptionType.badCertificate);
-        // Legacy path: server received the request before validation ran.
-        expect(requestsHandled, 1);
-        expect(bytesReceived, greaterThan(0));
-      });
-
       test('two pooled requests: 1 pre-emission + 2 post-response validations',
           () async {
         // Two back-to-back requests within idleTimeout (3s) share one pooled
@@ -373,6 +344,75 @@ void main() {
       }
     });
 
+    group('customized HttpClient keeps its TLS configuration:', () {
+      // The server presents a certificate the default trust store rejects, so
+      // a request can only reach it if the badCertificateCallback configured
+      // by the user was honored. The connectionFactory used for the
+      // pre-emission check cannot see that configuration, so it must not be
+      // installed and validateCertificate runs on the response instead.
+      late HttpServer server;
+      late int requestsHandled;
+
+      setUp(() async {
+        requestsHandled = 0;
+        final ctx = SecurityContext()
+          ..useCertificateChain(untrustedCertPath)
+          ..usePrivateKey(untrustedKeyPath);
+        server = await HttpServer.bindSecure('localhost', 0, ctx);
+        server.listen((req) async {
+          requestsHandled++;
+          await req.drain<void>();
+          await req.response.close();
+        });
+      });
+
+      tearDown(() => server.close(force: true));
+
+      Future<void> expectValidatedOnResponse(
+        IOHttpClientAdapter adapter,
+      ) async {
+        adapter.validateCertificate = (cert, host, port) => false;
+        final dio = Dio()..httpClientAdapter = adapter;
+        await expectLater(
+          dio.post('https://localhost:${server.port}/', data: 'payload'),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.badCertificate,
+            ),
+          ),
+        );
+        expect(requestsHandled, 1);
+      }
+
+      test('createHttpClient', () async {
+        await expectValidatedOnResponse(
+          IOHttpClientAdapter(
+            createHttpClient: () => HttpClient()
+              ..badCertificateCallback = (cert, host, port) => true,
+          ),
+        );
+      });
+
+      test('onHttpClientCreate', () async {
+        await expectValidatedOnResponse(
+          IOHttpClientAdapter(
+            // ignore: deprecated_member_use_from_same_package
+            onHttpClientCreate: (client) =>
+                client..badCertificateCallback = (cert, host, port) => true,
+          ),
+        );
+      });
+
+      test('HttpOverrides', () async {
+        await HttpOverrides.runWithHttpOverrides(
+          () => expectValidatedOnResponse(IOHttpClientAdapter()),
+          _AcceptAllCertificatesOverrides(),
+        );
+      });
+    });
+
     test('plain http skips pre-emission validation', () async {
       // The pre-emission factory short-circuits non-https URLs to
       // [Socket.startConnect] without invoking the validator. The
@@ -425,11 +465,7 @@ void main() {
         req.response.close();
       });
       try {
-        final adapter = IOHttpClientAdapter(
-          // ignore: deprecated_member_use_from_same_package
-          onHttpClientCreate: (client) =>
-              client..badCertificateCallback = (cert, host, port) => true,
-        );
+        final adapter = IOHttpClientAdapter();
         final dio = Dio()..httpClientAdapter = adapter;
         // Warm the cached HttpClient with no validator set.
         final ok = await dio.get(
@@ -477,50 +513,58 @@ void main() {
         await secureBackend.close(force: true);
       });
 
+      // A direct request creates the adapter's HttpClient first, so the
+      // pre-emission connectionFactory is installed. Overriding
+      // findProxyFromEnvironment afterwards routes the default
+      // HttpClient.findProxy through the stub proxy, as an https_proxy
+      // environment variable would.
+      Future<T> throughProxy<T>(Future<T> Function() request) {
+        return HttpOverrides.runWithHttpOverrides(
+          request,
+          _ProxyOverrides('localhost:${proxy.port}'),
+        );
+      }
+
       test('validateCertificate runs (post-response) through proxy', () async {
-        bool validatorCalled = false;
+        final validatedPorts = <int>[];
         final adapter = IOHttpClientAdapter(
           validateCertificate: (cert, host, port) {
-            validatorCalled = true;
             expect(host, 'localhost');
-            expect(port, secureBackend.port);
+            validatedPorts.add(port);
             return true;
-          },
-          // ignore: deprecated_member_use_from_same_package
-          onHttpClientCreate: (client) {
-            client.badCertificateCallback = (cert, host, port) => true;
-            client.findProxy = (uri) => 'PROXY localhost:${proxy.port}';
-            return client;
           },
         );
         final dio = Dio()..httpClientAdapter = adapter;
-        final res = await dio.get(
-          'https://localhost:${secureBackend.port}/',
-          options: Options(responseType: ResponseType.plain),
-        );
-        expect(validatorCalled, isTrue);
+        final url = 'https://localhost:${secureBackend.port}/';
+        final options = Options(responseType: ResponseType.plain);
+        await dio.get(url, options: options);
+        expect(proxyState.connectCount, 0);
+        validatedPorts.clear();
+
+        final res = await throughProxy(() => dio.get(url, options: options));
         expect(res.statusCode, 200);
         expect(res.data, 'ok');
         expect(proxyState.connectCount, 1);
+        // Only the response check runs for the tunneled connection.
+        expect(validatedPorts, [secureBackend.port]);
       });
 
       test(
           'rejection through proxy raises badCertificate '
           '(post-response, not pre-emission)', () async {
+        bool reject = false;
         final adapter = IOHttpClientAdapter(
-          validateCertificate: (cert, host, port) => false,
-          // ignore: deprecated_member_use_from_same_package
-          onHttpClientCreate: (client) {
-            client.badCertificateCallback = (cert, host, port) => true;
-            client.findProxy = (uri) => 'PROXY localhost:${proxy.port}';
-            return client;
-          },
+          validateCertificate: (cert, host, port) => !reject,
         );
         final dio = Dio()..httpClientAdapter = adapter;
+        await dio.get('https://localhost:${secureBackend.port}/');
+        reject = true;
         await expectLater(
-          dio.post(
-            'https://localhost:${secureBackend.port}/leak',
-            data: 'SENSITIVE-PAYLOAD',
+          throughProxy(
+            () => dio.post(
+              'https://localhost:${secureBackend.port}/leak',
+              data: 'SENSITIVE-PAYLOAD',
+            ),
           ),
           throwsA(
             allOf([
@@ -567,6 +611,29 @@ void _generateLocalhostCertificate(String certPath, String keyPath) {
       '(exit ${result.exitCode}). openssl must be installed to run the '
       'pinning tests.\n${result.stderr}',
     );
+  }
+}
+
+/// Configures every [HttpClient] it creates to accept any certificate, like
+/// the `HttpOverrides.global` setups apps use for development servers.
+class _AcceptAllCertificatesOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (cert, host, port) => true;
+  }
+}
+
+/// Resolves every request to [proxy], like an `https_proxy` environment
+/// variable does for the default [HttpClient.findProxy].
+class _ProxyOverrides extends HttpOverrides {
+  _ProxyOverrides(this.proxy);
+
+  final String proxy;
+
+  @override
+  String findProxyFromEnvironment(Uri url, Map<String, String>? environment) {
+    return 'PROXY $proxy';
   }
 }
 

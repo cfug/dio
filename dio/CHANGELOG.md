@@ -6,10 +6,11 @@ See the [Migration Guide][] for the complete breaking changes list.**
 ## Unreleased
 
 - Fix `IOHttpClientAdapter.validateCertificate` running only after the request had been sent.
-  When `createHttpClient` is not set, direct HTTPS connections are now checked after the TLS handshake
-  and before any request data is written, so a rejected certificate no longer receives the request.
-  The callback still runs for every response, which remains the only check through a proxy
-  or with `createHttpClient`, so the first request on a new connection is checked twice.
+  When the adapter uses the default `HttpClient` as is (no `createHttpClient`, `onHttpClientCreate`, or `HttpOverrides`),
+  direct HTTPS connections are now checked after the TLS handshake and before any request data is written,
+  so a rejected certificate no longer receives the request.
+  The callback still runs for every response, which remains the only check in other setups and through a proxy,
+  so the first request on a new connection is checked twice.
 
 ## 5.11.1
 
