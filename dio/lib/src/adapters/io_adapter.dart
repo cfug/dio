@@ -100,6 +100,11 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   HttpClient? _cachedHttpClient;
   bool _closed = false;
 
+  /// Direct HTTPS connections [_pinnedConnectionFactory] is still waiting
+  /// for. [HttpClient] only tracks a connection once the factory has returned
+  /// it, so [close] has to cancel these itself.
+  final Set<ConnectionTask<SecureSocket>> _pendingConnectionTasks = {};
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -319,7 +324,18 @@ class IOHttpClientAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {
     _closed = true;
+    // Like [HttpClient.close], always cancel pending connection attempts.
+    for (final task in _pendingConnectionTasks.toList()) {
+      _cancelConnectionTask(task);
+    }
     _cachedHttpClient?.close(force: force);
+  }
+
+  /// Cancels [task] the way [HttpClient] cancels its own pending connection
+  /// attempts, destroying the socket in case the attempt still completes.
+  static void _cancelConnectionTask(ConnectionTask<Socket> task) {
+    task.socket.then((socket) => socket.destroy(), onError: (_) {});
+    task.cancel();
   }
 
   HttpClient _createHttpClient() {
@@ -398,13 +414,48 @@ class IOHttpClientAdapter implements HttpClientAdapter {
     // chain, otherwise the handshake fails before [validateCertificate] runs,
     // exactly as it does for the post-response check.
     final task = await SecureSocket.startConnect(url.host, url.port);
-    if (validator != null) {
-      final ss = await task.socket;
-      final cert = ss.peerCertificate;
-      if (!validator(cert, url.host, url.port)) {
-        ss.destroy();
-        throw _BadCertificateException(url.host, url.port, cert);
+    if (validator == null) {
+      return task;
+    }
+
+    // [HttpClient] applies its connectionTimeout and cancels pending
+    // attempts on close only after this factory has returned, so do both
+    // while waiting for the handshake, the same way it would.
+    final SecureSocket ss;
+    _pendingConnectionTasks.add(task);
+    try {
+      if (_closed) {
+        _cancelConnectionTask(task);
       }
+      Future<SecureSocket> socket = task.socket;
+      final timeout = _cachedHttpClient?.connectionTimeout;
+      if (timeout != null) {
+        socket = socket.timeout(
+          timeout,
+          onTimeout: () {
+            _cancelConnectionTask(task);
+            throw SocketException(
+              'HTTP connection timed out after $timeout, '
+              'host: ${url.host}, port: ${url.port}',
+            );
+          },
+        );
+      }
+      ss = await socket;
+    } finally {
+      _pendingConnectionTasks.remove(task);
+    }
+    if (_closed) {
+      ss.destroy();
+      throw const SocketException(
+        "Can't establish connection after the adapter was closed.",
+      );
+    }
+
+    final cert = ss.peerCertificate;
+    if (!validator(cert, url.host, url.port)) {
+      ss.destroy();
+      throw _BadCertificateException(url.host, url.port, cert);
     }
     return task;
   }

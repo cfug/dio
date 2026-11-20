@@ -297,6 +297,68 @@ void main() {
         expect(approvals, 3);
         expect(requestsHandled, 2);
       });
+
+      test('close() during the TLS handshake sends nothing', () async {
+        // HttpClient only tracks the connection once the connectionFactory
+        // returns it, so the adapter has to cancel the pending handshake.
+        final relay = _HandshakeRelay(secureServer.port);
+        await relay.start();
+        try {
+          final dio = Dio()
+            ..httpClientAdapter = IOHttpClientAdapter(
+              validateCertificate: (cert, host, port) => true,
+            );
+          final request = dio.post(
+            'https://localhost:${relay.port}/leak',
+            data: 'SENSITIVE-PAYLOAD',
+          );
+          await relay.accepted;
+          dio.close(force: true);
+          relay.release();
+          await expectLater(request, throwsA(isA<DioException>()));
+          expect(requestsHandled, 0);
+        } finally {
+          await relay.close();
+        }
+      });
+
+      test('a handshake that outlives connectTimeout is not validated',
+          () async {
+        final relay = _HandshakeRelay(secureServer.port);
+        await relay.start();
+        try {
+          int validatorCalls = 0;
+          final dio = Dio(
+            BaseOptions(connectTimeout: const Duration(milliseconds: 200)),
+          )..httpClientAdapter = IOHttpClientAdapter(
+              validateCertificate: (cert, host, port) {
+                validatorCalls++;
+                return true;
+              },
+            );
+          await expectLater(
+            dio.post(
+              'https://localhost:${relay.port}/leak',
+              data: 'SENSITIVE-PAYLOAD',
+            ),
+            throwsA(
+              isA<DioException>().having(
+                (e) => e.type,
+                'type',
+                DioExceptionType.connectionTimeout,
+              ),
+            ),
+          );
+          // Let the handshake complete after the request has failed. The
+          // connection must be dropped instead of validated and kept.
+          relay.release();
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          expect(validatorCalls, 0);
+          expect(requestsHandled, 0);
+        } finally {
+          await relay.close();
+        }
+      });
     });
 
     test(
@@ -716,6 +778,66 @@ class _ProxyOverrides extends HttpOverrides {
   @override
   String findProxyFromEnvironment(Uri url, Map<String, String>? environment) {
     return 'PROXY $proxy';
+  }
+}
+
+/// Accepts TCP connections but only forwards them to `localhost:[targetPort]`
+/// once [release] is called, holding the TLS handshake of a client open.
+class _HandshakeRelay {
+  _HandshakeRelay(this.targetPort);
+
+  final int targetPort;
+  final _accepted = Completer<void>();
+  final _released = Completer<void>();
+  final _sockets = <Socket>[];
+  late final ServerSocket _server;
+
+  int get port => _server.port;
+
+  /// Completes once a client has connected.
+  Future<void> get accepted => _accepted.future;
+
+  Future<void> start() async {
+    _server = await ServerSocket.bind('localhost', 0);
+    _server.listen((client) async {
+      _sockets.add(client);
+      if (!_accepted.isCompleted) {
+        _accepted.complete();
+      }
+      final buffered = <List<int>>[];
+      Socket? target;
+      client.listen(
+        (data) {
+          final forwardTo = target;
+          if (forwardTo == null) {
+            buffered.add(data);
+          } else {
+            forwardTo.add(data);
+          }
+        },
+        onError: (_) => target?.destroy(),
+        onDone: () => target?.destroy(),
+      );
+      await _released.future;
+      final forwardTo = await Socket.connect('localhost', targetPort);
+      _sockets.add(forwardTo);
+      buffered.forEach(forwardTo.add);
+      target = forwardTo;
+      forwardTo.listen(
+        client.add,
+        onError: (_) => client.destroy(),
+        onDone: () => client.destroy(),
+      );
+    });
+  }
+
+  void release() => _released.complete();
+
+  Future<void> close() async {
+    await _server.close();
+    for (final socket in _sockets) {
+      socket.destroy();
+    }
   }
 }
 
