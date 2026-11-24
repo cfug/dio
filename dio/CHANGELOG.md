@@ -5,7 +5,7 @@ See the [Migration Guide][] for the complete breaking changes list.**
 
 ## Unreleased
 
-*None.*
+- Fix response stream subscription cancellation leaving the underlying adapter response subscribed.
 
 ## 5.11.1
 
