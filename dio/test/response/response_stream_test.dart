@@ -73,6 +73,44 @@ void main() {
       });
     });
 
+    test('unsubscribes from source when stream subscription is cancelled',
+        () async {
+      var closed = false;
+      var timerCancelled = false;
+      final stream = handleResponseStream(
+        RequestOptions(
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+        ResponseBody(
+          source.stream,
+          200,
+          onClose: () => closed = true,
+        ),
+        onReceiveTimeoutWatchCancelled: () => timerCancelled = true,
+      );
+
+      final received = <Uint8List>[];
+      final subscription = stream.listen((chunk) {
+        received.add(chunk);
+      });
+
+      source.add(Uint8List.fromList([1, 2]));
+      await Future.delayed(Duration.zero);
+
+      expect(received, [
+        Uint8List.fromList([1, 2]),
+      ]);
+      expect(source.hasListener, isTrue);
+      expect(closed, isFalse);
+      expect(timerCancelled, isFalse);
+
+      await subscription.cancel();
+
+      expect(source.hasListener, isFalse);
+      expect(closed, isTrue);
+      expect(timerCancelled, isTrue);
+    });
+
     test('sends progress with total', () async {
       int count = 0;
       int total = 0;

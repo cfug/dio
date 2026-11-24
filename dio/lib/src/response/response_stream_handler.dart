@@ -21,17 +21,6 @@ Stream<Uint8List> handleResponseStream(
   @visibleForTesting void Function()? onReceiveTimeoutWatchCancelled,
 }) {
   final source = response.stream;
-  late StreamSubscription<List<int>> responseSubscription;
-  final responseSink = StreamController<Uint8List>(
-    onPause: () => responseSubscription.pause(),
-    onResume: () => responseSubscription.resume(),
-  );
-
-  late int totalLength;
-  int receivedLength = 0;
-  if (options.onReceiveProgress != null) {
-    totalLength = response.contentLength;
-  }
 
   final receiveTimeout = options.receiveTimeout ?? Duration.zero;
   final receiveStopwatch = Stopwatch();
@@ -44,6 +33,23 @@ Stream<Uint8List> handleResponseStream(
     receiveStopwatch
       ..stop()
       ..reset();
+  }
+
+  late StreamSubscription<List<int>> responseSubscription;
+  final responseSink = StreamController<Uint8List>(
+    onPause: () => responseSubscription.pause(),
+    onResume: () => responseSubscription.resume(),
+    onCancel: () {
+      stopWatchReceiveTimeout();
+      response.close();
+      return responseSubscription.cancel();
+    },
+  );
+
+  late int totalLength;
+  int receivedLength = 0;
+  if (options.onReceiveProgress != null) {
+    totalLength = response.contentLength;
   }
 
   void watchReceiveTimeout() {
